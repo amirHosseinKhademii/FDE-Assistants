@@ -1685,9 +1685,6 @@ body {
 }
 
 .x-finding-label {
-  /* Room reserved for the button in the corner, so a long finding wraps rather
-     than sliding underneath it. */
-  padding-inline-end: 14rem;
   font-size: 1.25rem;
   font-weight: 500;
   letter-spacing: -0.01em;
@@ -2414,6 +2411,11 @@ body {
     align-self: auto;
     justify-content: flex-start;
   }
+  /* Room reserved for the button in the corner, so a long finding wraps rather
+     than sliding underneath it. It belongs to the same breakpoint that puts the
+     button there: at 390px this reserved 224px of a 304px line, and the finding
+     — four words — came out one word per line. */
+  .x-finding-label { padding-inline-end: 14rem; }
 }
 
 .x-explain-btn:focus-visible { outline: 2px solid var(--color-ui-accent); outline-offset: 2px; }
