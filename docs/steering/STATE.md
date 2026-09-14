@@ -180,10 +180,10 @@ under *Unfinished* below rather than quietly absent from this table.
 | [`SORTING.md`](SORTING.md) | the engineering record, links to all of the above |
 | [`UI-COPY.md`](UI-COPY.md) | customer-facing copy, drop-in |
 
-**`CONCEPTS.md`'s pillar table is stale** — it still reads *"tool loop: loop does
-not exist"*, *"answer shape: not started"*, *"evals: not started"*. All three are
-built and green. Its build ladder further down is current; the table above it is
-not.
+**`CONCEPTS.md`'s pillar table was stale and was refreshed 2026-09-14** — it had
+read *"tool loop: loop does not exist"*, *"answer shape: not started"*,
+*"evals: not started"* for three pillars that were built and green. It now
+carries its own date, for the reason this file does.
 
 ---
 

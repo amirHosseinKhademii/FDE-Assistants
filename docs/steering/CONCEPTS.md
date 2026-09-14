@@ -13,21 +13,30 @@ engineering, and what to build here to learn each.*
 From `GUIDE.md` §2b. Insurance built 1–4 and most of 5; pharma added the
 multi-agent work on top.
 
+*Table refreshed 2026-09-14. The version below it carried until then said
+pillars 2, 3 and 4 were "not started" — all three were built on 2026-09-13 and
+the table simply was not updated with them. Check a status table's date before
+trusting it.*
+
 | # | Pillar | steering |
 |---|---|---|
 | 1 | **Grounding** — where do the facts come from? | **done and verified.** 3,854 passages, hybrid search, `retrieval-check` 5/0 |
-| 2 | **Tool loop** — how does the model get them? | **tools exist, loop does not.** `find_comparable_work`, `search_documents` |
-| 3 | **Answer shape** — how do we check what it said? | **not started.** The contract is specified in `PLAN.md` and unbuilt |
-| 4 | **Evals** — how do we know it works? | **not started.** No cases, no runner, no baseline |
-| 5 | **Cost & latency** | **just started.** `derived:extract` and `steering:index` log; nothing else does |
+| 2 | **Tool loop** — how does the model get them? | **done.** `search_documents` + `find_comparable_work`, ~55 s a requirement, and a fan-out that ran all 24 of the bid |
+| 3 | **Answer shape** — how do we check what it said? | **done.** `schema:check` 15/0, both directions, plus the two guard patterns |
+| 4 | **Evals** — how do we know it works? | **done, thinly.** 3 cases × 5 runs, 15/15, 0 flaky — but the baseline ran `fixtures: live`, so it is not reproducible offline |
+| 5 | **Cost & latency** | **done for what runs.** Every loop logs per request; the whole bid is separable by surface label and cost $0.26 at 66% cached |
 | 6 | **Credentials** | **done, inherited.** Entra tokens, no stored key, asserted on the wire by `derived:compliance-check` |
-| 7 | **Escalation** — when must a human decide? | **half.** The refusal rule is real and tested; there is no answer field carrying it yet |
-| 8 | **Deployment** | not started |
+| 7 | **Escalation** — when must a human decide? | **done.** `decisions_for_human` carries it, exempt from the commitment guard by construction; 23 of 24 requirements refused to price and said why |
+| 8 | **Deployment** | **done.** `steering-app` builds and deploys from `.github/workflows/deploy.yml` alongside the other three; see [`docs/SITE.md`](../SITE.md) |
 
-The honest reading: **steering is strong where insurance was weakest (grounding
-at scale) and absent where insurance was strongest (the contract and the
-evals).** That is a consequence of the order it was built in, not of a judgement
-that those pillars matter less.
+The honest reading has changed and is worth restating. Steering is no longer
+absent anywhere — **it is the most complete of the three engagements**, and the
+open problems are no longer "pillar N is unbuilt" but questions the built system
+raised: twenty-three of twenty-four requirements price to nothing
+([`NEXT.md`](NEXT.md) §0), the `finding` enum returns one value in 23 of 24
+cases (§5a), and the eval suite is far better at catching over-confidence than
+over-caution — which is the wrong way round for a system that refuses almost
+everything.
 
 ---
 
@@ -241,8 +250,8 @@ In order, because each one is the prerequisite for the next.
 |---|---|---|---|
 | 1 | **The answer contract** — no field that can say *"we'll do it"* | pillar 3, escalation-as-a-field | ☑ `schema:check` 13/0 |
 | 2 | **The agent loop** — one requirement, two tools, one answer | pillar 2, tool-calling | ☑ runs in ~46 s, 4 searches, citations exact |
-| 3 | **Eval cases** — built on the planted traps | pillar 4 | ☑ `checks:check` 14/0 · `severity:check` 10/0 · baseline pending |
-| 4 | **Fan-out over 24 requirements** | multi-agent, and all four context verbs at once | ☐ the first thing here that cannot fit in a turn |
+| 3 | **Eval cases** — built on the planted traps | pillar 4 | ☑ `checks:check` 19/0 · `severity:check` 10/0 · baseline 15/15, **live fixtures** |
+| 4 | **Fan-out over 24 requirements** | multi-agent, and all four context verbs at once | ☑ 2026-09-14, `steering:assess-all` — serial, resumable. Concurrency deliberately NOT built: 11 ran in 650 s with zero rate limits |
 | 5 | **The debate** — on the two questions `walk-cost` already prints | adversarial judgement, the citation trap | ☐ needs a working single assessment to argue about |
 
 ### What steps 1–3 actually taught, which was not what the plan predicted

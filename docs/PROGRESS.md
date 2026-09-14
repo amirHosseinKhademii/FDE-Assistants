@@ -2870,3 +2870,197 @@ provenance that is approximately right is the kind of wrong that survives review
 this suite is better at catching over-confidence than over-caution**, one check
 against ten. A case that would catch an unnecessary refusal needs a requirement
 with a healthy comparable set, and none of the three has one.
+
+---
+
+## 22. The fan-out runs the whole bid — and the bid prices to nothing — 2026-09-14
+
+Step 4 of `CONCEPTS.md`'s ladder, built in two halves, cheap half first. The
+capability took an afternoon. **What it found is worth more than the
+capability**, and it was not on anybody's list before the run.
+
+### The work list came first, and it is not scaffolding
+
+`pnpm steering:assess-all` is free: two queries, no model, no index. It prints
+what is answered, what failed, what was never attempted.
+
+The reason it is not a warm-up is that a fan-out over two dozen paid loops must
+be **resumable** — a rate limit at requirement nineteen must not mean paying for
+the first eighteen again — and a resume is exactly this list with the answered
+ones removed. Building it first means the step that spends money is never the
+step that discovers the plan was wrong.
+
+**It has no batch state, deliberately.** The list is recomputed from the filed
+answers on every invocation, so an interrupted run resumes by being run again,
+and a requirement answered on the web desk an hour ago simply drops out. That
+happened during the session and needed no coordination: `CR-K2-0114` was filed
+from the browser under surface `http` mid-build and was gone from the next list.
+No batch id, no checkpoint, no state to get out of step — **the filed answers
+ARE the state.**
+
+### Three states, not two, and the third would have failed silently
+
+`steering:assess` files a FAILED run too, with `answer: null` and the reason —
+deliberately, because a run that failed still spent tokens and still took a
+minute. So *"has a row in the history"* does NOT mean *"has been answered"*.
+
+A resume that treated any row as done would skip every requirement that had ever
+failed, **permanently, while looking like it was working**: the list gets shorter
+each run, the failures never come back, and the bid ships with holes in it.
+
+`fetchFiledAssessments` already separated them, so nothing needed inventing —
+`answered` is one row per reference with the newest winning, `failedSince` is the
+references whose NEWEST attempt failed. A reference can be in both, and
+`CR-K2-0123` is: an answer in force, and a later retry that failed. That is not a
+hole and it is not collapsed into either neighbour.
+
+### The filing rule became one copy, and that was the point
+
+`file()` was six lines inside `assess.ts` and the batch needed the same six. The
+marshalling is not what is worth sharing — **the rule is**: a run that produced
+no answer is filed too, with its reason. That single branch is what makes the
+three states work, and a second copy would be one dropped `else` away from
+breaking it invisibly.
+
+`src/cli/file-assessment.ts`, not `src/answer/`: `sql:check` scans the latter
+under a rule it prints in its own pass line, and this helper contains no SQL. A
+guard whose scope grows for unrelated reasons stops meaning what it claims.
+
+### A swallowed error is a bill you pay later
+
+The first real batch run stopped after one requirement. The check said the row
+had not landed; a `select` typed by hand confirmed `CR-K2-0105` was genuinely
+absent. **The assessment ran, cost money, and vanished.**
+
+`recordAssessment` had a bare `catch {}`. That silence is right for the surface
+it was written for — the answer is already on the reader's screen and a lost row
+must not turn into a failed request — and inside a batch it means a broken write
+path is invisible: every loop runs, every loop is paid for, the work list is
+identical next time, and nothing says why.
+
+It now returns `{ filed, error? }` and **still never throws**. The web route
+ignores the return and behaves exactly as before. The batch stops on the first
+row that does not land, on any requirement rather than only the first, and prints
+the code Postgres gave — because the two kinds want opposite responses: a
+`22P05` is a byte Postgres will never accept and retrying is pointless, an
+`08006` is a dead socket and retrying is the whole answer. Connection-class
+failures now retry once, which is the argument `ensureTable` already made about
+cold starts, applied to the statement.
+
+### Three wrong diagnoses in one session, and the message caused all three
+
+The lost row: I reasoned from a rollback probe that a NUL byte or lone surrogate
+in the payload would be rejected, confirmed both would be, ruled out the corpus,
+and concluded the model had emitted a bad byte. **It was a dead connection.**
+
+The next failure printed `Connection error.` and I read it as Postgres again. It
+was the OpenAI SDK. So I checked DNS, TLS and the endpoint — all healthy — and
+called it a transient network fault. It was neither.
+
+**`az login` had expired.** `@fde/foundry` fetches the Entra token inside a
+custom `fetch`, because the SDK takes a static key rather than a provider it can
+call per request. When the token fetch throws, the SDK cannot tell it from a
+socket failure and wraps it as `APIConnectionError` — two words pointing at
+entirely the wrong layer. It took dumping the error's `cause` chain to see
+`CredentialUnavailableError: Please run 'az login'`.
+
+**An error message names a layer; it does not identify one.** Every one of the
+three was settled by evidence — a query run by hand, a `cause` chain dumped —
+and none by reading the message. Recorded in `NEXT.md` §3a as a defect in a
+shared package, because the next person will lose the same hour.
+
+### What the whole bid cost, measured
+
+24 of 24 requirements assessed. Under its own surface label, which is why these
+are separable from hand runs at all:
+
+| | |
+|---|---|
+| total | **$0.26**, 15 runs |
+| median per requirement | **$0.018** |
+| input tokens | 1,316,541, of which **875,264 cached (66%)** |
+| output tokens | 66,267 |
+| median run | 55 s · slowest 74 s |
+| the batch itself | 11 requirements, 650 s, **zero failures** |
+
+### The finding: twenty-three of twenty-four price to nothing
+
+One requirement priced — 119 h, EUR 12,138, from 19 past jobs. The other
+twenty-three refused, and **seven never queried the history at all**; the agent
+judged the scope too unclear to ask.
+
+Every refusal is individually CORRECT. `find_comparable_work` will not take a
+median of two jobs, and that rule is the difference between a grounded number and
+an invented one. **But a tool that correctly refuses 96% of the time has not done
+the job it was built for**, and it erodes the refusal: people discount a warning
+that fires on everything.
+
+The diagnostic added for §5b is the whole story, repeated across nearly every
+refusal:
+
+```
+safety_case_impact: 146 on its own, 0 without it
+asil:                37 on its own, 0 without it
+change_class:        19 on its own, 0 without it
+element_kind:        17 on its own, 0 without it
+```
+
+Each filter matches plenty **alone**; the conjunction matches **nothing**, out of
+203 jobs with attributable hours. The agent keeps reading K2 work as
+*validation-only, mechanical, QM, no safety-case impact*, and that combination
+has no history behind it.
+
+`NEXT.md` §0 states the fork rather than a fix: either the agent over-constrains
+a history that could answer, or the estate genuinely lacks the work. **Those need
+opposite fixes** — one is a classification problem, the other means the refusal
+should say *"we have never done this"* instead of reading like a filter fault.
+The measurement that settles it is free and needs no model, because the tool-call
+arguments the agent actually chose are already stored in `assess_history.trace`.
+
+### §5a answered, and the hypothesis was wrong
+
+`NEXT.md` §5a suspected the `finding` enum had collapsed into one value after an
+enum rewrite — fifteen eval runs across three requirements all returned
+`change_needed`, and so did the nine answered on the desk.
+
+`CR-K2-0124` returned **`have_it`**. So the enum is not a boolean wearing four
+labels and the claim as written does not survive. What survives is weaker and
+still worth fixing: 23 of 24 one value, and **`cannot_tell` returned zero times
+across 24 real requirements** — including seven whose own reasoning says the
+scope is too unclear to price. A requirement the agent will not price because it
+cannot tell what the work is, and then labels `change_needed`, is answering two
+questions with one word.
+
+Kept rather than struck, because the correction is the more useful half — the
+third time this session that pattern held.
+
+### Concurrency was considered and deliberately not built
+
+It was step 4 of the plan for this session and it is the wrong thing to build.
+Eleven requirements ran serially in 650 s with **zero rate limits and zero
+failures** — the 429 problem this codebase fought four separate times never
+appeared. A concurrency layer would be built for a load that did not
+materialise, which is what `CONCEPTS.md` already puts on its *"deliberately not
+on the list"*. It becomes worth having at a few hundred requirements, not 24.
+
+### What remains, in order
+
+1. **The pricing refusal** — `NEXT.md` §0, and the largest item in the
+   engagement. Start with the free measurement over the 24 stored traces; it
+   answers the fork before a line of prompt is rewritten.
+2. **A self-test for the fan-out's three states.** Answered / attempted-and-failed
+   / never-attempted is precisely the logic that breaks silently. `sortRows`
+   already has the offline pattern to copy, re-run and failure planted in it.
+3. **`explain`** — built, typechecking, named in no document, and with no
+   self-test where the assessment and bid-summary schemas each have one.
+4. **`@fde/foundry`'s credential error**, which cost three wrong diagnoses above.
+   Shared with insurance and pharma, so it is its own change.
+5. **A case that catches over-caution.** The suite has ten checks for
+   over-confidence and one for the other direction. Twenty-three refusals make
+   that the interesting direction; `CR-K2-0111` is the one requirement in the bid
+   with a healthy comparable set to build it on.
+
+Not blocking, and true as of today: the green eval baseline ran `fixtures: live`
+rather than fixture-backed, so it is not reproducible offline; and
+`CONCEPTS.md`'s pillar table still reads *"not started"* for three pillars that
+are built and green.
