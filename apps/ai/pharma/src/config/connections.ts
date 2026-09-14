@@ -59,12 +59,20 @@ function findWorkspaceRoot(from: string): string {
   for (;;) {
     if (existsSync(resolve(dir, 'pnpm-workspace.yaml'))) return dir;
     const up = dirname(dir);
-    if (up === dir) {
-      throw new Error(
-        `no pnpm-workspace.yaml above ${from} — cannot locate the workspace root, ` +
-          'and the shared .env lives there',
-      );
-    }
+    // NOT FOUND IS A NORMAL STATE, AND MAKING IT FATAL BROKE PRODUCTION.
+    //
+    // This threw for one day. `pnpm deploy` builds a STANDALONE directory —
+    // /app holds dist, node_modules and package.json and nothing else, no
+    // workspace file — so the throw fired on the first import inside the
+    // container. `GET /` served static and passed; `GET /desk` touched this
+    // module and returned 500, and the deploy gate failed on exactly that.
+    //
+    // There is no `.env` in a container either, and there should not be:
+    // configuration arrives as real environment variables. So a missing
+    // workspace root is not an error to report, it is the deployed case. Fall
+    // back to where the package sits and let `dotenv` find nothing, which is
+    // what it did for a year before any of this.
+    if (up === dir) return resolve(from, '..', '..');
     dir = up;
   }
 }
