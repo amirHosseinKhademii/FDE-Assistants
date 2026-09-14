@@ -1,0 +1,608 @@
+# Build and deploy the whole site — both apps, in one run, in the right order.
+#
+# ── WHY ONE PIPELINE AND NOT TWO ───────────────────────────────────────────
+#
+# There were two, and the split caused the bug it was supposed to avoid. The
+# apps link to each other, and `import.meta.env.VITE_*` is INLINED BY VITE AT
+# BUILD TIME — so the firm's page has to know the engagement's URL before its
+# own image is built. Two independent workflows racing on the same push cannot
+# guarantee that order, and the first attempt put a 404 on the live site: the
+# URL was baked in before the app it named existed.
+#
+# So the order is the pipeline:
+#
+#   1a/1b. build both ENGAGEMENT images       steering-build · pharma-build
+#   2a/2b. deploy them and prove they serve   steering-deploy · pharma-deploy
+#   3.     only then build the HOST's image   veresk-build   ← takes both URLs
+#   4.     deploy the host and prove it       veresk-deploy
+#
+# The two engagements are independent of each other, so they run in parallel and
+# the graph forks. The host's build cannot start until BOTH are live and
+# answering, so every URL it bakes in is one this run has just watched return
+# 200. A literal cannot know whether its target is there; a lookup after a smoke
+# test can.
+#
+# ── WHAT YOU SEE WHILE IT RUNS ─────────────────────────────────────────────
+#
+# Four jobs in a chain, so the Actions graph IS the progress bar — you can see
+# which of the four is running and what is left. Each one writes a line to the
+# run summary as it finishes, so the finished run reads as a checklist rather
+# than as four collapsed log blobs.
+#
+# ── AUTH ───────────────────────────────────────────────────────────────────
+#
+# `azure/login` with OIDC mints a short-lived token against a federated
+# credential; there is no Azure secret in this repository. The Docker Hub push
+# token is the only long-lived credential in the pipeline, and it is a PUSH
+# credential — it cannot read a lot, a requirement or a timesheet.
+#
+# REPOSITORY SECRETS THIS NEEDS
+#   AZURE_CLIENT_ID        app registration `gh-deploy-pharma` — still named for
+#                          the first thing it deployed. Renaming an app
+#                          registration means re-issuing its federated
+#                          credentials, and the name is in no URL either.
+#
+# THE IDENTITY NEEDS CONTRIBUTOR ON THE RESOURCE GROUP, not on one app. It was
+# scoped to `containerApps/pharma-app` alone, which was correct when there was
+# one app and became the cause of a red run when there were three: it could not
+# read `steering-app`, could not read the managed environment, and could not
+# create anything. Grant it with:
+#
+#   az role assignment create --assignee <AZURE_CLIENT_ID> --role Contributor \
+#     --scope /subscriptions/<sub>/resourceGroups/rg-claims-fde
+#   AZURE_TENANT_ID
+#   AZURE_SUBSCRIPTION_ID
+#   DOCKERHUB_USERNAME
+#   DOCKERHUB_TOKEN        READ/WRITE scope — NOT the read-only pull token.
+#                          Two different tokens for two different jobs; pasting
+#                          the read-only one here fails the push with an opaque
+#                          403.
+#
+# THE FEDERATED SUBJECT IS NOT WHAT THE DOCUMENTATION SUGGESTS. The first run
+# ever failed AADSTS700213 because GitHub presented an ID-qualified subject:
+#   repo:amirHosseinKhademii@61829292/Insurance-Assistant@1364157067:ref:refs/heads/master
+# rather than the documented repo:<owner>/<repo>:ref:<ref>. Both are registered
+# on the app. If it fails again, read the `subject claim` line the failed login
+# PRINTS and match a credential to it byte for byte.
+name: deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    # Path-filtered on purpose. A README edit should not rebuild two images.
+    # `packages/**` covers both because `@fde/uikit` and `@veresk/surface` are
+    # workspace source compiled into each image, not published packages.
+    paths:
+      - 'apps/veresk-app/**'
+      - 'apps/steering-app/**'
+      - 'packages/**'
+      - 'infra/veresk/Dockerfile'
+      - 'infra/steering/Dockerfile'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/deploy.yml'
+
+# Two runs of this racing each other would have them fighting over the same two
+# container apps. The later push wins and the earlier one is cancelled.
+concurrency:
+  group: deploy-site
+  cancel-in-progress: true
+
+env:
+  RG: rg-claims-fde
+  # THE ENVIRONMENT KEEPS ITS ORIGINAL NAME, AND THAT IS A DECISION.
+  #
+  # `cae-pharma` was named when pharma was the only thing deployed. It reads
+  # wrong now — but it is invisible where it would matter: a Container Apps FQDN
+  # is `<app>.<defaultDomain>`, and the domain here is the Azure-assigned
+  # `yellowsmoke-eeb8b48f.swedencentral.azurecontainerapps.io`. The environment's
+  # NAME appears in no URL a reader ever sees.
+  #
+  # Renaming it is not a rename either: it is recreating the environment, moving
+  # both apps into the new one, and being issued a NEW random domain — so both
+  # public URLs change again, for a string only this file and the portal show.
+  # The apps were worth renaming because their names are in the URL. This is not.
+  ENVIRONMENT: cae-pharma
+  # The two engagements. Both are built and deployed BEFORE the host, because
+  # the host links to both and the links are baked in at build time.
+  STEERING_APP: steering-app
+  STEERING_REPO: docker.io/amir2575/vantis-steering
+  # `pharma-app` is the ORIGINAL container app — it keeps its name, its two
+  # secrets and its identity's Foundry role. What changed on 2026-09-13 is what
+  # it serves: the pharma surface moved out of the combined app into
+  # `apps/pharma-app`, so this resource now runs exactly the thing it is named
+  # after, which it never quite did before.
+  PHARMA_APP: pharma-app
+  PHARMA_REPO: docker.io/amir2575/meridian-pharma
+  # The host — the firm's door and Meridian Pharma's pages.
+  #
+  # RENAMED FROM `pharma-app` ON 2026-09-13, which meant recreating it: Azure
+  # has no rename for a container app. The new one was stood up alongside the
+  # old with the same image, the same two secrets, the same environment and a
+  # fresh system-assigned identity granted the same `Cognitive Services OpenAI
+  # User` role on the Foundry account — then verified (200 on `/`, 200 on
+  # `/pharma`, 401 on `/api/ask`) BEFORE anything was pointed at it.
+  #
+  # One difference nearly shipped silently: `FOUNDRY_OPENAI_ENDPOINT` carries an
+  # `/openai/v1` suffix, and a copy that dropped it would have left a page that
+  # loads perfectly and fails on the first question. Env vars were diffed
+  # old-against-new rather than eyeballed.
+  VERESK_APP: veresk
+  VERESK_REPO: docker.io/amir2575/veresk
+
+permissions:
+  contents: read
+  id-token: write # required for OIDC federation to Azure
+
+jobs:
+  # ── 1 ── the remote app's image ─────────────────────────────────────────
+  steering-build:
+    name: 1a · build steering image
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # The host already exists, so this resolves on every run after the first.
+      # If it somehow does not, empty is the correct answer: `links.ts` scopes
+      # its dev fallback to `import.meta.env.DEV`, so an unset value renders the
+      # firm's name as text rather than as a link to a port on the reader's own
+      # machine. That exact bug shipped once.
+      - name: Resolve the host's URL
+        run: |
+          fqdn=$(az containerapp show -n "$VERESK_APP" -g "$RG" \
+            --query "properties.configuration.ingress.fqdn" -o tsv 2>/dev/null || true)
+          if [ -n "$fqdn" ]; then
+            echo "resolved $VERESK_APP -> https://$fqdn"
+            echo "VERESK_URL=https://$fqdn" >> "$GITHUB_ENV"
+          else
+            echo "::warning::$VERESK_APP has no ingress — the back-link will render as plain text"
+            echo "VERESK_URL=" >> "$GITHUB_ENV"
+          fi
+
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # NO SEPARATE TYPECHECK STEP. The image build runs `turbo run build`,
+      # which is `tsc` across every package in the graph, so a type error in the
+      # app already fails this job. A host-side install to learn the same thing
+      # would add minutes and tell us nothing new.
+      #
+      # THE TAG IS THE COMMIT SHA AND NOTHING ELSE — no `latest`, no moving tag.
+      # infra/DEPLOYMENT.md records the failure that avoids: a revision serving
+      # a stale image because nobody could say what the tag referred to.
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/steering/Dockerfile
+          push: true
+          tags: ${{ env.STEERING_REPO }}:sha-${{ github.sha }}
+          build-args: |
+            VITE_VERESK_URL=${{ env.VERESK_URL }}
+          cache-from: type=gha
+          # mode=min, NOT max. `max` exports every intermediate layer, measured
+          # at over two minutes on the larger image — more than the install it
+          # was meant to save.
+          cache-to: type=gha,mode=min,scope=steering
+
+      - run: echo "✅ **1a · steering image built** — \`${STEERING_REPO}:sha-${GITHUB_SHA}\`" >> "$GITHUB_STEP_SUMMARY"
+
+  # ── 2 ── the remote app, live ───────────────────────────────────────────
+  steering-deploy:
+    name: 2a · deploy steering
+    needs: steering-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      url: ${{ steps.smoke.outputs.url }}
+    steps:
+      # Checked out only so the smoke test can read its assertion out of the
+      # source instead of having it typed into this file. See that step.
+      - uses: actions/checkout@v4
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # ── CREATED IF IT IS NOT THERE ────────────────────────────────────────
+      #
+      # THIS EXISTS BECAUSE A RUN FAILED ON IT. `az containerapp update` exits 3
+      # with "The containerapp 'steering-app' does not exist", and the image had
+      # already been built and pushed — so the pipeline did all the expensive
+      # work and could not finish, for want of a one-time command nobody had
+      # run. A pipeline that needs an undocumented manual step will fail exactly
+      # that way, and again the first time anybody stands this up elsewhere.
+      #
+      # NO REGISTRY CREDENTIALS: the repository is public. If it is ever made
+      # private this needs `--registry-*` with the READ-ONLY pull token.
+      #
+      # THE IMAGE NAME IS DERIVED HERE, NOT INHERITED. It was
+      # `needs.*.outputs.image` once and produced a SILENT NON-DEPLOY: re-running
+      # only a failed deploy job skips the build, a skipped job contributes no
+      # outputs, and `--image ""` means "change nothing" and exits 0. The tag is
+      # a pure function of the commit, so every job computes it independently.
+      - name: Create or update the app
+        run: |
+          image="${STEERING_REPO}:sha-${GITHUB_SHA}"
+          echo "IMAGE=$image" >> "$GITHUB_ENV"
+
+          # ASK THE RESOURCE GROUP, NOT THE APP. The obvious form is
+          # `az containerapp show -n "$APP" || create`, and it is wrong in a way
+          # that cost a red run: `show` exits non-zero both when the app is
+          # MISSING and when the caller may not READ it, and those need opposite
+          # responses. The deploy identity was scoped to exactly one container
+          # app at the time, so `show` failed on a steering app that existed,
+          # the create branch fired, and the run died reporting that the managed
+          # environment "does not exist" — which it does, and which said nothing
+          # about the actual problem.
+          #
+          # Listing the group separates the two. If the LIST fails, the identity
+          # cannot see the group at all and that is what gets reported. If it
+          # succeeds and the name is absent, the app is genuinely missing.
+          # STDERR GOES TO A FILE, NOT INTO `names`. `az containerapp` prints an
+          # extension warning to stderr on every invocation, so `2>&1` would put
+          # a line of prose into the list of app names on the SUCCESS path. It
+          # happens not to match any app name today, which is the kind of luck
+          # that stops being true.
+          if ! names=$(az containerapp list -g "$RG" --query "[].name" -o tsv 2>/tmp/az-err); then
+            echo "::error::cannot list container apps in $RG — the deploy identity needs Contributor on the RESOURCE GROUP, not on a single app. Azure said: $(cat /tmp/az-err)"
+            exit 1
+          fi
+
+          if printf '%s\n' "$names" | grep -qx "$STEERING_APP"; then
+            echo "updating $STEERING_APP -> $image"
+            az containerapp update -n "$STEERING_APP" -g "$RG" --image "$image" --output none
+          else
+            echo "creating $STEERING_APP -> $image"
+            az containerapp create \
+              --name "$STEERING_APP" --resource-group "$RG" --environment "$ENVIRONMENT" \
+              --image "$image" \
+              --target-port 8080 --ingress external \
+              --cpu 0.5 --memory 1.0Gi \
+              --min-replicas 0 --max-replicas 1 \
+              --output none
+          fi
+
+      # `az containerapp update` RETURNS BEFORE THE NEW REVISION SERVES. Curling
+      # straight after can hit the OLD revision, get a 200, and turn this job
+      # green having deployed nothing. So assert the template carries the sha we
+      # just pushed AND that the active revision finished provisioning.
+      - name: Wait for the revision
+        run: |
+          for i in $(seq 1 40); do
+            state=$(az containerapp revision list -n "$STEERING_APP" -g "$RG" \
+              --query "[?properties.active] | [0].properties.provisioningState" -o tsv)
+            image=$(az containerapp show -n "$STEERING_APP" -g "$RG" \
+              --query "properties.template.containers[0].image" -o tsv)
+            echo "attempt $i — provisioning=$state image=$image"
+            if [ "$state" = "Provisioned" ] && [ "$image" = "$IMAGE" ]; then
+              echo "revision is provisioned and carries the expected sha"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::error::no active revision reached Provisioned with $IMAGE"
+          exit 1
+
+      # A 200 says the process boots. The content assertion says it SERVED THE
+      # PAGE rather than an error page with a 200 on it — the row count is
+      # generated from the live databases at build time, so its presence proves
+      # the bundle and its data both made it into the image.
+      #
+      # --max-time is generous because min-replicas is 0: the first request
+      # after an idle period pays a cold start.
+      - name: Smoke test
+        id: smoke
+        run: |
+          fqdn=$(az containerapp show -n "$STEERING_APP" -g "$RG" \
+            --query "properties.configuration.ingress.fqdn" -o tsv)
+          url="https://$fqdn"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+          # The marker is the name of the database the page is generated from,
+          # and it is read out of the generated file rather than typed here.
+          # It was typed here once, the database was renamed, and this step then
+          # failed twelve green 200s in a row — the deploy was fine and the
+          # assertion was stale. Reading it from the source cannot rot.
+          MARKER=$(grep -oam1 "vst_[a-z]*" apps/steering-app/src/lib/estate.generated.ts | head -1)
+          [ -n "$MARKER" ] || { echo "::error::could not read a database name out of estate.generated.ts"; exit 1; }
+          echo "asserting the page contains $MARKER"
+
+          # Written to a file rather than captured: command substitution is not
+          # safe for arbitrary response bodies and mangles them with a warning.
+          # Retried because "Provisioned" is a fact about the revision, not
+          # about the ingress — the cutover takes a few seconds.
+          ok=
+          for i in $(seq 1 12); do
+            code=$(curl -s --max-time 180 -o /tmp/page.html -w '%{http_code}' "$url/")
+            echo "attempt $i — GET / -> $code"
+            if [ "$code" = "200" ] && grep -qa "$MARKER" /tmp/page.html; then ok=yes; break; fi
+            sleep 10
+          done
+          [ "$ok" = "yes" ] || { echo "::error::steering never served its estate data"; exit 1; }
+
+          grep -qa 'Vantis Steering' /tmp/page.html \
+            || { echo "::error::the page rendered without its own name in it"; exit 1; }
+
+          echo "✅ **2a · steering deployed** — <$url>" >> "$GITHUB_STEP_SUMMARY"
+
+  # ── 1b ── the other engagement's image, in parallel with steering ────────
+  pharma-build:
+    name: 1b · build pharma image
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # NO `azure/login` AND NO BUILD ARGS, unlike its two siblings — and the
+      # absence is the accurate statement. The pharma pages link only within
+      # themselves; the firm's door is the only surface that crosses an origin,
+      # so it is the only image that needs another app's URL baked in.
+      #
+      # This is the heavy one: the domain package, the guard, two agent engines
+      # and their native dependencies. 40 minutes rather than 30 for that
+      # reason. See infra/pharma/Dockerfile for why the layer order is what it is.
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/pharma/Dockerfile
+          push: true
+          tags: ${{ env.PHARMA_REPO }}:sha-${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=min,scope=pharma
+
+      - run: echo "✅ **1b · pharma image built** — \`${PHARMA_REPO}:sha-${GITHUB_SHA}\`" >> "$GITHUB_STEP_SUMMARY"
+
+  # ── 2b ── the other engagement, live ─────────────────────────────────────
+  pharma-deploy:
+    name: 2b · deploy pharma
+    needs: pharma-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      url: ${{ steps.smoke.outputs.url }}
+    steps:
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # NO CREATE BRANCH HERE, DELIBERATELY — the one job in this pipeline
+      # without one. This app carries two secrets (`pharma-db-url`, `api-key`)
+      # and a system-assigned identity holding `Cognitive Services OpenAI User`
+      # on the Foundry account. A create-if-missing would quietly stand up a
+      # credential-less copy that returns 500 on every question and 200 on the
+      # page in front of it, which is worse than failing loudly.
+      #
+      # If it is ever genuinely gone, `infra/pharma/DEPLOY.md` is the runbook.
+      - name: Point the app at the new image
+        run: |
+          image="${PHARMA_REPO}:sha-${GITHUB_SHA}"
+          echo "deploying $image"
+          echo "IMAGE=$image" >> "$GITHUB_ENV"
+          az containerapp update -n "$PHARMA_APP" -g "$RG" --image "$image" --output none
+
+      - name: Wait for the revision
+        run: |
+          for i in $(seq 1 40); do
+            state=$(az containerapp revision list -n "$PHARMA_APP" -g "$RG" \
+              --query "[?properties.active] | [0].properties.provisioningState" -o tsv)
+            image=$(az containerapp show -n "$PHARMA_APP" -g "$RG" \
+              --query "properties.template.containers[0].image" -o tsv)
+            echo "attempt $i — provisioning=$state image=$image"
+            if [ "$state" = "Provisioned" ] && [ "$image" = "$IMAGE" ]; then
+              echo "revision is provisioned and carries the expected sha"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::error::no active revision reached Provisioned with $IMAGE"
+          exit 1
+
+      # THE GUARD ASSERTION LIVES HERE NOW, because the API route moved here
+      # with the pages. A 200 on the landing page says the process boots; the
+      # 401 says the FAIL-CLOSED GUARD is still closed. A deploy that shipped an
+      # empty API_KEY would serve a perfectly healthy-looking assistant to
+      # anyone on the internet, and only this would notice.
+      #
+      # --max-time is generous because min-replicas is 0: the first request
+      # after an idle period pays a cold start.
+      - name: Smoke test
+        id: smoke
+        run: |
+          fqdn=$(az containerapp show -n "$PHARMA_APP" -g "$RG" \
+            --query "properties.configuration.ingress.fqdn" -o tsv)
+          url="https://$fqdn"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+          # The first request also waits out the traffic cutover — "Provisioned"
+          # is a fact about the revision, not about the ingress — and the cold
+          # start that min-replicas 0 buys us.
+          ok=
+          for i in $(seq 1 12); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 180 "$url/")
+            echo "attempt $i — GET / -> $code"
+            [ "$code" = "200" ] && { ok=yes; break; }
+            sleep 10
+          done
+          [ "$ok" = "yes" ] || { echo "::error::pharma never returned 200 on /"; exit 1; }
+
+          for path in /desk /supplier /data-flow; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 180 "$url$path")
+            echo "GET $path -> $code"
+            [ "$code" = "200" ] || { echo "::error::$path did not return 200"; exit 1; }
+          done
+
+          guard=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 \
+            -X POST "$url/api/ask" \
+            -H 'content-type: application/json' -d '{"question":"ping"}')
+          echo "POST /api/ask without a key -> $guard"
+          [ "$guard" = "401" ] || { echo "::error::the guard did not refuse an unauthenticated request"; exit 1; }
+
+          echo "✅ **2b · pharma deployed** — <$url>" >> "$GITHUB_STEP_SUMMARY"
+
+  # ── 3 ── the host's image, built after both engagements are live ─────────
+  veresk-build:
+    name: 3 · build veresk image
+    needs: [steering-deploy, pharma-deploy]
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      # THE WHOLE POINT OF THE ORDERING IS THIS LINE. The URL comes from the job
+      # that just watched that app return 200, so the firm's page cannot ship a
+      # link to something that is not there.
+      - name: Take both URLs from the deploys that proved them
+        run: |
+          echo "STEERING_URL=${{ needs.steering-deploy.outputs.url }}" >> "$GITHUB_ENV"
+          echo "PHARMA_URL=${{ needs.pharma-deploy.outputs.url }}" >> "$GITHUB_ENV"
+
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/veresk/Dockerfile
+          push: true
+          tags: ${{ env.VERESK_REPO }}:sha-${{ github.sha }}
+          build-args: |
+            VITE_PHARMA_URL=${{ env.PHARMA_URL }}
+            VITE_STEERING_URL=${{ env.STEERING_URL }}
+          # This cache only pays off because the Dockerfile installs
+          # dependencies BEFORE copying the source — see the layer-order comment
+          # there. With the original `COPY . .` first it had nothing cacheable.
+          cache-from: type=gha
+          cache-to: type=gha,mode=min,scope=veresk
+
+      - run: echo "✅ **3 · veresk image built** — links to \`${PHARMA_URL:-(none)}\` and \`${STEERING_URL:-(none)}\`" >> "$GITHUB_STEP_SUMMARY"
+
+  # ── 4 ── the host, live ─────────────────────────────────────────────────
+  veresk-deploy:
+    name: 4 · deploy veresk
+    needs: [veresk-build, steering-deploy, pharma-deploy]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # NO CREATE BRANCH HERE, DELIBERATELY. This app carries two secrets and a
+      # system-assigned identity with a role assignment on the Foundry resource.
+      # A create-if-missing would quietly stand up a credential-less copy that
+      # returns 500 on every question, which is worse than failing loudly. If it
+      # is ever gone, `infra/veresk/DEPLOY.md` is the runbook.
+      - name: Point the app at the new image
+        run: |
+          image="${VERESK_REPO}:sha-${GITHUB_SHA}"
+          echo "deploying $image"
+          echo "IMAGE=$image" >> "$GITHUB_ENV"
+          az containerapp update -n "$VERESK_APP" -g "$RG" --image "$image" --output none
+
+      - name: Wait for the revision
+        run: |
+          for i in $(seq 1 40); do
+            state=$(az containerapp revision list -n "$VERESK_APP" -g "$RG" \
+              --query "[?properties.active] | [0].properties.provisioningState" -o tsv)
+            image=$(az containerapp show -n "$VERESK_APP" -g "$RG" \
+              --query "properties.template.containers[0].image" -o tsv)
+            echo "attempt $i — provisioning=$state image=$image"
+            if [ "$state" = "Provisioned" ] && [ "$image" = "$IMAGE" ]; then
+              echo "revision is provisioned and carries the expected sha"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::error::no active revision reached Provisioned with $IMAGE"
+          exit 1
+
+      # WHAT THIS ASSERTS CHANGED WHEN PHARMA MOVED OUT. The 401 guard check
+      # went with the API route to `pharma-deploy`; there is no write path on
+      # this app any more. What is left is the thing this whole ordering exists
+      # for: the firm's page must carry the two URLs it was built against, and
+      # must carry no localhost. Both caught real bugs — a dev fallback inlined
+      # into a production bundle, and a hard-coded URL for an app that did not
+      # exist yet.
+      #
+      # ── IT RETRIES, AND THAT IS NOT FLAKE-HIDING ─────────────────────────
+      #
+      # THE FIRST VERSION ASSERTED ONCE AND WENT RED ON A DEPLOY THAT WORKED.
+      # "Provisioned" is a fact about the REVISION, not about the ingress: for a
+      # few seconds after it, requests are still being served by the previous
+      # revision. The single-shot check got a 200 from the OLD page — which has
+      # no absolute URLs in it — and reported that the firm's page did not link
+      # to pharma. It did, a minute later, and does now.
+      #
+      # So the loop is waiting for a state transition that genuinely takes time,
+      # with a hard bound and a real failure at the end of it. What it must not
+      # become is a retry around an assertion that is sometimes just wrong.
+      #
+      # THE BODY GOES TO A FILE, NOT A SHELL VARIABLE. `$(curl …)` on this page
+      # printed `warning: command substitution: ignored null byte in input` —
+      # command substitution is not safe for arbitrary response bodies, and a
+      # mangled body makes every `grep` below a lie.
+      - name: Smoke test
+        run: |
+          fqdn=$(az containerapp show -n "$VERESK_APP" -g "$RG" \
+            --query "properties.configuration.ingress.fqdn" -o tsv)
+          url="https://$fqdn"
+          pharma="${{ needs.pharma-deploy.outputs.url }}"
+          steering="${{ needs.steering-deploy.outputs.url }}"
+
+          ok=
+          for i in $(seq 1 12); do
+            code=$(curl -s --max-time 180 -o /tmp/page.html -w '%{http_code}' "$url/")
+            echo "attempt $i — GET / -> $code"
+            if [ "$code" = "200" ] \
+              && grep -q "$pharma" /tmp/page.html \
+              && grep -q "$steering" /tmp/page.html; then
+              ok=yes
+              break
+            fi
+            sleep 10
+          done
+
+          [ "$ok" = "yes" ] || {
+            echo "::error::after 2 minutes the firm's page still does not carry both engagement URLs"
+            echo "::error::expected $pharma and $steering"
+            exit 1
+          }
+
+          grep -q 'localhost:' /tmp/page.html \
+            && { echo "::error::a localhost URL shipped to production"; exit 1; }
+
+          {
+            echo "✅ **4 · veresk deployed** — <$url>"
+            echo ""
+            echo "| | |"
+            echo "|---|---|"
+            echo "| veresk — the firm's door | <$url> |"
+            echo "| pharma — Meridian Pharma | <$pharma> |"
+            echo "| steering — Vantis Steering | <$steering> |"
+            echo "| image tag | \`sha-${GITHUB_SHA}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
