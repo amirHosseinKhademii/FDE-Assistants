@@ -56,6 +56,7 @@
     "search-tool:check": "ts-node src/agent/tool/search-tool-selftest.ts",
     "schema:check": "ts-node src/schema/assessment-selftest.ts",
     "assess": "ts-node src/cli/assess.ts",
+    "assess:all": "ts-node src/cli/assess-all.ts",
     "summarise": "ts-node src/cli/summarise.ts",
     "summary:check": "ts-node src/agent/summary/summary-selftest.ts",
     "checks:check": "ts-node src/eval/checks/checks-selftest.ts",
