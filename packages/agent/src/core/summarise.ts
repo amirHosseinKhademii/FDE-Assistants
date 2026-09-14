@@ -3,7 +3,7 @@
  *
  * ITS OWN MODULE ON PURPOSE. Both engines need it, and importing it from
  * whichever engine happens to define it would make that engine's dependencies
- * load for the other — `loop-mastra.ts` would drag in `@openai/agents` merely
+ * load for the other — `mastra/loop.ts` would drag in `@openai/agents` merely
  * to print a line of trace output. The whole point of two interchangeable
  * engines is that either can be deleted, and a shared helper living inside one
  * of them quietly removes that property. A typecheck cannot see it.

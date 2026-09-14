@@ -1,6 +1,6 @@
 /**
  * The third agent loop, on LangGraph.js. Same contract as `loop-sdk.ts` and
- * `loop-mastra.ts`.
+ * `mastra/loop.ts`.
  *
  * WHY A THIRD ENGINE AT ALL, AND WHY NOT FOR RELEASE. `docs/SWAP.md` (insurance
  * tree) already ruled against a third engine there: one lot, one decision, a
@@ -18,7 +18,7 @@
  * `registry.ts` (the tools and their audit records), the caller's prompt and
  * Zod schema, `DEFAULT_MAX_TURNS`, and the re-validation after structuring.
  *
- * `require()`, not `import`, throughout — same reason as `loop-mastra.ts`:
+ * `require()`, not `import`, throughout — same reason as `mastra/loop.ts`:
  * `@langchain/langgraph`'s root export has no CJS condition (only `/prebuilt`
  * does), so it reaches us through Node 22's `require(esm)`. Using `require()`
  * uniformly for every LangChain import in this file avoids a mixed
@@ -34,7 +34,7 @@
  *
  * PROVIDER CHOICE: `@langchain/openai`'s `ChatOpenAI`, pointed at the Foundry
  * `/openai/v1` surface via `configuration.baseURL` + a custom `fetch`, the same
- * shape `foundry/client.ts` and `loop-mastra.ts`'s `buildFoundryProvider` both
+ * shape `foundry/client.ts` and `mastra/provider.ts`'s `buildFoundryProvider` both
  * use — the client's own `apiKey` is a static string, so something has to set
  * the bearer header per request, and that is this file's `fetch` override.
  */
@@ -65,7 +65,7 @@ const { HumanMessage, AIMessage } = require('@langchain/core/messages');
 
 /**
  * The bearer goes on per request through a custom fetch, exactly as in
- * `foundry/client.ts` and `loop-mastra.ts`. No API key exists anywhere in this
+ * `foundry/client.ts` and `mastra/loop.ts`. No API key exists anywhere in this
  * path — `apiKey` below is a required-but-unused string the client insists on.
  */
 const token = getBearerTokenProvider(new DefaultAzureCredential(), FOUNDRY_SCOPE);
@@ -73,7 +73,7 @@ const token = getBearerTokenProvider(new DefaultAzureCredential(), FOUNDRY_SCOPE
 /**
  * Built here rather than inline so a compliance self-test can drive this exact
  * code path with a fake transport and a fake token — offline, no credential, no
- * spend. Same reasoning `loop-mastra.ts`'s `buildFoundryProvider` records: a
+ * spend. Same reasoning `mastra/provider.ts`'s `buildFoundryProvider` records: a
  * compliance check that tests a DIFFERENT construction than production uses is
  * a check that proves nothing.
  */
@@ -101,7 +101,7 @@ export function buildFoundryChatModel(
  * repo reaches Bedrock, which is the point of writing it.
  *
  * `@fde/bedrock` hand-translates OpenAI's protocol to Anthropic's, ~130 lines
- * and 30 assertions. `loop-mastra.ts` does it in five, because the AI SDK keeps
+ * and 30 assertions. `mastra/loop.ts` does it in five, because the AI SDK keeps
  * one native provider per service. This is five too — but it is NOT the same
  * five, and the difference is not cosmetic:
  *
@@ -137,7 +137,7 @@ export function buildBedrockChatModel(
 }
 
 /**
- * Which provider serves this loop — the same contract as `loop-mastra.ts`'s
+ * Which provider serves this loop — the same contract as `mastra/loop.ts`'s
  * `selectModel`, deliberately: one variable, `LLM_PROVIDER`, means the same
  * thing on every engine, or it is not a switch, it is two switches.
  *
@@ -204,7 +204,7 @@ export function toLangGraphTools(registry: ToolRegistry, dispatched: ToolCallRec
  * Rebuild `TurnRecord[]` from LangGraph's accumulated message list.
  *
  * One `AIMessage` is one model round-trip, matching what `loop-sdk.ts` and
- * `loop-mastra.ts` call a turn — so turn counts and token counts stay
+ * `mastra/loop.ts` call a turn — so turn counts and token counts stay
  * comparable across all three engines. `allMessages` is the FULL conversation
  * on every call (LangGraph returns accumulated state, not a delta), so this
  * only processes the AI messages past `turnOffset` — the same slicing trick
@@ -294,7 +294,7 @@ export async function runLoopLangGraph<T = unknown>(
 
     const allMessages: any[] = result.messages ?? [];
     // ACCUMULATE across a schema retry, never overwrite — same trap
-    // loop-sdk.ts and loop-mastra.ts both record.
+    // loop-sdk.ts and mastra/loop.ts both record.
     turns = [...turns, ...turnsFrom(allMessages, dispatched, turns.length, toolsAccountedFor)];
     toolsAccountedFor = dispatched.length;
     for (const t of turns) opts.onTurn?.(t);
