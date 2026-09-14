@@ -64,16 +64,35 @@ home was `@fde/uikit` and it is the wrong one, for two reasons:
    blank-looking page **from a build that succeeds** — the same failure shape
    `apps/veresk-app/vite.config.ts` already documents for `@fde/guard`.
 
-So `@veresk/surface` is allowed utilities, because it has exactly two consumers,
-both in this repo, both carrying the line:
+So `@veresk/surface` is allowed utilities, because it has exactly three
+consumers — pharma, steering and veresk — all in this repo, all carrying the
+line:
 
 ```css
-@source '../../../../packages/surface/src';
+@source '../../../../../packages/surface/src';
 ```
 
-**If a third app is added, that line is the thing to remember.** A missing
-`@source` is invisible in `tsc`, invisible in `vite build`, and obvious only in
-a screenshot.
+**Count the levels.** It was four until the apps moved from `apps/<app>/` to
+`apps/web/<app>/`, at which point all three resolved to `apps/packages/surface/src`
+— a directory that does not exist.
+
+**A WRONG path fails exactly like a missing one, and that is the trap.** Tailwind
+does not error on a `@source` that matches nothing. It scans no files, emits no
+classes for them, and the build SUCCEEDS. Every utility used only inside
+`@veresk/surface` silently stopped being generated in all three apps, and the
+first visible symptom was a shared component rendering with its layout classes
+gone: numbered markers sitting on top of their own titles. `tsc` passed,
+`vite build` passed, and `pnpm build` passed.
+
+So: this line is invisible in every check this repo has, and is verified by
+looking at the page. If you move an app, re-resolve it:
+
+```bash
+for f in apps/web/*/src/styles/app.css; do
+  rel=$(grep -oE "@source '[^']+'" "$f" | sed "s/@source '//;s/'//")
+  [ -d "$(dirname "$f")/$rel" ] || echo "BROKEN: $f"
+done
+```
 
 ---
 
@@ -219,6 +238,99 @@ now also captures and restores `scrollY`, compensates the scrollbar gutter so th
 page cannot jolt sideways, and uses `behavior: 'instant'` so the restore cannot
 animate. **Not proven against the reported symptom** — headless Chrome has no
 scrollbars, which is exactly the condition under which the original behaves.
+
+## The two shared drawings, and how to reuse them
+
+Both were built for one engagement, then needed by a second. Both are now in a
+shared package with the second caller proving the interface — not before.
+
+### `Journey` — the hop-by-hop walkthrough · `@veresk/surface`
+
+The "where your data goes" walk on both the pharma and steering pages. You give
+it `Turn[]`; it draws the rail, the travelling light, the numbered markers and
+the lane colours. It knows nothing about either domain.
+
+```tsx
+import { Journey, type Turn } from '@veresk/surface';
+
+const TURNS: Turn[] = [{
+  label: 'Five searches — 40 passages out, 1,069 files stay',
+  n: '3',                       // optional: step number, a string so "2–6" works
+  plain: 'Up to 10 passages leave per search, about 900 bytes each.',
+  example: 'requirements/…_RevB.md:41\n  "… at least 8000 N at the rack …"',
+  note: '5 model requests. Passages 10, 0, 10, 10, 10 — 1487/934/2092/1389/1523 ms.',
+  crosses: true,                // drives the whole block's tone
+  hops: [{
+    where: 'crosses',           // browser · yours · crosses · back
+    title: 'Only the matched passages cross',
+    plain: 'Up to 10 passages leave, to one host — about 900 bytes each.',
+    payload: 'role: "tool", name: "search_documents"',
+    detail: 'Each passage carries the file and the line it starts on.',
+  }],
+}];
+
+<Journey turns={TURNS} />
+```
+
+**`n`, `plain` and `example` are optional**, which is how steering added them
+without touching pharma's page. `plain` and `example` exist because the page has
+two readers: the payload and `detail` are for somebody who will grep them
+against the source, and a compliance reviewer needs a different thing at the
+same step — which data, and to whom. That used to live in a separate block of
+questions above the walk, which meant reading the answer in one place and its
+evidence in another.
+
+**The rule that makes it worth having: every payload is real.** Tool and
+argument names come from the source; counts and timings come from a recorded
+run (`worked-example.generated.ts` for steering, `ask_history` for pharma). A
+diagram with invented field names is one a reviewer disproves with a single
+grep, and then nothing else on the page survives either.
+
+**Lane colour is the boundary, not decoration.** `--color-flow-person`,
+`--color-flow-internal` and `--color-flow-model` are the only three, and every
+payload box is tinted with its own lane at 4.5% — enough to group by eye, far
+too little to read as a highlight. Before that, every box was the same grey
+except the crossing one, so the palette said "this one is different" and nothing
+about the rest.
+
+### `FlowMap` — the node map · `@fde/uikit`
+
+Steering's `AssessMap` and pharma's `NerveMap` are both this component. Two
+traps are already fixed in it and are worth knowing before building anything
+that flips a card:
+
+**Do not rotate the element that receives the pointer.** The card used to rotate
+as a whole. Hit testing uses *transformed* geometry, so half way through the
+520 ms turn the button was edge-on and its hit area was about 1px wide — the
+pointer sitting still fell out of it, `mouseleave` fired, it turned back,
+`mouseenter` fired, and it juddered. The two faces rotate now and the button
+stays a stable rectangle; the faces are `pointer-events: none`.
+
+**A container's `onMouseLeave` does not tell you a card was left.** It fires at
+the outer boundary only, so a card stayed open until the pointer left the entire
+map. Each node needs its own.
+
+**Measure back faces against their box.** Four of nine card kinds were
+overflowing by 2–16px and being clipped by `overflow: hidden` — the last line of
+an explanation simply gone, from a page that renders without a warning. The
+shape of the check is `back text scrollHeight + tag + rowGap + padding` against
+`getBoundingClientRect().height`. It only bites where a box has BOTH a fixed
+height and `overflow: hidden`; `Journey`'s payload boxes have neither.
+
+### The rule both of them taught, the expensive way
+
+**A shared component's CSS has to move with it.** `Journey` was lifted into
+`@veresk/surface` so two apps could draw the same walkthrough; its CSS stayed
+behind in pharma's `app.css`. The second consumer rendered the markup with none
+of the rules — markers on top of titles, badges overlapping the text beside
+them. It typechecked, it built, and it was wrong only on screen.
+
+Both apps already `@import '@veresk/surface/styles.css'`, so the fix was to move
+the rules there too and neither app needed a line changed. **If you share a
+component, grep its class names and its custom properties, and move those with
+it.**
+
+---
 
 ### `@fde/uikit` additions, both on a measured second caller
 
