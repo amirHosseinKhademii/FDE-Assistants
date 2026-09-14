@@ -41,7 +41,7 @@
 import { listAssessments, closeHistory } from '../answer/filed-assessments';
 import { openDerived } from '../tools/utils/handle';
 import {
-  fetchComparableJobs, countPastJobs,
+  fetchComparableJobs, countPastJobs, countWithoutEachField,
   type ComparableKey, type PastJob,
 } from '../tools/departments/derived';
 import { MIN_COMPARABLES } from '../answer/derive';
@@ -242,6 +242,37 @@ async function marginals(h: any, key: ComparableKey): Promise<string[]> {
   return out;
 }
 
+/**
+ * Which ONE field, dropped, would have taken this key over the floor?
+ *
+ * ── THE QUESTION THE MARGINALS DO NOT ANSWER ────────────────────────────
+ *
+ * A companion tally says what the estate carries beside a value. It does not
+ * say whether this particular five-field key was one field away from an answer
+ * or nowhere near one, and those are different diagnoses for the same zero.
+ *
+ * `countWithoutEachField` is what the tool itself prints inside its refusal
+ * sentence, so this is not a second opinion — it is the same numbers, collected
+ * across all 24 requirements instead of one, which is the thing no single
+ * refusal can show.
+ *
+ * ── A FIELD LISTED HERE IS NOT A FIELD TO DROP ──────────────────────────
+ *
+ * `walk-check` asserts that dropping `asil` on a safety-case question produces
+ * an answer 3.5x too low, and that assertion stands. The output is a statement
+ * about where the sample went, not a recommendation about what to ask.
+ */
+async function blockers(h: any, key: ComparableKey): Promise<string[]> {
+  const counts = await countWithoutEachField(h, key);
+  const unblocking = counts.filter((c) => c.without >= MIN_COMPARABLES);
+  if (!unblocking.length) {
+    return ['    dropping any ONE field still leaves it under the floor — not a near miss'];
+  }
+  return unblocking
+    .sort((a, b) => b.without - a.without)
+    .map((c) => `    drop ${c.field} alone -> ${c.without} job(s) — THIS filter is what emptied it`);
+}
+
 // ── the report ─────────────────────────────────────────────────────────────
 
 interface Row {
@@ -293,11 +324,22 @@ async function main(): Promise<void> {
   const priced: string[] = [];
   /** Called the tool, but the trace did not keep what it was asked. */
   const notRecorded: string[] = [];
+  /** Per refusal, what each field cost it. Aggregated at the end. */
+  const blocked: { ref: string; counts: { field: string; without: number; alone: number }[] }[] = [];
+  /** Vocabulary misses on ANY call, not just the last — see the aggregate. */
+  const vocabMisses: { ref: string; reason: string }[] = [];
 
   for (const row of latest) {
     if (!row.calls.length) {
       neverAsked.push(row.ref);
       continue;
+    }
+
+    // Counted across EVERY call. A requirement that guessed a bad value and then
+    // corrected itself shows a final outcome of "refused" and would otherwise
+    // report zero vocabulary problems — hiding both the mistake and the recovery.
+    for (const c of row.calls) {
+      if (c.outcome.kind === 'miss') vocabMisses.push({ ref: row.ref, reason: c.outcome.reason });
     }
 
     const last = row.calls[row.calls.length - 1];
@@ -321,7 +363,9 @@ async function main(): Promise<void> {
     // Only when the matter ended in a refusal AND the trace kept what was asked.
     // A marginal tally without the key would be a number about a query nobody made.
     if (last.outcome.kind === 'refused' && last.key) {
+      for (const l of await blockers(h, last.key)) line(l);
       for (const l of await marginals(h, last.key)) line(l);
+      blocked.push({ ref: row.ref, counts: await countWithoutEachField(h, last.key) });
     }
     line();
   }
@@ -353,11 +397,57 @@ async function main(): Promise<void> {
    * only the middle bucket is evidence about the COMPANY. The other two are
    * evidence about us.
    */
+  // ── which filter actually empties the sample, across every refusal ──────
+  if (blocked.length) {
+    const tally = new Map<string, { unblocks: number; seen: number }>();
+    for (const b of blocked) {
+      for (const c of b.counts) {
+        const t = tally.get(c.field) ?? { unblocks: 0, seen: 0 };
+        t.seen += 1;
+        if (c.without >= MIN_COMPARABLES) t.unblocks += 1;
+        tally.set(c.field, t);
+      }
+    }
+    rule();
+    line('  WHICH FILTER EMPTIES THE SAMPLE, across the refusals that were measurable');
+    rule();
+    line();
+    line(`  Of ${blocked.length} refusal(s) whose arguments were recorded:`);
+    line();
+    for (const [field, t] of [...tally].sort((a, b) => b[1].unblocks - a[1].unblocks)) {
+      line(
+        `  ${String(t.unblocks).padStart(3)} of ${String(t.seen).padEnd(3)} ` +
+          `dropping ${field} alone would have crossed the floor of ${MIN_COMPARABLES}`,
+      );
+    }
+    line();
+    const nearMiss = blocked.filter((b) => b.counts.some((c) => c.without >= MIN_COMPARABLES));
+    line(`  ${nearMiss.length} of ${blocked.length} were ONE field away from an answer.`);
+    line(`  ${blocked.length - nearMiss.length} were not — no single field was holding them back,`);
+    line('  which is what "we have never done this work" looks like from the inside.');
+    line();
+    line('  A field named above is NOT a field to drop. walk-check asserts that');
+    line('  dropping asil on a safety-case question answers 3.5x too low. This says');
+    line('  where the sample went, not what to ask for.');
+    line();
+  }
+
+  if (vocabMisses.length) {
+    rule();
+    line('  VOCABULARY — values the agent invented, and then corrected');
+    rule();
+    line();
+    for (const m of vocabMisses) line(`  ${m.ref}  ${m.reason.slice(0, 90)}`);
+    line();
+    line(`  ${vocabMisses.length} call(s) used a value no closure report contains. Every one was`);
+    line('  followed by a corrected call, because the tool answers a bad value with the');
+    line('  list of real ones instead of an empty result. That is the miss doing its job');
+    line('  — and it is invisible in the bucket count above, which reports only how each');
+    line('  requirement ENDED.');
+    line();
+  }
+
   rule();
-  line('  Read the marginals above per requirement. For each refusal they say');
-  line('  what the estate carries BESIDE the value the agent chose — which is');
-  line('  what tells an over-narrow filter apart from work never done here.');
-  line();
   line('  Nothing was changed and nothing was spent.');
   rule();
   line();

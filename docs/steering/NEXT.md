@@ -118,25 +118,70 @@ done this kind of work"* is a finding a bid meeting can act on — it means
 subcontract, or estimate bottom-up, or decline. *"Your filter matched 0"* reads
 like a tooling failure and gets ignored.
 
-#### The one filter genuinely worth reconsidering is `asil`, and it is a corpus defect
+#### CORRECTED — `asil` is NOT the filter to reconsider, and the first reading of this was wrong
+
+The first version of this section said `asil` was *"the one filter genuinely
+worth reconsidering"*, reasoning from a real number:
 
 ```
 of the 146 jobs with safetyCaseImpact = false,
    asil is: (not recorded) 58, B 32, QM 31, C 13, D 12
 ```
 
-**Forty percent of the usable history has no ASIL recorded at all.** Any filter
-on `asil` therefore discards two fifths of the sample before it starts — not
-because those jobs were at a different safety level, but because nobody wrote it
-down. That is finding #2 of the four about the customer's paperwork (*"the safety
-level is not recorded next to the cost"*), showing up as a pricing failure two
-steps downstream.
+**Forty percent of the usable history has no ASIL recorded**, which is finding
+#2 about the customer's paperwork (*"the safety level is not recorded next to
+the cost"*) showing up two steps downstream. That fact is true and worth
+keeping.
 
-This does NOT license dropping the filter. `walk-check` asserts that dropping
-ASIL produces an answer 3.5x too low, and that assertion stands. What it licenses
-is saying so: a refusal that filtered on ASIL should report how much of the
-history was excluded for having no ASIL at all, because *"40% of our own records
-cannot answer this"* is a different problem from *"we have not done this work"*.
+**It is not what causes the refusals.** `countWithoutEachField` — the same
+counter the tool prints inside its own refusal sentence, collected across all
+thirteen measurable refusals instead of one — says:
+
+```
+  1 of 13   dropping change_class alone would have crossed the floor of 3
+  1 of 12   dropping element_kind alone would have crossed the floor of 3
+  0 of 13   dropping safety_case_impact alone would have crossed the floor
+  0 of 10   dropping asil alone would have crossed the floor
+  0 of 12   dropping tooling_required alone would have crossed the floor
+```
+
+**Dropping `asil` would have rescued zero refusals.** The corpus gap is real and
+it is not load-bearing here. Reasoning from a marginal distribution to a cause
+was the error — *"this field is often missing"* does not imply *"this field is
+why the query returned nothing"*, and only the drop-one counts can tell them
+apart.
+
+#### The decisive number: 12 of 13 were not one field away from anything
+
+```
+  1 of 13 were ONE field away from an answer.
+ 12 were not — no single field was holding them back.
+```
+
+That is what *"we have never done this work"* looks like from the inside, and it
+settles §0's fork about as firmly as it can be settled: **the agent is not
+over-constraining. The history does not contain the work.**
+
+So the fix for these twelve is **the sentence, not the filter** — and that is now
+the recommendation on evidence rather than on the marginals it was first guessed
+from. *"We have never done this kind of work"* is a finding a bid meeting can
+act on: subcontract, estimate bottom-up, or decline. *"Your filter matched 0"*
+reads like a tooling failure and gets ignored.
+
+The remaining one genuinely was a filter problem and is worth looking at on its
+own rather than generalising from.
+
+#### The vocabulary misses are invisible in the bucket counts, and they are a success
+
+Three calls used an `element_kind` no closure report contains — `steering_system`
+twice and `software` once. **Every one was followed by a corrected call**,
+because `find_comparable_work` answers an unknown value with the list of real
+ones rather than an empty result.
+
+The bucket count reports `0 vocabulary mismatch` because it reports how each
+requirement ENDED, and all three recovered. Worth stating plainly: that is the
+miss design working exactly as intended, and it would have been reported as
+nothing at all.
 
 #### Four are unknowable, and that is a defect in the desk
 
