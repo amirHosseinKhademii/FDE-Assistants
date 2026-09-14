@@ -190,7 +190,7 @@ async function main(): Promise<void> {
     check(
       'a null cache reading is ABSENT, never 0',
       r.usage?.prompt_tokens_details === undefined,
-      `got ${JSON.stringify(r.usage?.prompt_tokens_details)} — 0 claims a measurement, absence admits there was not one`,
+      `got ${JSON.stringify(r.usage?.prompt_tokens_details)} — 0 asserts a measurement, absence admits there was not one`,
     );
   }
   {
