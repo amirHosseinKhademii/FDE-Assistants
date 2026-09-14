@@ -506,6 +506,13 @@ function NodeCard({
       <button
         type="button"
         onMouseEnter={() => onGraze(node.id)}
+        /* THE LEAVE BELONGS ON THE NODE, NOT ONLY ON THE STAGE. Without it a
+           card stayed turned over until the pointer left the whole map: move
+           from a node into the empty space beside it and the explanation sat
+           there, with every edge on the map still dimmed around it. The stage's
+           own `onMouseLeave` only fires at the outer boundary, which is the
+           rarer of the two ways a pointer actually leaves a node. */
+        onMouseLeave={() => onGraze(null)}
         onFocus={() => onGraze(node.id)}
         onBlur={() => onGraze(null)}
         onClick={onPin}

@@ -23,7 +23,14 @@
  * all, which is exactly why it is the package allowed to leave this repository.
  */
 @import '@veresk/surface/styles.css';
-@source '../../../../packages/surface/src';
+/* FIVE LEVELS, NOT FOUR. This counted to the repo root from `apps/<app>/` and
+   the apps moved to `apps/web/<app>/`, so it resolved to `apps/packages/...`
+   — a directory that does not exist. Tailwind does not error on a `@source`
+   that matches nothing: it scans no files, emits no classes for them, and the
+   build SUCCEEDS. Every utility used only inside `@veresk/surface` silently
+   stopped being generated in all three apps, and the first visible symptom was
+   a shared component rendering with its layout classes missing. */
+@source '../../../../../packages/surface/src';
 
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
@@ -2647,3 +2654,167 @@ body {
   line-height: 1.7;
   color: var(--color-ui-dim);
 }
+
+/* ── THE ASSESSMENT MAP'S FIGURES, AND HOW BIG EACH KIND OF NODE IS ─────────
+   `FlowMap` itself lives in `@fde/uikit` — it is a graph, a pulse and a card
+   that turns over, and none of that knows what a requirement is. What stays
+   here is the part that does: how wide a card has to be for each KIND of node,
+   because what kinds exist is this product's vocabulary and nobody else's.
+
+   THE NAMES ARE THE REASON THE STORE CARDS ARE WIDE. `effort_split_lines` is
+   eighteen characters of monospace that must not wrap — a table name broken
+   across two lines stops being a table name — and the figure sits beside it,
+   not above it. 13.75rem is that measured, not chosen.
+
+   `.ui-flow-glyph` IS ALREADY SIZED by `@veresk/surface`, which owns the two
+   drawings both estates share. Only the wide variant and the motion are here.
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* EVERY HEIGHT HERE IS SET BY THE BACK FACE, WHICH IS THE TALLER OF THE TWO.
+   Both faces are the same box on purpose — a card that resized as it turned
+   would shove its neighbours around the map — so the box has to hold three or
+   four lines of explanation plus the tag underneath it. Sized short, the
+   explanation is simply clipped by `overflow: hidden` and nobody finds out. */
+/* THESE ARE MEASURED, NOT CHOSEN, and the measurement is worth keeping because
+   eyeballing it was wrong on five of the nine kinds. In the browser, for every
+   card:
+
+     need = back text scrollHeight + tag + row gap + padding top + bottom
+
+   Four of the nine overflowed their box by 2–16px and were being silently
+   clipped by `overflow: hidden` — the last line of an explanation simply gone,
+   from a page that renders without a warning. Each height below is the worst
+   `need` of its kind plus about 8px of slack, rounded to the nearest quarter
+   rem. Re-run the measurement after changing any `back` string; a sentence that
+   grows by one line costs 17px and the failure is invisible. */
+.ui-flow-card[data-kind='you']     { width: 10rem;   height: 5.75rem; }
+.ui-flow-card[data-kind='sor']     { width: 12.5rem; height: 7rem; }
+.ui-flow-card[data-kind='loop']    { width: 13.5rem; height: 6.5rem; }
+.ui-flow-card[data-kind='agents']  { width: 12rem;   height: 6.5rem; }
+.ui-flow-card[data-kind='tool']    { width: 14rem;   height: 7rem; }
+.ui-flow-card[data-kind='derived'],
+.ui-flow-card[data-kind='key']     { width: 14.5rem; height: 6.5rem; }
+
+/* ── THE BACK FACE IS NOT THE FRONT FACE'S JOB, AND IT HAD ITS PADDING ──────
+   `@fde/uikit` gives both faces one padding, which is right for the front: two
+   short lines centred under a drawing, where tight padding reads as compact.
+   The back is a paragraph, and a paragraph set to the edge of a 232px card
+   reads as cramped no matter how good the sentence is. So the back gets more
+   room on all four sides and a line-height that a person can actually read at
+   11px — overridden here rather than in the package, because it is this map's
+   cards that are wide enough to afford it.
+   ────────────────────────────────────────────────────────────────────────── */
+.ui-flow-face--back {
+  padding: 0.8125rem 1rem 0.75rem;
+  gap: 0.5rem;
+}
+
+.ui-flow-back-text {
+  font-size: 0.6875rem;
+  line-height: 1.55;
+}
+
+.ui-flow-back-tag { opacity: 0.85; }
+
+/* The loop's card sits ON the tangle, so it carries no edge of its own — a
+   border there would draw a box around a thing whose whole figure is that it
+   is not one. It only has to hold its label legible against the filaments. */
+.ui-flow-card[data-kind='loop'] .ui-flow-face--front {
+  border-color: transparent;
+  background: radial-gradient(
+    60% 70% at 50% 50%,
+    color-mix(in oklab, var(--color-ui-bg) 88%, transparent) 0%,
+    color-mix(in oklab, var(--color-ui-bg) 60%, transparent) 55%,
+    transparent 100%
+  );
+  align-items: center;
+  text-align: center;
+}
+
+.ui-flow-card[data-kind='loop']:hover .ui-flow-face--front,
+.ui-flow-card[data-kind='loop']:focus-visible .ui-flow-face--front {
+  border-color: transparent;
+}
+
+/* A STORE READS AS A ROW, NOT A STACK. The figure is what says "database" and
+   the name is what says which one; side by side they are read in that order,
+   and the column of them lines up into something scannable. */
+.ui-flow-card[data-kind='derived'] .ui-flow-face--front,
+.ui-flow-card[data-kind='key'] .ui-flow-face--front {
+  flex-direction: row;
+  align-items: center;
+  text-align: left;
+  gap: 0.625rem;
+}
+
+.ui-flow-card[data-kind='derived'] .ui-flow-words,
+.ui-flow-card[data-kind='key'] .ui-flow-words {
+  align-items: flex-start;
+}
+
+/* THE ONE WARM NODE, AND THE ONLY FRONT FACE ON THE MAP WITH AN EDGE AT REST.
+   `vst_alm` is the single system of Vantis's own that a request opens, and the
+   drawing has to make that visible without a sentence. Everything else here
+   sits on the background; this is outlined in its own hue. */
+.ui-flow-card[data-kind='sor'] .ui-flow-face--front {
+  border-color: color-mix(in oklab, var(--ui-tone) 40%, var(--color-ui-line));
+}
+
+/* THE HUE ON THE EDGE OF THE CARD, which is the one place a reader can see it
+   at rest — the pulse only carries it for a moment of the cycle, and a reduced
+   motion setting stills the pulse entirely. `--ui-tone` is set by `FlowMap` on
+   the button; a node with no tone gets the neutral line and says nothing. */
+.ui-flow-card[data-kind='derived'] .ui-flow-face--front {
+  border-inline-start: 2px solid color-mix(in oklab, var(--ui-tone, var(--color-ui-line-lit)) 78%, transparent);
+}
+
+/* NOT ONE OF THE SET, AND DRAWN THE WAY EVERYTHING ELSE ON THIS SITE DRAWS
+   THAT. `.estate-corpus` in `@veresk/surface` is dashed and unfilled for the
+   same reason: these three are not ours to read. */
+.ui-flow-card[data-kind='key'] .ui-flow-face--front {
+  border: 1px dashed var(--color-ui-line);
+  background: transparent;
+}
+
+.ui-flow-card[data-kind='key'] .ui-flow-name {
+  color: var(--color-ui-dim);
+}
+
+.ui-flow-card:hover .ui-flow-glyph,
+.ui-flow-card[data-open='true'] .ui-flow-glyph {
+  color: var(--color-ui-fg);
+}
+
+/* ── THE TWO THINGS THAT MOVE, AND BOTH ARE TIED TO WHAT IS HAPPENING ───────
+   A machine that mimes work while nothing is happening is the decoration this
+   product spends its whole design arguing against. The caret belongs to a
+   requirement being typed; the marker belongs to a work list being worked.
+   ────────────────────────────────────────────────────────────────────────── */
+
+@keyframes x-glyph-line { 0%, 45% { opacity: 1; } 50%, 95% { opacity: 0.2; } }
+
+.x-glyph-line { animation: x-glyph-line 1.8s steps(1, end) infinite; }
+
+/* SERIAL, AND `steps()` IS WHAT SAYS SO. `steering:assess-all` advances by
+   whole requirements — an easing curve would draw the marker gliding between
+   two of them, which is a picture of concurrency this program does not have. */
+@keyframes x-glyph-marker {
+  0%,   22%  { transform: translateY(-9px); }
+  25%,  47%  { transform: translateY(-3px); }
+  50%,  72%  { transform: translateY(3px); }
+  75%,  97%  { transform: translateY(9px); }
+  100%       { transform: translateY(-9px); }
+}
+
+.x-glyph-marker {
+  transform-box: fill-box;
+  animation: x-glyph-marker 6s steps(1, end) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .x-glyph-line   { animation: none !important; opacity: 1; }
+  .x-glyph-marker { animation: none !important; }
+}
+
+/* The narrow surface draws every node as a row, at bullet size. */
+.ui-flow-row .ui-flow-glyph { width: 1.75rem; height: 1.75rem; }

@@ -22,7 +22,14 @@
  * leave this repository and this package is not.
  */
 @import '@veresk/surface/styles.css';
-@source '../../../../packages/surface/src';
+/* FIVE LEVELS, NOT FOUR. This counted to the repo root from `apps/<app>/` and
+   the apps moved to `apps/web/<app>/`, so it resolved to `apps/packages/...`
+   — a directory that does not exist. Tailwind does not error on a `@source`
+   that matches nothing: it scans no files, emits no classes for them, and the
+   build SUCCEEDS. Every utility used only inside `@veresk/surface` silently
+   stopped being generated in all three apps, and the first visible symptom was
+   a shared component rendering with its layout classes missing. */
+@source '../../../../../packages/surface/src';
 
 /**
  * What is local to this product.

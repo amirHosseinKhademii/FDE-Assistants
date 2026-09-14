@@ -27,7 +27,7 @@
  * Showing both is the only honest way to say "it reads a lot and sends a
  * little", and it is the most reassuring true fact available.
  */
-import type { Turn } from '../components/flow/Journey';
+import type { Turn } from '@veresk/surface';
 
 export const RELEASE_TURNS: Turn[] = [
   {

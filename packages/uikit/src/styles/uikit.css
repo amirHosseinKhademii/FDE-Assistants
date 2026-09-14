@@ -942,8 +942,22 @@
 
 .ui-flow-card--dim { opacity: 0.4; }
 
+/* ── THE TURN IS THE FACES', NOT THE BUTTON'S, AND THAT IS A BUG FIX ────────
+   The card used to rotate as a whole. Hit testing uses the TRANSFORMED
+   geometry, so half way through the turn the button was edge-on to the viewer
+   and its hit area was one pixel wide: the pointer sitting still over a card
+   fell out of it, `mouseleave` fired, the card turned back, `mouseenter` fired,
+   and it juddered between the two faces for as long as the pointer stayed
+   there. Every node on the map dimmed and undimmed along with it.
+
+   Rotating the two faces instead leaves the BUTTON a stable rectangle that
+   never turns, so the pointer is either on it or not. The faces are taken out
+   of hit testing entirely — they are decoration, and the button beneath them is
+   the control. Scale stays on the button because growing a hit area cannot
+   drop the pointer out of it.
+   ────────────────────────────────────────────────────────────────────────── */
 .ui-flow-card[data-open='true'] {
-  transform: translate(-50%, -50%) rotateY(180deg) scale(1.06);
+  transform: translate(-50%, -50%) scale(1.06);
 }
 
 .ui-flow-face {
@@ -962,6 +976,17 @@
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   overflow: hidden;
+  pointer-events: none;
+  transform: rotateY(0deg);
+  transition: transform 520ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.ui-flow-card[data-open='true'] .ui-flow-face--front {
+  transform: rotateY(-180deg);
+}
+
+.ui-flow-card[data-open='true'] .ui-flow-face--back {
+  transform: rotateY(0deg);
 }
 
 .ui-flow-face--back {
@@ -1036,6 +1061,10 @@
   .ui-flow-fibre { animation: none !important; stroke-opacity: 0.3; }
   .ui-flow-synapse { animation: none !important; }
   .ui-flow-spark { display: none; }
+  /* The turn still HAPPENS — it is how the second face is reached, and
+     removing it would leave the explanation unreachable. It just stops being
+     an animation. */
+  .ui-flow-card, .ui-flow-face { transition: none !important; }
 }
 
 .ui-flow-face--front {

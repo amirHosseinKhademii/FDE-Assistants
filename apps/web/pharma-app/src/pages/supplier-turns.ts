@@ -40,7 +40,7 @@
  * row, a customer address or a material lot record — it sees exposure bands and
  * finding codes that the tool already derived.
  */
-import type { Turn } from '../components/flow/Journey';
+import type { Turn } from '@veresk/surface';
 
 export const SUPPLIER_TURNS: Turn[] = [
   {

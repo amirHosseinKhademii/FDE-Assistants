@@ -30,6 +30,16 @@ export { Aurora, type AuroraTone } from './components/Aurora';
 export { RouteProgress } from './components/RouteProgress';
 export { CylinderGlyph, PagesGlyph } from './components/glyphs';
 export { EstateExplorer } from './components/EstateExplorer';
+/**
+ * The hop-by-hop walkthrough both "where your data goes" pages draw with.
+ *
+ * HERE RATHER THAN IN AN APP because a second engagement needed the identical
+ * drawing with entirely different words, and the alternative was a 250-line
+ * copy — the exact duplication `docs/plans/REFACTOR.md` spent a day removing
+ * elsewhere. It imports React and `@fde/uikit` primitives and nothing else; it
+ * takes `Turn[]` as data, so neither app's vocabulary reaches it.
+ */
+export { Journey, type Turn, type Hop, type Where } from './components/Journey';
 export type {
   EstateColumn,
   EstateExplorerProps,

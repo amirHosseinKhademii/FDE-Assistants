@@ -22,7 +22,14 @@
  * leave this repository and this package is not.
  */
 @import '@veresk/surface/styles.css';
-@source '../../../../packages/surface/src';
+/* FIVE LEVELS, NOT FOUR. This counted to the repo root from `apps/<app>/` and
+   the apps moved to `apps/web/<app>/`, so it resolved to `apps/packages/...`
+   — a directory that does not exist. Tailwind does not error on a `@source`
+   that matches nothing: it scans no files, emits no classes for them, and the
+   build SUCCEEDS. Every utility used only inside `@veresk/surface` silently
+   stopped being generated in all three apps, and the first visible symptom was
+   a shared component rendering with its layout classes missing. */
+@source '../../../../../packages/surface/src';
 
 /**
  * What is local to this product.
@@ -119,11 +126,9 @@ body {
    topology, and no amount of it implies a lot may ship. Different surface,
    different claim, and a token of its own so the two can never be confused.
    ────────────────────────────────────────────────────────────────────────── */
-@theme {
-  --color-flow-person: #60a5fa;
-  --color-flow-internal: #34d399;
-  --color-flow-model: #c084fc;
-}
+/* The three flow tokens moved to `@veresk/surface/styles.css` with the
+   `Journey` component that uses them. This app still imports that stylesheet,
+   so nothing here changed except where the definition lives. */
 
 /* ── HOW FAR THE MATERIAL GOT ───────────────────────────────────────────────
    Five bands, and the scale is DISTANCE FROM THE PATIENT — not severity, and
@@ -691,113 +696,6 @@ textarea.ui-control { padding-block: 0.875rem; }
   background: color-mix(in oklab, currentColor 8%, var(--color-ui-bg));
 }
 
-/* ── The journey: one light, the whole way down ─────────────────────────────
-   ONE RAIL FOR THE WHOLE WALKTHROUGH, not one per turn. A request does not
-   restart at a turn boundary — turn 2 continues turn 1 — and a rail that
-   stopped and started said the opposite. The numbers now run 1..14 down a
-   single unbroken line, which is also what makes them read as one sequence
-   rather than five short lists.
-
-   THE TIMING IS MEASURED, NOT DERIVED. An earlier version computed each hop's
-   moment from its INDEX, on the assumption hops are evenly spaced. They are
-   not — a hop with a thirty-line payload is six times taller than one with a
-   single line — so the light and the numbers drifted apart down the page.
-   `Journey.tsx` now measures each marker's real offset and sets its delay from
-   that, so the box lights when the light is actually beside it, whatever the
-   content does.
-   ────────────────────────────────────────────────────────────────────────── */
-.journey-rail { position: relative; }
-.journey-rail::before {
-  content: '';
-  position: absolute;
-  inset-inline-start: calc(1.5rem - 0.5px);
-  inset-block: 0;
-  width: 1px;
-  background: linear-gradient(
-    180deg, transparent, var(--color-ui-line-lit) 3%, var(--color-ui-line-lit) 97%, transparent
-  );
-}
-@keyframes journey-travel {
-  0%   { top: -5rem; opacity: 0; }
-  4%   { opacity: 1; }
-  96%  { opacity: 1; }
-  100% { top: 100%; opacity: 0; }
-}
-.journey-rail::after {
-  content: '';
-  position: absolute;
-  inset-inline-start: calc(1.5rem - 1.5px);
-  width: 3px;
-  height: 5rem;
-  border-radius: 3px;
-  background: linear-gradient(180deg, transparent, var(--color-flow-internal), transparent);
-  animation: journey-travel var(--sweep, 12s) linear infinite;
-  pointer-events: none;
-}
-
-/* A marker wakes as the light reaches it. */
-@keyframes hop-mark {
-  0%, 2%    { box-shadow: 0 0 0 0 transparent; transform: scale(1); }
-  7%        { box-shadow: 0 0 18px 3px var(--lit); transform: scale(1.22); }
-  20%, 100% { box-shadow: 0 0 0 0 transparent; transform: scale(1); }
-}
-.hop-mark { animation: hop-mark var(--sweep, 12s) cubic-bezier(0.4, 0, 0.2, 1) infinite; }
-
-/* The turn heading carries a live dot, so a reader can tell at a glance which
-   blocks are round trips to the model and which are local work. */
-@keyframes turn-dot { 0%, 100% { opacity: 0.35; transform: scale(1); } 50% { opacity: 1; transform: scale(1.35); } }
-.turn-dot { animation: turn-dot 3s ease-in-out infinite; }
-
-/* THE BOX LIGHTS WITH ITS NUMBER, then goes back.
-   Done as a box-shadow rather than by animating border-color or background: a
-   crossing payload already carries a blue border from a class, and an animation
-   that set border-color would hold its own value for the 70% of the loop it is
-   idle — quietly overriding the styling for most of the time. A shadow layers
-   on top and returns to nothing, so the resting state is untouched.
-
-   THE TIMING IS DERIVED, NOT GUESSED. `rail-travel` crosses the list once every
-   TURN_SWEEP_MS; a hop sitting at (i + 0.5) / n of the way down should light
-   when the light is there. `hopDelay()` in Journey.tsx computes exactly that
-   from the same constant, so adding a hop re-syncs the whole turn instead of
-   silently drifting. The two used to run on different clocks — the delay was
-   set on the <ol>, and an inline delay never reaches a ::after animation. */
-/* THE BOX LIGHTS WITH ITS NUMBER, then goes back.
-   Done as a box-shadow and a background rather than by animating border-color:
-   a crossing payload already carries a blue border from a class, and an
-   animation that set border-color would hold its own value for the 80% of the
-   loop it is idle — quietly overriding the styling almost all of the time. A
-   shadow and a wash layer on top and return to nothing, so the resting state is
-   untouched.
-
-   The glow colour comes from `--lit`, NOT from currentColor: the box sets its
-   own text colour, and adding a tone class to reach currentColor would have
-   recoloured the payload text — the one thing on the box that must stay
-   legible.
-
-   IT IS DELIBERATELY STRONG. A 1px ring at low opacity was invisible against a
-   near-black page from more than arm's length, which made the whole sequence
-   pointless: if the reader cannot see which box is live, the light is just
-   something moving. */
-@keyframes hop-lit {
-  0%, 2% {
-    box-shadow: 0 0 0 0 transparent;
-    background-color: color-mix(in oklab, var(--color-ui-bg) 70%, transparent);
-  }
-  7% {
-    box-shadow: 0 0 0 1px var(--lit), 0 0 44px -8px var(--lit);
-    background-color: color-mix(in oklab, var(--lit) 9%, var(--color-ui-bg));
-  }
-  20%, 100% {
-    box-shadow: 0 0 0 0 transparent;
-    background-color: color-mix(in oklab, var(--color-ui-bg) 70%, transparent);
-  }
-}
-.hop-lit { animation: hop-lit var(--sweep, 12s) cubic-bezier(0.4, 0, 0.2, 1) infinite; }
-
-/* The title brightens with it — a dim caption above a lit box reads as a box
-   that lit up on its own. */
-@keyframes hop-title { 0%, 2% { opacity: 0.72; } 7% { opacity: 1; } 20%, 100% { opacity: 0.72; } }
-.hop-title { animation: hop-title var(--sweep, 12s) cubic-bezier(0.4, 0, 0.2, 1) infinite; }
 
 /* ── THE FIGURES ON THE MAP, AND HOW BIG EACH KIND OF NODE IS ───────────────
    `FlowMap` itself now lives in `@fde/uikit` — it is a graph, a pulse and a

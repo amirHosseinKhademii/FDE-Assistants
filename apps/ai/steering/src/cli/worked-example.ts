@@ -2,7 +2,7 @@
  * One real assessment, captured and written into the app.
  *
  * `pnpm steering:worked-example [CR-K2-0101]` runs the loop once and writes
- * `apps/steering-app/src/lib/worked-example.generated.ts` — the requirement, the
+ * `apps/web/steering-app/src/lib/worked-example.generated.ts` — the requirement, the
  * finding, the citations, what it refused, and what it did to get there.
  *
  * ── WHY A PAGE SHOULD CARRY ONE ──────────────────────────────────────────
@@ -40,7 +40,7 @@ import { REPO_ROOT } from '../config/connections';
 import { fetchRequirement } from '../answer/requirements';
 import { assessRequirement, closeAssessmentContext } from '../agent/loop/assess-requirement';
 
-const TARGET = resolve(REPO_ROOT, 'apps/steering-app/src/lib/worked-example.generated.ts');
+const TARGET = resolve(REPO_ROOT, 'apps/web/steering-app/src/lib/worked-example.generated.ts');
 
 /** The acceptance case: 8000 N claimed by analysis, 7600 N demonstrated on a rig. */
 const DEFAULT_REF = 'CR-K2-0101';

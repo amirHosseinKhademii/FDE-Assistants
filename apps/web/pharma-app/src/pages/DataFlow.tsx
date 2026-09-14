@@ -29,11 +29,11 @@
  */
 import { Link } from '@tanstack/react-router';
 import { Mono, BoxIcon, BlockIcon, GapIcon, EyeIcon, StepsIcon } from '@fde/uikit';
-import { Aurora } from '@veresk/surface';
+import { Aurora, Journey, type Turn } from '@veresk/surface';
 import { AURORA } from '../lib/aurora';
 import { useState } from 'react';
 import { Lanes } from '../components/flow/Lanes';
-import { Journey, type Turn } from '../components/flow/Journey';
+
 import { RELEASE_TURNS } from './release-turns';
 import { SUPPLIER_TURNS } from './supplier-turns';
 

@@ -21,6 +21,16 @@
  * because a page that only showed the second one would be claiming the problem
  * had never existed.
  *
+ * AND THE PAGE NOW DRAWS THE PRODUCT, NOT ONLY THE READING. The whole page
+ * below the hero was about turning 1,069 files into rows; nothing said what
+ * then happens to a question, which is the thing the hero has just promised.
+ * So `AssessMap` sits directly under the hero and answers it. Meridian Pharma's
+ * front door had the same hole and closed it the same way — this borrows the
+ * component and none of the content. See `components/flow/AssessMap.tsx` for
+ * why the two drawings make opposite arguments, and why the four databases the
+ * estate section further down shows are deliberately absent from the request
+ * path.
+ *
  * THE NUMBERS ARE MEASURED, AND BY TWO DIFFERENT COMMANDS. 13,705 rows and the
  * per-database counts come from `pnpm steering:estate`, which counts the live
  * databases. 1,069 files and 1.9 MB come from `pnpm steering:corpus-check`,
@@ -30,6 +40,7 @@
  */
 import { BoxIcon } from '@fde/uikit';
 import { Aurora, type AuroraTone } from '@veresk/surface';
+import { AssessMap } from '../components/flow/AssessMap';
 import { BeforeAfter } from '../components/BeforeAfter';
 import { Pipeline } from '../components/Pipeline';
 import { SteeringEstate } from '../components/SteeringEstate';
@@ -140,6 +151,22 @@ export function SteeringLanding() {
             figure, not ours — we have not measured anything here yet.
           </p>
         </section>
+
+        {/* FIRST, DIRECTLY UNDER THE HERO, AND IT WAS BRIEFLY FOURTH. Under
+            `Pipeline` it had the tidier dependency — the map's outer ring is
+            the rows those three stages produce, so a reader met `vst_derived`
+            only after something had said where it came from. It was the wrong
+            trade. The hero says the answer lives in four systems and six
+            colleagues' memories, and then three sections of reading go by
+            before anything shows what the product DOES with a question. The
+            map is the answer to the hero, so it goes where the answer to the
+            hero goes.
+
+            WHAT THAT COSTS, AND HOW IT IS PAID: the ring names five tables
+            nothing has introduced yet. So the map's own intro points forward
+            to the reading instead of back at it, and the three tones it
+            borrows are explained where they are defined, one section down. */}
+        <AssessMap />
 
         <Questions />
 

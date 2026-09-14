@@ -49,6 +49,15 @@ export interface Requirement {
   verificationMethod: string | null;
   revision: string;
   specTitle: string;
+  /**
+   * The programme, e.g. `PRG-KST-K2`. Present on every row the API returns and
+   * missing from this copy until 2026-09-14, because nothing had exercised it:
+   * `worked-example.generated.ts` shipped as `null` and the first real capture
+   * is what surfaced the gap. The server type explains why the field exists at
+   * all — the corpus states the same requirement, in the same words, for
+   * sixty-seven different cars.
+   */
+  programme: string;
 }
 
 export type Phase = 'idle' | 'running' | 'answered' | 'failed';

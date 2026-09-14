@@ -23,7 +23,8 @@ Reviewed and remediated 2026-09-14.
 | 3 · steering guard assertion | **fixed** — the smoke test now requires a 401 |
 | 4 · dependency advisories | accepted; not reachable from user input |
 | 5 · committed build artifacts | left alone; noise, not a security issue |
-| 6 · dead `UI_API_KEY` | left alone; a local `.env` value, never committed |
+| 6 · dead `UI_API_KEY` | left alone; a local `.env` value, never committed — but see 7, it is the fix for it |
+| 7 · steering dev server open on the LAN | **found by running the apps.** Dev-only, live now, one-line fix — awaiting your call |
 
 ## Verdict
 
@@ -195,6 +196,53 @@ Six generated TanStack router temp files are tracked under
 A 64-hex value that no code reads — the guard reads `API_KEY`, which is empty.
 Dead secrets invite the assumption that something is protected when nothing is.
 Rename it to `API_KEY` or delete it.
+
+### 7 — MEDIUM · the steering DEV server is on every interface with no key
+
+*Found on 2026-09-14 by running the apps, not by reading them. It is invisible
+to a code read, because each half is correct on its own.*
+
+`apps/web/steering-app/vite.config.ts` sets `server.host = true` and
+`allowedHosts: true`, for a documented reason: an editor's built-in browser
+reaches the page through a forwarded port on a different host, and a
+loopback-only bind shows it a blank screen. The block ends:
+
+> "...and the guard on every API route is unaffected: it is fail-closed and
+> does not care which host asked."
+
+**That sentence is false for the dev server specifically.** `authorize()` with
+no `API_KEY` and `isDev: true` returns `{ ok: true, reason: 'dev loopback' }`.
+The dev bypass exists because — in `guard.ts`'s own words — "the dev server
+binds localhost; that is the loopback guarantee, made by the listener rather
+than here." This listener does not make that guarantee. `host: true` removed it
+and the guard was never told.
+
+Observed live, from this machine's LAN address rather than loopback, with
+`API_KEY` empty in `.env`:
+
+    GET http://<lan-ip>:3400/api/requirements   200   ← real requirement text
+    GET http://<lan-ip>:3400/api/history        200
+    GET http://<lan-ip>:3400/api/summary        200
+
+`POST /api/assess` was deliberately not sent — it spends Foundry tokens — but
+it calls the identical `authorize()`, so anyone on the same network can spend
+them while `pnpm steering:dev` is running. The other three apps bind loopback
+and refuse (`pharma` on the same address: connection refused).
+
+Scope: **development only.** Production sets `API_KEY`, and
+`import.meta.env.DEV` is false in a built bundle, so the deployed app is
+unaffected — the 401 the smoke test now asserts (finding 3) proves it.
+
+**Fix, one line:** set `API_KEY` in `.env`. With a key configured the guard
+requires it *regardless* of `isDev`, so the dev bypass stops applying. The desk
+already has a key field persisted in `localStorage`, so it is a one-time paste.
+This also resolves finding 6 — `UI_API_KEY` is an unused 64-hex value that
+appears to have been generated for exactly this and never wired up; renaming it
+to `API_KEY` does both jobs at once.
+
+The alternative — teaching the route that `isDev` no longer implies loopback —
+is more honest but lands in the same place, because the only safe thing it can
+then do is demand a key.
 
 ## Not findings, but worth knowing
 

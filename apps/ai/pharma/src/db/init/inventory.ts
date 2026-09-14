@@ -1,7 +1,7 @@
 /**
  * What is actually in the estate — read off the databases, written into the app.
  *
- * `pnpm pharma:estate` regenerates `apps/veresk-app/src/lib/estate.generated.ts`:
+ * `pnpm pharma:estate` regenerates `apps/web/pharma-app/src/lib/estate.generated.ts`:
  * every table in all seven databases, its columns, and an EXACT row count.
  *
  * WHY THIS IS GENERATED AND NOT TYPED OUT. The front page states figures and
@@ -45,7 +45,7 @@ import { dirname, resolve } from 'node:path';
 import { DB_NAMES, KB_DB, REPO_ROOT, SYSTEMS, urlFor } from '../../config/connections';
 
 /** Where the generated file goes. Printed, never assumed — see below. */
-const TARGET = resolve(REPO_ROOT, 'apps/veresk-app/src/lib/estate.generated.ts');
+const TARGET = resolve(REPO_ROOT, 'apps/web/pharma-app/src/lib/estate.generated.ts');
 
 interface Column {
   name: string;

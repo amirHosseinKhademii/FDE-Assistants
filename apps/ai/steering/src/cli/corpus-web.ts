@@ -33,7 +33,7 @@ import { dirname, extname, join, relative, resolve } from 'node:path';
 import { REPO_ROOT } from '../config/connections';
 
 const CORPUS = resolve(REPO_ROOT, 'docs/steering/corpus');
-const TARGET = resolve(REPO_ROOT, 'apps/steering-app/src/lib/corpus.generated.ts');
+const TARGET = resolve(REPO_ROOT, 'apps/web/steering-app/src/lib/corpus.generated.ts');
 
 /**
  * THE GROUPS ARE HAND-DRAWN AND HAVE TO BE. A directory listing gives

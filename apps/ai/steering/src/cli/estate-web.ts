@@ -2,7 +2,7 @@
  * What is actually in the estate — read off the databases, written into the app.
  *
  * `pnpm steering:estate` regenerates
- * `apps/steering-app/src/lib/estate.generated.ts`: every table in the
+ * `apps/web/steering-app/src/lib/estate.generated.ts`: every table in the
  * four databases, its columns, an EXACT row count and one real value each.
  *
  * IT IS A SIBLING OF `packages/pharma/src/db/init/inventory.ts`, NOT AN IMPORT
@@ -54,7 +54,7 @@ import { dirname, resolve } from 'node:path';
 import { DB_NAMES, DERIVED_DB, REPO_ROOT, SYSTEMS, derivedUrl, urlFor } from '../config/connections';
 
 /** Where the generated file goes. Printed, never assumed — see below. */
-const TARGET = resolve(REPO_ROOT, 'apps/steering-app/src/lib/estate.generated.ts');
+const TARGET = resolve(REPO_ROOT, 'apps/web/steering-app/src/lib/estate.generated.ts');
 
 interface Column {
   name: string;
