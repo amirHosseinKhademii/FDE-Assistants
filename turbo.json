@@ -68,7 +68,14 @@
     "AZURE_TENANT_ID",
     "AZURE_CLIENT_SECRET",
     "STEERING_DATABASE_URL",
-    "STEERING_CORPUS_DIR"
+    "STEERING_CORPUS_DIR",
+    "AWS_REGION",
+    "AWS_PROFILE",
+    "AWS_ACCESS_KEY_ID",
+    "AWS_SECRET_ACCESS_KEY",
+    "AWS_SESSION_TOKEN",
+    "BEDROCK_MODEL",
+    "LLM_PROVIDER"
   ],
   "globalDependencies": [
     ".env"
