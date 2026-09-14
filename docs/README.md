@@ -41,6 +41,7 @@ they cover one question from a file on disk to a validated answer.
 | [`SWAP.md`](SWAP.md) | Where a hand-written part was replaced by a package, and what that cost. |
 | [`plans/REFACTOR.md`](plans/REFACTOR.md) | The measurement that decided what became a shared package — **and what deliberately did not.** |
 | [`PATTERN-DATABASE-UI.md`](PATTERN-DATABASE-UI.md) | Showing a database on a page, as a reusable pattern. |
+| [`SECURITY-REVIEW.md`](SECURITY-REVIEW.md) | What a scan of the whole repo and its git history found, what was fixed, and the one exposure that is accepted rather than fixed. Dated — re-run it, don't trust it. |
 
 ## The three engagements
 

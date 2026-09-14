@@ -33,6 +33,18 @@ the trap in that is written up in the steering DEPLOY.md.
 
 ## What exists
 
+> **The `<angle-bracket>` values are redacted on purpose.** This repository is
+> public, and a tenant id next to a client id names the exact app registration
+> to attack — even though neither is a credential and the federated token
+> exchange is what actually authenticates. Read the real values out of the
+> portal, or:
+>
+>     az account show --query '{subscription:id, tenant:tenantId}'
+>     az ad app list --display-name gh-deploy-pharma --query '[].appId'
+>     az containerapp show -n pharma-app -g rg-claims-fde --query identity.principalId
+>
+> What this document is *for* is the prose around the table, not the ids.
+
 | Piece | Value |
 |---|---|
 | Subscription | `Claims FDE` — `<subscription-id>` |

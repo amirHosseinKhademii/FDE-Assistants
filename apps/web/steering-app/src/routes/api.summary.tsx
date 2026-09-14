@@ -30,7 +30,7 @@
  * widest endpoint in the app rather than the most innocent one.
  */
 import { createFileRoute } from '@tanstack/react-router';
-import { authorize } from '@fde/guard';
+import { authorize, publicError } from '@fde/guard';
 import { listRequirements, DEFAULT_PROGRAMME } from '@vantis/steering/requirements';
 import { fetchFiledAssessments } from '@vantis/steering/history';
 import { rollUp, NOT_THE_QUOTE } from '@vantis/steering/roll-up';
@@ -78,8 +78,10 @@ export const Route = createFileRoute('/api/summary')({
         } catch (e: any) {
           // Never `{}`. A roll-up that fails to load and one that found nothing
           // render identically unless the failure says so, and the second
-          // reading is "the bid is empty".
-          return json({ error: e?.message ?? String(e) }, 503);
+          // reading is "the bid is empty". What it must NOT say is the
+          // exception — `state()` touches two databases, and both name
+          // themselves when they are unreachable.
+          return json(publicError(e, { context: 'GET /api/summary' }), 503);
         }
       },
 
@@ -109,7 +111,7 @@ export const Route = createFileRoute('/api/summary')({
             run: { engine: result.engine, turns: result.turns.length, ms: result.ms, compression: result.compression },
           });
         } catch (e: any) {
-          return json({ error: e?.message ?? String(e) }, 503);
+          return json(publicError(e, { context: 'POST /api/summary' }), 503);
         }
       },
     },

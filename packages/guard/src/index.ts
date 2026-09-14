@@ -19,5 +19,10 @@
  *
  * Its self-test asserts that every denial branch actually denies — a guard that
  * has never been observed refusing is a guard you are hoping about.
+ *
+ * `publicError` is the same question asked on the way OUT: an exception that
+ * reaches the caller verbatim will eventually be a database driver naming the
+ * host it could not reach. See `public-error.ts`.
  */
 export * from './guard';
+export * from './public-error';

@@ -20,7 +20,7 @@
  * mid-answer.
  */
 import { createFileRoute } from '@tanstack/react-router';
-import { authorize } from '@fde/guard';
+import { authorize, publicError } from '@fde/guard';
 import { listAsks, type AskKind } from '../server/ask-history';
 
 const KINDS: AskKind[] = ['release', 'supplier'];
@@ -56,8 +56,10 @@ export const Route = createFileRoute('/api/history')({
         } catch (e: any) {
           // Said out loud rather than returned as `[]`. An empty list reads as
           // "you have never asked anything", which is how somebody re-runs a
-          // question they already paid for.
-          return new Response(JSON.stringify({ error: e?.message ?? String(e) }), {
+          // question they already paid for. THAT the load failed is the useful
+          // part; WHY is for the log, because "why" here is the database naming
+          // its own host.
+          return new Response(JSON.stringify(publicError(e, { context: 'GET /api/history' })), {
             status: 503,
             headers: { 'content-type': 'application/json' },
           });

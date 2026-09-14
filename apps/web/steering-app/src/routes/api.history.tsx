@@ -12,7 +12,7 @@
  * closed mid-answer.
  */
 import { createFileRoute } from '@tanstack/react-router';
-import { authorize } from '@fde/guard';
+import { authorize, publicError } from '@fde/guard';
 import { listAssessments } from '../server/assess-history';
 
 export const Route = createFileRoute('/api/history')({
@@ -38,8 +38,9 @@ export const Route = createFileRoute('/api/history')({
         } catch (e: any) {
           // Said out loud rather than returned as `[]`. An empty list reads as
           // "you have never assessed anything", which is how somebody re-runs
-          // an assessment they already paid for.
-          return new Response(JSON.stringify({ error: e?.message ?? String(e) }), {
+          // an assessment they already paid for. The failure is reported; the
+          // exception text is not, because it is the driver naming the host.
+          return new Response(JSON.stringify(publicError(e, { context: 'GET /api/history' })), {
             status: 503,
             headers: { 'content-type': 'application/json' },
           });

@@ -29,7 +29,7 @@
  */
 import { createFileRoute } from '@tanstack/react-router';
 import { askCoverage } from '@claims/insurance';
-import { authorize } from '@fde/guard';
+import { authorize, publicError } from '@fde/guard';
 
 const encoder = new TextEncoder();
 
@@ -130,7 +130,12 @@ export const Route = createFileRoute('/api/ask')({
                   run,
                 });
             } catch (e: any) {
-              send('error', { message: e?.message ?? String(e), stoppedBecause: 'exception' });
+              // `stoppedBecause: 'exception'` is the honest part and stays. The
+              // exception TEXT does not: the throw can come from the database
+              // driver or the Foundry client, and both name the host they could
+              // not reach. The ref joins this frame to the full text in the log.
+              const safe = publicError(e, { context: 'POST /api/ask' });
+              send('error', { message: safe.error, ref: safe.ref, stoppedBecause: 'exception' });
             } finally {
               clearInterval(heartbeat);
               controller.close();

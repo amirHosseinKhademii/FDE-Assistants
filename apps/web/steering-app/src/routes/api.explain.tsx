@@ -19,7 +19,7 @@
  * the history, and the day they disagree the stored pair is worse than either.
  */
 import { createFileRoute } from '@tanstack/react-router';
-import { authorize } from '@fde/guard';
+import { authorize, publicError } from '@fde/guard';
 import { explainAssessment } from '@vantis/steering/explain';
 
 export const Route = createFileRoute('/api/explain')({
@@ -68,7 +68,7 @@ export const Route = createFileRoute('/api/explain')({
             { headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } },
           );
         } catch (e: any) {
-          return new Response(JSON.stringify({ error: e?.message ?? String(e) }), {
+          return new Response(JSON.stringify(publicError(e, { context: 'POST /api/explain' })), {
             status: 500,
             headers: { 'content-type': 'application/json' },
           });

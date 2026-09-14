@@ -13,7 +13,7 @@
  */
 import { createFileRoute } from '@tanstack/react-router';
 import { listRequirements } from '@vantis/steering/requirements';
-import { authorize } from '@fde/guard';
+import { authorize, publicError } from '@fde/guard';
 
 export const Route = createFileRoute('/api/requirements')({
   server: {
@@ -37,9 +37,10 @@ export const Route = createFileRoute('/api/requirements')({
           });
         } catch (e: any) {
           // The estate is a database that can be asleep, unreachable or not
-          // seeded. Saying which is more useful than an empty list, and an
-          // empty list would render as "this programme has no requirements".
-          return new Response(JSON.stringify({ error: e?.message ?? String(e) }), {
+          // seeded. Saying THAT is more useful than an empty list, which would
+          // render as "this programme has no requirements". Saying WHICH is
+          // not: each of those three failures names the host in its message.
+          return new Response(JSON.stringify(publicError(e, { context: 'GET /api/requirements' })), {
             status: 503,
             headers: { 'content-type': 'application/json' },
           });
