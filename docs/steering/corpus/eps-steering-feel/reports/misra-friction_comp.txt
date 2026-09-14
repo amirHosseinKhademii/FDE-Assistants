@@ -1,0 +1,19 @@
+MISRA C:2012 compliance report
+Repository : eps-steering-feel
+Module     : friction_comp.c   (SWC-FRICCOMP, ASIL B)
+Tool       : LDRA 9.8
+Run        : 2023-03-31
+Run by     : n.haas
+
+SUMMARY
+  rules checked        169
+  violations           2
+  deviations approved  4
+  unresolved           3
+
+DEVIATIONS
+  D-8  Rule 8.2  goto used for single-exit error handling. Approved.
+  D-19  Rule 18.4  union used for the CAN frame overlay. Approved.
+
+UNRESOLVED
+  (none)

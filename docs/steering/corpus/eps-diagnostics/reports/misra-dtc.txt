@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-diagnostics
+Module     : dtc.c   (SWC-DIAG, ASIL QM)
+Tool       : LDRA 9.8
+Run        : 2023-10-09
+Run by     : l.renaud
+
+SUMMARY
+  rules checked        155
+  violations           8
+  deviations approved  6
+  unresolved           1
+
+DEVIATIONS
+  D-5  Rule 15.7  pointer arithmetic in the buffer walk. Approved.
+
+UNRESOLVED
+  Rule 10.4 at dtc.c:371 — owner r.dietrich, no target date

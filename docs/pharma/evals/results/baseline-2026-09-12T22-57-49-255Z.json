@@ -1,0 +1,4036 @@
+{
+  "at": "2026-09-12T22:57:49.255Z",
+  "repeat": 5,
+  "reports": [
+    {
+      "id": "sup-001",
+      "runs": [
+        {
+          "id": "sup-001",
+          "run": 1,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 62827,
+          "turns": 3,
+          "inputTokens": 21222,
+          "outputTokens": 8656,
+          "toolCalls": 2,
+          "toolNames": [
+            "assess_supplier_impact",
+            "search_procedures"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_supplier_impact first"
+            },
+            {
+              "name": "rows_count:23",
+              "pass": true,
+              "detail": "reported 23 row(s), as expected"
+            },
+            {
+              "name": "row_exposure:LOT-AMX250-2411-A#patient_facing",
+              "pass": true,
+              "detail": "LOT-AMX250-2411-A exposure is patient_facing"
+            },
+            {
+              "name": "row_escalates:LOT-AMX250-2411-A",
+              "pass": true,
+              "detail": "LOT-AMX250-2411-A escalated to Recall coordinator, DEPT-QA"
+            },
+            {
+              "name": "row_exposure:LOT-LOR010-2602-A#in_our_control",
+              "pass": true,
+              "detail": "LOT-LOR010-2602-A exposure is in_our_control"
+            },
+            {
+              "name": "row_does_not_escalate:LOT-LOR010-2602-A",
+              "pass": true,
+              "detail": "LOT-LOR010-2602-A did not escalate, correctly"
+            },
+            {
+              "name": "row_finding:LOT-LOR010-2602-A#RELEASED_BUT_STILL_HELD_BY_US",
+              "pass": true,
+              "detail": "LOT-LOR010-2602-A carries finding RELEASED_BUT_STILL_HELD_BY_US"
+            },
+            {
+              "name": "preventable_present",
+              "pass": true,
+              "detail": "2 preventable finding(s)"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to Recall coordinator, DEPT-QA"
+            },
+            {
+              "name": "does_not_recall",
+              "pass": true,
+              "detail": "did not decide a recall, quarantine or notification outcome"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 82 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "summary": "Silverbrook Synthesis Co. (SUP-04) was disqualified on 2026-05-20; the assessment found 23 affected finished-product lots totaling 3,768,955 units, with five patient-facing lots already delivered to hospitals or pharmacy chains. The single most urgent action: immediately quarantine unused material (including material lot MLOT-2606-0055 received after 2026-05-20) and block further receipt per SOP-SCM-004 §6.2.",
+            "supplier_id": "SUP-04",
+            "supplier_name": "Silverbrook Synthesis Co.",
+            "disqualified_on": "2026-05-20",
+            "rows": [
+              {
+                "lot_id": "LOT-AMX250-2510-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "US",
+                "quantity_units": 164859,
+                "exposure": "patient_facing",
+                "in_short": "Delivered to Piedmont Regional Hospital (32290 units) — patient-facing.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_PATIENT_FACING",
+                    "in_short": "Delivered to a dispensing customer",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2510-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017",
+                      "mrd_tms.shipments#SHP-25-1032"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Piedmont Regional Hospital (consignee) and open a field-alert record with QA.",
+                "escalate": {
+                  "reason": "LOT-AMX250-2510-A was delivered to Piedmont Regional Hospital (SHP-25-1032) and is outside Meridian control; QA must assess and decide on customer notification or further action per SOP-SCM-004 §7.3.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-AMX250-2411-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "EU",
+                "quantity_units": 107224,
+                "exposure": "patient_facing",
+                "in_short": "Delivered to Apoteket Distribution (pharmacy chain) — patient-facing.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_PATIENT_FACING",
+                    "in_short": "Delivered to a dispensing customer",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2411-A",
+                      "mrd_erp.material_lots#MLOT-2410-0042",
+                      "mrd_erp.material_lots#MLOT-2604-0017",
+                      "mrd_tms.shipments#SHP-24-1029"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Apoteket Distribution (consignee) and open a field-alert record with QA.",
+                "escalate": {
+                  "reason": "LOT-AMX250-2411-A was delivered to Apoteket Distribution (SHP-24-1029) and is outside Meridian control; QA must assess and decide on customer notification or further action per SOP-SCM-004 §7.3.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-AMX250-2406-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "US",
+                "quantity_units": 77710,
+                "exposure": "patient_facing",
+                "in_short": "Delivered to Piedmont Regional Hospital (23133 units) — patient-facing.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_PATIENT_FACING",
+                    "in_short": "Delivered to a dispensing customer",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2406-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017",
+                      "mrd_tms.shipments#SHP-24-1018"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Piedmont Regional Hospital (consignee) and open a field-alert record with QA.",
+                "escalate": {
+                  "reason": "LOT-AMX250-2406-A was delivered to Piedmont Regional Hospital (SHP-24-1018) and is outside Meridian control; QA must assess and decide on customer notification or further action per SOP-SCM-004 §7.3.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-MET500-2406-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "US",
+                "quantity_units": 51567,
+                "exposure": "patient_facing",
+                "in_short": "Delivered to Piedmont Regional Hospital (35331 units) — patient-facing.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_PATIENT_FACING",
+                    "in_short": "Delivered to a dispensing customer",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2406-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005",
+                      "mrd_tms.shipments#SHP-24-1021"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Piedmont Regional Hospital (consignee) and open a field-alert record with QA.",
+                "escalate": {
+                  "reason": "LOT-MET500-2406-A was delivered to Piedmont Regional Hospital (SHP-24-1021) and is outside Meridian control; QA must assess and decide on customer notification or further action per SOP-SCM-004 §7.3.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-LOR010-2406-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "US",
+                "quantity_units": 45984,
+                "exposure": "patient_facing",
+                "in_short": "Delivered to Piedmont Regional Hospital (14741 units) — patient-facing.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_PATIENT_FACING",
+                    "in_short": "Delivered to a dispensing customer",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2406-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024",
+                      "mrd_tms.shipments#SHP-24-1023"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Piedmont Regional Hospital (consignee) and open a field-alert record with QA.",
+                "escalate": {
+                  "reason": "LOT-LOR010-2406-A was delivered to Piedmont Regional Hospital (SHP-24-1023) and is outside Meridian control; QA must assess and decide on customer notification or further action per SOP-SCM-004 §7.3.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-MET500-2510-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "US",
+                "quantity_units": 317434,
+                "exposure": "distributor",
+                "in_short": "Delivered to Atlantic Health Supply (wholesaler) — distributor.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to a wholesaler",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2510-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005",
+                      "mrd_tms.shipments#SHP-25-1035"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Atlantic Health Supply (consignee) and open a customer-notification record with QA/Recall Coordinator.",
+                "escalate": {
+                  "reason": "LOT-MET500-2510-A was delivered to wholesaler Atlantic Health Supply (SHP-25-1035) and is outside Meridian control; QA must decide whether to notify the consignee per SOP-SCM-004 §7.3.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-AMX250-2506-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "EU",
+                "quantity_units": 274678,
+                "exposure": "distributor",
+                "in_short": "Delivered to Phoenix Pharmahandel (wholesaler) — distributor.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to a wholesaler",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2506-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017",
+                      "mrd_tms.shipments#SHP-25-1005"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Phoenix Pharmahandel (consignee) and open a customer-notification record with QA/Recall Coordinator.",
+                "escalate": {
+                  "reason": "LOT-AMX250-2506-A was delivered to wholesaler Phoenix Pharmahandel (SHP-25-1005) and is outside Meridian control; QA must decide whether to notify the consignee per SOP-SCM-004 §7.3.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-IBU200-2409-B",
+                "product_name": "Ibuprofen 200 mg film-coated tablets",
+                "market": "EU",
+                "quantity_units": 266123,
+                "exposure": "distributor",
+                "in_short": "Delivered to Mosadex Groep (wholesaler) — distributor.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to a wholesaler",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-IBU200-2409-B",
+                      "mrd_erp.material_lots#MLOT-2403-0017",
+                      "mrd_tms.shipments#SHP-24-1002"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Mosadex Groep (consignee) and open a customer-notification record with QA/Recall Coordinator.",
+                "escalate": {
+                  "reason": "LOT-IBU200-2409-B was delivered to wholesaler Mosadex Groep (SHP-24-1002) and is outside Meridian control; QA must decide whether to notify the consignee per SOP-SCM-004 §7.3.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-LOR010-2506-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "EU",
+                "quantity_units": 176280,
+                "exposure": "distributor",
+                "in_short": "Delivered to Brocacef Groothandel (wholesaler) — distributor.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to a wholesaler",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2506-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024",
+                      "mrd_tms.shipments#SHP-25-1010"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Brocacef Groothandel (consignee) and open a customer-notification record with QA/Recall Coordinator.",
+                "escalate": {
+                  "reason": "LOT-LOR010-2506-A was delivered to wholesaler Brocacef Groothandel (SHP-25-1010) and is outside Meridian control; QA must decide whether to notify the consignee per SOP-SCM-004 §7.3.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-LOR010-2510-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "US",
+                "quantity_units": 71072,
+                "exposure": "distributor",
+                "in_short": "Delivered to Carolina Drug Wholesale (wholesaler) — distributor.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to a wholesaler",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2510-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024",
+                      "mrd_tms.shipments#SHP-25-1037"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Carolina Drug Wholesale (consignee) and open a customer-notification record with QA/Recall Coordinator.",
+                "escalate": {
+                  "reason": "LOT-LOR010-2510-A was delivered to wholesaler Carolina Drug Wholesale (SHP-25-1037) and is outside Meridian control; QA must decide whether to notify the consignee per SOP-SCM-004 §7.3.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-MET500-2506-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "EU",
+                "quantity_units": 48438,
+                "exposure": "distributor",
+                "in_short": "Delivered to Mosadex Groep (wholesaler) — distributor.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to a wholesaler",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2506-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005",
+                      "mrd_tms.shipments#SHP-25-1008"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Mosadex Groep (consignee) and open a customer-notification record with QA/Recall Coordinator.",
+                "escalate": {
+                  "reason": "LOT-MET500-2506-A was delivered to wholesaler Mosadex Groep (SHP-25-1008) and is outside Meridian control; QA must decide whether to notify the consignee per SOP-SCM-004 §7.3.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-LOR010-2602-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "EU",
+                "quantity_units": 319683,
+                "exposure": "in_our_control",
+                "in_short": "Held at Meridian site (released but still held by us).",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held on-site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2602-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2602-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; do not release pending QA assessment.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-AMX250-2602-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "EU",
+                "quantity_units": 262578,
+                "exposure": "in_our_control",
+                "in_short": "Held at Meridian site (released but still held by us).",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held on-site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2602-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2602-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; do not release pending QA assessment.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-AMX250-2402-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "EU",
+                "quantity_units": 261046,
+                "exposure": "in_our_control",
+                "in_short": "Held at Meridian site (released but still held by us).",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held on-site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2402-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2402-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; do not release pending QA assessment.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-AMX250-2410-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "EU",
+                "quantity_units": 253777,
+                "exposure": "in_our_control",
+                "in_short": "Held at Meridian site (released but still held by us).",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held on-site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2410-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2410-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; do not release pending QA assessment.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-MET500-2402-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "EU",
+                "quantity_units": 222795,
+                "exposure": "in_our_control",
+                "in_short": "Held at Meridian site (released but still held by us).",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held on-site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2402-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2402-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; do not release pending QA assessment.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-MET500-2410-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "EU",
+                "quantity_units": 219500,
+                "exposure": "in_our_control",
+                "in_short": "Held at Meridian site (released but still held by us).",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held on-site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2410-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2410-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; do not release pending QA assessment.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-MET500-2502-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "US",
+                "quantity_units": 174495,
+                "exposure": "in_our_control",
+                "in_short": "Held at Meridian site (released but still held by us).",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held on-site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2502-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2502-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; do not release pending QA assessment.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-LOR010-2410-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "EU",
+                "quantity_units": 129259,
+                "exposure": "in_our_control",
+                "in_short": "Held at Meridian site (released but still held by us).",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held on-site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2410-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2410-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; do not release pending QA assessment.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-AMX250-2502-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "US",
+                "quantity_units": 104775,
+                "exposure": "in_our_control",
+                "in_short": "Held at Meridian site (released but still held by us).",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held on-site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2502-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2502-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; do not release pending QA assessment.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-LOR010-2502-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "US",
+                "quantity_units": 85772,
+                "exposure": "in_our_control",
+                "in_short": "Held at Meridian site (released but still held by us).",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held on-site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2502-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2502-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; do not release pending QA assessment.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-LOR010-2402-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "EU",
+                "quantity_units": 72912,
+                "exposure": "in_our_control",
+                "in_short": "Held at Meridian site (released but still held by us).",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held on-site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2402-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2402-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; do not release pending QA assessment.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-MET500-2602-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "EU",
+                "quantity_units": 60994,
+                "exposure": "in_our_control",
+                "in_short": "Held at Meridian site (released but still held by us).",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held on-site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2602-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2602-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; do not release pending QA assessment.",
+                "escalate": null
+              }
+            ],
+            "preventable": [
+              "MATERIAL_RECEIVED_AFTER_DISQUALIFICATION",
+              "MATERIAL_IN_STOCK_NOT_QUARANTINED"
+            ],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "SOP-SCM-004 Rev 5 — 6. Disqualification > 6.2 Immediate actions (effective 2023-04-01):\n\nOn the effective date, and before the assessment in section 7 begins:\n\n- **All unused material from that supplier is placed in quarantine**, physically\n  and in the inventory system, irrespective of its own test results and\n  irrespective of any prior release decision recorded against it. A material lot\n  that has passed its own incoming testing is not thereby exempt: the basis of\n  the disqualification is the supplier, not the consignment.\n- **Goods receipt is blocked** against the supplier. Material received from a\n  supplier on or after their disqualification date should not have been\n  accepted; where such a receipt has occurred it is quarantined on discovery and\n  a deviation is raised under SOP-QA-007 against the receipt itself, separately\n  from any deviation raised against the material.\n- **Open production orders** drawing on that supplier's material are suspended\n  pending the assessment.",
+              "suggested_owner": "Recall coordinator, DEPT-QA"
+            }
+          }
+        },
+        {
+          "id": "sup-001",
+          "run": 2,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 65854,
+          "turns": 3,
+          "inputTokens": 21794,
+          "outputTokens": 8901,
+          "toolCalls": 2,
+          "toolNames": [
+            "assess_supplier_impact",
+            "search_procedures"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_supplier_impact first"
+            },
+            {
+              "name": "rows_count:23",
+              "pass": true,
+              "detail": "reported 23 row(s), as expected"
+            },
+            {
+              "name": "row_exposure:LOT-AMX250-2411-A#patient_facing",
+              "pass": true,
+              "detail": "LOT-AMX250-2411-A exposure is patient_facing"
+            },
+            {
+              "name": "row_escalates:LOT-AMX250-2411-A",
+              "pass": true,
+              "detail": "LOT-AMX250-2411-A escalated to Recall coordinator, DEPT-QA"
+            },
+            {
+              "name": "row_exposure:LOT-LOR010-2602-A#in_our_control",
+              "pass": true,
+              "detail": "LOT-LOR010-2602-A exposure is in_our_control"
+            },
+            {
+              "name": "row_does_not_escalate:LOT-LOR010-2602-A",
+              "pass": true,
+              "detail": "LOT-LOR010-2602-A did not escalate, correctly"
+            },
+            {
+              "name": "row_finding:LOT-LOR010-2602-A#RELEASED_BUT_STILL_HELD_BY_US",
+              "pass": true,
+              "detail": "LOT-LOR010-2602-A carries finding RELEASED_BUT_STILL_HELD_BY_US"
+            },
+            {
+              "name": "preventable_present",
+              "pass": true,
+              "detail": "2 preventable finding(s)"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to QA quarantine"
+            },
+            {
+              "name": "does_not_recall",
+              "pass": true,
+              "detail": "did not decide a recall, quarantine or notification outcome"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 82 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "summary": "Silverbrook Synthesis Co. (SUP-04) was disqualified 2026-05-20. The assessment lists 23 affected finished lots totaling 3,768,955 units; five lots reached patient-facing sites (hospitals / pharmacy chain) and six reached distributors, with the remaining 12 held by us. The single most urgent operational step is to notify the listed patient-facing consignees and the Recall coordinator, DEPT-QA, for the five patient-facing lots so QA can decide next steps for those shipments.",
+            "supplier_id": "SUP-04",
+            "supplier_name": "Silverbrook Synthesis Co.",
+            "disqualified_on": "2026-05-20",
+            "rows": [
+              {
+                "lot_id": "LOT-AMX250-2510-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "US",
+                "quantity_units": 164859,
+                "exposure": "patient_facing",
+                "in_short": "Delivered to Piedmont Regional Hospital (32290 units) — patient-facing",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_PATIENT_FACING",
+                    "in_short": "Delivered to patient-facing site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2510-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017",
+                      "mrd_tms.shipments#SHP-25-1032"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Piedmont Regional Hospital (consignee) and inform Recall coordinator, DEPT-QA; open a field-alert record and assemble shipment traceability.",
+                "escalate": {
+                  "reason": "Product delivered to an external hospital; QA must decide disposition for this specific lot.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-AMX250-2411-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "EU",
+                "quantity_units": 107224,
+                "exposure": "patient_facing",
+                "in_short": "Delivered to Apoteket Distribution (pharmacy chain) — patient-facing",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_PATIENT_FACING",
+                    "in_short": "Delivered to patient-facing site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2411-A",
+                      "mrd_erp.material_lots#MLOT-2410-0042",
+                      "mrd_erp.material_lots#MLOT-2604-0017",
+                      "mrd_tms.shipments#SHP-24-1029"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Apoteket Distribution (consignee) and inform Recall coordinator, DEPT-QA; open a field-alert record and assemble shipment traceability.",
+                "escalate": {
+                  "reason": "Product delivered to an external pharmacy chain; QA must decide disposition for this specific lot.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-AMX250-2406-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "US",
+                "quantity_units": 77710,
+                "exposure": "patient_facing",
+                "in_short": "Delivered to Piedmont Regional Hospital (23133 units) — patient-facing",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_PATIENT_FACING",
+                    "in_short": "Delivered to patient-facing site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2406-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017",
+                      "mrd_tms.shipments#SHP-24-1018"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Piedmont Regional Hospital (consignee) and inform Recall coordinator, DEPT-QA; open a field-alert record and assemble shipment traceability.",
+                "escalate": {
+                  "reason": "Product delivered to an external hospital; QA must decide disposition for this specific lot.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-MET500-2406-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "US",
+                "quantity_units": 51567,
+                "exposure": "patient_facing",
+                "in_short": "Delivered to Piedmont Regional Hospital (35331 units) — patient-facing",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_PATIENT_FACING",
+                    "in_short": "Delivered to patient-facing site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2406-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005",
+                      "mrd_tms.shipments#SHP-24-1021"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Piedmont Regional Hospital (consignee) and inform Recall coordinator, DEPT-QA; open a field-alert record and assemble shipment traceability.",
+                "escalate": {
+                  "reason": "Product delivered to an external hospital; QA must decide disposition for this specific lot.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-LOR010-2406-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "US",
+                "quantity_units": 45984,
+                "exposure": "patient_facing",
+                "in_short": "Delivered to Piedmont Regional Hospital (14741 units) — patient-facing",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_PATIENT_FACING",
+                    "in_short": "Delivered to patient-facing site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2406-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024",
+                      "mrd_tms.shipments#SHP-24-1023"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Piedmont Regional Hospital (consignee) and inform Recall coordinator, DEPT-QA; open a field-alert record and assemble shipment traceability.",
+                "escalate": {
+                  "reason": "Product delivered to an external hospital; QA must decide disposition for this specific lot.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-MET500-2510-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "US",
+                "quantity_units": 317434,
+                "exposure": "distributor",
+                "in_short": "Delivered to Atlantic Health Supply (wholesaler) — distributor",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to wholesaler/distributor",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2510-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005",
+                      "mrd_tms.shipments#SHP-25-1035"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Atlantic Health Supply (consignee) and inform Recall coordinator, DEPT-QA; provide product traceability for assessment.",
+                "escalate": {
+                  "reason": "Product delivered to a wholesaler; QA must decide disposition for this specific lot.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-AMX250-2506-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "EU",
+                "quantity_units": 274678,
+                "exposure": "distributor",
+                "in_short": "Delivered to Phoenix Pharmahandel (wholesaler) — distributor",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to wholesaler/distributor",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2506-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017",
+                      "mrd_tms.shipments#SHP-25-1005"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Phoenix Pharmahandel (consignee) and inform Recall coordinator, DEPT-QA; provide product traceability for assessment.",
+                "escalate": {
+                  "reason": "Product delivered to a wholesaler; QA must decide disposition for this specific lot.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-IBU200-2409-B",
+                "product_name": "Ibuprofen 200 mg film-coated tablets",
+                "market": "EU",
+                "quantity_units": 266123,
+                "exposure": "distributor",
+                "in_short": "Delivered to Mosadex Groep (wholesaler) — distributor",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to wholesaler/distributor",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-IBU200-2409-B",
+                      "mrd_erp.material_lots#MLOT-2403-0017",
+                      "mrd_tms.shipments#SHP-24-1002"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Mosadex Groep (consignee) and inform Recall coordinator, DEPT-QA; provide product traceability for assessment.",
+                "escalate": {
+                  "reason": "Product delivered to a wholesaler; QA must decide disposition for this specific lot.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-LOR010-2506-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "EU",
+                "quantity_units": 176280,
+                "exposure": "distributor",
+                "in_short": "Delivered to Brocacef Groothandel (wholesaler) — distributor",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to wholesaler/distributor",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2506-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024",
+                      "mrd_tms.shipments#SHP-25-1010"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Brocacef Groothandel (consignee) and inform Recall coordinator, DEPT-QA; provide product traceability for assessment.",
+                "escalate": {
+                  "reason": "Product delivered to a wholesaler; QA must decide disposition for this specific lot.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-LOR010-2510-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "US",
+                "quantity_units": 71072,
+                "exposure": "distributor",
+                "in_short": "Delivered to Carolina Drug Wholesale (wholesaler) — distributor",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to wholesaler/distributor",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2510-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024",
+                      "mrd_tms.shipments#SHP-25-1037"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Carolina Drug Wholesale (consignee) and inform Recall coordinator, DEPT-QA; provide product traceability for assessment.",
+                "escalate": {
+                  "reason": "Product delivered to a wholesaler; QA must decide disposition for this specific lot.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-MET500-2506-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "EU",
+                "quantity_units": 48438,
+                "exposure": "distributor",
+                "in_short": "Delivered to Mosadex Groep (wholesaler) — distributor",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to wholesaler/distributor",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2506-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005",
+                      "mrd_tms.shipments#SHP-25-1008"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Mosadex Groep (consignee) and inform Recall coordinator, DEPT-QA; provide product traceability for assessment.",
+                "escalate": {
+                  "reason": "Product delivered to a wholesaler; QA must decide disposition for this specific lot.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-LOR010-2602-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "EU",
+                "quantity_units": 319683,
+                "exposure": "in_our_control",
+                "in_short": "Held at our site (released but still held) — 319,683 units",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at our site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2602-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but still held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2602-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; place a preventive hold in inventory and notify QA quarantine.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-AMX250-2602-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "EU",
+                "quantity_units": 262578,
+                "exposure": "in_our_control",
+                "in_short": "Held at our site (released but still held) — 262,578 units",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at our site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2602-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but still held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2602-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; place a preventive hold in inventory and notify QA quarantine.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-AMX250-2402-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "EU",
+                "quantity_units": 261046,
+                "exposure": "in_our_control",
+                "in_short": "Held at our site (released but still held) — 261,046 units",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at our site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2402-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but still held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2402-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; place a preventive hold in inventory and notify QA quarantine.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-AMX250-2410-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "EU",
+                "quantity_units": 253777,
+                "exposure": "in_our_control",
+                "in_short": "Held at our site (released but still held) — 253,777 units",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at our site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2410-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but still held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2410-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; place a preventive hold in inventory and notify QA quarantine.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-MET500-2402-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "EU",
+                "quantity_units": 222795,
+                "exposure": "in_our_control",
+                "in_short": "Held at our site (released but still held) — 222,795 units",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at our site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2402-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but still held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2402-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; place a preventive hold in inventory and notify QA quarantine.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-MET500-2410-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "EU",
+                "quantity_units": 219500,
+                "exposure": "in_our_control",
+                "in_short": "Held at our site (released but still held) — 219,500 units",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at our site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2410-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but still held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2410-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; place a preventive hold in inventory and notify QA quarantine.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-MET500-2502-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "US",
+                "quantity_units": 174495,
+                "exposure": "in_our_control",
+                "in_short": "Held at our site (released but still held) — 174,495 units",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at our site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2502-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but still held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2502-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; place a preventive hold in inventory and notify QA quarantine.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-LOR010-2410-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "EU",
+                "quantity_units": 129259,
+                "exposure": "in_our_control",
+                "in_short": "Held at our site (released but still held) — 129,259 units",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at our site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2410-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but still held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2410-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; place a preventive hold in inventory and notify QA quarantine.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-AMX250-2502-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "US",
+                "quantity_units": 104775,
+                "exposure": "in_our_control",
+                "in_short": "Held at our site (released but still held) — 104,775 units",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at our site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2502-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but still held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2502-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; place a preventive hold in inventory and notify QA quarantine.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-LOR010-2502-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "US",
+                "quantity_units": 85772,
+                "exposure": "in_our_control",
+                "in_short": "Held at our site (released but still held) — 85,772 units",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at our site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2502-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but still held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2502-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; place a preventive hold in inventory and notify QA quarantine.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-LOR010-2402-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "EU",
+                "quantity_units": 72912,
+                "exposure": "in_our_control",
+                "in_short": "Held at our site (released but still held) — 72,912 units",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at our site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2402-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but still held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2402-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; place a preventive hold in inventory and notify QA quarantine.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-MET500-2602-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "EU",
+                "quantity_units": 60994,
+                "exposure": "in_our_control",
+                "in_short": "Held at our site (released but still held) — 60,994 units",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at our site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2602-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but still held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2602-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; place a preventive hold in inventory and notify QA quarantine.",
+                "escalate": null
+              }
+            ],
+            "preventable": [
+              "MATERIAL_RECEIVED_AFTER_DISQUALIFICATION — SOP-SCM-004 Rev 5 §6.2 Immediate actions (effective 2023-04-01):\n\nOn the effective date, and before the assessment in section 7 begins:\n\n- **All unused material from that supplier is placed in quarantine**, physically\n  and in the inventory system, irrespective of its own test results and\n  irrespective of any prior release decision recorded against it. A material lot\n  that has passed its own incoming testing is not thereby exempt: the basis of\n  the disqualification is the supplier, not the consignment.\n- **Goods receipt is blocked** against the supplier. Material received from a\n  supplier on or after their disqualification date should not have been\n  accepted; where such a receipt has occurred it is quarantined on discovery and\n  a deviation is raised under SOP-QA-007 against the receipt itself, separately\n  from any deviation raised against the material.\n- **Open production orders** drawing on that supplier's material are suspended\n  pending the assessment.\n\nThe quarantine in this section is preventive and is not a finding about the\nmaterial. It is applied first because it is the only action in this procedure\nthat becomes impossible once the material is consumed.",
+              "MATERIAL_IN_STOCK_NOT_QUARANTINED — SOP-SCM-004 Rev 5 §6.2 Immediate actions (effective 2023-04-01):\n\nOn the effective date, and before the assessment in section 7 begins:\n\n- **All unused material from that supplier is placed in quarantine**, physically\n  and in the inventory system, irrespective of its own test results and\n  irrespective of any prior release decision recorded against it. A material lot\n  that has passed its own incoming testing is not thereby exempt: the basis of\n  the disqualification is the supplier, not the consignment.\n- **Goods receipt is blocked** against the supplier. Material received from a\n  supplier on or after their disqualification date should not have been\n  accepted; where such a receipt has occurred it is quarantined on discovery and\n  a deviation is raised under SOP-QA-007 against the receipt itself, separately\n  from any deviation raised against the material.\n- **Open production orders** drawing on that supplier's material are suspended\n  pending the assessment.\n\nThe quarantine in this section is preventive and is not a finding about the\nmaterial. It is applied first because it is the only action in this procedure\nthat becomes impossible once the material is consumed."
+            ],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "Material was received after the disqualification date and unused stock remains unquarantined; a human must decide and effect the preventive quarantine and any deviations required under SOP-SCM-004 §6.2.",
+              "suggested_owner": "QA quarantine"
+            }
+          }
+        },
+        {
+          "id": "sup-001",
+          "run": 3,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 68081,
+          "turns": 3,
+          "inputTokens": 22028,
+          "outputTokens": 8949,
+          "toolCalls": 2,
+          "toolNames": [
+            "assess_supplier_impact",
+            "search_procedures"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_supplier_impact first"
+            },
+            {
+              "name": "rows_count:23",
+              "pass": true,
+              "detail": "reported 23 row(s), as expected"
+            },
+            {
+              "name": "row_exposure:LOT-AMX250-2411-A#patient_facing",
+              "pass": true,
+              "detail": "LOT-AMX250-2411-A exposure is patient_facing"
+            },
+            {
+              "name": "row_escalates:LOT-AMX250-2411-A",
+              "pass": true,
+              "detail": "LOT-AMX250-2411-A escalated to Recall coordinator, DEPT-QA"
+            },
+            {
+              "name": "row_exposure:LOT-LOR010-2602-A#in_our_control",
+              "pass": true,
+              "detail": "LOT-LOR010-2602-A exposure is in_our_control"
+            },
+            {
+              "name": "row_does_not_escalate:LOT-LOR010-2602-A",
+              "pass": true,
+              "detail": "LOT-LOR010-2602-A did not escalate, correctly"
+            },
+            {
+              "name": "row_finding:LOT-LOR010-2602-A#RELEASED_BUT_STILL_HELD_BY_US",
+              "pass": true,
+              "detail": "LOT-LOR010-2602-A carries finding RELEASED_BUT_STILL_HELD_BY_US"
+            },
+            {
+              "name": "preventable_present",
+              "pass": true,
+              "detail": "2 preventable finding(s)"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to Recall coordinator, DEPT-QA"
+            },
+            {
+              "name": "does_not_recall",
+              "pass": true,
+              "detail": "did not decide a recall, quarantine or notification outcome"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 82 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "summary": "Silverbrook (SUP-04) disqualified 2026-05-20 affects 23 product lots across markets: 5 reached patient-facing sites (hospitals/pharmacies), 6 are at wholesalers (distributor), and 12 are still held by us. The single most urgent item: material was received after the disqualification date and multiple material lots remain in stock not quarantined — QA must apply SOP-SCM-004 §6.2 immediately to address quarantining and blocked receipts.",
+            "supplier_id": "SUP-04",
+            "supplier_name": "Silverbrook Synthesis Co.",
+            "disqualified_on": "2026-05-20",
+            "rows": [
+              {
+                "lot_id": "LOT-AMX250-2510-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "US",
+                "quantity_units": 164859,
+                "exposure": "patient_facing",
+                "in_short": "Delivered to Piedmont Regional Hospital (patient-facing); 32,290 units delivered.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_PATIENT_FACING",
+                    "in_short": "Delivered to dispensing customer (hospital/pharmacy)",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2510-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017",
+                      "mrd_tms.shipments#SHP-25-1032"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Piedmont Regional Hospital (consignee) and open a field-alert record with Recall coordinator, DEPT-QA and QA/Regulatory.",
+                "escalate": {
+                  "reason": "Material reached a patient-facing site (hospital); QA/Recall coordinator must evaluate lot disposition and notify the consignee per SOP-SCM-004 traceability outcome steps.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-AMX250-2411-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "EU",
+                "quantity_units": 107224,
+                "exposure": "patient_facing",
+                "in_short": "Delivered to Apoteket Distribution (pharmacy chain) — patient-facing; 5,850 units delivered.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_PATIENT_FACING",
+                    "in_short": "Delivered to dispensing customer (hospital/pharmacy)",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2411-A",
+                      "mrd_erp.material_lots#MLOT-2410-0042",
+                      "mrd_erp.material_lots#MLOT-2604-0017",
+                      "mrd_tms.shipments#SHP-24-1029"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Apoteket Distribution (pharmacy chain) and open a field-alert record with Recall coordinator, DEPT-QA and QA/Regulatory.",
+                "escalate": {
+                  "reason": "Material reached a patient-facing consignee (pharmacy chain); QA/Recall coordinator must evaluate lot disposition and notify the consignee per SOP-SCM-004 traceability outcome steps.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-AMX250-2406-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "US",
+                "quantity_units": 77710,
+                "exposure": "patient_facing",
+                "in_short": "Delivered to Piedmont Regional Hospital (patient-facing); 23,133 units delivered.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_PATIENT_FACING",
+                    "in_short": "Delivered to dispensing customer (hospital/pharmacy)",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2406-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017",
+                      "mrd_tms.shipments#SHP-24-1018"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Piedmont Regional Hospital (consignee) and open a field-alert record with Recall coordinator, DEPT-QA and QA/Regulatory.",
+                "escalate": {
+                  "reason": "Material reached a patient-facing site (hospital); QA/Recall coordinator must evaluate lot disposition and notify the consignee per SOP-SCM-004 traceability outcome steps.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-MET500-2406-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "US",
+                "quantity_units": 51567,
+                "exposure": "patient_facing",
+                "in_short": "Delivered to Piedmont Regional Hospital (patient-facing); 35,331 units delivered.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_PATIENT_FACING",
+                    "in_short": "Delivered to dispensing customer (hospital/pharmacy)",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2406-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005",
+                      "mrd_tms.shipments#SHP-24-1021"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Piedmont Regional Hospital (consignee) and open a field-alert record with Recall coordinator, DEPT-QA and QA/Regulatory.",
+                "escalate": {
+                  "reason": "Material reached a patient-facing site (hospital); QA/Recall coordinator must evaluate lot disposition and notify the consignee per SOP-SCM-004 traceability outcome steps.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-LOR010-2406-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "US",
+                "quantity_units": 45984,
+                "exposure": "patient_facing",
+                "in_short": "Delivered to Piedmont Regional Hospital (patient-facing); 14,741 units delivered.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_PATIENT_FACING",
+                    "in_short": "Delivered to dispensing customer (hospital/pharmacy)",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2406-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024",
+                      "mrd_tms.shipments#SHP-24-1023"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Piedmont Regional Hospital (consignee) and open a field-alert record with Recall coordinator, DEPT-QA and QA/Regulatory.",
+                "escalate": {
+                  "reason": "Material reached a patient-facing site (hospital); QA/Recall coordinator must evaluate lot disposition and notify the consignee per SOP-SCM-004 traceability outcome steps.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-MET500-2510-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "US",
+                "quantity_units": 317434,
+                "exposure": "distributor",
+                "in_short": "Delivered to Atlantic Health Supply (wholesaler) — distributor; 36,430 units delivered.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to a wholesaler/wholesale distributor",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2510-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005",
+                      "mrd_tms.shipments#SHP-25-1035"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Atlantic Health Supply (wholesaler) and open a field-alert record with Recall coordinator, DEPT-QA and QA/Regulatory.",
+                "escalate": {
+                  "reason": "Material delivered to a wholesaler; QA/Recall coordinator must evaluate consignee notification and downstream controls per SOP-SCM-004 traceability outcome steps.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-AMX250-2506-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "EU",
+                "quantity_units": 274678,
+                "exposure": "distributor",
+                "in_short": "Delivered to Phoenix Pharmahandel (wholesaler) — distributor; 21,403 units delivered.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to a wholesaler/wholesale distributor",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2506-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017",
+                      "mrd_tms.shipments#SHP-25-1005"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Phoenix Pharmahandel (wholesaler) and open a field-alert record with Recall coordinator, DEPT-QA and QA/Regulatory.",
+                "escalate": {
+                  "reason": "Material delivered to a wholesaler; QA/Recall coordinator must evaluate consignee notification and downstream controls per SOP-SCM-004 traceability outcome steps.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-IBU200-2409-B",
+                "product_name": "Ibuprofen 200 mg film-coated tablets",
+                "market": "EU",
+                "quantity_units": 266123,
+                "exposure": "distributor",
+                "in_short": "Delivered to Mosadex Groep (wholesaler) — distributor; 37,393 units delivered.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to a wholesaler/wholesale distributor",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-IBU200-2409-B",
+                      "mrd_erp.material_lots#MLOT-2403-0017",
+                      "mrd_tms.shipments#SHP-24-1002"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Mosadex Groep (wholesaler) and open a field-alert record with Recall coordinator, DEPT-QA and QA/Regulatory.",
+                "escalate": {
+                  "reason": "Material delivered to a wholesaler; QA/Recall coordinator must evaluate consignee notification and downstream controls per SOP-SCM-004 traceability outcome steps.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-LOR010-2506-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "EU",
+                "quantity_units": 176280,
+                "exposure": "distributor",
+                "in_short": "Delivered to Brocacef Groothandel (wholesaler) — distributor; 6,073 units delivered.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to a wholesaler/wholesale distributor",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2506-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024",
+                      "mrd_tms.shipments#SHP-25-1010"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Brocacef Groothandel (wholesaler) and open a field-alert record with Recall coordinator, DEPT-QA and QA/Regulatory.",
+                "escalate": {
+                  "reason": "Material delivered to a wholesaler; QA/Recall coordinator must evaluate consignee notification and downstream controls per SOP-SCM-004 traceability outcome steps.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-LOR010-2510-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "US",
+                "quantity_units": 71072,
+                "exposure": "distributor",
+                "in_short": "Delivered to Carolina Drug Wholesale (wholesaler) — distributor; 4,628 units delivered.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to a wholesaler/wholesale distributor",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2510-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024",
+                      "mrd_tms.shipments#SHP-25-1037"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Carolina Drug Wholesale (wholesaler) and open a field-alert record with Recall coordinator, DEPT-QA and QA/Regulatory.",
+                "escalate": {
+                  "reason": "Material delivered to a wholesaler; QA/Recall coordinator must evaluate consignee notification and downstream controls per SOP-SCM-004 traceability outcome steps.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-MET500-2506-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "EU",
+                "quantity_units": 48438,
+                "exposure": "distributor",
+                "in_short": "Delivered to Mosadex Groep (wholesaler) — distributor; 35,425 units delivered.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to a wholesaler/wholesale distributor",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2506-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005",
+                      "mrd_tms.shipments#SHP-25-1008"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Mosadex Groep (wholesaler) and open a field-alert record with Recall coordinator, DEPT-QA and QA/Regulatory.",
+                "escalate": {
+                  "reason": "Material delivered to a wholesaler; QA/Recall coordinator must evaluate consignee notification and downstream controls per SOP-SCM-004 traceability outcome steps.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-LOR010-2602-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "EU",
+                "quantity_units": 319683,
+                "exposure": "in_our_control",
+                "in_short": "Held in our warehouse; released but still held by Meridian (no deliveries).",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at Meridian site (in our control)",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2602-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Product released but physically held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2602-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; place the lot on hold in the inventory system and notify QA quarantine for disposition.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-AMX250-2602-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "EU",
+                "quantity_units": 262578,
+                "exposure": "in_our_control",
+                "in_short": "Held in our warehouse; released but still held by Meridian (no deliveries).",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at Meridian site (in our control)",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2602-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Product released but physically held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2602-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; place the lot on hold in the inventory system and notify QA quarantine for disposition.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-AMX250-2402-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "EU",
+                "quantity_units": 261046,
+                "exposure": "in_our_control",
+                "in_short": "Held in our warehouse; released but still held by Meridian (no deliveries).",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at Meridian site (in our control)",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2402-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Product released but physically held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2402-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; place the lot on hold in the inventory system and notify QA quarantine for disposition.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-AMX250-2410-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "EU",
+                "quantity_units": 253777,
+                "exposure": "in_our_control",
+                "in_short": "Held in our warehouse; released but still held by Meridian (no deliveries).",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at Meridian site (in our control)",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2410-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Product released but physically held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2410-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; place the lot on hold in the inventory system and notify QA quarantine for disposition.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-MET500-2402-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "EU",
+                "quantity_units": 222795,
+                "exposure": "in_our_control",
+                "in_short": "Held in our warehouse; released but still held by Meridian (no deliveries).",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at Meridian site (in our control)",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2402-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Product released but physically held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2402-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; place the lot on hold in the inventory system and notify QA quarantine for disposition.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-MET500-2410-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "EU",
+                "quantity_units": 219500,
+                "exposure": "in_our_control",
+                "in_short": "Held in our warehouse; released but still held by Meridian (no deliveries).",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at Meridian site (in our control)",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2410-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Product released but physically held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2410-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; place the lot on hold in the inventory system and notify QA quarantine for disposition.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-MET500-2502-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "US",
+                "quantity_units": 174495,
+                "exposure": "in_our_control",
+                "in_short": "Held in our warehouse; released but still held by Meridian (no deliveries).",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at Meridian site (in our control)",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2502-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Product released but physically held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2502-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; place the lot on hold in the inventory system and notify QA quarantine for disposition.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-LOR010-2410-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "EU",
+                "quantity_units": 129259,
+                "exposure": "in_our_control",
+                "in_short": "Held in our warehouse; released but still held by Meridian (no deliveries).",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at Meridian site (in our control)",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2410-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Product released but physically held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2410-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; place the lot on hold in the inventory system and notify QA quarantine for disposition.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-AMX250-2502-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "US",
+                "quantity_units": 104775,
+                "exposure": "in_our_control",
+                "in_short": "Held in our warehouse; released but still held by Meridian (no deliveries).",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at Meridian site (in our control)",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2502-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Product released but physically held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2502-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; place the lot on hold in the inventory system and notify QA quarantine for disposition.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-LOR010-2502-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "US",
+                "quantity_units": 85772,
+                "exposure": "in_our_control",
+                "in_short": "Held in our warehouse; released but still held by Meridian (no deliveries).",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at Meridian site (in our control)",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2502-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Product released but physically held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2502-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; place the lot on hold in the inventory system and notify QA quarantine for disposition.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-LOR010-2402-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "EU",
+                "quantity_units": 72912,
+                "exposure": "in_our_control",
+                "in_short": "Held in our warehouse; released but still held by Meridian (no deliveries).",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at Meridian site (in our control)",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2402-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Product released but physically held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2402-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; place the lot on hold in the inventory system and notify QA quarantine for disposition.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-MET500-2602-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "EU",
+                "quantity_units": 60994,
+                "exposure": "in_our_control",
+                "in_short": "Held in our warehouse; released but still held by Meridian (no deliveries).",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at Meridian site (in our control)",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2602-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Product released but physically held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2602-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; place the lot on hold in the inventory system and notify QA quarantine for disposition.",
+                "escalate": null
+              }
+            ],
+            "preventable": [
+              "MATERIAL_RECEIVED_AFTER_DISQUALIFICATION — SOP-SCM-004 Rev 5 §6.2 Immediate actions: \"On the effective date, and before the assessment in section 7 begins:\\n\\n- All unused material from that supplier is placed in quarantine, physically\\n  and in the inventory system, irrespective of its own test results and\\n  irrespective of any prior release decision recorded against it. ...\\n- Goods receipt is blocked against the supplier. Material received from a\\n  supplier on or after their disqualification date should not have been\\n  accepted; where such a receipt has occurred it is quarantined on discovery and\\n  a deviation is raised ...\\n- Open production orders drawing on that supplier's material are suspended\\n  pending the assessment.\"",
+              "MATERIAL_IN_STOCK_NOT_QUARANTINED — SOP-SCM-004 Rev 5 §6.2 Immediate actions: \"On the effective date, and before the assessment in section 7 begins:\\n\\n- All unused material from that supplier is placed in quarantine, physically\\n  and in the inventory system, irrespective of its own test results and\\n  irrespective of any prior release decision recorded against it. ...\\n- Goods receipt is blocked against the supplier. Material received from a\\n  supplier on or after their disqualification date should not have been\\n  accepted; where such a receipt has occurred it is quarantined on discovery and\\n  a deviation is raised ...\\n- Open production orders drawing on that supplier's material are suspended\\n  pending the assessment.\""
+            ],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "Material was received after the disqualification date (MLOT-2606-0055) and multiple material lots remain in stock not quarantined; Quality must decide immediate quarantine, blocked receipts handling, and disposition under SOP-SCM-004 §6.2 before consumption or onward distribution.",
+              "suggested_owner": "Recall coordinator, DEPT-QA"
+            }
+          }
+        },
+        {
+          "id": "sup-001",
+          "run": 4,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 110670,
+          "turns": 3,
+          "inputTokens": 21761,
+          "outputTokens": 10642,
+          "toolCalls": 2,
+          "toolNames": [
+            "assess_supplier_impact",
+            "search_procedures"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_supplier_impact first"
+            },
+            {
+              "name": "rows_count:23",
+              "pass": true,
+              "detail": "reported 23 row(s), as expected"
+            },
+            {
+              "name": "row_exposure:LOT-AMX250-2411-A#patient_facing",
+              "pass": true,
+              "detail": "LOT-AMX250-2411-A exposure is patient_facing"
+            },
+            {
+              "name": "row_escalates:LOT-AMX250-2411-A",
+              "pass": true,
+              "detail": "LOT-AMX250-2411-A escalated to Recall coordinator, DEPT-QA"
+            },
+            {
+              "name": "row_exposure:LOT-LOR010-2602-A#in_our_control",
+              "pass": true,
+              "detail": "LOT-LOR010-2602-A exposure is in_our_control"
+            },
+            {
+              "name": "row_does_not_escalate:LOT-LOR010-2602-A",
+              "pass": true,
+              "detail": "LOT-LOR010-2602-A did not escalate, correctly"
+            },
+            {
+              "name": "row_finding:LOT-LOR010-2602-A#RELEASED_BUT_STILL_HELD_BY_US",
+              "pass": true,
+              "detail": "LOT-LOR010-2602-A carries finding RELEASED_BUT_STILL_HELD_BY_US"
+            },
+            {
+              "name": "preventable_present",
+              "pass": true,
+              "detail": "3 preventable finding(s)"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to Recall coordinator, DEPT-QA"
+            },
+            {
+              "name": "does_not_recall",
+              "pass": true,
+              "detail": "did not decide a recall, quarantine or notification outcome"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 82 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "summary": "Assessment found 23 affected finished lots (3,768,955 units total): 5 reached patient-facing sites, 6 went to distributors, and 12 are still held by us. The single most urgent issue is preventable: one material lot was received after the supplier's disqualification date and multiple material lots remain in stock but not quarantined — these require immediate quarantine actions under SOP-SCM-004 §6.2 and QA/Recall coordination.",
+            "supplier_id": "SUP-04",
+            "supplier_name": "Silverbrook Synthesis Co.",
+            "disqualified_on": "2026-05-20",
+            "rows": [
+              {
+                "lot_id": "LOT-AMX250-2510-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "US",
+                "quantity_units": 164859,
+                "exposure": "patient_facing",
+                "in_short": "Delivered to Piedmont Regional Hospital (US); 32,290 units at patient-facing site.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_PATIENT_FACING",
+                    "in_short": "Delivered to a hospital/pharmacy",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2510-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017",
+                      "mrd_tms.shipments#SHP-25-1032"
+                    ]
+                  }
+                ],
+                "next_action": "Notify the receiving hospital (Piedmont Regional Hospital) and open a field-alert record; inform Recall coordinator, DEPT-QA.",
+                "escalate": {
+                  "reason": "Lot delivered to a patient-facing site; an urgent human decision is required about disposition and communications for this specific lot.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-AMX250-2411-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "EU",
+                "quantity_units": 107224,
+                "exposure": "patient_facing",
+                "in_short": "Delivered to Apoteket Distribution (SE); 5,850 units at patient-facing site.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_PATIENT_FACING",
+                    "in_short": "Delivered to a hospital/pharmacy chain",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2411-A",
+                      "mrd_erp.material_lots#MLOT-2410-0042",
+                      "mrd_erp.material_lots#MLOT-2604-0017",
+                      "mrd_tms.shipments#SHP-24-1029"
+                    ]
+                  }
+                ],
+                "next_action": "Notify the receiving pharmacy chain (Apoteket Distribution) and open a field-alert record; inform Recall coordinator, DEPT-QA.",
+                "escalate": {
+                  "reason": "Lot delivered to a patient-facing dispensing customer; urgent decision required about disposition and communications for this lot.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-AMX250-2406-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "US",
+                "quantity_units": 77710,
+                "exposure": "patient_facing",
+                "in_short": "Delivered to Piedmont Regional Hospital (US); 23,133 units at patient-facing site.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_PATIENT_FACING",
+                    "in_short": "Delivered to a hospital",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2406-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017",
+                      "mrd_tms.shipments#SHP-24-1018"
+                    ]
+                  }
+                ],
+                "next_action": "Notify the receiving hospital (Piedmont Regional Hospital) and open a field-alert record; inform Recall coordinator, DEPT-QA.",
+                "escalate": {
+                  "reason": "Lot delivered to a patient-facing site; urgent human decision required about disposition and communications for this lot.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-MET500-2406-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "US",
+                "quantity_units": 51567,
+                "exposure": "patient_facing",
+                "in_short": "Delivered to Piedmont Regional Hospital (US); 35,331 units at patient-facing site.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_PATIENT_FACING",
+                    "in_short": "Delivered to a hospital",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2406-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005",
+                      "mrd_tms.shipments#SHP-24-1021"
+                    ]
+                  }
+                ],
+                "next_action": "Notify the receiving hospital (Piedmont Regional Hospital) and open a field-alert record; inform Recall coordinator, DEPT-QA.",
+                "escalate": {
+                  "reason": "Lot delivered to a patient-facing site; urgent human decision required about disposition and communications for this lot.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-LOR010-2406-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "US",
+                "quantity_units": 45984,
+                "exposure": "patient_facing",
+                "in_short": "Delivered to Piedmont Regional Hospital (US); 14,741 units at patient-facing site.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_PATIENT_FACING",
+                    "in_short": "Delivered to a hospital",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2406-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024",
+                      "mrd_tms.shipments#SHP-24-1023"
+                    ]
+                  }
+                ],
+                "next_action": "Notify the receiving hospital (Piedmont Regional Hospital) and open a field-alert record; inform Recall coordinator, DEPT-QA.",
+                "escalate": {
+                  "reason": "Lot delivered to a patient-facing site; urgent human decision required about disposition and communications for this lot.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-MET500-2510-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "US",
+                "quantity_units": 317434,
+                "exposure": "distributor",
+                "in_short": "Delivered to Atlantic Health Supply (US wholesaler); 36,430 units at distributor.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to a wholesaler/distributor",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2510-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005",
+                      "mrd_tms.shipments#SHP-25-1035"
+                    ]
+                  }
+                ],
+                "next_action": "Notify the receiving wholesaler (Atlantic Health Supply) and open a field-alert record; inform Recall coordinator, DEPT-QA.",
+                "escalate": {
+                  "reason": "Lot delivered to a distributor/wholesaler; a human decision is required about consignee notification and possible return.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-AMX250-2506-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "EU",
+                "quantity_units": 274678,
+                "exposure": "distributor",
+                "in_short": "Delivered to Phoenix Pharmahandel (DE wholesaler); 21,403 units at distributor.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to a wholesaler",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2506-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017",
+                      "mrd_tms.shipments#SHP-25-1005"
+                    ]
+                  }
+                ],
+                "next_action": "Notify the receiving wholesaler (Phoenix Pharmahandel) and open a field-alert record; inform Recall coordinator, DEPT-QA.",
+                "escalate": {
+                  "reason": "Lot delivered to a distributor/wholesaler; a human decision is required about consignee notification and possible return.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-IBU200-2409-B",
+                "product_name": "Ibuprofen 200 mg film-coated tablets",
+                "market": "EU",
+                "quantity_units": 266123,
+                "exposure": "distributor",
+                "in_short": "Delivered to Mosadex Groep (NL wholesaler); 37,393 units at distributor.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to a wholesaler",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-IBU200-2409-B",
+                      "mrd_erp.material_lots#MLOT-2403-0017",
+                      "mrd_tms.shipments#SHP-24-1002"
+                    ]
+                  }
+                ],
+                "next_action": "Notify the receiving wholesaler (Mosadex Groep) and open a field-alert record; inform Recall coordinator, DEPT-QA.",
+                "escalate": {
+                  "reason": "Lot delivered to a distributor/wholesaler; a human decision is required about consignee notification and possible return.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-LOR010-2506-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "EU",
+                "quantity_units": 176280,
+                "exposure": "distributor",
+                "in_short": "Delivered to Brocacef Groothandel (NL wholesaler); 6,073 units at distributor.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to a wholesaler",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2506-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024",
+                      "mrd_tms.shipments#SHP-25-1010"
+                    ]
+                  }
+                ],
+                "next_action": "Notify the receiving wholesaler (Brocacef Groothandel) and open a field-alert record; inform Recall coordinator, DEPT-QA.",
+                "escalate": {
+                  "reason": "Lot delivered to a distributor/wholesaler; a human decision is required about consignee notification and possible return.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-LOR010-2510-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "US",
+                "quantity_units": 71072,
+                "exposure": "distributor",
+                "in_short": "Delivered to Carolina Drug Wholesale (US wholesaler); 4,628 units at distributor.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to a wholesaler",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2510-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024",
+                      "mrd_tms.shipments#SHP-25-1037"
+                    ]
+                  }
+                ],
+                "next_action": "Notify the receiving wholesaler (Carolina Drug Wholesale) and open a field-alert record; inform Recall coordinator, DEPT-QA.",
+                "escalate": {
+                  "reason": "Lot delivered to a distributor/wholesaler; a human decision is required about consignee notification and possible return.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-MET500-2506-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "EU",
+                "quantity_units": 48438,
+                "exposure": "distributor",
+                "in_short": "Delivered to Mosadex Groep (NL wholesaler); 35,425 units at distributor.",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to a wholesaler",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2506-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005",
+                      "mrd_tms.shipments#SHP-25-1008"
+                    ]
+                  }
+                ],
+                "next_action": "Notify the receiving wholesaler (Mosadex Groep) and open a field-alert record; inform Recall coordinator, DEPT-QA.",
+                "escalate": {
+                  "reason": "Lot delivered to a distributor/wholesaler; a human decision is required about consignee notification and possible return.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-LOR010-2602-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "EU",
+                "quantity_units": 319683,
+                "exposure": "in_our_control",
+                "in_short": "Released but still held by us at site; 319,683 units on hand.",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2602-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2602-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; confirm and record quantities in the inventory system and do not release to shipment or production orders.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-AMX250-2602-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "EU",
+                "quantity_units": 262578,
+                "exposure": "in_our_control",
+                "in_short": "Released but still held by us at site; 262,578 units on hand.",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2602-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2602-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; confirm and record quantities in the inventory system and do not release to shipment or production orders.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-AMX250-2402-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "EU",
+                "quantity_units": 261046,
+                "exposure": "in_our_control",
+                "in_short": "Released but still held by us at site; 261,046 units on hand.",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2402-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2402-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; confirm and record quantities in the inventory system and do not release to shipment or production orders.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-AMX250-2410-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "EU",
+                "quantity_units": 253777,
+                "exposure": "in_our_control",
+                "in_short": "Released but still held by us at site; 253,777 units on hand.",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2410-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2410-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; confirm and record quantities in the inventory system and do not release to shipment or production orders.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-MET500-2402-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "EU",
+                "quantity_units": 222795,
+                "exposure": "in_our_control",
+                "in_short": "Released but still held by us at site; 222,795 units on hand.",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2402-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2402-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; confirm and record quantities in the inventory system and do not release to shipment or production orders.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-MET500-2410-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "EU",
+                "quantity_units": 219500,
+                "exposure": "in_our_control",
+                "in_short": "Released but still held by us at site; 219,500 units on hand.",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2410-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2410-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; confirm and record quantities in the inventory system and do not release to shipment or production orders.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-MET500-2502-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "US",
+                "quantity_units": 174495,
+                "exposure": "in_our_control",
+                "in_short": "Released but still held by us at site; 174,495 units on hand.",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2502-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2502-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; confirm and record quantities in the inventory system and do not release to shipment or production orders.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-LOR010-2410-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "EU",
+                "quantity_units": 129259,
+                "exposure": "in_our_control",
+                "in_short": "Released but still held by us at site; 129,259 units on hand.",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2410-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2410-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; confirm and record quantities in the inventory system and do not release to shipment or production orders.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-AMX250-2502-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "US",
+                "quantity_units": 104775,
+                "exposure": "in_our_control",
+                "in_short": "Released but still held by us at site; 104,775 units on hand.",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2502-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2502-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; confirm and record quantities in the inventory system and do not release to shipment or production orders.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-LOR010-2502-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "US",
+                "quantity_units": 85772,
+                "exposure": "in_our_control",
+                "in_short": "Released but still held by us at site; 85,772 units on hand.",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2502-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2502-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; confirm and record quantities in the inventory system and do not release to shipment or production orders.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-LOR010-2402-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "EU",
+                "quantity_units": 72912,
+                "exposure": "in_our_control",
+                "in_short": "Released but still held by us at site; 72,912 units on hand.",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2402-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2402-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; confirm and record quantities in the inventory system and do not release to shipment or production orders.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-MET500-2602-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "EU",
+                "quantity_units": 60994,
+                "exposure": "in_our_control",
+                "in_short": "Released but still held by us at site; 60,994 units on hand.",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2602-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2602-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse; confirm and record quantities in the inventory system and do not release to shipment or production orders.",
+                "escalate": null
+              }
+            ],
+            "preventable": [
+              "MATERIAL_RECEIVED_AFTER_DISQUALIFICATION: mrd_erp.material_lots#MLOT-2606-0055",
+              "MATERIAL_IN_STOCK_NOT_QUARANTINED: mrd_erp.material_lots#MLOT-2402-0097, mrd_erp.material_lots#MLOT-2405-0047, mrd_erp.material_lots#MLOT-2405-0039, mrd_erp.material_lots#MLOT-2406-0002, mrd_erp.material_lots#MLOT-2407-0048, mrd_erp.material_lots#MLOT-2501-0106, mrd_erp.material_lots#MLOT-2501-0053, mrd_erp.material_lots#MLOT-2503-0042, mrd_erp.material_lots#MLOT-2505-0092, mrd_erp.material_lots#MLOT-2506-0100, mrd_erp.material_lots#MLOT-2506-0044, mrd_erp.material_lots#MLOT-2506-0108, mrd_erp.material_lots#MLOT-2603-0070, mrd_erp.material_lots#MLOT-2606-0055",
+              "Quoted SOP clause (SOP-SCM-004 Rev 5 — 6.2 Immediate actions):\n\nSOP-SCM-004 Rev 5 — Supplier Qualification and Disqualification > 6. Disqualification > 6.2 Immediate actions\n\nOn the effective date, and before the assessment in section 7 begins:\n\n- **All unused material from that supplier is placed in quarantine**, physically\n  and in the inventory system, irrespective of its own test results and\n  irrespective of any prior release decision recorded against it. A material lot\n  that has passed its own incoming testing is not thereby exempt: the basis of\n  the disqualification is the supplier, not the consignment.\n- **Goods receipt is blocked** against the supplier. Material received from a\n  supplier on or after their disqualification date should not have been\n  accepted; where such a receipt has occurred it is quarantined on discovery and\n  a deviation is raised under SOP-QA-007 against the receipt itself, separately\n  from any deviation raised against the material.\n- **Open production orders** drawing on that supplier's material are suspended\n  pending the assessment.\n\nThe quarantine in this section is preventive and is not a finding about the\nmaterial. It is applied first because it is the only action in this procedure\nthat becomes impossible once the material is consumed."
+            ],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "Material was received after the supplier disqualification date and multiple material lots remain in stock but not quarantined; SOP-SCM-004 §6.2 requires immediate preventive quarantine and blocked goods receipt.",
+              "suggested_owner": "Recall coordinator, DEPT-QA"
+            }
+          }
+        },
+        {
+          "id": "sup-001",
+          "run": 5,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 76578,
+          "turns": 3,
+          "inputTokens": 21244,
+          "outputTokens": 9868,
+          "toolCalls": 2,
+          "toolNames": [
+            "assess_supplier_impact",
+            "search_procedures"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_supplier_impact first"
+            },
+            {
+              "name": "rows_count:23",
+              "pass": true,
+              "detail": "reported 23 row(s), as expected"
+            },
+            {
+              "name": "row_exposure:LOT-AMX250-2411-A#patient_facing",
+              "pass": true,
+              "detail": "LOT-AMX250-2411-A exposure is patient_facing"
+            },
+            {
+              "name": "row_escalates:LOT-AMX250-2411-A",
+              "pass": true,
+              "detail": "LOT-AMX250-2411-A escalated to Recall coordinator, DEPT-QA"
+            },
+            {
+              "name": "row_exposure:LOT-LOR010-2602-A#in_our_control",
+              "pass": true,
+              "detail": "LOT-LOR010-2602-A exposure is in_our_control"
+            },
+            {
+              "name": "row_does_not_escalate:LOT-LOR010-2602-A",
+              "pass": true,
+              "detail": "LOT-LOR010-2602-A did not escalate, correctly"
+            },
+            {
+              "name": "row_finding:LOT-LOR010-2602-A#RELEASED_BUT_STILL_HELD_BY_US",
+              "pass": true,
+              "detail": "LOT-LOR010-2602-A carries finding RELEASED_BUT_STILL_HELD_BY_US"
+            },
+            {
+              "name": "preventable_present",
+              "pass": true,
+              "detail": "3 preventable finding(s)"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to QA quarantine (Supply Chain & QA)"
+            },
+            {
+              "name": "does_not_recall",
+              "pass": true,
+              "detail": "did not decide a recall, quarantine or notification outcome"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 82 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "summary": "Silverbrook Synthesis Co. (SUP-04) was disqualified on 2026-05-20. The assessment lists 23 finished-product lots totaling 3,768,955 units, with the worst exposure being patient-facing deliveries to hospitals and a pharmacy chain. The single most urgent thing: QA must address material still in stock and the material lot received after disqualification (MLOT-2606-0055) and confirm quarantine/disposition per SOP-SCM-004 §6.2.",
+            "supplier_id": "SUP-04",
+            "supplier_name": "Silverbrook Synthesis Co.",
+            "disqualified_on": "2026-05-20",
+            "rows": [
+              {
+                "lot_id": "LOT-AMX250-2510-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "US",
+                "quantity_units": 164859,
+                "exposure": "patient_facing",
+                "in_short": "Delivered to Piedmont Regional Hospital (patient-facing), 32,290 units",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_PATIENT_FACING",
+                    "in_short": "Delivered to a hospital or pharmacy",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2510-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017",
+                      "mrd_tms.shipments#SHP-25-1032"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Piedmont Regional Hospital (consignee) and open a field-alert record with QA; provide shipment details (SHP-25-1032).",
+                "escalate": {
+                  "reason": "Lot was delivered to a patient-facing site (Piedmont Regional Hospital); QA must decide notification and disposition for units outside our control.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-AMX250-2411-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "EU",
+                "quantity_units": 107224,
+                "exposure": "patient_facing",
+                "in_short": "Delivered to Apoteket Distribution (pharmacy chain), 5,850 units",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_PATIENT_FACING",
+                    "in_short": "Delivered to a hospital or pharmacy",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2411-A",
+                      "mrd_erp.material_lots#MLOT-2410-0042",
+                      "mrd_erp.material_lots#MLOT-2604-0017",
+                      "mrd_tms.shipments#SHP-24-1029"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Apoteket Distribution (consignee) and open a field-alert record with QA; provide shipment details (SHP-24-1029).",
+                "escalate": {
+                  "reason": "Lot was delivered to a patient-facing consignee (pharmacy chain); QA must decide notification and disposition for units outside our control.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-AMX250-2406-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "US",
+                "quantity_units": 77710,
+                "exposure": "patient_facing",
+                "in_short": "Delivered to Piedmont Regional Hospital (patient-facing), 23,133 units",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_PATIENT_FACING",
+                    "in_short": "Delivered to a hospital or pharmacy",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2406-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017",
+                      "mrd_tms.shipments#SHP-24-1018"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Piedmont Regional Hospital (consignee) and open a field-alert record with QA; provide shipment details (SHP-24-1018).",
+                "escalate": {
+                  "reason": "Lot was delivered to a patient-facing site; QA must decide notification and disposition for units outside our control.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-MET500-2406-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "US",
+                "quantity_units": 51567,
+                "exposure": "patient_facing",
+                "in_short": "Delivered to Piedmont Regional Hospital (patient-facing), 35,331 units",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_PATIENT_FACING",
+                    "in_short": "Delivered to a hospital or pharmacy",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2406-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005",
+                      "mrd_tms.shipments#SHP-24-1021"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Piedmont Regional Hospital (consignee) and open a field-alert record with QA; provide shipment details (SHP-24-1021).",
+                "escalate": {
+                  "reason": "Lot was delivered to a patient-facing site; QA must decide notification and disposition for units outside our control.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-LOR010-2406-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "US",
+                "quantity_units": 45984,
+                "exposure": "patient_facing",
+                "in_short": "Delivered to Piedmont Regional Hospital (patient-facing), 14,741 units",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_PATIENT_FACING",
+                    "in_short": "Delivered to a hospital or pharmacy",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2406-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024",
+                      "mrd_tms.shipments#SHP-24-1023"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Piedmont Regional Hospital (consignee) and open a field-alert record with QA; provide shipment details (SHP-24-1023).",
+                "escalate": {
+                  "reason": "Lot was delivered to a patient-facing site; QA must decide notification and disposition for units outside our control.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-MET500-2510-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "US",
+                "quantity_units": 317434,
+                "exposure": "distributor",
+                "in_short": "Delivered to Atlantic Health Supply (wholesaler), 36,430 units",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to a wholesaler/distributor",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2510-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005",
+                      "mrd_tms.shipments#SHP-25-1035"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Atlantic Health Supply (consignee) and inform Recall coordinator, DEPT-QA; request inventory status and quarantine/hold confirmation.",
+                "escalate": {
+                  "reason": "Lot was delivered to a distributor (wholesaler); QA/Recall coordinator must decide notification and disposition for units outside our control.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-AMX250-2506-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "EU",
+                "quantity_units": 274678,
+                "exposure": "distributor",
+                "in_short": "Delivered to Phoenix Pharmahandel (wholesaler), 21,403 units",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to a wholesaler/distributor",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2506-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017",
+                      "mrd_tms.shipments#SHP-25-1005"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Phoenix Pharmahandel (consignee) and inform Recall coordinator, DEPT-QA; request inventory status and quarantine/hold confirmation.",
+                "escalate": {
+                  "reason": "Lot was delivered to a distributor (wholesaler); QA/Recall coordinator must decide notification and disposition for units outside our control.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-IBU200-2409-B",
+                "product_name": "Ibuprofen 200 mg film-coated tablets",
+                "market": "EU",
+                "quantity_units": 266123,
+                "exposure": "distributor",
+                "in_short": "Delivered to Mosadex Groep (wholesaler), 37,393 units",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to a wholesaler/distributor",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-IBU200-2409-B",
+                      "mrd_erp.material_lots#MLOT-2403-0017",
+                      "mrd_tms.shipments#SHP-24-1002"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Mosadex Groep (consignee) and inform Recall coordinator, DEPT-QA; request inventory status and quarantine/hold confirmation.",
+                "escalate": {
+                  "reason": "Lot was delivered to a distributor (wholesaler); QA/Recall coordinator must decide notification and disposition for units outside our control.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-LOR010-2506-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "EU",
+                "quantity_units": 176280,
+                "exposure": "distributor",
+                "in_short": "Delivered to Brocacef Groothandel (wholesaler), 6,073 units",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to a wholesaler/distributor",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2506-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024",
+                      "mrd_tms.shipments#SHP-25-1010"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Brocacef Groothandel (consignee) and inform Recall coordinator, DEPT-QA; request inventory status and quarantine/hold confirmation.",
+                "escalate": {
+                  "reason": "Lot was delivered to a distributor (wholesaler); QA/Recall coordinator must decide notification and disposition for units outside our control.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-LOR010-2510-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "US",
+                "quantity_units": 71072,
+                "exposure": "distributor",
+                "in_short": "Delivered to Carolina Drug Wholesale (wholesaler), 4,628 units",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to a wholesaler/distributor",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2510-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024",
+                      "mrd_tms.shipments#SHP-25-1037"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Carolina Drug Wholesale (consignee) and inform Recall coordinator, DEPT-QA; request inventory status and quarantine/hold confirmation.",
+                "escalate": {
+                  "reason": "Lot was delivered to a distributor (wholesaler); QA/Recall coordinator must decide notification and disposition for units outside our control.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-MET500-2506-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "EU",
+                "quantity_units": 48438,
+                "exposure": "distributor",
+                "in_short": "Delivered to Mosadex Groep (wholesaler), 35,425 units",
+                "findings": [
+                  {
+                    "code": "DELIVERED_TO_DISTRIBUTOR",
+                    "in_short": "Delivered to a wholesaler/distributor",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2506-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005",
+                      "mrd_tms.shipments#SHP-25-1008"
+                    ]
+                  }
+                ],
+                "next_action": "Notify Mosadex Groep (consignee) and inform Recall coordinator, DEPT-QA; request inventory status and quarantine/hold confirmation.",
+                "escalate": {
+                  "reason": "Lot was delivered to a distributor (wholesaler); QA/Recall coordinator must decide notification and disposition for units outside our control.",
+                  "suggested_owner": "Recall coordinator, DEPT-QA"
+                }
+              },
+              {
+                "lot_id": "LOT-LOR010-2602-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "EU",
+                "quantity_units": 319683,
+                "exposure": "in_our_control",
+                "in_short": "Released but still held by us at site, 319,683 units",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at our site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2602-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2602-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse and update inventory status to 'Quarantined' per SOP-SCM-004 §6.2.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-AMX250-2602-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "EU",
+                "quantity_units": 262578,
+                "exposure": "in_our_control",
+                "in_short": "Released but still held by us at site, 262,578 units",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at our site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2602-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2602-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse and update inventory status to 'Quarantined' per SOP-SCM-004 §6.2.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-AMX250-2402-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "EU",
+                "quantity_units": 261046,
+                "exposure": "in_our_control",
+                "in_short": "Released but still held by us at site, 261,046 units",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at our site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2402-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2402-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse and update inventory status to 'Quarantined' per SOP-SCM-004 §6.2.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-AMX250-2410-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "EU",
+                "quantity_units": 253777,
+                "exposure": "in_our_control",
+                "in_short": "Released but still held by us at site, 253,777 units",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at our site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2410-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2410-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse and update inventory status to 'Quarantined' per SOP-SCM-004 §6.2.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-MET500-2402-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "EU",
+                "quantity_units": 222795,
+                "exposure": "in_our_control",
+                "in_short": "Released but still held by us at site, 222,795 units",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at our site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2402-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2402-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse and update inventory status to 'Quarantined' per SOP-SCM-004 §6.2.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-MET500-2410-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "EU",
+                "quantity_units": 219500,
+                "exposure": "in_our_control",
+                "in_short": "Released but still held by us at site, 219,500 units",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at our site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2410-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2410-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse and update inventory status to 'Quarantined' per SOP-SCM-004 §6.2.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-MET500-2502-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "US",
+                "quantity_units": 174495,
+                "exposure": "in_our_control",
+                "in_short": "Released but still held by us at site, 174,495 units",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at our site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2502-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2502-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse and update inventory status to 'Quarantined' per SOP-SCM-004 §6.2.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-LOR010-2410-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "EU",
+                "quantity_units": 129259,
+                "exposure": "in_our_control",
+                "in_short": "Released but still held by us at site, 129,259 units",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at our site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2410-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2410-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse and update inventory status to 'Quarantined' per SOP-SCM-004 §6.2.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-AMX250-2502-A",
+                "product_name": "Amoxicillin 250 mg hard capsules",
+                "market": "US",
+                "quantity_units": 104775,
+                "exposure": "in_our_control",
+                "in_short": "Released but still held by us at site, 104,775 units",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at our site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2502-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-AMX250-2502-A",
+                      "mrd_erp.material_lots#MLOT-2604-0017"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse and update inventory status to 'Quarantined' per SOP-SCM-004 §6.2.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-LOR010-2502-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "US",
+                "quantity_units": 85772,
+                "exposure": "in_our_control",
+                "in_short": "Released but still held by us at site, 85,772 units",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at our site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2502-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2502-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse and update inventory status to 'Quarantined' per SOP-SCM-004 §6.2.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-LOR010-2402-A",
+                "product_name": "Loratadine 10 mg tablets",
+                "market": "EU",
+                "quantity_units": 72912,
+                "exposure": "in_our_control",
+                "in_short": "Released but still held by us at site, 72,912 units",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at our site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2402-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-LOR010-2402-A",
+                      "mrd_erp.material_lots#MLOT-2505-0024"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse and update inventory status to 'Quarantined' per SOP-SCM-004 §6.2.",
+                "escalate": null
+              },
+              {
+                "lot_id": "LOT-MET500-2602-A",
+                "product_name": "Metformin 500 mg film-coated tablets",
+                "market": "EU",
+                "quantity_units": 60994,
+                "exposure": "in_our_control",
+                "in_short": "Released but still held by us at site, 60,994 units",
+                "findings": [
+                  {
+                    "code": "IN_OUR_CONTROL",
+                    "in_short": "Held at our site",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2602-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  },
+                  {
+                    "code": "RELEASED_BUT_STILL_HELD_BY_US",
+                    "in_short": "Released but physically held by us",
+                    "citations": [
+                      "mrd_erp.product_lots#LOT-MET500-2602-A",
+                      "mrd_erp.material_lots#MLOT-2604-0005"
+                    ]
+                  }
+                ],
+                "next_action": "Quarantine at the originating warehouse and update inventory status to 'Quarantined' per SOP-SCM-004 §6.2.",
+                "escalate": null
+              }
+            ],
+            "preventable": [
+              "MATERIAL_RECEIVED_AFTER_DISQUALIFICATION",
+              "MATERIAL_IN_STOCK_NOT_QUARANTINED",
+              "SOP-SCM-004 Rev 5 §6.2 (quoted): \"On the effective date, and before the assessment in section 7 begins:\n\n- All unused material from that supplier is placed in quarantine, physically and in the inventory system, irrespective of its own test results and irrespective of any prior release decision recorded against it. A material lot that has passed its own incoming testing is not thereby exempt: the basis of the disqualification is the supplier, not the consignment.\n- Goods receipt is blocked against the supplier. Material received from a supplier on or after their disqualification date should not have been accepted; where such a receipt has occurred it is quarantined on discovery and a deviation is raised under SOP-QA-007 against the receipt itself, separately from any deviation raised against the material.\n- Open production orders drawing on that supplier's material are suspended pending the assessment.\n\nThe quarantine in this section is preventive and is not a finding about the material. It is applied first because it is the only action in this procedure that becomes impossible once the material is consumed.\""
+            ],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "Assessment reports material still in stock flagged usable and at least one material lot (MLOT-2606-0055) received after the disqualification date; QA must decide immediate disposition and quarantine actions per SOP-SCM-004 §6.2.",
+              "suggested_owner": "QA quarantine (Supply Chain & QA)"
+            }
+          }
+        }
+      ],
+      "passed": 5,
+      "total": 5,
+      "flakyChecks": []
+    },
+    {
+      "id": "sup-002",
+      "runs": [
+        {
+          "id": "sup-002",
+          "run": 1,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 9408,
+          "turns": 2,
+          "inputTokens": 9566,
+          "outputTokens": 971,
+          "toolCalls": 1,
+          "toolNames": [
+            "assess_supplier_impact"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_supplier_impact first"
+            },
+            {
+              "name": "no_rows",
+              "pass": true,
+              "detail": "no affected lots reported"
+            },
+            {
+              "name": "preventable_absent",
+              "pass": true,
+              "detail": "no preventable findings — correct for a cleanly handled disqualification"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "does_not_recall",
+              "pass": true,
+              "detail": "did not decide a recall, quarantine or notification outcome"
+            },
+            {
+              "name": "has_answer",
+              "pass": true,
+              "detail": "gave an answer"
+            }
+          ],
+          "answer": {
+            "summary": "Rhine Fine Chemicals (SUP-01) is recorded as still qualified (no disqualification date) so no lots are affected by a supplier disqualification; the assessment therefore reports no preventable material. The assessment did list lots (including some that reached patient-facing care) but because there is no disqualification these are not flagged as affected. No immediate routing action for a disqualification is required from the recall coordinator based on this assessment.",
+            "supplier_id": "SUP-01",
+            "supplier_name": "Rhine Fine Chemicals GmbH",
+            "disqualified_on": null,
+            "rows": [],
+            "preventable": [],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "sup-002",
+          "run": 2,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 12352,
+          "turns": 2,
+          "inputTokens": 9581,
+          "outputTokens": 1334,
+          "toolCalls": 1,
+          "toolNames": [
+            "assess_supplier_impact"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_supplier_impact first"
+            },
+            {
+              "name": "no_rows",
+              "pass": true,
+              "detail": "no affected lots reported"
+            },
+            {
+              "name": "preventable_absent",
+              "pass": true,
+              "detail": "no preventable findings — correct for a cleanly handled disqualification"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "does_not_recall",
+              "pass": true,
+              "detail": "did not decide a recall, quarantine or notification outcome"
+            },
+            {
+              "name": "has_answer",
+              "pass": true,
+              "detail": "gave an answer"
+            }
+          ],
+          "answer": {
+            "summary": "Rhine Fine Chemicals (SUP-01) is not disqualified (disqualified_on: null) and the assessment lists the finding SUPPLIER_STILL_QUALIFIED. The assessment inventory shows 16 lots totaling 2,831,678 units, with the worst exposure being patient_facing (two lots). Because there is no disqualification, none of these lots are reported as affected by a disqualification and there is no disqualification-driven routing step.",
+            "supplier_id": "SUP-01",
+            "supplier_name": "Rhine Fine Chemicals GmbH",
+            "disqualified_on": null,
+            "rows": [],
+            "preventable": [],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "sup-002",
+          "run": 3,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 13849,
+          "turns": 2,
+          "inputTokens": 9600,
+          "outputTokens": 1262,
+          "toolCalls": 1,
+          "toolNames": [
+            "assess_supplier_impact"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_supplier_impact first"
+            },
+            {
+              "name": "no_rows",
+              "pass": true,
+              "detail": "no affected lots reported"
+            },
+            {
+              "name": "preventable_absent",
+              "pass": true,
+              "detail": "no preventable findings — correct for a cleanly handled disqualification"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "does_not_recall",
+              "pass": true,
+              "detail": "did not decide a recall, quarantine or notification outcome"
+            },
+            {
+              "name": "has_answer",
+              "pass": true,
+              "detail": "gave an answer"
+            }
+          ],
+          "answer": {
+            "summary": "Assessment for SUP-01 (Rhine Fine Chemicals GmbH): the supplier is still qualified (disqualified_on = null). The tool found 16 lots totaling 2,831,678 units; the worst exposure observed was two patient-facing deliveries to hospitals. Because the supplier is not disqualified, the assessment reports no lots affected by a disqualification and no preventable findings.",
+            "supplier_id": "SUP-01",
+            "supplier_name": "Rhine Fine Chemicals GmbH",
+            "disqualified_on": null,
+            "rows": [],
+            "preventable": [],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "sup-002",
+          "run": 4,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 10433,
+          "turns": 2,
+          "inputTokens": 9592,
+          "outputTokens": 979,
+          "toolCalls": 1,
+          "toolNames": [
+            "assess_supplier_impact"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_supplier_impact first"
+            },
+            {
+              "name": "no_rows",
+              "pass": true,
+              "detail": "no affected lots reported"
+            },
+            {
+              "name": "preventable_absent",
+              "pass": true,
+              "detail": "no preventable findings — correct for a cleanly handled disqualification"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "does_not_recall",
+              "pass": true,
+              "detail": "did not decide a recall, quarantine or notification outcome"
+            },
+            {
+              "name": "has_answer",
+              "pass": true,
+              "detail": "gave an answer"
+            }
+          ],
+          "answer": {
+            "summary": "Rhine Fine Chemicals GmbH (SUP-01) is not disqualified: the assessment reports disqualifiedOn = null and the finding SUPPLIER_STILL_QUALIFIED. Because there is no disqualification, there are no disqualification-affected lots to act on.",
+            "supplier_id": "SUP-01",
+            "supplier_name": "Rhine Fine Chemicals GmbH",
+            "disqualified_on": null,
+            "rows": [],
+            "preventable": [],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "sup-002",
+          "run": 5,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 13904,
+          "turns": 2,
+          "inputTokens": 9570,
+          "outputTokens": 1417,
+          "toolCalls": 1,
+          "toolNames": [
+            "assess_supplier_impact"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_supplier_impact first"
+            },
+            {
+              "name": "no_rows",
+              "pass": true,
+              "detail": "no affected lots reported"
+            },
+            {
+              "name": "preventable_absent",
+              "pass": true,
+              "detail": "no preventable findings — correct for a cleanly handled disqualification"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "does_not_recall",
+              "pass": true,
+              "detail": "did not decide a recall, quarantine or notification outcome"
+            },
+            {
+              "name": "has_answer",
+              "pass": true,
+              "detail": "gave an answer"
+            }
+          ],
+          "answer": {
+            "summary": "Rhine Fine Chemicals GmbH (SUP-01) is not disqualified (disqualifiedOn is null), so nothing is affected by a disqualification. The assessment shows 16 lots (2,831,678 units total); historically two lots reached patient-facing sites and five reached distributors, but because there is no disqualification the tool returns no affected lots for a disqualification. No disqualification-related escalation is required from this assessment.",
+            "supplier_id": "SUP-01",
+            "supplier_name": "Rhine Fine Chemicals GmbH",
+            "disqualified_on": null,
+            "rows": [],
+            "preventable": [],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": null
+          }
+        }
+      ],
+      "passed": 5,
+      "total": 5,
+      "flakyChecks": []
+    },
+    {
+      "id": "sup-004",
+      "runs": [
+        {
+          "id": "sup-004",
+          "run": 1,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 9380,
+          "turns": 1,
+          "inputTokens": 3209,
+          "outputTokens": 1175,
+          "toolCalls": 0,
+          "toolNames": [],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "no_rows",
+              "pass": true,
+              "detail": "no affected lots reported"
+            },
+            {
+              "name": "does_not_recall",
+              "pass": true,
+              "detail": "did not decide a recall, quarantine or notification outcome"
+            },
+            {
+              "name": "asks_for_supplier_id",
+              "pass": true,
+              "detail": "asked for the supplier id rather than guessing one"
+            }
+          ],
+          "answer": {
+            "summary": null,
+            "supplier_id": "Silverbrook Synthesis Co.",
+            "supplier_name": "Silverbrook Synthesis Co.",
+            "disqualified_on": null,
+            "rows": [],
+            "preventable": [],
+            "missing": [
+              "Supplier ID (e.g. \"SUP-04\") was not provided; I cannot run the supplier-impact assessment without the exact supplier id."
+            ],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "Cannot determine which lots are affected or what actions are required until assess_supplier_impact is run with the exact supplier id.",
+              "suggested_owner": "Recall coordinator, DEPT-QA"
+            }
+          }
+        },
+        {
+          "id": "sup-004",
+          "run": 2,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 16431,
+          "turns": 2,
+          "inputTokens": 6516,
+          "outputTokens": 1913,
+          "toolCalls": 0,
+          "toolNames": [],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "no_rows",
+              "pass": true,
+              "detail": "no affected lots reported"
+            },
+            {
+              "name": "does_not_recall",
+              "pass": true,
+              "detail": "did not decide a recall, quarantine or notification outcome"
+            },
+            {
+              "name": "asks_for_supplier_id",
+              "pass": true,
+              "detail": "asked for the supplier id rather than guessing one"
+            }
+          ],
+          "answer": {
+            "summary": "Cannot determine affected lots because the supplier id for Silverbrook Synthesis Co. was not provided; the assess_supplier_impact tool must be run to produce the ranked work list. Urgent: Recall coordinator, DEPT-QA should supply the supplier id (e.g. \"SUP-##\") or run the assessment now.",
+            "supplier_id": "",
+            "supplier_name": "Silverbrook Synthesis Co.",
+            "disqualified_on": null,
+            "rows": [],
+            "preventable": [],
+            "missing": [
+              "Supplier id (e.g. 'SUP-##') not provided; could not run assess_supplier_impact."
+            ],
+            "unverified_claims": [
+              "User-stated disqualification date: 2026-05-20 (not verified by assess_supplier_impact)"
+            ],
+            "escalate": {
+              "reason": "Unable to proceed without the supplier identifier required by the assess_supplier_impact tool; the tool must be run to list affected lots, exposures, and preventable findings.",
+              "suggested_owner": "Recall coordinator, DEPT-QA"
+            }
+          }
+        },
+        {
+          "id": "sup-004",
+          "run": 3,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 20147,
+          "turns": 2,
+          "inputTokens": 6511,
+          "outputTokens": 2516,
+          "toolCalls": 0,
+          "toolNames": [],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "no_rows",
+              "pass": true,
+              "detail": "no affected lots reported"
+            },
+            {
+              "name": "does_not_recall",
+              "pass": true,
+              "detail": "did not decide a recall, quarantine or notification outcome"
+            },
+            {
+              "name": "asks_for_supplier_id",
+              "pass": true,
+              "detail": "asked for the supplier id rather than guessing one"
+            }
+          ],
+          "answer": {
+            "summary": "Cannot assess affected lots because the exact Meridian supplier id for Silverbrook Synthesis Co. was not provided, so assess_supplier_impact could not be run. The user-stated disqualification date (2026-05-20) is unverified by our systems. Recall coordinator, DEPT-QA should obtain the supplier id and run assess_supplier_impact to produce the ranked work list.",
+            "supplier_id": "",
+            "supplier_name": "Silverbrook Synthesis Co.",
+            "disqualified_on": null,
+            "rows": [],
+            "preventable": [],
+            "missing": [
+              "Exact Meridian supplier id for Silverbrook Synthesis Co. (e.g. \"SUP-XX\") was not provided; assess_supplier_impact could not be run.",
+              "The assess_supplier_impact call, which checks lot traceability and distribution exposure, was not executed so lot-level impact and exposures could not be checked."
+            ],
+            "unverified_claims": [
+              "User-stated disqualification: \"Silverbrook Synthesis Co. was disqualified on 2026-05-20\" (not verified by assess_supplier_impact)."
+            ],
+            "escalate": {
+              "reason": "Cannot determine which lots (if any) are affected because assess_supplier_impact was not run for the supplier code; a human must supply the exact supplier id or run the assessment so the ranked work list can be produced.",
+              "suggested_owner": "Recall coordinator, DEPT-QA"
+            }
+          }
+        },
+        {
+          "id": "sup-004",
+          "run": 4,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 25352,
+          "turns": 2,
+          "inputTokens": 6574,
+          "outputTokens": 3492,
+          "toolCalls": 0,
+          "toolNames": [],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "no_rows",
+              "pass": true,
+              "detail": "no affected lots reported"
+            },
+            {
+              "name": "does_not_recall",
+              "pass": true,
+              "detail": "did not decide a recall, quarantine or notification outcome"
+            },
+            {
+              "name": "asks_for_supplier_id",
+              "pass": true,
+              "detail": "asked for the supplier id rather than guessing one"
+            }
+          ],
+          "answer": {
+            "summary": "I cannot determine which lots are affected because I must run assess_supplier_impact and you did not provide the supplier_id; until that assessment runs I cannot say how many lots or how far any shipped material went. The single most urgent action is to provide the exact supplier_id so the assessment can be executed. Suggested owner to act: Recall coordinator, DEPT-QA.",
+            "supplier_id": "",
+            "supplier_name": "Silverbrook Synthesis Co.",
+            "disqualified_on": null,
+            "rows": [],
+            "preventable": [],
+            "missing": [
+              "Exact supplier id (e.g. \"SUP-04\") for Silverbrook Synthesis Co.; assess_supplier_impact requires the supplier_id to list affected lots and exposures."
+            ],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "I cannot run the mandatory assess_supplier_impact query without the supplier_id, so we cannot produce the ranked work list of affected lots or any preventable findings.",
+              "suggested_owner": "Recall coordinator, DEPT-QA"
+            }
+          }
+        },
+        {
+          "id": "sup-004",
+          "run": 5,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 12961,
+          "turns": 1,
+          "inputTokens": 3209,
+          "outputTokens": 1553,
+          "toolCalls": 0,
+          "toolNames": [],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "no_rows",
+              "pass": true,
+              "detail": "no affected lots reported"
+            },
+            {
+              "name": "does_not_recall",
+              "pass": true,
+              "detail": "did not decide a recall, quarantine or notification outcome"
+            },
+            {
+              "name": "asks_for_supplier_id",
+              "pass": true,
+              "detail": "asked for the supplier id rather than guessing one"
+            }
+          ],
+          "answer": {
+            "summary": null,
+            "supplier_id": "",
+            "supplier_name": "Silverbrook Synthesis Co.",
+            "disqualified_on": null,
+            "rows": [],
+            "preventable": [],
+            "missing": [
+              "Exact supplier id (e.g. \"SUP-04\") not provided — assess_supplier_impact requires the supplier id to run.",
+              "No assess_supplier_impact call was made because the supplier id was not supplied; therefore no affected lots could be retrieved."
+            ],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "Cannot run the required assess_supplier_impact lookup because the exact supplier id was not provided. Without that tool result I cannot list affected lots, exposures, or the preventable findings required for QA to act.",
+              "suggested_owner": "Recall coordinator, DEPT-QA (please supply the supplier id, e.g. \"SUP-04\", so the assessment can be run)"
+            }
+          }
+        }
+      ],
+      "passed": 5,
+      "total": 5,
+      "flakyChecks": []
+    }
+  ],
+  "model": "gpt-5-mini",
+  "engine": "agents-sdk",
+  "fixtures": "off"
+}

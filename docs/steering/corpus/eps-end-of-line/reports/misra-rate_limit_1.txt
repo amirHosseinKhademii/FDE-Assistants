@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-end-of-line
+Module     : rate_limit_1.c   (SWC-PLT-022, ASIL B)
+Tool       : Polyspace 2023b
+Run        : 2022-07-18
+Run by     : l.renaud
+
+SUMMARY
+  rules checked        171
+  violations           5
+  deviations approved  6
+  unresolved           4
+
+DEVIATIONS
+  D-37  Rule 15.5  union used for the CAN frame overlay. Approved.
+
+UNRESOLVED
+  (none)

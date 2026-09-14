@@ -1,0 +1,12 @@
+# bottom-up estimate, built before nomination
+# author: I. Arnaud   date: 2023-02-17
+# "basis" is free text. It is the only record of WHERE a number came from.
+work_package,discipline,hours,basis,confidence
+diagnostics,hardware,681,engineering judgement,medium
+motor control,software,609,engineering judgement,high
+rack redesign,calibration,326,guess,high
+harness,systems,685,guess,medium
+HIL rig update,calibration,794,guess,medium
+assist tuning,validation,551,similar to H1,medium
+HIL rig update,hardware,535,from the last programme,medium
+harness,software,77,from the last programme,medium

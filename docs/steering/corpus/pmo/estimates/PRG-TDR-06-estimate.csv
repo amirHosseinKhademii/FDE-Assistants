@@ -1,0 +1,14 @@
+# bottom-up estimate, built before nomination
+# author: D. Ferreira   date: 2021-04-20
+# "basis" is free text. It is the only record of WHERE a number came from.
+work_package,discipline,hours,basis,confidence
+diagnostics,hardware,696,guess,low
+diagnostics,systems,162,from the last programme,medium
+assist tuning,pm,686,guess,high
+validation,safety,399,engineering judgement,high
+HIL rig update,software,590,engineering judgement,medium
+gearbox change,safety,779,engineering judgement,medium
+harness,pm,711,guess,high
+safety case,systems,641,supplier quote,medium
+gearbox change,hardware,763,guess,high
+diagnostics,pm,494,guess,medium

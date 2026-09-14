@@ -1,0 +1,26 @@
+MISRA C:2012 compliance report
+Repository : eps-steering-feel
+Module     : damping.c   (SWC-DAMP, ASIL B)
+Tool       : LDRA 9.8
+Run        : 2022-10-19
+Run by     : s.beker
+
+SUMMARY
+  rules checked        156
+  violations           22
+  deviations approved  2
+  unresolved           0
+
+DEVIATIONS
+
+  D-07  Rule 10.4  mixed-type arithmetic in the rate limiter.
+        Approved 2024-03-11 by functional safety.
+        NOTE: raised while the module was being built at ASIL D for the
+        steer-by-wire pre-development trial. The trial ended; the build
+        flag in cfg/build.json was never put back. The module is assessed
+        at ASIL B in VST-SA-2021-014 and built at ASIL D. Nobody has said
+        which one governs.
+
+
+UNRESOLVED
+  Rule 12.2 at damping.c:204 — owner n.haas, no target date

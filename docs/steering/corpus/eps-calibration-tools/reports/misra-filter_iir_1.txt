@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-calibration-tools
+Module     : filter_iir_1.c   (SWC-PLT-002, ASIL QM)
+Tool       : LDRA 9.8
+Run        : 2021-09-10
+Run by     : a.kovac
+
+SUMMARY
+  rules checked        151
+  violations           4
+  deviations approved  3
+  unresolved           4
+
+DEVIATIONS
+  D-39  Rule 10.2  pointer arithmetic in the buffer walk. Approved.
+
+UNRESOLVED
+  Rule 12.4 at filter_iir_1.c:257 — owner j.moreau, no target date

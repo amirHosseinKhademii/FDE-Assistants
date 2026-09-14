@@ -1,0 +1,73 @@
+{
+  "repo": "eps-motor-control",
+  "platform": "bare-metal",
+  "toolchain": "gcc-arm-11.2",
+  "modules": {
+    "foc": {
+      "swc": "SWC-MOTCTL",
+      "asil": "D",
+      "optimisation": "-O2",
+      "stack_bytes": 2278
+    },
+    "field_weakening": {
+      "swc": "SWC-MOTCTL",
+      "asil": "D",
+      "optimisation": "-Os",
+      "stack_bytes": 2987
+    },
+    "temp_derate": {
+      "swc": "SWC-MOTCTL",
+      "asil": "B",
+      "optimisation": "-Os",
+      "stack_bytes": 1830
+    },
+    "lookup_table_1": {
+      "swc": "SWC-PLT-009",
+      "asil": "D",
+      "optimisation": "-O2",
+      "stack_bytes": 3981
+    },
+    "nvm_block_2": {
+      "swc": "SWC-PLT-023",
+      "asil": "QM",
+      "optimisation": "-Os",
+      "stack_bytes": 1942
+    },
+    "unit_conv_3": {
+      "swc": "SWC-PLT-030",
+      "asil": "B",
+      "optimisation": "-O2",
+      "stack_bytes": 3850
+    },
+    "timebase_4": {
+      "swc": "SWC-PLT-020",
+      "asil": "QM",
+      "optimisation": "-Os",
+      "stack_bytes": 4030
+    },
+    "rate_limit_5": {
+      "swc": "SWC-PLT-017",
+      "asil": "B",
+      "optimisation": "-O2",
+      "stack_bytes": 1828
+    },
+    "rate_limit_6": {
+      "swc": "SWC-PLT-001",
+      "asil": "QM",
+      "optimisation": "-O2",
+      "stack_bytes": 1579
+    },
+    "sat_math_7": {
+      "swc": "SWC-PLT-012",
+      "asil": "D",
+      "optimisation": "-O2",
+      "stack_bytes": 1451
+    },
+    "nvm_block_8": {
+      "swc": "SWC-PLT-019",
+      "asil": "QM",
+      "optimisation": "-O2",
+      "stack_bytes": 2753
+    }
+  }
+}

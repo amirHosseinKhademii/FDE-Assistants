@@ -1,0 +1,19 @@
+MISRA C:2012 compliance report
+Repository : eps-steer-by-wire
+Module     : feedback_actuator.c   (SWC-PLT-011, ASIL D)
+Tool       : LDRA 9.8
+Run        : 2023-04-01
+Run by     : l.renaud
+
+SUMMARY
+  rules checked        170
+  violations           13
+  deviations approved  6
+  unresolved           2
+
+DEVIATIONS
+  D-13  Rule 20.5  pointer arithmetic in the buffer walk. Approved.
+  D-36  Rule 18.4  goto used for single-exit error handling. Approved.
+
+UNRESOLVED
+  Rule 12.8 at feedback_actuator.c:176 — owner n.haas, no target date

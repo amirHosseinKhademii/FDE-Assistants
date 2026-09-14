@@ -1,0 +1,15 @@
+# Steering feel
+*                    @vantis/steering-feel
+src/damping.c        @vantis/steering-feel
+src/hysteresis_comp.c        @vantis/steering-feel
+src/friction_comp.c        @vantis/steering-feel
+src/rtc.c        @vantis/steering-feel
+src/state_machine_1.c        @vantis/steering-feel
+src/rate_limit_2.c        @vantis/steering-feel
+src/can_shim_3.c        @vantis/steering-feel
+src/ring_buffer_4.c        @vantis/steering-feel
+src/bitfield_5.c        @vantis/steering-feel
+src/debounce_6.c        @vantis/steering-feel
+src/event_queue_7.c        @vantis/steering-feel
+src/checksum_8.c        @vantis/steering-feel
+reports/             @vantis/functional-safety

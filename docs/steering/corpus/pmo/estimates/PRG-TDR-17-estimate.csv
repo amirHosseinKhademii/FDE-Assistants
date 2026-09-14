@@ -1,0 +1,12 @@
+# bottom-up estimate, built before nomination
+# author: R. Dietrich   date: 2020-02-24
+# "basis" is free text. It is the only record of WHERE a number came from.
+work_package,discipline,hours,basis,confidence
+HIL rig update,calibration,73,similar to H1,medium
+ECU integration,systems,373,supplier quote,high
+EOL calibration,systems,512,from the last programme,high
+validation,validation,239,similar to H1,high
+rack redesign,pm,76,similar to H1,high
+harness,calibration,144,guess,medium
+EOL calibration,calibration,508,from the last programme,low
+EOL calibration,validation,521,supplier quote,medium

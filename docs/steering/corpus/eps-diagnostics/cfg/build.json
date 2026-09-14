@@ -1,0 +1,73 @@
+{
+  "repo": "eps-diagnostics",
+  "platform": "classic-autosar",
+  "toolchain": "greenhills-2022.1",
+  "modules": {
+    "dtc": {
+      "swc": "SWC-DIAG",
+      "asil": "QM",
+      "optimisation": "-Os",
+      "stack_bytes": 1136
+    },
+    "uds": {
+      "swc": "SWC-DIAG",
+      "asil": "QM",
+      "optimisation": "-O2",
+      "stack_bytes": 3611
+    },
+    "snapshot": {
+      "swc": "SWC-DIAG",
+      "asil": "QM",
+      "optimisation": "-O2",
+      "stack_bytes": 1992
+    },
+    "lookup_table_1": {
+      "swc": "SWC-PLT-025",
+      "asil": "QM",
+      "optimisation": "-O2",
+      "stack_bytes": 3354
+    },
+    "bitfield_2": {
+      "swc": "SWC-PLT-027",
+      "asil": "D",
+      "optimisation": "-O2",
+      "stack_bytes": 722
+    },
+    "crc_3": {
+      "swc": "SWC-PLT-019",
+      "asil": "C",
+      "optimisation": "-O2",
+      "stack_bytes": 3464
+    },
+    "fixpt_4": {
+      "swc": "SWC-PLT-012",
+      "asil": "QM",
+      "optimisation": "-O2",
+      "stack_bytes": 1422
+    },
+    "checksum_5": {
+      "swc": "SWC-PLT-011",
+      "asil": "C",
+      "optimisation": "-O2",
+      "stack_bytes": 604
+    },
+    "state_machine_6": {
+      "swc": "SWC-PLT-017",
+      "asil": "QM",
+      "optimisation": "-O2",
+      "stack_bytes": 1853
+    },
+    "timebase_7": {
+      "swc": "SWC-PLT-009",
+      "asil": "C",
+      "optimisation": "-O2",
+      "stack_bytes": 1274
+    },
+    "checksum_8": {
+      "swc": "SWC-PLT-003",
+      "asil": "D",
+      "optimisation": "-O2",
+      "stack_bytes": 2703
+    }
+  }
+}

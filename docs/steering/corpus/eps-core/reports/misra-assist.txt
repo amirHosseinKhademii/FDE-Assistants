@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-core
+Module     : assist.c   (SWC-ASSIST, ASIL D)
+Tool       : LDRA 9.8
+Run        : 2023-07-07
+Run by     : s.beker
+
+SUMMARY
+  rules checked        156
+  violations           2
+  deviations approved  4
+  unresolved           1
+
+DEVIATIONS
+  D-17  Rule 19.9  pointer arithmetic in the buffer walk. Approved.
+
+UNRESOLVED
+  Rule 19.8 at assist.c:153 — owner n.haas, no target date

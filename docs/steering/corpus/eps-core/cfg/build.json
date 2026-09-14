@@ -1,0 +1,61 @@
+{
+  "repo": "eps-core",
+  "platform": "classic-autosar",
+  "toolchain": "gcc-arm-11.2",
+  "modules": {
+    "assist": {
+      "swc": "SWC-ASSIST",
+      "asil": "D",
+      "optimisation": "-O2",
+      "stack_bytes": 3099
+    },
+    "arbitration": {
+      "swc": "SWC-ARB",
+      "asil": "D",
+      "optimisation": "-O2",
+      "stack_bytes": 1833
+    },
+    "torque_sense": {
+      "swc": "SWC-TRQSENS",
+      "asil": "D",
+      "optimisation": "-O2",
+      "stack_bytes": 1599
+    },
+    "veh_speed": {
+      "swc": "SWC-ARB",
+      "asil": "B",
+      "optimisation": "-O2",
+      "stack_bytes": 2723
+    },
+    "state_machine_1": {
+      "swc": "SWC-PLT-027",
+      "asil": "D",
+      "optimisation": "-O2",
+      "stack_bytes": 1391
+    },
+    "filter_iir_2": {
+      "swc": "SWC-PLT-033",
+      "asil": "QM",
+      "optimisation": "-O2",
+      "stack_bytes": 1898
+    },
+    "timebase_3": {
+      "swc": "SWC-PLT-011",
+      "asil": "D",
+      "optimisation": "-O2",
+      "stack_bytes": 4013
+    },
+    "fixpt_4": {
+      "swc": "SWC-PLT-001",
+      "asil": "C",
+      "optimisation": "-O2",
+      "stack_bytes": 2511
+    },
+    "bitfield_5": {
+      "swc": "SWC-PLT-001",
+      "asil": "C",
+      "optimisation": "-O2",
+      "stack_bytes": 3966
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "tool": "get_policyholder",
+  "args": {
+    "policy_id": "AUT-9999"
+  },
+  "response": {
+    "policy_id": "AUT-9999",
+    "found": false,
+    "known_policy_ids": [
+      "AUT-4471",
+      "AUT-4472",
+      "AUT-4473",
+      "AUT-4474",
+      "AUT-4475",
+      "AUT-4476",
+      "AUT-4477",
+      "AUT-4478",
+      "AUT-4479",
+      "AUT-4480",
+      "AUT-4481",
+      "AUT-4482",
+      "AUT-4483",
+      "AUT-4484",
+      "AUT-4485",
+      "AUT-4486",
+      "AUT-4487",
+      "AUT-4488"
+    ],
+    "note": "No policyholder record exists for AUT-9999. Do not infer this customer's coverage from another record or from the policy wordings — say the record was not found and escalate."
+  }
+}

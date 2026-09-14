@@ -1,0 +1,2584 @@
+@import 'tailwindcss';
+
+/**
+ * Three layers, in the order they may override each other.
+ *
+ *   @fde/uikit        the controls, the severity palette, the motion rules and
+ *                     the `--ui-*` tokens every component reads. Liftable into
+ *                     a customer's own repository, and therefore knows nothing
+ *                     about estates, firms or engagements.
+ *   @veresk/surface   this site's own shared parts: the wash behind a hero, the
+ *                     hero entrance, the estate section, the numbered step.
+ *   this file         what only Vantis Steering's page draws — which is, so
+ *                     far, four colours and two typefaces.
+ */
+@import '@fde/uikit/styles.css';
+
+/**
+ * THE `@source` LINE IS LOAD-BEARING. Tailwind v4 does not look inside
+ * `node_modules`, and `@veresk/surface` is symlinked there like every workspace
+ * package. Without this, its components render with every utility class missing
+ * — from a build that SUCCEEDS, which is the worst failure shape available.
+ * `@fde/uikit` needs no equivalent line because it uses no utility classes at
+ * all, which is exactly why it is the package allowed to leave this repository.
+ */
+@import '@veresk/surface/styles.css';
+@source '../../../../packages/surface/src';
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+}
+
+html {
+  background: var(--color-ui-bg);
+  color: var(--color-ui-fg);
+  -webkit-font-smoothing: antialiased;
+  color-scheme: dark;
+}
+
+body {
+  /* Two very soft pools of light, so a flat near-black does not read as
+     "unstyled". They do not move, so there is nothing for the reduced-motion
+     rule to suppress. Green and orange rather than the teal and blue on the
+     pharma deployment — same treatment, this customer's colours. */
+  background-image:
+    radial-gradient(60rem 30rem at 15% -10%, rgba(74, 222, 128, 0.06), transparent 60%),
+    radial-gradient(50rem 25rem at 95% 0%, rgba(251, 146, 60, 0.05), transparent 60%);
+  background-repeat: no-repeat;
+}
+
+/* ── VANTIS STEERING'S FOUR SYSTEMS ─────────────────────────────────────────
+   A SECOND ESTATE NEEDS A SECOND PALETTE, not a second use of the first one.
+   The six hop hues on the pharma deployment mean "which of Meridian Pharma's
+   systems of record did this come from". If this estate borrowed any of them, a
+   reader moving between the two engagements would see the same teal mean two
+   different databases and correctly conclude the colour means nothing.
+
+   So these four sit in the gaps pharma left. Pharma runs teal → cyan → blue →
+   violet → pink → amber across the spectrum; these are green, lime, orange and
+   red-orange, none within reach of a hop hue or of a severity token.
+
+   THEY ARE A ROUTE, NOT A RANKING — same rule as the six. The order is the walk
+   a bid answer takes: who asked, what we promised, what we build, what it cost.
+
+   THEY LIVE IN THIS FILE AND NOT IN THE SHARED PACKAGE, which is the point of
+   the split: the moment two customers' palettes sit in one stylesheet, somebody
+   uses the wrong one and nothing catches it.
+   ────────────────────────────────────────────────────────────────────────── */
+@theme {
+  --color-vst-1: #4ade80;
+  --color-vst-2: #a3e635;
+  --color-vst-3: #fb923c;
+  --color-vst-4: #f87171;
+}
+
+/* What the shared package draws in this customer's colours: the headline's
+   gradient, and the bar that says a navigation is in flight. Both are defined
+   in `@veresk/surface` against these names, with a neutral fallback, so a page
+   that forgets them is plain rather than wearing another customer's palette. */
+:root {
+  --title-1: #4ade80;
+  --title-2: #a3e635;
+  --title-3: #fb923c;
+  --title-4: #f87171;
+  --ui-progress: linear-gradient(
+    90deg,
+    var(--color-vst-1), var(--color-vst-2), var(--color-vst-3), var(--color-vst-4)
+  );
+}
+
+/* ── THE PIPELINE STAGES ────────────────────────────────────────────────────
+   A stage that is built is brighter and carries what it produced; one that is
+   not is dim and says nothing it cannot back.
+
+   IT IS NOT GREEN, and that is the standing rule across this portfolio rather
+   than a preference here: nothing reassuring gets the colour nobody audits.
+   "Built" is a long way from "works" — the parse stage below is built, exact
+   and reconciled, and still answers no question anybody asked. Brightness says
+   "there is something here"; it does not say "this is fine".
+   ────────────────────────────────────────────────────────────────────────── */
+.stage-card {
+  cursor: pointer;
+  transition:
+    transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 260ms ease,
+    box-shadow 260ms ease;
+}
+
+.stage-card[data-built='false'] {
+  background: transparent;
+  border-style: dashed;
+}
+
+.stage-card[data-built='false'] .stage-n,
+.stage-card[data-built='false'] h3 {
+  color: var(--color-ui-faint);
+}
+
+/* THE COLOUR IS A RESPONSE TO THE READER, not a resting state. Three cards laid
+   out identically need something that says "this one, the one you are pointing
+   at, is what is about to open" — and the panel grows out of the card carrying
+   the same hue, so the two are recognisably one object. */
+.stage-card:hover,
+.stage-card:focus-visible {
+  transform: translateY(-4px);
+  border-color: color-mix(in oklab, var(--ui-tone, var(--color-ui-fg)) 60%, var(--color-ui-line));
+  box-shadow: 0 18px 40px -26px color-mix(in oklab, var(--ui-tone, var(--color-ui-fg)) 85%, transparent);
+}
+
+.stage-card:focus-visible { outline: 2px solid var(--color-ui-accent); outline-offset: 3px; }
+
+.stage-card:hover .stage-n,
+.stage-card:focus-visible .stage-n {
+  border-color: color-mix(in oklab, var(--ui-tone, currentColor) 70%, transparent);
+  color: var(--ui-tone, var(--color-ui-fg));
+}
+
+.stage-card:hover h3,
+.stage-card:focus-visible h3 { color: var(--ui-tone, var(--color-ui-fg)); }
+
+/* The invitation. Dim until the card is under the cursor, because a row of
+   three "→" links at full strength is louder than the content above them. */
+.stage-open {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  color: var(--color-ui-faint);
+  transition: color 260ms ease;
+}
+
+.stage-card:hover .stage-open,
+.stage-card:focus-visible .stage-open { color: var(--ui-tone, var(--color-ui-fg)); }
+
+.stage-n--lit {
+  border-color: color-mix(in oklab, var(--ui-tone, currentColor) 70%, transparent);
+  color: var(--ui-tone, var(--color-ui-fg));
+}
+
+/* One line in, one row out. The two are the same width and stacked, so the
+   change between them is the only thing the eye has to do. */
+.stage-example {
+  margin-top: 0.5rem;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.875rem;
+  padding: 1rem;
+}
+
+.stage-example-row {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim);
+  background: color-mix(in oklab, var(--color-ui-bg) 70%, transparent);
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  overflow-wrap: anywhere;
+}
+
+.stage-example-row--after {
+  border-color: color-mix(in oklab, var(--ui-tone, var(--color-ui-line-lit)) 45%, var(--color-ui-line));
+  color: var(--color-ui-fg);
+}
+
+.stage-example-arrow {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ui-faint);
+  padding: 0.4375rem 0 0.4375rem 0.25rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage-card:hover,
+  .stage-card:focus-visible { transform: none; }
+}
+
+.stage-n {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  flex: none;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.4375rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.75rem;
+  color: var(--color-ui-dim);
+}
+
+/* ── BEFORE AND AFTER ───────────────────────────────────────────────────────
+   Two rows of openable tiles. The tiles, the dialog and the field rows are all
+   `@fde/uikit`; what is here is the small amount that knows this section has a
+   before and an after.
+
+   NO COLOUR ON EITHER ROW. Colour on this page means "which of the customer's
+   four databases a fact came from", and neither a pile of files nor our own
+   index is one of those. What IS encoded is state — read or not read — because
+   that is the only distinction the section makes, and four of the eight top
+   tiles have produced nothing at all.
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* A source nothing reads yet. Dashed and quiet, on the same rule the corpus
+   card follows: a tile that looked like the others would say 1,069 files are
+   being read when 331 are. It still OPENS, because what is in it is exactly
+   what makes the next two stages hard. */
+.ba-unread {
+  border-style: dashed;
+  background: transparent;
+}
+
+.ba-row-label {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-ui-faint);
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.375rem;
+  padding: 0.125rem 0.4375rem;
+}
+
+/* The crossing between the rows. */
+.ba-cross {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 2.25rem 0 0.5rem;
+}
+
+.ba-cross-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-ui-line-lit), transparent);
+}
+
+.ba-cross-word {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  color: var(--color-ui-faint);
+  white-space: nowrap;
+}
+
+.ba-dialog-label {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ui-faint);
+}
+
+/* THE EXCERPT. Verbatim, so it scrolls rather than wraps: a wrapped CSV line
+   stops looking like a CSV line, and looking like one is the entire reason it
+   is on the page. */
+.ba-excerpt {
+  margin-top: 0.625rem;
+  display: grid;
+  overflow-x: auto;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.75rem;
+  background: color-mix(in oklab, var(--color-ui-bg) 70%, transparent);
+  padding: 0.75rem 0;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim);
+  tab-size: 4;
+}
+
+.ba-excerpt-line {
+  display: grid;
+  grid-template-columns: 2.25rem 1fr;
+  gap: 0.5rem;
+  white-space: pre;
+  padding-inline: 0.5rem 1rem;
+}
+
+.ba-excerpt-n {
+  text-align: right;
+  color: var(--color-ui-faint);
+  opacity: 0.55;
+  user-select: none;
+}
+
+/* ── THE COLOURS OF THE READING ─────────────────────────────────────────────
+   A SECOND SCALE, AND THE TWO MUST NOT BE CONFUSABLE. `--color-vst-1..4` above
+   are green, lime, orange and red-orange, and they mean "which of Vantis's four
+   systems did this come from". These six are cyan through pink and mean
+   something different: "read out of the customer's files, by us". Warm is
+   theirs, cool is ours — and because the two scales sit on the same page a few
+   hundred pixels apart, no hue is shared and none is within reach of another.
+
+   THE PAIRING IS THE INFORMATION. A pile of files and the table it became carry
+   the SAME hue, so a reader can run their eye down the page and see which
+   source produced which table without being told once. The four piles nothing
+   reads yet carry no hue at all, which is how everything else on this site says
+   "not one of the set".
+
+   NONE OF THESE IS GREEN, and that is not an accident of taste. Green means
+   "nothing found" in the severity palette this site shares, and a green tile on
+   a page about extraction would read as "this one is fine" — which is exactly
+   the claim none of them is making.
+   ────────────────────────────────────────────────────────────────────────── */
+@theme {
+  --color-src-1: #22d3ee;
+  --color-src-2: #60a5fa;
+  --color-src-3: #818cf8;
+  --color-src-4: #a78bfa;
+  --color-src-5: #e879f9;
+  --color-src-6: #f472b6;
+}
+
+/* ── THE TWO ROWS, TURNED UP ────────────────────────────────────────────────
+   `@fde/uikit` keeps a tile's hue to a hairline on the top edge, which is right
+   for the estate row: seven near-identical databases where a tint would read as
+   seven muddy panels. These two rows are doing a different job — they are the
+   part of the page a reader is meant to play with — so the same tone is allowed
+   much further out, and only while the cursor is on it.
+
+   EVERYTHING BELOW IS ON :hover OR :focus-visible. At rest the rows are as
+   quiet as the rest of the page; the colour is a response to the reader, which
+   is the one kind of motion this site's rules call for without argument.
+   ────────────────────────────────────────────────────────────────────────── */
+.ba-tiles .ui-tile {
+  overflow: hidden;
+  transition:
+    transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 260ms ease,
+    box-shadow 260ms ease,
+    background-color 260ms ease;
+}
+
+/* The wash. It comes UP from the bottom edge rather than sitting flat, so the
+   text at the top of the tile never loses contrast against it. */
+.ba-tiles .ui-tile::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    180deg,
+    transparent 30%,
+    color-mix(in oklab, var(--ui-tone, transparent) 16%, transparent) 100%
+  );
+  opacity: 0;
+  transition: opacity 260ms ease;
+  pointer-events: none;
+}
+
+.ba-tiles .ui-tile:hover::after,
+.ba-tiles .ui-tile:focus-visible::after {
+  opacity: 1;
+}
+
+.ba-tiles .ui-tile:hover,
+.ba-tiles .ui-tile:focus-visible {
+  transform: translateY(-5px);
+  border-color: color-mix(in oklab, var(--ui-tone, var(--color-ui-fg)) 65%, var(--color-ui-line));
+  box-shadow:
+    0 18px 40px -24px color-mix(in oklab, var(--ui-tone, var(--color-ui-fg)) 85%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--ui-tone, transparent) 22%, transparent);
+}
+
+/* The hairline on the top edge widens and brightens with the rest. */
+.ba-tiles .ui-tile:hover::before,
+.ba-tiles .ui-tile:focus-visible::before {
+  height: 2px;
+  opacity: 1;
+}
+
+/* The drawing takes the tile's colour. It is the clearest signal available that
+   the thing under the cursor and the dialog about to open are the same object. */
+.ba-tiles .ui-tile:hover > svg,
+.ba-tiles .ui-tile:focus-visible > svg {
+  color: var(--ui-tone, var(--color-ui-dim));
+}
+
+.ba-tiles .ui-tile-title { transition: color 260ms ease; }
+
+.ba-tiles .ui-tile:hover .ui-tile-title,
+.ba-tiles .ui-tile:focus-visible .ui-tile-title {
+  color: var(--ui-tone, var(--color-ui-fg));
+}
+
+/* A pile nothing has read yet stays grey however hard you hover it, because
+   there is no colour to earn: nothing came out of it. */
+.ba-unread { border-style: dashed; background: transparent; }
+.ba-unread:hover > svg,
+.ba-unread:focus-visible .ui-tile-title,
+.ba-unread:hover .ui-tile-title { color: var(--color-ui-dim); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ba-tiles .ui-tile { transition: border-color 260ms ease, box-shadow 260ms ease; }
+  .ba-tiles .ui-tile:hover,
+  .ba-tiles .ui-tile:focus-visible { transform: none; }
+}
+
+/* ── THE PLAIN-LANGUAGE BLOCK IN A DIALOG ───────────────────────────────────
+   It takes the tone as a rule down its leading edge, on the same grammar the
+   rest of the site uses for "this passage belongs to that thing".
+   ────────────────────────────────────────────────────────────────────────── */
+.ba-plain {
+  border-inline-start: 2px solid var(--ui-tone, var(--color-ui-line-lit));
+  padding-inline-start: 0.875rem;
+}
+
+.ba-plain-head {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ui-tone, var(--color-ui-faint));
+}
+
+/* THE COST WALK'S STYLES LIVED HERE and went with the section on 2026-09-13.
+   It rendered `pnpm steering:walk-cost` — six steps of a person pricing the K2
+   job by hand — and it was removed because it is the ACCEPTANCE TEST rather
+   than the product: a proof that the question is answerable from this estate at
+   all, priced against the answer key rather than against the documents. On a
+   page about what happens to a customer's data it was two screens of something
+   else, and the part of it worth keeping is already here — the table showing
+   what the documents alone support, where the gearbox line survives and the
+   damping line becomes a refusal. The command still prints all of it. */
+
+/* ── HOW THE FACTS GOT OUT OF THE FILES ─────────────────────────────────────
+   Three kinds of file, and the one a model touches is the one that is marked.
+   Everything else on this page is about what leaves the building; this is about
+   what is allowed to be invented, which is the other half of the same worry.
+   ────────────────────────────────────────────────────────────────────────── */
+/* ── THE THREE PIPELINES, AS ONE PIPELINE ───────────────────────────────────
+   Three stages with a connector between them and the result hung underneath.
+
+   IT IS A FLOW AND NOT A ROW OF CARDS, and the difference is a claim rather
+   than a style. Three equal boxes side by side read as a menu — three ways you
+   could do this, pick one. These are three different problems feeding one
+   database, in an order where each gives the next something to be checked
+   against. The connector says that; three boxes said the opposite.
+   ────────────────────────────────────────────────────────────────────────── */
+.x-flow {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.x-flow-item {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  justify-items: start;
+}
+
+.x-stage {
+  display: grid;
+  gap: 0.5rem;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.875rem;
+  padding: 1.125rem;
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--ui-tone, transparent) 6%, transparent), transparent 65%),
+    color-mix(in oklab, var(--color-ui-surface) 50%, transparent);
+  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 220ms ease, box-shadow 220ms ease;
+}
+
+.x-stage:hover,
+.x-stage:focus-visible {
+  transform: translateY(-3px);
+  border-color: color-mix(in oklab, var(--ui-tone, var(--color-ui-fg)) 55%, var(--color-ui-line));
+  box-shadow: 0 16px 36px -26px color-mix(in oklab, var(--ui-tone, var(--color-ui-fg)) 85%, transparent);
+}
+
+.x-stage:focus-visible { outline: 2px solid var(--color-ui-accent); outline-offset: 3px; }
+
+/* NOT BUILT IS DASHED, on the same rule everything else here follows. */
+.x-stage[data-built='false'] { border-style: dashed; background: transparent; }
+
+/* THE ONE A MODEL TOUCHES CARRIES THE WARN TOKEN, which everywhere else on
+   this site means "a gap is owed". A step that reads English into a column is
+   precisely that, and it is the only one on the page that can be quietly
+   wrong. */
+.x-stage[data-model='true'] {
+  border-color: color-mix(in oklab, var(--color-ui-warn) 34%, var(--color-ui-line));
+}
+
+.x-stage[data-model='true'] .x-tag { color: var(--color-ui-warn); }
+
+.x-stage-head { display: flex; align-items: center; gap: 0.625rem; }
+
+.x-stage-name { font-size: 0.9375rem; font-weight: 500; color: var(--color-ui-fg); }
+
+.x-stage-what { font-size: 0.875rem; line-height: 1.6; color: var(--color-ui-dim); }
+
+.x-stage-vol {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  line-height: 1.6;
+  color: var(--color-ui-faint);
+}
+
+.x-open {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  color: var(--color-ui-faint);
+  transition: color 220ms ease;
+}
+
+.x-stage:hover .x-open,
+.x-stage:focus-visible .x-open { color: var(--ui-tone, var(--color-ui-fg)); }
+
+.x-stage:hover .x-stage-name,
+.x-stage:focus-visible .x-stage-name { color: var(--ui-tone, var(--color-ui-fg)); }
+
+/* The connector down to what the stage produced. */
+.x-drop {
+  width: 1px;
+  height: 0.875rem;
+  margin-left: 1.5rem;
+  background: linear-gradient(180deg, var(--ui-tone, var(--color-ui-line-lit)), transparent);
+  opacity: 0.7;
+}
+
+.x-result {
+  max-width: 46ch;
+  margin-left: 0.75rem;
+  border-inline-start: 2px solid color-mix(in oklab, var(--ui-tone, var(--color-ui-line-lit)) 55%, transparent);
+  padding-inline-start: 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1.65;
+  color: var(--color-ui-dim);
+}
+
+/* An empty result is said out loud rather than left blank. A stage with no line
+   under it reads as a stage somebody forgot to describe. */
+.x-result--none {
+  border-inline-start-style: dashed;
+  color: var(--color-ui-faint);
+}
+
+@media (min-width: 64rem) {
+  .x-flow { grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .x-flow-item { grid-template-rows: 1fr auto auto; }
+  .x-stage { height: 100%; align-content: start; }
+
+  /* THE ARROW BETWEEN STAGES ONLY EXISTS WHERE THEY SIT SIDE BY SIDE. Stacked
+     on a phone the vertical order already says "then"; adding a chevron there
+     would be drawing a fact the layout has stated. */
+  .x-flow-item:not(:last-child) .x-stage::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -0.6875rem;
+    width: 0.375rem;
+    height: 0.375rem;
+    border-top: 1px solid var(--color-ui-line-lit);
+    border-right: 1px solid var(--color-ui-line-lit);
+    transform: translateY(-50%) rotate(45deg);
+  }
+
+  .x-stage { position: relative; }
+}
+
+/* The numeral and the tag, shared by the flow above. */
+.x-n {
+  display: grid;
+  place-items: center;
+  width: 1.375rem;
+  height: 1.375rem;
+  flex: none;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.375rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  color: var(--color-ui-dim);
+}
+
+.x-stage:hover .x-n,
+.x-stage:focus-visible .x-n {
+  border-color: color-mix(in oklab, var(--ui-tone, currentColor) 60%, transparent);
+  color: var(--ui-tone, var(--color-ui-fg));
+}
+
+/* WHETHER A MODEL TOUCHES IT, and it is the smallest text on the card on
+   purpose. It is a property of the stage, not a headline — the headline is what
+   the stage READS. The one case where it matters is coloured instead of
+   enlarged. */
+.x-tag {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ui-faint);
+}
+
+.x-cap {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ui-faint);
+}
+
+.x-prose {
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: color-mix(in oklab, var(--color-ui-bg) 60%, transparent);
+}
+
+/* The crossing. Horizontal when the two panels stack, vertical when they sit
+   side by side — the direction is the only thing it says, so it follows the
+   layout rather than fighting it. */
+.x-cross {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.25rem 0;
+}
+
+.x-cross-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-ui-warn), transparent);
+  opacity: 0.5;
+}
+
+.x-cross-word {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.625rem;
+  color: var(--color-ui-warn);
+  white-space: nowrap;
+}
+
+@media (min-width: 64rem) {
+  .x-cross { flex-direction: column; padding: 0 0.75rem; }
+  .x-cross-line {
+    width: 1px;
+    height: auto;
+    background: linear-gradient(180deg, transparent, var(--color-ui-warn), transparent);
+  }
+}
+
+.x-row {
+  display: grid;
+  gap: 0.375rem;
+  border: 1px solid color-mix(in oklab, var(--color-ui-accent) 22%, var(--color-ui-line));
+  border-radius: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: color-mix(in oklab, var(--color-ui-surface) 60%, transparent);
+}
+
+.x-row > div {
+  display: grid;
+  grid-template-columns: 8.5rem 1fr;
+  gap: 0.75rem;
+  align-items: baseline;
+}
+
+.x-row dt {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  color: var(--color-ui-faint);
+}
+
+/* ── THE SORTING RAIL ───────────────────────────────────────────────────────
+   Reuses `.walk-*` wholesale — it is the same kind of thing as the cost walk:
+   one process, in an order, where each step exists because of what the one
+   before it cannot do. What is added is the evidence a step SHOWS.
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* A step a model is involved in. Only the first two are, and marking them is
+   what lets a reader see at a glance that four of the six steps are checking
+   up on it. */
+.x-model {
+  border-color: color-mix(in oklab, var(--color-ui-warn) 45%, transparent);
+  color: var(--color-ui-warn);
+}
+
+.x-landed {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.75rem;
+}
+
+.x-landed-head,
+.x-landed-row {
+  display: grid;
+  grid-template-columns: 10rem 8.5rem 3rem minmax(14rem, 1fr);
+  gap: 1rem;
+  align-items: baseline;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.75rem;
+  min-width: 38rem;
+}
+
+.x-landed-head {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ui-faint);
+  border-bottom: 1px solid var(--color-ui-line);
+}
+
+.x-landed-row + .x-landed-row { border-top: 1px solid color-mix(in oklab, var(--color-ui-line) 55%, transparent); }
+
+.x-landed-row--null { background: color-mix(in oklab, var(--color-ui-warn) 5%, transparent); }
+
+.x-landed-ev {
+  color: var(--color-ui-faint);
+  font-style: italic;
+  overflow-wrap: anywhere;
+}
+
+/* ── BEFORE AND AFTER, ON ONE FILE ──────────────────────────────────────────
+   Calm on purpose. The version this replaced put a key/value table under every
+   step and ran the figures into their captions — dense enough that nobody
+   outside the team could follow it, which is fatal on a page whose whole point
+   is to be checkable by an outsider.
+
+   So: generous line height, one piece of evidence per idea, and the file on the
+   left, the rows on the right, with what happened between them named.
+   ────────────────────────────────────────────────────────────────────────── */
+/* A SECTION HEADING THAT CARRIES ITS STAGE'S COLOUR. The three headings below
+   are the same three things as the cards at the top of the section, at more
+   detail — Parse is cyan in both places, Extract is pink in both. A reader
+   scrolling from the flow to the detail should not have to work that out. */
+/* THESE THREE OWN EVERYTHING UNDER THEM, so they are sized like it. At 1.125rem
+   they were the same weight as the card titles inside them and a reader
+   scrolling could not tell a section from an item. A rule above and a step
+   larger settles it without another colour. */
+.x-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 0.875rem;
+  border-top: 1px solid color-mix(in oklab, var(--ui-tone, var(--color-ui-line)) 30%, var(--color-ui-line));
+  padding-top: 1.25rem;
+}
+
+/* THE NUMERAL LEADS, AND THE STAMPS FOLLOW. It read
+   "step 3 · built | a model reads | Extraction" — two badges before the word
+   they qualify, so the eye met the metadata first and the name of the thing
+   third. Now it is a number, the name, then whatever is true about it. */
+.x-head-n {
+  display: grid;
+  place-items: center;
+  width: 2.125rem;
+  height: 2.125rem;
+  flex: none;
+  align-self: center;
+  border: 1px solid color-mix(in oklab, var(--ui-tone, currentColor) 40%, var(--color-ui-line));
+  border-radius: 0.625rem;
+  background: color-mix(in oklab, var(--ui-tone, transparent) 10%, transparent);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--ui-tone, var(--color-ui-dim));
+}
+
+.x-head-title {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ui-tone, var(--color-ui-fg));
+}
+
+@media (min-width: 40rem) {
+  .x-head-title { font-size: 1.75rem; }
+}
+
+.x-head-title--muted { color: color-mix(in oklab, var(--ui-tone, var(--color-ui-dim)) 55%, var(--color-ui-dim)); }
+
+.x-stamp--toned {
+  color: var(--ui-tone, var(--color-ui-faint));
+  border-color: color-mix(in oklab, var(--ui-tone, currentColor) 35%, var(--color-ui-line));
+  background: color-mix(in oklab, var(--ui-tone, transparent) 7%, transparent);
+}
+
+.x-stamp {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ui-faint);
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.375rem;
+  padding: 0.125rem 0.4375rem;
+}
+
+/* IT TAKES THE SECTION'S OWN COLOUR, NOT AMBER.
+   Amber means "a gap is owed" everywhere else here, and on a customer-facing
+   page "a model reads this one" is not a warning — it is a fact about which of
+   the three steps is which. The caution is made in the copy underneath, where
+   it can be argued with. So the stamp says WHICH step it belongs to, filled,
+   which is also what makes it the one thing on the heading row that is not
+   grey. */
+.x-stamp--model {
+  color: var(--ui-tone, var(--color-ui-fg));
+  border-color: color-mix(in oklab, var(--ui-tone, currentColor) 45%, transparent);
+  background: color-mix(in oklab, var(--ui-tone, transparent) 14%, transparent);
+}
+.x-stamp--todo { border-style: dashed; }
+
+/* THE COLOUR IS THE STAGE'S, and it is doing the same job it does on the flow
+   above: two panels in the same hue are two examples of one step. At rest it is
+   a wash and a hairline; under the cursor the whole card lifts and the edge
+   takes the tone properly. Everything stronger than that turns a page of prose
+   into a page of coloured slabs. */
+.x-ba {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--ui-tone, transparent) 5%, transparent), transparent 55%),
+    color-mix(in oklab, var(--color-ui-surface) 40%, transparent);
+  transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 260ms ease, box-shadow 260ms ease;
+}
+
+/* The hairline along the top edge — the same grammar the estate tiles use for
+   "this belongs to that set". */
+.x-ba::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--ui-tone, var(--color-ui-line-lit)), transparent);
+  opacity: 0.6;
+  transition: opacity 260ms ease, height 260ms ease;
+}
+
+.x-ba:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in oklab, var(--ui-tone, var(--color-ui-fg)) 40%, var(--color-ui-line));
+  box-shadow: 0 18px 40px -28px color-mix(in oklab, var(--ui-tone, var(--color-ui-fg)) 80%, transparent);
+}
+
+.x-ba:hover::before { height: 2px; opacity: 1; }
+
+.x-ba-title { font-size: 0.9375rem; font-weight: 500; color: var(--color-ui-fg); }
+
+.x-ba-grid { margin-top: 1rem; display: grid; gap: 0.75rem; min-width: 0; }
+
+.x-ba-side { min-width: 0; }
+
+/* THE CUSTOMER'S OWN FILE, SHOWN AS A FILE. It was a flat grey panel of 12px
+   mono — present, and not something anybody wanted to read. Now it is drawn as
+   the thing it is: a named sheet with a header bar carrying the filename, a
+   faint ruled background so the lines read as rows rather than as a paragraph,
+   and type one notch smaller but higher contrast, which is what actually makes
+   small text legible. */
+.x-file {
+  margin-top: 0.5rem;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklab, var(--ui-tone, var(--color-ui-line-lit)) 22%, var(--color-ui-line));
+  border-radius: 0.75rem;
+  /* A SHEET LYING ON THE CARD, NOT A HOLE IN IT. Matching the card's own
+     background made the file disappear into it; lighter, with a shadow under
+     it, reads as a separate piece of paper at a glance. */
+  background: color-mix(in oklab, var(--color-ui-fg) 7%, var(--color-ui-surface));
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--color-ui-fg) 10%, transparent),
+    0 10px 24px -18px rgb(0 0 0 / 0.9);
+}
+
+.x-file-name {
+  display: flex;
+  align-items: center;
+  gap: 0.4375rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--ui-tone, var(--color-ui-line-lit)) 18%, var(--color-ui-line));
+  padding: 0.4375rem 0.75rem;
+  background: color-mix(in oklab, var(--ui-tone, var(--color-ui-line)) 14%, transparent);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  letter-spacing: 0.01em;
+  color: color-mix(in oklab, var(--color-ui-fg) 70%, var(--color-ui-dim));
+}
+
+/* The dot is the tone, so a file belongs visibly to its step. */
+.x-file-name::before {
+  content: '';
+  flex: none;
+  width: 0.4375rem;
+  height: 0.4375rem;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--ui-tone, var(--color-ui-line-lit)) 75%, transparent);
+}
+
+.x-ba-doc {
+  padding: 0.75rem 0.875rem 0.875rem;
+  /* Ruled paper: one faint line per text line, so columns line up by eye. */
+  background-image: repeating-linear-gradient(
+    180deg,
+    transparent 0 1.5rem,
+    color-mix(in oklab, var(--color-ui-fg) 3%, transparent) 1.5rem 1.6875rem
+  );
+  background-position: 0 0.75rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  line-height: 1.6875rem;
+  color: color-mix(in oklab, var(--color-ui-fg) 88%, var(--color-ui-dim));
+  /* IT WRAPS RATHER THAN SCROLLS. A sideways scrollbar hid the end of every
+     long line behind a gesture nobody makes on a page, so the one thing the
+     card exists to show was cut off mid-word. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.x-ba-notice {
+  margin-top: 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.75;
+  color: var(--color-ui-dim);
+}
+
+.x-ba-arrow { display: flex; align-items: center; gap: 0.75rem; padding: 0.25rem 0; }
+
+.x-ba-arrow-line {
+  position: relative;
+  overflow: hidden;
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-ui-line-lit), transparent);
+}
+
+/* A light travelling the connector once every three seconds. The ONLY motion in
+   this section, and it marks the only thing happening: a file becoming rows.
+   Same rule as everywhere else here — motion reports work, it does not
+   decorate. */
+@keyframes x-ba-pulse {
+  0%   { transform: translateX(-100%); opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+
+.x-ba-pulse {
+  position: absolute;
+  inset: 0;
+  width: 45%;
+  background: linear-gradient(90deg, transparent, var(--ui-tone, var(--color-ui-accent)), transparent);
+  animation: x-ba-pulse 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .x-ba-pulse { animation: none; opacity: 0.5; transform: none; width: 100%; }
+  .x-ba:hover { transform: none; }
+}
+
+.x-ba-arrow-word {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.625rem;
+  color: var(--ui-tone, var(--color-ui-faint));
+  white-space: nowrap;
+  opacity: 0.85;
+}
+
+.x-ba-side--after .x-ba-fields {
+  margin-top: 0.5rem;
+  display: grid;
+  gap: 0.4375rem;
+  border: 1px solid color-mix(in oklab, var(--ui-tone, var(--color-ui-accent)) 26%, var(--color-ui-line));
+  border-radius: 0.625rem;
+  padding: 0.875rem 1rem;
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--ui-tone, transparent) 6%, transparent), transparent 70%),
+    color-mix(in oklab, var(--color-ui-surface) 60%, transparent);
+}
+
+.x-ba-fields > div { display: grid; grid-template-columns: 8rem 1fr; gap: 0.75rem; align-items: baseline; }
+.x-ba-fields dt { font-size: 0.75rem; color: var(--color-ui-faint); }
+.x-ba-fields dd { font-size: 0.8125rem; line-height: 1.6; }
+
+.x-ba-note { display: block; margin-top: 0.1875rem; font-size: 0.75rem; line-height: 1.6; color: var(--color-ui-faint); }
+
+/* ── UNDER THE HOOD ─────────────────────────────────────────────────────────
+   One set per step rather than a closing sentence per example. The label is the
+   question a customer asks next — "how", "what do you not do", "what guarantees
+   it" — so the block can be skipped by anybody who is satisfied and read by
+   anybody who is not.
+   ────────────────────────────────────────────────────────────────────────── */
+.x-notes {
+  margin-top: 1.75rem;
+  display: grid;
+  gap: 0.625rem;
+}
+
+/* EACH NOTE IS ITS OWN PANEL. As a bare indented list the three answers ran
+   together and the labels — the part a reader scans for — were 10px uppercase
+   grey, the least visible text on the card. Panelled, with the label at reading
+   size in the step's own colour, the block can be scanned in one pass. */
+.x-notes > div {
+  border: 1px solid color-mix(in oklab, var(--ui-tone, var(--color-ui-line-lit)) 16%, var(--color-ui-line));
+  border-radius: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: color-mix(in oklab, var(--ui-tone, var(--color-ui-line)) 6%, transparent);
+}
+
+.x-notes dt {
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: color-mix(in oklab, var(--ui-tone, var(--color-ui-fg)) 70%, var(--color-ui-fg));
+}
+
+.x-notes dd {
+  margin-top: 0.375rem;
+  max-width: 74ch;
+  font-size: 0.875rem;
+  line-height: 1.75;
+  color: color-mix(in oklab, var(--color-ui-fg) 55%, var(--color-ui-dim));
+}
+
+@media (min-width: 64rem) {
+  .x-notes { grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+  .x-notes dd { max-width: none; }
+}
+
+/* THE SECOND EXAMPLE NEEDED AIR. The rate card's title sat directly under the
+   timesheet's closing line, so the two files read as one continuous block. */
+.x-ba-ex + .x-ba-ex {
+  margin-top: 2.25rem;
+  padding-top: 2rem;
+  border-top: 1px solid color-mix(in oklab, var(--color-ui-line) 70%, transparent);
+}
+
+.x-ba-why {
+  margin-top: 1rem;
+  max-width: 74ch;
+  border-inline-start: 2px solid var(--color-ui-line);
+  padding-inline-start: 0.875rem;
+  font-size: 0.8125rem;
+  line-height: 1.75;
+  color: var(--color-ui-dim);
+}
+
+@media (min-width: 64rem) {
+  .x-ba-grid { grid-template-columns: 1fr auto 1fr; align-items: start; }
+  .x-ba-arrow { flex-direction: column; padding: 2rem 0.5rem 0; }
+  .x-ba-arrow-line { width: 1px; height: auto; min-height: 2rem; background: linear-gradient(180deg, transparent, var(--color-ui-line-lit), transparent); }
+}
+
+/* ── THE EXTRACTION STEPS, AS CARDS ─────────────────────────────────────────
+   Numbered, visually distinct, one short line each, and each one opens.
+
+   IT WAS SEVEN LONG PASSAGES DOWN THE PAGE and the numbers were the only thing
+   separating them — which meant a reader had to consume all of it to find out
+   whether any of it was for them. A card is a handle: enough to see what the
+   step is and decide. The explanation is behind it, where whoever wants it can
+   get it and whoever does not is not made to scroll past it.
+
+   THE HUE IS INDIGO, NOT AMBER. The amber these used to carry is the token that
+   means "a gap is owed" everywhere else on this site, and a row of seven amber
+   panels said the whole extraction was a warning. It is not — it is the part
+   that is built and checked. Amber is left for the one card that genuinely is a
+   caution, and for the stamp that says a model is involved.
+   ────────────────────────────────────────────────────────────────────────── */
+.x-pipe { display: grid; }
+
+/* ONE TRUNK DOWN THE LEFT, A BRANCH TO EACH STEP. The seven steps used to be
+   seven bordered boxes in a column, which said they were seven equal things.
+   They are three parts of one argument — a contract, a check, and what the
+   check cannot see — and each step answers the one before it. The track carries
+   that; the boxes were doing the opposite. */
+.x-phase {
+  position: relative;
+  padding-inline-start: 2.5rem;
+  padding-bottom: 2rem;
+}
+
+.x-phase::before {
+  content: '';
+  position: absolute;
+  inset-block: 0.5rem 0;
+  inset-inline-start: 0.8125rem;
+  width: 2px;
+  border-radius: 1px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--ui-tone) 45%, transparent),
+    color-mix(in oklab, var(--ui-tone) 18%, transparent)
+  );
+}
+
+/* The trunk stops at the last step rather than running into the result card. */
+.x-phase:last-child::before { inset-block-end: 2rem; }
+
+.x-phase-head { display: flex; align-items: center; gap: 0.625rem; }
+
+/* The marker sits ON the trunk, so a part of the chain is visibly a junction. */
+.x-phase-range {
+  position: absolute;
+  inset-inline-start: 0;
+  display: grid;
+  place-items: center;
+  width: 1.625rem;
+  height: 1.625rem;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--ui-tone) 22%, var(--color-ui-bg));
+  box-shadow: 0 0 0 4px var(--color-ui-bg);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.625rem;
+  color: color-mix(in oklab, var(--ui-tone) 80%, var(--color-ui-fg));
+}
+
+.x-phase-label {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-ui-fg);
+}
+
+.x-phase-why {
+  margin-top: 0.25rem;
+  max-width: 60ch;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim);
+}
+
+.x-cards {
+  margin-top: 0.875rem;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.x-cards > li { position: relative; }
+
+/* The branch off the trunk, ending at the step's number. */
+.x-cards > li::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: -1.6875rem;
+  /* Meets the step's number, whatever height the card wraps to — which is why
+     the card aligns to its top rather than centring. */
+  top: 1.4375rem;
+  width: 2.375rem;
+  height: 2px;
+  border-radius: 1px;
+  background: color-mix(in oklab, var(--ui-tone) 28%, transparent);
+  transition: background-color 220ms ease;
+}
+
+.x-cards > li:has(.x-card:hover)::before,
+.x-cards > li:has(.x-card:focus-visible)::before {
+  background: color-mix(in oklab, var(--ui-tone) 70%, transparent);
+}
+
+/* NO BORDER, NO PANEL. The card is a line of text with a number, and it lifts
+   only under the pointer — a box around every step was seven hard rectangles
+   fighting the track that connects them. */
+.x-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: start;
+  gap: 0.75rem;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  border: 0;
+  border-radius: 0.625rem;
+  padding: 0.625rem 0.75rem;
+  background: transparent;
+  transition: background-color 220ms ease, transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.x-card:hover,
+.x-card:focus-visible {
+  transform: translateX(3px);
+  background: color-mix(in oklab, var(--ui-tone) 9%, transparent);
+}
+
+.x-card:focus-visible { outline: 2px solid var(--color-ui-accent); outline-offset: 3px; }
+
+.x-card-n {
+  display: grid;
+  place-items: center;
+  width: 1.625rem;
+  height: 1.625rem;
+  flex: none;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--ui-tone) 14%, var(--color-ui-bg));
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.75rem;
+  color: color-mix(in oklab, var(--ui-tone) 85%, var(--color-ui-fg));
+  transition: background-color 220ms ease;
+}
+
+.x-card:hover .x-card-n { background: color-mix(in oklab, var(--ui-tone) 32%, var(--color-ui-bg)); }
+
+.x-card-n--lit {
+  --ui-tone: var(--color-src-6);
+  background: color-mix(in oklab, var(--color-src-6) 22%, var(--color-ui-bg));
+}
+
+.x-card-text { display: grid; gap: 0.125rem; min-width: 0; }
+
+.x-card-title { font-size: 0.9375rem; font-weight: 500; color: var(--color-ui-fg); }
+
+.x-card-face { font-size: 0.8125rem; line-height: 1.55; color: var(--color-ui-dim); }
+
+.x-card-go {
+  align-self: center;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  color: transparent;
+  transition: color 220ms ease, transform 220ms ease;
+}
+
+.x-card:hover .x-card-go,
+.x-card:focus-visible .x-card-go { color: var(--ui-tone); transform: translateX(2px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .x-card:hover, .x-card:focus-visible { transform: none; }
+  .x-card:hover .x-card-go { transform: none; }
+}
+
+/* One piece of evidence per step. */
+.x-ev {
+  margin-top: 1rem;
+  min-width: 0;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: color-mix(in oklab, var(--color-ui-bg) 55%, transparent);
+}
+
+/* The customer's own words get the dashed frame the corpus uses everywhere. */
+.x-ev--document { border-style: dashed; }
+
+.x-ev-text {
+  margin-top: 0.5rem;
+  overflow-x: auto;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  line-height: 1.9;
+  color: var(--color-ui-dim);
+  white-space: pre;
+}
+
+.x-ev-pairs { margin-top: 0.625rem; display: grid; gap: 0.75rem; }
+
+.x-ev-pairs > div { display: grid; gap: 0.1875rem; }
+
+.x-ev-pairs dt { font-size: 0.8125rem; color: var(--color-ui-dim); }
+
+.x-ev-from {
+  display: block;
+  margin-top: 0.1875rem;
+  font-size: 0.75rem;
+  font-style: italic;
+  line-height: 1.7;
+  color: var(--color-ui-faint);
+}
+
+.x-todo {
+  border: 1px dashed var(--color-ui-line);
+  border-radius: 1rem;
+  padding: 1.25rem;
+}
+
+/* A row of figures, used by both halves. */
+.x-figs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.x-fig { font-family: var(--font-mono, ui-monospace, monospace); font-size: 1rem; font-weight: 500; color: var(--color-ui-fg); }
+.x-fig-label { margin-top: 0.125rem; font-size: 0.6875rem; line-height: 1.5; color: var(--color-ui-faint); }
+
+@media (min-width: 40rem) {
+  .x-figs { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 64rem) {
+  .x-figs { grid-template-columns: repeat(6, 1fr); }
+}
+
+/* ── WHERE THE THREE PIPELINES LAND ─────────────────────────────────────────
+   The result of the page, in the colours of the steps that produced it. Three
+   groups and then the join, because the join is the thing the three were for.
+   ────────────────────────────────────────────────────────────────────────── */
+.x-land { display: grid; gap: 1.75rem; }
+
+.x-land-group {
+  border-inline-start: 2px solid color-mix(in oklab, var(--ui-tone) 40%, transparent);
+  padding-inline-start: 1.125rem;
+}
+
+.x-land-head { display: flex; align-items: baseline; gap: 0.625rem; }
+
+.x-land-n {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.75rem;
+  color: color-mix(in oklab, var(--ui-tone) 85%, var(--color-ui-fg));
+}
+
+.x-land-label { font-size: 1rem; font-weight: 500; color: var(--color-ui-fg); }
+
+.x-land-count {
+  margin-inline-start: auto;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  color: var(--color-ui-faint);
+}
+
+.x-land-why {
+  margin-top: 0.25rem;
+  max-width: 68ch;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim);
+}
+
+.x-land-grid {
+  margin-top: 0.75rem;
+  display: grid;
+  gap: 0.375rem;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+}
+
+/* A TABLE DRAWN AS A TABLE. It was a name and a number in a rounded box, which
+   is the shape of a button and says nothing about what it holds. A header bar
+   over its first column names is the drawing everybody already knows, and it
+   carries real information at the same time — the columns are the generated
+   ones, not decoration. */
+.x-land-grid > li { display: grid; }
+
+.x-tbl {
+  display: grid;
+  align-content: start;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklab, var(--ui-tone) 24%, var(--color-ui-line));
+  border-radius: 0.5rem;
+  text-align: left;
+  background: color-mix(in oklab, var(--ui-tone) 4%, transparent);
+  transition: border-color 200ms ease, background-color 200ms ease, transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.x-tbl:hover,
+.x-tbl:focus-visible {
+  transform: translateY(-2px);
+  border-color: color-mix(in oklab, var(--ui-tone) 55%, var(--color-ui-line));
+  background: color-mix(in oklab, var(--ui-tone) 9%, transparent);
+}
+
+.x-tbl:focus-visible { outline: 2px solid var(--color-ui-accent); outline-offset: 2px; }
+
+/* The header row, the way a table names itself. */
+.x-tbl-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.625rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--ui-tone) 22%, var(--color-ui-line));
+  padding: 0.4375rem 0.625rem;
+  background: color-mix(in oklab, var(--ui-tone) 12%, transparent);
+}
+
+.x-tbl-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.75rem;
+  color: var(--color-ui-fg);
+}
+
+.x-tbl-rows {
+  flex: none;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  color: color-mix(in oklab, var(--ui-tone) 80%, var(--color-ui-dim));
+}
+
+/* The columns, one per line with a hairline between them — rows of a table,
+   which is what they are. */
+.x-tbl-cols { display: grid; }
+
+.x-tbl-col {
+  overflow: hidden;
+  padding: 0.25rem 0.625rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.625rem;
+  line-height: 1.5;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--color-ui-faint);
+}
+
+.x-tbl-col + .x-tbl-col {
+  border-top: 1px solid color-mix(in oklab, var(--color-ui-line) 45%, transparent);
+}
+
+.x-tbl-col--rest { color: color-mix(in oklab, var(--color-ui-faint) 70%, transparent); }
+
+/* The join. The one place on this section allowed a panel, because it is the
+   one row a price comes out of and everything above it is an ingredient. */
+.x-land-join {
+  --ui-tone: var(--color-ui-accent);
+  margin-top: 0.25rem;
+  border: 1px solid color-mix(in oklab, var(--color-ui-accent) 28%, var(--color-ui-line));
+  border-radius: 0.875rem;
+  padding: 1.125rem 1.25rem;
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--color-ui-accent) 7%, transparent),
+    transparent 70%
+  );
+}
+
+.x-land-join-lead {
+  font-size: 0.875rem;
+  color: color-mix(in oklab, var(--color-ui-accent) 70%, var(--color-ui-fg));
+}
+
+.x-land-join-table { margin-top: 0.75rem; max-width: 17rem; }
+
+.x-land-join-why {
+  margin-top: 0.75rem;
+  max-width: 68ch;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim);
+}
+
+/* ── THE ASSESSMENT DESK ────────────────────────────────────────────────────
+   The one page here that spends money, so it is built to be watched: what is
+   being assessed, what the loop is doing while it does it, and what it will not
+   answer. It borrows two drawings from `/data-flow` and no colours — the
+   `--color-src-*` scale there means "which step produced this", and reusing it
+   for turn numbers would break the one-scale-one-claim rule.
+   ────────────────────────────────────────────────────────────────────────── */
+
+.x-ask {
+  display: grid;
+  gap: 0.75rem;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  background: color-mix(in oklab, var(--color-ui-surface) 40%, transparent);
+}
+
+.x-ask-label { font-size: 0.875rem; color: var(--color-ui-dim); }
+
+/* THE BOX IS THE PRIMARY WAY IN. The job is a sentence that arrived in an
+   email and is in nobody's database yet — the specification below it is a
+   shortcut, not the only door. */
+.x-ask-box {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.75rem;
+  padding: 0.75rem 0.875rem;
+  background: color-mix(in oklab, var(--color-ui-bg) 85%, transparent);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--color-ui-fg);
+  transition: border-color 200ms ease;
+}
+
+.x-ask-box:focus-visible {
+  outline: none;
+  border-color: color-mix(in oklab, var(--color-ui-accent) 55%, var(--color-ui-line));
+}
+
+/* The placeholder is a real requirement, so it is styled to read as an example
+   rather than as text somebody left behind. */
+.x-ask-box::placeholder {
+  color: var(--color-ui-faint);
+  font-style: italic;
+}
+
+.x-ask-box:disabled { color: var(--color-ui-dim); }
+
+.x-ask-from {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+/* WHICH CLAIM IS BEING MADE, said plainly. A picked requirement is assessed at
+   the revision in force and the page may say so; a typed one may not. */
+.x-ask-picked {
+  font-size: 0.75rem;
+  color: color-mix(in oklab, var(--color-ui-accent) 70%, var(--color-ui-dim));
+}
+
+.x-ask-picked--new { color: var(--color-ui-faint); }
+
+.x-ask-or {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-inline-start: auto;
+  font-size: 0.75rem;
+  color: var(--color-ui-faint);
+}
+
+.x-ask-select {
+  max-width: 100%;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.625rem;
+  padding: 0.625rem 0.75rem;
+  background: color-mix(in oklab, var(--color-ui-bg) 85%, transparent);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.8125rem;
+  color: var(--color-ui-fg);
+}
+
+.x-ask-select:focus-visible { outline: 2px solid var(--color-ui-accent); outline-offset: 2px; }
+.x-ask-select:disabled { color: var(--color-ui-faint); }
+
+.x-ask-error {
+  border-inline-start: 2px solid color-mix(in oklab, var(--color-ui-warn) 60%, transparent);
+  padding-inline-start: 0.875rem;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim);
+}
+
+.x-ask-go { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
+
+.x-ask-cost {
+  flex: 1 1 18rem;
+  min-width: 0;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--color-ui-faint);
+}
+
+.x-btn {
+  cursor: pointer;
+  border: 1px solid color-mix(in oklab, var(--color-ui-accent) 40%, var(--color-ui-line));
+  border-radius: 0.625rem;
+  padding: 0.5rem 1.125rem;
+  background: color-mix(in oklab, var(--color-ui-accent) 14%, transparent);
+  font-size: 0.875rem;
+  color: var(--color-ui-fg);
+  transition: background-color 200ms ease, border-color 200ms ease;
+}
+
+.x-btn:hover:not(:disabled) { background: color-mix(in oklab, var(--color-ui-accent) 24%, transparent); }
+.x-btn:focus-visible { outline: 2px solid var(--color-ui-accent); outline-offset: 2px; }
+.x-btn:disabled { cursor: not-allowed; opacity: 0.45; }
+
+.x-btn--quiet {
+  border-color: var(--color-ui-line);
+  background: transparent;
+  color: var(--color-ui-dim);
+}
+
+/* ── what is being assessed ───────────────────────────────────────────────
+   Kept on screen after the answer arrives: a reader has to be able to check
+   that the right question was answered, and the revision is part of that. */
+.x-req {
+  border: 1px solid var(--color-ui-line);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  background: color-mix(in oklab, var(--color-ui-surface) 30%, transparent);
+}
+
+.x-req-head { margin-bottom: 0.875rem; }
+.x-req-ref { font-size: 0.8125rem; color: var(--color-ui-accent); }
+.x-req-title { margin-top: 0.125rem; font-size: 1rem; font-weight: 500; color: var(--color-ui-fg); }
+.x-req-rev { margin-top: 0.25rem; font-size: 0.75rem; color: var(--color-ui-faint); }
+
+.x-req-facts {
+  margin-top: 0.875rem;
+  display: grid;
+  gap: 0.5rem 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+}
+
+.x-req-facts dt { font-size: 0.6875rem; color: var(--color-ui-faint); }
+.x-req-facts dd { margin-top: 0.125rem; font-size: 0.8125rem; color: var(--color-ui-fg); }
+
+/* Absent, not blank — an empty cell reads as a rendering bug rather than as a
+   fact about the requirement. */
+.x-req-none { font-size: 0.75rem; font-style: italic; color: var(--color-ui-faint); }
+
+/* ── the live trace ───────────────────────────────────────────────────────
+   The trunk-and-branch drawing from the data-flow page. It is a genuine
+   sequence here, which is the one place numbering a list is honest. */
+.x-trace { --ui-tone: var(--color-ui-accent); }
+
+.x-card--static { cursor: default; }
+.x-card--static:hover { transform: none; background: transparent; }
+
+/* The step still running. One thing moves on the page and it is the thing
+   that is happening — and it stops under reduced motion. */
+.x-card--live { background: color-mix(in oklab, var(--ui-tone) 8%, transparent); }
+.x-card--live .x-card-n { animation: x-pulse 1.6s ease-in-out infinite; }
+
+@keyframes x-pulse {
+  0%, 100% { background: color-mix(in oklab, var(--ui-tone) 14%, var(--color-ui-bg)); }
+  50% { background: color-mix(in oklab, var(--ui-tone) 45%, var(--color-ui-bg)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .x-card--live .x-card-n { animation: none; }
+}
+
+.x-card-ms {
+  align-self: center;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  color: var(--color-ui-faint);
+}
+
+/* ── the finding ─────────────────────────────────────────────────────────
+   The one strong colour on the page, and it encodes one thing: how much work
+   the answer implies. It is NOT a verdict — the label says what was found, and
+   the line under it says what that does not mean. */
+.x-finding {
+  border: 1px solid color-mix(in oklab, var(--ui-tone) 30%, var(--color-ui-line));
+  border-radius: 1rem;
+  padding: 1.25rem 1.375rem;
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--ui-tone) 9%, transparent),
+    transparent 70%
+  );
+}
+
+.x-finding-label {
+  /* Room reserved for the button in the corner, so a long finding wraps rather
+     than sliding underneath it. */
+  padding-inline-end: 14rem;
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: color-mix(in oklab, var(--ui-tone) 65%, var(--color-ui-fg));
+}
+
+.x-finding-means {
+  margin-top: 0.375rem;
+  max-width: 68ch;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--color-ui-faint);
+}
+
+.x-finding-why {
+  margin-top: 0.875rem;
+  max-width: 68ch;
+  line-height: 1.75;
+  color: var(--color-ui-dim);
+}
+
+/* ── the price, or the refusal ────────────────────────────────────────────
+   A refusal is rendered where the number would have been, at the same size.
+   Below three comparable jobs there is no figure — not a figure with a caveat
+   — and putting the reason in small print would undo that. */
+.x-cost {
+  margin-top: 1rem;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.875rem;
+  padding: 1rem 1.125rem;
+  background: color-mix(in oklab, var(--color-ui-surface) 35%, transparent);
+}
+
+.x-cost--refused {
+  border-color: color-mix(in oklab, var(--color-ui-warn) 28%, var(--color-ui-line));
+  background: color-mix(in oklab, var(--color-ui-warn) 5%, transparent);
+}
+
+.x-cost-figure { font-size: 1.125rem; font-weight: 500; color: var(--color-ui-fg); }
+.x-cost--refused .x-cost-figure { color: var(--color-ui-warn); }
+.x-cost-why { margin-top: 0.25rem; max-width: 66ch; font-size: 0.875rem; line-height: 1.7; color: var(--color-ui-dim); }
+.x-cost-basis { margin-top: 0.625rem; font-size: 0.6875rem; line-height: 1.6; color: var(--color-ui-faint); }
+
+/* ── the sections under the answer ───────────────────────────────────────── */
+.x-sec { font-size: 1rem; font-weight: 500; color: var(--color-ui-fg); }
+.x-sec-why { margin-top: 0.25rem; max-width: 68ch; font-size: 0.8125rem; line-height: 1.7; color: var(--color-ui-faint); }
+
+/* A citation is quoted material from the customer's file, which is exactly
+   what `.x-file` was drawn for. Same sheet, same ruled lines. */
+.x-cites { margin-top: 0.875rem; display: grid; gap: 0.625rem; }
+.x-cites-check { margin-top: 0.625rem; font-size: 0.75rem; color: var(--color-ui-faint); }
+
+.x-conflict {
+  margin-top: 0.875rem;
+  border-inline-start: 2px solid color-mix(in oklab, var(--color-ui-warn) 45%, transparent);
+  padding-inline-start: 1rem;
+}
+
+.x-conflict-about { font-size: 0.9375rem; color: var(--color-ui-fg); }
+.x-conflict-pos { margin-top: 0.5rem; }
+.x-conflict-says { font-size: 0.875rem; line-height: 1.7; color: var(--color-ui-dim); }
+.x-conflict-where { font-size: 0.6875rem; color: var(--color-ui-faint); }
+
+/* The questions this exercise exists to produce, drawn as prominently as the
+   finding — the schema exempts them from the commitment check for the same
+   reason, and a page that tucked them under the evidence would undo it. */
+.x-decide {
+  margin-top: 0.875rem;
+  border: 1px solid color-mix(in oklab, var(--color-ui-accent) 24%, var(--color-ui-line));
+  border-radius: 0.875rem;
+  padding: 1rem 1.125rem;
+  background: color-mix(in oklab, var(--color-ui-accent) 5%, transparent);
+}
+
+.x-decide-q { font-size: 1rem; line-height: 1.6; color: var(--color-ui-fg); }
+.x-decide-why { margin-top: 0.375rem; max-width: 68ch; font-size: 0.875rem; line-height: 1.7; color: var(--color-ui-dim); }
+.x-decide-who { margin-top: 0.5rem; font-family: var(--font-mono, ui-monospace, monospace); font-size: 0.6875rem; color: var(--color-ui-accent); }
+
+.x-unver { margin-top: 0.75rem; display: grid; gap: 0.375rem; }
+.x-unver li {
+  border-inline-start: 2px solid var(--color-ui-line);
+  padding-inline-start: 0.875rem;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim);
+}
+
+/* ── a run that produced nothing ──────────────────────────────────────────
+   Shown rather than retried quietly. It spent tokens and took a minute, and
+   how often this happens is a number worth having. */
+.x-fail {
+  border: 1px solid color-mix(in oklab, var(--color-ui-warn) 30%, var(--color-ui-line));
+  border-radius: 1rem;
+  padding: 1.125rem 1.25rem;
+  background: color-mix(in oklab, var(--color-ui-warn) 5%, transparent);
+}
+
+.x-fail-head { font-size: 1rem; font-weight: 500; color: var(--color-ui-warn); }
+.x-fail-body { margin-top: 0.375rem; max-width: 68ch; font-size: 0.875rem; line-height: 1.7; color: var(--color-ui-dim); }
+.x-fail-why { margin-top: 0.5rem; max-width: 68ch; font-size: 0.75rem; line-height: 1.6; color: var(--color-ui-faint); }
+
+.x-runline {
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--color-ui-line);
+  padding-top: 0.875rem;
+  font-size: 0.75rem;
+  line-height: 1.7;
+  color: var(--color-ui-faint);
+}
+
+/* ── EARLIER ASSESSMENTS ────────────────────────────────────────────────────
+   Each row cost a minute and a few cents, so the page remembers them. The hue
+   on a row is the FINDING's, which is the one colour on this page that carries
+   meaning — unlike the data-flow tiles, where it says which step produced a
+   table. Two scales, two claims, and they never meet.
+   ────────────────────────────────────────────────────────────────────────── */
+/* THE WHOLE LIST IS BEHIND THIS. Shut by default — somebody arrives to assess
+   something, and earlier runs between the box and the answer are other
+   people's work in the way of theirs. The count stays on the button so the
+   list never hides how much it is holding. */
+.x-hist-toggle {
+  display: flex;
+  align-items: baseline;
+  gap: 0.625rem;
+  width: 100%;
+  cursor: pointer;
+  border: 0;
+  border-top: 1px solid var(--color-ui-line);
+  padding: 0.875rem 0 0;
+  background: none;
+  text-align: left;
+}
+
+.x-hist-toggle:focus-visible { outline: 2px solid var(--color-ui-accent); outline-offset: 3px; }
+.x-hist-toggle:hover .x-sec { color: var(--color-ui-accent); }
+
+.x-hist-caret {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  color: var(--color-ui-faint);
+  transition: transform 200ms ease;
+}
+
+.x-hist-caret--open { transform: rotate(90deg); }
+
+.x-hist-toggle .x-hist-count { margin-inline-start: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  .x-hist-caret { transition: none; }
+}
+
+.x-hist-count {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  color: var(--color-ui-faint);
+}
+
+.x-hist-error {
+  margin-top: 0.5rem;
+  border-inline-start: 2px solid color-mix(in oklab, var(--color-ui-warn) 55%, transparent);
+  padding-inline-start: 0.875rem;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim);
+}
+
+.x-hist-list { margin-top: 0.875rem; display: grid; gap: 0.375rem; }
+
+.x-hist-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.25rem 1rem;
+  width: 100%;
+  cursor: pointer;
+  text-align: left;
+  border: 1px solid transparent;
+  border-inline-start: 2px solid color-mix(in oklab, var(--ui-tone) 45%, transparent);
+  border-radius: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  background: color-mix(in oklab, var(--color-ui-surface) 25%, transparent);
+  transition: background-color 200ms ease, border-color 200ms ease;
+}
+
+.x-hist-row:hover { background: color-mix(in oklab, var(--ui-tone) 8%, transparent); }
+.x-hist-row:focus-visible { outline: 2px solid var(--color-ui-accent); outline-offset: 2px; }
+
+.x-hist-row--open {
+  border-color: color-mix(in oklab, var(--ui-tone) 35%, var(--color-ui-line));
+  border-inline-start-color: color-mix(in oklab, var(--ui-tone) 80%, transparent);
+  background: color-mix(in oklab, var(--ui-tone) 10%, transparent);
+}
+
+.x-hist-when {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.625rem;
+  color: var(--color-ui-faint);
+}
+
+.x-hist-what { display: grid; gap: 0.125rem; min-width: 0; }
+
+.x-hist-ref {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  color: color-mix(in oklab, var(--color-ui-accent) 65%, var(--color-ui-dim));
+}
+
+/* ONE LINE, CLAMPED. The row is a handle; the requirement in full is one click
+   away and putting it here would make four rows a page of prose. */
+.x-hist-text {
+  overflow: hidden;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--color-ui-dim);
+}
+
+.x-hist-verdict {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: color-mix(in oklab, var(--ui-tone) 70%, var(--color-ui-fg));
+}
+
+/* Counted from the structured field, never quoted from the answer's prose. */
+.x-hist-decisions {
+  border-radius: 999px;
+  padding: 0.0625rem 0.4375rem;
+  background: color-mix(in oklab, var(--color-ui-accent) 14%, transparent);
+  font-size: 0.625rem;
+  color: var(--color-ui-accent);
+}
+
+.x-hist-more {
+  margin-top: 0.625rem;
+  cursor: pointer;
+  border: 0;
+  background: none;
+  font-size: 0.75rem;
+  color: var(--color-ui-dim);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.x-hist-more:hover { color: var(--color-ui-fg); }
+.x-hist-more:focus-visible { outline: 2px solid var(--color-ui-accent); outline-offset: 2px; }
+
+.x-earlier {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-top: 1px solid var(--color-ui-line);
+  padding-top: 1rem;
+}
+
+.x-earlier-when { font-size: 0.75rem; color: var(--color-ui-faint); }
+
+@media (min-width: 48rem) {
+  .x-hist-row {
+    grid-template-columns: 7rem minmax(0, 1fr) auto;
+    align-items: center;
+  }
+  .x-hist-verdict { justify-content: flex-end; text-align: right; }
+}
+
+/* ── ONE WE RAN EARLIER ─────────────────────────────────────────────────────
+   A real answer on the page for somebody who has not pressed the button. It is
+   set slightly apart rather than styled differently: the whole argument is that
+   it is the same output a live run gives, so it is rendered by the same
+   components and must not look like a nicer version of them.
+   ────────────────────────────────────────────────────────────────────────── */
+.x-worked {
+  border-top: 1px solid var(--color-ui-line);
+  padding-top: 1.5rem;
+}
+
+.x-worked-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+
+/* The command and the date, because a figure a reader cannot reproduce is
+   worse than no figure — the same rule the estate pages follow. */
+.x-worked-when {
+  font-size: 0.6875rem;
+  color: var(--color-ui-faint);
+}
+
+/* ── THE KEY, WHEN ONE IS ACTUALLY NEEDED ───────────────────────────────────
+   Hidden until the server refuses, and shown only for the refusal a key can
+   fix. A permanent credential box on a page that does not need one trains
+   people to paste secrets into whatever asks.
+   ────────────────────────────────────────────────────────────────────────── */
+.x-key { display: grid; gap: 0.3125rem; max-width: 24rem; }
+
+.x-key-label { font-size: 0.75rem; color: var(--color-ui-dim); }
+
+.x-key-input {
+  border: 1px solid color-mix(in oklab, var(--color-ui-warn) 30%, var(--color-ui-line));
+  border-radius: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  background: color-mix(in oklab, var(--color-ui-bg) 85%, transparent);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+  color: var(--color-ui-fg);
+}
+
+.x-key-input:focus-visible {
+  outline: none;
+  border-color: color-mix(in oklab, var(--color-ui-accent) 55%, var(--color-ui-line));
+}
+
+.x-key-hint { font-size: 0.6875rem; line-height: 1.6; color: var(--color-ui-faint); }
+
+/* A DIFFERENT PROBLEM, SAID AS ONE. 503 means the deployment has no key at all,
+   so no key anybody types would be accepted — offering a box here would send
+   somebody hunting for a credential the server has nothing to compare against. */
+.x-key-blocked {
+  border: 1px solid color-mix(in oklab, var(--color-ui-warn) 28%, var(--color-ui-line));
+  border-radius: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: color-mix(in oklab, var(--color-ui-warn) 5%, transparent);
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim);
+}
+
+.x-key-blocked-head { color: var(--color-ui-warn); }
+
+/* ── WHERE THE BID STANDS ─────────────────────────────────────────────────
+   The panel that reads across every filed assessment. Drawn as a section of
+   the same page rather than as a dashboard: it sits under the requirement in
+   hand and must not compete with it.
+
+   THE UNPRICED LIST IS NOT GREYED OUT, and that is a decision, not an
+   oversight. A refusal here is a result — dimming it would say the system fell
+   short, when what it did was decline to invent a number. */
+.x-bid {
+  border-top: 1px solid var(--color-ui-line);
+  padding-top: 1.25rem;
+}
+
+/* QUIETER THAN IT WAS. Three different type sizes competing inside one panel
+   read as three headlines; the tally is context for the answer above it, not a
+   second answer. */
+/* ── THE GLANCE ──────────────────────────────────────────────────────────
+   Two lines that are always on screen, because "7 of 24 done" is the state of
+   somebody's week and hiding it behind a caret was the wrong fix for the right
+   complaint. What polluted the view was the stack of panels underneath, and
+   that is what moved behind the handle. */
+.x-bid-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  border-top: 1px solid var(--color-ui-line);
+  padding-top: 0.875rem;
+}
+
+.x-bid-progress-n { font-size: 0.8125rem; color: var(--color-ui-faint); }
+.x-bid-progress-n strong { font-size: 1rem; font-weight: 500; color: var(--color-ui-fg); }
+
+/* One bar, no colour. Progress is not a severity and tinting it would put a
+   fourth meaning on a page that already carries three. */
+.x-bid-bar {
+  margin-top: 0.625rem;
+  overflow: hidden;
+  height: 3px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-ui-fg) 8%, transparent);
+}
+
+.x-bid-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-ui-accent) 55%, transparent);
+}
+
+/* The whole state in one sentence, at reading size. */
+.x-bid-line {
+  margin-top: 0.75rem;
+  max-width: 68ch;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim);
+}
+
+.x-bid-more {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.875rem;
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+  background: none;
+  font-size: 0.8125rem;
+  color: var(--color-ui-faint);
+}
+
+.x-bid-more:hover { color: var(--color-ui-fg); }
+.x-bid-more:focus-visible { outline: 2px solid var(--color-ui-accent); outline-offset: 3px; }
+
+.x-bid-count { margin-top: 0.875rem; font-size: 0.875rem; color: var(--color-ui-dim); }
+.x-bid-count strong { font-size: 1rem; font-weight: 500; color: var(--color-ui-fg); }
+.x-bid-rest { color: var(--color-ui-faint); }
+
+/* INSIDE THE DETAIL NOW. Beside the sentence it was a second headline saying
+   the same thing; under it, it is the breakdown that sentence summarises. */
+.x-bid-mix {
+  margin-top: 0.875rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+}
+
+.x-bid-mix li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  border-inline-start: 2px solid var(--ui-tone, var(--color-ui-line-lit));
+  padding-inline-start: 0.625rem;
+}
+
+.x-bid-n { font-size: 1rem; font-weight: 500; color: var(--color-ui-fg); }
+.x-bid-label { font-size: 0.8125rem; color: var(--color-ui-dim); }
+
+/* The total, and never without its evidence count and its refusal. */
+.x-bid-money {
+  margin-top: 1.125rem;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.375rem;
+  padding: 0.875rem 1rem;
+}
+
+/* The total keeps its size — it is the one figure on this panel somebody will
+   screenshot, and shrinking it to look calm would be hiding the thing that
+   most needs its qualifying sentence next to it. */
+.x-bid-figure { font-size: 1.25rem; font-weight: 500; color: var(--color-ui-fg); }
+.x-bid-figure--none { font-size: 0.9375rem; color: var(--color-ui-dim); }
+.x-bid-basis { margin-top: 0.25rem; font-size: 0.8125rem; color: var(--color-ui-dim); }
+.x-bid-not-quote {
+  margin-top: 0.625rem;
+  max-width: 66ch;
+  font-size: 0.75rem;
+  line-height: 1.7;
+  color: var(--color-ui-faint);
+}
+
+.x-bid-unpriced { margin-top: 1.25rem; }
+.x-bid-list { margin-top: 0.75rem; display: grid; gap: 0.25rem; }
+
+/* A REFUSAL IS ONE LINE UNTIL SOMEBODY WANTS THE ARITHMETIC. The reason is a
+   paragraph of filter counts — four of them stacked was the longest thing on
+   the page and everything below it got buried. */
+.x-bid-refusal > summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0.625rem;
+  cursor: pointer;
+  list-style: none;
+  border-radius: 0.4375rem;
+  padding: 0.4375rem 0.625rem;
+  background: color-mix(in oklab, var(--color-ui-surface) 25%, transparent);
+}
+
+.x-bid-refusal > summary::-webkit-details-marker { display: none; }
+.x-bid-refusal > summary:hover { background: color-mix(in oklab, var(--color-ui-warn) 7%, transparent); }
+.x-bid-refusal > summary:focus-visible { outline: 2px solid var(--color-ui-accent); outline-offset: 2px; }
+
+/* The one-line preview. Clamped rather than truncated at a character count, so
+   it breaks at whatever the column width really is. */
+.x-bid-why-1 {
+  overflow: hidden;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--color-ui-faint);
+}
+
+.x-bid-refusal[open] > summary .x-bid-why-1 { visibility: hidden; }
+
+.x-bid-ref { font-family: var(--font-mono, monospace); font-size: 0.75rem; color: var(--color-ui-dim); }
+
+.x-bid-why {
+  max-width: 78ch;
+  padding: 0.5rem 0.625rem 0.75rem 0.625rem;
+  font-size: 0.8125rem;
+  line-height: 1.75;
+  color: var(--color-ui-dim);
+}
+
+.x-bid-written { margin-top: 1.5rem; }
+
+.x-bid-run {
+  cursor: pointer;
+  border: 1px solid var(--color-ui-line-lit);
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  background: none;
+  font-size: 0.875rem;
+  color: var(--color-ui-fg);
+}
+.x-bid-run:hover { border-color: var(--color-vst-2); }
+
+.x-bid-busy { font-size: 0.875rem; color: var(--color-ui-dim); }
+
+/* ── THE WRITTEN SUMMARY, CALMED ──────────────────────────────────────────
+   It arrived as four paragraphs at one weight with long "would be settled by"
+   sentences running to the full width. The fix is not less content — it is a
+   readable measure, a visible lead, and the long remedy text set apart from
+   the theme it belongs to rather than continuing it. */
+/* ── THE WRITTEN SUMMARY'S OPENING LINE ──────────────────────────────────
+   It is the one paragraph on this panel the model wrote rather than counted,
+   and as plain body text it arrived indistinguishable from the arithmetic
+   above it — a reader could not tell which sentences were measured and which
+   were judgement. On its own ground it is legible as what it is.
+
+   THE TONE IS THE ACCENT, NOT A FINDING COLOUR. A summary across nine
+   requirements has no single finding, and borrowing one would assert a verdict
+   the paragraph is careful not to take. */
+.x-bid-headline {
+  position: relative;
+  margin-top: 0.75rem;
+  max-width: 62ch;
+  border: 1px solid color-mix(in oklab, var(--color-ui-accent) 24%, var(--color-ui-line));
+  border-radius: 0.875rem;
+  padding: 1.125rem 1.25rem 1.125rem 2.5rem;
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--color-ui-accent) 9%, transparent),
+    transparent 80%
+  ),
+  color-mix(in oklab, var(--color-ui-surface) 40%, transparent);
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  letter-spacing: -0.005em;
+  color: color-mix(in oklab, var(--color-ui-fg) 94%, var(--color-ui-accent));
+}
+
+/* An opening quote mark, because this is the one thing on the panel somebody
+   else wrote. Drawn rather than typed so it cannot be selected and pasted into
+   the sentence it decorates. */
+.x-bid-headline::before {
+  content: '\201C';
+  position: absolute;
+  left: 0.875rem;
+  top: 0.5rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 1.75rem;
+  line-height: 1;
+  color: color-mix(in oklab, var(--color-ui-accent) 45%, transparent);
+}
+
+.x-bid-themes { margin-top: 1.25rem; }
+.x-bid-theme {
+  max-width: 78ch;
+  margin-top: 0.75rem;
+  border-inline-start: 2px solid var(--color-ui-line-lit);
+  padding-inline-start: 0.875rem;
+}
+.x-bid-theme-name { font-size: 0.9375rem; line-height: 1.7; color: var(--color-ui-fg); }
+/* The references are chips, not a sentence. A middle-dot list of four
+   requirement ids reads as prose and is scanned as prose, which is the one
+   thing it must not be — it is a set. */
+.x-bid-theme-refs {
+  margin-top: 0.25rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.6875rem;
+  color: var(--color-ui-faint);
+}
+.x-bid-theme-fix {
+  margin-top: 0.5rem;
+  border-inline-start: 2px solid color-mix(in oklab, var(--color-ui-accent) 30%, transparent);
+  padding-inline-start: 0.75rem;
+  max-width: 74ch;
+  font-size: 0.8125rem;
+  line-height: 1.75;
+  color: var(--color-ui-dim);
+}
+
+.x-bid-theme-fix-label {
+  display: block;
+  margin-bottom: 0.125rem;
+  font-size: 0.6875rem;
+  color: color-mix(in oklab, var(--color-ui-accent) 55%, var(--color-ui-faint));
+}
+
+.x-bid-run-line { margin-top: 1.25rem; font-size: 0.6875rem; color: var(--color-ui-faint); }
+
+/* ── THE DOSSIER, IN PLAIN WORDS ────────────────────────────────────────────
+   A reading aid that opens over the answer and closes again. It is deliberately
+   the plainest thing on the page: no figures, no chrome, one lead sentence and
+   two short lists. The dossier underneath keeps every number.
+   ────────────────────────────────────────────────────────────────────────── */
+/* ── ON THE ANSWER, TOP RIGHT ────────────────────────────────────────────
+   Positioned inside the finding card rather than after it. Below the card it
+   read as the next item in a list — one more thing to scroll past, which is the
+   opposite of a shortcut past the scrolling.
+
+   THE HEADING GETS OUT OF ITS WAY rather than the button getting smaller: the
+   finding label has padding-right reserved for it, so a long label wraps
+   instead of running under a floating control. */
+.x-finding-wrap { position: relative; }
+
+.x-explain-btn {
+  position: absolute;
+  top: 0.875rem;
+  inset-inline-end: 0.875rem;
+  z-index: 2;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.625rem;
+  cursor: pointer;
+  border: 1px solid color-mix(in oklab, var(--color-ui-accent) 70%, transparent);
+  border-radius: 999px;
+  padding: 0.5rem 1.125rem;
+  /* SOLID ACCENT, NOT A TINT. It is the one thing on the page a reader is meant
+     to find without looking for it, and a 14% wash of the accent on the page
+     background is the same weight as every other panel here. Filled, it is the
+     only saturated object on screen — which is exactly the budget this page has
+     for drawing the eye, spent once. */
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--color-ui-accent) 92%, white),
+    var(--color-ui-accent)
+  );
+  font-size: 0.875rem;
+  font-weight: 500;
+  /* Dark text on a saturated fill. The accent is a bright teal, so white would
+     be the lower-contrast choice of the two and fails against it. */
+  color: #06231f;
+  /* THE ONE UNPROMPTED MOVEMENT ON THIS PAGE, and it is spent here on purpose:
+     a reader who has just been handed two screens of dossier does not know
+     there is a short version. It arrives, then breathes three times and stops —
+     an animation that never stops is a thing people learn to ignore. */
+  animation:
+    x-explain-in 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both,
+    x-explain-call 2.4s ease-in-out 520ms 3;
+  transition: background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+}
+
+@keyframes x-explain-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes x-explain-call {
+  0%, 100% {
+    box-shadow:
+      0 10px 26px -14px rgb(0 0 0 / 0.85),
+      0 0 0 0 color-mix(in oklab, var(--color-ui-accent) 55%, transparent);
+  }
+  45% {
+    box-shadow:
+      0 10px 26px -14px rgb(0 0 0 / 0.85),
+      0 0 0 6px color-mix(in oklab, var(--color-ui-accent) 0%, transparent);
+  }
+  15% {
+    box-shadow:
+      0 10px 26px -14px rgb(0 0 0 / 0.85),
+      0 0 0 0 color-mix(in oklab, var(--color-ui-accent) 70%, transparent);
+  }
+}
+
+.x-explain-btn:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in oklab, var(--color-ui-accent) 90%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--color-ui-accent) 80%, white),
+    color-mix(in oklab, var(--color-ui-accent) 96%, white)
+  );
+  box-shadow:
+    0 16px 34px -14px rgb(0 0 0 / 0.9),
+    0 3px 16px -4px color-mix(in oklab, var(--color-ui-accent) 75%, transparent);
+}
+
+/* It still arrives, it just does not perform. */
+@media (prefers-reduced-motion: reduce) {
+  .x-explain-btn { animation: none; }
+  .x-explain-btn:hover { transform: none; }
+}
+
+.x-explain-btn:focus-visible { outline: 2px solid var(--color-ui-accent); outline-offset: 2px; }
+
+/* The price is on the button. A control that spends money and does not say so
+   is the one thing this whole site argues against. */
+.x-explain-cost { font-size: 0.6875rem; color: var(--color-ui-faint); }
+
+.x-explain-busy { font-size: 0.875rem; color: var(--color-ui-dim); }
+
+.x-explain { display: grid; gap: 1.5rem; }
+
+/* ── THE LEAD ─────────────────────────────────────────────────────────────
+   The one sentence somebody reads aloud, and the only text in this dialog on
+   its own tinted ground. It ran together with everything under it when all
+   three blocks shared the page background — separation here is what tells a
+   reader "this is the answer, the rest is why". */
+.x-explain-line {
+  max-width: 52ch;
+  border: 1px solid color-mix(in oklab, var(--color-ui-accent) 26%, var(--color-ui-line));
+  border-radius: 0.875rem;
+  padding: 1rem 1.125rem;
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--color-ui-accent) 10%, transparent),
+    transparent 75%
+  );
+  font-size: 1.1875rem;
+  font-weight: 400;
+  line-height: 1.55;
+  letter-spacing: -0.01em;
+  color: var(--color-ui-fg);
+}
+
+.x-explain-block { display: grid; gap: 0.5rem; }
+
+/* A LABEL, NOT A SHOUT, and it belongs to the block under it rather than
+   floating between two. Uppercase is avoided deliberately — it is the tell this
+   site keeps away from, and letter-spacing does the same job. */
+.x-explain-head {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: color-mix(in oklab, var(--color-ui-accent) 55%, var(--color-ui-dim));
+}
+
+/* ONE THOUGHT, ONE CARD. The model returns two to four separate sentences and
+   they were rendered as consecutive paragraphs, which read as one paragraph
+   with odd breaks in it. Each on its own faint ground is the shape the answer
+   actually has. */
+.x-explain-body {
+  max-width: 64ch;
+  border-inline-start: 2px solid color-mix(in oklab, var(--color-ui-line-lit) 55%, transparent);
+  border-radius: 0 0.5rem 0.5rem 0;
+  padding: 0.625rem 0.875rem;
+  background: color-mix(in oklab, var(--color-ui-surface) 45%, transparent);
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  color: color-mix(in oklab, var(--color-ui-fg) 80%, var(--color-ui-dim));
+}
+
+/* NEXT STEPS ARE NUMBERED, because they are a sequence somebody works through
+   and a bullet says only "more of the same". They also get the warmer ground:
+   everything above is what IS, this is what somebody does. */
+.x-explain-next { display: grid; gap: 0.5rem; }
+
+.x-explain-next li {
+  display: grid;
+  grid-template-columns: 1.5rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+  max-width: 64ch;
+  border: 1px solid color-mix(in oklab, var(--color-ui-accent) 18%, var(--color-ui-line));
+  border-radius: 0.625rem;
+  padding: 0.625rem 0.875rem;
+  background: color-mix(in oklab, var(--color-ui-accent) 5%, transparent);
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: color-mix(in oklab, var(--color-ui-fg) 84%, var(--color-ui-dim));
+  counter-increment: step;
+}
+
+.x-explain-next { counter-reset: step; }
+
+.x-explain-next li::before {
+  content: counter(step);
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-ui-accent) 20%, transparent);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  color: var(--color-ui-accent);
+}
+
+.x-explain-run { font-size: 0.6875rem; color: var(--color-ui-faint); }
+
+/* Each reference is its own chip. Set as a middle-dot sentence they read as
+   prose and get skimmed; they are a set and should look like one. */
+.x-bid-theme-refs { display: flex; flex-wrap: wrap; gap: 0.3125rem; }
+
+.x-bid-theme-refs > span {
+  border-radius: 999px;
+  padding: 0.0625rem 0.4375rem;
+  background: color-mix(in oklab, var(--color-ui-fg) 7%, transparent);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.625rem;
+  color: var(--color-ui-dim);
+}
+
+.x-bid-theme-refs > .x-bid-owner {
+  background: color-mix(in oklab, var(--color-ui-accent) 14%, transparent);
+  font-family: inherit;
+  color: var(--color-ui-accent);
+}
+
+/* ── WAITING, HONESTLY ──────────────────────────────────────────────────────
+   Three bars in the shape of the answer that is coming. Indeterminate on
+   purpose — the call takes as long as it takes, and a progress bar that
+   invented a percentage would be the one dishonest pixel on this page.
+   ────────────────────────────────────────────────────────────────────────── */
+.x-explain-wait { font-size: 0.8125rem; color: var(--color-ui-faint); }
+
+.x-skeleton {
+  height: 0.875rem;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--color-ui-fg) 6%, transparent) 0%,
+    color-mix(in oklab, var(--color-ui-accent) 16%, transparent) 50%,
+    color-mix(in oklab, var(--color-ui-fg) 6%, transparent) 100%
+  );
+  background-size: 200% 100%;
+  animation: x-sweep 1.4s ease-in-out infinite;
+}
+
+.x-skeleton--lead { height: 1.25rem; max-width: 80%; }
+.x-skeleton--short { max-width: 45%; }
+
+@keyframes x-sweep {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+/* It stops rather than freezing mid-sweep: a static gradient still reads as
+   "content is coming", which is the whole job. */
+@media (prefers-reduced-motion: reduce) {
+  .x-skeleton { animation: none; background-position: 50% 0; }
+}
+
+/* The original, kept under the plain line rather than replaced by it — this
+   page does not get to edit the system's own reasoning, only to lead with a
+   readable version of it. */
+.x-bid-why-label {
+  padding: 0.5rem 0.625rem 0;
+  font-size: 0.625rem;
+  color: var(--color-ui-faint);
+}
+
+/* The one-line version wraps now instead of being cut off at the column edge:
+   a truncated explanation of why something cannot be priced is worse than a
+   second line. */
+.x-bid-why-1 {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  color: var(--color-ui-dim);
+}
+
+/* ── THE QUESTIONS THE DOSSIER PUT TO A PERSON ──────────────────────────────
+   Drawn at the same weight as everything else in the brief and NOT as a
+   footnote. The assessment contract exempts these from the commitment guard
+   because a question put to a named person is the output of the exercise; a
+   summary that tucked them under the conclusions would undo that in the one
+   place a reader is most likely to stop reading.
+   ────────────────────────────────────────────────────────────────────────── */
+.x-explain-asks { display: grid; gap: 0.5rem; }
+
+.x-explain-asks li {
+  max-width: 64ch;
+  border: 1px solid color-mix(in oklab, var(--color-ui-warn) 20%, var(--color-ui-line));
+  border-radius: 0.625rem;
+  padding: 0.625rem 0.875rem;
+  background: color-mix(in oklab, var(--color-ui-warn) 4%, transparent);
+}
+
+.x-explain-ask {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: color-mix(in oklab, var(--color-ui-fg) 88%, var(--color-ui-dim));
+}
+
+/* The role, not a name. The contract asks for one on purpose — a guess at a
+   person is a guess, a role is a fact about the organisation. */
+.x-explain-who {
+  margin-top: 0.3125rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  color: color-mix(in oklab, var(--color-ui-warn) 65%, var(--color-ui-dim));
+}
+
+/* ── WHERE THE DOCUMENTS DISAGREE ───────────────────────────────────────────
+   Stated, never settled, and never re-quoted: the dossier prints each side with
+   its own file and line a few inches below, and a paraphrase beside the
+   verbatim original is the one place a reader would conclude the system
+   contradicted itself.
+   ────────────────────────────────────────────────────────────────────────── */
+.x-explain-clash { display: grid; gap: 0.5rem; }
+
+.x-explain-clash li {
+  max-width: 64ch;
+  border: 1px dashed color-mix(in oklab, var(--color-ui-warn) 32%, var(--color-ui-line));
+  border-radius: 0.625rem;
+  padding: 0.625rem 0.875rem;
+  background: color-mix(in oklab, var(--color-ui-warn) 4%, transparent);
+}
+
+.x-explain-clash-about {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: color-mix(in oklab, var(--color-ui-fg) 88%, var(--color-ui-dim));
+}
+
+.x-explain-clash-why {
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim);
+}

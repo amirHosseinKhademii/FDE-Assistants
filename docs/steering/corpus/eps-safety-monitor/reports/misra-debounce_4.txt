@@ -1,0 +1,19 @@
+MISRA C:2012 compliance report
+Repository : eps-safety-monitor
+Module     : debounce_4.c   (SWC-PLT-002, ASIL C)
+Tool       : Coverity 2022.12
+Run        : 2023-03-17
+Run by     : n.haas
+
+SUMMARY
+  rules checked        164
+  violations           17
+  deviations approved  6
+  unresolved           2
+
+DEVIATIONS
+  D-25  Rule 19.5  goto used for single-exit error handling. Approved.
+  D-14  Rule 16.5  union used for the CAN frame overlay. Approved.
+
+UNRESOLVED
+  (none)

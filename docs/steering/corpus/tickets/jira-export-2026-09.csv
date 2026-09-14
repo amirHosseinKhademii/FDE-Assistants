@@ -1,0 +1,243 @@
+# exported from Jira 2026-09-07 by p.strand
+# encoding: utf-8, delimiter: comma, quoting: minimal (sic)
+key,type,summary,component,severity,found_in,status,created,resolved,change_request
+VST-1000,Bug,Motor current ripple above spec at low speed,SWC-SAFEMON,blocker,vehicle,Closed,2026-01-11,2026-07-06,
+VST-1001,Story,"Motor current ripple above spec at low speed",SWC-DIAG,minor,vehicle,Closed,2023-07-29,2023-08-12,CHR-2025-0122
+VST-1002,Task,"EOL learn times out, intermittently, on line 3",SWC-ASSIST,minor,HIL,Closed,2020-10-15,,
+VST-1003,Bug,"Return to centre overshoots at 60 km/h",SWC-MOTCTL,major,field,Open,2024-10-27,2024-11-20,CHR-2023-0152
+VST-1004,Task,Assist map discontinuity above 120 km/h,SWC-DAMP,minor,unit,Closed,2019-12-16,2020-01-06,CHR-2021-0197
+VST-1005,Bug,Motor current ripple above spec at low speed,SWC-HYSTCOMP,major,HIL,Closed,2025-10-12,2025-11-06,
+VST-1006,Story,"Assist map discontinuity above 120 km/h",SWC-ASSIST,minor,unit,In Progress,2023-03-02,2023-08-14,CHR-2025-0186
+VST-1007,Bug,Damping step at break point on H1,SWC-ASSIST,minor,HIL,Closed,2023-08-07,2023-12-24,
+VST-1008,Story,Motor current ripple above spec at low speed,SWC-DIAG,minor,field,Closed,2024-09-12,,CHR-2022-0153
+VST-1009,Story,Hysteresis compensation asymmetric left vs right,SWC-HYSTCOMP,major,vehicle,Blocked,2026-05-14,2026-08-15,
+VST-1010,Bug,Hysteresis compensation asymmetric left vs right,SWC-HYSTCOMP,minor,unit,In Progress,2020-11-06,2020-11-20,
+VST-1011,Story,"Hysteresis compensation asymmetric left vs right",SWC-DAMP,blocker,field,Closed,2019-09-18,,
+VST-1012,Task,"EOL learn times out, intermittently, on line 3",SWC-DIAG,minor,unit,Closed,2019-06-26,,
+VST-1013,Bug,Motor current ripple above spec at low speed,SWC-DAMP,blocker,vehicle,Closed,2025-06-05,2025-06-09,CHR-2025-0186
+VST-1014,Task,"Torque sensor plausibility trips on cold start",SWC-MOTCTL,major,unit,Closed,2020-07-10,2020-09-17,
+VST-1015,Bug,"Hysteresis compensation asymmetric left vs right",SWC-DAMP,major,HIL,Closed,2026-05-17,2026-08-26,CHR-2024-0024
+VST-1016,Story,"Hysteresis compensation asymmetric left vs right",SWC-ASSIST,major,unit,Open,2021-07-20,,CHR-2024-0047
+VST-1017,Task,Torque sensor plausibility trips on cold start,SWC-MOTCTL,minor,unit,Closed,2024-08-30,2024-12-26,
+VST-1018,Story,Return to centre overshoots at 60 km/h,SWC-HYSTCOMP,major,HIL,Closed,2025-10-23,2025-11-28,
+VST-1019,Bug,"Return to centre overshoots at 60 km/h",SWC-ASSIST,minor,HIL,Closed,2025-04-20,2025-06-25,
+VST-1020,Bug,"Damping step at break point on H1",SWC-DAMP,blocker,HIL,Closed,2024-09-27,2025-01-26,CHR-2023-0054
+VST-1021,Bug,"Return to centre overshoots at 60 km/h",SWC-DIAG,minor,unit,In Progress,2026-02-21,2026-06-03,
+VST-1022,Story,"EOL learn times out, intermittently, on line 3",SWC-HYSTCOMP,minor,unit,Blocked,2024-11-25,2025-01-21,CHR-2024-0007
+VST-1023,Bug,Damping step at break point on H1,SWC-DIAG,minor,vehicle,Closed,2024-06-06,2024-06-23,
+VST-1024,Story,Diagnostic DID 0xF190 returns padded string,SWC-ASSIST,major,vehicle,Closed,2020-09-06,,
+VST-1025,Bug,Torque sensor plausibility trips on cold start,SWC-HYSTCOMP,minor,vehicle,Blocked,2024-04-02,,
+VST-1026,Task,"EOL learn times out, intermittently, on line 3",SWC-ASSIST,blocker,unit,Closed,2023-10-08,2023-11-10,
+VST-1027,Task,Assist map discontinuity above 120 km/h,SWC-HYSTCOMP,blocker,unit,Open,2019-01-14,2019-03-26,
+VST-1028,Bug,"EOL learn times out, intermittently, on line 3",SWC-HYSTCOMP,minor,HIL,Closed,2024-03-27,2024-05-21,CHR-2021-0090
+VST-1029,Bug,"Diagnostic DID 0xF190 returns padded string",SWC-MOTCTL,minor,vehicle,Closed,2019-01-14,2019-02-07,
+VST-1030,Story,Diagnostic DID 0xF190 returns padded string,SWC-DIAG,major,unit,Open,2026-08-24,2027-01-09,
+VST-1031,Story,Assist map discontinuity above 120 km/h,SWC-ASSIST,major,HIL,Closed,2023-09-25,2023-11-15,
+VST-1032,Bug,Return to centre overshoots at 60 km/h,SWC-MOTCTL,major,unit,Closed,2019-08-07,2020-01-22,
+VST-1033,Bug,"Motor current ripple above spec at low speed",SWC-ASSIST,blocker,unit,Closed,2022-08-24,2023-02-18,
+VST-1034,Bug,Motor current ripple above spec at low speed,SWC-SAFEMON,blocker,HIL,Closed,2026-06-03,2026-08-07,
+VST-1035,Story,Hysteresis compensation asymmetric left vs right,SWC-DAMP,major,HIL,Closed,2019-07-26,2019-11-17,
+VST-1036,Bug,"Damping step at break point on H1",SWC-ASSIST,minor,vehicle,Closed,2022-10-23,2023-01-23,
+VST-1037,Bug,Damping step at break point on H1,SWC-ASSIST,minor,unit,Closed,2024-09-07,2025-01-07,CHR-2024-0047
+VST-1038,Bug,Hysteresis compensation asymmetric left vs right,SWC-ASSIST,minor,unit,Closed,2020-09-29,2021-01-08,CHR-2021-0110
+VST-1039,Story,"Diagnostic DID 0xF190 returns padded string",SWC-HYSTCOMP,minor,vehicle,In Progress,2025-12-17,2026-06-03,CHR-2025-0068
+VST-1040,Story,"Return to centre overshoots at 60 km/h",SWC-SAFEMON,major,vehicle,Closed,2019-11-27,2020-03-21,
+VST-1041,Bug,Return to centre overshoots at 60 km/h,SWC-DAMP,minor,vehicle,Closed,2021-07-15,2021-10-31,
+VST-1042,Bug,Torque sensor plausibility trips on cold start,SWC-SAFEMON,major,unit,Closed,2022-04-13,2022-07-15,
+VST-1043,Task,Assist map discontinuity above 120 km/h,SWC-DIAG,major,field,Closed,2020-01-15,2020-05-13,
+VST-1044,Bug,"EOL learn times out, intermittently, on line 3",SWC-ASSIST,blocker,HIL,Closed,2019-07-16,2019-10-09,
+VST-1045,Story,Return to centre overshoots at 60 km/h,SWC-ASSIST,minor,HIL,Closed,2023-10-28,2024-01-10,
+VST-1046,Story,Diagnostic DID 0xF190 returns padded string,SWC-SAFEMON,minor,vehicle,Closed,2026-08-17,2026-11-27,
+VST-1047,Task,Return to centre overshoots at 60 km/h,SWC-DAMP,major,vehicle,Blocked,2020-06-11,2020-11-27,
+VST-1048,Task,Assist map discontinuity above 120 km/h,SWC-DIAG,major,HIL,Closed,2026-08-13,2027-02-07,
+VST-1049,Bug,Assist map discontinuity above 120 km/h,SWC-SAFEMON,minor,HIL,Closed,2022-04-16,2022-06-27,CHR-2020-0159
+VST-1050,Story,Return to centre overshoots at 60 km/h,SWC-DAMP,major,HIL,Closed,2020-03-23,2020-05-18,CHR-2023-0028
+VST-1051,Task,Assist map discontinuity above 120 km/h,SWC-SAFEMON,minor,unit,Closed,2025-06-26,2025-07-08,
+VST-1052,Bug,Diagnostic DID 0xF190 returns padded string,SWC-HYSTCOMP,minor,vehicle,Closed,2026-06-04,2026-11-26,
+VST-1053,Story,Damping step at break point on H1,SWC-ASSIST,minor,vehicle,Closed,2025-11-18,,
+VST-1054,Bug,Damping step at break point on H1,SWC-DAMP,major,vehicle,Closed,2022-11-08,2023-02-20,
+VST-1055,Task,"Diagnostic DID 0xF190 returns padded string",SWC-MOTCTL,minor,unit,In Progress,2024-07-29,2024-09-11,
+VST-1056,Bug,"Motor current ripple above spec at low speed",SWC-HYSTCOMP,blocker,unit,Closed,2025-11-11,2026-02-27,
+VST-1057,Story,Torque sensor plausibility trips on cold start,SWC-ASSIST,major,unit,Closed,2024-09-09,2024-11-25,
+VST-1058,Story,Torque sensor plausibility trips on cold start,SWC-SAFEMON,minor,field,Closed,2026-07-29,2026-10-31,CHR-2024-0047
+VST-1059,Story,Damping step at break point on H1,SWC-HYSTCOMP,minor,HIL,Closed,2022-04-05,,
+VST-1060,Bug,"Torque sensor plausibility trips on cold start",SWC-ASSIST,minor,HIL,Closed,2022-01-05,,
+VST-1061,Story,Motor current ripple above spec at low speed,SWC-DIAG,major,HIL,Closed,2023-05-12,2023-10-21,
+VST-1062,Bug,Damping step at break point on H1,SWC-ASSIST,minor,unit,Closed,2026-08-15,2026-11-07,
+VST-1063,Bug,Assist map discontinuity above 120 km/h,SWC-HYSTCOMP,major,vehicle,Closed,2024-10-05,2024-10-11,CHR-2022-0022
+VST-1064,Task,Motor current ripple above spec at low speed,SWC-DIAG,minor,HIL,Closed,2022-05-21,2022-10-21,
+VST-1065,Story,Damping step at break point on H1,SWC-HYSTCOMP,minor,HIL,Open,2024-06-19,2024-07-30,
+VST-1066,Bug,"Motor current ripple above spec at low speed",SWC-SAFEMON,minor,HIL,Closed,2022-01-16,2022-05-18,CHR-2021-0102
+VST-1067,Story,"Hysteresis compensation asymmetric left vs right",SWC-DIAG,minor,HIL,Open,2020-08-20,2021-01-26,
+VST-1068,Bug,"Diagnostic DID 0xF190 returns padded string",SWC-MOTCTL,major,unit,Closed,2023-05-14,2023-09-17,CHR-2025-0171
+VST-1069,Bug,Damping step at break point on H1,SWC-HYSTCOMP,blocker,HIL,Closed,2019-04-09,2019-08-19,CHR-2024-0132
+VST-1070,Bug,"EOL learn times out, intermittently, on line 3",SWC-DAMP,blocker,HIL,Closed,2023-04-29,2023-07-30,
+VST-1071,Bug,Torque sensor plausibility trips on cold start,SWC-ASSIST,major,field,Closed,2019-08-01,2019-10-13,
+VST-1072,Story,Assist map discontinuity above 120 km/h,SWC-HYSTCOMP,minor,HIL,Blocked,2021-12-03,2022-05-13,CHR-2023-0163
+VST-1073,Bug,Motor current ripple above spec at low speed,SWC-ASSIST,major,vehicle,Closed,2022-07-08,,CHR-2023-0174
+VST-1074,Bug,"Motor current ripple above spec at low speed",SWC-HYSTCOMP,major,unit,Closed,2022-10-05,2022-12-15,CHR-2023-0028
+VST-1075,Story,Torque sensor plausibility trips on cold start,SWC-DIAG,minor,unit,Closed,2025-02-16,2025-06-25,
+VST-1076,Bug,"Return to centre overshoots at 60 km/h",SWC-SAFEMON,major,vehicle,Closed,2022-07-11,,
+VST-1077,Task,Diagnostic DID 0xF190 returns padded string,SWC-MOTCTL,minor,vehicle,Closed,2022-08-30,,
+VST-1078,Bug,Assist map discontinuity above 120 km/h,SWC-ASSIST,major,unit,Blocked,2021-01-27,2021-04-30,
+VST-1079,Bug,"Hysteresis compensation asymmetric left vs right",SWC-ASSIST,blocker,vehicle,Closed,2022-05-07,2022-05-22,
+VST-1080,Bug,Return to centre overshoots at 60 km/h,SWC-DIAG,major,unit,Closed,2022-04-11,2022-10-04,CHR-2024-0026
+VST-1081,Task,"Return to centre overshoots at 60 km/h",SWC-ASSIST,blocker,HIL,Closed,2021-06-20,2021-12-10,
+VST-1082,Task,Torque sensor plausibility trips on cold start,SWC-SAFEMON,major,unit,Closed,2025-10-15,2026-02-16,
+VST-1083,Story,Torque sensor plausibility trips on cold start,SWC-ASSIST,major,HIL,Closed,2024-11-26,,
+VST-1084,Bug,"Damping step at break point on H1",SWC-DIAG,minor,field,Closed,2024-03-16,2024-08-16,
+VST-1085,Bug,Torque sensor plausibility trips on cold start,SWC-SAFEMON,minor,HIL,Closed,2025-07-03,,
+VST-1086,Task,Damping step at break point on H1,SWC-MOTCTL,major,field,Closed,2025-09-01,2026-01-29,
+VST-1087,Bug,"Torque sensor plausibility trips on cold start",SWC-MOTCTL,major,vehicle,In Progress,2022-11-03,2023-02-13,
+VST-1088,Bug,"EOL learn times out, intermittently, on line 3",SWC-DAMP,minor,HIL,In Progress,2025-11-15,2025-12-10,CHR-2021-0182
+VST-1089,Bug,Hysteresis compensation asymmetric left vs right,SWC-HYSTCOMP,major,vehicle,Closed,2023-01-29,2023-03-19,
+VST-1090,Bug,Hysteresis compensation asymmetric left vs right,SWC-SAFEMON,minor,field,Closed,2022-10-12,2023-03-25,
+VST-1091,Bug,Damping step at break point on H1,SWC-HYSTCOMP,minor,unit,Closed,2025-05-03,2025-08-14,CHR-2024-0081
+VST-1092,Bug,Diagnostic DID 0xF190 returns padded string,SWC-SAFEMON,blocker,HIL,Closed,2024-12-02,2024-12-07,
+VST-1093,Story,Return to centre overshoots at 60 km/h,SWC-DAMP,minor,unit,Closed,2024-08-06,2024-09-02,
+VST-1094,Bug,Assist map discontinuity above 120 km/h,SWC-DIAG,minor,vehicle,Closed,2023-12-22,2024-01-09,
+VST-1095,Bug,"EOL learn times out, intermittently, on line 3",SWC-ASSIST,major,HIL,Closed,2021-08-07,2021-09-12,
+VST-1096,Story,Torque sensor plausibility trips on cold start,SWC-DAMP,minor,unit,In Progress,2019-10-01,2020-01-25,CHR-2025-0106
+VST-1097,Bug,Torque sensor plausibility trips on cold start,SWC-HYSTCOMP,minor,HIL,Closed,2019-08-11,2019-09-05,
+VST-1098,Task,"EOL learn times out, intermittently, on line 3",SWC-SAFEMON,major,unit,Closed,2022-04-14,2022-05-03,CHR-2024-0192
+VST-1099,Bug,"Torque sensor plausibility trips on cold start",SWC-MOTCTL,minor,unit,Closed,2021-03-08,2021-03-14,
+VST-1100,Story,Torque sensor plausibility trips on cold start,SWC-DIAG,blocker,unit,Closed,2022-11-15,2022-11-28,
+VST-1101,Bug,"EOL learn times out, intermittently, on line 3",SWC-DIAG,blocker,vehicle,Closed,2021-11-12,,
+VST-1102,Story,Torque sensor plausibility trips on cold start,SWC-ASSIST,minor,unit,Closed,2025-02-02,2025-02-25,CHR-2023-0183
+VST-1103,Bug,"EOL learn times out, intermittently, on line 3",SWC-DIAG,major,unit,Open,2025-03-30,2025-05-02,CHR-2025-0178
+VST-1104,Bug,"Torque sensor plausibility trips on cold start",SWC-DIAG,major,unit,Closed,2022-08-28,2023-02-07,CHR-2024-0192
+VST-1105,Bug,"EOL learn times out, intermittently, on line 3",SWC-DIAG,minor,vehicle,Closed,2025-03-17,2025-06-12,
+VST-1106,Story,"Damping step at break point on H1",SWC-HYSTCOMP,major,vehicle,Closed,2020-07-05,2020-08-14,CHR-2020-0158
+VST-1107,Story,Torque sensor plausibility trips on cold start,SWC-HYSTCOMP,minor,unit,Closed,2022-02-15,2022-05-10,
+VST-1108,Bug,Diagnostic DID 0xF190 returns padded string,SWC-HYSTCOMP,minor,vehicle,Closed,2025-01-08,2025-07-06,CHR-2024-0081
+VST-1109,Bug,Damping step at break point on H1,SWC-DIAG,minor,unit,Closed,2024-10-14,2025-03-31,
+VST-1110,Bug,Return to centre overshoots at 60 km/h,SWC-SAFEMON,major,unit,Closed,2026-02-04,2026-07-03,
+VST-1111,Bug,Damping step at break point on H1,SWC-ASSIST,minor,unit,Closed,2025-12-05,2026-03-04,
+VST-1112,Task,Torque sensor plausibility trips on cold start,SWC-HYSTCOMP,blocker,vehicle,Closed,2021-02-07,2021-03-20,CHR-2023-0174
+VST-1113,Bug,Motor current ripple above spec at low speed,SWC-DIAG,major,unit,Closed,2024-05-17,,
+VST-1114,Task,"Diagnostic DID 0xF190 returns padded string",SWC-ASSIST,major,unit,Closed,2021-11-19,2022-01-08,
+VST-1115,Bug,Hysteresis compensation asymmetric left vs right,SWC-SAFEMON,major,unit,Closed,2019-03-09,2019-04-01,
+VST-1116,Bug,"Motor current ripple above spec at low speed",SWC-HYSTCOMP,major,unit,Closed,2022-01-16,2022-02-15,
+VST-1117,Bug,Motor current ripple above spec at low speed,SWC-HYSTCOMP,minor,unit,Closed,2024-02-28,2024-06-05,
+VST-1118,Bug,Return to centre overshoots at 60 km/h,SWC-SAFEMON,minor,HIL,Blocked,2024-07-10,2024-10-06,CHR-2021-0057
+VST-1119,Task,Diagnostic DID 0xF190 returns padded string,SWC-SAFEMON,major,unit,Closed,2022-07-12,2022-11-11,
+VST-1120,Bug,"Assist map discontinuity above 120 km/h",SWC-ASSIST,minor,HIL,Closed,2026-05-05,2026-08-17,CHR-2021-0077
+VST-1121,Bug,"EOL learn times out, intermittently, on line 3",SWC-MOTCTL,minor,HIL,Closed,2025-01-08,2025-01-27,
+VST-1122,Task,Return to centre overshoots at 60 km/h,SWC-HYSTCOMP,blocker,HIL,Blocked,2020-11-06,2021-02-11,CHR-2020-0023
+VST-1123,Story,Diagnostic DID 0xF190 returns padded string,SWC-HYSTCOMP,blocker,HIL,Blocked,2025-03-06,,
+VST-1124,Bug,Motor current ripple above spec at low speed,SWC-HYSTCOMP,major,HIL,Open,2023-01-23,2023-05-27,CHR-2021-0055
+VST-1125,Story,Hysteresis compensation asymmetric left vs right,SWC-ASSIST,blocker,unit,Closed,2025-07-05,2025-07-12,
+VST-1126,Bug,Torque sensor plausibility trips on cold start,SWC-MOTCTL,blocker,unit,Closed,2021-08-08,,
+VST-1127,Story,Damping step at break point on H1,SWC-SAFEMON,blocker,vehicle,Closed,2023-01-09,2023-02-07,
+VST-1128,Story,"Torque sensor plausibility trips on cold start",SWC-DAMP,major,HIL,Closed,2020-03-11,2020-03-17,
+VST-1129,Bug,Assist map discontinuity above 120 km/h,SWC-DIAG,minor,unit,Closed,2021-01-15,2021-04-29,CHR-2022-0006
+VST-1130,Story,"Motor current ripple above spec at low speed",SWC-HYSTCOMP,minor,unit,Closed,2020-06-30,2020-11-29,
+VST-1131,Story,"Motor current ripple above spec at low speed",SWC-DAMP,major,HIL,Closed,2022-05-02,2022-09-29,
+VST-1132,Bug,Damping step at break point on H1,SWC-DIAG,minor,vehicle,Closed,2024-02-27,2024-05-20,
+VST-1133,Story,"Diagnostic DID 0xF190 returns padded string",SWC-HYSTCOMP,minor,vehicle,In Progress,2019-04-05,2019-09-03,CHR-2022-0100
+VST-1134,Task,"EOL learn times out, intermittently, on line 3",SWC-HYSTCOMP,major,unit,Closed,2019-04-27,2019-09-25,
+VST-1135,Bug,"EOL learn times out, intermittently, on line 3",SWC-ASSIST,minor,unit,Closed,2023-09-12,2023-10-21,
+VST-1136,Bug,Torque sensor plausibility trips on cold start,SWC-ASSIST,minor,HIL,Closed,2025-07-18,2025-12-07,
+VST-1137,Bug,"Torque sensor plausibility trips on cold start",SWC-DIAG,blocker,HIL,Closed,2025-07-09,2025-08-04,CHR-2022-0006
+VST-1138,Bug,"EOL learn times out, intermittently, on line 3",SWC-DIAG,minor,HIL,Closed,2023-08-04,2023-12-29,CHR-2022-0063
+VST-1139,Task,Assist map discontinuity above 120 km/h,SWC-HYSTCOMP,minor,vehicle,Blocked,2023-04-17,2023-06-24,
+VST-1140,Story,Return to centre overshoots at 60 km/h,SWC-SAFEMON,major,HIL,Closed,2020-01-03,2020-03-01,
+VST-1141,Bug,"Return to centre overshoots at 60 km/h",SWC-MOTCTL,major,HIL,Closed,2021-07-22,2021-09-01,
+VST-1142,Bug,"Assist map discontinuity above 120 km/h",SWC-DAMP,major,vehicle,Closed,2024-12-03,2025-01-28,
+VST-1143,Story,Damping step at break point on H1,SWC-SAFEMON,minor,HIL,Closed,2024-04-14,2024-10-11,
+VST-1144,Bug,Motor current ripple above spec at low speed,SWC-ASSIST,blocker,unit,Closed,2021-04-02,2021-07-28,
+VST-1145,Bug,"EOL learn times out, intermittently, on line 3",SWC-DAMP,minor,unit,Open,2020-11-27,2021-03-24,
+VST-1146,Bug,Assist map discontinuity above 120 km/h,SWC-DIAG,major,HIL,Closed,2022-06-26,2022-12-21,
+VST-1147,Bug,"Torque sensor plausibility trips on cold start",SWC-HYSTCOMP,minor,HIL,Closed,2025-06-09,2025-10-08,
+VST-1148,Bug,Torque sensor plausibility trips on cold start,SWC-DIAG,minor,vehicle,Closed,2024-11-03,2025-02-01,
+VST-1149,Bug,"Diagnostic DID 0xF190 returns padded string",SWC-DIAG,major,vehicle,Closed,2025-12-04,2026-02-14,
+VST-1150,Bug,"Damping step at break point on H1",SWC-ASSIST,minor,unit,Closed,2024-08-27,,CHR-2024-0139
+VST-1151,Story,Return to centre overshoots at 60 km/h,SWC-SAFEMON,blocker,HIL,Closed,2025-10-06,2025-10-27,
+VST-1152,Bug,"Assist map discontinuity above 120 km/h",SWC-DAMP,minor,unit,Closed,2023-03-17,2023-06-14,
+VST-1153,Task,Torque sensor plausibility trips on cold start,SWC-DAMP,major,vehicle,Closed,2019-05-26,2019-10-20,CHR-2023-0194
+VST-1154,Story,Damping step at break point on H1,SWC-MOTCTL,major,HIL,Closed,2020-01-01,,
+VST-1155,Bug,Damping step at break point on H1,SWC-DAMP,minor,HIL,Closed,2020-07-21,2020-09-06,
+VST-1156,Story,"Torque sensor plausibility trips on cold start",SWC-SAFEMON,minor,vehicle,Closed,2025-12-21,2026-06-15,
+VST-1157,Bug,"Motor current ripple above spec at low speed",SWC-ASSIST,minor,unit,Closed,2021-11-09,,CHR-2020-0143
+VST-1158,Bug,"Motor current ripple above spec at low speed",SWC-MOTCTL,major,field,Closed,2023-03-05,2023-06-16,
+VST-1159,Bug,Assist map discontinuity above 120 km/h,SWC-HYSTCOMP,minor,unit,Open,2022-07-03,2022-10-08,CHR-2024-0198
+VST-1160,Task,Diagnostic DID 0xF190 returns padded string,SWC-DIAG,minor,unit,Closed,2021-03-22,2021-08-25,CHR-2025-0148
+VST-1161,Bug,"Return to centre overshoots at 60 km/h",SWC-MOTCTL,minor,unit,Closed,2019-06-17,2019-09-23,
+VST-1162,Task,Hysteresis compensation asymmetric left vs right,SWC-DAMP,major,vehicle,Closed,2020-07-22,,CHR-2025-0029
+VST-1163,Story,Assist map discontinuity above 120 km/h,SWC-DAMP,major,unit,Closed,2023-10-11,,
+VST-1164,Bug,Diagnostic DID 0xF190 returns padded string,SWC-MOTCTL,major,unit,Closed,2025-06-12,2025-10-18,
+VST-1165,Bug,"Torque sensor plausibility trips on cold start",SWC-MOTCTL,minor,HIL,Open,2020-11-10,2021-01-31,
+VST-1166,Task,Damping step at break point on H1,SWC-ASSIST,major,vehicle,Blocked,2020-11-30,2021-04-24,
+VST-1167,Bug,Hysteresis compensation asymmetric left vs right,SWC-SAFEMON,minor,HIL,Closed,2023-10-07,,CHR-2021-0105
+VST-1168,Bug,Return to centre overshoots at 60 km/h,SWC-MOTCTL,minor,HIL,Closed,2019-06-14,2019-09-17,
+VST-1169,Story,Return to centre overshoots at 60 km/h,SWC-MOTCTL,minor,vehicle,Closed,2024-06-23,2024-07-21,
+VST-1170,Bug,Damping step at break point on H1,SWC-DAMP,minor,HIL,Closed,2022-01-05,,
+VST-1171,Bug,Motor current ripple above spec at low speed,SWC-HYSTCOMP,major,HIL,Open,2019-03-17,2019-06-14,
+VST-1172,Bug,Hysteresis compensation asymmetric left vs right,SWC-DAMP,minor,unit,Closed,2023-12-03,2024-02-10,CHR-2021-0019
+VST-1173,Bug,"EOL learn times out, intermittently, on line 3",SWC-SAFEMON,major,HIL,Closed,2021-01-07,2021-01-29,
+VST-1174,Task,Assist map discontinuity above 120 km/h,SWC-HYSTCOMP,minor,HIL,Closed,2024-11-08,2025-04-28,
+VST-1175,Task,"Hysteresis compensation asymmetric left vs right",SWC-ASSIST,blocker,vehicle,Closed,2023-01-10,2023-07-05,
+VST-1176,Bug,Diagnostic DID 0xF190 returns padded string,SWC-DIAG,minor,HIL,Closed,2021-08-25,2022-02-13,CHR-2025-0113
+VST-1177,Bug,"EOL learn times out, intermittently, on line 3",SWC-SAFEMON,minor,HIL,Closed,2023-07-19,2024-01-13,CHR-2025-0178
+VST-1178,Task,Assist map discontinuity above 120 km/h,SWC-DIAG,minor,HIL,Closed,2022-06-29,2022-08-30,
+VST-1179,Bug,Torque sensor plausibility trips on cold start,SWC-MOTCTL,blocker,HIL,Closed,2021-11-01,2022-04-25,
+VST-1180,Story,"Torque sensor plausibility trips on cold start",SWC-DAMP,minor,HIL,Closed,2023-05-14,2023-05-30,CHR-2021-0110
+VST-1181,Bug,Torque sensor plausibility trips on cold start,SWC-HYSTCOMP,major,HIL,Closed,2026-02-06,2026-03-02,CHR-2023-0053
+VST-1182,Task,Return to centre overshoots at 60 km/h,SWC-SAFEMON,minor,HIL,Closed,2022-09-09,2022-10-10,
+VST-1183,Bug,Motor current ripple above spec at low speed,SWC-SAFEMON,minor,field,Closed,2024-05-04,,
+VST-1184,Task,Return to centre overshoots at 60 km/h,SWC-ASSIST,major,unit,Closed,2024-05-04,2024-05-09,
+VST-1185,Bug,Return to centre overshoots at 60 km/h,SWC-MOTCTL,major,HIL,Closed,2019-08-31,2019-11-24,
+VST-1186,Bug,"EOL learn times out, intermittently, on line 3",SWC-DIAG,major,HIL,Closed,2019-04-19,2019-06-13,
+VST-1187,Bug,Return to centre overshoots at 60 km/h,SWC-MOTCTL,blocker,unit,Closed,2020-03-24,2020-05-07,CHR-2025-0171
+VST-1188,Bug,"Return to centre overshoots at 60 km/h",SWC-DAMP,blocker,HIL,Closed,2025-01-10,2025-06-09,
+VST-1189,Story,"Motor current ripple above spec at low speed",SWC-DIAG,minor,HIL,Closed,2019-04-07,2019-04-21,
+VST-1190,Bug,Hysteresis compensation asymmetric left vs right,SWC-HYSTCOMP,major,HIL,Closed,2025-07-08,2025-08-09,
+VST-1191,Story,"Torque sensor plausibility trips on cold start",SWC-ASSIST,minor,HIL,Closed,2020-04-22,2020-10-02,CHR-2025-0010
+VST-1192,Story,Return to centre overshoots at 60 km/h,SWC-SAFEMON,blocker,HIL,Closed,2019-08-15,2019-12-28,
+VST-1193,Task,"Torque sensor plausibility trips on cold start",SWC-MOTCTL,minor,unit,Closed,2022-02-26,2022-05-06,
+VST-1194,Bug,"Motor current ripple above spec at low speed",SWC-DAMP,minor,vehicle,Closed,2019-02-09,2019-06-01,
+VST-1195,Task,Diagnostic DID 0xF190 returns padded string,SWC-HYSTCOMP,major,unit,Closed,2021-11-12,2021-12-22,CHR-2023-0067
+VST-1196,Bug,Motor current ripple above spec at low speed,SWC-DIAG,minor,unit,Closed,2022-10-14,2022-12-12,CHR-2023-0074
+VST-1197,Bug,Motor current ripple above spec at low speed,SWC-DIAG,blocker,unit,Closed,2023-05-29,2023-11-06,
+VST-1198,Bug,Damping step at break point on H1,SWC-DIAG,major,unit,Closed,2022-09-21,2023-01-18,
+VST-1199,Bug,Motor current ripple above spec at low speed,SWC-DIAG,minor,HIL,Closed,2021-12-04,2022-02-01,
+VST-1200,Bug,Damping step at break point on H1,SWC-DAMP,blocker,HIL,Closed,2024-01-06,,
+VST-1201,Bug,Motor current ripple above spec at low speed,SWC-ASSIST,minor,unit,Closed,2019-10-02,2020-01-11,
+VST-1202,Story,Assist map discontinuity above 120 km/h,SWC-SAFEMON,minor,unit,Closed,2019-03-20,2019-04-21,CHR-2023-0086
+VST-1203,Bug,"EOL learn times out, intermittently, on line 3",SWC-SAFEMON,major,unit,Closed,2023-01-21,,CHR-2024-0061
+VST-1204,Bug,"EOL learn times out, intermittently, on line 3",SWC-SAFEMON,major,HIL,Closed,2025-12-22,,
+VST-1205,Bug,Motor current ripple above spec at low speed,SWC-DAMP,minor,HIL,Closed,2023-11-17,2024-04-30,CHR-2025-0001
+VST-1206,Bug,Hysteresis compensation asymmetric left vs right,SWC-MOTCTL,minor,unit,Closed,2024-03-27,2024-07-27,
+VST-1207,Bug,Return to centre overshoots at 60 km/h,SWC-DIAG,blocker,HIL,Blocked,2025-01-06,2025-06-14,
+VST-1208,Bug,"Diagnostic DID 0xF190 returns padded string",SWC-MOTCTL,major,HIL,Closed,2022-06-11,2022-06-29,
+VST-1209,Bug,"Motor current ripple above spec at low speed",SWC-DIAG,minor,unit,Closed,2021-12-12,2022-04-14,
+VST-1210,Bug,"Damping step at break point on H1",SWC-ASSIST,blocker,vehicle,Closed,2024-06-09,2024-11-18,CHR-2023-0156
+VST-1211,Bug,"Torque sensor plausibility trips on cold start",SWC-SAFEMON,major,unit,Closed,2020-01-05,2020-04-22,
+VST-1212,Task,Return to centre overshoots at 60 km/h,SWC-HYSTCOMP,minor,HIL,Closed,2019-05-23,2019-11-05,
+VST-1213,Task,Assist map discontinuity above 120 km/h,SWC-DAMP,major,HIL,Closed,2022-07-10,,
+VST-1214,Bug,"EOL learn times out, intermittently, on line 3",SWC-ASSIST,major,HIL,Blocked,2022-05-09,,CHR-2025-0170
+VST-1215,Task,"EOL learn times out, intermittently, on line 3",SWC-SAFEMON,major,HIL,Closed,2021-10-10,2021-12-19,
+VST-1216,Bug,Assist map discontinuity above 120 km/h,SWC-ASSIST,blocker,unit,Closed,2020-03-21,2020-04-10,
+VST-1217,Bug,Damping step at break point on H1,SWC-DIAG,blocker,HIL,Closed,2025-09-15,2025-11-09,
+VST-1218,Bug,"EOL learn times out, intermittently, on line 3",SWC-DIAG,minor,unit,Closed,2020-11-08,2021-03-28,
+VST-1219,Bug,Hysteresis compensation asymmetric left vs right,SWC-DIAG,minor,vehicle,Closed,2020-09-01,2020-09-24,
+VST-1220,Bug,"Return to centre overshoots at 60 km/h",SWC-ASSIST,major,vehicle,Closed,2020-09-17,,
+VST-1221,Story,Assist map discontinuity above 120 km/h,SWC-DIAG,minor,HIL,Closed,2021-03-04,2021-08-03,
+VST-1222,Story,Diagnostic DID 0xF190 returns padded string,SWC-DAMP,minor,unit,Closed,2020-03-01,2020-07-31,
+VST-1223,Bug,Return to centre overshoots at 60 km/h,SWC-ASSIST,major,HIL,Closed,2025-02-27,2025-06-29,CHR-2025-0009
+VST-1224,Task,"Motor current ripple above spec at low speed",SWC-DIAG,minor,unit,Closed,2022-04-05,2022-06-15,
+VST-1225,Story,Assist map discontinuity above 120 km/h,SWC-HYSTCOMP,major,unit,Closed,2021-03-06,2021-06-11,
+VST-1226,Bug,Diagnostic DID 0xF190 returns padded string,SWC-SAFEMON,minor,HIL,Closed,2021-11-11,2022-03-12,CHR-2020-0175
+VST-1227,Bug,Return to centre overshoots at 60 km/h,SWC-SAFEMON,minor,unit,Closed,2024-03-18,,CHR-2021-0050
+VST-1228,Bug,Torque sensor plausibility trips on cold start,SWC-DAMP,minor,unit,Closed,2024-04-03,2024-07-04,
+VST-1229,Bug,Damping step at break point on H1,SWC-DIAG,minor,HIL,Open,2022-10-20,2023-03-18,CHR-2021-0085
+VST-1230,Story,Motor current ripple above spec at low speed,SWC-HYSTCOMP,major,unit,Closed,2022-02-17,2022-05-22,
+VST-1231,Task,"EOL learn times out, intermittently, on line 3",SWC-DIAG,major,field,Closed,2019-10-30,2020-01-25,CHR-2024-0132
+VST-1232,Bug,Damping step at break point on H1,SWC-MOTCTL,major,unit,Blocked,2021-11-04,2022-02-15,CHR-2021-0177
+VST-1233,Task,"Hysteresis compensation asymmetric left vs right",SWC-HYSTCOMP,major,vehicle,Closed,2025-12-21,2026-01-14,
+VST-1234,Bug,"Return to centre overshoots at 60 km/h",SWC-ASSIST,major,HIL,Open,2020-03-15,2020-07-25,CHR-2022-0154
+VST-1235,Bug,Assist map discontinuity above 120 km/h,SWC-HYSTCOMP,minor,unit,Closed,2025-05-21,2025-08-08,
+VST-1236,Story,Diagnostic DID 0xF190 returns padded string,SWC-SAFEMON,major,HIL,Closed,2019-12-25,2020-02-11,
+VST-1237,Task,Return to centre overshoots at 60 km/h,SWC-DAMP,major,field,Closed,2023-12-04,,
+VST-1238,Task,Diagnostic DID 0xF190 returns padded string,SWC-DIAG,major,unit,Closed,2019-12-28,,CHR-2024-0166
+VST-1239,Bug,Diagnostic DID 0xF190 returns padded string,SWC-ASSIST,major,unit,Closed,2019-09-30,2020-03-20,CHR-2022-0064

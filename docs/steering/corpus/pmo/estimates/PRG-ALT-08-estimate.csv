@@ -1,0 +1,13 @@
+# bottom-up estimate, built before nomination
+# author: I. Arnaud   date: 2024-01-23
+# "basis" is free text. It is the only record of WHERE a number came from.
+work_package,discipline,hours,basis,confidence
+EOL calibration,validation,143,supplier quote,medium
+diagnostics,software,881,from the last programme,high
+motor control,validation,272,engineering judgement,medium
+rack redesign,software,644,engineering judgement,low
+rack redesign,systems,525,guess,medium
+rack redesign,pm,503,similar to H1,medium
+assist tuning,safety,220,similar to H1,high
+EOL calibration,software,24,supplier quote,medium
+harness,safety,62,supplier quote,low

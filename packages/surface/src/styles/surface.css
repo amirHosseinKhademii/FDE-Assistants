@@ -1,0 +1,137 @@
+/**
+ * The site's own rules: what more than one engagement page needs and no
+ * customer would ever lift.
+ *
+ * WHAT IS HERE AND WHAT IS NOT. `@fde/uikit/styles.css` holds the controls,
+ * the severity palette and the `--ui-*` tokens — colour that MEANS something.
+ * Nothing below means anything: it is a wash behind a hero, an entrance, a
+ * numeral beside a step. Each app's own stylesheet keeps whatever only that app
+ * draws, which is most of `apps/veresk-app/src/styles/app.css`.
+ *
+ * IT IS IMPORTED AFTER THE PACKAGE AND BEFORE THE APP, so an app can still
+ * override any of it by specificity alone.
+ */
+
+/* ── THE WASH BEHIND A HERO ─────────────────────────────────────────────────
+   Slow colour fields. They drift rather than pulse: a background that throbs
+   competes with the content in front of it. The hues come from the call site —
+   see `Aurora.tsx` for why they are not defaulted here.
+   ────────────────────────────────────────────────────────────────────────── */
+@keyframes aurora-drift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(4%, -3%, 0) scale(1.12); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+.aurora {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  will-change: transform;
+  animation: aurora-drift 22s ease-in-out infinite;
+}
+
+/* ── THE HERO'S ENTRANCE ────────────────────────────────────────────────────
+   Staggered by hand at the call site so the hero assembles rather than appears.
+   ────────────────────────────────────────────────────────────────────────── */
+@keyframes lift-in {
+  from { opacity: 0; transform: translateY(14px); filter: blur(6px); }
+  to   { opacity: 1; transform: none; filter: none; }
+}
+
+.lift-in { animation: lift-in 780ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* The headline is set in the engagement's own spectrum, and the gradient moves
+   slowly across it so the title and the colour below it read as one system.
+
+   THE STOPS ARE VARIABLES WITH DEFAULTS BECAUSE THE PALETTES DIFFER. Pharma
+   runs teal → blue → violet → pink; steering runs green → lime → orange. An
+   app sets `--title-1..4`; the defaults are neutral so an app that sets none
+   gets a plain bright headline rather than another customer's colours. */
+@keyframes title-drift { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+
+.title-spectrum {
+  background-image: linear-gradient(
+    100deg,
+    #eef2f7 0%,
+    var(--title-1, #eef2f7) 22%,
+    var(--title-2, #eef2f7) 40%,
+    var(--title-3, #eef2f7) 56%,
+    var(--title-4, #eef2f7) 70%,
+    #eef2f7 92%
+  );
+  background-size: 220% auto;
+  animation: title-drift 14s linear infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ── A NUMBERED STEP ────────────────────────────────────────────────────────
+   Numerals are usually decoration and are avoided across this site. They are
+   allowed here because both pages that use them are describing a real sequence
+   — doing the fourth beat first is the usual way the work fails.
+   ────────────────────────────────────────────────────────────────────────── */
+.method-step { position: relative; padding-left: 2.75rem; }
+
+.method-step-n {
+  position: absolute;
+  left: 0;
+  top: -0.125rem;
+  width: 1.875rem;
+  height: 1.875rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.5rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.8125rem;
+  color: var(--color-ui-dim);
+}
+
+/* ── THE ESTATE SECTION ─────────────────────────────────────────────────────
+   The tiles, the dialog, the field rows, the described-thing card, the figure
+   row and the count-up ramp are all `@fde/uikit`. What is here is the part that
+   is a judgement about the CONTENT rather than about a control: when a panel of
+   cards has earned a cascade, and what a thing that is not a database looks
+   like beside things that are.
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* A card arrives rather than appears — the same treatment as a validated agent
+   answer landing, for the same reason: this is data that was already there, not
+   data trickling in. */
+@keyframes estate-land {
+  from { opacity: 0; transform: translateY(0.375rem); filter: blur(3px); }
+  to   { opacity: 1; transform: none; filter: blur(0); }
+}
+
+.estate-land { animation: estate-land 400ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .estate-land { animation: none !important; }
+}
+
+/* Something in the estate that is not a database. Shaped like a tile so the row
+   reads as one set, and visibly inert — dashed, no lift, no pointer — because
+   there is nothing tabular behind it to open. A card that looked pressable and
+   did nothing would be worse than leaving it off. */
+.estate-corpus {
+  border-style: dashed;
+  background: transparent;
+  cursor: default;
+}
+
+.estate-corpus::before { display: none; }
+
+/* ── THE DRAWINGS ───────────────────────────────────────────────────────────
+   Size only. What each glyph IS lives in `components/glyphs.tsx`, and the ones
+   that belong to a single product stay in that product.
+   ────────────────────────────────────────────────────────────────────────── */
+.nerve-glyph,
+.ui-flow-glyph {
+  width: 2.125rem;
+  height: 2.125rem;
+  flex: none;
+  color: var(--color-ui-dim);
+  overflow: visible;
+}

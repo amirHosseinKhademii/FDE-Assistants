@@ -1,0 +1,19 @@
+MISRA C:2012 compliance report
+Repository : eps-motor-control
+Module     : sat_math_7.c   (SWC-PLT-012, ASIL D)
+Tool       : LDRA 9.8
+Run        : 2025-03-11
+Run by     : d.ferreira
+
+SUMMARY
+  rules checked        160
+  violations           18
+  deviations approved  1
+  unresolved           4
+
+DEVIATIONS
+  D-19  Rule 16.9  pointer arithmetic in the buffer walk. Approved.
+  D-12  Rule 17.5  union used for the CAN frame overlay. Approved.
+
+UNRESOLVED
+  Rule 17.3 at sat_math_7.c:315 — owner s.beker, no target date

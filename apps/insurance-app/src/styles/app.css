@@ -1,0 +1,45 @@
+@import 'tailwindcss';
+
+/**
+ * The design brief, in tokens.
+ *
+ * The subject is a coverage desk for claims adjusters: policy forms, clause
+ * numbers, typed schedules. The artefact this product delivers is a CITED
+ * ANSWER, which is closer to an underwriting memo than to a chat bubble — so the
+ * page is set like a claims file, not like a chat app.
+ *
+ * Serif for everything readable, because policy work is reading work. A
+ * typewriter mono ONLY for form ids and citation sources, because a form number
+ * should look like the typed document reference it is.
+ */
+@theme {
+  --color-paper: #fafaf8;
+  --color-ink: #1b2430;
+  --color-muted: #6b7684;
+  --color-rule: #dde1e6;
+  --color-navy: #173a5e;      /* actions, links */
+  --color-claret: #8c2f39;    /* documents disagreeing — red pen */
+  --color-ochre: #7a5b12;     /* escalation — a stamp on the file */
+  --color-ochre-wash: #fdf8e9;
+  --color-moss: #2f5d3a;      /* a tool returned something */
+
+  --font-sans: 'Source Serif 4', Georgia, serif;
+  --font-mono: 'Courier Prime', 'Courier New', monospace;
+}
+
+html {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+/* One considered motion: trace lines arrive as the work happens. Nothing else
+   moves on its own. */
+@keyframes note-in {
+  from { opacity: 0; transform: translateY(2px); }
+  to   { opacity: 1; transform: none; }
+}
+.note-in { animation: note-in 220ms ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .note-in { animation: none; }
+}

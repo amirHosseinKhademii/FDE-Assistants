@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-core
+Module     : fixpt_4.c   (SWC-PLT-001, ASIL C)
+Tool       : Polyspace 2023b
+Run        : 2024-09-30
+Run by     : e.palmer
+
+SUMMARY
+  rules checked        140
+  violations           2
+  deviations approved  6
+  unresolved           2
+
+DEVIATIONS
+  D-35  Rule 18.4  goto used for single-exit error handling. Approved.
+
+UNRESOLVED
+  Rule 18.4 at fixpt_4.c:48 — owner l.renaud, no target date

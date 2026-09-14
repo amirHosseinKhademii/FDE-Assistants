@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-diagnostics
+Module     : snapshot.c   (SWC-DIAG, ASIL QM)
+Tool       : Coverity 2022.12
+Run        : 2022-03-19
+Run by     : e.palmer
+
+SUMMARY
+  rules checked        157
+  violations           12
+  deviations approved  5
+  unresolved           4
+
+DEVIATIONS
+  D-30  Rule 18.9  goto used for single-exit error handling. Approved.
+
+UNRESOLVED
+  (none)

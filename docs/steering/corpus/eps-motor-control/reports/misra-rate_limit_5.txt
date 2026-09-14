@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-motor-control
+Module     : rate_limit_5.c   (SWC-PLT-017, ASIL B)
+Tool       : Polyspace 2023b
+Run        : 2024-10-04
+Run by     : a.kovac
+
+SUMMARY
+  rules checked        167
+  violations           19
+  deviations approved  1
+  unresolved           2
+
+DEVIATIONS
+  D-34  Rule 8.8  pointer arithmetic in the buffer walk. Approved.
+
+UNRESOLVED
+  Rule 21.1 at rate_limit_5.c:250 — owner n.haas, no target date

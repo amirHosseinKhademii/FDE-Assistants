@@ -1,0 +1,20 @@
+{
+  // The workspace is 43 directories; node_modules is 5,566 of them (1.2 GB,
+  // mostly onnxruntime-node from the local embedding model). Linux allows
+  // 65,536 inotify watches per user across ALL applications, so watching
+  // dependencies exhausts the budget and VS Code reports
+  // "Unable to watch for file changes".
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/dist/**": true,
+    "**/narration/audio/**": true,
+    "**/evals/fixtures/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/pnpm-lock.yaml": true
+  }
+}

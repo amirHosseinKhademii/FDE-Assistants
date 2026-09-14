@@ -1,0 +1,12 @@
+# bottom-up estimate, built before nomination
+# author: P. Strand   date: 2023-04-30
+# "basis" is free text. It is the only record of WHERE a number came from.
+work_package,discipline,hours,basis,confidence
+gearbox change,pm,541,similar to H1,low
+ECU integration,software,874,supplier quote,low
+validation,software,832,guess,medium
+motor control,software,830,guess,medium
+diagnostics,pm,578,engineering judgement,medium
+diagnostics,safety,489,similar to H1,low
+diagnostics,safety,772,similar to H1,high
+HIL rig update,systems,367,similar to H1,medium

@@ -1,0 +1,53 @@
+# exported from the requirements tool 2026-09-10
+# WARNING: rows with an empty system_req are NOT errors in the export.
+# They are requirements nobody has allocated yet.
+customer_req,system_req,coverage,notes
+CR-TDR-21-0353,SR-TDR-21-0521,full,
+CR-TDR-21-0354,SR-TDR-21-0494,full,
+CR-TDR-21-0354,SR-TDR-21-0502,full,
+CR-TDR-21-0354,SR-TDR-21-0520,full,
+CR-TDR-21-0355,SR-TDR-21-0495,full,"reviewed, see minutes"
+CR-TDR-21-0355,SR-TDR-21-0500,full,
+CR-TDR-21-0356,SR-TDR-21-0503,full,
+CR-TDR-21-0356,SR-TDR-21-0510,full,
+CR-TDR-21-0356,SR-TDR-21-0518,full,
+CR-TDR-21-0356,SR-TDR-21-0519,full,
+CR-TDR-21-0356,SR-TDR-21-0521,full,
+CR-TDR-21-0357,SR-TDR-21-0504,full,
+CR-TDR-21-0357,SR-TDR-21-0508,full,
+CR-TDR-21-0358,SR-TDR-21-0509,full,
+CR-TDR-21-0358,SR-TDR-21-0511,full,
+CR-TDR-21-0358,SR-TDR-21-0520,full,"reviewed, see minutes"
+CR-TDR-21-0359,SR-TDR-21-0513,full,
+CR-TDR-21-0360,,,not yet allocated
+CR-TDR-21-0361,SR-TDR-21-0498,partial,
+CR-TDR-21-0361,SR-TDR-21-0507,full,
+CR-TDR-21-0362,SR-TDR-21-0517,partial,"reviewed, see minutes"
+CR-TDR-21-0363,SR-TDR-21-0506,partial,"reviewed, see minutes"
+CR-TDR-21-0364,,,not yet allocated
+CR-TDR-21-0365,SR-TDR-21-0503,full,"reviewed, see minutes"
+CR-TDR-21-0365,SR-TDR-21-0509,full,"reviewed, see minutes"
+CR-TDR-21-0366,,,
+CR-TDR-21-0367,SR-TDR-21-0497,full,
+CR-TDR-21-0367,SR-TDR-21-0498,full,
+CR-TDR-21-0367,SR-TDR-21-0501,full,
+CR-TDR-21-0367,SR-TDR-21-0506,full,
+CR-TDR-21-0367,SR-TDR-21-0512,full,"reviewed, see minutes"
+CR-TDR-21-0367,SR-TDR-21-0514,full,
+CR-TDR-21-0367,SR-TDR-21-0515,full,
+CR-TDR-21-0368,SR-TDR-21-0496,full,
+CR-TDR-21-0368,SR-TDR-21-0513,full,"reviewed, see minutes"
+CR-TDR-21-0368,SR-TDR-21-0515,full,
+CR-TDR-21-0369,,,
+CR-TDR-21-0370,SR-TDR-21-0504,full,
+CR-TDR-21-0371,SR-TDR-21-0496,full,
+CR-TDR-21-0371,SR-TDR-21-0514,full,
+CR-TDR-21-0371,SR-TDR-21-0516,full,"reviewed, see minutes"
+CR-TDR-21-0372,SR-TDR-21-0499,partial,
+CR-TDR-21-0372,SR-TDR-21-0508,full,"reviewed, see minutes"
+CR-TDR-21-0372,SR-TDR-21-0510,full,
+CR-TDR-21-0372,SR-TDR-21-0512,full,
+CR-TDR-21-0372,SR-TDR-21-0522,full,"reviewed, see minutes"
+CR-TDR-21-0373,SR-TDR-21-0497,full,
+CR-TDR-21-0373,SR-TDR-21-0505,partial,
+CR-TDR-21-0373,SR-TDR-21-0507,full,

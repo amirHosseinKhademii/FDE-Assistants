@@ -1,0 +1,76 @@
+{
+  "//": "globalEnv exists because Turbo 2 runs tasks in STRICT ENVIRONMENT MODE: variables not declared here are stripped before the task starts. The fail-closed guard read an empty API_KEY and correctly allowed the request, while the operator had set one \u2014 the guard was right and the environment lied to it. Anything the app reads from process.env belongs in this list.",
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "src/**",
+        "tsconfig.json",
+        "package.json"
+      ],
+      "outputs": [
+        "dist/**",
+        ".output/**",
+        "apps/insurance-app/dist/**"
+      ]
+    },
+    "dev": {
+      "dependsOn": [
+        "^build"
+      ],
+      "cache": false,
+      "persistent": true
+    },
+    "typecheck": {
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "eval": {
+      "cache": false,
+      "persistent": false
+    },
+    "compliance:check": {
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "compliance:mastra": {
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "schema:check": {},
+    "severity:check": {}
+  },
+  "globalEnv": [
+    "API_KEY",
+    "PORT",
+    "NODE_ENV",
+    "FOUNDRY_OPENAI_ENDPOINT",
+    "FOUNDRY_CHAT_DEPLOYMENT",
+    "FOUNDRY_EMBEDDING_DEPLOYMENT",
+    "DATABASE_URL",
+    "PHARMA_DATABASE_URL",
+    "PHARMA_CORPUS_DIR",
+    "EMBEDDINGS",
+    "LOOP",
+    "LANGFUSE_BASE_URL",
+    "LANGFUSE_PUBLIC_KEY",
+    "LANGFUSE_SECRET_KEY",
+    "CORPUS_DIR",
+    "RECORDS_DIR",
+    "REQUEST_LOG",
+    "AZURE_CLIENT_ID",
+    "AZURE_TENANT_ID",
+    "AZURE_CLIENT_SECRET",
+    "STEERING_DATABASE_URL",
+    "STEERING_CORPUS_DIR"
+  ],
+  "globalDependencies": [
+    ".env"
+  ]
+}

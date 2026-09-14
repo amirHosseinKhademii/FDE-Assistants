@@ -1,0 +1,41 @@
+# exported from the requirements tool 2026-09-02
+# WARNING: rows with an empty system_req are NOT errors in the export.
+# They are requirements nobody has allocated yet.
+customer_req,system_req,coverage,notes
+CR-HLX-H1-0001,SR-HLX-H1-0010,full,
+CR-HLX-H1-0002,SR-HLX-H1-0006,full,
+CR-HLX-H1-0002,SR-HLX-H1-0008,partial,
+CR-HLX-H1-0002,SR-HLX-H1-0010,full,"reviewed, see minutes"
+CR-HLX-H1-0002,SR-HLX-H1-0019,partial,"reviewed, see minutes"
+CR-HLX-H1-0002,SR-HLX-H1-0022,full,
+CR-HLX-H1-0003,SR-HLX-H1-0005,full,"reviewed, see minutes"
+CR-HLX-H1-0003,SR-HLX-H1-0006,full,
+CR-HLX-H1-0003,SR-HLX-H1-0012,full,
+CR-HLX-H1-0004,SR-HLX-H1-0004,full,"reviewed, see minutes"
+CR-HLX-H1-0004,SR-HLX-H1-0017,full,
+CR-HLX-H1-0005,,,not yet allocated
+CR-HLX-H1-0006,SR-HLX-H1-0014,full,
+CR-HLX-H1-0006,SR-HLX-H1-0016,full,"reviewed, see minutes"
+CR-HLX-H1-0007,SR-HLX-H1-0020,full,
+CR-HLX-H1-0008,SR-HLX-H1-0007,full,"reviewed, see minutes"
+CR-HLX-H1-0008,SR-HLX-H1-0019,full,
+CR-HLX-H1-0009,SR-HLX-H1-0003,full,
+CR-HLX-H1-0009,SR-HLX-H1-0011,full,
+CR-HLX-H1-0009,SR-HLX-H1-0012,full,
+CR-HLX-H1-0009,SR-HLX-H1-0014,full,
+CR-HLX-H1-0010,SR-HLX-H1-0021,full,
+CR-HLX-H1-0011,SR-HLX-H1-0013,full,
+CR-HLX-H1-0011,SR-HLX-H1-0018,full,
+CR-HLX-H1-0011,SR-HLX-H1-0022,partial,
+CR-HLX-H1-0012,,,not yet allocated
+CR-HLX-H1-0013,SR-HLX-H1-0001,full,"reviewed, see minutes"
+CR-HLX-H1-0013,SR-HLX-H1-0015,full,"reviewed, see minutes"
+CR-HLX-H1-0013,SR-HLX-H1-0020,full,
+CR-HLX-H1-0014,SR-HLX-H1-0004,full,
+CR-HLX-H1-0014,SR-HLX-H1-0008,full,
+CR-HLX-H1-0014,SR-HLX-H1-0013,full,
+CR-HLX-H1-0014,SR-HLX-H1-0016,full,
+CR-HLX-H1-0015,SR-HLX-H1-0002,partial,
+CR-HLX-H1-0015,SR-HLX-H1-0007,partial,
+CR-HLX-H1-0016,SR-HLX-H1-0003,partial,"reviewed, see minutes"
+CR-HLX-H1-0016,SR-HLX-H1-0009,full,

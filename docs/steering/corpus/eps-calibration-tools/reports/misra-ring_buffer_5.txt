@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-calibration-tools
+Module     : ring_buffer_5.c   (SWC-PLT-021, ASIL B)
+Tool       : LDRA 9.8
+Run        : 2025-11-17
+Run by     : j.moreau
+
+SUMMARY
+  rules checked        147
+  violations           16
+  deviations approved  1
+  unresolved           3
+
+DEVIATIONS
+  D-11  Rule 19.6  union used for the CAN frame overlay. Approved.
+
+UNRESOLVED
+  Rule 19.8 at ring_buffer_5.c:141 — owner s.beker, no target date

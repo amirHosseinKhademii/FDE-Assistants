@@ -1,0 +1,80 @@
+{
+  "at": "2026-09-11T16:53:31.381Z",
+  "repeat": 1,
+  "reports": [
+    {
+      "id": "cov-003",
+      "runs": [
+        {
+          "id": "cov-003",
+          "run": 1,
+          "missingFixture": false,
+          "ms": 29544,
+          "turns": 3,
+          "inputTokens": 11627,
+          "outputTokens": 2090,
+          "toolCalls": 2,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_record:AUT-4472",
+              "pass": true,
+              "detail": "cited record AUT-4472"
+            },
+            {
+              "name": "has_answer",
+              "pass": true,
+              "detail": "gave an answer"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 2 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) This policy (AUT-4472) does not include Rental Reimbursement on the Declarations, so no rental reimbursement benefit is payable under this policy.\n\n2) (For reference) The policy form PP 00 01 06 24 would — if Rental Reimbursement were selected — pay $40 per day for a maximum of 30 days per occurrence, with coverage beginning 24 hours after the loss is reported and ending on the earlier of return to use, payment for a total loss, or the 30-day maximum.",
+            "policy_id": "AUT-4472",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4472",
+                "claim": "Rental Reimbursement not selected on this policy's Declarations.",
+                "detail": "| Coverage             | Selected | Deductible |\n|----------------------|----------|------------|\n| Collision            | yes      | $500 |\n| Comprehensive        | yes      | $500 |\n| Rental Reimbursement | no       | none |"
+              },
+              {
+                "source": "policy:pp-00-01-06-24.md#PP 00 01 06 24 — Personal Auto Policy > Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "If Rental Reimbursement is in force on form PP 00 01 06 24, the per-day amount and maximum days (and waiting period) that govern the benefit.",
+                "detail": "If your covered auto is withdrawn from use for more than 24 consecutive hours\nbecause of a loss covered under Part IV, we will pay reasonable expenses you\nincur for a rental vehicle of a class comparable to your covered auto.\n\nUnder form PP 00 01 06 24 we will pay **$40 per day, for a maximum of\n30 days** per occurrence.\n\nCoverage begins 24 hours after the loss is reported to us and ends on the\nearliest of the day your covered auto is returned to use, the day we pay the\nactual cash value for a total loss, or the day the 30-day maximum\nis reached."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": null
+          }
+        }
+      ],
+      "passed": 1,
+      "total": 1,
+      "flakyChecks": []
+    }
+  ],
+  "model": "gpt-5-mini",
+  "engine": "agents-sdk",
+  "fixtures": "off"
+}

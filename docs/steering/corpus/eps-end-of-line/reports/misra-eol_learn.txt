@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-end-of-line
+Module     : eol_learn.c   (SWC-EOL, ASIL QM)
+Tool       : Coverity 2022.12
+Run        : 2022-04-21
+Run by     : m.lindqvist
+
+SUMMARY
+  rules checked        164
+  violations           5
+  deviations approved  6
+  unresolved           1
+
+DEVIATIONS
+  (none)
+
+UNRESOLVED
+  Rule 18.8 at eol_learn.c:106 — owner p.strand, no target date

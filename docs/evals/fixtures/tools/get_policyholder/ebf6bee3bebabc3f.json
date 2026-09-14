@@ -1,0 +1,11 @@
+{
+  "tool": "get_policyholder",
+  "args": {
+    "policy_id": "AUT-4482"
+  },
+  "response": {
+    "policy_id": "AUT-4482",
+    "record": "# Policyholder Record AUT-4482 — Victor Petrov\n\n> Meridian Mutual Insurance Company. Fictional document, written for an FDE\n> practice engagement. Do not use for anything real.\n>\n> Record type: policyholder · Policy ID: AUT-4482 · Form: PA-2023-01-FL\n\n## Declarations\n\n| Field                  | Value |\n|------------------------|-------|\n| Policy ID              | AUT-4482 |\n| Named insured          | Victor Petrov |\n| Policy form            | PA-2023-01-FL |\n| Rated state            | Florida |\n| Effective date         | 2024-10-01 |\n| Expiration date        | 2025-10-01 |\n| Covered vehicle        | 2023 Ford Bronco Sport |\n\n## Coverages In Force\n\n| Coverage             | Selected | Deductible |\n|----------------------|----------|------------|\n| Collision            | yes      | $1,000 |\n| Comprehensive        | yes      | $500 |\n| Rental Reimbursement | yes      | none |\n\n## Endorsements Attached\n\n- PA-END-2024-03\n\nPA-END-2024-03 was filed with the state on 2024-09-12 and appears on this record, but the countersigned copy has not been returned by the agent. Whether the endorsement is in force on this policy is unconfirmed.\n\n## Claim History\n\nnone in the last five years\n",
+    "source": "record:AUT-4482"
+  }
+}

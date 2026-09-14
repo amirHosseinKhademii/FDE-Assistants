@@ -1,0 +1,14 @@
+# bottom-up estimate, built before nomination
+# author: A. Kovac   date: 2022-01-22
+# "basis" is free text. It is the only record of WHERE a number came from.
+work_package,discipline,hours,basis,confidence
+gearbox change,validation,827,from the last programme,high
+validation,validation,319,from the last programme,high
+gearbox change,safety,484,from the last programme,medium
+gearbox change,systems,817,guess,high
+diagnostics,hardware,428,from the last programme,high
+validation,calibration,124,supplier quote,low
+assist tuning,hardware,461,similar to H1,medium
+gearbox change,calibration,38,from the last programme,high
+ECU integration,software,853,from the last programme,low
+safety case,pm,607,supplier quote,high

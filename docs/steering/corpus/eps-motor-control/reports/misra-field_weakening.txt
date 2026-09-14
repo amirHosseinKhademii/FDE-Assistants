@@ -1,0 +1,19 @@
+MISRA C:2012 compliance report
+Repository : eps-motor-control
+Module     : field_weakening.c   (SWC-MOTCTL, ASIL D)
+Tool       : Polyspace 2023b
+Run        : 2024-04-24
+Run by     : d.ferreira
+
+SUMMARY
+  rules checked        174
+  violations           16
+  deviations approved  5
+  unresolved           3
+
+DEVIATIONS
+  D-27  Rule 11.6  pointer arithmetic in the buffer walk. Approved.
+  D-40  Rule 16.6  goto used for single-exit error handling. Approved.
+
+UNRESOLVED
+  (none)

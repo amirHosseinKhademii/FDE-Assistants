@@ -1,0 +1,49 @@
+# exported from the requirements tool 2026-09-06
+# WARNING: rows with an empty system_req are NOT errors in the export.
+# They are requirements nobody has allocated yet.
+customer_req,system_req,coverage,notes
+CR-TDR-17-0277,SR-TDR-17-0400,full,
+CR-TDR-17-0278,SR-TDR-17-0397,full,
+CR-TDR-17-0279,,,
+CR-TDR-17-0280,SR-TDR-17-0395,full,"reviewed, see minutes"
+CR-TDR-17-0280,SR-TDR-17-0413,full,
+CR-TDR-17-0280,SR-TDR-17-0415,full,"reviewed, see minutes"
+CR-TDR-17-0281,SR-TDR-17-0403,full,
+CR-TDR-17-0281,SR-TDR-17-0404,partial,
+CR-TDR-17-0281,SR-TDR-17-0405,full,
+CR-TDR-17-0281,SR-TDR-17-0416,full,
+CR-TDR-17-0282,,,
+CR-TDR-17-0283,SR-TDR-17-0396,full,"reviewed, see minutes"
+CR-TDR-17-0283,SR-TDR-17-0405,full,
+CR-TDR-17-0283,SR-TDR-17-0410,full,
+CR-TDR-17-0284,SR-TDR-17-0389,full,
+CR-TDR-17-0284,SR-TDR-17-0404,full,
+CR-TDR-17-0284,SR-TDR-17-0415,full,
+CR-TDR-17-0285,SR-TDR-17-0412,full,
+CR-TDR-17-0285,SR-TDR-17-0413,partial,
+CR-TDR-17-0286,,,not yet allocated
+CR-TDR-17-0287,SR-TDR-17-0399,full,
+CR-TDR-17-0287,SR-TDR-17-0403,full,
+CR-TDR-17-0287,SR-TDR-17-0408,partial,
+CR-TDR-17-0288,SR-TDR-17-0411,full,
+CR-TDR-17-0289,SR-TDR-17-0388,full,
+CR-TDR-17-0289,SR-TDR-17-0407,partial,
+CR-TDR-17-0289,SR-TDR-17-0409,partial,
+CR-TDR-17-0290,SR-TDR-17-0394,full,
+CR-TDR-17-0290,SR-TDR-17-0401,partial,
+CR-TDR-17-0290,SR-TDR-17-0406,full,
+CR-TDR-17-0291,SR-TDR-17-0392,partial,
+CR-TDR-17-0291,SR-TDR-17-0395,partial,
+CR-TDR-17-0292,SR-TDR-17-0388,full,"reviewed, see minutes"
+CR-TDR-17-0292,SR-TDR-17-0398,full,
+CR-TDR-17-0293,SR-TDR-17-0400,full,
+CR-TDR-17-0293,SR-TDR-17-0407,full,
+CR-TDR-17-0294,SR-TDR-17-0390,full,
+CR-TDR-17-0294,SR-TDR-17-0393,full,
+CR-TDR-17-0294,SR-TDR-17-0401,full,
+CR-TDR-17-0295,,,not yet allocated
+CR-TDR-17-0296,SR-TDR-17-0406,partial,"reviewed, see minutes"
+CR-TDR-17-0297,SR-TDR-17-0391,full,"reviewed, see minutes"
+CR-TDR-17-0297,SR-TDR-17-0402,full,"reviewed, see minutes"
+CR-TDR-17-0297,SR-TDR-17-0410,full,"reviewed, see minutes"
+CR-TDR-17-0297,SR-TDR-17-0414,full,

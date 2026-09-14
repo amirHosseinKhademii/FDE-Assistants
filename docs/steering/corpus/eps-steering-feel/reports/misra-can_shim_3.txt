@@ -1,0 +1,19 @@
+MISRA C:2012 compliance report
+Repository : eps-steering-feel
+Module     : can_shim_3.c   (SWC-PLT-032, ASIL QM)
+Tool       : LDRA 9.8
+Run        : 2026-03-25
+Run by     : l.renaud
+
+SUMMARY
+  rules checked        160
+  violations           21
+  deviations approved  2
+  unresolved           3
+
+DEVIATIONS
+  D-4  Rule 20.4  pointer arithmetic in the buffer walk. Approved.
+  (none)
+
+UNRESOLVED
+  (none)

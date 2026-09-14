@@ -1,0 +1,491 @@
+# git log, exported 2026-09-07
+
+commit 000001bfdd8f461ef5fc17c746580a403345ecbd
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2021-12-28
+
+    update filter in calibration-tools
+
+commit 0000021cb4f8ccab833e9d6e13e3d7a9b62b759c
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2021-01-23
+
+    fix filter in calibration-tools
+
+commit 0000039c0a686fcb189d93908295a7dcff8649f8
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2018-08-06
+
+    fix filter in calibration-tools
+
+commit 000004df9c77d9bd1e6d0c652363221309393d14
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2020-10-29
+
+    remove table in calibration-tools
+
+commit 0000058647786448e1da6308a3ae90ad53721622
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2022-06-29
+
+    remove guard in calibration-tools
+
+    Change-Request: CHR-2025-0171
+
+commit 000006b136e794bfe44a68a87add41965e231c6e
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2026-01-08
+
+    update filter in calibration-tools
+
+    Change-Request: CHR-2020-0160
+
+commit 000007c971a9a6bc8d0076e808df38083c400004
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2021-06-14
+
+    update handler in calibration-tools
+
+    Change-Request: CHR-2025-0106
+
+commit 00000847ed2a1b3aad833ae20d9780eb6ca5707c
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2020-04-18
+
+    remove check in calibration-tools
+
+commit 000009eef8ef9d740f7c8f04c464816842df8cb9
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2023-11-07
+
+    refactor handler in calibration-tools
+
+commit 00000ab78406066909427b5aeda4df408d421de7
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2022-06-16
+
+    refactor check in calibration-tools
+
+commit 00000b8046bcf7f2b9aa8ddc3cb39df9c6929917
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2020-02-17
+
+    update guard in calibration-tools
+
+    Change-Request: CHR-2021-0205
+
+commit 00000c0a497204b17856a8f4473e50653c81d273
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2026-06-03
+
+    update guard in calibration-tools
+
+commit 00000da1b2c1f06f95cc06b0fd56e0d31f8797f9
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2019-05-22
+
+    refactor check in calibration-tools
+
+commit 00000e9d01a33ccae0b9de84a8cd1928ef5e49d7
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2021-10-17
+
+    add filter in calibration-tools
+
+commit 00000fae777d34ce015dae28cef04e5aced8463b
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2023-07-29
+
+    fix handler in calibration-tools
+
+commit 000010e9fd314b04f4a74d1b68e8cd08ed56004d
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2022-03-11
+
+    remove guard in calibration-tools
+
+    Change-Request: CHR-2023-0028
+
+commit 000011307cc1283e6cf23a5fbe785449e8bb9126
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2023-04-01
+
+    fix check in calibration-tools
+
+commit 00001243a89a1535760bbc2cb3d1365567c5d216
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2020-10-08
+
+    add guard in calibration-tools
+
+commit 000013b822d50609f342f5f34a497cc95c7e3a89
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2023-12-06
+
+    fix table in calibration-tools
+
+commit 000014e737cd8dba680a29f031a3bea1af821a14
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2024-05-17
+
+    remove check in calibration-tools
+
+    Change-Request: CHR-2020-0155
+
+commit 000015a74db6d36f4ed4d8261c1ff40e441e8511
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2023-01-29
+
+    update table in calibration-tools
+
+commit 000016b24b9153933aa63cb74fd96ae6dca0c7e1
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2020-10-15
+
+    fix guard in calibration-tools
+
+commit 000017425989ecbd411974e80c9b0de2e776b431
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2025-05-25
+
+    remove handler in calibration-tools
+
+commit 000018bc09c86ebfe8ecfe3b1e156480f7b822e0
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2025-06-24
+
+    update map in calibration-tools
+
+    Change-Request: CHR-2021-0203
+
+commit 0000199240cf3c171cf0a82e75751f9c05a22f63
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2021-06-04
+
+    add filter in calibration-tools
+
+commit 00001a1499229d8e01ba2116b4d765cf1c92cf2c
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2025-02-13
+
+    update table in calibration-tools
+
+commit 00001bd3db8f9640d72fff5d0ee545a7abf3d723
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2022-05-10
+
+    update filter in calibration-tools
+
+commit 00001c348a4a6055e53c6f93f65fbd6550ae4002
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2020-01-23
+
+    add guard in calibration-tools
+
+commit 00001dad0567a8335b4085159d04b715dc12c67b
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2020-08-12
+
+    update check in calibration-tools
+
+    Change-Request: CHR-2020-0079
+
+commit 00001ea5f837ace824fcb673d33ada38b6065ce6
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2020-11-22
+
+    update handler in calibration-tools
+
+commit 00001f12be601042dd19ac50c2c829ecf0ebbbf7
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2026-05-04
+
+    add guard in calibration-tools
+
+commit 00002099aaf1d6282f57f63fb4ca34443f20ca98
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2025-03-10
+
+    fix handler in calibration-tools
+
+commit 000021f9e1b0bee7adcc7c3c7745d050ef69fe51
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2019-11-17
+
+    refactor filter in calibration-tools
+
+commit 0000229033826832c08ff02096a615ec9af8a8ef
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2025-03-12
+
+    remove check in calibration-tools
+
+    Change-Request: CHR-2024-0099
+
+commit 0000231aaa3fa2f587bafc268430a6c3779c85b0
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2020-05-11
+
+    add table in calibration-tools
+
+    Change-Request: CHR-2024-0198
+
+commit 0000248dba2c17627739716cf38cc2fcec02ecec
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2022-03-22
+
+    update check in calibration-tools
+
+    Change-Request: CHR-2023-0048
+
+commit 000025c3533cf80c9d9b3faabd8590f2b48011bb
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2026-08-17
+
+    add filter in calibration-tools
+
+commit 0000267363c44cbd2615472bbfc1f28bb366dabf
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2023-10-06
+
+    update table in calibration-tools
+
+    Change-Request: CHR-2023-0137
+
+commit 000027fe7546c3e2c5c6ac6ffc1a50bca602cb0b
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2023-03-25
+
+    refactor filter in calibration-tools
+
+commit 00002807bb6329f2ff42240502ccf4134b36fa04
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2021-01-11
+
+    add table in calibration-tools
+
+commit 0000296f522af666bc2d75d5ebddf1862fca6021
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2023-01-22
+
+    refactor filter in calibration-tools
+
+    Change-Request: CHR-2025-0083
+
+commit 00002a3bf0cadc8f1ced5084a0ee5b26a792dc83
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2018-08-20
+
+    refactor guard in calibration-tools
+
+    Change-Request: CHR-2024-0130
+
+commit 00002bfed65ca502657154affae18a3a8c86522c
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2021-02-13
+
+    add map in calibration-tools
+
+    Change-Request: CHR-2024-0078
+
+commit 00002c283a63cbddd7545d78948bda7bfb60e2ff
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2023-04-23
+
+    update check in calibration-tools
+
+commit 00002d7121c90da992dbfe51ccea3e9dd2f01264
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2018-06-24
+
+    update filter in calibration-tools
+
+    Change-Request: CHR-2024-0061
+
+commit 00002e4895ad5bf04d6cda4e37c1c53bbd283ce5
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2018-11-28
+
+    remove filter in calibration-tools
+
+commit 00002f47907def00357289b587f84b28fb08bfe3
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2025-07-16
+
+    update check in calibration-tools
+
+commit 000030d97e5ac89ea6fbc57f3d1c9720348cad00
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2018-01-11
+
+    refactor handler in calibration-tools
+
+    Change-Request: CHR-2020-0149
+
+commit 000031215231d70f19ad0ea59b4ba91532937c3b
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2019-10-08
+
+    add guard in calibration-tools
+
+commit 000032f823d585f19867d47c447e95e9c5dce16d
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2022-04-29
+
+    update guard in calibration-tools
+
+    Change-Request: CHR-2025-0092
+
+commit 000033631e38857957eec49c00f4e543fe403202
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2018-12-19
+
+    add map in calibration-tools
+
+    Change-Request: CHR-2022-0176
+
+commit 000034822eca00d69f485880ab4e71ab9b21673a
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2023-04-14
+
+    update filter in calibration-tools
+
+commit 00003585c62d0b7bc066263aeb734e61053c1716
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2022-10-08
+
+    remove table in calibration-tools
+
+commit 000036ef093d8d9c2eb50a400579c051e34bd43b
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2021-12-21
+
+    add check in calibration-tools
+
+commit 000037a2b3ac9018d05adb760a42d1e1ddc25661
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2020-02-26
+
+    refactor handler in calibration-tools
+
+    Change-Request: CHR-2025-0001
+
+commit 0000380e67ce6cdb2b9c561c1fb749eb06ed6780
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2020-06-07
+
+    refactor table in calibration-tools
+
+    Change-Request: CHR-2020-0158
+
+commit 0000392c9f16fa0a1dac8503f903f3c8eff1f1ed
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2024-09-29
+
+    add guard in calibration-tools
+
+commit 00003adaebda06d76f61ba1c8107c6d931c7905e
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2022-05-19
+
+    add table in calibration-tools
+
+    Change-Request: CHR-2025-0178
+
+commit 00003bb0bd10439cfcf937fcc70e5aa2171387a2
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2023-09-14
+
+    update table in calibration-tools
+
+    Change-Request: CHR-2025-0003
+
+commit 00003cfd3da57f96adf8d166afb0f41867544848
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2019-06-02
+
+    update check in calibration-tools
+
+    Change-Request: CHR-2021-0019
+
+commit 00003d3cded7ba732a7fe5bdf292e6b941b3e779
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2023-07-15
+
+    remove table in calibration-tools
+
+commit 00003e83dcc9d72b2df493120e2f2cc9c9e8f4ca
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2019-10-29
+
+    refactor filter in calibration-tools
+
+commit 00003fefc34a2c1c4366944862192a716d38fb02
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2020-08-28
+
+    fix table in calibration-tools
+
+commit 000040162c6c8d6e8f1d1d55d828a85449587d40
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2021-06-01
+
+    update guard in calibration-tools
+
+    Change-Request: CHR-2021-0102
+
+commit 000041d39d6387ce517bb76ec4265bc6cbfd64a4
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2026-01-04
+
+    refactor table in calibration-tools
+
+commit 000042851eab632a9f71be631fb98355fcebc65d
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2022-03-21
+
+    update table in calibration-tools
+
+commit 0000439941f19a5b4c7dd0f05267a12fc3a08774
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2021-07-28
+
+    refactor map in calibration-tools
+
+commit 000044bff69e6ae843c972d8d0a85b5a074cb581
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2022-08-25
+
+    refactor guard in calibration-tools
+
+commit 000045313e7a6743d87233d90a64a956692c7a7b
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2023-10-26
+
+    remove handler in calibration-tools
+
+commit 0000463356d89109e04fbe4a2082d75a926b0b20
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2022-06-23
+
+    remove map in calibration-tools
+
+commit 00004714f851c2c79a7d589c9ac22724c6d94286
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2022-11-21
+
+    fix guard in calibration-tools
+
+    Change-Request: CHR-2024-0078
+
+commit 0000485d3288507699b9f898d16ea5adeeae47d6
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2018-04-01
+
+    remove table in calibration-tools
+
+commit 000049a9dc754ca4505ed75c0e3be5c936dda958
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2024-09-02
+
+    remove table in calibration-tools

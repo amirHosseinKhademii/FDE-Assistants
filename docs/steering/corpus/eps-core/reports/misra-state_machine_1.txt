@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-core
+Module     : state_machine_1.c   (SWC-PLT-027, ASIL D)
+Tool       : Coverity 2022.12
+Run        : 2026-01-20
+Run by     : d.ferreira
+
+SUMMARY
+  rules checked        172
+  violations           16
+  deviations approved  0
+  unresolved           1
+
+DEVIATIONS
+  (none)
+
+UNRESOLVED
+  Rule 15.9 at state_machine_1.c:221 — owner e.palmer, no target date

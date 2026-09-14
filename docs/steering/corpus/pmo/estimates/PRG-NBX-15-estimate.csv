@@ -1,0 +1,16 @@
+# bottom-up estimate, built before nomination
+# author: M. Lindqvist   date: 2021-08-18
+# "basis" is free text. It is the only record of WHERE a number came from.
+work_package,discipline,hours,basis,confidence
+diagnostics,hardware,240,guess,medium
+harness,software,823,engineering judgement,medium
+motor control,pm,93,from the last programme,medium
+motor control,systems,828,guess,medium
+HIL rig update,pm,899,engineering judgement,high
+ECU integration,hardware,96,similar to H1,medium
+rack redesign,systems,678,engineering judgement,medium
+diagnostics,calibration,209,supplier quote,medium
+HIL rig update,safety,301,similar to H1,medium
+HIL rig update,pm,362,from the last programme,medium
+ECU integration,pm,519,similar to H1,medium
+motor control,calibration,205,guess,low

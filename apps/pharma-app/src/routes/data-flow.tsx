@@ -1,0 +1,13 @@
+/**
+ * `/data-flow` — the page you hand a customer's security reviewer.
+ *
+ * A route file names a page and does nothing else. What the page IS lives in
+ * `pages/DataFlow.tsx`.
+ */
+import { createFileRoute } from '@tanstack/react-router';
+import { DataFlow } from '../pages/DataFlow';
+
+export const Route = createFileRoute('/data-flow')({
+  head: () => ({ meta: [{ title: 'Where your data goes — Meridian Pharma' }] }),
+  component: DataFlow,
+});

@@ -1,0 +1,10 @@
+# bottom-up estimate, built before nomination
+# author: T. Sala   date: 2025-03-23
+# "basis" is free text. It is the only record of WHERE a number came from.
+work_package,discipline,hours,basis,confidence
+assist tuning,safety,275,engineering judgement,medium
+gearbox change,safety,267,engineering judgement,high
+harness,calibration,39,guess,low
+assist tuning,calibration,461,guess,medium
+assist tuning,hardware,547,supplier quote,low
+rack redesign,safety,773,supplier quote,medium

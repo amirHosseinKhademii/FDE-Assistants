@@ -1,0 +1,32 @@
+# exported from the requirements tool 2026-09-10
+# WARNING: rows with an empty system_req are NOT errors in the export.
+# They are requirements nobody has allocated yet.
+customer_req,system_req,coverage,notes
+CR-VGR-24-0406,SR-VGR-24-0574,full,
+CR-VGR-24-0407,SR-VGR-24-0568,full,
+CR-VGR-24-0407,SR-VGR-24-0579,full,
+CR-VGR-24-0408,SR-VGR-24-0569,full,
+CR-VGR-24-0409,SR-VGR-24-0573,full,
+CR-VGR-24-0409,SR-VGR-24-0574,partial,
+CR-VGR-24-0410,SR-VGR-24-0572,full,
+CR-VGR-24-0410,SR-VGR-24-0580,full,
+CR-VGR-24-0410,SR-VGR-24-0581,full,
+CR-VGR-24-0410,SR-VGR-24-0585,full,
+CR-VGR-24-0411,SR-VGR-24-0572,full,
+CR-VGR-24-0412,,,
+CR-VGR-24-0413,SR-VGR-24-0571,full,
+CR-VGR-24-0413,SR-VGR-24-0578,full,
+CR-VGR-24-0413,SR-VGR-24-0583,full,"reviewed, see minutes"
+CR-VGR-24-0414,SR-VGR-24-0584,full,
+CR-VGR-24-0415,SR-VGR-24-0569,full,
+CR-VGR-24-0415,SR-VGR-24-0587,full,
+CR-VGR-24-0416,SR-VGR-24-0571,full,
+CR-VGR-24-0416,SR-VGR-24-0576,full,"reviewed, see minutes"
+CR-VGR-24-0416,SR-VGR-24-0583,partial,"reviewed, see minutes"
+CR-VGR-24-0417,SR-VGR-24-0573,full,"reviewed, see minutes"
+CR-VGR-24-0417,SR-VGR-24-0575,full,"reviewed, see minutes"
+CR-VGR-24-0418,SR-VGR-24-0582,full,
+CR-VGR-24-0418,SR-VGR-24-0586,full,
+CR-VGR-24-0419,SR-VGR-24-0570,full,
+CR-VGR-24-0419,SR-VGR-24-0577,partial,
+CR-VGR-24-0419,SR-VGR-24-0581,full,

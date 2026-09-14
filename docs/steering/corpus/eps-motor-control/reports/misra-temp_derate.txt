@@ -1,0 +1,19 @@
+MISRA C:2012 compliance report
+Repository : eps-motor-control
+Module     : temp_derate.c   (SWC-MOTCTL, ASIL B)
+Tool       : Polyspace 2023b
+Run        : 2025-09-07
+Run by     : d.ferreira
+
+SUMMARY
+  rules checked        158
+  violations           6
+  deviations approved  5
+  unresolved           0
+
+DEVIATIONS
+  D-5  Rule 13.6  goto used for single-exit error handling. Approved.
+  D-3  Rule 17.3  union used for the CAN frame overlay. Approved.
+
+UNRESOLVED
+  (none)

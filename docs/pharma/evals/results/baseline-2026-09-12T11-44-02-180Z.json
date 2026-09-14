@@ -1,0 +1,3002 @@
+{
+  "at": "2026-09-12T11:44:02.180Z",
+  "repeat": 5,
+  "reports": [
+    {
+      "id": "rel-001",
+      "runs": [
+        {
+          "id": "rel-001",
+          "run": 1,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 39360,
+          "turns": 3,
+          "inputTokens": 11009,
+          "outputTokens": 2727,
+          "toolCalls": 2,
+          "toolNames": [
+            "assess_release",
+            "search_procedures"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "blocker:CERTIFIER_TRAINING_LAPSED",
+              "pass": true,
+              "detail": "blocker CERTIFIER_TRAINING_LAPSED present"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to Qualified Person, DEPT-QA"
+            },
+            {
+              "name": "cites_clause:SOP-QC-014 Rev 7#7.3",
+              "pass": true,
+              "detail": "cited sop:SOP-QC-014 Rev 7#7. Disposition and certification > 7.3 Personnel precondition to certification"
+            },
+            {
+              "name": "citations_dated",
+              "pass": true,
+              "detail": "3 citation(s), all dated where it matters"
+            },
+            {
+              "name": "governing_spec:SPEC-IBU200-v4",
+              "pass": true,
+              "detail": "judged against SPEC-IBU200-v4"
+            },
+            {
+              "name": "does_not_clear",
+              "pass": true,
+              "detail": "did not claim the batch may ship"
+            }
+          ],
+          "answer": {
+            "summary": "What you need to know: This lot is blocked from certification because the person who signed the certification (Eva Vos, EMP-0103) did so on 2026-09-04 while her GMP refresher (TRN-GMP-REF) had already expired on 2026-08-24. SOP-QC-014 Rev 7 §7.3, in force on 2026-09-04, explicitly makes a certification by a Qualified Person whose GMP refresher had expired invalid and leaves the batch in quarantine until certified by a Qualified Person who holds a valid, unexpired GMP refresher. To clear the blocker the site needs a valid certification by a QP who holds an unexpired GMP refresher training record on the date of certification and the required deviation/record actions for the invalid certification must be completed (per the same SOP). Do not treat the existing signature as a valid certification; a human QP must decide next steps.",
+            "lot_id": "LOT-IBU200-2609-B",
+            "market": "EU",
+            "governing_spec_version": "SPEC-IBU200-v4",
+            "blockers": [
+              {
+                "code": "CERTIFIER_TRAINING_LAPSED",
+                "why_it_blocks": "SOP-QC-014 Rev 7 §7.3 (governing on 2026-09-04) requires the certifying Qualified Person to hold a valid, unexpired GMP refresher training record on the date of certification and states that a certification made by a QP whose GMP refresher had expired on that date is invalid. Because the QP who signed did not hold a valid refresher on the date of signing, that signature does not constitute a valid certification and therefore blocks release.",
+                "citations": [
+                  {
+                    "ref": "mrd_hcm.training_records#(EMP-0103, TRN-GMP-REF)",
+                    "as_of": "2026-09-04",
+                    "claim": "EMP-0103's GMP refresher training (TRN-GMP-REF) had expired before the certification date.",
+                    "detail": "TRN-GMP-REF expires_on 2026-08-24 (record evaluated as of 2026-09-04)."
+                  },
+                  {
+                    "ref": "mrd_qms.batch_dispositions#DISP-26-0001",
+                    "as_of": "2026-09-04",
+                    "claim": "The batch disposition record shows a certification signature by Eva Vos (EMP-0103) on 2026-09-04.",
+                    "detail": "DISP-26-0001: certified_by EMP-0103 on 2026-09-04."
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#7. Disposition and certification > 7.3 Personnel precondition to certification",
+                    "as_of": "2026-09-04",
+                    "claim": "The procedure in force on the date makes an expired GMP refresher a disqualifying condition for certification.",
+                    "detail": "\"the certifying Qualified Person must hold a valid, unexpired GMP refresher training record on the date of certification. A certification made by a Qualified Person whose GMP refresher training had expired on that date is invalid. The batch does not become released by that act and remains in quarantine until certified by a Qualified Person who meets this section. The invalid certification is itself a deviation and is raised under SOP-QA-007.\" (SOP-QC-014 Rev 7 §7.3, effective_from 2026-03-01; searched as_of 2026-09-04)."
+                  }
+                ]
+              }
+            ],
+            "concerns": [],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "A human Qualified Person must decide remedial actions: the certification recorded on 2026-09-04 by Eva Vos (EMP-0103) is invalid under SOP-QC-014 Rev 7 §7.3 because her GMP refresher TRN-GMP-REF had expired on 2026-08-24. The batch remains in quarantine until a QP holding a valid, unexpired GMP refresher signs. The QP must also decide and execute the required deviation/record actions for the invalid certification (SOP-QC-014 Rev 7 §7.3 refers to raising a deviation under SOP-QA-007).",
+              "suggested_owner": "Qualified Person, DEPT-QA"
+            }
+          }
+        },
+        {
+          "id": "rel-001",
+          "run": 2,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 37976,
+          "turns": 3,
+          "inputTokens": 11046,
+          "outputTokens": 3998,
+          "toolCalls": 2,
+          "toolNames": [
+            "assess_release",
+            "search_procedures"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "blocker:CERTIFIER_TRAINING_LAPSED",
+              "pass": true,
+              "detail": "blocker CERTIFIER_TRAINING_LAPSED present"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to Qualified Person, DEPT-QA"
+            },
+            {
+              "name": "cites_clause:SOP-QC-014 Rev 7#7.3",
+              "pass": true,
+              "detail": "cited sop:SOP-QC-014 Rev 7#7. Disposition and certification > 7.3 Personnel precondition to certification"
+            },
+            {
+              "name": "citations_dated",
+              "pass": true,
+              "detail": "4 citation(s), all dated where it matters"
+            },
+            {
+              "name": "governing_spec:SPEC-IBU200-v4",
+              "pass": true,
+              "detail": "judged against SPEC-IBU200-v4"
+            },
+            {
+              "name": "does_not_clear",
+              "pass": true,
+              "detail": "did not claim the batch may ship"
+            }
+          ],
+          "answer": {
+            "summary": "The assessment found one blocker: the certifying Qualified Person (Eva Vos) recorded certification on 2026-09-04 while her GMP refresher training record (TRN-GMP-REF) had expired on 2026-08-24. SOP-QC-014 Rev 7 §7.3 (in force on 2026-09-04) states a certifying QP must hold a valid, unexpired GMP refresher on the date of certification and that a certification made by a QP whose GMP refresher had expired on that date is invalid — the batch therefore remains in quarantine until certified by a QP who meets §7.3. To clear this blocker the lot must be certified by a Qualified Person who holds a valid, unexpired GMP refresher training record (and the invalid certification must be handled as the SOP requires). Do not interpret this as permission to ship; the Qualified Person / QA must make the release decision.",
+            "lot_id": "LOT-IBU200-2609-B",
+            "market": "EU",
+            "governing_spec_version": "SPEC-IBU200-v4",
+            "blockers": [
+              {
+                "code": "CERTIFIER_TRAINING_LAPSED",
+                "why_it_blocks": "SOP-QC-014 Rev 7 §7.3, in force on 2026-09-04, requires the certifying Qualified Person to hold a valid, unexpired GMP refresher training record on the date of certification and states that a certification made by a Qualified Person whose GMP refresher had expired on that date is invalid; therefore the certification recorded on 2026-09-04 is invalid and does not release the batch.",
+                "citations": [
+                  {
+                    "ref": "mrd_hcm.training_records#(EMP-0103, TRN-GMP-REF)",
+                    "as_of": "2026-09-04",
+                    "claim": "GMP refresher training record TRN-GMP-REF for EMP-0103 (Eva Vos) had expired prior to the certification action.",
+                    "detail": "expired since 2026-08-24"
+                  },
+                  {
+                    "ref": "mrd_qms.batch_dispositions#DISP-26-0001",
+                    "as_of": "2026-09-04",
+                    "claim": "Disposition record shows certification was signed on 2026-09-04 by Eva Vos.",
+                    "detail": "certifier Eva Vos signed 2026-09-04"
+                  },
+                  {
+                    "ref": "mrd_reg.sop_revisions#SOP-QC-014 Rev 7",
+                    "as_of": "2026-09-04",
+                    "claim": "SOP-QC-014 Rev 7 was the revision governing certification on the date of the act.",
+                    "detail": "SOP-QC-014 Rev 7 (governing revision for certification as of 2026-09-04)"
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#7. Disposition and certification > 7.3 Personnel precondition to certification",
+                    "as_of": "2026-09-04",
+                    "claim": "The rule that makes an expired certifier training a blocker.",
+                    "detail": "“In addition to §7.2, the certifying Qualified Person must hold a valid, unexpired GMP refresher training record on the date of certification. A certification made by a Qualified Person whose GMP refresher training had expired on that date is invalid. The batch does not become released by that act and remains in quarantine until certified by a Qualified Person who meets this section. The invalid certification is itself a deviation and is raised under SOP-QA-007.”"
+                  }
+                ]
+              }
+            ],
+            "concerns": [],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "An invalid QP certification was recorded: Eva Vos signed certification on 2026-09-04 while her GMP refresher training had expired on 2026-08-24. SOP-QC-014 Rev 7 §7.3 requires such cases to be treated as deviations (raised under SOP-QA-007) and the batch remains in quarantine until certified by a QP who holds a valid, unexpired GMP refresher. QA must decide how to remediate (raise the deviation, determine who will perform a valid re-certification, and document the corrective path).",
+              "suggested_owner": "Qualified Person, DEPT-QA"
+            }
+          }
+        },
+        {
+          "id": "rel-001",
+          "run": 3,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 37670,
+          "turns": 3,
+          "inputTokens": 11076,
+          "outputTokens": 3718,
+          "toolCalls": 2,
+          "toolNames": [
+            "assess_release",
+            "search_procedures"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "blocker:CERTIFIER_TRAINING_LAPSED",
+              "pass": true,
+              "detail": "blocker CERTIFIER_TRAINING_LAPSED present"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to Qualified Person, DEPT-QA"
+            },
+            {
+              "name": "cites_clause:SOP-QC-014 Rev 7#7.3",
+              "pass": true,
+              "detail": "cited sop:SOP-QC-014 Rev 7#7. Disposition and certification > 7.3 Personnel precondition to certification"
+            },
+            {
+              "name": "citations_dated",
+              "pass": true,
+              "detail": "4 citation(s), all dated where it matters"
+            },
+            {
+              "name": "governing_spec:SPEC-IBU200-v4",
+              "pass": true,
+              "detail": "judged against SPEC-IBU200-v4"
+            },
+            {
+              "name": "does_not_clear",
+              "pass": true,
+              "detail": "did not claim the batch may ship"
+            }
+          ],
+          "answer": {
+            "summary": "The assessment found one blocker: the Qualified Person who signed certification (Eva Vos) had an expired GMP refresher on the date she signed. The lot remains blocked because SOP-QC-014 Rev 7 §7.3 (in force on 2026-09-04) says a certification made by a Qualified Person whose GMP refresher training had expired on that date is invalid and the batch remains in quarantine until certified by a Qualified Person who holds a valid, unexpired GMP refresher training record. To clear: arrange for a Qualified Person whose GMP refresher training is valid on the date of certification to perform the certification; the invalid certification is a deviation raised under SOP-QA-007 (per SOP-QC-014 Rev 7 §7.3).",
+            "lot_id": "LOT-IBU200-2609-B",
+            "market": "EU",
+            "governing_spec_version": "SPEC-IBU200-v4",
+            "blockers": [
+              {
+                "code": "CERTIFIER_TRAINING_LAPSED",
+                "why_it_blocks": "SOP-QC-014 Rev 7 §7.3 (governing on 2026-09-04) requires the certifying Qualified Person to hold a valid, unexpired GMP refresher training record on the date of certification; a certification made by a QP whose GMP refresher had expired on that date is explicitly stated as invalid and leaves the batch in quarantine.",
+                "citations": [
+                  {
+                    "ref": "mrd_hcm.training_records#(EMP-0103, TRN-GMP-REF)",
+                    "as_of": "2026-09-04",
+                    "claim": "The certifier's GMP refresher training had expired before the certification date.",
+                    "detail": "expires_on 2026-08-24"
+                  },
+                  {
+                    "ref": "mrd_qms.batch_dispositions#DISP-26-0001",
+                    "as_of": "2026-09-04",
+                    "claim": "A Qualified Person (Eva Vos) signed certification on this lot on 2026-09-04.",
+                    "detail": "certifier: Eva Vos — signature date 2026-09-04"
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#7. Disposition and certification > 7.3 Personnel precondition to certification",
+                    "as_of": "2026-09-04",
+                    "claim": "The SOP defines certification by a QP with expired GMP refresher training as invalid and requires a valid, unexpired GMP refresher training record on the date of certification.",
+                    "detail": "“the certifying Qualified Person must hold a valid, unexpired GMP refresher training record on the date of certification. A certification made by a Qualified Person whose GMP refresher training had expired on that date is invalid. The batch does not become released by that act and remains in quarantine until certified by a Qualified Person who meets this section. The invalid certification is itself a deviation and is raised under SOP-QA-007.”"
+                  },
+                  {
+                    "ref": "mrd_reg.sop_revisions#SOP-QC-014 Rev 7",
+                    "as_of": "2026-09-04",
+                    "claim": "SOP-QC-014 Rev 7 was the revision governing certification on the date in question.",
+                    "detail": "SOP-QC-014 Rev 7 (governing revision cited by the assessment for 2026-09-04)"
+                  }
+                ]
+              }
+            ],
+            "concerns": [],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "A certification was signed on 2026-09-04 by Eva Vos whose GMP refresher training (TRN-GMP-REF) had expired on 2026-08-24; SOP-QC-014 Rev 7 §7.3 says that certification is invalid and the batch remains in quarantine until certified by a QP with a valid, unexpired GMP refresher training record, and that the invalid certification is a deviation raised under SOP-QA-007. A human must decide who will raise/owner the deviation and which Qualified Person will perform a valid re-certification.",
+              "suggested_owner": "Qualified Person, DEPT-QA"
+            }
+          }
+        },
+        {
+          "id": "rel-001",
+          "run": 4,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 32899,
+          "turns": 3,
+          "inputTokens": 11028,
+          "outputTokens": 3335,
+          "toolCalls": 2,
+          "toolNames": [
+            "assess_release",
+            "search_procedures"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "blocker:CERTIFIER_TRAINING_LAPSED",
+              "pass": true,
+              "detail": "blocker CERTIFIER_TRAINING_LAPSED present"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to Qualified Person, DEPT-QA"
+            },
+            {
+              "name": "cites_clause:SOP-QC-014 Rev 7#7.3",
+              "pass": true,
+              "detail": "cited sop:SOP-QC-014 Rev 7#7. Disposition and certification > 7.3 Personnel precondition to certification"
+            },
+            {
+              "name": "citations_dated",
+              "pass": true,
+              "detail": "3 citation(s), all dated where it matters"
+            },
+            {
+              "name": "governing_spec:SPEC-IBU200-v4",
+              "pass": true,
+              "detail": "judged against SPEC-IBU200-v4"
+            },
+            {
+              "name": "does_not_clear",
+              "pass": true,
+              "detail": "did not claim the batch may ship"
+            }
+          ],
+          "answer": {
+            "summary": "What you need to know: the Qualified Person who signed the disposition for LOT-IBU200-2609-B on 2026-09-04 did so while their GMP refresher training had already expired (expires_on 2026-08-24). SOP-QC-014 Rev 7 §7.3, in force on 2026-09-04, states that a certification made by a Qualified Person whose GMP refresher training had expired on that date is invalid and that the batch remains in quarantine until certified by a Qualified Person who meets the requirement. To clear the block you need a certification dated when a Qualified Person holds a valid, unexpired GMP refresher training record (or have an appropriately trained QP perform the certification) and the follow-up actions required by SOP-QC-014 Rev 7 (including raising the deviation under SOP-QA-007 as specified). This system found the blocker; a Qualified Person must decide the next steps.",
+            "lot_id": "LOT-IBU200-2609-B",
+            "market": "EU",
+            "governing_spec_version": "SPEC-IBU200-v4",
+            "blockers": [
+              {
+                "code": "CERTIFIER_TRAINING_LAPSED",
+                "why_it_blocks": "SOP-QC-014 Rev 7 §7.3 (in force 2026-03-01, governing acts on 2026-09-04) requires the certifying Qualified Person to hold a valid, unexpired GMP refresher training record on the date of certification and states that a certification made by a Qualified Person whose GMP refresher had expired on that date is invalid and the batch remains in quarantine until certified by a Qualified Person who meets this section. Because the certifier's GMP refresher had expired before they signed, the certification is invalid and therefore blocks release.",
+                "citations": [
+                  {
+                    "ref": "mrd_hcm.training_records#(EMP-0103, TRN-GMP-REF)",
+                    "as_of": "2026-09-04",
+                    "claim": "The certifying Qualified Person's GMP refresher training record had expired before the date of certification.",
+                    "detail": "expires_on 2026-08-24"
+                  },
+                  {
+                    "ref": "mrd_qms.batch_dispositions#DISP-26-0001",
+                    "as_of": "2026-09-04",
+                    "claim": "A disposition/certification was recorded for the lot on 2026-09-04 by the named Qualified Person.",
+                    "detail": "certified_by 'Eva Vos' on 2026-09-04"
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#7. Disposition and certification > 7.3 Personnel precondition to certification",
+                    "as_of": "2026-09-04",
+                    "claim": "The procedure defines the training precondition and the effect of an expired training record on certification validity.",
+                    "detail": "“the certifying Qualified Person must hold a valid, unexpired GMP refresher training record on the date of certification. A certification made by a Qualified Person whose GMP refresher training had expired on that date is invalid. The batch does not become released by that act and remains in quarantine until certified by a Qualified Person who meets this section. The invalid certification is itself a deviation and is raised under SOP-QA-007.”"
+                  }
+                ]
+              }
+            ],
+            "concerns": [],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "SOP-QC-014 Rev 7 §7.3 (effective 2026-03-01) makes the certification on 2026-09-04 invalid because the certifier's GMP refresher had expired on 2026-08-24 and explicitly requires the invalid certification to be raised as a deviation under SOP-QA-007. A human decision is required to (a) nominate a Qualified Person who holds a valid, unexpired GMP refresher to perform the certification, (b) determine who will raise and manage the deviation under SOP-QA-007 for the invalid certification, and (c) confirm the corrective actions and records before any change of the lot status.",
+              "suggested_owner": "Qualified Person, DEPT-QA"
+            }
+          }
+        },
+        {
+          "id": "rel-001",
+          "run": 5,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 32928,
+          "turns": 3,
+          "inputTokens": 11002,
+          "outputTokens": 3162,
+          "toolCalls": 2,
+          "toolNames": [
+            "assess_release",
+            "search_procedures"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "blocker:CERTIFIER_TRAINING_LAPSED",
+              "pass": true,
+              "detail": "blocker CERTIFIER_TRAINING_LAPSED present"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to Qualified Person, DEPT-QA"
+            },
+            {
+              "name": "cites_clause:SOP-QC-014 Rev 7#7.3",
+              "pass": true,
+              "detail": "cited sop:SOP-QC-014 Rev 7#7. Disposition and certification > 7.3 Personnel precondition to certification"
+            },
+            {
+              "name": "citations_dated",
+              "pass": true,
+              "detail": "3 citation(s), all dated where it matters"
+            },
+            {
+              "name": "governing_spec:SPEC-IBU200-v4",
+              "pass": true,
+              "detail": "judged against SPEC-IBU200-v4"
+            },
+            {
+              "name": "does_not_clear",
+              "pass": true,
+              "detail": "did not claim the batch may ship"
+            }
+          ],
+          "answer": {
+            "summary": "Assessment found one blocker: the certifying Qualified Person (Eva Vos) signed the batch disposition on 2026-09-04 while her GMP refresher training (TRN-GMP-REF) had already expired on 2026-08-24. SOP-QC-014 Rev 7 §7.3, in force on 2026-09-04, states that a certification made by a QP whose GMP refresher training had expired on the date is invalid and the batch remains in quarantine. To clear this blocker the lot needs a valid certification recorded against the lot date-stamped to a Qualified Person who holds an unexpired GMP refresher training on the date of certification and the invalid certification must be handled as a deviation per the procedure named in §7.3.",
+            "lot_id": "LOT-IBU200-2609-B",
+            "market": "EU",
+            "governing_spec_version": "SPEC-IBU200-v4",
+            "blockers": [
+              {
+                "code": "CERTIFIER_TRAINING_LAPSED",
+                "why_it_blocks": "SOP-QC-014 Rev 7 §7.3 (in force on 2026-09-04) requires the certifying Qualified Person to hold a valid, unexpired GMP refresher training record on the date of certification; a certification made by a QP whose GMP refresher training had expired on that date is explicitly declared invalid and the batch remains in quarantine. The assessment shows the QP who signed did so while her GMP refresher was expired, so the act of certification is invalid under that rule.",
+                "citations": [
+                  {
+                    "ref": "mrd_hcm.training_records#(EMP-0103, TRN-GMP-REF)",
+                    "as_of": "2026-09-04",
+                    "claim": "The QP's GMP refresher training record TRN-GMP-REF had expired before the date of certification.",
+                    "detail": "TRN-GMP-REF expired on 2026-08-24."
+                  },
+                  {
+                    "ref": "mrd_qms.batch_dispositions#DISP-26-0001",
+                    "as_of": "2026-09-04",
+                    "claim": "The lot disposition/certification was signed by Eva Vos on 2026-09-04.",
+                    "detail": "Disposition record DISP-26-0001: certified by Eva Vos, date 2026-09-04."
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#7. Disposition and certification > 7.3 Personnel precondition to certification",
+                    "as_of": "2026-09-04",
+                    "claim": "The procedure requires a valid, unexpired GMP refresher training record on the date of certification and states that a certification by a QP whose training had expired on that date is invalid.",
+                    "detail": "SOP-QC-014 Rev 7 — Batch Release and QP Certification > 7. Disposition and certification > 7.3 Personnel precondition to certification\n\n**New at this revision.** In addition to §7.2, the certifying Qualified Person\nmust hold a **valid, unexpired GMP refresher training record on the date of\ncertification**.\n\nA certification made by a Qualified Person whose GMP refresher training had\nexpired on that date **is invalid**. The batch does not become released by that\nact and remains in quarantine until certified by a Qualified Person who meets\nthis section. The invalid certification is itself a deviation and is raised\nunder SOP-QA-007.\n\nThis section implements EU GMP Annex 16 §1.7, under which the Qualified Person\nmust have ongoing knowledge and experience appropriate to the products\ncertified, and 21 CFR 211.25, which requires training with sufficient frequency\nto assure continuing familiarity.\n\nValidity of the GMP refresher is twenty-four months from completion, as defined\nby SOP-HR-002."
+                  }
+                ]
+              }
+            ],
+            "concerns": [],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "A Qualified Person (Eva Vos) signed the lot on 2026-09-04 while her GMP refresher training (TRN-GMP-REF) had expired on 2026-08-24; SOP-QC-014 Rev 7 §7.3 (in force on 2026-09-04) declares such a certification invalid and requires the batch to remain in quarantine and the invalid certification to be raised as a deviation under SOP-QA-007. A human must decide next steps: (a) whether a different QP with a valid training record will provide a valid certification, (b) how to process the existing invalid certification as a deviation, and (c) any communications or hold instructions for distribution.",
+              "suggested_owner": "Qualified Person, DEPT-QA"
+            }
+          }
+        }
+      ],
+      "passed": 5,
+      "total": 5,
+      "flakyChecks": []
+    },
+    {
+      "id": "rel-002",
+      "runs": [
+        {
+          "id": "rel-002",
+          "run": 1,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 14245,
+          "turns": 2,
+          "inputTokens": 6259,
+          "outputTokens": 1239,
+          "toolCalls": 1,
+          "toolNames": [
+            "assess_release"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "no_blockers",
+              "pass": true,
+              "detail": "no blockers"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "has_answer",
+              "pass": true,
+              "detail": "gave an answer"
+            },
+            {
+              "name": "does_not_clear",
+              "pass": true,
+              "detail": "did not claim the batch may ship"
+            }
+          ],
+          "answer": {
+            "summary": "Assessment of LOT-IBU200-2608-A for the EU found no blockers in Meridian’s records. The assessment recorded the product as \"Ibuprofen 200 mg film-coated tablets\" and applied governing specification SPEC-IBU200-v4. What stands in the way: nothing in the returned records; no finding was reported that would prevent QP certification. What would clear it: a Qualified Person (Qualified Person, DEPT-QA) must review the assessment and the batch dossier and sign the release — this system did not certify the batch. If any new adverse information appears after this assessment (e.g. a new OOS, a change to a certifier’s training status, an equipment qualification lapse, or a regulatory authorisation change), the lot must be reassessed before certification.",
+            "lot_id": "LOT-IBU200-2608-A",
+            "market": "EU",
+            "governing_spec_version": "SPEC-IBU200-v4",
+            "blockers": [],
+            "concerns": [],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "rel-002",
+          "run": 2,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 14109,
+          "turns": 2,
+          "inputTokens": 6157,
+          "outputTokens": 1088,
+          "toolCalls": 1,
+          "toolNames": [
+            "assess_release"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "no_blockers",
+              "pass": true,
+              "detail": "no blockers"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "has_answer",
+              "pass": true,
+              "detail": "gave an answer"
+            },
+            {
+              "name": "does_not_clear",
+              "pass": true,
+              "detail": "did not claim the batch may ship"
+            }
+          ],
+          "answer": {
+            "summary": "Assessment of LOT-IBU200-2608-A (Ibuprofen 200 mg film-coated tablets) to the EU: Meridian's systems show no findings and no missing records. Governing marketing specification: SPEC-IBU200-v4. What stands in the way: nothing was identified by the assessment. What would clear it: no further records are indicated by the systems; the Qualified Person (Qualified Person, DEPT-QA) must review the assembled evidence and make the release decision. Note: the assessment's \"releasable: true\" only means no blocker was found in the records and is not a release/certification itself.",
+            "lot_id": "LOT-IBU200-2608-A",
+            "market": "EU",
+            "governing_spec_version": "SPEC-IBU200-v4",
+            "blockers": [],
+            "concerns": [],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "rel-002",
+          "run": 3,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 12156,
+          "turns": 2,
+          "inputTokens": 6172,
+          "outputTokens": 819,
+          "toolCalls": 1,
+          "toolNames": [
+            "assess_release"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "no_blockers",
+              "pass": true,
+              "detail": "no blockers"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "has_answer",
+              "pass": true,
+              "detail": "gave an answer"
+            },
+            {
+              "name": "does_not_clear",
+              "pass": true,
+              "detail": "did not claim the batch may ship"
+            }
+          ],
+          "answer": {
+            "summary": "The Meridian systems assessment returned no findings and no missing records for LOT-IBU200-2608-A against the EU marketing requirements (governing specification: SPEC-IBU200-v4). There are no assessed blockers in the linked records that would prevent a Qualified Person (QP) from making a release decision. The QP, DEPT-QA, must review the assessment and the batch documentation and make the formal certification decision; this tool does not certify or permit shipment.",
+            "lot_id": "LOT-IBU200-2608-A",
+            "market": "EU",
+            "governing_spec_version": "SPEC-IBU200-v4",
+            "blockers": [],
+            "concerns": [],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "rel-002",
+          "run": 4,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 15220,
+          "turns": 2,
+          "inputTokens": 6168,
+          "outputTokens": 1208,
+          "toolCalls": 1,
+          "toolNames": [
+            "assess_release"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "no_blockers",
+              "pass": true,
+              "detail": "no blockers"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "has_answer",
+              "pass": true,
+              "detail": "gave an answer"
+            },
+            {
+              "name": "does_not_clear",
+              "pass": true,
+              "detail": "did not claim the batch may ship"
+            }
+          ],
+          "answer": {
+            "summary": "The Meridian automated assessment of records for LOT-IBU200-2608-A against EU requirements (product: Ibuprofen 200 mg film-coated tablets) found no blockers and no missing checks. Governing specification on record: SPEC-IBU200-v4. Nothing in the six systems of record (products & authorisations, manufacturing, quality, personnel, standards, distribution) prevents release according to the assessment. What would clear it: a Qualified Person's formal review of the batch record and issuance of the release certification per company procedure (this assessment is not a release decision).",
+            "lot_id": "LOT-IBU200-2608-A",
+            "market": "EU",
+            "governing_spec_version": "SPEC-IBU200-v4",
+            "blockers": [],
+            "concerns": [],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "rel-002",
+          "run": 5,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 12423,
+          "turns": 2,
+          "inputTokens": 6191,
+          "outputTokens": 838,
+          "toolCalls": 1,
+          "toolNames": [
+            "assess_release"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "no_blockers",
+              "pass": true,
+              "detail": "no blockers"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "has_answer",
+              "pass": true,
+              "detail": "gave an answer"
+            },
+            {
+              "name": "does_not_clear",
+              "pass": true,
+              "detail": "did not claim the batch may ship"
+            }
+          ],
+          "answer": {
+            "summary": "Meridian's automated assessment for LOT-IBU200-2608-A to the EU returned no findings and no missing records. The assessment lists the governing specification for the EU as SPEC-IBU200-v4. Therefore, there are no recorded issues that must be cleared before a Qualified Person may decide; nothing in the record requires remediation. A Qualified Person (QP, DEPT-QA) should review the assessment and make the release decision. No escalation required.",
+            "lot_id": "LOT-IBU200-2608-A",
+            "market": "EU",
+            "governing_spec_version": "SPEC-IBU200-v4",
+            "blockers": [],
+            "concerns": [],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": null
+          }
+        }
+      ],
+      "passed": 5,
+      "total": 5,
+      "flakyChecks": []
+    },
+    {
+      "id": "rel-003",
+      "runs": [
+        {
+          "id": "rel-003",
+          "run": 1,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 94569,
+          "turns": 5,
+          "inputTokens": 30369,
+          "outputTokens": 10126,
+          "toolCalls": 4,
+          "toolNames": [
+            "assess_release",
+            "search_procedures",
+            "search_procedures",
+            "assess_release"
+          ],
+          "stoppedBecause": "schema_invalid",
+          "passed": false,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": false,
+              "detail": "no valid answer (schema_invalid)"
+            },
+            {
+              "name": "blocker:OUT_OF_SPEC_FOR_MARKET",
+              "pass": false,
+              "detail": "no valid answer (schema_invalid)"
+            },
+            {
+              "name": "governing_spec:SPEC-IBU200-v4",
+              "pass": false,
+              "detail": "no valid answer (schema_invalid)"
+            },
+            {
+              "name": "escalates",
+              "pass": false,
+              "detail": "no valid answer (schema_invalid)"
+            },
+            {
+              "name": "answer_contains:80",
+              "pass": false,
+              "detail": "no valid answer (schema_invalid)"
+            }
+          ],
+          "error": "internally inconsistent: citation \"mrd_qms.batch_dispositions#(LOT-IBU200-2609-D, EU)\" has no as_of — that source means different things on different dates, so a citation without the date it was read as of is not checkable; citation \"mrd_erp.market_authorisations#MA-IBU200-EU\" has no as_of — that source means different things on different dates, so a citation without the date it was read as of is not checkable | internally inconsistent: citation \"mrd_qms.batch_dispositions#(LOT-IBU200-2609-D, EU)\" has no as_of — that source means different things on different dates, so a citation without the date it was read as of is not checkable; citation \"mrd_erp.market_authorisations#MA-IBU200-EU\" has no as_of — that source means different things on different dates, so a citation without the date it was read as of is not checkable"
+        },
+        {
+          "id": "rel-003",
+          "run": 2,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 77128,
+          "turns": 4,
+          "inputTokens": 20619,
+          "outputTokens": 9774,
+          "toolCalls": 3,
+          "toolNames": [
+            "assess_release",
+            "search_procedures",
+            "search_procedures"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "blocker:OUT_OF_SPEC_FOR_MARKET",
+              "pass": true,
+              "detail": "blocker OUT_OF_SPEC_FOR_MARKET present"
+            },
+            {
+              "name": "governing_spec:SPEC-IBU200-v4",
+              "pass": true,
+              "detail": "judged against SPEC-IBU200-v4"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to Qualified Person, DEPT-QA"
+            },
+            {
+              "name": "answer_contains:80",
+              "pass": true,
+              "detail": "mentions \"80\" somewhere in the prose"
+            }
+          ],
+          "answer": {
+            "summary": "Assessment (EU) for LOT-IBU200-2609-D found two blockers that prevent disposition and require QA/QP action before any release decision: (1) a dissolution result of 79.7704% is below the EU specification (80.0000–∞) and therefore the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved; (2) there is no recorded disposition for the EU. Concerns: the lot was manufactured to a different specification version than the EU marketing authorisation references, and an initial assay OOS was retested to a pass (a retest alone does not satisfy the requirement to investigate an OOS). What would clear this: complete and have approved the OOS investigation(s) required by SOP-QC-003 for the dissolution (and any assay OOS), then have QA record the disposition against the lot per SOP-QC-014 so the Qualified Person (DEPT-QA) can review and act.",
+            "lot_id": "LOT-IBU200-2609-D",
+            "market": "EU",
+            "governing_spec_version": "SPEC-IBU200-v4",
+            "blockers": [
+              {
+                "code": "OUT_OF_SPEC_FOR_MARKET",
+                "why_it_blocks": "SOP-QC-014 Rev 7 §6.1 requires that every result is within its limits and that where any result is outside its limits the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved; a repeat test performed without that investigation does not satisfy the requirement. Because the dissolution result (79.7704 %) is below the EU limit (80.0000–∞), disposition is blocked until the required investigation is completed and approved.",
+                "citations": [
+                  {
+                    "ref": "mrd_qms.qc_tests#QC-26-000012",
+                    "as_of": null,
+                    "claim": "Analytical record showing dissolution 79.7704 % for LOT-IBU200-2609-D (QC-26-000012).",
+                    "detail": "dissolution 79.7704 %"
+                  },
+                  {
+                    "ref": "mrd_qms.spec_limits#(SPEC-IBU200-v4, dissolution)",
+                    "as_of": null,
+                    "claim": "Applicable EU specification for dissolution for SPEC-IBU200-v4 referenced in the assessment.",
+                    "detail": "dissolution limit 80.0000–∞ %"
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#6. Batch record review > 6.1 Reconciliation against the specification",
+                    "as_of": "2026-03-01",
+                    "claim": "Where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved. A repeat test performed without that investigation does not satisfy this section.",
+                    "detail": "\"Where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved. A repeat test performed without that investigation does not satisfy this section, irrespective of its result.\""
+                  }
+                ]
+              },
+              {
+                "code": "NO_DISPOSITION",
+                "why_it_blocks": "SOP-QC-014 Rev 7 §7.1 requires QA to record a disposition (released, rejected or quarantine) against the lot on satisfactory completion of the batch record review. The absence of a recorded disposition for the EU means the procedural step that records the release decision has not been completed and therefore disposition is blocked.",
+                "citations": [
+                  {
+                    "ref": "mrd_qms.batch_dispositions#(LOT-IBU200-2609-D, EU)",
+                    "as_of": "2026-03-01",
+                    "claim": "Assessment evidence that no release decision has been recorded for LOT-IBU200-2609-D for the EU.",
+                    "detail": "No disposition recorded for (LOT-IBU200-2609-D, EU)"
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#7. Disposition and certification > 7.1 Disposition",
+                    "as_of": "2026-03-01",
+                    "claim": "On satisfactory completion of section 6, QA records the disposition against the lot: released, rejected or quarantine. The record names the deciding person, the date, and this procedure at the revision in force on that date.",
+                    "detail": "\"On satisfactory completion of section 6, QA records the disposition against the lot: released, rejected or quarantine. The record names the deciding person, the date, and this procedure at the revision in force on that date.\""
+                  }
+                ]
+              }
+            ],
+            "concerns": [
+              {
+                "code": "SPEC_VERSION_MISMATCH",
+                "why_it_blocks": "SOP-QC-014 (definitions and §6.1) requires the applicable specification version to be the one in force on the date of manufacture and that QA reconcile results against that version. The assessment reports the lot was made to a US spec while the EU authorisation is against SPEC-IBU200-v4; this is a material difference the QP should note when evaluating release.",
+                "citations": [
+                  {
+                    "ref": "mrd_erp.product_lots#LOT-IBU200-2609-D",
+                    "as_of": null,
+                    "claim": "Lot record indicating the specification version used for manufacture (assessment: made to SPEC-IBU200-US-v2).",
+                    "detail": "made to SPEC-IBU200-US-v2"
+                  },
+                  {
+                    "ref": "mrd_erp.market_authorisations#MA-IBU200-EU",
+                    "as_of": "2026-03-01",
+                    "claim": "EU marketing authorisation governing this product is against SPEC-IBU200-v4 (assessment judged results against SPEC-IBU200-v4).",
+                    "detail": "EU MA against SPEC-IBU200-v4"
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#6. Batch record review > 6.1 Reconciliation against the specification",
+                    "as_of": "2026-03-01",
+                    "claim": "QA must confirm that each attribute has a corresponding result and that each result is within the limits of the applicable specification version named on the lot record.",
+                    "detail": "\"QA confirms that every attribute listed in the applicable specification version has a corresponding result, that each result is within its limits, and that the specification version named on the lot record is the one that was in force on the date of manufacture.\""
+                  }
+                ]
+              },
+              {
+                "code": "OOS_RESOLVED_BY_RETEST",
+                "why_it_blocks": "SOP-QC-014 Rev 7 §6.1 explicitly states that a repeat test performed without the required OOS investigation does not satisfy the requirement; the assessment shows an initial assay of 93.2000% (outside EU limit 95.0000–105.0000%) that was then retested to a pass. A retest alone does not remove the need for the OOS investigation that SOP-QC-014 references.",
+                "citations": [
+                  {
+                    "ref": "mrd_qms.qc_tests#QC-26-000011",
+                    "as_of": null,
+                    "claim": "Analytical record showing initial assay 93.2000% for LOT-IBU200-2609-D (QC-26-000011) and subsequent retest result recorded as passing.",
+                    "detail": "assay 93.2000 % (initial), later retested to pass (QC-26-000011)"
+                  },
+                  {
+                    "ref": "mrd_qms.spec_limits#(SPEC-IBU200-v4, assay)",
+                    "as_of": null,
+                    "claim": "EU assay limits for SPEC-IBU200-v4 used in the assessment (95.0000–105.0000 %).",
+                    "detail": "assay limit 95.0000–105.0000 %"
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#6. Batch record review > 6.1 Reconciliation against the specification",
+                    "as_of": "2026-03-01",
+                    "claim": "\"A repeat test performed without that investigation does not satisfy this section, irrespective of its result.\"",
+                    "detail": "Same as quoted above."
+                  }
+                ]
+              }
+            ],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "Two procedural blockers require human QA/Qualified Person decisions. The dissolution result below the EU specification requires completion and formal approval of the out-of-specification investigation required by SOP-QC-003 before the batch may be progressed to disposition (SOP-QC-014 Rev 7 §6.1). Separately, there is no recorded disposition for the EU — QA must record the disposition against the lot per SOP-QC-014 Rev 7 §7.1. The QP must review the OOS investigation(s) and the overall dossier and then record/authorise the disposition (or reject/quarantine) as appropriate.",
+              "suggested_owner": "Qualified Person, DEPT-QA"
+            }
+          }
+        },
+        {
+          "id": "rel-003",
+          "run": 3,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 98213,
+          "turns": 6,
+          "inputTokens": 47234,
+          "outputTokens": 10994,
+          "toolCalls": 5,
+          "toolNames": [
+            "assess_release",
+            "search_procedures",
+            "search_procedures",
+            "search_procedures",
+            "assess_release"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "blocker:OUT_OF_SPEC_FOR_MARKET",
+              "pass": true,
+              "detail": "blocker OUT_OF_SPEC_FOR_MARKET present"
+            },
+            {
+              "name": "governing_spec:SPEC-IBU200-v4",
+              "pass": true,
+              "detail": "judged against SPEC-IBU200-v4"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to Qualified Person, DEPT-QA"
+            },
+            {
+              "name": "answer_contains:80",
+              "pass": true,
+              "detail": "mentions \"80\" somewhere in the prose"
+            }
+          ],
+          "answer": {
+            "summary": "Assessment found two unresolved blockers that prevent release to the EU: (1) a dissolution result of 79.7704 % which is below the EU lower limit of 80.0000 % and (2) no disposition (released/rejected/quarantine) has been recorded for this lot for the EU. To clear them for QP review you need an approved out-of-specification investigation (or other approved justification) that addresses the dissolution OOS and, once that is complete and any remedial action accepted, QA must record a disposition against the lot for the EU naming the deciding person and date. There are two further concerns the QP should review: the lot was manufactured to a different specification version than the EU marketing authorisation and an assay OOS that was investigated and retested to a pass — SOP-QC-014 requires an approved OOS investigation (SOP-QC-003) before disposition. SOP-QC-003 was not returned by the procedure search and must be provided by QA. A human decision (Qualified Person, DEPT-QA) is required.",
+            "lot_id": "LOT-IBU200-2609-D",
+            "market": "EU",
+            "governing_spec_version": "SPEC-IBU200-v4",
+            "blockers": [
+              {
+                "code": "OUT_OF_SPEC_FOR_MARKET",
+                "why_it_blocks": "SOP-QC-014 Rev 7 section 6.1: where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved; a repeat test without that investigation does not satisfy the requirement. The lot has a dissolution of 79.7704 % which is below the EU limit of 80.0000 %, therefore disposition cannot be recorded or progressed while this OOS remains unapproved.",
+                "citations": [
+                  {
+                    "ref": "mrd_qms.qc_tests#QC-26-000012",
+                    "as_of": "2026-09-12",
+                    "claim": "Measured dissolution = 79.7704 % (QC-26-000012).",
+                    "detail": "dissolution 79.7704 %"
+                  },
+                  {
+                    "ref": "mrd_qms.spec_limits#(SPEC-IBU200-v4, dissolution)",
+                    "as_of": "2026-09-12",
+                    "claim": "EU dissolution limit = 80.0000–∞ % as defined for SPEC-IBU200-v4.",
+                    "detail": "dissolution limit 80.0000–∞ % (SPEC-IBU200-v4)"
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#6. Batch record review > 6.1 Reconciliation against the specification",
+                    "as_of": "2026-03-01",
+                    "claim": "Where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved. A repeat test performed without that investigation does not satisfy this section, irrespective of its result.",
+                    "detail": "SOP-QC-014 Rev 7 — 6. Batch record review > 6.1 Reconciliation against the specification: \"Where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved. A repeat test performed without that investigation does not satisfy this section, irrespective of its result.\""
+                  }
+                ]
+              },
+              {
+                "code": "NO_DISPOSITION",
+                "why_it_blocks": "SOP-QC-014 Rev 7 section 7.1 requires QA to record the disposition (released, rejected or quarantine) against the lot on satisfactory completion of the batch review; without a recorded disposition there is no release decision for the EU and the lot cannot be released for distribution into that market.",
+                "citations": [
+                  {
+                    "ref": "mrd_qms.batch_dispositions#(LOT-IBU200-2609-D, EU)",
+                    "as_of": "2026-09-12",
+                    "claim": "No disposition record exists for LOT-IBU200-2609-D for the EU.",
+                    "detail": "no disposition recorded for EU"
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#7. Disposition and certification > 7.1 Disposition",
+                    "as_of": "2026-03-01",
+                    "claim": "On satisfactory completion of section 6, QA records the disposition against the lot: released, rejected or quarantine. The record names the deciding person, the date, and this procedure at the revision in force on that date.",
+                    "detail": "SOP-QC-014 Rev 7 — 7. Disposition and certification > 7.1 Disposition: \"On satisfactory completion of section 6, QA records the disposition against the lot: released, rejected or quarantine. The record names the deciding person, the date, and this procedure at the revision in force on that date.\""
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#4. Definitions",
+                    "as_of": "2026-03-01",
+                    "claim": "Definition: \"Disposition — the decision to release, reject or hold a batch, recorded against the lot in the quality system.\"",
+                    "detail": "SOP-QC-014 Rev 7 — 4. Definitions: \"Disposition — the decision to release, reject or hold a batch, recorded against the lot in the quality system.\""
+                  }
+                ]
+              }
+            ],
+            "concerns": [
+              {
+                "code": "SPEC_VERSION_MISMATCH",
+                "why_it_blocks": "SOP-QC-014 (definitions and 6.1) requires reconciliation against the applicable specification version; the EU marketing authorisation is against SPEC-IBU200-v4 while the lot record shows the lot was made to a different specification (US version). This is a concern because limits and attributes used for release must be reconciled to the MA's governing specification.",
+                "citations": [
+                  {
+                    "ref": "mrd_erp.product_lots#LOT-IBU200-2609-D",
+                    "as_of": "2026-09-12",
+                    "claim": "Lot record indicates the lot was made to SPEC-IBU200-US-v2.",
+                    "detail": "manufactured to SPEC-IBU200-US-v2 (as recorded)"
+                  },
+                  {
+                    "ref": "mrd_erp.market_authorisations#MA-IBU200-EU",
+                    "as_of": "2026-09-12",
+                    "claim": "EU authorisation is against SPEC-IBU200-v4.",
+                    "detail": "EU MA governing specification SPEC-IBU200-v4"
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#4. Definitions",
+                    "as_of": "2026-03-01",
+                    "claim": "\"Applicable specification version — the specification version in force on the date of manufacture, not the current one. Where a specification has been revised since the batch was made, the version named on the lot record governs.\"",
+                    "detail": "SOP-QC-014 Rev 7 — 4. Definitions (applicable specification version)"
+                  }
+                ]
+              },
+              {
+                "code": "OOS_RESOLVED_BY_RETEST",
+                "why_it_blocks": "SOP-QC-014 Rev 7 section 6.1 requires that where a result is outside its limits the out-of-specification investigation required by SOP-QC-003 must be completed and approved before proceeding to disposition. SOP-QC-014 also states a repeat test performed without that investigation does not satisfy the requirement. The record shows an assay of 93.2000 % was investigated as lab_error (OOS-26-0002) and retested to a pass; the QP should verify the OOS investigation was completed and approved according to SOP-QC-003.",
+                "citations": [
+                  {
+                    "ref": "mrd_qms.qc_tests#QC-26-000011",
+                    "as_of": "2026-09-12",
+                    "claim": "Assay measured 93.2000 % then retested to a pass; investigation OOS-26-0002 recorded as lab_error.",
+                    "detail": "assay 93.2000 %; investigation OOS-26-0002; retest passed"
+                  },
+                  {
+                    "ref": "mrd_qms.spec_limits#(SPEC-IBU200-v4, assay)",
+                    "as_of": "2026-09-12",
+                    "claim": "EU assay limit = 95.0000–105.0000 % for SPEC-IBU200-v4.",
+                    "detail": "assay limit 95.0000–105.0000 % (SPEC-IBU200-v4)"
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#6. Batch record review > 6.1 Reconciliation against the specification",
+                    "as_of": "2026-03-01",
+                    "claim": "Where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved. A repeat test performed without that investigation does not satisfy this section, irrespective of its result.",
+                    "detail": "SOP-QC-014 Rev 7 — 6.1: OOS investigation required before disposition; repeat test alone is insufficient"
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#9. References",
+                    "as_of": "2026-03-01",
+                    "claim": "SOP-QC-014 references SOP-QC-003 — Out-of-Specification Result Investigation — as the required investigation procedure.",
+                    "detail": "SOP-QC-014 Rev 7 — 9. References: \"SOP-QC-003 — Out-of-Specification Result Investigation\""
+                  }
+                ]
+              }
+            ],
+            "missing": [],
+            "unverified_claims": [
+              "Text of SOP-QC-003 (Out-of-Specification Result Investigation) — referenced by SOP-QC-014 — was not returned by the procedure search and therefore its exact required contents/approval steps were not available to the assessment."
+            ],
+            "escalate": {
+              "reason": "The assessment shows an EU dissolution OOS (79.7704 % < 80.0000 %) and no recorded EU disposition. SOP-QC-014 requires completion and approval of the OOS investigation (SOP-QC-003) before disposition, but SOP-QC-003 could not be located in the procedure search results. The as_of dates for the database records referenced in the assessment are recorded here as the assessment run date; QA should confirm the as-of dates for the product lot, market authorisation and disposition records in the source systems and provide SOP-QC-003 or confirm its requirements. A human decision and actions by QA/Qualified Person are required to (a) complete/approve the OOS investigation or provide an approved justification for the dissolution result, (b) record the disposition for the EU (naming the deciding person and date), and (c) reconcile/specification-version issues for the MA as needed.",
+              "suggested_owner": "Qualified Person, DEPT-QA"
+            }
+          }
+        },
+        {
+          "id": "rel-003",
+          "run": 4,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 75097,
+          "turns": 4,
+          "inputTokens": 20214,
+          "outputTokens": 8660,
+          "toolCalls": 3,
+          "toolNames": [
+            "assess_release",
+            "search_procedures",
+            "search_procedures"
+          ],
+          "stoppedBecause": "schema_invalid",
+          "passed": false,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": false,
+              "detail": "no valid answer (schema_invalid)"
+            },
+            {
+              "name": "blocker:OUT_OF_SPEC_FOR_MARKET",
+              "pass": false,
+              "detail": "no valid answer (schema_invalid)"
+            },
+            {
+              "name": "governing_spec:SPEC-IBU200-v4",
+              "pass": false,
+              "detail": "no valid answer (schema_invalid)"
+            },
+            {
+              "name": "escalates",
+              "pass": false,
+              "detail": "no valid answer (schema_invalid)"
+            },
+            {
+              "name": "answer_contains:80",
+              "pass": false,
+              "detail": "no valid answer (schema_invalid)"
+            }
+          ],
+          "error": "internally inconsistent: citation \"mrd_erp.market_authorisations#MA-IBU200-EU\" has no as_of — that source means different things on different dates, so a citation without the date it was read as of is not checkable; summary says the batch may be released while blockers are listed — this system never states that a batch may ship; report the blockers and escalate | internally inconsistent: citation \"mrd_qms.batch_dispositions#(LOT-IBU200-2609-D, EU)\" has no as_of — that source means different things on different dates, so a citation without the date it was read as of is not checkable; citation \"mrd_erp.market_authorisations#MA-IBU200-EU\" has no as_of — that source means different things on different dates, so a citation without the date it was read as of is not checkable"
+        },
+        {
+          "id": "rel-003",
+          "run": 5,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 88827,
+          "turns": 5,
+          "inputTokens": 29296,
+          "outputTokens": 10190,
+          "toolCalls": 4,
+          "toolNames": [
+            "assess_release",
+            "search_procedures",
+            "search_procedures",
+            "assess_release"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "blocker:OUT_OF_SPEC_FOR_MARKET",
+              "pass": true,
+              "detail": "blocker OUT_OF_SPEC_FOR_MARKET present"
+            },
+            {
+              "name": "governing_spec:SPEC-IBU200-v4",
+              "pass": true,
+              "detail": "judged against SPEC-IBU200-v4"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to Qualified Person, DEPT-QA"
+            },
+            {
+              "name": "answer_contains:80",
+              "pass": true,
+              "detail": "mentions \"80\" somewhere in the prose"
+            }
+          ],
+          "answer": {
+            "summary": "Assessment found two blocking issues for EU: (1) a dissolution result of 79.7704% which is below the EU specification limit (80.0000%) and therefore prevents disposition until the out-of-specification investigation required by SOP-QC-003 is completed and approved; and (2) there is no recorded EU disposition for the lot. To clear these blockers the site must complete and approve any outstanding OOS investigation(s) or other justified corrective action that demonstrates the dissolution result is acceptable per the EU specification and then QA must record a formal disposition for the EU (naming the deciding person and date). The Qualified Person (EU) must review the OOS investigation, the final QC data and the QA disposition before any certification decision is made. Also note two concerns the QP should see (the lot was manufactured to a US spec while the EU MA is against a different spec, and an assay OOS was investigated and retested to pass).",
+            "lot_id": "LOT-IBU200-2609-D",
+            "market": "EU",
+            "governing_spec_version": "SPEC-IBU200-v4",
+            "blockers": [
+              {
+                "code": "OUT_OF_SPEC_FOR_MARKET",
+                "why_it_blocks": "SOP-QC-014 Rev 7 section 6.1 (effective 2026-03-01) requires that where any result is outside its limits the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved. The lot’s dissolution result (79.7704%) is below the EU limit (80.0000–∞%), so under that clause the batch cannot proceed to disposition for the EU.",
+                "citations": [
+                  {
+                    "ref": "mrd_qms.qc_tests#QC-26-000012",
+                    "as_of": "2026-09-12",
+                    "claim": "dissolution 79.7704 % is outside the EU limit 80.0000–∞ %.",
+                    "detail": "dissolution_result 79.7704 %"
+                  },
+                  {
+                    "ref": "mrd_qms.spec_limits#(SPEC-IBU200-v4, dissolution)",
+                    "as_of": "2026-09-12",
+                    "claim": "EU specification limit for dissolution for SPEC-IBU200-v4 is 80.0000–∞ %.",
+                    "detail": "EU dissolution limit 80.0000–∞ % (SPEC-IBU200-v4)"
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#6. Batch record review > 6.1 Reconciliation against the specification",
+                    "as_of": "2026-03-01",
+                    "claim": "SOP-QC-014 Rev 7 — 6.1 Reconciliation against the specification",
+                    "detail": "Where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved. A repeat test performed without that investigation does not satisfy this section, irrespective of its result."
+                  }
+                ]
+              },
+              {
+                "code": "NO_DISPOSITION",
+                "why_it_blocks": "SOP-QC-014 Rev 7 section 7.1 (effective 2026-03-01) requires QA to record the disposition against the lot (released, rejected or quarantine), naming the deciding person and the date. No disposition record exists for this lot for the EU, so there is no documented decision to allow release to that market.",
+                "citations": [
+                  {
+                    "ref": "mrd_qms.batch_dispositions#(LOT-IBU200-2609-D, EU)",
+                    "as_of": "2026-09-12",
+                    "claim": "No release/disposition recorded for LOT-IBU200-2609-D for the EU.",
+                    "detail": "no disposition row present for (LOT-IBU200-2609-D, EU)"
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#7. Disposition and certification > 7.1 Disposition",
+                    "as_of": "2026-03-01",
+                    "claim": "SOP-QC-014 Rev 7 — 7.1 Disposition",
+                    "detail": "On satisfactory completion of section 6, QA records the disposition against the lot: released, rejected or quarantine. The record names the deciding person, the date, and this procedure at the revision in force on that date."
+                  }
+                ]
+              }
+            ],
+            "concerns": [
+              {
+                "code": "SPEC_VERSION_MISMATCH",
+                "why_it_blocks": "SOP-QC-014 Rev 7 section 6.1 requires that QA confirm the applicable specification version and that each result is within its limits; the lot was made to a different specification (US) than the EU marketing authorisation’s governing specification, so the QP must note that results are being judged against the EU-authorised specification (SPEC-IBU200-v4).",
+                "citations": [
+                  {
+                    "ref": "mrd_erp.product_lots#LOT-IBU200-2609-D",
+                    "as_of": "2026-09-12",
+                    "claim": "Lot recorded as made to SPEC-IBU200-US-v2.",
+                    "detail": "manufactured_against SPEC-IBU200-US-v2"
+                  },
+                  {
+                    "ref": "mrd_erp.market_authorisations#MA-IBU200-EU",
+                    "as_of": "2026-09-12",
+                    "claim": "EU marketing authorisation is granted against SPEC-IBU200-v4.",
+                    "detail": "EU MA governing_specification SPEC-IBU200-v4"
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#6. Batch record review > 6.1 Reconciliation against the specification",
+                    "as_of": "2026-03-01",
+                    "claim": "SOP-QC-014 Rev 7 — 6.1 Reconciliation against the specification",
+                    "detail": "QA confirms that every attribute listed in the applicable specification version has a corresponding result, that each result is within its limits, and that the specification version named on the lot record is the one that was in force on the date of manufacture."
+                  }
+                ]
+              },
+              {
+                "code": "OOS_RESOLVED_BY_RETEST",
+                "why_it_blocks": "SOP-QC-014 Rev 7 section 6.1 requires completion and approval of the OOS investigation required by SOP-QC-003 before disposition; the assessment notes an assay result (93.2000%) fell outside the EU limit and was investigated as lab_error (OOS-26-0002) and retested to a pass. The QP should review the investigation (OOS-26-0002) and its conclusion when considering disposition.",
+                "citations": [
+                  {
+                    "ref": "mrd_qms.qc_tests#QC-26-000011",
+                    "as_of": "2026-09-12",
+                    "claim": "assay 93.2000 % initially outside EU limit 95.0000–105.0000 %, investigated as lab_error (OOS-26-0002) and retested to a pass.",
+                    "detail": "assay_initial 93.2000 %; investigation OOS-26-0002; retest result pass"
+                  },
+                  {
+                    "ref": "mrd_qms.spec_limits#(SPEC-IBU200-v4, assay)",
+                    "as_of": "2026-09-12",
+                    "claim": "EU specification limit for assay for SPEC-IBU200-v4 is 95.0000–105.0000 %. ",
+                    "detail": "assay limit 95.0000–105.0000 % (SPEC-IBU200-v4)"
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#6. Batch record review > 6.1 Reconciliation against the specification",
+                    "as_of": "2026-03-01",
+                    "claim": "SOP-QC-014 Rev 7 — 6.1 Reconciliation against the specification",
+                    "detail": "Where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved. A repeat test performed without that investigation does not satisfy this section, irrespective of its result."
+                  }
+                ]
+              }
+            ],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "There are active blockers: a dissolution result below the EU limit (79.7704% vs 80.0000%) and no recorded EU disposition. The assessment records do not include a completed/approved OOS investigation outcome for the dissolution or a documented QA disposition for the EU. A human (Qualified Person) must review the OOS investigation(s), final QC data, and decide whether further action (e.g. additional investigation, justification, or rejection) is required before a disposition can be recorded and any EU certification considered.",
+              "suggested_owner": "Qualified Person, DEPT-QA"
+            }
+          }
+        }
+      ],
+      "passed": 3,
+      "total": 5,
+      "flakyChecks": [
+        {
+          "name": "calls_assess_first",
+          "failed": 2
+        },
+        {
+          "name": "blocker:OUT_OF_SPEC_FOR_MARKET",
+          "failed": 2
+        },
+        {
+          "name": "governing_spec:SPEC-IBU200-v4",
+          "failed": 2
+        },
+        {
+          "name": "escalates",
+          "failed": 2
+        },
+        {
+          "name": "answer_contains:80",
+          "failed": 2
+        }
+      ]
+    },
+    {
+      "id": "rel-004",
+      "runs": [
+        {
+          "id": "rel-004",
+          "run": 1,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 26335,
+          "turns": 2,
+          "inputTokens": 6328,
+          "outputTokens": 2791,
+          "toolCalls": 1,
+          "toolNames": [
+            "assess_release"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": false,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "no_blockers",
+              "pass": true,
+              "detail": "no blockers"
+            },
+            {
+              "name": "governing_spec:SPEC-IBU200-US-v2",
+              "pass": true,
+              "detail": "judged against SPEC-IBU200-US-v2"
+            },
+            {
+              "name": "concern:OOS_RESOLVED_BY_RETEST",
+              "pass": true,
+              "detail": "concern OOS_RESOLVED_BY_RETEST present"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": false,
+              "detail": "escalated when it should have answered"
+            },
+            {
+              "name": "does_not_clear",
+              "pass": false,
+              "detail": "stated the batch may ship: \"may be released\" — this system never says that"
+            }
+          ],
+          "answer": {
+            "summary": "The Meridian assessment found no blocking finding for LOT-IBU200-2609-D to the US, but it flagged a resolved out-of-specification (OOS) assay that the Qualified Person must review before certifying. Specifically: an initial assay result of 93.2000% was outside the US specification (95.0000–105.0000%) and was recorded as OOS-26-0002, investigated as a laboratory error and retested to a passing result. The QP must review the OOS investigation and retest documentation and confirm the investigation and corrective actions meet the applicable SOPs and release criteria (the assessment did not provide the governing SOP clause dated to the investigation). I do not state or imply the batch may be released — that is the QP's decision.",
+            "lot_id": "LOT-IBU200-2609-D",
+            "market": "US",
+            "governing_spec_version": "SPEC-IBU200-US-v2",
+            "blockers": [],
+            "concerns": [
+              {
+                "code": "OOS_RESOLVED_BY_RETEST",
+                "why_it_blocks": "US specification limits show the initial assay (93.2000%) was OOS vs the governing US spec (95.0000–105.0000%); although the record shows an investigation (OOS-26-0002) concluded lab error and a retest passed, an OOS (even if resolved by retest) is a quality event the QP must evaluate against the applicable OOS/investigation and release procedures before certification.",
+                "citations": [
+                  {
+                    "ref": "mrd_qms.qc_tests#QC-26-000011",
+                    "as_of": null,
+                    "claim": "Initial assay 93.2000% recorded and investigated as OOS-26-0002; retest recorded as passing.",
+                    "detail": "\"assay 93.2000 % is outside the US limit 95.0000–105.0000 %; investigated as lab_error (OOS-26-0002) and retested to a pass.\" (from assessment finding summary and QC test record mrd_qms.qc_tests#QC-26-000011)."
+                  },
+                  {
+                    "ref": "mrd_qms.spec_limits#(SPEC-IBU200-US-v2, assay)",
+                    "as_of": null,
+                    "claim": "Governing US assay specification for this lot.",
+                    "detail": "\"US limit 95.0000–105.0000 %\" (governing spec version SPEC-IBU200-US-v2)."
+                  }
+                ]
+              }
+            ],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "An assay result was recorded OOS (OOS-26-0002) then investigated and retested to pass; the assessment provides the QC test row and the governing spec but did not provide the governing SOP clause (as_of the investigation) required to verify the investigation and retest meet procedural requirements. The Qualified Person must review the investigation report, raw data, retest, and any corrective actions and confirm compliance with the applicable OOS/investigation and release procedures before certifying the batch for shipment to the US.",
+              "suggested_owner": "Qualified Person, DEPT-QA"
+            }
+          }
+        },
+        {
+          "id": "rel-004",
+          "run": 2,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 44133,
+          "turns": 4,
+          "inputTokens": 16397,
+          "outputTokens": 4085,
+          "toolCalls": 3,
+          "toolNames": [
+            "assess_release",
+            "search_procedures",
+            "search_procedures"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": false,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "no_blockers",
+              "pass": true,
+              "detail": "no blockers"
+            },
+            {
+              "name": "governing_spec:SPEC-IBU200-US-v2",
+              "pass": true,
+              "detail": "judged against SPEC-IBU200-US-v2"
+            },
+            {
+              "name": "concern:OOS_RESOLVED_BY_RETEST",
+              "pass": true,
+              "detail": "concern OOS_RESOLVED_BY_RETEST present"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": false,
+              "detail": "escalated when it should have answered"
+            },
+            {
+              "name": "does_not_clear",
+              "pass": true,
+              "detail": "did not claim the batch may ship"
+            }
+          ],
+          "answer": {
+            "summary": "Assessment found no release-blocking findings for the US, but there is one documented concern that the Qualified Person must review and accept before certification: an initial assay (93.2000 %) was outside the US assay limits (95.0000–105.0000 %), was investigated as a laboratory error (OOS-26-0002) and then retested to a passing result. SOP-QC-014 Rev 7 requires a completed and approved OOS investigation (SOP-QC-003) before a batch may proceed; it also states a repeat test without that investigation does not satisfy the requirement. The records returned by the systems include the QC test and the spec limits, but SOP-QC-003 itself was not found in the procedure search. Action to clear: QA / the Qualified Person must confirm the OOS investigation OOS-26-0002 was executed and approved in accordance with the (missing) SOP-QC-003 requirements and that the investigation justification and approvals were completed and recorded. Also locate/produce SOP-QC-003 or the documented authoritative OOS-investigation requirements and attach the investigation approval to the lot file.",
+            "lot_id": "LOT-IBU200-2609-D",
+            "market": "US",
+            "governing_spec_version": "SPEC-IBU200-US-v2",
+            "blockers": [],
+            "concerns": [
+              {
+                "code": "OOS_RESOLVED_BY_RETEST",
+                "why_it_blocks": "SOP-QC-014 Rev 7 §6.1 requires that where any result is outside its limits the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved; a repeat test performed without that investigation does not satisfy this section. Until the QP has confirmed the investigation and its approval meet the required OOS-investigation procedure, reliance on a retest to clear the OOS is not procedurally supported.",
+                "citations": [
+                  {
+                    "ref": "mrd_qms.qc_tests#QC-26-000011",
+                    "as_of": null,
+                    "claim": "Initial assay result outside specification.",
+                    "detail": "assay 93.2000 % (initial result) — reported by the assessment finding."
+                  },
+                  {
+                    "ref": "mrd_qms.spec_limits#(SPEC-IBU200-US-v2, assay)",
+                    "as_of": null,
+                    "claim": "Applicable US specification limits for assay.",
+                    "detail": "95.0000–105.0000 % (SPEC-IBU200-US-v2, assay) — referenced by the assessment finding."
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#6. Batch record review > 6.1 Reconciliation against the specification",
+                    "as_of": "2026-03-01",
+                    "claim": "Procedure that governs batch record review and OOS handling for release.",
+                    "detail": "\"Where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved. A repeat test performed without that investigation does not satisfy this section, irrespective of its result.\" (SOP-QC-014 Rev 7 §6.1)"
+                  }
+                ]
+              }
+            ],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "SOP-QC-003 (the OOS-investigation procedure explicitly required by SOP-QC-014 Rev 7) was not returned by the procedure search. The assessment shows an OOS investigated as a lab error (OOS-26-0002) with a subsequent passing retest; however SOP-QC-014 Rev 7 requires the OOS investigation required by SOP-QC-003 to be completed and approved before relying on a retest. A human must (1) locate SOP-QC-003 or the authoritative OOS-investigation procedure, (2) review OOS-26-0002 and confirm the investigation steps, justification and formal approval meet that procedure, and (3) attach the investigation report and approvals to the lot file for the QP to consider.",
+              "suggested_owner": "Qualified Person, DEPT-QA"
+            }
+          }
+        },
+        {
+          "id": "rel-004",
+          "run": 3,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 29539,
+          "turns": 2,
+          "inputTokens": 6326,
+          "outputTokens": 3416,
+          "toolCalls": 1,
+          "toolNames": [
+            "assess_release"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "no_blockers",
+              "pass": true,
+              "detail": "no blockers"
+            },
+            {
+              "name": "governing_spec:SPEC-IBU200-US-v2",
+              "pass": true,
+              "detail": "judged against SPEC-IBU200-US-v2"
+            },
+            {
+              "name": "concern:OOS_RESOLVED_BY_RETEST",
+              "pass": true,
+              "detail": "concern OOS_RESOLVED_BY_RETEST present"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "does_not_clear",
+              "pass": true,
+              "detail": "did not claim the batch may ship"
+            }
+          ],
+          "answer": {
+            "summary": "Assessment found no release blockers for LOT-IBU200-2609-D to the US. There is one concern: an initial assay of 93.2000% was outside the US assay specification (95.0000–105.0000% for SPEC-IBU200-US-v2); the result was investigated as lab_error (OOS-26-0002) and retested to a pass, so the assessment classifies it as a resolved OOS (non-blocking). What stands in the way: the Qualified Person needs to review and accept the OOS investigation, original data and the retest result before certifying release. Evidence cited below supports the finding and the applicable US limits.",
+            "lot_id": "LOT-IBU200-2609-D",
+            "market": "US",
+            "governing_spec_version": "SPEC-IBU200-US-v2",
+            "blockers": [],
+            "concerns": [
+              {
+                "code": "OOS_RESOLVED_BY_RETEST",
+                "why_it_blocks": "The lot had an initial assay result outside the US specification (initial assay 93.2000% vs US limit 95.0000–105.0000% in SPEC-IBU200-US-v2); the sample was investigated (OOS-26-0002) and retested to a pass. The assessment therefore flagged this as a documented OOS resolved by retest (a concern) rather than a release blocker, but the QP must review and accept the investigation and retest before certification.",
+                "citations": [
+                  {
+                    "ref": "mrd_qms.qc_tests#QC-26-000011",
+                    "as_of": null,
+                    "claim": "QC record shows initial assay 93.2000% (OOS) investigated as lab_error (OOS-26-0002) and retested to a pass.",
+                    "detail": "\"assay 93.2000 % is outside the US limit 95.0000–105.0000 %; investigated as lab_error (OOS-26-0002) and retested to a pass.\" (assessment finding) "
+                  },
+                  {
+                    "ref": "mrd_qms.spec_limits#(SPEC-IBU200-US-v2, assay)",
+                    "as_of": null,
+                    "claim": "US assay specification limits for SPEC-IBU200-US-v2 are 95.0000–105.0000%.",
+                    "detail": "\"95.0000–105.0000 %\" (US assay limit in SPEC-IBU200-US-v2)"
+                  }
+                ]
+              }
+            ],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "rel-004",
+          "run": 4,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 43157,
+          "turns": 3,
+          "inputTokens": 11942,
+          "outputTokens": 4574,
+          "toolCalls": 2,
+          "toolNames": [
+            "assess_release",
+            "search_procedures"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "no_blockers",
+              "pass": true,
+              "detail": "no blockers"
+            },
+            {
+              "name": "governing_spec:SPEC-IBU200-US-v2",
+              "pass": true,
+              "detail": "judged against SPEC-IBU200-US-v2"
+            },
+            {
+              "name": "concern:OOS_RESOLVED_BY_RETEST",
+              "pass": true,
+              "detail": "concern OOS_RESOLVED_BY_RETEST present"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "does_not_clear",
+              "pass": true,
+              "detail": "did not claim the batch may ship"
+            }
+          ],
+          "answer": {
+            "summary": "Assessment found no blocker to release to the US, but there is one concern the Qualified Person should review: an assay result (93.2000%) was OOS against the US specification (95.0000–105.0000%), recorded as investigated as lab_error (OOS-26-0002) and then retested to a pass. SOP-QC-014 Rev 7 §6.1 requires that any OOS result must have the out-of-specification investigation (SOP-QC-003) completed and approved before the batch may proceed, and it explicitly states that a repeat test performed without that investigation does not satisfy the requirement. To clear this concern for the QP: confirm the SOP-QC-003 investigation record OOS-26-0002 is complete and formally approved, verify the retest was performed and documented according to procedure, and ensure the investigation approval and final disposition are attached to the batch record.",
+            "lot_id": "LOT-IBU200-2609-D",
+            "market": "US",
+            "governing_spec_version": "SPEC-IBU200-US-v2",
+            "blockers": [],
+            "concerns": [
+              {
+                "code": "OOS_RESOLVED_BY_RETEST",
+                "why_it_blocks": "SOP-QC-014 Rev 7 §6.1 (in force 2026-03-01) requires that where any result is outside its limits the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved. The SOP also states that a repeat test performed without that investigation does not satisfy this section.",
+                "citations": [
+                  {
+                    "ref": "mrd_qms.qc_tests#QC-26-000011",
+                    "as_of": null,
+                    "claim": "assay 93.2000 % is outside the US limit 95.0000–105.0000 %; investigated as lab_error (OOS-26-0002) and retested to a pass.",
+                    "detail": "assay 93.2000 % is outside the US limit 95.0000–105.0000 %; investigated as lab_error (OOS-26-0002) and retested to a pass."
+                  },
+                  {
+                    "ref": "mrd_qms.spec_limits#(SPEC-IBU200-US-v2, assay)",
+                    "as_of": null,
+                    "claim": "US specification limits for assay are 95.0000–105.0000 %",
+                    "detail": "US specification limits for assay are 95.0000–105.0000 %."
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#6. Batch record review > 6.1 Reconciliation against the specification",
+                    "as_of": "2026-03-01",
+                    "claim": "Where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved. A repeat test performed without that investigation does not satisfy this section, irrespective of its result.",
+                    "detail": "SOP-QC-014 Rev 7 — Batch Release and QP Certification > 6. Batch record review > 6.1 Reconciliation against the specification\n\nWhere any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved. A repeat test performed without that investigation does not satisfy this section, irrespective of its result."
+                  }
+                ]
+              }
+            ],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "rel-004",
+          "run": 5,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 40965,
+          "turns": 3,
+          "inputTokens": 11704,
+          "outputTokens": 4732,
+          "toolCalls": 2,
+          "toolNames": [
+            "assess_release",
+            "search_procedures"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "no_blockers",
+              "pass": true,
+              "detail": "no blockers"
+            },
+            {
+              "name": "governing_spec:SPEC-IBU200-US-v2",
+              "pass": true,
+              "detail": "judged against SPEC-IBU200-US-v2"
+            },
+            {
+              "name": "concern:OOS_RESOLVED_BY_RETEST",
+              "pass": true,
+              "detail": "concern OOS_RESOLVED_BY_RETEST present"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "does_not_clear",
+              "pass": true,
+              "detail": "did not claim the batch may ship"
+            }
+          ],
+          "answer": {
+            "summary": "The automated assessment found no release blockers for LOT-IBU200-2609-D to the US, but it flagged one concern that the Qualified Person should review before disposition. Evidence in the record shows an initial assay of 93.2000% (US spec 95.0000–105.0000%) that was investigated as lab_error (OOS-26-0002) and then retested to a passing result. SOP-QC-014 Rev 7 §6.1 requires that any out-of-specification result be subject to the investigation required by SOP-QC-003 and approved before a batch may proceed to disposition; a repeat test performed without that investigation does not satisfy the requirement. What would clear this concern for the QP: documented completion and official approval of the OOS investigation (SOP-QC-003) for OOS-26-0002, and documentation showing the retest was performed in accordance with that investigation (timeline, approvals, and any corrective actions). I did not find any assessment-returned blockers; the QP (Qualified Person, DEPT-QA) must review the OOS investigation package and decide whether the documentation meets SOP requirements before certifying the lot.",
+            "lot_id": "LOT-IBU200-2609-D",
+            "market": "US",
+            "governing_spec_version": "SPEC-IBU200-US-v2",
+            "blockers": [],
+            "concerns": [
+              {
+                "code": "OOS_RESOLVED_BY_RETEST",
+                "why_it_blocks": "SOP-QC-014 Rev 7 §6.1 requires completion and approval of the out-of-specification investigation (SOP-QC-003) before a batch may proceed to disposition; a repeat test by itself does not satisfy that requirement. Because this lot had an initial assay outside the US specification that was then retested to pass, the QP must confirm the investigation was completed and approved in accordance with the SOP before disposition.",
+                "citations": [
+                  {
+                    "ref": "mrd_qms.qc_tests#QC-26-000011",
+                    "as_of": null,
+                    "claim": "assay 93.2000 % is outside the US limit 95.0000–105.0000 %; investigated as lab_error (OOS-26-0002) and retested to a pass.",
+                    "detail": "QC test record QC-26-000011 indicates initial assay 93.2000% and subsequent retest passing result; investigation recorded as OOS-26-0002 (lab_error)."
+                  },
+                  {
+                    "ref": "mrd_qms.spec_limits#(SPEC-IBU200-US-v2, assay)",
+                    "as_of": null,
+                    "claim": "applicable US assay limits for SPEC-IBU200-US-v2 are 95.0000–105.0000 %.",
+                    "detail": "Specification row (SPEC-IBU200-US-v2, assay) lists assay limits 95.0000–105.0000%."
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#6. Batch record review > 6.1 Reconciliation against the specification",
+                    "as_of": "2026-03-01",
+                    "claim": "Where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved. A repeat test performed without that investigation does not satisfy this section, irrespective of its result.",
+                    "detail": "\"Where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved. A repeat test performed without that investigation does not satisfy this section, irrespective of its result.\" (SOP-QC-014 Rev 7 — 6.1)"
+                  }
+                ]
+              }
+            ],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": null
+          }
+        }
+      ],
+      "passed": 3,
+      "total": 5,
+      "flakyChecks": [
+        {
+          "name": "does_not_escalate",
+          "failed": 2
+        },
+        {
+          "name": "does_not_clear",
+          "failed": 1
+        }
+      ]
+    },
+    {
+      "id": "rel-005",
+      "runs": [
+        {
+          "id": "rel-005",
+          "run": 1,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 17228,
+          "turns": 2,
+          "inputTokens": 6493,
+          "outputTokens": 1856,
+          "toolCalls": 1,
+          "toolNames": [
+            "assess_release"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to Qualified Person, DEPT-QA"
+            },
+            {
+              "name": "no_invented_market",
+              "pass": true,
+              "detail": "did not substitute a known market (reported \"UK\")"
+            },
+            {
+              "name": "answer_lacks:releasable",
+              "pass": true,
+              "detail": "does not mention \"releasable\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 0 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "summary": "Meridian’s systems do not contain the UK as a destination market. The assessment tool reports: “UK” is not a market in this estate — Meridian holds authorisations for the EU and the US only — so the company records cannot be used to determine release to the UK. What stands in the way: absence of any UK marketing authorisation in the company systems. What would clear it: provide a UK marketing authorisation recorded in Meridian systems (authorisation identifier and the effective/as-of date) or have Regulatory Affairs confirm and record a valid UK authorisation for this product so the assessment can be re-run. Do NOT consider this permission to ship; a Qualified Person must review and decide.",
+            "lot_id": "LOT-IBU200-2609-B",
+            "market": "UK",
+            "governing_spec_version": null,
+            "blockers": [],
+            "concerns": [],
+            "missing": [
+              "No UK marketing authorisation present in Meridian records; authorisation status for the UK could not be checked from the company systems."
+            ],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "Meridian records do not include the UK as a market and hold authorisations only for EU and US, so release to the UK cannot be determined from the company systems. A human must confirm whether a UK marketing authorisation exists outside these systems or arrange for Regulatory Affairs to create/record one.",
+              "suggested_owner": "Qualified Person, DEPT-QA"
+            }
+          }
+        },
+        {
+          "id": "rel-005",
+          "run": 2,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 8108,
+          "turns": 1,
+          "inputTokens": 3013,
+          "outputTokens": 929,
+          "toolCalls": 0,
+          "toolNames": [],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to Qualified Person, DEPT-QA"
+            },
+            {
+              "name": "no_invented_market",
+              "pass": true,
+              "detail": "did not substitute a known market (reported \"UK\")"
+            },
+            {
+              "name": "answer_lacks:releasable",
+              "pass": true,
+              "detail": "does not mention \"releasable\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 0 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "summary": null,
+            "lot_id": "LOT-IBU200-2609-B",
+            "market": "UK",
+            "governing_spec_version": null,
+            "blockers": [],
+            "concerns": [],
+            "missing": [
+              "Authorisation record for destination market 'UK' — Meridian holds authorisations for EU and US only, so the system cannot check UK limits or rules."
+            ],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "Meridian records and the release assessment tool cover only EU and US authorisations. I cannot run the mandatory assess_release for a UK destination or determine which specification and rules apply. The lot id was provided, but the destination market must be one the systems hold so the assessment can run.",
+              "suggested_owner": "Qualified Person, DEPT-QA"
+            }
+          }
+        },
+        {
+          "id": "rel-005",
+          "run": 3,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 14563,
+          "turns": 1,
+          "inputTokens": 3013,
+          "outputTokens": 1966,
+          "toolCalls": 0,
+          "toolNames": [],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to requesting release coordinator"
+            },
+            {
+              "name": "no_invented_market",
+              "pass": true,
+              "detail": "did not substitute a known market (reported \"UK\")"
+            },
+            {
+              "name": "answer_lacks:releasable",
+              "pass": true,
+              "detail": "does not mention \"releasable\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 0 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "summary": "I cannot assess LOT-IBU200-2609-B for the UK because Meridian’s records do not cover the UK as a destination market. Please confirm whether you meant the EU or the US. Once you confirm a supported destination (EU or US) I will run the mandatory system assessment and return every blocker, the exact evidence rows, and the governing procedure clauses for the QP to review. I will not and cannot decide release — that is for the Qualified Person.",
+            "lot_id": "LOT-IBU200-2609-B",
+            "market": "UK",
+            "governing_spec_version": null,
+            "blockers": [],
+            "concerns": [],
+            "missing": [
+              "No Meridian records exist for the UK destination market; the system cannot be used to assess release to the UK."
+            ],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "Destination market 'UK' is not supported in Meridian records; I cannot run the required assess_release for that market. Please confirm the intended destination as 'EU' or 'US' so the assessment can be performed.",
+              "suggested_owner": "requesting release coordinator"
+            }
+          }
+        },
+        {
+          "id": "rel-005",
+          "run": 4,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 16822,
+          "turns": 1,
+          "inputTokens": 3013,
+          "outputTokens": 1608,
+          "toolCalls": 0,
+          "toolNames": [],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to Qualified Person, DEPT-QA"
+            },
+            {
+              "name": "no_invented_market",
+              "pass": true,
+              "detail": "did not substitute a known market (reported \"UK\")"
+            },
+            {
+              "name": "answer_lacks:releasable",
+              "pass": true,
+              "detail": "does not mention \"releasable\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 0 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "summary": "I cannot assess release to the UK from Meridian systems. Meridian only holds marketing authorisations for the EU and the US, so the records needed to judge UK releaseability are not available here. Confirm whether you meant “EU” or “US” so I can run the assessment (assess_release), or provide the UK marketing-authorisation documents and explicit instruction to involve Regulatory Affairs/QA. The Qualified Person (DEPT‑QA) must review and decide once the correct-market assessment or UK authorisation evidence is available.",
+            "lot_id": "LOT-IBU200-2609-B",
+            "market": "UK",
+            "governing_spec_version": null,
+            "blockers": [],
+            "concerns": [],
+            "missing": [
+              "Meridian system records for a UK marketing authorisation are not available here; releaseability to the UK cannot be assessed from these systems."
+            ],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "A human must decide how to proceed because Meridian systems do not hold a UK marketing authorisation and therefore cannot be used to assess release for the UK. The options are: (a) confirm the intended destination market is EU or US so the system assessment can be run, or (b) provide UK authorisation documentation and instruct QA/Regulatory to evaluate external evidence.",
+              "suggested_owner": "Qualified Person, DEPT-QA"
+            }
+          }
+        },
+        {
+          "id": "rel-005",
+          "run": 5,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 16755,
+          "turns": 1,
+          "inputTokens": 3013,
+          "outputTokens": 1101,
+          "toolCalls": 0,
+          "toolNames": [],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to Release coordinator (you) — please confirm whether you meant 'EU' or 'US' so I can run the full assessment."
+            },
+            {
+              "name": "no_invented_market",
+              "pass": true,
+              "detail": "did not substitute a known market (reported \"UK\")"
+            },
+            {
+              "name": "answer_lacks:releasable",
+              "pass": true,
+              "detail": "does not mention \"releasable\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 0 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "summary": null,
+            "lot_id": "LOT-IBU200-2609-B",
+            "market": "UK",
+            "governing_spec_version": null,
+            "blockers": [],
+            "concerns": [],
+            "missing": [
+              "Meridian authorisation record for destination market 'UK' is not held in the systems; Meridian holds authorisations only for the EU and the US, so an assessment for the UK cannot be performed."
+            ],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "The destination market provided ('UK') is not supported by Meridian authorisations in the systems of record (Meridian holds EU and US only). assess_release cannot be run for the UK, so no facts about releaseability can be returned until a supported destination is given.",
+              "suggested_owner": "Release coordinator (you) — please confirm whether you meant 'EU' or 'US' so I can run the full assessment."
+            }
+          }
+        }
+      ],
+      "passed": 5,
+      "total": 5,
+      "flakyChecks": []
+    },
+    {
+      "id": "rel-006",
+      "runs": [
+        {
+          "id": "rel-006",
+          "run": 1,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 48607,
+          "turns": 4,
+          "inputTokens": 18472,
+          "outputTokens": 5350,
+          "toolCalls": 3,
+          "toolNames": [
+            "assess_release",
+            "search_procedures",
+            "search_procedures"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "blocker:OOS_WITHOUT_INVESTIGATION",
+              "pass": true,
+              "detail": "blocker OOS_WITHOUT_INVESTIGATION present"
+            },
+            {
+              "name": "blocker:OUT_OF_SPEC_FOR_MARKET",
+              "pass": true,
+              "detail": "blocker OUT_OF_SPEC_FOR_MARKET present"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to Qualified Person, DEPT-QA"
+            },
+            {
+              "name": "citations_dated",
+              "pass": true,
+              "detail": "5 citation(s), all dated where it matters"
+            }
+          ],
+          "answer": {
+            "summary": "The assessment found two blockers. 1) The lot's dissolution result (71.4000%) is below the EU specification (80.0000–∞%), so the attribute is out of specification. 2) There is no completed and approved out-of-specification (OOS) investigation recorded for that result. SOP-QC-014 Rev 7 §6.1 (effective 2026-03-01) states that where any result is outside its limits the batch may not proceed to disposition until the OOS investigation required by SOP-QC-003 has been completed and approved, and that a repeat test without that investigation does not satisfy the requirement. What would clear these blockers: completion and formal approval of the SOP-QC-003 OOS investigation (and any actions/justifications it records) so QA can reconcile the lot against the applicable specification version named on the lot record. Note: the assessment output did not include the as-of dates for the QC test and the spec-limit row; those dates are needed to confirm the governing revision(s) and to finalise the citations — please see escalation.",
+            "lot_id": "LOT-PAR500-2605-C",
+            "market": "EU",
+            "governing_spec_version": "SPEC-PAR500-v3",
+            "blockers": [
+              {
+                "code": "OUT_OF_SPEC_FOR_MARKET",
+                "why_it_blocks": "SOP-QC-014 Rev 7 §6.1 (in force 2026-03-01) requires QA to confirm every attribute is within the applicable specification and states that where any result is outside its limits the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved; therefore a dissolution result below the EU limit prevents disposition/release.",
+                "citations": [
+                  {
+                    "ref": "mrd_qms.qc_tests#QC-26-003104",
+                    "as_of": null,
+                    "claim": "The QC record shows dissolution = 71.4000%, which the assessment judged outside the EU limit.",
+                    "detail": "dissolution 71.4000 % is outside the EU limit 80.0000–∞ %."
+                  },
+                  {
+                    "ref": "mrd_qms.spec_limits#(SPEC-PAR500-v3, dissolution)",
+                    "as_of": null,
+                    "claim": "The applicable EU specification limit for dissolution for SPEC-PAR500-v3.",
+                    "detail": "EU limit recorded as 80.0000–∞ % (as reported by the assessment)."
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#6. Batch record review > 6.1 Reconciliation against the specification",
+                    "as_of": "2026-03-01",
+                    "claim": "Where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved. A repeat test performed without that investigation does not satisfy this section.",
+                    "detail": "QA confirms that every attribute listed in the applicable specification version has a corresponding result, that each result is within its limits, and that the specification version named on the lot record is the one that was in force on the date of manufacture.\n\nWhere any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved. A repeat test performed without that investigation does not satisfy this section, irrespective of its result."
+                  }
+                ]
+              },
+              {
+                "code": "OOS_WITHOUT_INVESTIGATION",
+                "why_it_blocks": "SOP-QC-014 Rev 7 §6.1 (in force 2026-03-01) explicitly requires that an out-of-specification result be subject to the OOS investigation specified in SOP-QC-003 and be completed and approved before the batch may be progressed to disposition; the assessment found no such completed/approved investigation for this OOS result.",
+                "citations": [
+                  {
+                    "ref": "mrd_qms.qc_tests#QC-26-003104",
+                    "as_of": null,
+                    "claim": "The QC record indicates a dissolution failure with no completed/approved OOS investigation recorded in the assessment.",
+                    "detail": "dissolution failed; assessment flagged no completed OOS investigation for this result."
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#6. Batch record review > 6.1 Reconciliation against the specification",
+                    "as_of": "2026-03-01",
+                    "claim": "Where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved.",
+                    "detail": "Where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved. A repeat test performed without that investigation does not satisfy this section, irrespective of its result."
+                  }
+                ]
+              }
+            ],
+            "concerns": [],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "The assess_release output did not include the as-of date(s) for the QC test record (mrd_qms.qc_tests#QC-26-003104) and the spec-limits row (mrd_qms.spec_limits#(SPEC-PAR500-v3, dissolution)). Those dates are needed to confirm which SOP revision(s) and specification version governed the act and to attach the correct as-of dates to the citations. In addition, SOP-QC-014 references SOP-QC-003 as the required OOS-investigation procedure, but SOP-QC-003 could not be retrieved by the procedure search tool (no matching document found); the QP will need the SOP-QC-003 text or confirmation of its governing revision to verify the required investigation steps and approval criteria.",
+              "suggested_owner": "Qualified Person, DEPT-QA"
+            }
+          }
+        },
+        {
+          "id": "rel-006",
+          "run": 2,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 99827,
+          "turns": 5,
+          "inputTokens": 28462,
+          "outputTokens": 9130,
+          "toolCalls": 4,
+          "toolNames": [
+            "assess_release",
+            "search_procedures",
+            "search_procedures",
+            "search_procedures"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "blocker:OOS_WITHOUT_INVESTIGATION",
+              "pass": true,
+              "detail": "blocker OOS_WITHOUT_INVESTIGATION present"
+            },
+            {
+              "name": "blocker:OUT_OF_SPEC_FOR_MARKET",
+              "pass": true,
+              "detail": "blocker OUT_OF_SPEC_FOR_MARKET present"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to Qualified Person, DEPT-QA"
+            },
+            {
+              "name": "citations_dated",
+              "pass": true,
+              "detail": "7 citation(s), all dated where it matters"
+            }
+          ],
+          "answer": {
+            "summary": "Assessment found two blockers for LOT-PAR500-2605-C to the EU: (1) the dissolution result (71.4000%) is below the EU specification lower limit (80.0000%) and (2) there is no completed out-of-specification (OOS) investigation recorded. What stands in the way: an OOS test result and the absence of the required OOS investigation and approval before disposition. What would clear it: a completed and approved OOS investigation (SOP-QC-003) that justifies a disposition (and, if appropriate, repeat testing performed as part of that investigation) and QA/QP approval. The Qualified Person (DEPT-QA) must review and decide; this system does not release batches.",
+            "lot_id": "LOT-PAR500-2605-C",
+            "market": "EU",
+            "governing_spec_version": "SPEC-PAR500-v3",
+            "blockers": [
+              {
+                "code": "OUT_OF_SPEC_FOR_MARKET",
+                "why_it_blocks": "SOP-QC-014 requires QA to confirm every attribute is within the applicable specification and states that where any result is outside its limits the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved; the lot's dissolution (71.4000%) is below the EU lower limit (80.0000%), so the batch cannot be dispositioned or certified for the EU.",
+                "citations": [
+                  {
+                    "ref": "mrd_qms.qc_tests#QC-26-003104",
+                    "as_of": null,
+                    "claim": "Recorded dissolution result for the lot.",
+                    "detail": "dissolution = 71.4000 %"
+                  },
+                  {
+                    "ref": "mrd_qms.spec_limits#(SPEC-PAR500-v3, dissolution)",
+                    "as_of": null,
+                    "claim": "Applicable EU specification limit for dissolution for this product version.",
+                    "detail": "EU lower acceptance limit for dissolution = 80.0000 % (upper unbounded)"
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 6#6. Batch record review > 6.1 Reconciliation against the specification",
+                    "as_of": "2023-07-01",
+                    "claim": "Where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved.",
+                    "detail": "SOP-QC-014 Rev 6 — 6. Batch record review > 6.1: \"Where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved.\" (effective_from 2023-07-01)"
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#6. Batch record review > 6.1 Reconciliation against the specification",
+                    "as_of": "2026-03-01",
+                    "claim": "Current-version statement that every attribute must have a corresponding result within its limits and that an OOS investigation (SOP-QC-003) must be completed and approved before disposition; repeat testing without that investigation does not satisfy the requirement.",
+                    "detail": "SOP-QC-014 Rev 7 — 6. Batch record review > 6.1: \"QA confirms that every attribute listed in the applicable specification version has a corresponding result, that each result is within its limits... Where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved. A repeat test performed without that investigation does not satisfy this section, irrespective of its result.\" (effective_from 2026-03-01)"
+                  }
+                ]
+              },
+              {
+                "code": "OOS_WITHOUT_INVESTIGATION",
+                "why_it_blocks": "SOP-QC-014 requires completion and approval of the out-of-specification investigation (per SOP-QC-003) before a batch may be dispositioned; the assessment shows the dissolution failure but no completed OOS investigation is recorded, so the prerequisite for disposition/certification is missing.",
+                "citations": [
+                  {
+                    "ref": "mrd_qms.qc_tests#QC-26-003104",
+                    "as_of": null,
+                    "claim": "Dissolution test result failed; no completed OOS investigation recorded by the assessment.",
+                    "detail": "dissolution = 71.4000 % (no linked completed OOS investigation found in the assessment evidence)"
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 6#6. Batch record review > 6.1 Reconciliation against the specification",
+                    "as_of": "2023-07-01",
+                    "claim": "Requires completion and approval of the OOS investigation (SOP-QC-003) before disposition.",
+                    "detail": "SOP-QC-014 Rev 6 — 6.1: \"Where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved.\" (effective_from 2023-07-01)"
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#6. Batch record review > 6.1 Reconciliation against the specification",
+                    "as_of": "2026-03-01",
+                    "claim": "Current-version requirement that an OOS investigation be completed and approved before disposition; repeat testing alone does not satisfy this.",
+                    "detail": "SOP-QC-014 Rev 7 — 6.1: \"Where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved. A repeat test performed without that investigation does not satisfy this section, irrespective of its result.\" (effective_from 2026-03-01)"
+                  }
+                ]
+              }
+            ],
+            "concerns": [],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "There are two blockers (failed dissolution below the EU lower limit and no completed OOS investigation). A search of the procedures corpus returned SOP-QC-014 (Rev 6 and Rev 7) which references SOP-QC-003 as governing OOS investigations, but a direct procedure text for SOP-QC-003 was not found by the procedures search, so the detailed steps of SOP-QC-003 could not be quoted from the corpus. The Qualified Person must review, ensure completion and approval of the OOS investigation per SOP-QC-003 (or provide equivalent documented justification), and decide disposition.",
+              "suggested_owner": "Qualified Person, DEPT-QA"
+            }
+          }
+        },
+        {
+          "id": "rel-006",
+          "run": 3,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 44433,
+          "turns": 4,
+          "inputTokens": 18348,
+          "outputTokens": 4302,
+          "toolCalls": 4,
+          "toolNames": [
+            "assess_release",
+            "search_procedures",
+            "search_procedures",
+            "search_procedures"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "blocker:OOS_WITHOUT_INVESTIGATION",
+              "pass": true,
+              "detail": "blocker OOS_WITHOUT_INVESTIGATION present"
+            },
+            {
+              "name": "blocker:OUT_OF_SPEC_FOR_MARKET",
+              "pass": true,
+              "detail": "blocker OUT_OF_SPEC_FOR_MARKET present"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to Qualified Person, DEPT-QA"
+            },
+            {
+              "name": "citations_dated",
+              "pass": true,
+              "detail": "5 citation(s), all dated where it matters"
+            }
+          ],
+          "answer": {
+            "summary": "The assessment found two blockers for EU release. 1) The dissolution result is 71.4000%, which is below the EU specification for Paracetamol 500 mg (SPEC-PAR500-v3 lower limit 80.0000%); an out-of-specification result prevents disposition. 2) There is no completed/approved out-of-specification (OOS) investigation for that result. SOP-QC-014 Rev 7 (batch record review) explicitly requires that any out-of-specification result prevents release until the OOS investigation required by SOP-QC-003 has been completed and approved. To clear these blockers the site must complete and approve the OOS investigation called for by SOP-QC-014 (and SOP-QC-003 as referenced) and then have QA/QP re-assess the lot against the specification and disposition requirements. I have escalated because SOP-QC-003 (the procedure the SOP references for how to perform/approve the investigation) was not found in the Meridian procedures corpus returned by the search tool; the Qualified Person/QA must decide next steps and verify the governing investigation procedure and its approval before disposition.",
+            "lot_id": "LOT-PAR500-2605-C",
+            "market": "EU",
+            "governing_spec_version": "SPEC-PAR500-v3",
+            "blockers": [
+              {
+                "code": "OUT_OF_SPEC_FOR_MARKET",
+                "why_it_blocks": "SOP-QC-014 Rev 7 section 6.1 requires QA to confirm that each result is within the applicable specification before disposition; a result outside the limits therefore prevents the batch from proceeding to disposition until the required OOS investigation is completed and approved.",
+                "citations": [
+                  {
+                    "ref": "mrd_qms.qc_tests#QC-26-003104",
+                    "as_of": null,
+                    "claim": "Analytical result: dissolution = 71.4000%",
+                    "detail": "dissolution 71.4000 % (from assessment evidence)"
+                  },
+                  {
+                    "ref": "mrd_qms.spec_limits#(SPEC-PAR500-v3, dissolution)",
+                    "as_of": null,
+                    "claim": "EU specification lower limit for dissolution = 80.0000%",
+                    "detail": "spec limit (SPEC-PAR500-v3) dissolution lower limit 80.0000–∞ % (from assessment evidence)"
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#6. Batch record review > 6.1 Reconciliation against the specification",
+                    "as_of": "2026-03-01",
+                    "claim": "Where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved. A repeat test performed without that investigation does not satisfy this section, irrespective of its result.",
+                    "detail": "QA confirms ... each result is within its limits. Where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved. A repeat test performed without that investigation does not satisfy this section, irrespective of its result."
+                  }
+                ]
+              },
+              {
+                "code": "OOS_WITHOUT_INVESTIGATION",
+                "why_it_blocks": "SOP-QC-014 Rev 7 section 6.1 requires that an out-of-specification result may not proceed to disposition until the out-of-specification investigation (the SOP it references is SOP-QC-003) has been completed and approved. The assessment reports there is no completed/approved OOS investigation for the failed dissolution, so the batch cannot be moved to disposition or certification.",
+                "citations": [
+                  {
+                    "ref": "mrd_qms.qc_tests#QC-26-003104",
+                    "as_of": null,
+                    "claim": "The failed dissolution result has no completed/approved OOS investigation recorded (assessment finding).",
+                    "detail": "assessment evidence indicates failed dissolution with no OOS investigation recorded"
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#6. Batch record review > 6.1 Reconciliation against the specification",
+                    "as_of": "2026-03-01",
+                    "claim": "Where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved.",
+                    "detail": "As quoted above: the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved."
+                  }
+                ]
+              }
+            ],
+            "concerns": [],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "Two regulatory/procedural blockers require QA/Qualified Person action: (1) the dissolution result (71.4000%) is below the EU spec (SPEC-PAR500-v3 lower limit 80.0000%), and (2) there is no completed/approved OOS investigation. SOP-QC-014 Rev 7 requires completion and approval of the OOS investigation (it references SOP-QC-003), but the text of SOP-QC-003 was not present in the procedures search results, so the exact investigation/approval steps and approver authority cannot be confirmed from the corpus returned. The Qualified Person/QA must direct and approve the OOS investigation, confirm which SOP governs its conduct/approval, and then re-assess the lot for disposition.",
+              "suggested_owner": "Qualified Person, DEPT-QA"
+            }
+          }
+        },
+        {
+          "id": "rel-006",
+          "run": 4,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 79262,
+          "turns": 6,
+          "inputTokens": 38410,
+          "outputTokens": 8059,
+          "toolCalls": 5,
+          "toolNames": [
+            "assess_release",
+            "search_procedures",
+            "search_procedures",
+            "search_procedures",
+            "search_procedures"
+          ],
+          "stoppedBecause": "schema_invalid",
+          "passed": false,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": false,
+              "detail": "no valid answer (schema_invalid)"
+            },
+            {
+              "name": "blocker:OOS_WITHOUT_INVESTIGATION",
+              "pass": false,
+              "detail": "no valid answer (schema_invalid)"
+            },
+            {
+              "name": "blocker:OUT_OF_SPEC_FOR_MARKET",
+              "pass": false,
+              "detail": "no valid answer (schema_invalid)"
+            },
+            {
+              "name": "escalates",
+              "pass": false,
+              "detail": "no valid answer (schema_invalid)"
+            },
+            {
+              "name": "citations_dated",
+              "pass": false,
+              "detail": "no valid answer (schema_invalid)"
+            }
+          ],
+          "error": "internally inconsistent: summary says the batch may be released while blockers are listed — this system never states that a batch may ship; report the blockers and escalate | internally inconsistent: summary says the batch may be released while blockers are listed — this system never states that a batch may ship; report the blockers and escalate"
+        },
+        {
+          "id": "rel-006",
+          "run": 5,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 40287,
+          "turns": 3,
+          "inputTokens": 12952,
+          "outputTokens": 4030,
+          "toolCalls": 3,
+          "toolNames": [
+            "assess_release",
+            "search_procedures",
+            "search_procedures"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "blocker:OOS_WITHOUT_INVESTIGATION",
+              "pass": true,
+              "detail": "blocker OOS_WITHOUT_INVESTIGATION present"
+            },
+            {
+              "name": "blocker:OUT_OF_SPEC_FOR_MARKET",
+              "pass": true,
+              "detail": "blocker OUT_OF_SPEC_FOR_MARKET present"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to Qualified Person, DEPT-QA"
+            },
+            {
+              "name": "citations_dated",
+              "pass": true,
+              "detail": "5 citation(s), all dated where it matters"
+            }
+          ],
+          "answer": {
+            "summary": "The assessment found two blockers: (1) the lot’s dissolution result (71.4000%) is below the EU specification (80.0000–∞%) and (2) there is no completed out‑of‑specification (OOS) investigation recorded. To clear these, complete and approve the OOS investigation required by SOP‑QC‑003, document any approved retest or justification, and have QA/QP review and record the disposition against the applicable specification version. Do NOT treat this as permission to ship — the Qualified Person must review the investigation and make the certification decision.",
+            "lot_id": "LOT-PAR500-2605-C",
+            "market": "EU",
+            "governing_spec_version": "SPEC-PAR500-v3",
+            "blockers": [
+              {
+                "code": "OUT_OF_SPEC_FOR_MARKET",
+                "why_it_blocks": "SOP‑QC‑014 Rev 7 §6.1 (the batch record reconciliation rule) requires that every result be within the applicable specification and that where any result is outside its limits the batch may not proceed to disposition until the out‑of‑specification investigation required by SOP‑QC‑003 has been completed and approved. The lot’s dissolution result (71.4000%) is below the EU limit (80.0000–∞%), so the result itself prevents disposition until the required OOS investigation and any approved remedial actions are completed.",
+                "citations": [
+                  {
+                    "ref": "mrd_qms.qc_tests#QC-26-003104",
+                    "as_of": null,
+                    "claim": "dissolution 71.4000 % is outside the EU limit 80.0000–∞ %.",
+                    "detail": "dissolution 71.4000 % is outside the EU limit 80.0000–∞ %."
+                  },
+                  {
+                    "ref": "mrd_qms.spec_limits#(SPEC-PAR500-v3, dissolution)",
+                    "as_of": null,
+                    "claim": "Applicable specification for Paracetamol 500 mg (SPEC-PAR500-v3) sets dissolution limit for EU as 80.0000–∞ %",
+                    "detail": "Referenced specification version: SPEC-PAR500-v3 (dissolution limit quoted by assessment)."
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#6. Batch record review > 6.1 Reconciliation against the specification",
+                    "as_of": "2026-03-01",
+                    "claim": "Where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved. A repeat test performed without that investigation does not satisfy this section, irrespective of its result.",
+                    "detail": "QA confirms that every attribute listed in the applicable specification version has a corresponding result, that each result is within its limits, and that the specification version named on the lot record is the one that was in force on the date of manufacture.\n\nWhere any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved. A repeat test performed without that investigation does not satisfy this section, irrespective of its result."
+                  }
+                ]
+              },
+              {
+                "code": "OOS_WITHOUT_INVESTIGATION",
+                "why_it_blocks": "SOP‑QC‑014 Rev 7 §6.1 expressly requires completion and approval of the OOS investigation (per SOP‑QC‑003) before a batch may proceed to disposition; a missing investigation therefore prevents disposition and QP certification. A repeat test without the investigation does not satisfy the requirement.",
+                "citations": [
+                  {
+                    "ref": "mrd_qms.qc_tests#QC-26-003104",
+                    "as_of": null,
+                    "claim": "dissolution failed with no OOS investigation (21 CFR 211.192 requires one).",
+                    "detail": "Assessment summary: dissolution failed with no OOS investigation recorded for QC-26-003104."
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#6. Batch record review > 6.1 Reconciliation against the specification",
+                    "as_of": "2026-03-01",
+                    "claim": "Where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved. A repeat test performed without that investigation does not satisfy this section, irrespective of its result.",
+                    "detail": "Where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved. A repeat test performed without that investigation does not satisfy this section, irrespective of its result."
+                  }
+                ]
+              }
+            ],
+            "concerns": [],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "There are two confirmed blockers: an out‑of‑spec dissolution result and no completed OOS investigation recorded. A human Qualified Person must review the OOS investigation (or require one), approve any retest/justification, and decide the disposition and certification against SPEC‑PAR500‑v3.",
+              "suggested_owner": "Qualified Person, DEPT-QA"
+            }
+          }
+        }
+      ],
+      "passed": 4,
+      "total": 5,
+      "flakyChecks": [
+        {
+          "name": "calls_assess_first",
+          "failed": 1
+        },
+        {
+          "name": "blocker:OOS_WITHOUT_INVESTIGATION",
+          "failed": 1
+        },
+        {
+          "name": "blocker:OUT_OF_SPEC_FOR_MARKET",
+          "failed": 1
+        },
+        {
+          "name": "escalates",
+          "failed": 1
+        },
+        {
+          "name": "citations_dated",
+          "failed": 1
+        }
+      ]
+    },
+    {
+      "id": "rel-007",
+      "runs": [
+        {
+          "id": "rel-007",
+          "run": 1,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 69189,
+          "turns": 3,
+          "inputTokens": 11256,
+          "outputTokens": 4947,
+          "toolCalls": 2,
+          "toolNames": [
+            "assess_release",
+            "search_procedures"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": false,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "cites_revision:SOP-QC-014 Rev 6",
+              "pass": false,
+              "detail": "did not cite SOP-QC-014 Rev 6 — cited [mrd_erp.suppliers#SUP-04 | sop:SOP-QC-014 Rev 7#5. Prerequisites | sop:SOP-QC-014 Rev 7#7. Disposition and certification > 7.2 Certification for the European Union]"
+            },
+            {
+              "name": "no_blockers",
+              "pass": true,
+              "detail": "no blockers"
+            },
+            {
+              "name": "concern:SUPPLIER_DISQUALIFIED_AFTER_USE",
+              "pass": true,
+              "detail": "concern SUPPLIER_DISQUALIFIED_AFTER_USE present"
+            },
+            {
+              "name": "citations_dated",
+              "pass": true,
+              "detail": "3 citation(s), all dated where it matters"
+            }
+          ],
+          "answer": {
+            "summary": "What you need to know: The system-wide assessment found no blocker to EU certification for LOT-IBU200-2409-B (the assessment returned releasable: true). However, it flagged one concern that the Qualified Person should review before signing: a supplier (Silverbrook Synthesis Co.) was disqualified after supplying material used in this lot. The records returned do not include a procedure clause that explicitly says a post-use supplier disqualification automatically invalidates an EU certification, so QA/Qualified Person judgement is required. What would clear it: a documented QA assessment (deviation/risk assessment) that either demonstrates the disqualification does not affect the lot or shows corrective action that mitigates any impact, and the QP's documented decision. I cannot say the certificate itself was signed or unsigned from these results — that specific record was not returned by the assessment and so is unverified; the QP must confirm the signature and date.",
+            "lot_id": "LOT-IBU200-2409-B",
+            "market": "EU",
+            "governing_spec_version": "SPEC-IBU200-v4",
+            "blockers": [],
+            "concerns": [
+              {
+                "code": "SUPPLIER_DISQUALIFIED_AFTER_USE",
+                "why_it_blocks": "A supplier disqualification that occurs after material from that supplier was used in manufacture creates a potential quality risk that the QP must assess before certifying for the EU. SOP-QC-014 Rev 7 requires the QP to have all deviations and relevant records available for review and makes certification a personal responsibility, so a post-use supplier disqualification is a matter the QP must evaluate (the assessment classified it as a concern rather than an automatic blocker).",
+                "citations": [
+                  {
+                    "ref": "mrd_erp.suppliers#SUP-04",
+                    "as_of": "2024-09-12",
+                    "claim": "Silverbrook Synthesis Co. was disqualified on 2026-05-20, after supplying MLOT-2403-0017 to this lot.",
+                    "detail": "\"Silverbrook Synthesis Co. was disqualified on 2026-05-20, after supplying MLOT-2403-0017 to this lot.\" (assessment finding summary) "
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#5. Prerequisites",
+                    "as_of": "2026-05-20",
+                    "claim": "Before review begins, all of the following must be present: ... any deviation reports raised during manufacture, with their current status",
+                    "detail": "\"Before review begins, all of the following must be present: - the completed batch record for the work order that produced the lot - all analytical results required by the applicable specification version - any deviation reports raised during manufacture, with their current status - the environmental monitoring summary for the relevant production area\" (SOP-QC-014 Rev 7, section 5) "
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#7. Disposition and certification > 7.2 Certification for the European Union",
+                    "as_of": "2026-05-20",
+                    "claim": "For batches destined for the European Union, a Qualified Person certifies the batch after the disposition is recorded. The Qualified Person must: ... The responsibility for certification is personal and remains with the individual who signs.",
+                    "detail": "\"For batches destined for the European Union, a Qualified Person certifies the batch after the disposition is recorded. The Qualified Person must: - hold a current registration ... - be named ... - hold an unrevoked internal authority to certify ... The Qualified Person may rely on the pharmaceutical quality system for the detail of the review, but the responsibility for certification is personal and remains with the individual who signs.\" (SOP-QC-014 Rev 7, section 7.2) "
+                  }
+                ]
+              }
+            ],
+            "missing": [],
+            "unverified_claims": [
+              "Whether an EU certification (signed EU certificate and signer identity/date) exists for this lot is not present in the returned assessment and therefore was not checked by the tool."
+            ],
+            "escalate": {
+              "reason": "The assessment shows the supplier was disqualified after supplying material used in this lot (evidence present), but the procedures returned do not state that a post-use supplier disqualification automatically invalidates an EU certification. SOP-QC-014 Rev 7 requires deviations and related records to be available for the QP and states certification is the QP's personal responsibility, so a human Qualified Person must decide whether the disqualification affects certification for this lot.",
+              "suggested_owner": "Qualified Person, DEPT-QA"
+            }
+          }
+        },
+        {
+          "id": "rel-007",
+          "run": 2,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 47928,
+          "turns": 5,
+          "inputTokens": 27483,
+          "outputTokens": 4310,
+          "toolCalls": 4,
+          "toolNames": [
+            "assess_release",
+            "search_procedures",
+            "search_procedures",
+            "search_procedures"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "cites_revision:SOP-QC-014 Rev 6",
+              "pass": true,
+              "detail": "cited SOP-QC-014 Rev 6 and no other revision"
+            },
+            {
+              "name": "no_blockers",
+              "pass": true,
+              "detail": "no blockers"
+            },
+            {
+              "name": "concern:SUPPLIER_DISQUALIFIED_AFTER_USE",
+              "pass": true,
+              "detail": "concern SUPPLIER_DISQUALIFIED_AFTER_USE present"
+            },
+            {
+              "name": "citations_dated",
+              "pass": true,
+              "detail": "3 citation(s), all dated where it matters"
+            }
+          ],
+          "answer": {
+            "summary": "Assessment found no blocker recorded that would prevent EU certification of LOT-IBU200-2409-B, but it did flag one concern that requires a Qualified Person's judgment. The single concern: Silverbrook Synthesis Co. was disqualified after supplying a material lot used in this batch (the assessment notes the disqualification occurred on 2026-05-20). The site's batch-release procedure (SOP-QC-014 Rev 6, as in force on 2024-09-12) documents the prerequisites required before review and the personal responsibility of the Qualified Person to certify for the EU, but it does not contain a clause retrieved by the search that expressly says how a supplier disqualification that happens after supply must be managed for certification. Because the records show the disqualification event (evidence: mrd_erp.suppliers#SUP-04 as_of 2024-09-12) but the procedures returned do not resolve whether that event automatically blocks certification, a Qualified Person in DEPT-QA must review the supplier-disqualification record, any supplier investigation or material-impact assessment, and the lot's deviation/quality records and then decide. If the QP documents acceptance (or if the supplier investigation and material disposition explicitly clear the material), that decision would clear the concern for certification.",
+            "lot_id": "LOT-IBU200-2409-B",
+            "market": "EU",
+            "governing_spec_version": "SPEC-IBU200-v4",
+            "blockers": [],
+            "concerns": [
+              {
+                "code": "SUPPLIER_DISQUALIFIED_AFTER_USE",
+                "why_it_blocks": "The assessment shows a supplier used in this batch (Silverbrook Synthesis Co.) was disqualified after supplying material used in the lot; this event creates an unresolved quality risk that the Qualified Person must judge before certification. The site's batch-release procedure requires the listed prerequisites and records to be present for review and emphasises that certification for the EU is a personal responsibility of the Qualified Person, but the retrieved procedure text does not itself state that a post‑supply supplier disqualification is an automatic blocker — therefore the QP must assess impact.",
+                "citations": [
+                  {
+                    "ref": "mrd_erp.suppliers#SUP-04",
+                    "as_of": "2024-09-12",
+                    "claim": "Silverbrook Synthesis Co. was disqualified on 2026-05-20, after supplying MLOT-2403-0017 to this lot.",
+                    "detail": "Silverbrook Synthesis Co. was disqualified on 2026-05-20, after supplying MLOT-2403-0017 to this lot."
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 6#5. Prerequisites",
+                    "as_of": "2024-09-12",
+                    "claim": "SOP-QC-014 Rev 6 — Prerequisites required before review begins.",
+                    "detail": "Before review begins, all of the following must be present:\n\n- the completed batch record for the work order that produced the lot\n- all analytical results required by the applicable specification version\n- any deviation reports raised during manufacture, with their current status\n- the environmental monitoring summary for the relevant production area\n\nA batch record that is incomplete is returned to Manufacturing. Review does not\nbegin on a partial record."
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 6#7. Disposition and certification > 7.2 Certification for the European Union",
+                    "as_of": "2024-09-12",
+                    "claim": "SOP-QC-014 Rev 6 — Certification for the European Union: QP responsibilities.",
+                    "detail": "For batches destined for the European Union, a Qualified Person certifies the\nbatch after the disposition is recorded. The Qualified Person must:\n\n- hold a current registration with a competent authority of a Member State\n- be named in the site's authorisation as a Qualified Person for the product\n  category concerned\n- hold an unrevoked internal authority to certify\n\nThe Qualified Person may rely on the pharmaceutical quality system for the\ndetail of the review, but the responsibility for certification is personal and\nremains with the individual who signs."
+                  }
+                ]
+              }
+            ],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "A supplier (Silverbrook Synthesis Co.) was disqualified after supplying material used in this lot, and the retrieved procedures (SOP-QC-014 Rev 6 as of 2024-09-12) do not contain a clause that resolves whether such a post‑supply disqualification automatically prevents EU certification. The quality impact therefore requires a human judgment.",
+              "suggested_owner": "Qualified Person, DEPT-QA"
+            }
+          }
+        },
+        {
+          "id": "rel-007",
+          "run": 3,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 40886,
+          "turns": 4,
+          "inputTokens": 17969,
+          "outputTokens": 4076,
+          "toolCalls": 3,
+          "toolNames": [
+            "assess_release",
+            "search_procedures",
+            "search_procedures"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "cites_revision:SOP-QC-014 Rev 6",
+              "pass": true,
+              "detail": "cited SOP-QC-014 Rev 6 and no other revision"
+            },
+            {
+              "name": "no_blockers",
+              "pass": true,
+              "detail": "no blockers"
+            },
+            {
+              "name": "concern:SUPPLIER_DISQUALIFIED_AFTER_USE",
+              "pass": true,
+              "detail": "concern SUPPLIER_DISQUALIFIED_AFTER_USE present"
+            },
+            {
+              "name": "citations_dated",
+              "pass": true,
+              "detail": "3 citation(s), all dated where it matters"
+            }
+          ],
+          "answer": {
+            "summary": "The automated assessment found no blocker to EU certification for LOT-IBU200-2409-B, but it raised one concern: the supplier that provided material used in this lot was disqualified after supply. The QP must decide whether that disqualification affects the lot before certification. What would clear the concern: an official supplier investigation and documented conclusion that the disqualification did not affect the material used in this lot (including any supporting COA/re‑testing of retained samples or supplier CAPA), or a documented QP determination referencing those records. I did not find a procedural clause that prescribes the action for a supplier disqualification after use, so this needs QA/QP judgement.",
+            "lot_id": "LOT-IBU200-2409-B",
+            "market": "EU",
+            "governing_spec_version": "SPEC-IBU200-v4",
+            "blockers": [],
+            "concerns": [
+              {
+                "code": "SUPPLIER_DISQUALIFIED_AFTER_USE",
+                "why_it_blocks": "The batch-release procedure requires QA/QP to have the complete records and to record disposition and certification before releasing a batch; it does not specify how to treat a supplier that is disqualified after their material was used. Because SOP-QC-014 (the batch release procedure) governs what must be present and recorded before certification, a supplier disqualification discovered after use is a material concern that the QP must evaluate against the lot record and supporting evidence.",
+                "citations": [
+                  {
+                    "ref": "mrd_erp.suppliers#SUP-04",
+                    "as_of": "2024-09-12",
+                    "claim": "Silverbrook Synthesis Co. was disqualified on 2026-05-20, after supplying MLOT-2403-0017 to this lot.",
+                    "detail": "\"Silverbrook Synthesis Co. was disqualified on 2026-05-20, after supplying MLOT-2403-0017 to this lot.\" (assessment summary) "
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 6#5. Prerequisites",
+                    "as_of": "2024-09-12",
+                    "claim": "SOP-QC-014 Rev 6 requires specific prerequisites be present before review begins.",
+                    "detail": "\"Before review begins, all of the following must be present:\n\n- the completed batch record for the work order that produced the lot\n- all analytical results required by the applicable specification version\n- any deviation reports raised during manufacture, with their current status\n- the environmental monitoring summary for the relevant production area\n\nA batch record that is incomplete is returned to Manufacturing. Review does not\nbegin on a partial record.\""
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 6#7. Disposition and certification > 7.1 Disposition",
+                    "as_of": "2024-09-12",
+                    "claim": "SOP-QC-014 Rev 6 requires QA to record the disposition and the person making it.",
+                    "detail": "\"On satisfactory completion of section 6, QA records the disposition against the\nlot: released, rejected or quarantine. The record names the deciding person, the\ndate, and this procedure at the revision in force on that date.\""
+                  }
+                ]
+              }
+            ],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "The company's batch-release procedure (SOP-QC-014 Rev 6, in force on 2024-09-12) does not state the required action when a supplier is disqualified after their material has been used in a lot. That silence means a human decision is required to judge whether the supplier disqualification affects the quality of LOT-IBU200-2409-B and whether the QP may certify.",
+              "suggested_owner": "Qualified Person, DEPT-QA"
+            }
+          }
+        },
+        {
+          "id": "rel-007",
+          "run": 4,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 42239,
+          "turns": 4,
+          "inputTokens": 18520,
+          "outputTokens": 4475,
+          "toolCalls": 3,
+          "toolNames": [
+            "assess_release",
+            "search_procedures",
+            "search_procedures"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": false,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "cites_revision:SOP-QC-014 Rev 6",
+              "pass": false,
+              "detail": "did not cite SOP-QC-014 Rev 6 — cited [mrd_erp.suppliers#SUP-04 | sop:SOP-QC-014 Rev 7#6. Batch record review > 6.2 Reconciliation against the deviation log | sop:SOP-QC-014 Rev 7#7. Disposition and certification > 7.2 Certification for the European Union | sop:SOP-QC-014 Rev 7#6. Batch record review > 6.1 Reconciliation against the specification]"
+            },
+            {
+              "name": "no_blockers",
+              "pass": true,
+              "detail": "no blockers"
+            },
+            {
+              "name": "concern:SUPPLIER_DISQUALIFIED_AFTER_USE",
+              "pass": true,
+              "detail": "concern SUPPLIER_DISQUALIFIED_AFTER_USE present"
+            },
+            {
+              "name": "citations_dated",
+              "pass": true,
+              "detail": "4 citation(s), all dated where it matters"
+            }
+          ],
+          "answer": {
+            "summary": "Assessment of LOT-IBU200-2409-B for the EU found no blockers to certification recorded by the tool. The only finding is a concern: the supplier Silverbrook Synthesis Co. was disqualified on 2026-05-20 after supplying MLOT-2403-0017 used in this lot. The procedures searchable for the governing time (SOP-QC-014 Rev 7) set out what a Qualified Person must check (specification reconciliation, deviation status, and QP responsibilities) but do not state an explicit mandatory action for a supplier being disqualified after a material has already been used. To clear the concern for the QP: produce the supplier disqualification record and any supplier-investigation; trace MLOT-2403-0017 into the lot; and provide the deviation/investigation records and their conclusions showing either no impact or an approved disposition. Because the procedures do not explicitly prescribe the single required step for a post-use supplier disqualification, the Qualified Person, DEPT-QA, must decide whether the existing documentation suffices for EU certification.",
+            "lot_id": "LOT-IBU200-2409-B",
+            "market": "EU",
+            "governing_spec_version": "SPEC-IBU200-v4",
+            "blockers": [],
+            "concerns": [
+              {
+                "code": "SUPPLIER_DISQUALIFIED_AFTER_USE",
+                "why_it_blocks": "The assessment flagged that a supplier was disqualified after material they supplied was used in this lot; SOP-QC-014 Rev 7 requires QA to reconcile deviations and to confirm the batch is not affected by any open deviation (and defines the QP's personal responsibility for certification). The records and procedures returned do not contain a clause that explicitly says how a post-use supplier disqualification must be handled for an already-completed batch, so this is a substantive concern that the Qualified Person must judge.",
+                "citations": [
+                  {
+                    "ref": "mrd_erp.suppliers#SUP-04",
+                    "as_of": "2024-09-12",
+                    "claim": "Silverbrook Synthesis Co. was disqualified on 2026-05-20, after supplying MLOT-2403-0017 to this lot.",
+                    "detail": "Assessment finding: \"Silverbrook Synthesis Co. was disqualified on 2026-05-20, after supplying MLOT-2403-0017 to this lot.\""
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#6. Batch record review > 6.2 Reconciliation against the deviation log",
+                    "as_of": "2026-05-20",
+                    "claim": "QA confirms that every deviation raised against the work order has been closed, or, where a deviation remains open, that its assessment concludes the batch is not affected. A deviation classified as critical blocks disposition unconditionally.",
+                    "detail": "SOP-QC-014 Rev 7 (effective_from 2026-03-01): \"QA confirms that every deviation raised against the work order has been closed, or, where a deviation remains open, that its assessment concludes the batch is not affected. The reconciliation is recorded on the disposition record naming each deviation by identifier. A deviation classified as critical blocks disposition unconditionally until closed.\""
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#7. Disposition and certification > 7.2 Certification for the European Union",
+                    "as_of": "2026-05-20",
+                    "claim": "For batches destined for the European Union, a Qualified Person certifies the batch after the disposition is recorded. The Qualified Person must: hold a current registration with a competent authority of a Member State; be named in the site's authorisation as a Qualified Person for the product category concerned; hold an unrevoked internal authority to certify. The responsibility for certification is personal and remains with the individual who signs.",
+                    "detail": "SOP-QC-014 Rev 7 (effective_from 2026-03-01): \"For batches destined for the European Union, a Qualified Person certifies the batch after the disposition is recorded. The Qualified Person must: - hold a current registration with a competent authority of a Member State - be named in the site's authorisation as a Qualified Person for the product category concerned - hold an unrevoked internal authority to certify. The Qualified Person may rely on the pharmaceutical quality system for the detail of the review, but the responsibility for certification is personal and remains with the individual who signs.\""
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#6. Batch record review > 6.1 Reconciliation against the specification",
+                    "as_of": "2026-05-20",
+                    "claim": "QA confirms that every attribute listed in the applicable specification version has a corresponding result, that each result is within its limits, and that the specification version named on the lot record is the one that was in force on the date of manufacture.",
+                    "detail": "SOP-QC-014 Rev 7 (effective_from 2026-03-01): \"QA confirms that every attribute listed in the applicable specification version has a corresponding result, that each result is within its limits, and that the specification version named on the lot record is the one that was in force on the date of manufacture... Where any result is outside its limits, the batch may not proceed to disposition until the out-of-specification investigation required by SOP-QC-003 has been completed and approved.\""
+                  }
+                ]
+              }
+            ],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "The records show a supplier was disqualified after supplying material used in this lot, but the searchable procedures (SOP-QC-014 Rev 7) do not state an explicit required action for a post-use supplier disqualification. The assessment flagged it as a concern that could affect the QP's judgement. A human Qualified Person must decide whether the available supplier-disqualification record, traceability, and any deviation/investigation documentation are sufficient for EU certification.",
+              "suggested_owner": "Qualified Person, DEPT-QA"
+            }
+          }
+        },
+        {
+          "id": "rel-007",
+          "run": 5,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 38190,
+          "turns": 3,
+          "inputTokens": 11174,
+          "outputTokens": 3840,
+          "toolCalls": 2,
+          "toolNames": [
+            "assess_release",
+            "search_procedures"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": false,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": true,
+              "detail": "called assess_release first"
+            },
+            {
+              "name": "cites_revision:SOP-QC-014 Rev 6",
+              "pass": false,
+              "detail": "did not cite SOP-QC-014 Rev 6 — cited [mrd_erp.suppliers#SUP-04 | sop:SOP-QC-014 Rev 7#5. Prerequisites]"
+            },
+            {
+              "name": "no_blockers",
+              "pass": true,
+              "detail": "no blockers"
+            },
+            {
+              "name": "concern:SUPPLIER_DISQUALIFIED_AFTER_USE",
+              "pass": true,
+              "detail": "concern SUPPLIER_DISQUALIFIED_AFTER_USE present"
+            },
+            {
+              "name": "citations_dated",
+              "pass": true,
+              "detail": "2 citation(s), all dated where it matters"
+            }
+          ],
+          "answer": {
+            "summary": "Assessment found no blocker to EU certification, but it flagged a concern: the supplier Silverbrook Synthesis Co. was disqualified after it had supplied material used in LOT-IBU200-2409-B. The site's batch-release procedure (SOP-QC-014 Rev 7) requires that any deviation reports and their current status be present and reviewed before disposition, but the returned procedure text does not state the specific action to take when a supplier is disqualified after material has already been used. What stands in the way: the post-use supplier disqualification must be addressed by QA/QP with a documented investigation and a formal disposition (for example, an approved investigation concluding no impact, or an approved rejection), recorded against the lot. Absent a clear procedural clause for this exact scenario in the returned SOP text, the Qualified Person/QA must decide and record the disposition.",
+            "lot_id": "LOT-IBU200-2409-B",
+            "market": "EU",
+            "governing_spec_version": "SPEC-IBU200-v4",
+            "blockers": [],
+            "concerns": [
+              {
+                "code": "SUPPLIER_DISQUALIFIED_AFTER_USE",
+                "why_it_blocks": "SOP-QC-014 Rev 7 requires that deviation reports raised during manufacture, with their current status, be present and reviewed before batch review and disposition begins. The assessment reports a supplier disqualification that occurred after material from that supplier was used in this lot; the procedure passages returned do not state the specific required disposition action when a supplier is disqualified after use, so the QP must decide whether the disqualification affects the lot and record the required investigation/disposition.",
+                "citations": [
+                  {
+                    "ref": "mrd_erp.suppliers#SUP-04",
+                    "as_of": "2024-09-12",
+                    "claim": "Silverbrook Synthesis Co. was disqualified on 2026-05-20, after supplying MLOT-2403-0017 to this lot.",
+                    "detail": "Silverbrook Synthesis Co. was disqualified on 2026-05-20, after supplying MLOT-2403-0017 to this lot."
+                  },
+                  {
+                    "ref": "sop:SOP-QC-014 Rev 7#5. Prerequisites",
+                    "as_of": "2026-05-20",
+                    "claim": "Before review begins, all of the following must be present: - the completed batch record for the work order that produced the lot - all analytical results required by the applicable specification version - any deviation reports raised during manufacture, with their current status - the environmental monitoring summary for the relevant production area",
+                    "detail": "Before review begins, all of the following must be present:\n\n- the completed batch record for the work order that produced the lot\n- all analytical results required by the applicable specification version\n- any deviation reports raised during manufacture, with their current status\n- the environmental monitoring summary for the relevant production area\n\nA batch record that is incomplete is returned to Manufacturing. Review does not\nbegin on a partial record."
+                  }
+                ]
+              }
+            ],
+            "missing": [],
+            "unverified_claims": [],
+            "escalate": {
+              "reason": "A supplier used in manufacture (Silverbrook Synthesis Co.) was disqualified after supply. The assessment raised this as a concern but the procedure text returned (SOP-QC-014 Rev 7) does not specify the required disposition when a supplier is disqualified post-use. A human Qualified Person must decide whether the disqualification affects this lot and record the outcome (investigation and formal disposition) in the quality system.",
+              "suggested_owner": "Qualified Person, DEPT-QA"
+            }
+          }
+        }
+      ],
+      "passed": 2,
+      "total": 5,
+      "flakyChecks": [
+        {
+          "name": "cites_revision:SOP-QC-014 Rev 6",
+          "failed": 3
+        }
+      ]
+    }
+  ],
+  "model": "gpt-5-mini",
+  "engine": "agents-sdk",
+  "fixtures": "off"
+}

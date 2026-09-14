@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-end-of-line
+Module     : unit_conv_4.c   (SWC-PLT-001, ASIL B)
+Tool       : Coverity 2022.12
+Run        : 2025-01-14
+Run by     : d.ferreira
+
+SUMMARY
+  rules checked        142
+  violations           16
+  deviations approved  5
+  unresolved           3
+
+DEVIATIONS
+  D-32  Rule 13.9  goto used for single-exit error handling. Approved.
+
+UNRESOLVED
+  (none)

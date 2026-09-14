@@ -1,0 +1,34 @@
+# exported from the requirements tool 2026-09-10
+# WARNING: rows with an empty system_req are NOT errors in the export.
+# They are requirements nobody has allocated yet.
+customer_req,system_req,coverage,notes
+CR-HLX-27-0453,SR-HLX-27-0635,full,
+CR-HLX-27-0454,,,
+CR-HLX-27-0455,SR-HLX-27-0634,full,"reviewed, see minutes"
+CR-HLX-27-0455,SR-HLX-27-0648,partial,
+CR-HLX-27-0455,SR-HLX-27-0649,full,
+CR-HLX-27-0456,SR-HLX-27-0637,full,
+CR-HLX-27-0456,SR-HLX-27-0644,full,
+CR-HLX-27-0457,SR-HLX-27-0645,full,
+CR-HLX-27-0457,SR-HLX-27-0646,full,
+CR-HLX-27-0457,SR-HLX-27-0647,full,
+CR-HLX-27-0457,SR-HLX-27-0649,full,
+CR-HLX-27-0457,SR-HLX-27-0650,full,
+CR-HLX-27-0458,SR-HLX-27-0636,full,
+CR-HLX-27-0459,SR-HLX-27-0640,full,
+CR-HLX-27-0459,SR-HLX-27-0643,partial,
+CR-HLX-27-0459,SR-HLX-27-0647,full,
+CR-HLX-27-0460,SR-HLX-27-0640,full,
+CR-HLX-27-0460,SR-HLX-27-0641,partial,
+CR-HLX-27-0461,,,
+CR-HLX-27-0462,SR-HLX-27-0638,full,
+CR-HLX-27-0462,SR-HLX-27-0642,full,
+CR-HLX-27-0462,SR-HLX-27-0644,full,
+CR-HLX-27-0462,SR-HLX-27-0646,full,
+CR-HLX-27-0463,SR-HLX-27-0636,partial,
+CR-HLX-27-0463,SR-HLX-27-0637,full,"reviewed, see minutes"
+CR-HLX-27-0463,SR-HLX-27-0639,full,
+CR-HLX-27-0463,SR-HLX-27-0641,full,
+CR-HLX-27-0463,SR-HLX-27-0642,full,
+CR-HLX-27-0464,SR-HLX-27-0635,full,
+CR-HLX-27-0464,SR-HLX-27-0643,full,

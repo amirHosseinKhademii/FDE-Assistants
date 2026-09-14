@@ -1,0 +1,53 @@
+# Eight packages: seven domain-neutral, one that is the actual job.
+#
+#   packages/grounding   @fde/grounding   documents → chunks → vectors →
+#                        hybrid search. Hand it a source and a domain
+#                        descriptor; it never learns what your documents mean.
+#   packages/agent       @fde/agent       the tool-calling loop behind one
+#                        contract, with two interchangeable engines, plus the
+#                        compliance checks that assert what goes on the wire.
+#   packages/evals       @fde/evals       repeat runs, severity buckets,
+#                        baselines, diffs. You supply the cases, the checks,
+#                        and what counts as dangerous.
+#   packages/schema      @fde/schema      parse → shape → coherence rules the
+#                        type system cannot express.
+#   packages/telemetry   @fde/telemetry   one durable line per request.
+#   packages/foundry     @fde/foundry     Azure credentials, no stored key.
+#   packages/guard       @fde/guard       fail-closed API auth.
+#
+#   packages/insurance   @claims/insurance THE JUDGMENT. The corpus and its
+#                        generator, the three tools, the prompt, the answer
+#                        fields and their coherence rules, the severity
+#                        classifier, the cases, the prices. None of it
+#                        transfers, and that is the point — it is what a
+#                        customer is paying for.
+#   apps/insurance-app   @claims/insurance-app
+#                        pages and server routes. ESM, Vite, React.
+#
+# SINCE THEN: three more packages and two more apps. `@fde/uikit` joined the
+# reusable set; `@meridian/pharma` and `@vantis/steering` are second and third
+# siblings of `packages/insurance`, which is the claim above being tested rather
+# than asserted. `@veresk/surface` is the one that does not fit either half —
+# it is this SITE's shared parts, and it knows there is a firm with several
+# engagements, so it is neither liftable nor one customer's judgement. It is
+# named `@veresk/` and not `@fde/` so that `pnpm leak:check`, which keys on the
+# `@fde/` prefix, correctly leaves it alone.
+#
+#   apps/veresk-app      @veresk/app           the firm's door and Meridian
+#                        Pharma's pages.       Port 3300.
+#   apps/steering-app    @vantis/steering-app  Vantis Steering's page.
+#                        Port 3400.
+#
+# EACH ENGAGEMENT IS ITS OWN DEPLOYMENT, which is why they are separate apps
+# rather than separate routes: the firm's page links across by URL, and a link
+# that crosses an origin should not be able to pretend it does not.
+#
+# THE RULE THE SPLIT FOLLOWS: buy the transport, write the judgment. Roughly
+# 5,900 lines are domain-neutral and 3,200 are not. A second customer writes a
+# sibling of packages/insurance and changes nothing above it.
+#
+# The root is a workspace root and nothing else: no src, no dependencies of its
+# own, scripts that delegate.
+packages:
+  - 'apps/*'
+  - 'packages/*'

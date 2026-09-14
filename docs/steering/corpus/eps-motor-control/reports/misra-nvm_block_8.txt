@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-motor-control
+Module     : nvm_block_8.c   (SWC-PLT-019, ASIL QM)
+Tool       : Polyspace 2023b
+Run        : 2024-04-16
+Run by     : p.strand
+
+SUMMARY
+  rules checked        158
+  violations           0
+  deviations approved  3
+  unresolved           0
+
+DEVIATIONS
+  D-6  Rule 8.7  pointer arithmetic in the buffer walk. Approved.
+
+UNRESOLVED
+  (none)

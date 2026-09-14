@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-end-of-line
+Module     : can_shim_2.c   (SWC-PLT-006, ASIL QM)
+Tool       : Coverity 2022.12
+Run        : 2022-10-09
+Run by     : j.moreau
+
+SUMMARY
+  rules checked        153
+  violations           9
+  deviations approved  3
+  unresolved           2
+
+DEVIATIONS
+  D-26  Rule 11.3  goto used for single-exit error handling. Approved.
+
+UNRESOLVED
+  (none)

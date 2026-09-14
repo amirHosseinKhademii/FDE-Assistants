@@ -1,0 +1,497 @@
+# git log, exported 2026-09-07
+
+commit 000001666cacbade08c3e723c6a2135a8b581988
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2021-06-02
+
+    remove handler in safety-monitor
+
+commit 000002c8c77cf44761615ca7dd6fb1493779044e
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2025-10-13
+
+    fix table in safety-monitor
+
+    Change-Request: CHR-2021-0182
+
+commit 0000035e6206f00aa5d691cbe28a4243f7aaaf1b
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2021-02-09
+
+    fix check in safety-monitor
+
+commit 0000048784918b6879a8ed65e9956b0634c1ff3b
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2023-02-15
+
+    remove map in safety-monitor
+
+commit 000005a9e87ca538ad22a2ae4906910587d68c40
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2018-09-29
+
+    refactor table in safety-monitor
+
+commit 000006f3968630abfdae96a92476376b40073135
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2019-06-22
+
+    update table in safety-monitor
+
+commit 0000077fa322c69f7d3648e7ef12bdfe1bd723f6
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2020-08-04
+
+    fix map in safety-monitor
+
+commit 000008d08359c126ec094d0ed8c99a0422d22cb2
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2026-07-06
+
+    refactor map in safety-monitor
+
+commit 000009543993e4a67ec276402169f2aa4233ca00
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2023-05-28
+
+    remove table in safety-monitor
+
+commit 00000a9024dc7b9ef2a287be335f03e170098972
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2025-07-28
+
+    add handler in safety-monitor
+
+    Change-Request: CHR-2021-0182
+
+commit 00000bfd1af5760631d8ab0bfff90ac2f63859aa
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2022-09-11
+
+    refactor guard in safety-monitor
+
+commit 00000c82261f72e2ad5020be2529f675ae5ab8be
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2018-12-07
+
+    refactor check in safety-monitor
+
+commit 00000d0b77c4609c8f719230dfb39b3dd31724e2
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2019-05-11
+
+    refactor filter in safety-monitor
+
+commit 00000e3dd7903c713fe7e8541e6f596b6fb34943
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2021-03-06
+
+    fix handler in safety-monitor
+
+    Change-Request: CHR-2024-0018
+
+commit 00000f4c1d2a3b462214033f8b1ce05f8c4f12ee
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2025-01-19
+
+    remove check in safety-monitor
+
+    Change-Request: CHR-2025-0001
+
+commit 000010d91a45081519c8944b1e8627e011044e80
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2025-01-05
+
+    remove filter in safety-monitor
+
+commit 000011172e7426d4550958307bd9f659b02392d9
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2024-08-25
+
+    refactor filter in safety-monitor
+
+commit 000012289b17dcd0fcf29f12158b0d5438c248b5
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2019-12-26
+
+    remove filter in safety-monitor
+
+    Change-Request: CHR-2025-0206
+
+commit 000013107faa36de0c35be1dcd861ee27f54c8ed
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2022-07-25
+
+    remove check in safety-monitor
+
+commit 000014621cdb49ee59b252b21bf878f4b83d4185
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2019-11-20
+
+    add map in safety-monitor
+
+commit 000015906c1c535da5e6ac84ecf5923729769d42
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2022-01-09
+
+    update map in safety-monitor
+
+commit 00001683cea0db975c769ded60f35bb1bfe6ca1c
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2019-12-08
+
+    refactor map in safety-monitor
+
+commit 000017c0683cd0df54392d34f7ee1a9b940822f5
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2022-08-12
+
+    add handler in safety-monitor
+
+commit 00001887e5e9297aa82b4ecbcaacc88f304452ce
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2024-02-23
+
+    remove handler in safety-monitor
+
+commit 00001921e9fb9bdf0351d02b401e9dd0ce06f0e6
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2021-05-19
+
+    add map in safety-monitor
+
+    Change-Request: CHR-2022-0094
+
+commit 00001a001a4b8134e120206002b09626dbc44c92
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2026-03-19
+
+    remove check in safety-monitor
+
+    Change-Request: CHR-2020-0135
+
+commit 00001b343ff79f837f295fa4202877f7c93515d0
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2022-06-23
+
+    update filter in safety-monitor
+
+commit 00001c0d7fad4c1fc1afd9a06d983407b18f7714
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2025-10-17
+
+    remove filter in safety-monitor
+
+    Change-Request: CHR-2020-0129
+
+commit 00001dc49b05e19d0b2b0e32c0744262e748920c
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2019-02-21
+
+    remove map in safety-monitor
+
+    Change-Request: CHR-2025-0003
+
+commit 00001ea176aa2a0aec57edbc1778dd5f27af9857
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2022-04-07
+
+    fix handler in safety-monitor
+
+    Change-Request: CHR-2025-0113
+
+commit 00001fbf5a45c70279cc2fee3d9e8c0436c94fca
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2024-02-17
+
+    update filter in safety-monitor
+
+commit 000020351390c7e027e5ffeb66e629cdda35ef2c
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2026-03-21
+
+    remove map in safety-monitor
+
+commit 00002141411bc97b52716a32f4e662b12f4c8276
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2022-03-05
+
+    remove handler in safety-monitor
+
+commit 00002271b22e0186e68a13b705f5d6e0cfe2b334
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2026-05-16
+
+    remove guard in safety-monitor
+
+    Change-Request: CHR-2022-0033
+
+commit 0000235fadbc470195e672cac157a3505c52f2a3
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2018-05-09
+
+    fix map in safety-monitor
+
+    Change-Request: CHR-2020-0135
+
+commit 000024bb4ce89ffcea8820022dbf9c4a31709315
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2021-06-27
+
+    remove handler in safety-monitor
+
+    Change-Request: CHR-2025-0009
+
+commit 0000251feea10ab482185d170b8949987223b985
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2020-03-10
+
+    add check in safety-monitor
+
+commit 0000260d31057dac46d4f781ad88957e1b73aeef
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2026-06-02
+
+    remove handler in safety-monitor
+
+commit 0000273c912bbf7c672117bd0f141905490a4995
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2021-06-19
+
+    fix map in safety-monitor
+
+    Change-Request: CHR-2025-0147
+
+commit 00002861c751966cca6a3715049fc17732b499e2
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2024-03-25
+
+    update table in safety-monitor
+
+    Change-Request: CHR-2024-0036
+
+commit 000029c67aab1faf020ea7f1bba30ebb3ee1b4c3
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2022-01-28
+
+    remove guard in safety-monitor
+
+commit 00002a48bbbf2f8c51e240ccf032d8f7fcc9b7f1
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2021-08-14
+
+    update handler in safety-monitor
+
+    Change-Request: CHR-2020-0204
+
+commit 00002b9bd23884b6d120ecce6a44b3240fbb6843
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2020-05-16
+
+    update check in safety-monitor
+
+    Change-Request: CHR-2021-0185
+
+commit 00002c84ecf3bf0332b5028282eae716fd8522a3
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2021-02-17
+
+    refactor guard in safety-monitor
+
+    Change-Request: CHR-2025-0145
+
+commit 00002d11b48880d49f32c069db9f57d914e474e2
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2024-07-25
+
+    fix table in safety-monitor
+
+commit 00002e2b581fc113128c796543c14bc86fc44370
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2026-07-22
+
+    refactor handler in safety-monitor
+
+commit 00002f7cc443b246228c80c1e4e7ef6ee0b008b3
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2024-03-22
+
+    update check in safety-monitor
+
+commit 0000303ee18f271dbe3160a233a40ebe32f925ae
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2022-07-20
+
+    fix map in safety-monitor
+
+    Change-Request: CHR-2025-0147
+
+commit 000031a6ac1e17d99639979b4081995b78be342e
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2024-10-04
+
+    remove table in safety-monitor
+
+commit 000032b3560d64f6927abdb5ea3b0f72e1f3ecf2
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2019-07-23
+
+    update map in safety-monitor
+
+commit 00003332966b482cd2678bae7fd0fc8421fccf1b
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2018-08-16
+
+    add table in safety-monitor
+
+    Change-Request: CHR-2020-0014
+
+commit 000034bf39ccac1f17f65358b70341e9013111d2
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2026-03-10
+
+    add filter in safety-monitor
+
+commit 00003588835eee3d7ed7f6580d4e3cc514ad707b
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2025-02-05
+
+    remove handler in safety-monitor
+
+    Change-Request: CHR-2020-0158
+
+commit 000036ff6da6bc21f2e03e94b43dd99282c861c1
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2021-03-03
+
+    update filter in safety-monitor
+
+    Change-Request: CHR-2023-0164
+
+commit 0000371d38049889863a39d2dd782dd4c88cac78
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2024-09-22
+
+    remove map in safety-monitor
+
+commit 000038b123a5ae64d9f493e1dd99d6d7f34bb31a
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2022-04-14
+
+    refactor check in safety-monitor
+
+commit 000039325d5c59d0839fa5fd54c620e25af28559
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2026-03-06
+
+    update guard in safety-monitor
+
+commit 00003a7eaffb6c9634f160a8df17d8e3dfdf757c
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2020-08-08
+
+    remove table in safety-monitor
+
+commit 00003b23644150bff763271da0dc809878854dd6
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2020-12-26
+
+    remove map in safety-monitor
+
+commit 00003c174457928ff01d990cbc96eb83d871f2ad
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2022-02-22
+
+    update filter in safety-monitor
+
+    Change-Request: CHR-2023-0144
+
+commit 00003d03c39569e077734a7f22c56925ed34edb7
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2026-06-22
+
+    remove filter in safety-monitor
+
+    Change-Request: CHR-2022-0140
+
+commit 00003eed25dc2c2aa3ecdd1cd1597262315b85dc
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2023-12-27
+
+    update check in safety-monitor
+
+commit 00003f82bc98b3f5ebfebef938a67f8483e457db
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2018-09-04
+
+    update check in safety-monitor
+
+commit 0000407cdd830612bf3b922e6abdf82b8afb41d1
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2020-04-29
+
+    fix map in safety-monitor
+
+    Change-Request: CHR-2021-0124
+
+commit 0000412692cced6a511f1364d762e4a0cdc69038
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2024-07-08
+
+    update handler in safety-monitor
+
+    Change-Request: CHR-2021-0057
+
+commit 000042f15a73cfd4a7c22ad286d12841aeb4e7ec
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2024-03-15
+
+    update check in safety-monitor
+
+    Change-Request: CHR-2025-0145
+
+commit 000043c03a8e1421f6867a82d320d0fb47ac1da9
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2019-11-09
+
+    add table in safety-monitor
+
+    Change-Request: CHR-2025-0020
+
+commit 00004426d4b1abf7f2fc7a751ec2d7a0e0c217f7
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2022-05-26
+
+    refactor map in safety-monitor
+
+commit 000045c10dd3dc192bf6b7e0076ca85f44bb20c9
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2021-01-23
+
+    refactor handler in safety-monitor
+
+commit 000046528798fe09fb47312f45284c9ce52d5013
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2024-01-07
+
+    refactor table in safety-monitor
+
+commit 000047bd16f178b8b739b7d105dc9cbbf59d1bf9
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2022-06-23
+
+    fix table in safety-monitor
+
+commit 000048704c82dbc89cb246f9fac6b6733e4d3ced
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2021-09-29
+
+    fix table in safety-monitor
+
+    Change-Request: CHR-2023-0037
+
+commit 00004988cba0d07146dfc16817497e820ef70d6f
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2025-12-20
+
+    update table in safety-monitor

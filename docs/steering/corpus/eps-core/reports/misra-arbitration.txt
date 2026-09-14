@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-core
+Module     : arbitration.c   (SWC-ARB, ASIL D)
+Tool       : Coverity 2022.12
+Run        : 2023-03-04
+Run by     : a.kovac
+
+SUMMARY
+  rules checked        174
+  violations           17
+  deviations approved  1
+  unresolved           3
+
+DEVIATIONS
+  D-29  Rule 10.6  pointer arithmetic in the buffer walk. Approved.
+
+UNRESOLVED
+  Rule 19.5 at arbitration.c:86 — owner p.strand, no target date

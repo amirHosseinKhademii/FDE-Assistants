@@ -1,0 +1,50 @@
+# exported from the requirements tool 2026-09-02
+# WARNING: rows with an empty system_req are NOT errors in the export.
+# They are requirements nobody has allocated yet.
+customer_req,system_req,coverage,notes
+CR-TDR-01-0017,SR-TDR-01-0037,full,
+CR-TDR-01-0017,SR-TDR-01-0048,full,
+CR-TDR-01-0018,SR-TDR-01-0034,partial,
+CR-TDR-01-0019,SR-TDR-01-0041,full,
+CR-TDR-01-0020,SR-TDR-01-0032,full,
+CR-TDR-01-0021,SR-TDR-01-0026,full,
+CR-TDR-01-0022,SR-TDR-01-0027,partial,
+CR-TDR-01-0022,SR-TDR-01-0028,partial,
+CR-TDR-01-0022,SR-TDR-01-0031,full,
+CR-TDR-01-0022,SR-TDR-01-0032,full,
+CR-TDR-01-0022,SR-TDR-01-0034,full,"reviewed, see minutes"
+CR-TDR-01-0022,SR-TDR-01-0043,partial,
+CR-TDR-01-0023,SR-TDR-01-0030,full,
+CR-TDR-01-0023,SR-TDR-01-0043,full,"reviewed, see minutes"
+CR-TDR-01-0023,SR-TDR-01-0044,full,
+CR-TDR-01-0023,SR-TDR-01-0045,full,
+CR-TDR-01-0024,SR-TDR-01-0047,full,"reviewed, see minutes"
+CR-TDR-01-0025,SR-TDR-01-0033,partial,
+CR-TDR-01-0025,SR-TDR-01-0036,full,
+CR-TDR-01-0025,SR-TDR-01-0037,partial,
+CR-TDR-01-0025,SR-TDR-01-0046,full,
+CR-TDR-01-0026,SR-TDR-01-0029,full,"reviewed, see minutes"
+CR-TDR-01-0026,SR-TDR-01-0050,full,
+CR-TDR-01-0027,SR-TDR-01-0023,full,"reviewed, see minutes"
+CR-TDR-01-0027,SR-TDR-01-0048,full,
+CR-TDR-01-0028,SR-TDR-01-0051,full,
+CR-TDR-01-0029,SR-TDR-01-0030,full,"reviewed, see minutes"
+CR-TDR-01-0030,SR-TDR-01-0026,full,
+CR-TDR-01-0030,SR-TDR-01-0049,full,
+CR-TDR-01-0030,SR-TDR-01-0050,full,"reviewed, see minutes"
+CR-TDR-01-0031,SR-TDR-01-0040,full,
+CR-TDR-01-0032,,,not yet allocated
+CR-TDR-01-0033,SR-TDR-01-0024,full,
+CR-TDR-01-0033,SR-TDR-01-0045,full,
+CR-TDR-01-0033,SR-TDR-01-0047,full,
+CR-TDR-01-0033,SR-TDR-01-0053,full,
+CR-TDR-01-0034,SR-TDR-01-0028,full,
+CR-TDR-01-0034,SR-TDR-01-0039,partial,
+CR-TDR-01-0035,SR-TDR-01-0042,full,
+CR-TDR-01-0036,SR-TDR-01-0038,full,
+CR-TDR-01-0037,SR-TDR-01-0023,full,
+CR-TDR-01-0037,SR-TDR-01-0035,full,
+CR-TDR-01-0037,SR-TDR-01-0051,full,
+CR-TDR-01-0038,SR-TDR-01-0025,full,
+CR-TDR-01-0038,SR-TDR-01-0039,full,
+CR-TDR-01-0038,SR-TDR-01-0052,full,

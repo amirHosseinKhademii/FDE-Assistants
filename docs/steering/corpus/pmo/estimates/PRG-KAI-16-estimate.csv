@@ -1,0 +1,10 @@
+# bottom-up estimate, built before nomination
+# author: J. Moreau   date: 2021-07-12
+# "basis" is free text. It is the only record of WHERE a number came from.
+work_package,discipline,hours,basis,confidence
+motor control,systems,675,similar to H1,low
+assist tuning,pm,622,from the last programme,medium
+HIL rig update,systems,879,similar to H1,low
+ECU integration,hardware,653,similar to H1,high
+gearbox change,validation,221,engineering judgement,medium
+assist tuning,safety,538,supplier quote,high

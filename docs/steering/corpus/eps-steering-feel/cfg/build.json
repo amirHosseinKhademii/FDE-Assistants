@@ -1,0 +1,80 @@
+{
+  "repo": "eps-steering-feel",
+  "platform": "classic-autosar",
+  "toolchain": "greenhills-2022.1",
+  "modules": {
+    "damping": {
+      "swc": "SWC-DAMP",
+      "asil": "D",
+      "optimisation": "-Os",
+      "stack_bytes": 1716
+    },
+    "hysteresis_comp": {
+      "swc": "SWC-HYSTCOMP",
+      "asil": "B",
+      "optimisation": "-O2",
+      "stack_bytes": 2538
+    },
+    "friction_comp": {
+      "swc": "SWC-FRICCOMP",
+      "asil": "B",
+      "optimisation": "-Os",
+      "stack_bytes": 2832
+    },
+    "rtc": {
+      "swc": "SWC-RTC",
+      "asil": "B",
+      "optimisation": "-O2",
+      "stack_bytes": 3220
+    },
+    "state_machine_1": {
+      "swc": "SWC-PLT-013",
+      "asil": "B",
+      "optimisation": "-O2",
+      "stack_bytes": 270
+    },
+    "rate_limit_2": {
+      "swc": "SWC-PLT-018",
+      "asil": "QM",
+      "optimisation": "-O2",
+      "stack_bytes": 2862
+    },
+    "can_shim_3": {
+      "swc": "SWC-PLT-032",
+      "asil": "QM",
+      "optimisation": "-O2",
+      "stack_bytes": 575
+    },
+    "ring_buffer_4": {
+      "swc": "SWC-PLT-019",
+      "asil": "QM",
+      "optimisation": "-O2",
+      "stack_bytes": 1688
+    },
+    "bitfield_5": {
+      "swc": "SWC-PLT-034",
+      "asil": "QM",
+      "optimisation": "-O2",
+      "stack_bytes": 3383
+    },
+    "debounce_6": {
+      "swc": "SWC-PLT-023",
+      "asil": "D",
+      "optimisation": "-O2",
+      "stack_bytes": 1168
+    },
+    "event_queue_7": {
+      "swc": "SWC-PLT-019",
+      "asil": "B",
+      "optimisation": "-O2",
+      "stack_bytes": 913
+    },
+    "checksum_8": {
+      "swc": "SWC-PLT-003",
+      "asil": "B",
+      "optimisation": "-O2",
+      "stack_bytes": 594
+    }
+  },
+  "note": "damping is built at ASIL D following the 2024 SbW pre-development trial. See reports/misra-damping.txt deviation D-07."
+}

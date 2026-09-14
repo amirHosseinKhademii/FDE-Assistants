@@ -1,0 +1,300 @@
+{
+  "sha": "400562829f7559b6",
+  "rows": 14781,
+  "tables": [
+    {
+      "system": "crm",
+      "table": "contacts",
+      "rows": 59,
+      "sha": "155186611f4454e2"
+    },
+    {
+      "system": "crm",
+      "table": "customers",
+      "rows": 11,
+      "sha": "4c78c17e1857301a"
+    },
+    {
+      "system": "crm",
+      "table": "milestones",
+      "rows": 246,
+      "sha": "9f0dafe507fcecb1"
+    },
+    {
+      "system": "crm",
+      "table": "programs",
+      "rows": 38,
+      "sha": "dcadc4241bd4fe16"
+    },
+    {
+      "system": "crm",
+      "table": "rfq_specs",
+      "rows": 1,
+      "sha": "c803156a2eba20a9"
+    },
+    {
+      "system": "crm",
+      "table": "rfqs",
+      "rows": 52,
+      "sha": "13593b10b165b47c"
+    },
+    {
+      "system": "plm",
+      "table": "assemblies",
+      "rows": 90,
+      "sha": "13ee08c75ebb9d7e"
+    },
+    {
+      "system": "plm",
+      "table": "bom_lines",
+      "rows": 599,
+      "sha": "2a1abd986b8514b7"
+    },
+    {
+      "system": "plm",
+      "table": "component_suppliers",
+      "rows": 12,
+      "sha": "659d16b66a332980"
+    },
+    {
+      "system": "plm",
+      "table": "part_capabilities",
+      "rows": 297,
+      "sha": "5b78b214f148d289"
+    },
+    {
+      "system": "plm",
+      "table": "part_program_usage",
+      "rows": 228,
+      "sha": "803e10ae9216ed4c"
+    },
+    {
+      "system": "plm",
+      "table": "parts",
+      "rows": 180,
+      "sha": "358beaf3e2bcb079"
+    },
+    {
+      "system": "plm",
+      "table": "product_lines",
+      "rows": 6,
+      "sha": "914ee1b0cae94105"
+    },
+    {
+      "system": "plm",
+      "table": "qualification_tests",
+      "rows": 210,
+      "sha": "4e5c7129d68cde73"
+    },
+    {
+      "system": "alm",
+      "table": "activities",
+      "rows": 12,
+      "sha": "a7638e53562865c4"
+    },
+    {
+      "system": "alm",
+      "table": "activity_allocations",
+      "rows": 317,
+      "sha": "886a7b76ef90fa3a"
+    },
+    {
+      "system": "alm",
+      "table": "architecture_versions",
+      "rows": 79,
+      "sha": "a42e8a37ddeae1cc"
+    },
+    {
+      "system": "alm",
+      "table": "budget_allocations",
+      "rows": 66,
+      "sha": "35215b1840cbe321"
+    },
+    {
+      "system": "alm",
+      "table": "budgets",
+      "rows": 32,
+      "sha": "1357316c60e27dad"
+    },
+    {
+      "system": "alm",
+      "table": "change_request_items",
+      "rows": 310,
+      "sha": "58893068930a1519"
+    },
+    {
+      "system": "alm",
+      "table": "change_requests",
+      "rows": 207,
+      "sha": "1a0c3a92550dc782"
+    },
+    {
+      "system": "alm",
+      "table": "cr_history",
+      "rows": 221,
+      "sha": "98038e52d4a8ca87"
+    },
+    {
+      "system": "alm",
+      "table": "customer_requirement_versions",
+      "rows": 1273,
+      "sha": "e3b413cd28a462d0"
+    },
+    {
+      "system": "alm",
+      "table": "customer_requirements",
+      "rows": 641,
+      "sha": "145cb8f99509ff48"
+    },
+    {
+      "system": "alm",
+      "table": "elements",
+      "rows": 191,
+      "sha": "a1307a6a17dfcf1c"
+    },
+    {
+      "system": "alm",
+      "table": "interfaces",
+      "rows": 154,
+      "sha": "85961fe426edf0a9"
+    },
+    {
+      "system": "alm",
+      "table": "spec_documents",
+      "rows": 38,
+      "sha": "a2e390eb2d70d65c"
+    },
+    {
+      "system": "alm",
+      "table": "spec_revisions",
+      "rows": 76,
+      "sha": "c00e00b03d1fd7bc"
+    },
+    {
+      "system": "alm",
+      "table": "system_requirement_versions",
+      "rows": 1321,
+      "sha": "d518c99d3400c2b6"
+    },
+    {
+      "system": "alm",
+      "table": "system_requirements",
+      "rows": 888,
+      "sha": "8bfec1bb7526dcfc"
+    },
+    {
+      "system": "alm",
+      "table": "trace_cr_sr",
+      "rows": 1291,
+      "sha": "50fd14ce219dccc2"
+    },
+    {
+      "system": "alm",
+      "table": "trace_sr_element",
+      "rows": 1327,
+      "sha": "a5ac667eadc685ed"
+    },
+    {
+      "system": "pmo",
+      "table": "effort_by_discipline",
+      "rows": 2078,
+      "sha": "e10f80c836e8b84e"
+    },
+    {
+      "system": "pmo",
+      "table": "effort_records",
+      "rows": 640,
+      "sha": "c9ec6840cd07cc55"
+    },
+    {
+      "system": "pmo",
+      "table": "quote_lines",
+      "rows": 301,
+      "sha": "914c5029b9a75239"
+    },
+    {
+      "system": "pmo",
+      "table": "quotes",
+      "rows": 52,
+      "sha": "65f14ae54a6de7e2"
+    },
+    {
+      "system": "pmo",
+      "table": "rate_cards",
+      "rows": 168,
+      "sha": "a8240413c60064d3"
+    },
+    {
+      "system": "corpus",
+      "table": "eps-calibration-tools",
+      "rows": 57,
+      "sha": "ebf4697a50550411"
+    },
+    {
+      "system": "corpus",
+      "table": "eps-core",
+      "rows": 60,
+      "sha": "cd53190659502650"
+    },
+    {
+      "system": "corpus",
+      "table": "eps-diagnostics",
+      "rows": 68,
+      "sha": "4934a389d80aaee9"
+    },
+    {
+      "system": "corpus",
+      "table": "eps-end-of-line",
+      "rows": 45,
+      "sha": "c86f2bf83babe2c6"
+    },
+    {
+      "system": "corpus",
+      "table": "eps-motor-control",
+      "rows": 69,
+      "sha": "3b6481ca6793965a"
+    },
+    {
+      "system": "corpus",
+      "table": "eps-safety-monitor",
+      "rows": 58,
+      "sha": "2c0074c7bd776b7f"
+    },
+    {
+      "system": "corpus",
+      "table": "eps-steer-by-wire",
+      "rows": 41,
+      "sha": "c18823c8ce0a19f5"
+    },
+    {
+      "system": "corpus",
+      "table": "eps-steering-feel",
+      "rows": 79,
+      "sha": "0919dd574f616011"
+    },
+    {
+      "system": "corpus",
+      "table": "pmo",
+      "rows": 355,
+      "sha": "5fd3d54a2b7cb06c"
+    },
+    {
+      "system": "corpus",
+      "table": "releases",
+      "rows": 24,
+      "sha": "cfbab2193f2cc0b7"
+    },
+    {
+      "system": "corpus",
+      "table": "requirements",
+      "rows": 212,
+      "sha": "75c01ff649afb499"
+    },
+    {
+      "system": "corpus",
+      "table": "tickets",
+      "rows": 1,
+      "sha": "c2f0a61854dcb88a"
+    }
+  ]
+}

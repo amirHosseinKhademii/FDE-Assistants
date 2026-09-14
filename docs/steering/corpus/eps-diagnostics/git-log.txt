@@ -1,0 +1,503 @@
+# git log, exported 2026-09-07
+
+commit 000001bf06db5e3d1800748e42a6cde6c14b176e
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2023-02-24
+
+    add guard in diagnostics
+
+    Change-Request: CHR-2020-0023
+
+commit 000002ad8366daad1f87ee4790ea6d522c4f3636
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2022-05-11
+
+    update map in diagnostics
+
+    Change-Request: CHR-2025-0171
+
+commit 000003ee660c7079d1932f3f3d1f5b8907a70c46
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2021-06-04
+
+    refactor check in diagnostics
+
+commit 0000048d949fb1f5bff9b16932eda8cfa683621b
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2022-10-30
+
+    fix table in diagnostics
+
+    Change-Request: CHR-2023-0080
+
+commit 000005dad2786e4f8524edfa32aa62f29855a22f
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2018-10-09
+
+    remove guard in diagnostics
+
+commit 000006969b26dcba3b352deff40bc8603f7937df
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2021-11-29
+
+    add check in diagnostics
+
+    Change-Request: CHR-2021-0105
+
+commit 000007f8fa34fb89adeefbbfb255aef37c81dd6e
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2019-12-22
+
+    remove guard in diagnostics
+
+commit 000008e1bb2fd394b5c483a3cf9ebe7954f5d2e0
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2021-11-11
+
+    refactor check in diagnostics
+
+    Change-Request: CHR-2020-0159
+
+commit 00000929d7f72a356d4e565fb0b572a5a0365fa1
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2018-04-23
+
+    update check in diagnostics
+
+commit 00000ae7a051edf4b5bd6477cf7f438332a1e8c8
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2024-08-04
+
+    fix table in diagnostics
+
+commit 00000b8da527dd87e9a48479a5c1d0e7504ee08e
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2024-08-10
+
+    refactor filter in diagnostics
+
+commit 00000cd641c9cb3e61745634ce2c53ca3e191733
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2025-10-30
+
+    fix filter in diagnostics
+
+    Change-Request: CHR-2024-0200
+
+commit 00000d8e8d7b9c601d88961dd1a74321085f9f27
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2024-05-17
+
+    add check in diagnostics
+
+    Change-Request: CHR-2024-0107
+
+commit 00000eee9d841c2aab7a8f4ce27521115f6435fd
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2023-07-25
+
+    add filter in diagnostics
+
+    Change-Request: CHR-2025-0060
+
+commit 00000f4dca5e17a10b1bc526d60df4ea82842ea0
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2022-01-13
+
+    remove check in diagnostics
+
+    Change-Request: CHR-2021-0205
+
+commit 00001077e87b2b2a2e0a2d03ac04948871f7dd17
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2023-07-23
+
+    add table in diagnostics
+
+commit 000011e0d1cd0bca1c3731d264ef128d8597a1e1
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2020-05-09
+
+    fix table in diagnostics
+
+    Change-Request: CHR-2022-0157
+
+commit 00001222d673dd0ab04f2ce63d45ea841db7f80d
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2020-12-26
+
+    refactor guard in diagnostics
+
+    Change-Request: CHR-2022-0108
+
+commit 000013a033de45cb1151f8ed3d54cad69c6c35d9
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2025-07-18
+
+    fix guard in diagnostics
+
+commit 000014ff0bd95495c6f9b37fc95ebc75693b4bbb
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2020-07-23
+
+    update check in diagnostics
+
+commit 0000158dfbf2a36cd37fb83e875da5aa5e0efdc9
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2023-07-07
+
+    refactor guard in diagnostics
+
+commit 0000163cec826fd609a804ce3d22ac781e696756
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2024-05-08
+
+    update handler in diagnostics
+
+commit 000017ff2f17110e7150c7c61ccc2a04c4376d55
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2023-09-01
+
+    refactor guard in diagnostics
+
+commit 000018c8a39412081829d2aebbd94979ce15c77b
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2020-09-20
+
+    remove handler in diagnostics
+
+commit 0000199925225a788be9fe4518d0720c9f9e8c34
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2022-05-12
+
+    fix table in diagnostics
+
+    Change-Request: CHR-2022-0140
+
+commit 00001a3ed1c20f0a7b915dc12a41ee1e928dc835
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2018-04-28
+
+    update filter in diagnostics
+
+commit 00001b07909141562fc7463324c96dcb51207d5e
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2021-07-05
+
+    update filter in diagnostics
+
+commit 00001cdb9d75c7f360c574a4810d0553238bac29
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2021-06-23
+
+    refactor table in diagnostics
+
+commit 00001d5ef1b451b65ee491b2e70598e62b34c9c3
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2023-03-12
+
+    remove check in diagnostics
+
+    Change-Request: CHR-2023-0025
+
+commit 00001ec0fd51a933c6003a361a1bfb38d15007aa
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2022-03-09
+
+    update check in diagnostics
+
+commit 00001fc39539d6042668abec84a70e9445eb0cdc
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2020-12-28
+
+    add guard in diagnostics
+
+commit 0000206922ba2a900e18bc7556d86e9b08ca04f4
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2018-02-04
+
+    fix filter in diagnostics
+
+commit 0000218cd1c4eb800e3d7de06f65e5e89c77fd46
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2022-08-05
+
+    fix map in diagnostics
+
+    Change-Request: CHR-2020-0135
+
+commit 000022504dd5b08dcb56e9d9c4361625a2dfbaaf
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2023-10-28
+
+    update table in diagnostics
+
+commit 0000234cb11889d344c3ca1a37bef6186cd9b892
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2025-01-28
+
+    remove guard in diagnostics
+
+    Change-Request: CHR-2021-0205
+
+commit 000024b2553ebe328b69119dbca8974242f1c62e
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2024-01-13
+
+    add table in diagnostics
+
+    Change-Request: CHR-2020-0125
+
+commit 00002595a467f7f4bf3fc48ab9ddfaf7950211d1
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2019-10-06
+
+    update table in diagnostics
+
+commit 000026bc006d21ab1bd707dc632e7f703a76c324
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2018-07-18
+
+    add filter in diagnostics
+
+commit 000027520bde86f0d872163aa835d6c1bd464d88
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2018-11-21
+
+    refactor check in diagnostics
+
+commit 0000288c1a5d8ab939f548d923f9f8603ed309e5
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2021-12-06
+
+    fix check in diagnostics
+
+commit 00002968ba9daf60c134f678848eb24897015077
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2026-03-22
+
+    add table in diagnostics
+
+    Change-Request: CHR-2025-0029
+
+commit 00002a92a09b37b98d054ec65e03ccd08bdff6fb
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2019-10-09
+
+    remove filter in diagnostics
+
+commit 00002bf689a1dada36a5ebcf790e8e73ef807820
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2021-01-10
+
+    refactor table in diagnostics
+
+commit 00002c3faa7435eb61cfe0bea9cab8cdc50a6372
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2019-02-04
+
+    refactor check in diagnostics
+
+    Change-Request: CHR-2024-0018
+
+commit 00002d228d468e3fc2b8be376e14f83b70c961e3
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2022-11-17
+
+    fix map in diagnostics
+
+    Change-Request: CHR-2020-0136
+
+commit 00002e04949e5c95ece9a05d4a26e4064524e467
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2018-06-13
+
+    refactor check in diagnostics
+
+commit 00002fe8a7a01e38b19e2cb361656ac729be391f
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2018-04-01
+
+    update handler in diagnostics
+
+    Change-Request: CHR-2024-0043
+
+commit 0000300d159477746f2a945d16ab6bef79da65e3
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2021-09-26
+
+    update map in diagnostics
+
+commit 000031664cd2e179cef63b885a2e12a69db55904
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2019-01-24
+
+    update check in diagnostics
+
+    Change-Request: CHR-2022-0006
+
+commit 000032153f248c205faa44c82a4fa96b3c9cc2e0
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2023-06-06
+
+    update map in diagnostics
+
+commit 0000337496af5b832a3151f49a323eb9e1c577bb
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2020-06-01
+
+    remove map in diagnostics
+
+commit 0000347d5bee16887dee63b2fda95244a7a58748
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2025-12-11
+
+    update map in diagnostics
+
+    Change-Request: CHR-2023-0194
+
+commit 000035d3bff4dc22c5990a704b625bf3ef8f1b23
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2023-03-10
+
+    update table in diagnostics
+
+commit 0000366b78905a5f2a0dd92224561675128a5b9e
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2019-11-08
+
+    remove guard in diagnostics
+
+commit 000037327c4f759406e62ff4b52ba37ff7f9b458
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2018-08-10
+
+    update table in diagnostics
+
+    Change-Request: CHR-2024-0026
+
+commit 00003864629cba233cf7c247c2de28f8dd52295a
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2019-11-27
+
+    update guard in diagnostics
+
+commit 000039cb53cfb3c9a36e4c5a93e60b71a4a208fb
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2018-01-12
+
+    fix table in diagnostics
+
+commit 00003a9c5ce567c70d0ee59c9c2f9eb4e3a17443
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2024-08-11
+
+    remove handler in diagnostics
+
+commit 00003b08eddc9ca9c7de51c4a1b5896b72bd1b77
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2021-01-20
+
+    add handler in diagnostics
+
+    Change-Request: CHR-2023-0025
+
+commit 00003c1fa53a37408791e309b3cf7eecd661c41a
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2019-09-21
+
+    update handler in diagnostics
+
+commit 00003d758b69df22ee7326ee1b134b22f3950430
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2019-03-28
+
+    fix filter in diagnostics
+
+commit 00003e7893dfc8097bab08f1ef0ae12231101849
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2024-06-11
+
+    remove handler in diagnostics
+
+commit 00003f34830e903c79b166ba5a0bbd6e82b71922
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2026-04-26
+
+    add filter in diagnostics
+
+commit 0000401a04df0d0d5e358927c4a99e8426d38fb4
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2023-09-23
+
+    update map in diagnostics
+
+    Change-Request: CHR-2025-0052
+
+commit 00004173492940117ccfd15e6b3b3629244373b4
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2026-01-30
+
+    remove filter in diagnostics
+
+    Change-Request: CHR-2021-0151
+
+commit 0000422dd58f8a3f6625614fadd827eeb4210834
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2020-05-17
+
+    refactor guard in diagnostics
+
+commit 00004323bb072ef9b1c253f6180f106414e64cd3
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2023-08-12
+
+    add guard in diagnostics
+
+commit 0000445b202a7ef6ea99a5560dc7f45fc47843f2
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2018-10-17
+
+    add table in diagnostics
+
+    Change-Request: CHR-2023-0027
+
+commit 00004581e65a2246d588bd0bce4485c366c8b428
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2022-10-10
+
+    add guard in diagnostics
+
+commit 000046f7a50b9020f69563e547d31f9b20374791
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2024-06-17
+
+    add guard in diagnostics
+
+    Change-Request: CHR-2024-0047
+
+commit 0000470139e014a66a73fc5e19654816fff0dcc4
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2019-10-27
+
+    fix check in diagnostics
+
+commit 00004808db24bf80d2a47c1f3f84ac1235d2dafd
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2019-02-10
+
+    remove map in diagnostics
+
+commit 000049f6c55a763e17432944adb089a213b71c14
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2019-12-17
+
+    add filter in diagnostics
+
+    Change-Request: CHR-2024-0192
+
+commit 00004a40df7e299d4c38aea86259d89d5870aee7
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2018-01-16
+
+    refactor table in diagnostics

@@ -1,0 +1,41 @@
+# exported from the requirements tool 2026-09-01
+# WARNING: rows with an empty system_req are NOT errors in the export.
+# They are requirements nobody has allocated yet.
+customer_req,system_req,coverage,notes
+CR-VGR-18-0298,,,not yet allocated
+CR-VGR-18-0299,SR-VGR-18-0419,full,
+CR-VGR-18-0299,SR-VGR-18-0420,full,
+CR-VGR-18-0299,SR-VGR-18-0424,full,
+CR-VGR-18-0299,SR-VGR-18-0428,full,
+CR-VGR-18-0299,SR-VGR-18-0431,full,"reviewed, see minutes"
+CR-VGR-18-0300,SR-VGR-18-0417,full,"reviewed, see minutes"
+CR-VGR-18-0300,SR-VGR-18-0438,full,
+CR-VGR-18-0301,,,not yet allocated
+CR-VGR-18-0302,SR-VGR-18-0426,full,
+CR-VGR-18-0302,SR-VGR-18-0427,full,
+CR-VGR-18-0302,SR-VGR-18-0431,full,
+CR-VGR-18-0302,SR-VGR-18-0435,full,"reviewed, see minutes"
+CR-VGR-18-0302,SR-VGR-18-0436,full,"reviewed, see minutes"
+CR-VGR-18-0303,SR-VGR-18-0429,full,
+CR-VGR-18-0303,SR-VGR-18-0439,full,
+CR-VGR-18-0304,SR-VGR-18-0417,full,
+CR-VGR-18-0304,SR-VGR-18-0430,full,
+CR-VGR-18-0304,SR-VGR-18-0434,full,"reviewed, see minutes"
+CR-VGR-18-0305,SR-VGR-18-0423,full,
+CR-VGR-18-0306,SR-VGR-18-0436,full,
+CR-VGR-18-0307,SR-VGR-18-0441,full,"reviewed, see minutes"
+CR-VGR-18-0308,SR-VGR-18-0421,full,
+CR-VGR-18-0309,SR-VGR-18-0418,full,
+CR-VGR-18-0310,SR-VGR-18-0438,full,
+CR-VGR-18-0310,SR-VGR-18-0442,full,
+CR-VGR-18-0310,SR-VGR-18-0443,full,
+CR-VGR-18-0311,SR-VGR-18-0422,full,
+CR-VGR-18-0311,SR-VGR-18-0432,full,
+CR-VGR-18-0311,SR-VGR-18-0433,full,
+CR-VGR-18-0311,SR-VGR-18-0437,full,
+CR-VGR-18-0312,SR-VGR-18-0440,full,"reviewed, see minutes"
+CR-VGR-18-0313,SR-VGR-18-0434,full,
+CR-VGR-18-0313,SR-VGR-18-0441,full,"reviewed, see minutes"
+CR-VGR-18-0314,,,
+CR-VGR-18-0315,SR-VGR-18-0425,full,
+CR-VGR-18-0316,SR-VGR-18-0419,full,"reviewed, see minutes"

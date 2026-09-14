@@ -1,0 +1,51 @@
+# exported from the requirements tool 2026-09-10
+# WARNING: rows with an empty system_req are NOT errors in the export.
+# They are requirements nobody has allocated yet.
+customer_req,system_req,coverage,notes
+CR-HLX-03-0054,SR-HLX-03-0084,full,
+CR-HLX-03-0054,SR-HLX-03-0090,full,
+CR-HLX-03-0054,SR-HLX-03-0093,full,
+CR-HLX-03-0054,SR-HLX-03-0095,full,
+CR-HLX-03-0054,SR-HLX-03-0103,partial,
+CR-HLX-03-0055,SR-HLX-03-0080,full,
+CR-HLX-03-0055,SR-HLX-03-0088,full,
+CR-HLX-03-0056,SR-HLX-03-0078,full,
+CR-HLX-03-0056,SR-HLX-03-0092,partial,"reviewed, see minutes"
+CR-HLX-03-0057,SR-HLX-03-0076,full,
+CR-HLX-03-0057,SR-HLX-03-0077,full,
+CR-HLX-03-0057,SR-HLX-03-0079,full,
+CR-HLX-03-0057,SR-HLX-03-0094,full,
+CR-HLX-03-0058,,,not yet allocated
+CR-HLX-03-0059,SR-HLX-03-0075,full,
+CR-HLX-03-0059,SR-HLX-03-0096,full,
+CR-HLX-03-0060,SR-HLX-03-0081,full,
+CR-HLX-03-0060,SR-HLX-03-0086,partial,
+CR-HLX-03-0060,SR-HLX-03-0094,full,
+CR-HLX-03-0060,SR-HLX-03-0095,full,"reviewed, see minutes"
+CR-HLX-03-0061,SR-HLX-03-0077,full,
+CR-HLX-03-0062,,,
+CR-HLX-03-0063,SR-HLX-03-0076,full,
+CR-HLX-03-0064,SR-HLX-03-0082,full,
+CR-HLX-03-0065,SR-HLX-03-0087,full,
+CR-HLX-03-0066,SR-HLX-03-0085,full,
+CR-HLX-03-0066,SR-HLX-03-0087,full,
+CR-HLX-03-0066,SR-HLX-03-0091,full,
+CR-HLX-03-0066,SR-HLX-03-0099,full,"reviewed, see minutes"
+CR-HLX-03-0066,SR-HLX-03-0100,full,
+CR-HLX-03-0067,,,not yet allocated
+CR-HLX-03-0068,SR-HLX-03-0080,full,
+CR-HLX-03-0068,SR-HLX-03-0091,full,
+CR-HLX-03-0068,SR-HLX-03-0097,full,
+CR-HLX-03-0068,SR-HLX-03-0101,full,
+CR-HLX-03-0069,SR-HLX-03-0089,full,
+CR-HLX-03-0069,SR-HLX-03-0100,full,
+CR-HLX-03-0069,SR-HLX-03-0102,full,
+CR-HLX-03-0070,SR-HLX-03-0098,partial,
+CR-HLX-03-0071,SR-HLX-03-0103,partial,
+CR-HLX-03-0072,SR-HLX-03-0079,full,"reviewed, see minutes"
+CR-HLX-03-0072,SR-HLX-03-0101,full,
+CR-HLX-03-0073,SR-HLX-03-0097,full,
+CR-HLX-03-0074,SR-HLX-03-0078,partial,
+CR-HLX-03-0074,SR-HLX-03-0083,partial,
+CR-HLX-03-0074,SR-HLX-03-0085,full,"reviewed, see minutes"
+CR-HLX-03-0074,SR-HLX-03-0093,full,

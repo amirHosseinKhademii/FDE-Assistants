@@ -1,0 +1,61 @@
+{
+  "repo": "eps-calibration-tools",
+  "platform": "adaptive-autosar",
+  "toolchain": "greenhills-2022.1",
+  "modules": {
+    "a2l_export": {
+      "swc": "SWC-PLT-001",
+      "asil": "QM",
+      "optimisation": "-O2",
+      "stack_bytes": 642
+    },
+    "dataset": {
+      "swc": "SWC-PLT-002",
+      "asil": "QM",
+      "optimisation": "-Os",
+      "stack_bytes": 2288
+    },
+    "filter_iir_1": {
+      "swc": "SWC-PLT-002",
+      "asil": "QM",
+      "optimisation": "-Os",
+      "stack_bytes": 1971
+    },
+    "ring_buffer_2": {
+      "swc": "SWC-PLT-023",
+      "asil": "QM",
+      "optimisation": "-O2",
+      "stack_bytes": 769
+    },
+    "timebase_3": {
+      "swc": "SWC-PLT-001",
+      "asil": "B",
+      "optimisation": "-Os",
+      "stack_bytes": 1164
+    },
+    "rate_limit_4": {
+      "swc": "SWC-PLT-017",
+      "asil": "QM",
+      "optimisation": "-O2",
+      "stack_bytes": 403
+    },
+    "ring_buffer_5": {
+      "swc": "SWC-PLT-021",
+      "asil": "B",
+      "optimisation": "-O2",
+      "stack_bytes": 1821
+    },
+    "fixpt_6": {
+      "swc": "SWC-PLT-014",
+      "asil": "D",
+      "optimisation": "-O2",
+      "stack_bytes": 2806
+    },
+    "lookup_table_7": {
+      "swc": "SWC-PLT-025",
+      "asil": "QM",
+      "optimisation": "-O2",
+      "stack_bytes": 3616
+    }
+  }
+}

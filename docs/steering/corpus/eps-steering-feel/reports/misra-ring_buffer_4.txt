@@ -1,0 +1,19 @@
+MISRA C:2012 compliance report
+Repository : eps-steering-feel
+Module     : ring_buffer_4.c   (SWC-PLT-019, ASIL QM)
+Tool       : LDRA 9.8
+Run        : 2023-09-03
+Run by     : j.moreau
+
+SUMMARY
+  rules checked        173
+  violations           13
+  deviations approved  2
+  unresolved           1
+
+DEVIATIONS
+  D-12  Rule 18.2  goto used for single-exit error handling. Approved.
+  D-29  Rule 17.9  union used for the CAN frame overlay. Approved.
+
+UNRESOLVED
+  Rule 9.3 at ring_buffer_4.c:173 — owner r.dietrich, no target date

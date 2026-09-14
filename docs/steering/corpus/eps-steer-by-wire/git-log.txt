@@ -1,0 +1,457 @@
+# git log, exported 2026-09-07
+
+commit 000001497dcabc8b3a9ae7ab114c862a2708a92c
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2019-05-07
+
+    remove handler in steer-by-wire
+
+commit 0000023af8018d5af2950ca457dc6b7b61378a18
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2020-05-28
+
+    refactor check in steer-by-wire
+
+commit 00000321693a49e9898ed83ddfb56647005efce1
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2019-05-12
+
+    update check in steer-by-wire
+
+    Change-Request: CHR-2021-0123
+
+commit 000004a53a06b31adb3e5ed5392575ebaf271939
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2023-10-17
+
+    refactor check in steer-by-wire
+
+commit 000005863073e71d5f38c8f8ddb581b0dac7bc59
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2024-08-20
+
+    remove check in steer-by-wire
+
+commit 000006af0e02e25fe0ba51251fb5bdc9fcba9d31
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2021-10-05
+
+    remove check in steer-by-wire
+
+commit 000007926afd9c66c50ba58f7d23005aad1e3808
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2024-01-04
+
+    fix check in steer-by-wire
+
+commit 000008996d3b60ab035f42e0f9c9ebf8be5c61e0
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2026-04-09
+
+    remove guard in steer-by-wire
+
+commit 000009887da6b79ea06517cf2a14131b1a29b0fd
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2021-04-14
+
+    remove guard in steer-by-wire
+
+    Change-Request: CHR-2025-0138
+
+commit 00000a8ed5104ce480a047dc02991fbfe7eb5602
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2020-07-23
+
+    update handler in steer-by-wire
+
+    Change-Request: CHR-2021-0205
+
+commit 00000b19667557ac722b850d6f6debd0c2af3651
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2024-03-21
+
+    add handler in steer-by-wire
+
+    Change-Request: CHR-2021-0167
+
+commit 00000c1830529ff84e730f00702b1eb64802262b
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2020-05-03
+
+    remove check in steer-by-wire
+
+    Change-Request: CHR-2024-0200
+
+commit 00000d9c1a209696256d333c3f3fbc6652fd0334
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2025-12-03
+
+    update guard in steer-by-wire
+
+commit 00000e13e79dda9c66e6986d69c6f8225227a68d
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2025-06-20
+
+    refactor handler in steer-by-wire
+
+    Change-Request: CHR-2024-0047
+
+commit 00000fc11d977df6257ffb2dc9cfebcb7f759fb1
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2020-08-25
+
+    refactor filter in steer-by-wire
+
+    Change-Request: CHR-2023-0069
+
+commit 000010130d7cac7fd4219ab641a225cc422d944d
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2023-12-14
+
+    fix handler in steer-by-wire
+
+    Change-Request: CHR-2022-0180
+
+commit 00001125260a838649306f24905b401db4cb183f
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2026-03-08
+
+    update handler in steer-by-wire
+
+    Change-Request: CHR-2022-0035
+
+commit 0000129883ea81c3164b08b87de193daed284efb
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2026-04-16
+
+    add map in steer-by-wire
+
+commit 0000139451521ef10c9c08ec230579fa7d990256
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2018-09-01
+
+    remove table in steer-by-wire
+
+    Change-Request: CHR-2021-0109
+
+commit 00001424e9b371367ea55a61653ede8a33de3cf7
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2021-06-14
+
+    refactor table in steer-by-wire
+
+commit 0000158962fd2399785d93ec58254246165fa034
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2023-09-15
+
+    add guard in steer-by-wire
+
+    Change-Request: CHR-2022-0176
+
+commit 00001636cf333f276a0fce8fc96d4beb583b6794
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2019-06-02
+
+    fix check in steer-by-wire
+
+commit 00001725b5b17cf0cbf23c21d8bf21e48b2fce00
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2023-09-01
+
+    add map in steer-by-wire
+
+commit 0000182c45d93fd93d504bc9f3d83b2cdbfae00b
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2020-02-07
+
+    remove handler in steer-by-wire
+
+commit 000019ecc705393a5d4efedf7b64cee07b1c7552
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2021-12-02
+
+    fix guard in steer-by-wire
+
+    Change-Request: CHR-2022-0094
+
+commit 00001aa016222060ab19f745d40cd8c7b46c2832
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2025-12-29
+
+    refactor guard in steer-by-wire
+
+commit 00001b6f943e4999661e778ff20944f278f8f5d4
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2024-11-16
+
+    fix guard in steer-by-wire
+
+commit 00001c3fc38c8b895d27a17f49acf18200b92690
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2026-06-23
+
+    fix map in steer-by-wire
+
+    Change-Request: CHR-2022-0035
+
+commit 00001dedb7fa05f839b7e2dc8ca545946aaac57c
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2020-04-16
+
+    fix guard in steer-by-wire
+
+commit 00001e9cb11d2580fadc7c445115bda9f3340a07
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2021-07-12
+
+    remove check in steer-by-wire
+
+commit 00001f15f70377ea6657148fc2e1dd108e7363d5
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2019-11-12
+
+    remove handler in steer-by-wire
+
+commit 0000204289e78f1d3f78eaf16ea87b45b486fe0e
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2019-04-15
+
+    update map in steer-by-wire
+
+commit 00002153a8639c527bf8f1c73f4303c2758d6f5f
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2024-02-15
+
+    remove map in steer-by-wire
+
+    Change-Request: CHR-2025-0003
+
+commit 00002204b82df4e8fb28f302603160e05a46c4a4
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2018-04-30
+
+    refactor filter in steer-by-wire
+
+    Change-Request: CHR-2024-0047
+
+commit 0000238ffa45e631d0eb58f960f320ebf2b2d9ed
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2023-03-22
+
+    remove handler in steer-by-wire
+
+commit 00002413b1345b663e20c70c31688826168a045d
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2021-01-16
+
+    remove table in steer-by-wire
+
+commit 000025fbba09e1ad2d9f7bcff8214fe37120a880
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2020-06-21
+
+    remove handler in steer-by-wire
+
+    Change-Request: CHR-2025-0020
+
+commit 0000262e19abf0535226987552299f6b58347e72
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2022-10-23
+
+    refactor map in steer-by-wire
+
+commit 0000273f64649ac1fa242cba98d277acb8c43aef
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2022-01-25
+
+    update table in steer-by-wire
+
+commit 000028fae571e7fda0c9396e200e7c6290b2806b
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2024-01-27
+
+    refactor guard in steer-by-wire
+
+    Change-Request: CHR-2024-0024
+
+commit 000029776b4e15b258337881a4d09d993d67d8e0
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2026-08-08
+
+    remove table in steer-by-wire
+
+commit 00002a5c77c9248991c551f57fcc4111c618297c
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2019-08-06
+
+    fix map in steer-by-wire
+
+commit 00002b253a189de5d75f3b20ee6945a839685b00
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2025-02-13
+
+    refactor check in steer-by-wire
+
+commit 00002c0bb7d41e4aa2bbdc500895470803f67a92
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2020-02-27
+
+    add check in steer-by-wire
+
+    Change-Request: CHR-2025-0138
+
+commit 00002d729ae2d389a1caf5ae8e79c275c1329fca
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2020-02-12
+
+    remove table in steer-by-wire
+
+commit 00002ecc69979641f2e05931f68141822b6859e6
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2023-09-21
+
+    fix filter in steer-by-wire
+
+commit 00002f6a06871d9ea106c2fd707c4563533514d3
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2024-10-21
+
+    refactor table in steer-by-wire
+
+commit 0000309833bbee218c49c4df15007bcae320ca34
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2025-10-25
+
+    add check in steer-by-wire
+
+commit 0000317c272114be70af3c8792fb8b5ac40aa8de
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2020-10-27
+
+    remove handler in steer-by-wire
+
+commit 000032db35867f0ca20c68e9eef2cdcb4456be72
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2022-04-18
+
+    fix filter in steer-by-wire
+
+commit 0000338fd3cd89c88ae06b37fde4a37f51e4efab
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2025-10-20
+
+    add check in steer-by-wire
+
+    Change-Request: CHR-2021-0105
+
+commit 0000341311f885ae0f8bf8a820624f19d4fee140
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2022-04-11
+
+    fix guard in steer-by-wire
+
+    Change-Request: CHR-2020-0129
+
+commit 00003504662ed29b82a6aa5014abef793437fc09
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2018-11-03
+
+    remove table in steer-by-wire
+
+commit 0000360afaac3e7017c409c7680d56c266622363
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2018-01-11
+
+    add filter in steer-by-wire
+
+commit 0000378b12e19a8cf345428ef2a5332284800dbc
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2021-02-26
+
+    remove filter in steer-by-wire
+
+    Change-Request: CHR-2020-0014
+
+commit 000038b6cb7bbbd8a25fa746e894cd3256659548
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2024-02-04
+
+    refactor map in steer-by-wire
+
+    Change-Request: CHR-2025-0082
+
+commit 000039628792e5391529bcaa471538ed5cc043ba
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2021-08-21
+
+    fix map in steer-by-wire
+
+commit 00003a406f4ad25d4d1897b680cb448c9204ce68
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2020-12-12
+
+    add handler in steer-by-wire
+
+commit 00003b6e22d4798f5c4a51f714f0087ba6662714
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2018-01-14
+
+    update filter in steer-by-wire
+
+    Change-Request: CHR-2024-0081
+
+commit 00003cdd72d30f90acc5f774b8cc424450d1ba18
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2023-01-05
+
+    update check in steer-by-wire
+
+commit 00003dfbbcd61c765d34d51af35df540fb65fd6c
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2022-02-10
+
+    update filter in steer-by-wire
+
+commit 00003ef2e4cd1cee8ee98160b5326cbfcbfb1156
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2024-09-03
+
+    remove table in steer-by-wire
+
+commit 00003f33f4d3b7689ddd6fdedc712f2aeb82121a
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2022-06-07
+
+    add check in steer-by-wire
+
+commit 000040d9bad9cadde592147f1f9bc5726ba4b00a
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2022-10-02
+
+    add filter in steer-by-wire
+
+    Change-Request: CHR-2025-0131
+
+commit 000041df8ef90dffe85a7ab3a20c1182490d94d5
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2026-01-16
+
+    update guard in steer-by-wire
+
+commit 0000423316d9e9a57c1c7fe4de9ab6d129bba43b
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2024-12-28
+
+    fix handler in steer-by-wire
+
+commit 000043ff6a2005af18480c740b65a514372c4480
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2025-04-01
+
+    update map in steer-by-wire
+
+commit 0000448b3dc0e712cc4129e498b1ee68ba66ac2f
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2026-07-29
+
+    update check in steer-by-wire

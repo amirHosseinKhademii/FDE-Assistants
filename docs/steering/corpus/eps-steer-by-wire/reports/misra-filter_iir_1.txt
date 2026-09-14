@@ -1,0 +1,19 @@
+MISRA C:2012 compliance report
+Repository : eps-steer-by-wire
+Module     : filter_iir_1.c   (SWC-PLT-016, ASIL QM)
+Tool       : Polyspace 2023b
+Run        : 2025-07-23
+Run by     : r.dietrich
+
+SUMMARY
+  rules checked        151
+  violations           4
+  deviations approved  3
+  unresolved           1
+
+DEVIATIONS
+  D-33  Rule 11.5  pointer arithmetic in the buffer walk. Approved.
+  (none)
+
+UNRESOLVED
+  Rule 20.6 at filter_iir_1.c:316 — owner s.beker, no target date

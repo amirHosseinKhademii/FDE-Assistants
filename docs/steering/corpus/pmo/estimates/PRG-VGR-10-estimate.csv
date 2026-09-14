@@ -1,0 +1,10 @@
+# bottom-up estimate, built before nomination
+# author: I. Arnaud   date: 2020-06-05
+# "basis" is free text. It is the only record of WHERE a number came from.
+work_package,discipline,hours,basis,confidence
+EOL calibration,pm,239,guess,medium
+gearbox change,software,723,guess,medium
+harness,software,830,engineering judgement,medium
+EOL calibration,validation,199,guess,low
+gearbox change,hardware,707,from the last programme,medium
+gearbox change,systems,70,from the last programme,low

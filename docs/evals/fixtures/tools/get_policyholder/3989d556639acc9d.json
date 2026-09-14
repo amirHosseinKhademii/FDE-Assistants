@@ -1,0 +1,11 @@
+{
+  "tool": "get_policyholder",
+  "args": {
+    "policy_id": "AUT-4473"
+  },
+  "response": {
+    "policy_id": "AUT-4473",
+    "record": "# Policyholder Record AUT-4473 — Naomi Ferreira\n\n> Meridian Mutual Insurance Company. Fictional document, written for an FDE\n> practice engagement. Do not use for anything real.\n>\n> Record type: policyholder · Policy ID: AUT-4473 · Form: PA-2023-01\n\n## Declarations\n\n| Field                  | Value |\n|------------------------|-------|\n| Policy ID              | AUT-4473 |\n| Named insured          | Naomi Ferreira |\n| Policy form            | PA-2023-01 |\n| Rated state            | Ohio |\n| Effective date         | 2024-09-01 |\n| Expiration date        | 2025-09-01 |\n| Covered vehicle        | 2018 Subaru Outback |\n\n## Coverages In Force\n\n| Coverage             | Selected | Deductible |\n|----------------------|----------|------------|\n| Collision            | yes      | $1,000 |\n| Comprehensive        | yes      | $500 |\n| Rental Reimbursement | yes      | none |\n\n## Endorsements Attached\n\n- none\n\n## Claim History\n\nnone in the last five years\n\n## Notes\n\nDrives for a rideshare platform part-time, evenings and weekends. Disclosed at application; no commercial endorsement was offered or issued.\n",
+    "source": "record:AUT-4473"
+  }
+}

@@ -1,0 +1,19 @@
+MISRA C:2012 compliance report
+Repository : eps-motor-control
+Module     : nvm_block_2.c   (SWC-PLT-023, ASIL QM)
+Tool       : Coverity 2022.12
+Run        : 2021-12-27
+Run by     : j.moreau
+
+SUMMARY
+  rules checked        169
+  violations           7
+  deviations approved  6
+  unresolved           1
+
+DEVIATIONS
+  D-39  Rule 20.1  pointer arithmetic in the buffer walk. Approved.
+  (none)
+
+UNRESOLVED
+  Rule 15.3 at nvm_block_2.c:217 — owner s.beker, no target date

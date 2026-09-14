@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-diagnostics
+Module     : bitfield_2.c   (SWC-PLT-027, ASIL D)
+Tool       : Polyspace 2023b
+Run        : 2022-01-10
+Run by     : l.renaud
+
+SUMMARY
+  rules checked        153
+  violations           15
+  deviations approved  1
+  unresolved           2
+
+DEVIATIONS
+  D-35  Rule 15.2  union used for the CAN frame overlay. Approved.
+
+UNRESOLVED
+  Rule 21.3 at bitfield_2.c:94 — owner l.renaud, no target date

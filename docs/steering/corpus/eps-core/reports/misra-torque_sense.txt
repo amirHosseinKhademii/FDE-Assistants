@@ -1,0 +1,19 @@
+MISRA C:2012 compliance report
+Repository : eps-core
+Module     : torque_sense.c   (SWC-TRQSENS, ASIL D)
+Tool       : Polyspace 2023b
+Run        : 2023-09-25
+Run by     : e.palmer
+
+SUMMARY
+  rules checked        174
+  violations           5
+  deviations approved  2
+  unresolved           3
+
+DEVIATIONS
+  (none)
+  D-36  Rule 17.3  union used for the CAN frame overlay. Approved.
+
+UNRESOLVED
+  Rule 21.3 at torque_sense.c:332 — owner j.moreau, no target date

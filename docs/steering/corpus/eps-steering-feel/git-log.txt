@@ -1,0 +1,2543 @@
+# git log --stat, exported 2026-09-07
+
+commit 0000015ea29f50c7bbaa699658286510bb376bff
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2018-11-11
+
+    guard against divide by zero at standstill
+
+    Change-Request: CHR-2025-0029
+
+ src/rtc.c | 132 +++++++++-
+ test/test_damping.c | 95 +++++------
+
+commit 00000290723c4da93a1e636c70093fd1c4561987
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2025-03-11
+
+    guard against divide by zero at standstill
+
+ src/legacy/damp_compat.c | 88 +++++++++--
+
+commit 00000323cb5072dff28b5ce4f3ac6f20f141041b
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2020-02-23
+
+    remove dead code in damp_compat
+
+    Change-Request: CHR-2025-0171
+
+ src/legacy/damp_compat.c | 122 +++-----
+
+commit 00000442160a87865a7f22b25aa6319ced102e7e
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2023-06-09
+
+    correct sign on the return-to-centre term
+
+    Change-Request: CHR-2024-0107
+
+ src/rtc.c | 12 ++-----
+ src/hysteresis_comp.c | 74 +++++++++++---
+ src/friction_comp.c | 71 ++++++++---
+
+commit 000005553453004b3a1e0d101104f2528209eda8
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2023-09-05
+
+    retune damping break point for C segment
+
+ src/damping.c | 109 +++++++------
+
+commit 0000062be22169ff57dd1d0ebb478f9fe2e28f12
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2021-12-19
+
+    guard against divide by zero at standstill
+
+ src/rtc.c | 49 ++---
+ src/friction_comp.c | 51 ++++++++++---
+ src/hysteresis_comp.c | 48 ++++++++++++-----
+
+commit 0000074dcc71e5c5317eef22d858caef391204b0
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2026-04-30
+
+    retune damping break point for C segment
+
+ docs/design-note-damping.md | 48 ++++++++++-
+ src/rtc.c | 95 +++++++++++---
+
+commit 000008310fb3431d9c0a2a4464bcd8746f2b1e83
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2023-07-25
+
+    add plausibility check on rack velocity estimate
+
+    Change-Request: CHR-2020-0129
+
+ docs/design-note-damping.md | 94 +++++++-----
+ src/rtc.c | 175 ++++++++++---
+
+commit 00000971d4791e23626f08e2a9b8f03cc9918dd4
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2022-05-07
+
+    add plausibility check on rack velocity estimate
+
+    Change-Request: CHR-2022-0140
+
+ src/hysteresis_comp.c | 112 +++++
+ src/rtc.c | 35 ++++++++
+
+commit 00000a5c2a21a322d5c1b8f9ca630ba4de37dd7a
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2021-04-16
+
+    bump CalTool export format to 4.2
+
+ test/test_damping.c | 9 +++++++++---
+ src/rtc.c | 52 ++------
+
+commit 00000b76d3937d23e416452a0ff6d1ef6c350b96
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2024-04-29
+
+    fix damping rate limiter overflow on 1 ms tick
+
+    Change-Request: CHR-2021-0191
+
+ test/test_damping.c | 46 ++++++++++++
+
+commit 00000cba8c70ecfdfaaa03071250e0b01ebe2380
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2023-12-15
+
+    correct sign on the return-to-centre term
+
+ cal/damping_params.csv | 118 +++++++++--
+ test/test_damping.c | 31 +++++++------
+ src/hysteresis_comp.c | 84 +--
+
+commit 00000dfe5229d70133d38508e711fd63a379d144
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2021-03-25
+
+    raise unit test coverage on damping to 90%
+
+ src/rtc.c | 161 +++++++++---
+ src/damping.c | 137 ++++++++++-
+ docs/design-note-damping.md | 56 +++++---
+
+commit 00000e4a5d19fa11a9df58dfcd5f75e0750cc980
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2021-12-27
+
+    remove dead code in damp_compat
+
+    Change-Request: CHR-2024-0101
+
+ src/legacy/damp_compat.c | 44 +++++---
+
+commit 00000f258f02c3604cf794696787e8c81442e8f6
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2023-03-21
+
+    remove dead code in damp_compat
+
+    Change-Request: CHR-2024-0047
+
+ src/damping.c | 118 ++++++++++----
+ src/friction_comp.c | 38 +++++++++++-----
+ test/test_damping.c | 40 +++++++++++------
+
+commit 000010cccfd9011d6cddd22aafbf393116b4c279
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2023-09-04
+
+    reduce stack usage in the 1 ms runnable
+
+ src/hysteresis_comp.c | 83 ++++++++++++-----
+
+commit 000011e0ec24798f9d79e6b7924d3f7445406868
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2020-01-09
+
+    add plausibility check on rack velocity estimate
+
+ src/rtc.c | 107 ++++++--
+ src/damping.c | 89 +-
+ src/friction_comp.c | 53 ++++++----
+
+commit 0000124838bd04db51c67252efade40a266f7939
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2021-02-04
+
+    apply review comments from the safety review
+
+ test/test_damping.c | 17 +++++++++----
+
+commit 00001337227e55a7164b81eb2d84a6751eb0fce3
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2020-03-17
+
+    retune damping break point for C segment
+
+ src/legacy/damp_compat.c | 175 +++----
+ src/friction_comp.c | 129 ++++------
+ src/damping.c | 35 ++++++++++++
+
+commit 0000149f252118df9e3680202cb89889ad179e89
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2019-04-03
+
+    remove dead code in damp_compat
+
+    Change-Request: CHR-2021-0150
+
+ docs/design-note-damping.md | 53 +++++++-----
+
+commit 00001540d745ef4259e906cd6d5b1dac1f817048
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2025-08-03
+
+    guard against divide by zero at standstill
+
+    Change-Request: CHR-2021-0105
+
+ src/damping.c | 154 ++++++----
+ src/rtc.c | 102 +++-----
+ docs/design-note-damping.md | 10 +------
+
+commit 000016ac1b7ea211106eeb5ab94951a96c2ac22d
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2022-11-25
+
+    update hysteresis compensation map for H1 facelift
+
+    Change-Request: CHR-2023-0163
+
+ src/hysteresis_comp.c | 37 +++++----
+ src/damping.c | 97 +++-----
+
+commit 000017357e08a746f648883c49738bdd0c5b3cd2
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2019-01-11
+
+    reduce stack usage in the 1 ms runnable
+
+ test/test_damping.c | 96 ++++--
+ src/damping.c | 22 +++++++++------
+ cal/damping_params.csv | 16 +------
+
+commit 0000182882feac85c83d727326b87533e8ab4d20
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2024-01-04
+
+    correct sign on the return-to-centre term
+
+    Change-Request: CHR-2024-0007
+
+ src/rtc.c | 149 ++++++++++++--
+
+commit 00001959efca5f63916dafb3a26d1c170a517e52
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2023-01-30
+
+    remove dead code in damp_compat
+
+    Change-Request: CHR-2022-0140
+
+ src/rtc.c | 176 ++
+ src/damping.c | 2 +++++------
+ src/friction_comp.c | 4 ++++++++++
+
+commit 00001a2f1aa0bb8e00e981a84d3ae6848c05274b
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2025-02-23
+
+    apply review comments from the safety review
+
+ docs/design-note-damping.md | 161 ++++-----
+
+commit 00001b96ce95dbfd86f755ecff19836f48d276e3
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2022-08-18
+
+    correct sign on the return-to-centre term
+
+ src/hysteresis_comp.c | 135 ++++++++++---
+
+commit 00001c6ec143c172b6c71900cfb9a469d01ca706
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2025-12-25
+
+    apply review comments from the safety review
+
+ test/test_damping.c | 115 +++-
+ src/legacy/damp_compat.c | 86 +++++++++++---
+ docs/design-note-damping.md | 56 +------
+
+commit 00001d4cdd1eb8c5a40d2f0cb467b81ec85ebad1
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2022-02-15
+
+    refactor gain schedule into a table
+
+ src/hysteresis_comp.c | 19 ++++------
+ src/friction_comp.c | 19 +++++------
+ src/damping.c | 125 ++++++------
+
+commit 00001e189d985ce25f81ae4d543fb2df7b8d5176
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2020-08-02
+
+    remove dead code in damp_compat
+
+    Change-Request: CHR-2023-0164
+
+ src/legacy/damp_compat.c | 41 +---
+ src/damping.c | 92 +++++++++------
+ cal/damping_params.csv | 74 +++++++++++--
+
+commit 00001fcc5a9c9c4bf390ecfaa6457008c7920623
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2020-06-20
+
+    update hysteresis compensation map for H1 facelift
+
+ src/friction_comp.c | 173 ++++++------
+ cal/damping_params.csv | 63 +++++++--
+
+commit 0000202435e502b0716b2bee79de7220417b4e2c
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2021-09-10
+
+    correct sign on the return-to-centre term
+
+ src/friction_comp.c | 143 +++++++---
+
+commit 0000218afe102da2c429ce0c4d0efef7fbfd972d
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2021-07-27
+
+    correct sign on the return-to-centre term
+
+    Change-Request: CHR-2022-0153
+
+ test/test_damping.c | 92 +++--
+ src/legacy/damp_compat.c | 92 +++++++++++-
+
+commit 00002205c6836fcf98f000090ae3cbbf8f8bcea6
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2019-05-24
+
+    correct sign on the return-to-centre term
+
+ src/rtc.c | 25 ++++++++----
+
+commit 000023062bbfe7a67547a922c07c698e3c9de686
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2020-10-22
+
+    correct sign on the return-to-centre term
+
+ src/legacy/damp_compat.c | 44 +++++++--
+
+commit 000024b6ace72405f630e2d97e0bacaa47e10394
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2022-01-31
+
+    remove dead code in damp_compat
+
+ src/friction_comp.c | 83 +++++++------
+ docs/design-note-damping.md | 154 ++++++++++++
+ src/hysteresis_comp.c | 150 +++-
+
+commit 000025a05f6348a8ae7f92c603e9699bf0400759
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2019-11-27
+
+    guard against divide by zero at standstill
+
+    Change-Request: CHR-2020-0023
+
+ src/friction_comp.c | 142 +++++++---
+
+commit 0000268008822f66d83f2177740ef0cd8627e38f
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2026-01-07
+
+    guard against divide by zero at standstill
+
+ src/rtc.c | 76 +++
+ cal/damping_params.csv | 161 ++++++------
+ docs/design-note-damping.md | 112 +----
+
+commit 000027a4899420629a8b21d9af88684d78d153a9
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2019-01-14
+
+    raise unit test coverage on damping to 90%
+
+    Change-Request: CHR-2021-0110
+
+ src/hysteresis_comp.c | 13 ++-----
+ src/damping.c | 98 ++++++++++++
+
+commit 00002822ba2437383b78c345d180cdde70d02349
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2024-03-21
+
+    guard against divide by zero at standstill
+
+    Change-Request: CHR-2024-0117
+
+ src/legacy/damp_compat.c | 50 +++---
+ src/damping.c | 122 +++++----
+
+commit 000029aa9939b0fb01b88e8f9b7bfe404dde5c25
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2024-02-14
+
+    bump CalTool export format to 4.2
+
+    Change-Request: CHR-2020-0155
+
+ docs/design-note-damping.md | 159 ++++++++----
+ src/legacy/damp_compat.c | 52 +
+
+commit 00002a05a82aac8bd5a8008b699846ad60ef004f
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2019-03-27
+
+    update hysteresis compensation map for H1 facelift
+
+ test/test_damping.c | 24 ++++------
+ src/rtc.c | 32 +++++
+ cal/damping_params.csv | 89 +
+
+commit 00002b77862483af3ae57df0e985d7a36e560ce1
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2022-08-15
+
+    fix damping rate limiter overflow on 1 ms tick
+
+ src/rtc.c | 127 ++++++++++++
+ src/friction_comp.c | 17 +++++++----
+ cal/damping_params.csv | 173 ++++++++------
+
+commit 00002cdfbc23cf84ccd9f35408d5c47c007b6709
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2021-04-06
+
+    add plausibility check on rack velocity estimate
+
+ src/legacy/damp_compat.c | 107 +---
+ src/rtc.c | 33 +++-
+
+commit 00002dcc5606e9ba1041c0d1e877452316a92256
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2026-06-23
+
+    refactor gain schedule into a table
+
+ cal/damping_params.csv | 58 +----
+ src/legacy/damp_compat.c | 128 ++++++++-----
+
+commit 00002e1313f3a499549206e03cf64af06edfa3fc
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2018-08-08
+
+    update hysteresis compensation map for H1 facelift
+
+ test/test_damping.c | 44 ++++++++++-----
+ src/legacy/damp_compat.c | 76 ++++++++++++
+
+commit 00002f28e34457b18003c4742c044c88c410942c
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2026-01-30
+
+    guard against divide by zero at standstill
+
+ src/friction_comp.c | 42 ++++++
+ cal/damping_params.csv | 6 ++++++++++++------
+
+commit 000030677a8d5d3665eca9cd67b9566f877bd398
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2024-12-07
+
+    raise unit test coverage on damping to 90%
+
+ src/legacy/damp_compat.c | 47 ++++++++++++----
+
+commit 000031575e0c6beae5f51f16645c92d6b6cb82bc
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2022-04-14
+
+    remove dead code in damp_compat
+
+    Change-Request: CHR-2021-0202
+
+ src/hysteresis_comp.c | 26 ++++++++++-----
+ src/damping.c | 125 ++++++++++--
+
+commit 00003225fc3496ad96727f9801fb718476ef033a
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2019-04-04
+
+    correct sign on the return-to-centre term
+
+    Change-Request: CHR-2020-0014
+
+ src/legacy/damp_compat.c | 171 +++++++++-
+ src/damping.c | 94 +++++++++++--
+
+commit 000033662b54e75ce4b5893b7706655e5f15cdba
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2022-07-16
+
+    guard against divide by zero at standstill
+
+ src/legacy/damp_compat.c | 20 +++++--
+
+commit 000034b2a2ccabad1fa5e0b47f423a9698993051
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2022-08-11
+
+    apply review comments from the safety review
+
+    Change-Request: CHR-2022-0022
+
+ src/hysteresis_comp.c | 49 ++-
+ src/rtc.c | 153 +++++++++----
+
+commit 0000353d373a3002f6e680272c999ce4ebb44d80
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2021-01-09
+
+    correct sign on the return-to-centre term
+
+ src/rtc.c | 35 +----
+
+commit 000036078bf30981cf8831fc903b6a7069fa5690
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2022-04-30
+
+    correct sign on the return-to-centre term
+
+    Change-Request: CHR-2025-0029
+
+ cal/damping_params.csv | 43 +++++-
+ test/test_damping.c | 173 ++++++++++++
+
+commit 000037a25e5ecc77f14c8fdc30cc5a78f2e57644
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2018-10-19
+
+    add plausibility check on rack velocity estimate
+
+ src/hysteresis_comp.c | 70 +++++++++++-----
+
+commit 00003853d9a979680beb696795f9fa911d580217
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2024-05-08
+
+    add plausibility check on rack velocity estimate
+
+ src/legacy/damp_compat.c | 22 +++++-
+
+commit 000039347efa1dc5ba25e12703390b3716b09686
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2022-06-22
+
+    fix damping rate limiter overflow on 1 ms tick
+
+ src/damping.c | 134 ++++++-
+
+commit 00003a283e30f9487d86fdddad6371629c7bd980
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2020-07-23
+
+    refactor gain schedule into a table
+
+ src/damping.c | 86 ++++++++++----
+ src/hysteresis_comp.c | 54 +++++---
+
+commit 00003b19556a8cbf1badf1357200e4d48ab8d35e
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2020-01-20
+
+    remove dead code in damp_compat
+
+    Change-Request: CHR-2022-0157
+
+ src/friction_comp.c | 130 ++++++-----
+ cal/damping_params.csv | 82 ++++++++--
+ docs/design-note-damping.md | 146 ++++++++++++-----
+
+commit 00003c6fb4fcb9b99e40ccce8c7a63ac7bec78fe
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2018-08-22
+
+    retune damping break point for C segment
+
+    Change-Request: CHR-2025-0009
+
+ src/damping.c | 133 +++++-
+
+commit 00003d009450fffebbfd58243388ef4cda7a7a8c
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2022-09-19
+
+    retune damping break point for C segment
+
+ cal/damping_params.csv | 127 +++++++-
+ src/friction_comp.c | 2 +++----
+ src/hysteresis_comp.c | 37 +++++-
+
+commit 00003eec756f9a5eb7bc8fd011e7e7491a5a616e
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2022-10-06
+
+    fix damping rate limiter overflow on 1 ms tick
+
+ src/damping.c | 130 +++++++---
+ cal/damping_params.csv | 104 ++++++---
+
+commit 00003f7f65fb63397e0f629d9e8fb51c69477618
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2023-06-10
+
+    guard against divide by zero at standstill
+
+    Change-Request: CHR-2022-0188
+
+ test/test_damping.c | 16 ++++++++++++----
+ src/friction_comp.c | 166 ++-
+ src/damping.c | 39 +++++++++----
+
+commit 0000401e9e5e7617731d7678c10e178679dff657
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2023-12-13
+
+    add plausibility check on rack velocity estimate
+
+ src/hysteresis_comp.c | 38 +----
+
+commit 000041bc60cf253c9052b4844ad3d4037ba3bdcf
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2019-06-17
+
+    apply review comments from the safety review
+
+    Change-Request: CHR-2021-0124
+
+ src/hysteresis_comp.c | 135 +++++++++++-
+ src/friction_comp.c | 98 +++-----
+
+commit 000042e2ce6dbcf39d75de3443eaeb96a55c5d17
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2019-12-23
+
+    correct sign on the return-to-centre term
+
+ src/rtc.c | 47 ++++++++----
+ cal/damping_params.csv | 35 ++++++++++++------
+
+commit 00004311b0df85404f1211cf3f4021ad1fdfaa22
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2022-09-03
+
+    correct sign on the return-to-centre term
+
+    Change-Request: CHR-2022-0013
+
+ docs/design-note-damping.md | 173 ++++++-
+
+commit 000044faa13a46533ade45eb004292399620f3d8
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2025-05-25
+
+    apply review comments from the safety review
+
+ test/test_damping.c | 12 ++++++
+
+commit 0000451c7548d3d58712eafff32fb20482e084f4
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2022-12-28
+
+    add plausibility check on rack velocity estimate
+
+ src/legacy/damp_compat.c | 96 ++------
+ cal/damping_params.csv | 70 +
+
+commit 0000460995ba662471c5f44fd88e091c2b19f2bb
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2021-07-13
+
+    apply review comments from the safety review
+
+    Change-Request: CHR-2021-0185
+
+ cal/damping_params.csv | 169 +++++++++
+
+commit 000047306f46010cededabbc9cd796e191b971b5
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2023-06-27
+
+    raise unit test coverage on damping to 90%
+
+    Change-Request: CHR-2024-0139
+
+ cal/damping_params.csv | 173 ++++++-
+
+commit 000048163eb0cfcf405e8c0dd13fdcb85c4b7ab8
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2019-01-21
+
+    raise unit test coverage on damping to 90%
+
+ test/test_damping.c | 175 ++++++---
+ src/friction_comp.c | 56 ++++++-----
+
+commit 000049b14a924f07ec3f02a9620ab998a6b57508
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2019-08-01
+
+    remove dead code in damp_compat
+
+ src/rtc.c | 6 +++++
+ src/legacy/damp_compat.c | 143 +++++++---
+ src/hysteresis_comp.c | 110 +--
+
+commit 00004aab65b827445da7bb5384c23dd3a726969d
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2022-12-25
+
+    fix damping rate limiter overflow on 1 ms tick
+
+    Change-Request: CHR-2024-0089
+
+ src/rtc.c | 38 +-
+ src/damping.c | 100 ++++----
+ test/test_damping.c | 135 +++++++--
+
+commit 00004b2d19377ac46c7986a50044c8e2600324dc
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2021-11-08
+
+    apply review comments from the safety review
+
+    Change-Request: CHR-2021-0019
+
+ src/friction_comp.c | 9 +++++++++
+ cal/damping_params.csv | 131 +++++-
+ src/hysteresis_comp.c | 92 +++++++++-----
+
+commit 00004ccf987ab33ad1f6fce6b14980c537815be7
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2025-10-09
+
+    add plausibility check on rack velocity estimate
+
+ src/rtc.c | 133 ++
+
+commit 00004d26cdaf15ab71c71d3362f2e120798fa95f
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2024-11-04
+
+    update hysteresis compensation map for H1 facelift
+
+ src/friction_comp.c | 30 +++++++++
+ src/legacy/damp_compat.c | 84 +++------
+
+commit 00004eef74f33dfedc4149ae2166eaaf2af946eb
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2019-03-27
+
+    remove dead code in damp_compat
+
+ src/hysteresis_comp.c | 164 +++++++---
+
+commit 00004fc67a4bfd6a1bac5808d612aaee94bbe28d
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2021-06-10
+
+    retune damping break point for C segment
+
+    Change-Request: CHR-2025-0184
+
+ docs/design-note-damping.md | 36 ++-----
+ src/friction_comp.c | 105 ++-----
+ src/rtc.c | 26 ++++++++-----
+
+commit 00005019a2a49dc642409ff26ced3a54d2eebe16
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2023-03-21
+
+    update hysteresis compensation map for H1 facelift
+
+    Change-Request: CHR-2020-0189
+
+ src/hysteresis_comp.c | 46 +-
+
+commit 000051b7cbf31c4f8e333d2ec598bb55a1b3f657
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2022-01-17
+
+    fix damping rate limiter overflow on 1 ms tick
+
+ src/hysteresis_comp.c | 46 +++++++++---
+ cal/damping_params.csv | 160 +++++++----
+
+commit 000052d3558b578f78393f05df61caa1636bc743
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2019-07-21
+
+    raise unit test coverage on damping to 90%
+
+    Change-Request: CHR-2024-0200
+
+ src/rtc.c | 159 ++++++++----
+
+commit 0000535d6a46697333d67ed8c1402e7eed039159
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2022-04-11
+
+    bump CalTool export format to 4.2
+
+ test/test_damping.c | 99 ++++++++++------
+ docs/design-note-damping.md | 123 +++++++
+ cal/damping_params.csv | 49 +++++---
+
+commit 000054776efa12ff0f25c6339f6875bbb8d06b41
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2020-04-11
+
+    correct sign on the return-to-centre term
+
+ src/damping.c | 77 ++++++++-----
+
+commit 0000556afdf16aac5222492bd17242970b15a2fc
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2025-07-31
+
+    refactor gain schedule into a table
+
+    Change-Request: CHR-2021-0185
+
+ src/legacy/damp_compat.c | 97 ++++++++++++-----
+ src/hysteresis_comp.c | 37 ++++++++
+
+commit 000056ebb809e0d6b51d6571b67fd22ac7d90633
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2023-11-26
+
+    refactor gain schedule into a table
+
+ src/rtc.c | 174 +++++++-----
+ cal/damping_params.csv | 24 +++++++++++-
+ src/damping.c | 168 +--
+
+commit 000057cb3bd271b6409604725c01030381bbbcfe
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2021-04-29
+
+    update hysteresis compensation map for H1 facelift
+
+    Change-Request: CHR-2025-0001
+
+ src/friction_comp.c | 5 +++++---
+ test/test_damping.c | 98 ++----
+
+commit 0000585a3e2e3e9f546cd74a3bc29db66e8afc46
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2024-04-06
+
+    raise unit test coverage on damping to 90%
+
+ docs/design-note-damping.md | 15 +--
+ src/hysteresis_comp.c | 11 +++++++++++---
+
+commit 000059965e448dbbb4d600e6d1a6c54c2a09fb55
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2025-07-26
+
+    remove dead code in damp_compat
+
+ docs/design-note-damping.md | 55 +++++++++++-
+ src/rtc.c | 5 +++++++++++----
+
+commit 00005ac868167e8ab545c25ba8a8b6828154975a
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2021-02-09
+
+    remove dead code in damp_compat
+
+ cal/damping_params.csv | 29 +++++++++---
+ src/legacy/damp_compat.c | 159 +++--
+ test/test_damping.c | 69 +++++++++
+
+commit 00005b78766f3c38a23c33ced0e6668d7efcbeae
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2024-02-07
+
+    bump CalTool export format to 4.2
+
+ src/damping.c | 137 ++++++++++++-
+ src/rtc.c | 157 ++++++++++++-
+ src/friction_comp.c | 36 ++-
+
+commit 00005cca42b971f67fa406a0ea85a6d4475b11dd
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2020-08-21
+
+    update hysteresis compensation map for H1 facelift
+
+ src/friction_comp.c | 84 +++----
+
+commit 00005d104034453f414f078a64662a8303ab4d5b
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2026-06-18
+
+    apply review comments from the safety review
+
+ src/legacy/damp_compat.c | 107 +
+ src/hysteresis_comp.c | 51 ++++++++++-
+
+commit 00005eed7f23208acc1ec3c976a777dc5faad9a8
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2023-02-28
+
+    raise unit test coverage on damping to 90%
+
+ test/test_damping.c | 143 +++++++++--
+ src/legacy/damp_compat.c | 151 ++++++++++----
+ docs/design-note-damping.md | 73 +------
+
+commit 00005f1495f03a2031293c2e1ddb4f757a7c35c3
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2020-01-07
+
+    refactor gain schedule into a table
+
+ cal/damping_params.csv | 146 ++++++++++---
+
+commit 000060120e798cd55fb0e615321a678a7c75e459
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2023-03-06
+
+    remove dead code in damp_compat
+
+ src/rtc.c | 78 +++-
+
+commit 000061dd30d7d80558f2bb4b868905bcfec2c9fc
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2019-05-09
+
+    update hysteresis compensation map for H1 facelift
+
+    Change-Request: CHR-2023-0183
+
+ docs/design-note-damping.md | 47 ++++++++++++-
+
+commit 000062f79716df0693f0766e85cdfe4b449fff50
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2026-07-15
+
+    bump CalTool export format to 4.2
+
+ src/friction_comp.c | 33 ++++++++++-----
+
+commit 0000634c06f07265a0866ca024de2113d5379c11
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2020-03-04
+
+    fix damping rate limiter overflow on 1 ms tick
+
+ src/legacy/damp_compat.c | 174 +++++++++++
+ src/damping.c | 67 +++
+
+commit 000064c362c6ce56fb5e28959fb95eafa0dc8d74
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2020-02-27
+
+    retune damping break point for C segment
+
+    Change-Request: CHR-2024-0192
+
+ cal/damping_params.csv | 176 +++-
+ src/rtc.c | 9 +++++++++++----
+ src/hysteresis_comp.c | 110 ++-----
+
+commit 00006517b2b5e1d10b5326ccbf0a8f175864277f
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2026-04-01
+
+    fix damping rate limiter overflow on 1 ms tick
+
+ docs/design-note-damping.md | 163 ++++++++++++
+ src/rtc.c | 147 +++----
+ src/hysteresis_comp.c | 18 ++++------
+
+commit 000066d0625314e0bb7217847a366c5449a1804b
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2021-08-20
+
+    reduce stack usage in the 1 ms runnable
+
+ src/friction_comp.c | 122 +++++-
+
+commit 000067dd8788f63282aff37f6310960a84e98378
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2026-01-22
+
+    retune damping break point for C segment
+
+ test/test_damping.c | 46 +++--
+ src/rtc.c | 54 +++
+
+commit 0000684eaebc5929ad807543a5abd9c721badbe8
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2025-03-27
+
+    remove dead code in damp_compat
+
+    Change-Request: CHR-2021-0202
+
+ src/legacy/damp_compat.c | 73 +++++-
+ cal/damping_params.csv | 6 +++--
+ src/rtc.c | 124 ++++++++++----
+
+commit 000069f0d81323d8efd945b4bdf1ed17a1dbc1e4
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2025-01-03
+
+    fix damping rate limiter overflow on 1 ms tick
+
+ src/friction_comp.c | 62 +++++++++-----
+
+commit 00006a9e90642e58c77e515d666cf8c109a65322
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2026-08-07
+
+    guard against divide by zero at standstill
+
+ src/friction_comp.c | 147 ++++++++++++------
+ src/damping.c | 89 ++++++++++++-----
+ src/rtc.c | 35 +++++++-----
+
+commit 00006b6937044a665f53ccdeb6ace01d2e34e0df
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2020-03-04
+
+    fix damping rate limiter overflow on 1 ms tick
+
+    Change-Request: CHR-2024-0107
+
+ docs/design-note-damping.md | 14 +++-
+ src/legacy/damp_compat.c | 125 ++++++++++-----
+
+commit 00006c62a18d09cc7ca252cdf943025b4391ef8c
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2021-06-25
+
+    refactor gain schedule into a table
+
+    Change-Request: CHR-2025-0113
+
+ src/legacy/damp_compat.c | 35 +++++++----
+ src/damping.c | 116 +++++++++++-----
+
+commit 00006d732198cbc762ef4b912d42f7aaabcfe73f
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2020-11-27
+
+    refactor gain schedule into a table
+
+    Change-Request: CHR-2023-0067
+
+ src/friction_comp.c | 35 +++++++----
+
+commit 00006ebc8334add432435043a4e6a19b91c48185
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2026-02-16
+
+    retune damping break point for C segment
+
+ cal/damping_params.csv | 58 ++
+
+commit 00006ffbc468e23fd50f74a325c7dd05591815da
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2020-01-28
+
+    raise unit test coverage on damping to 90%
+
+    Change-Request: CHR-2024-0061
+
+ src/legacy/damp_compat.c | 142 ++++++++++---
+
+commit 000070081ba25037858daf0245ef2a9d286aa9f0
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2021-12-01
+
+    apply review comments from the safety review
+
+    Change-Request: CHR-2024-0036
+
+ cal/damping_params.csv | 75 ++++++++++++------
+ docs/design-note-damping.md | 83 ++++++++++++-----
+
+commit 000071f399ff9f2ed351618f7e1443a58f885d28
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2020-09-06
+
+    guard against divide by zero at standstill
+
+    Change-Request: CHR-2025-0012
+
+ cal/damping_params.csv | 43 ++------
+ src/friction_comp.c | 13 +++++------
+
+commit 000072bd32ca9de7b4d2d5ae82d530b8fe9161da
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2022-07-01
+
+    correct sign on the return-to-centre term
+
+    Change-Request: CHR-2021-0095
+
+ src/friction_comp.c | 40 +++++++---
+ src/legacy/damp_compat.c | 55 ++++++++++++-----
+
+commit 0000735743cb202e186a5a6e263f8c232c5ab2ad
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2024-02-13
+
+    bump CalTool export format to 4.2
+
+ src/rtc.c | 5 +++++++++----
+ src/hysteresis_comp.c | 13 ++++++++++--
+ src/legacy/damp_compat.c | 93 +++++------
+
+commit 000074a0756301a7a41f1f148268cbe3fd01d837
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2022-11-09
+
+    remove dead code in damp_compat
+
+ src/damping.c | 33 ++++++++++++
+
+commit 00007518bac28d284c4cc2d63c588c060a2c8916
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2022-03-20
+
+    bump CalTool export format to 4.2
+
+    Change-Request: CHR-2023-0066
+
+ src/friction_comp.c | 157 +++------
+ docs/design-note-damping.md | 120 +++---
+ src/rtc.c | 130 +++-
+
+commit 00007682790ff927d801666594bc199d5572640a
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2025-02-09
+
+    bump CalTool export format to 4.2
+
+ src/damping.c | 139 ++------
+ src/hysteresis_comp.c | 138 +++++++++------
+
+commit 000077ff7c18b290037364f0a661567670149666
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2022-03-22
+
+    correct sign on the return-to-centre term
+
+ src/damping.c | 31 ++++--
+
+commit 00007885ecd1dbd01b62d55aeb120ec9a9eca3d7
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2024-10-05
+
+    refactor gain schedule into a table
+
+ src/damping.c | 158 ++++--
+
+commit 000079967944fd85b5b98873b80a923aa4197799
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2026-02-24
+
+    guard against divide by zero at standstill
+
+    Change-Request: CHR-2023-0066
+
+ src/hysteresis_comp.c | 4 ++-
+ src/damping.c | 45 ++++----
+ cal/damping_params.csv | 19 ++++++++-
+
+commit 00007aef670c00c5245dd19e30face8a763e458b
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2021-09-18
+
+    correct sign on the return-to-centre term
+
+ test/test_damping.c | 65 ++++++++------
+ src/hysteresis_comp.c | 80 ++++++--
+ src/rtc.c | 96 ++++---
+
+commit 00007b5937604e2b8fb0f07c9995dab3e43c9352
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2024-06-25
+
+    add plausibility check on rack velocity estimate
+
+ test/test_damping.c | 137 +++++++++---
+
+commit 00007c3b06f7adff8eebbd854f1875dcb9b9811c
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2019-01-19
+
+    apply review comments from the safety review
+
+    Change-Request: CHR-2023-0174
+
+ test/test_damping.c | 27 +++++-
+ src/legacy/damp_compat.c | 111 +++-----
+
+commit 00007dffc81ac526d75626b357ccbb757b6a4d79
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2024-10-27
+
+    add plausibility check on rack velocity estimate
+
+    Change-Request: CHR-2024-0078
+
+ src/friction_comp.c | 168 ++++++----
+ src/rtc.c | 145 ++-
+
+commit 00007e16589dfb20f693298d97d1b0631a5494cd
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2024-09-29
+
+    retune damping break point for C segment
+
+    Change-Request: CHR-2024-0126
+
+ cal/damping_params.csv | 25 ++-
+ docs/design-note-damping.md | 51 ++++++++++++--
+ src/hysteresis_comp.c | 123 +++++++++++
+
+commit 00007fa575cd2bf0c92e3bfd640e1247e47413c2
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2020-03-23
+
+    correct sign on the return-to-centre term
+
+    Change-Request: CHR-2025-0171
+
+ docs/design-note-damping.md | 25 +++-
+ src/friction_comp.c | 69 +-
+ test/test_damping.c | 22 ++---
+
+commit 00008006aed3cf386ee18f5d1b568f6b94b6965b
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2018-12-20
+
+    fix damping rate limiter overflow on 1 ms tick
+
+    Change-Request: CHR-2025-0092
+
+ src/hysteresis_comp.c | 100 ++++++------
+ test/test_damping.c | 35 +++---
+ src/damping.c | 139 ++++---
+
+commit 000081f97f65e4c341d9f591d5a8271be2631f27
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2020-09-19
+
+    reduce stack usage in the 1 ms runnable
+
+ test/test_damping.c | 74 ++++-
+ docs/design-note-damping.md | 1 ++++++++++++----
+
+commit 000082b3fd98a91dffcd5f53573f18940d909c34
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2023-03-02
+
+    guard against divide by zero at standstill
+
+ src/damping.c | 37 ++++++++++++------
+ test/test_damping.c | 132 +++++-----
+
+commit 000083e21992cf0e0edd56ecb8a1a2091c02671b
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2023-02-20
+
+    refactor gain schedule into a table
+
+    Change-Request: CHR-2021-0203
+
+ cal/damping_params.csv | 149 ++++++++++--
+ src/friction_comp.c | 102 ++++----
+
+commit 000084ef2f0d7e5dbf1396483a12db1921559172
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2025-12-11
+
+    bump CalTool export format to 4.2
+
+    Change-Request: CHR-2021-0120
+
+ docs/design-note-damping.md | 98 +++--
+ src/rtc.c | 171 +++--
+
+commit 00008577a4a025824f84d797f8bc708b6031fc8e
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2019-11-03
+
+    raise unit test coverage on damping to 90%
+
+    Change-Request: CHR-2022-0154
+
+ src/legacy/damp_compat.c | 123 ++----
+ cal/damping_params.csv | 173 +---
+ src/hysteresis_comp.c | 105 +++++++++---
+
+commit 000086bbbcc12b24458ca5d95a39b737b3383429
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2020-03-08
+
+    correct sign on the return-to-centre term
+
+ src/damping.c | 58 +-
+ src/rtc.c | 19 +++++++++------
+
+commit 000087c3d71cdef9d9affbdc2b5cf109b19ac5c3
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2025-07-07
+
+    bump CalTool export format to 4.2
+
+    Change-Request: CHR-2021-0073
+
+ test/test_damping.c | 9 ++++++++++++
+
+commit 0000889c1a6ad4cea7919f8f47953e6f7584a2a0
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2020-10-20
+
+    retune damping break point for C segment
+
+ src/legacy/damp_compat.c | 71 +++++++++-
+
+commit 0000895b7207ddfcce47c0c85a6f868348423831
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2024-06-30
+
+    raise unit test coverage on damping to 90%
+
+    Change-Request: CHR-2023-0174
+
+ src/legacy/damp_compat.c | 149 ++++---
+
+commit 00008a759cd4ea4c890785fb92b51d43e5fb89af
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2021-02-18
+
+    retune damping break point for C segment
+
+ src/friction_comp.c | 47 +++++--
+ src/legacy/damp_compat.c | 27 +++++++----
+ test/test_damping.c | 11 +----
+
+commit 00008b57af85fdc3b665488bc5062b7f736be1bc
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2021-12-03
+
+    update hysteresis compensation map for H1 facelift
+
+    Change-Request: CHR-2024-0017
+
+ src/damping.c | 95 ++++++
+ docs/design-note-damping.md | 38 ++++++++++------
+
+commit 00008c0f0746656dd725669a1fdb55b42f4785d7
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2019-06-26
+
+    guard against divide by zero at standstill
+
+ src/friction_comp.c | 73 ++++++---
+ src/legacy/damp_compat.c | 16 +++++-
+
+commit 00008dfcc5197064ee3df1f9a42f6850b3c8886e
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2026-01-28
+
+    add plausibility check on rack velocity estimate
+
+ src/friction_comp.c | 121 +----
+
+commit 00008ee3ffffdf91c4e91fcb7e41062fa6ffcac6
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2025-06-27
+
+    retune damping break point for C segment
+
+ test/test_damping.c | 91 ++++++--
+
+commit 00008f16995ec54f2add3f38e9eaee69bf8ddfe2
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2023-10-18
+
+    remove dead code in damp_compat
+
+ docs/design-note-damping.md | 121 ++++----
+
+commit 000090371173291bbf4d2b78ee758c4bedc9ae70
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2021-06-23
+
+    update hysteresis compensation map for H1 facelift
+
+ src/rtc.c | 92 +++++---
+ src/damping.c | 79 +++++++----
+ test/test_damping.c | 15 +++++++++---
+
+commit 000091a6d6de2966b391447da70e76a13fdf7770
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2019-02-19
+
+    apply review comments from the safety review
+
+ src/damping.c | 165 +++++++++++-----
+ docs/design-note-damping.md | 156 +++++++++++------
+ cal/damping_params.csv | 92 +
+
+commit 000092878cb16442db06fce37dec9fc58b8b6fd0
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2021-12-25
+
+    refactor gain schedule into a table
+
+    Change-Request: CHR-2020-0129
+
+ src/damping.c | 47 ++++-
+ src/rtc.c | 29 ++++++++++++-----
+ cal/damping_params.csv | 5 +++++++++++----
+
+commit 0000933f0a03bd7ea7c47a9e95d7b22fb4e0bc0e
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2022-12-18
+
+    reduce stack usage in the 1 ms runnable
+
+ src/friction_comp.c | 155 +++++++++----
+
+commit 000094215e11bf469282a3fbdfecd892100c4c31
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2025-06-22
+
+    fix damping rate limiter overflow on 1 ms tick
+
+ cal/damping_params.csv | 42 +++++++-----
+
+commit 00009561a0785260b26305538b7f95fb71e19abd
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2024-12-13
+
+    apply review comments from the safety review
+
+    Change-Request: CHR-2022-0157
+
+ test/test_damping.c | 71 ++++++-
+ src/hysteresis_comp.c | 50 ++++--
+ src/rtc.c | 141 +-----
+
+commit 00009667ff1de98834d2659df8bc7c77ba70d9f8
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2020-06-25
+
+    fix damping rate limiter overflow on 1 ms tick
+
+    Change-Request: CHR-2025-0071
+
+ src/hysteresis_comp.c | 18 ++++++++++++
+
+commit 000097aea6c71aed415b86648f800191f9857779
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2025-08-28
+
+    raise unit test coverage on damping to 90%
+
+ src/hysteresis_comp.c | 36 +----
+ cal/damping_params.csv | 98 +++++--
+
+commit 000098c871a58d36595c7547d13ef47c8d6ed347
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2023-05-11
+
+    guard against divide by zero at standstill
+
+ docs/design-note-damping.md | 167 +++++-----
+ src/damping.c | 167 ++++++++++++---
+
+commit 000099e92b5655fb3d2a8ccf3bbf06842f3a7fda
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2019-07-07
+
+    apply review comments from the safety review
+
+    Change-Request: CHR-2020-0135
+
+ src/damping.c | 127 ++++++++++
+ test/test_damping.c | 24 +++++++------
+
+commit 00009a525d1da943a9ef47f0dc2b34cf487249a6
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2026-02-06
+
+    raise unit test coverage on damping to 90%
+
+    Change-Request: CHR-2021-0110
+
+ src/friction_comp.c | 23 ++++++++++----
+ docs/design-note-damping.md | 63 +++++++++++
+
+commit 00009bc499f86e7a004bb15ad63e6bf1a0b75644
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2021-01-31
+
+    apply review comments from the safety review
+
+ src/damping.c | 173 ++++++------
+ src/legacy/damp_compat.c | 179 ++++----
+
+commit 00009c35073bee73dff3b31520471d0d0851ac0b
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2019-07-25
+
+    apply review comments from the safety review
+
+ cal/damping_params.csv | 104 +++++++++++------
+ src/legacy/damp_compat.c | 36 +++++++++----
+
+commit 00009da028059fb10341eab8332b63dcefd5c1fe
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2023-02-07
+
+    add plausibility check on rack velocity estimate
+
+ src/friction_comp.c | 17 +++++
+ cal/damping_params.csv | 24 +++--
+
+commit 00009e448bead4eb4293e196de056173a6c742d0
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2019-10-30
+
+    refactor gain schedule into a table
+
+    Change-Request: CHR-2021-0167
+
+ src/damping.c | 180 +++++++
+ src/legacy/damp_compat.c | 97 +++++---
+ cal/damping_params.csv | 5 ++----
+
+commit 00009fe66fd14985a6f5cc87ff9e335046f0b275
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2024-12-21
+
+    fix damping rate limiter overflow on 1 ms tick
+
+ test/test_damping.c | 121 ++++
+
+commit 0000a03922d45a2b8d92d3fa67325dcd0a07c66f
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2020-01-24
+
+    reduce stack usage in the 1 ms runnable
+
+    Change-Request: CHR-2022-0176
+
+ src/rtc.c | 26 ++++++-----
+ src/legacy/damp_compat.c | 36 +++----
+ test/test_damping.c | 147 +++++++------
+
+commit 0000a18666412ab351868da374a5125f5fbbfde4
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2022-10-30
+
+    fix damping rate limiter overflow on 1 ms tick
+
+    Change-Request: CHR-2023-0069
+
+ test/test_damping.c | 71 +++++------
+ src/damping.c | 131 +++------
+
+commit 0000a27bcb514abcc5d4f04c7b69530fede5784c
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2024-08-07
+
+    correct sign on the return-to-centre term
+
+ src/rtc.c | 60 ++++++++++-
+ src/damping.c | 131 +++--
+
+commit 0000a3339c1e700d2a0bde1f5b0560cbeb100b64
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2021-10-05
+
+    refactor gain schedule into a table
+
+    Change-Request: CHR-2025-0003
+
+ src/friction_comp.c | 69 ++--
+ src/legacy/damp_compat.c | 133 +++++++++--
+ src/hysteresis_comp.c | 87 +-
+
+commit 0000a491e0f67739a4849213c98c0737db2722f2
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2022-09-13
+
+    reduce stack usage in the 1 ms runnable
+
+ docs/design-note-damping.md | 24 +
+ test/test_damping.c | 81 ++++++++++----
+ cal/damping_params.csv | 85 ++++++-----
+
+commit 0000a500bb7c11587c39a78cbfa5c48282659b11
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2019-12-12
+
+    reduce stack usage in the 1 ms runnable
+
+    Change-Request: CHR-2025-0170
+
+ src/friction_comp.c | 152 ++++++++++++---
+
+commit 0000a6ba1e04a8d6c2f8d87c782214b455f3cffc
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2018-12-23
+
+    reduce stack usage in the 1 ms runnable
+
+ cal/damping_params.csv | 97 +++++++
+ docs/design-note-damping.md | 60 +++++++++++---
+ src/friction_comp.c | 155 +-----
+
+commit 0000a721c1de718e1226bb5210ff69988d7c5df6
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2024-07-29
+
+    bump CalTool export format to 4.2
+
+    Change-Request: CHR-2021-0197
+
+ src/hysteresis_comp.c | 35 +
+ src/friction_comp.c | 56 +-
+
+commit 0000a8f17eac33041c217ded3f9916651a51cf5f
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2020-07-13
+
+    remove dead code in damp_compat
+
+ src/damping.c | 58 +++++++++++----
+ docs/design-note-damping.md | 68 ++++++++--
+
+commit 0000a94896810f653cce2f5766bffbea7aefff28
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2025-07-04
+
+    fix damping rate limiter overflow on 1 ms tick
+
+    Change-Request: CHR-2024-0139
+
+ src/friction_comp.c | 170 ++++++--
+
+commit 0000aaea522838fcbaec707919290990f6fc4a78
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2025-03-17
+
+    remove dead code in damp_compat
+
+ src/damping.c | 44 ++++++++++------
+
+commit 0000ab521b75900d084a9c9565e50896183425e2
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2025-08-21
+
+    raise unit test coverage on damping to 90%
+
+    Change-Request: CHR-2020-0116
+
+ src/rtc.c | 38 +++++++------
+
+commit 0000acf448e384ed004728ed8d8db515074dc40a
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2020-09-05
+
+    apply review comments from the safety review
+
+    Change-Request: CHR-2021-0123
+
+ src/legacy/damp_compat.c | 174 ++---
+ src/rtc.c | 15 ++--
+
+commit 0000ad97fbe3f29b794f435b4637ed1eae3c5362
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2019-06-19
+
+    fix damping rate limiter overflow on 1 ms tick
+
+ src/damping.c | 6 ++++++++++----
+ src/friction_comp.c | 72 +-
+
+commit 0000ae796230b78ebc005093b76d9f27dd14fe3f
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2024-11-11
+
+    remove dead code in damp_compat
+
+ cal/damping_params.csv | 77 +++++++++++
+
+commit 0000afad887617d2e90d2fbb2ac30cfc95ec7793
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2019-05-01
+
+    correct sign on the return-to-centre term
+
+ test/test_damping.c | 108 ++--
+
+commit 0000b091ae92b982b3ca2c903f769e235b15950f
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2022-05-30
+
+    apply review comments from the safety review
+
+    Change-Request: CHR-2023-0199
+
+ src/hysteresis_comp.c | 149 ++++++++++++------
+ cal/damping_params.csv | 159 ++++++----
+ src/legacy/damp_compat.c | 134 ++---
+
+commit 0000b1aa847bd73a086b16cd97d56802435bfaaf
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2024-01-18
+
+    apply review comments from the safety review
+
+    Change-Request: CHR-2024-0161
+
+ src/friction_comp.c | 57 +++-
+ src/legacy/damp_compat.c | 7 +++++++++++-
+ test/test_damping.c | 165 +++++++++++-----
+
+commit 0000b28b6bb8578771dec51cd617ccaaa65f2d8a
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2023-05-19
+
+    raise unit test coverage on damping to 90%
+
+ src/damping.c | 83 +++--
+ test/test_damping.c | 48 ++++++++++-----
+
+commit 0000b3f8da54962e3dd721bab51915dfedb35b87
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2022-03-07
+
+    remove dead code in damp_compat
+
+ src/damping.c | 37 +++++++++++-----
+ test/test_damping.c | 24 ++++++++++---
+
+commit 0000b423e0150b7103e9e2ba31dac2458aaf9d6c
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2019-10-07
+
+    fix damping rate limiter overflow on 1 ms tick
+
+    Change-Request: CHR-2024-0198
+
+ src/friction_comp.c | 42 ++++++++++----
+
+commit 0000b52bb112b72b28379670274858cf491cfa2c
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2023-07-25
+
+    retune damping break point for C segment
+
+ test/test_damping.c | 38 +++++----
+ src/hysteresis_comp.c | 75 ++++++++-----
+
+commit 0000b69cc5b3e14f9cde78929e8302e54d06c968
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2023-11-18
+
+    raise unit test coverage on damping to 90%
+
+    Change-Request: CHR-2022-0112
+
+ src/friction_comp.c | 102 +++++++++---
+ src/damping.c | 158 +++---
+
+commit 0000b7e204b5dedd1dfa785b44f1d99b707d9f15
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2023-06-28
+
+    retune damping break point for C segment
+
+    Change-Request: CHR-2024-0198
+
+ test/test_damping.c | 95 ++-----
+
+commit 0000b863214f21a8b6ffead643a3635e84e03239
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2026-03-19
+
+    reduce stack usage in the 1 ms runnable
+
+ src/damping.c | 167 +++++++-----
+
+commit 0000b9fcd12e183d4d699a4494cd42cc5f3cb480
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2022-08-31
+
+    update hysteresis compensation map for H1 facelift
+
+ src/hysteresis_comp.c | 109 ++++------
+ test/test_damping.c | 130 ++++++++-
+ src/rtc.c | 151 +++++--
+
+commit 0000ba05303c8d04daf63dc4ea10643ec846ddd6
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2020-03-26
+
+    apply review comments from the safety review
+
+ test/test_damping.c | 13 +++--
+ src/rtc.c | 160 +++++++++++------
+
+commit 0000bbffaef1f4c4b8f9c5d1b39d21d0cc51e6ca
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2020-04-25
+
+    refactor gain schedule into a table
+
+ src/damping.c | 118 +++++++++++------
+
+commit 0000bcd62526cd4d08a5897e7022fce47f5c56cb
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2025-09-14
+
+    guard against divide by zero at standstill
+
+ src/rtc.c | 144 +++++++++++-----
+ src/friction_comp.c | 50 ++++++++++++----
+ cal/damping_params.csv | 164 +++++++----
+
+commit 0000bd4c844a1dc5d19049b029339d74910eacbc
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2022-09-11
+
+    remove dead code in damp_compat
+
+    Change-Request: CHR-2025-0020
+
+ src/legacy/damp_compat.c | 23 +++++------
+ cal/damping_params.csv | 131 ++++++------
+ src/rtc.c | 46 +++++++++
+
+commit 0000beba005ffe2b21513ede87e72545c99bd23e
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2026-03-15
+
+    refactor gain schedule into a table
+
+    Change-Request: CHR-2025-0206
+
+ test/test_damping.c | 180 +++++++++-
+
+commit 0000bf877ecca2f034318d829fdcc63bc1642203
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2020-11-15
+
+    guard against divide by zero at standstill
+
+ src/rtc.c | 78 ++++++++----
+
+commit 0000c01822007296f3df501e6a1f80704623a09b
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2023-05-28
+
+    raise unit test coverage on damping to 90%
+
+ src/legacy/damp_compat.c | 58 ++++
+
+commit 0000c1a35033b584b3c20dacea3cd2c9cd0ec436
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2023-12-17
+
+    add plausibility check on rack velocity estimate
+
+    Change-Request: CHR-2021-0090
+
+ docs/design-note-damping.md | 175 ++++++++++---
+
+commit 0000c21916856d3b1ab0e6cfcb8814391ce918c1
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2019-10-29
+
+    reduce stack usage in the 1 ms runnable
+
+    Change-Request: CHR-2023-0137
+
+ test/test_damping.c | 35 ++++++++++++
+
+commit 0000c3a76e094a0b9cd740492c32976289e59670
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2024-06-08
+
+    add plausibility check on rack velocity estimate
+
+    Change-Request: CHR-2023-0194
+
+ src/friction_comp.c | 14 +++++--
+
+commit 0000c4b4f309b90d8925c96f3b2db441107841d7
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2021-07-20
+
+    correct sign on the return-to-centre term
+
+    Change-Request: CHR-2021-0102
+
+ test/test_damping.c | 2 +++++++++++---
+
+commit 0000c5024276a87517de020990ff4f76352fec8d
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2022-06-26
+
+    fix damping rate limiter overflow on 1 ms tick
+
+ cal/damping_params.csv | 9 ++
+ src/rtc.c | 23 ++++++--
+ test/test_damping.c | 80 ++++++-----
+
+commit 0000c60b9d20b40648ca5c7fe1ee4b95f99cd3ff
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2022-02-07
+
+    remove dead code in damp_compat
+
+    Change-Request: CHR-2021-0202
+
+ src/damping.c | 175 +++++++-----
+
+commit 0000c7d3fdb66136e9af1b09ea542d8f512b659e
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2026-02-08
+
+    update hysteresis compensation map for H1 facelift
+
+ src/damping.c | 141 ++++++++++---
+
+commit 0000c8088975a263dfa58192136d30ebfdbbed60
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2019-05-07
+
+    retune damping break point for C segment
+
+ src/hysteresis_comp.c | 51 ++++++++---
+
+commit 0000c999d557a216b8ab7c9d821ece55674077f6
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2024-09-28
+
+    apply review comments from the safety review
+
+ test/test_damping.c | 16 ++++-
+
+commit 0000caae73179efd15a8e8d717d48ecc149096ac
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2024-05-09
+
+    fix damping rate limiter overflow on 1 ms tick
+
+    Change-Request: CHR-2024-0101
+
+ src/hysteresis_comp.c | 56 ++++----
+ src/legacy/damp_compat.c | 47 +++++-----
+ src/friction_comp.c | 56 ++++++++-----
+
+commit 0000cb99ca54f5076e3188578df7ae35f5422678
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2023-12-31
+
+    update hysteresis compensation map for H1 facelift
+
+ src/hysteresis_comp.c | 168 ++--
+
+commit 0000cc1657190d60fb4b9b2612e1b88855ff3597
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2022-04-26
+
+    refactor gain schedule into a table
+
+    Change-Request: CHR-2022-0022
+
+ src/damping.c | 34 +------
+ docs/design-note-damping.md | 142 +++++
+ src/hysteresis_comp.c | 167 ++++---
+
+commit 0000cd303a862941048dee9a359a90da78fdf139
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2020-06-19
+
+    reduce stack usage in the 1 ms runnable
+
+ docs/design-note-damping.md | 26 ++++
+ src/rtc.c | 10 +----
+
+commit 0000ce9218b9ce69de1b621b4509427a32b45448
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2020-01-30
+
+    retune damping break point for C segment
+
+ test/test_damping.c | 68 ++++++++++----
+ src/legacy/damp_compat.c | 157 ++++++++++--
+
+commit 0000cfae5e4c23062faf156da76ec16d19b4af5e
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2022-08-15
+
+    apply review comments from the safety review
+
+ test/test_damping.c | 71 ++++++++++++-----
+ src/friction_comp.c | 156 +---
+ docs/design-note-damping.md | 111 ++++++++--
+
+commit 0000d0663c5bd271da231d6b59cce77008be7136
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2019-04-19
+
+    guard against divide by zero at standstill
+
+    Change-Request: CHR-2023-0066
+
+ docs/design-note-damping.md | 122 ++----
+ cal/damping_params.csv | 108 ++
+ src/hysteresis_comp.c | 38 +++++++++-
+
+commit 0000d173212cda93eaf248bf1b6735e3c1b4b41a
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2024-07-09
+
+    reduce stack usage in the 1 ms runnable
+
+    Change-Request: CHR-2023-0163
+
+ test/test_damping.c | 128 +++++++++-
+ src/damping.c | 175 +++----
+ cal/damping_params.csv | 97 +++++++++++---
+
+commit 0000d27d3935f40bd80b15f28bf6c9519ab9de0e
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2025-04-15
+
+    remove dead code in damp_compat
+
+ test/test_damping.c | 73 +++----
+ src/rtc.c | 124 ++++++++++++--
+
+commit 0000d30cab511385f21c26c1fad6b6a77845df5f
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2022-01-06
+
+    guard against divide by zero at standstill
+
+ src/friction_comp.c | 13 +--
+ docs/design-note-damping.md | 157 ++++++++++++-
+
+commit 0000d47bb57218f59ae03fab1099d32d97c0e7f1
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2024-04-06
+
+    correct sign on the return-to-centre term
+
+    Change-Request: CHR-2023-0137
+
+ src/friction_comp.c | 58 ++++++++++-
+
+commit 0000d5aeffa9e4ff65372aff8d84cf53c80fd40f
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2025-08-18
+
+    apply review comments from the safety review
+
+ src/friction_comp.c | 7 +-
+
+commit 0000d6ee7f4de76c30259f4e6f7aa95a8131d802
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2025-08-06
+
+    guard against divide by zero at standstill
+
+ src/damping.c | 83 +++-
+ src/friction_comp.c | 166 ++++++++++++-
+ cal/damping_params.csv | 91 ++++++++---
+
+commit 0000d738ea46d07a105cc3906d5a2707afc93825
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2023-12-29
+
+    reduce stack usage in the 1 ms runnable
+
+    Change-Request: CHR-2020-0149
+
+ docs/design-note-damping.md | 2 +++++-----
+ src/rtc.c | 87 +-
+ test/test_damping.c | 171 ++++++---
+
+commit 0000d86d9667b6fb631a4d9ade78c448fb0deaa4
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2022-11-19
+
+    update hysteresis compensation map for H1 facelift
+
+ src/friction_comp.c | 10 +++++++++-
+ src/rtc.c | 37 +++++++++++----
+ src/hysteresis_comp.c | 72 +++++++++++---
+
+commit 0000d9403a94b9e125008520daae2e901071e819
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2026-07-22
+
+    reduce stack usage in the 1 ms runnable
+
+ src/friction_comp.c | 136 +++++++++++----
+ cal/damping_params.csv | 173 ++++++--
+
+commit 0000daacb5e156de48a561bbcc804ecf35753d43
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2026-03-06
+
+    reduce stack usage in the 1 ms runnable
+
+ src/rtc.c | 4 +-----
+
+commit 0000dbbdda387a1bea34a51c4d05a29e4429b80a
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2024-04-14
+
+    correct sign on the return-to-centre term
+
+    Change-Request: CHR-2022-0108
+
+ test/test_damping.c | 124 ++++++-----
+ docs/design-note-damping.md | 152 +++++++++--
+
+commit 0000dcadc3171ad1e4f8dd0d74c2d2840dfb518e
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2023-09-17
+
+    bump CalTool export format to 4.2
+
+ src/legacy/damp_compat.c | 17 ++++++----
+
+commit 0000dd44488a70f9eb99f204fd3e26652f6fa95f
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2021-09-07
+
+    raise unit test coverage on damping to 90%
+
+ src/rtc.c | 6 +++++++
+ src/hysteresis_comp.c | 176 ++++++++--
+
+commit 0000de7ae74baa0469aa8a69f64dba60a8985a46
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2025-02-15
+
+    fix damping rate limiter overflow on 1 ms tick
+
+    Change-Request: CHR-2023-0053
+
+ cal/damping_params.csv | 153 +-----
+
+commit 0000df270b4ebcf82e03270642cd4363eb9303f0
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2018-11-14
+
+    retune damping break point for C segment
+
+    Change-Request: CHR-2021-0073
+
+ src/rtc.c | 166 ++++++++++---
+
+commit 0000e0c10574e75196719dc14f8e07b872b715ce
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2025-10-08
+
+    fix damping rate limiter overflow on 1 ms tick
+
+ docs/design-note-damping.md | 174 +++++++++++-----
+ cal/damping_params.csv | 46 ++++++----
+
+commit 0000e1f28e6d784fb59baf65e53aa532efe06c42
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2019-11-03
+
+    guard against divide by zero at standstill
+
+ src/legacy/damp_compat.c | 78 +++++++
+ cal/damping_params.csv | 176 +++++++++----
+ docs/design-note-damping.md | 118 +-
+
+commit 0000e2d449721a11a2d0b566d2b49418cc4c99f0
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2018-11-11
+
+    apply review comments from the safety review
+
+ src/damping.c | 25 ++++++
+
+commit 0000e3acce33d979f0ad5c2a5d0c67e455c2fc96
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2025-04-08
+
+    guard against divide by zero at standstill
+
+    Change-Request: CHR-2024-0130
+
+ src/hysteresis_comp.c | 52 ++++++++++--
+ src/damping.c | 89 ++++-
+ src/rtc.c | 44 +++++++++++------
+
+commit 0000e4fc0dc9f1157f2cf6e5f222bdc053de27da
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2022-08-12
+
+    bump CalTool export format to 4.2
+
+ src/hysteresis_comp.c | 29 +++++++-
+ test/test_damping.c | 106 ++++------
+
+commit 0000e5ec721b2370aec3e9af4290eff1946bbd54
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2026-05-19
+
+    add plausibility check on rack velocity estimate
+
+    Change-Request: CHR-2023-0028
+
+ src/hysteresis_comp.c | 11 ++------
+ docs/design-note-damping.md | 73 +
+
+commit 0000e6a4d72fa9de3a6f316f9ed236643f2edbfa
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2022-10-03
+
+    refactor gain schedule into a table
+
+ cal/damping_params.csv | 174 ++++++++++++
+
+commit 0000e78a9d4bcc3fc5aab675da628ec1214a1f8a
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2020-11-08
+
+    bump CalTool export format to 4.2
+
+ src/hysteresis_comp.c | 95 +++++++++++------
+ cal/damping_params.csv | 150 +++++++++++----
+
+commit 0000e8ace80baea1916bff9abec47b6f3002f76b
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2024-12-17
+
+    apply review comments from the safety review
+
+    Change-Request: CHR-2023-0080
+
+ src/hysteresis_comp.c | 26 ++++++++-
+ src/rtc.c | 93 ++++++++++--
+
+commit 0000e9fa2f96c571e5351d6d6c5eb93a94ea71c0
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2019-03-23
+
+    correct sign on the return-to-centre term
+
+ cal/damping_params.csv | 135 +-
+
+commit 0000eaa82ef099dee0ca194f0ee7fecf4eb1798e
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2026-06-14
+
+    bump CalTool export format to 4.2
+
+    Change-Request: CHR-2022-0157
+
+ docs/design-note-damping.md | 40 ++++++----
+
+commit 0000eb443432bc2786a25914d437f9f0b22ded91
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2026-04-30
+
+    reduce stack usage in the 1 ms runnable
+
+ src/damping.c | 42 +++++
+ docs/design-note-damping.md | 107 +++++++++---
+
+commit 0000ec2d004141cf206a6310c73d997e36b535ee
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2022-09-12
+
+    remove dead code in damp_compat
+
+ src/legacy/damp_compat.c | 14 +++++++++----
+ src/damping.c | 170 ++++++++++-
+ src/rtc.c | 39 ++++++------
+
+commit 0000ed46bec2573adb8eaa0d7ee0d66fee2bbf76
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2022-09-23
+
+    retune damping break point for C segment
+
+    Change-Request: CHR-2024-0126
+
+ src/hysteresis_comp.c | 55 ++++++
+ src/damping.c | 29 +++++++++++----
+ src/legacy/damp_compat.c | 42 +++++++++++
+
+commit 0000ee3685873af79fd375274d089232b78b9f9a
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2025-11-16
+
+    update hysteresis compensation map for H1 facelift
+
+    Change-Request: CHR-2025-0106
+
+ src/rtc.c | 65 +++++++++-----
+ src/hysteresis_comp.c | 153 ++++----
+
+commit 0000efb16436678c8413f038cecd43350a67ac90
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2023-11-19
+
+    reduce stack usage in the 1 ms runnable
+
+ src/damping.c | 69 ++++++++++++---
+
+commit 0000f0e85912899c83c389d8ad59368eaff47ddf
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2021-09-14
+
+    retune damping break point for C segment
+
+ src/damping.c | 70 ++++-----
+ src/rtc.c | 140 +++++++++++-----
+ docs/design-note-damping.md | 61 +++++++++--
+
+commit 0000f1da97f8a55c5f0a300d1c0eb290b884c12f
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2022-05-21
+
+    remove dead code in damp_compat
+
+    Change-Request: CHR-2025-0001
+
+ src/hysteresis_comp.c | 173 ++----
+ docs/design-note-damping.md | 149 +++-----
+ src/legacy/damp_compat.c | 107 ++-----
+
+commit 0000f2d833fe0fb6483eed0b861c04086373faff
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2022-05-08
+
+    bump CalTool export format to 4.2
+
+ src/hysteresis_comp.c | 69 ++++++++++++----
+ src/friction_comp.c | 171 ++++++++++++--
+
+commit 0000f3005b05b6139026b6112b46cbc4b44fa757
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2019-04-21
+
+    guard against divide by zero at standstill
+
+ src/friction_comp.c | 78 ++++++------
+
+commit 0000f4db70376881fb7c6e2459d47524bad6a433
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2026-08-18
+
+    remove dead code in damp_compat
+
+    Change-Request: CHR-2020-0044
+
+ src/damping.c | 93 ++------
+ src/rtc.c | 93 ++++++++---
+ src/legacy/damp_compat.c | 164 ++++++++++-----
+
+commit 0000f550fd16b244f6279b32aa2f74a0847e062a
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2021-08-30
+
+    remove dead code in damp_compat
+
+    Change-Request: CHR-2022-0094
+
+ test/test_damping.c | 31 ++++++++++------
+ src/friction_comp.c | 167 ++++++++-----
+
+commit 0000f627c92a46d0414c87008899b020586e9390
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2025-05-24
+
+    fix damping rate limiter overflow on 1 ms tick
+
+    Change-Request: CHR-2023-0194
+
+ src/hysteresis_comp.c | 97 +++++++++
+ docs/design-note-damping.md | 122 +++++----
+
+commit 0000f7e3a0aa473f8ad71a6803487f8158889ffb
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2018-07-19
+
+    reduce stack usage in the 1 ms runnable
+
+ test/test_damping.c | 117 +++++++
+
+commit 0000f8e2db64cf3d24b8721b1c1f1ed94e09e97a
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2026-08-04
+
+    add plausibility check on rack velocity estimate
+
+    Change-Request: CHR-2025-0082
+
+ src/friction_comp.c | 14 ++++
+
+commit 0000f9d574e22ea0341475f62413b00e41088683
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2023-11-26
+
+    add plausibility check on rack velocity estimate
+
+ src/legacy/damp_compat.c | 134 ++++++++++------
+ docs/design-note-damping.md | 35 ++++++++-----
+ cal/damping_params.csv | 63 ++++++------
+
+commit 0000fa6191b740568e4c4b3f3935d1647b934b01
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2025-06-22
+
+    add plausibility check on rack velocity estimate
+
+    Change-Request: CHR-2021-0182
+
+ test/test_damping.c | 42 +++--
+
+commit 0000fbfe885e26bee73b374f5a5cd676009a2e64
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2021-11-14
+
+    fix damping rate limiter overflow on 1 ms tick
+
+ docs/design-note-damping.md | 24 ++------
+ src/friction_comp.c | 151 ++++------
+ test/test_damping.c | 70 +++++++++
+
+commit 0000fc35c7ea98c520890e15b8fa69650edf8252
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2022-02-01
+
+    refactor gain schedule into a table
+
+    Change-Request: CHR-2022-0094
+
+ test/test_damping.c | 157 +++++++++++---
+ src/rtc.c | 44 +++++++++++
+
+commit 0000fd645d535f1fb838d43a70f8269b17018e87
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2025-05-12
+
+    guard against divide by zero at standstill
+
+ docs/design-note-damping.md | 146 +++++
+ src/legacy/damp_compat.c | 41 ++++++++-
+
+commit 0000fed7806f9f94a80a5d0bb2c5d7a28d2bbb49
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2022-04-05
+
+    remove dead code in damp_compat
+
+ src/rtc.c | 114 ++++++++++---
+ test/test_damping.c | 87 +++--
+
+commit 0000ff10580f85df4e2545107dd3d2f7c4ef51d9
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2022-09-13
+
+    fix damping rate limiter overflow on 1 ms tick
+
+    Change-Request: CHR-2025-0003
+
+ src/hysteresis_comp.c | 166 +++-
+
+commit 000100aa5fd375d107233bdf089379e5a9333af5
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2018-08-27
+
+    reduce stack usage in the 1 ms runnable
+
+ src/hysteresis_comp.c | 175 ++++++++---
+ src/legacy/damp_compat.c | 115 ++++++++++++----
+ src/friction_comp.c | 10 +++++++-----
+
+commit 0001010b908cc785eb0ed6844f3014c0a037d341
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2026-05-04
+
+    remove dead code in damp_compat
+
+ src/rtc.c | 132 +++++
+
+commit 00010209bf59a7349c5881ac40ed3b6b1624cf24
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2025-07-13
+
+    bump CalTool export format to 4.2
+
+ docs/design-note-damping.md | 141 ++++++++--
+
+commit 00010368e3ccde6aba46f6b60fb5a49d10f0d792
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2022-10-04
+
+    raise unit test coverage on damping to 90%
+
+    Change-Request: CHR-2023-0066
+
+ src/damping.c | 59 +++++++-
+ test/test_damping.c | 147 +++++++-----
+
+commit 000104bc6ff92164b75c7c0284c294d60eefda2b
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2023-04-01
+
+    bump CalTool export format to 4.2
+
+    Change-Request: CHR-2022-0176
+
+ src/friction_comp.c | 88 +++++++----
+ src/hysteresis_comp.c | 138 ++++++++++-
+ cal/damping_params.csv | 102 ++++

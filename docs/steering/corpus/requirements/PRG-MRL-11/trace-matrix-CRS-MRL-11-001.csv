@@ -1,0 +1,41 @@
+# exported from the requirements tool 2026-09-06
+# WARNING: rows with an empty system_req are NOT errors in the export.
+# They are requirements nobody has allocated yet.
+customer_req,system_req,coverage,notes
+CR-MRL-11-0183,SR-MRL-11-0258,partial,
+CR-MRL-11-0183,SR-MRL-11-0268,full,
+CR-MRL-11-0183,SR-MRL-11-0269,full,
+CR-MRL-11-0183,SR-MRL-11-0270,full,
+CR-MRL-11-0183,SR-MRL-11-0273,full,
+CR-MRL-11-0184,SR-MRL-11-0274,full,
+CR-MRL-11-0185,SR-MRL-11-0256,partial,
+CR-MRL-11-0185,SR-MRL-11-0261,partial,
+CR-MRL-11-0185,SR-MRL-11-0263,full,
+CR-MRL-11-0185,SR-MRL-11-0268,full,
+CR-MRL-11-0185,SR-MRL-11-0273,full,
+CR-MRL-11-0186,,,
+CR-MRL-11-0187,SR-MRL-11-0280,full,
+CR-MRL-11-0188,SR-MRL-11-0260,full,
+CR-MRL-11-0188,SR-MRL-11-0262,full,
+CR-MRL-11-0188,SR-MRL-11-0269,full,
+CR-MRL-11-0188,SR-MRL-11-0279,full,
+CR-MRL-11-0189,SR-MRL-11-0257,full,"reviewed, see minutes"
+CR-MRL-11-0189,SR-MRL-11-0277,full,
+CR-MRL-11-0189,SR-MRL-11-0278,full,
+CR-MRL-11-0190,,,not yet allocated
+CR-MRL-11-0191,SR-MRL-11-0274,partial,
+CR-MRL-11-0192,,,
+CR-MRL-11-0193,SR-MRL-11-0267,full,
+CR-MRL-11-0193,SR-MRL-11-0270,full,
+CR-MRL-11-0193,SR-MRL-11-0271,full,
+CR-MRL-11-0194,SR-MRL-11-0276,full,
+CR-MRL-11-0195,SR-MRL-11-0258,full,
+CR-MRL-11-0195,SR-MRL-11-0276,partial,"reviewed, see minutes"
+CR-MRL-11-0196,SR-MRL-11-0264,full,
+CR-MRL-11-0196,SR-MRL-11-0266,full,
+CR-MRL-11-0197,SR-MRL-11-0272,partial,
+CR-MRL-11-0197,SR-MRL-11-0275,partial,"reviewed, see minutes"
+CR-MRL-11-0198,SR-MRL-11-0259,full,
+CR-MRL-11-0199,SR-MRL-11-0262,full,
+CR-MRL-11-0199,SR-MRL-11-0265,full,
+CR-MRL-11-0200,SR-MRL-11-0263,full,

@@ -1,0 +1,12 @@
+# Vantis Steering Systems — approved engineering rates
+# year: 2020   region: EU
+# approved by: L. Renaud (finance)   date: 2019-11-09
+# rates are fully loaded and include overhead. Do not add a multiplier.
+discipline,rate_eur_per_hour
+systems,98.88
+software,94.76
+hardware,96.82
+calibration,88.58
+validation,80.34
+safety,111.24
+pm,105.06

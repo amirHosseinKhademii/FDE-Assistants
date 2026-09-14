@@ -1,0 +1,19 @@
+MISRA C:2012 compliance report
+Repository : eps-safety-monitor
+Module     : event_queue_3.c   (SWC-PLT-011, ASIL B)
+Tool       : Coverity 2022.12
+Run        : 2022-10-25
+Run by     : d.ferreira
+
+SUMMARY
+  rules checked        164
+  violations           17
+  deviations approved  3
+  unresolved           4
+
+DEVIATIONS
+  D-40  Rule 15.4  union used for the CAN frame overlay. Approved.
+  D-12  Rule 20.1  pointer arithmetic in the buffer walk. Approved.
+
+UNRESOLVED
+  (none)

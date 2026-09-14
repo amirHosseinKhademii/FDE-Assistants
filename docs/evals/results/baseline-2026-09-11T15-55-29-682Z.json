@@ -1,0 +1,3208 @@
+{
+  "at": "2026-09-11T15:55:29.682Z",
+  "repeat": 5,
+  "reports": [
+    {
+      "id": "cov-001",
+      "runs": [
+        {
+          "id": "cov-001",
+          "run": 1,
+          "missingFixture": false,
+          "ms": 36370,
+          "turns": 4,
+          "inputTokens": 17245,
+          "outputTokens": 2755,
+          "toolCalls": 3,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_form:PP 03 24 06 24",
+              "pass": true,
+              "detail": "cited PP 03 24 06 24"
+            },
+            {
+              "name": "answer_contains:50",
+              "pass": true,
+              "detail": "answer contains \"50\""
+            },
+            {
+              "name": "answer_contains:21",
+              "pass": true,
+              "detail": "answer contains \"21\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 3 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "PP 03 24 06 24 (attached to AUT-4471) controls: $50 per day, up to 21 days per occurrence. The policy record shows endorsement PP 03 24 06 24 is attached to AUT-4471; that endorsement replaces the base form rental figures (the base form would have been $40/day, 30 days).",
+            "policy_id": "AUT-4471",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "policy:PP 03 24 06 24#Transportation Expenses > Daily Amount and Maximum",
+                "claim": "Endorsement PP 03 24 06 24 states the daily amount and maximum days.",
+                "detail": "\"We will pay **$50 per day, for a maximum of 21 days** per occurrence, for\nreasonable expenses you incur for a rental vehicle while your covered auto is\nwithdrawn from use because of a loss covered under Part IV.\""
+              },
+              {
+                "source": "record:AUT-4471",
+                "claim": "The policyholder record shows endorsement PP 03 24 06 24 is attached to AUT-4471.",
+                "detail": "\"## Endorsements Attached\n\n- PP 03 24 06 24\""
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "The base form PP 00 01 06 24 rental reimbursement figures (superseded by the attached endorsement).",
+                "detail": "\"Under form PP 00 01 06 24 we will pay **$40 per day, for a maximum of\n30 days** per occurrence.\""
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "rental reimbursement daily amount and maximum days",
+                "positions": [
+                  {
+                    "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                    "says": "\"Under form PP 00 01 06 24 we will pay **$40 per day, for a maximum of\n30 days** per occurrence.\""
+                  },
+                  {
+                    "source": "policy:PP 03 24 06 24#Transportation Expenses > Daily Amount and Maximum",
+                    "says": "\"We will pay **$50 per day, for a maximum of 21 days** per occurrence, for\nreasonable expenses you incur for a rental vehicle while your covered auto is\nwithdrawn from use because of a loss covered under Part IV.\""
+                  }
+                ],
+                "resolved_by": "record:AUT-4471"
+              }
+            ],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-001",
+          "run": 2,
+          "missingFixture": false,
+          "ms": 42738,
+          "turns": 5,
+          "inputTokens": 23911,
+          "outputTokens": 2919,
+          "toolCalls": 4,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy",
+            "search_policy",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_form:PP 03 24 06 24",
+              "pass": true,
+              "detail": "cited PP 03 24 06 24"
+            },
+            {
+              "name": "answer_contains:50",
+              "pass": true,
+              "detail": "answer contains \"50\""
+            },
+            {
+              "name": "answer_contains:21",
+              "pass": true,
+              "detail": "answer contains \"21\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 4 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "$50 per day, up to 21 days per occurrence. The PP 03 24 06 24 endorsement (attached to AUT-4471) replaces the base form rental reimbursement amounts; the policy shows Rental Reimbursement selected and no deductible.",
+            "policy_id": "AUT-4471",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4471",
+                "claim": "Policy has endorsement PP 03 24 06 24 attached and Rental Reimbursement selected with no deductible.",
+                "detail": "Policy form            | PP 00 01 06 24\n\n## Coverages In Force\n\n| Coverage             | Selected | Deductible |\n|----------------------|----------|------------|\n| Rental Reimbursement | yes      | none |\n\n## Endorsements Attached\n\n- PP 03 24 06 24"
+              },
+              {
+                "source": "policy:PP 03 24 06 24#Extended Transportation Expenses > Transportation Expenses > Daily Amount and Maximum",
+                "claim": "Endorsement sets the daily amount and maximum days.",
+                "detail": "We will pay **$50 per day, for a maximum of 21 days** per occurrence, for\nreasonable expenses you incur for a rental vehicle while your covered auto is\nwithdrawn from use because of a loss covered under Part IV."
+              },
+              {
+                "source": "policy:PP 03 24 06 24#Extended Transportation Expenses > About This Endorsement",
+                "claim": "Endorsement replaces the rental reimbursement provisions of the base form where attached and shown on the Declarations.",
+                "detail": "This endorsement changes the transportation expenses benefit. Where it is\nattached to a policy **and shown on the Declarations**, the wording below is\nused in place of the rental reimbursement provisions of the form it amends."
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "The base form's rental reimbursement amount and maximum that the endorsement replaces.",
+                "detail": "Under form PP 00 01 06 24 we will pay **$40 per day, for a maximum of\n30 days** per occurrence.\n\nCoverage begins 24 hours after the loss is reported to us and ends on the\nearliest of the day your covered auto is returned to use, the day we pay the\nactual cash value for a total loss, or the day the 30-day maximum\nis reached."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "rental reimbursement daily amount and maximum days",
+                "positions": [
+                  {
+                    "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                    "says": "Under form PP 00 01 06 24 we will pay $40 per day, for a maximum of 30 days per occurrence."
+                  },
+                  {
+                    "source": "policy:PP 03 24 06 24#Extended Transportation Expenses > Transportation Expenses > Daily Amount and Maximum",
+                    "says": "We will pay $50 per day, for a maximum of 21 days per occurrence."
+                  }
+                ],
+                "resolved_by": "record:AUT-4471"
+              },
+              {
+                "topic": "whether the base-form 24-hour waiting period still applies",
+                "positions": [
+                  {
+                    "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                    "says": "Coverage begins 24 hours after the loss is reported to us and ends on the earliest of the day your covered auto is returned to use, the day we pay the actual cash value for a total loss, or the day the 30-day maximum is reached."
+                  },
+                  {
+                    "source": "policy:PP 03 24 06 24#Extended Transportation Expenses > About This Endorsement",
+                    "says": "Where [this endorsement] is attached to a policy and shown on the Declarations, the wording below is used in place of the rental reimbursement provisions of the form it amends."
+                  }
+                ],
+                "resolved_by": "record:AUT-4471"
+              }
+            ],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-001",
+          "run": 3,
+          "missingFixture": false,
+          "ms": 61566,
+          "turns": 3,
+          "inputTokens": 12224,
+          "outputTokens": 2176,
+          "toolCalls": 3,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_form:PP 03 24 06 24",
+              "pass": true,
+              "detail": "cited PP 03 24 06 24"
+            },
+            {
+              "name": "answer_contains:50",
+              "pass": true,
+              "detail": "answer contains \"50\""
+            },
+            {
+              "name": "answer_contains:21",
+              "pass": true,
+              "detail": "answer contains \"21\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 4 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "PP 03 24 06 24 (attached to AUT-4471) controls: $50 per day, up to 21 days per occurrence. The endorsement replaces the base form rental reimbursement ($40/day, 30 days) for this policy.",
+            "policy_id": "AUT-4471",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4471",
+                "claim": "Policy AUT-4471 has endorsement PP 03 24 06 24 attached.",
+                "detail": "## Endorsements Attached\n\n- PP 03 24 06 24"
+              },
+              {
+                "source": "policy:PP 03 24 06 24#Transportation Expenses > Daily Amount and Maximum",
+                "claim": "When PP 03 24 06 24 is attached, the daily amount and maximum are $50 per day and 21 days per occurrence.",
+                "detail": "We will pay **$50 per day, for a maximum of 21 days** per occurrence, for\nreasonable expenses you incur for a rental vehicle while your covered auto is\nwithdrawn from use because of a loss covered under Part IV."
+              },
+              {
+                "source": "policy:PP 03 24 06 24#Transportation Expenses > What This Replaces",
+                "claim": "The endorsement states it replaces the daily amount and maximum in the form's Schedule of Limits and Deductibles where attached.",
+                "detail": "The daily amount and the maximum number of days stated in the Schedule of Limits\nand Deductibles of the form this endorsement amends do not apply where this\nendorsement is attached."
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "The base form (PP 00 01 06 24) provides $40 per day, up to 30 days, before any endorsements.",
+                "detail": "Under form PP 00 01 06 24 we will pay **$40 per day, for a maximum of\n30 days** per occurrence.\n\nCoverage begins 24 hours after the loss is reported to us and ends on the\nearliest of the day your covered auto is returned to use, the day we pay the\nactual cash value for a total loss, or the day the 30-day maximum\nis reached."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "rental reimbursement daily rate and maximum days",
+                "positions": [
+                  {
+                    "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                    "says": "Under form PP 00 01 06 24 we will pay $40 per day, for a maximum of 30 days per occurrence."
+                  },
+                  {
+                    "source": "policy:PP 03 24 06 24#Transportation Expenses > Daily Amount and Maximum",
+                    "says": "We will pay $50 per day, for a maximum of 21 days per occurrence."
+                  }
+                ],
+                "resolved_by": "record:AUT-4471"
+              }
+            ],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-001",
+          "run": 4,
+          "missingFixture": false,
+          "ms": 37820,
+          "turns": 5,
+          "inputTokens": 24147,
+          "outputTokens": 3294,
+          "toolCalls": 4,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy",
+            "search_policy",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_form:PP 03 24 06 24",
+              "pass": true,
+              "detail": "cited PP 03 24 06 24"
+            },
+            {
+              "name": "answer_contains:50",
+              "pass": true,
+              "detail": "answer contains \"50\""
+            },
+            {
+              "name": "answer_contains:21",
+              "pass": true,
+              "detail": "answer contains \"21\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 5 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) The endorsement PP 03 24 06 24 attached to AUT-4471 controls. It provides $50 per day, for a maximum of 21 days per occurrence. 2) The policyholder Declara­tions show Rental Reimbursement is in force with no deductible.",
+            "policy_id": "AUT-4471",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4471",
+                "claim": "Endorsement PP 03 24 06 24 is attached to this policy.",
+                "detail": "## Endorsements Attached\n\n- PP 03 24 06 24"
+              },
+              {
+                "source": "policy:PP 03 24 06 24#Transportation Expenses > Daily Amount and Maximum",
+                "claim": "The endorsement's daily amount and maximum days.",
+                "detail": "We will pay **$50 per day, for a maximum of 21 days** per occurrence, for\nreasonable expenses you incur for a rental vehicle while your covered auto is\nwithdrawn from use because of a loss covered under Part IV."
+              },
+              {
+                "source": "policy:PP 03 24 06 24#About This Endorsement",
+                "claim": "When this endorsement replaces the policy form's rental reimbursement provisions.",
+                "detail": "This endorsement changes the transportation expenses benefit. Where it is\nattached to a policy **and shown on the Declarations**, the wording below is\nused in place of the rental reimbursement provisions of the form it amends."
+              },
+              {
+                "source": "record:AUT-4471",
+                "claim": "Rental Reimbursement coverage selection and deductible on the Declarations.",
+                "detail": "| Coverage             | Selected | Deductible |\n|----------------------|----------|------------|\n| Rental Reimbursement | yes      | none |"
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "Base form rental reimbursement (superseded where the endorsement applies): $40 per day, 30 days max, and 24‑hour waiting period language.",
+                "detail": "Under form PP 00 01 06 24 we will pay **$40 per day, for a maximum of\n30 days** per occurrence.\n\nCoverage begins 24 hours after the loss is reported to us and ends on the\nearliest of the day your covered auto is returned to use, the day we pay the\nactual cash value for a total loss, or the day the 30-day maximum\nis reached."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "rental reimbursement daily amount and maximum days",
+                "positions": [
+                  {
+                    "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                    "says": "Under form PP 00 01 06 24 we will pay $40 per day, for a maximum of 30 days per occurrence."
+                  },
+                  {
+                    "source": "policy:PP 03 24 06 24#Transportation Expenses > Daily Amount and Maximum",
+                    "says": "We will pay $50 per day, for a maximum of 21 days per occurrence."
+                  }
+                ],
+                "resolved_by": "record:AUT-4471"
+              }
+            ],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-001",
+          "run": 5,
+          "missingFixture": false,
+          "ms": 46883,
+          "turns": 4,
+          "inputTokens": 16879,
+          "outputTokens": 4724,
+          "toolCalls": 3,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_form:PP 03 24 06 24",
+              "pass": true,
+              "detail": "cited PP 03 24 06 24"
+            },
+            {
+              "name": "answer_contains:50",
+              "pass": true,
+              "detail": "answer contains \"50\""
+            },
+            {
+              "name": "answer_contains:21",
+              "pass": true,
+              "detail": "answer contains \"21\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 4 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "$50 per day, for a maximum of 21 days per occurrence. The policy has Rental Reimbursement and endorsement PP 03 24 06 24 is attached; that endorsement replaces the form’s daily amount and maximum days. Coverage timing (begins 24 hours after the loss is reported and ends on the earliest of the vehicle’s return to use, payment of actual cash value for a total loss, or the day the applicable day-maximum is reached) is described in the base form.",
+            "policy_id": "AUT-4471",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4471",
+                "claim": "This policy has Rental Reimbursement selected and shows endorsement PP 03 24 06 24 on the policy.",
+                "detail": "## Coverages In Force\n\n| Coverage             | Selected | Deductible |\n|----------------------|----------|------------|\n| Collision            | yes      | $1,000 |\n| Comprehensive        | yes      | $500 |\n| Rental Reimbursement | yes      | none |\n\n## Endorsements Attached\n\n- PP 03 24 06 24"
+              },
+              {
+                "source": "policy:PP 03 24 06 24#Transportation Expenses > What This Replaces",
+                "claim": "The endorsement changes which figures from the base form apply.",
+                "detail": "The daily amount and the maximum number of days stated in the Schedule of Limits\nand Deductibles of the form this endorsement amends do not apply where this\nendorsement is attached."
+              },
+              {
+                "source": "policy:PP 03 24 06 24#Transportation Expenses > Daily Amount and Maximum",
+                "claim": "The endorsement’s daily amount and maximum days.",
+                "detail": "We will pay **$50 per day, for a maximum of 21 days** per occurrence, for\nreasonable expenses you incur for a rental vehicle while your covered auto is\nwithdrawn from use because of a loss covered under Part IV."
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "The base form’s rental reimbursement wording about timing and the base amounts (now replaced by the endorsement’s figures).",
+                "detail": "Under form PP 00 01 06 24 we will pay **$40 per day, for a maximum of\n30 days** per occurrence.\n\nCoverage begins 24 hours after the loss is reported to us and ends on the\nearliest of the day your covered auto is returned to use, the day we pay the\nactual cash value for a total loss, or the day the 30-day maximum\nis reached."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "Daily amount and maximum days for rental reimbursement",
+                "positions": [
+                  {
+                    "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                    "says": "Under form PP 00 01 06 24 we will pay $40 per day, for a maximum of 30 days per occurrence."
+                  },
+                  {
+                    "source": "policy:PP 03 24 06 24#Transportation Expenses > Daily Amount and Maximum",
+                    "says": "We will pay $50 per day, for a maximum of 21 days per occurrence."
+                  }
+                ],
+                "resolved_by": "record:AUT-4471"
+              }
+            ],
+            "escalate": null
+          }
+        }
+      ],
+      "passed": 5,
+      "total": 5,
+      "flakyChecks": []
+    },
+    {
+      "id": "cov-002",
+      "runs": [
+        {
+          "id": "cov-002",
+          "run": 1,
+          "missingFixture": false,
+          "ms": 56960,
+          "turns": 7,
+          "inputTokens": 47229,
+          "outputTokens": 4282,
+          "toolCalls": 6,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy",
+            "search_policy",
+            "search_policy",
+            "search_policy",
+            "search_guidance"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": false,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to underwriting referral desk and claims desk supervisor"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": false,
+              "detail": "unresolvable citation(s): record:DET-2024-004473-ROR"
+            }
+          ],
+          "answer": {
+            "answer": "1) Policy in force: AUT-4473 is on form PP 00 01 06 24, issued in Ohio, and has no commercial/ride-share endorsement attached. 2) The policy’s physical-damage grant covers “direct and accidental loss” to the covered auto (collision and other-than-collision). 3) The attached Schedule of Exclusions (PP 04 91 06 24) excludes losses while the vehicle is “carrying property for a fee” (Exclusion B) and while the vehicle is “rented to another” (Exclusion I), but those exclusions do not, by their text, say they exclude carrying persons for a fee. 4) Company coverage guidance (OPN-2024-011) advises the forms do not address carrying persons for a fee and recommends underwriting and claims jointly decide the position. 5) There is a reservation-of-rights determination on this policy (DET-2024-004473-ROR) that lists Exclusions B and I as provisions the company may rely on. Net: the contract language you have on file does not expressly grant or expressly exclude use while carrying rideshare passengers; the company’s guidance says this is not settled by the forms and should be decided by underwriting and claims together. Escalate for a joint underwriting/claims decision before taking a coverage position.\n",
+            "policy_id": "AUT-4473",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4473",
+                "claim": "Policy form, rated state, endorsements, and application disclosure",
+                "detail": "\"Policy form            | PP 00 01 06 24\"; \"Rated state            | Ohio\"; \"Endorsements Attached\\n\\n- none\"; \"Notes\\n\\nDrives for a rideshare platform part-time, evenings and weekends. Disclosed at application; no commercial endorsement was offered or issued.\""
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.2 Collision Coverage",
+                "claim": "Part IV (Collision) grants coverage for direct and accidental loss",
+                "detail": "\"We will pay for direct and accidental loss to your covered auto caused by collision, less any applicable deductible shown in the Declarations.\""
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.1 Comprehensive Coverage",
+                "claim": "Part IV (Comprehensive/other-than-collision) grants coverage for direct and accidental loss",
+                "detail": "\"We will pay for direct and accidental loss to your covered auto not caused by collision, less any applicable deductible shown in the Declarations.\""
+              },
+              {
+                "source": "policy:PP 04 91 06 24#Schedule of Exclusions: Physical Damage > Lettered Exclusions",
+                "claim": "Exclusion B excludes losses while the vehicle is carrying property for a fee",
+                "detail": "\"**B. Carrying property for a fee.** Loss occurring while your covered auto is being used to carry property for a fee. This does not apply to a share-the-expense car pool.\""
+              },
+              {
+                "source": "policy:PP 04 91 06 24#Schedule of Exclusions: Physical Damage > Lettered Exclusions",
+                "claim": "Exclusion I excludes losses while the vehicle is rented to others",
+                "detail": "\"**I. Rented to others.** Loss occurring while your covered auto is rented to another, or held for rental, by any person seeking coverage.\""
+              },
+              {
+                "source": "policy:OPN-2024-011#Short Answer",
+                "claim": "Coverage opinion: the forms do not address carrying persons for a fee and this requires a joint underwriting/claims decision",
+                "detail": "\"The forms considered do not address the question. Exclusion B addresses carrying property for a fee; Exclusion I addresses renting the vehicle to another. **Neither addresses carrying persons for a fee.** There is no provision granting the use and none excluding it. A position either way requires a judgment the documents do not contain, and should be taken by underwriting and claims jointly rather than by an adjuster on the file.\""
+              },
+              {
+                "source": "record:DET-2024-004473-ROR",
+                "claim": "Reservation-of-rights on this policy lists Exclusion B and I as provisions the company may rely on",
+                "detail": "\"| Provision | Document | Why it may apply |\\n|---|---|---|\\n| Schedule of Exclusions, Exclusion B | Attaches to PP 00 01 06 24 | Carrying property for a fee |\\n| Schedule of Exclusions, Exclusion I | Attaches to PP 00 01 06 24 | Renting the vehicle to others |\""
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "Applicability of Exclusions B and I to carrying passengers for a fee",
+                "positions": [
+                  {
+                    "source": "policy:PP 04 91 06 24#Schedule of Exclusions: Physical Damage > Lettered Exclusions",
+                    "says": "\"**B. Carrying property for a fee.** Loss occurring while your covered auto is being used to carry property for a fee.\""
+                  },
+                  {
+                    "source": "policy:OPN-2024-011#Analysis",
+                    "says": "\"Exclusion B is written in terms of property. Reading it to reach passengers requires treating persons as property, which the wording does not support... Neither exclusion reaches the facts by its terms.\""
+                  },
+                  {
+                    "source": "record:DET-2024-004473-ROR",
+                    "says": "The reservation of rights lists Exclusion B and Exclusion I as provisions the company may rely on for this policy and loss."
+                  }
+                ],
+                "resolved_by": null
+              }
+            ],
+            "escalate": {
+              "reason": "The policy forms on file do not expressly grant or expressly exclude coverage while the insured is carrying passengers for a fee. Company coverage guidance (OPN-2024-011) says the forms do not resolve the question and recommends underwriting and claims jointly decide the position. There is also an active reservation-of-rights on this policy (DET-2024-004473-ROR) referencing the exclusions. This is a coverage judgment that the contract language and guidance leave unsettled and requires underwriting and claims to decide.",
+              "suggested_owner": "underwriting referral desk and claims desk supervisor"
+            }
+          }
+        },
+        {
+          "id": "cov-002",
+          "run": 2,
+          "missingFixture": false,
+          "ms": 60599,
+          "turns": 11,
+          "inputTokens": 110130,
+          "outputTokens": 4044,
+          "toolCalls": 10,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy",
+            "search_policy",
+            "search_policy",
+            "search_policy",
+            "search_policy",
+            "search_policy",
+            "search_policy",
+            "search_policy",
+            "search_guidance"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to underwriting referral desk and claims desk supervisor"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 4 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "Not settled by the policy forms. The policy on AUT-4473 (PP 00 01 06 24) has no endorsement for commercial/rideshare use and the company’s exclusion schedule excludes carrying property for a fee or renting the vehicle to others but says nothing about carrying persons for a fee. Company coverage guidance (OPN-2024-011) reviewed these forms and concludes the forms do not address passenger-carrying for a fee and that a position either way requires underwriting and claims to decide jointly. Practical notes: the policy’s liability limits (if coverage were found to apply) are $100,000 per person / $300,000 per accident for bodily injury and $50,000 for property damage. Recommend immediate referral to underwriting and claims for a joint coverage determination.",
+            "policy_id": "AUT-4473",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4473",
+                "claim": "No commercial endorsement attached; insured disclosed rideshare use at application.",
+                "detail": "\"Endorsements Attached\n\n- none\n\n## Notes\n\nDrives for a rideshare platform part-time, evenings and weekends. Disclosed at application; no commercial endorsement was offered or issued.\""
+              },
+              {
+                "source": "policy:PP 00 01 06 24#4.3 Schedule of Limits and Deductibles",
+                "claim": "The policy's liability limits (the limits that would apply if liability coverage is found to respond).",
+                "detail": "\"| Coverage | Limit | Deductible |\n|---|---|---|\n| ... |\n| Bodily Injury Liability | $100,000 / $300,000 | None |\n| Property Damage Liability | $50,000 | None |\""
+              },
+              {
+                "source": "policy:PP 04 91 06 24#Lettered Exclusions",
+                "claim": "The physical-damage exclusions include carrying property for a fee and loss while the vehicle is rented to others, but do not mention carrying persons for a fee.",
+                "detail": "\"**B. Carrying property for a fee.** Loss occurring while your covered auto is\nbeing used to carry property for a fee. This does not apply to a share-the-\nexpense car pool.\n...\n**I. Rented to others.** Loss occurring while your covered auto is rented to\nanother, or held for rental, by any person seeking coverage.\""
+              },
+              {
+                "source": "policy:OPN-2024-011#Short Answer",
+                "claim": "Company coverage guidance concludes the forms do not address carrying persons for a fee and that the question requires a joint underwriting/claims decision.",
+                "detail": "\"The forms considered do not address the question. Exclusion B addresses\ncarrying property for a fee; Exclusion I addresses renting the vehicle to\nanother. **Neither addresses carrying persons for a fee.** There is no provision\ngranting the use and none excluding it. A position either way requires a\njudgment the documents do not contain, and should be taken by underwriting and\nclaims jointly rather than by an adjuster on the file.\""
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": {
+              "reason": "The policy forms and exclusions do not address whether coverage applies while the insured is carrying passengers for a fee. Company coverage guidance (OPN-2024-011) advises that this is not resolved by the forms and that a coverage position requires a joint decision by underwriting and claims.",
+              "suggested_owner": "underwriting referral desk and claims desk supervisor"
+            }
+          }
+        },
+        {
+          "id": "cov-002",
+          "run": 3,
+          "missingFixture": false,
+          "ms": 76491,
+          "turns": 9,
+          "inputTokens": 73827,
+          "outputTokens": 5305,
+          "toolCalls": 8,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy",
+            "search_policy",
+            "search_policy",
+            "search_policy",
+            "search_policy",
+            "search_policy",
+            "search_guidance"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to claims desk supervisor AND underwriting referral desk"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 6 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) Finding: You cannot tell from the policy forms alone whether the insured is covered while carrying rideshare passengers. The policy on AUT-4473 is PP 00 01 06 24 and there are no commercial/rideshare endorsements on the policy (the insured disclosed rideshare use at application). 2) Partial facts: the physical-damage Schedule of Exclusions attached to PP 00 01 06 24 includes an exclusion for “carrying property for a fee” (Exclusion B) and for the vehicle being rented to others (Exclusion I), but neither exclusion on its face says it excludes carrying persons for a fee. 3) Guidance: an internal coverage opinion concluded the forms do not address carrying persons for a fee and recommended underwriting and claims decide jointly. 4) Conflicting handling: there is a reservation-of-rights determination on this specific policy that lists Exclusions B and I as provisions being relied on. Because guidance documents disagree and the forms themselves do not clearly address passenger-carrying, this needs underwriting + claims to decide (escalate).",
+            "policy_id": "AUT-4473",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4473",
+                "claim": "Policy form and endorsements on AUT-4473; disclosure of rideshare use.",
+                "detail": "Record type: policyholder \u0000 Policy ID: AUT-4473 \u0000 Form: PP 00 01 06 24\n\nNotes\n\nDrives for a rideshare platform part-time, evenings and weekends. Disclosed at application; no commercial endorsement was offered or issued."
+              },
+              {
+                "source": "policy:PP 04 91 06 24#Lettered Exclusions",
+                "claim": "Exclusion B (carrying property for a fee) in the Schedule of Exclusions.",
+                "detail": "B. Carrying property for a fee. Loss occurring while your covered auto is\nbeing used to carry property for a fee. This does not apply to a share-the-\nexpense car pool."
+              },
+              {
+                "source": "policy:PP 04 91 06 24#Lettered Exclusions",
+                "claim": "Exclusion I (rented to others) in the Schedule of Exclusions.",
+                "detail": "I. Rented to others. Loss occurring while your covered auto is rented to\nanother, or held for rental, by any person seeking coverage."
+              },
+              {
+                "source": "policy:OPN-2024-011#Short Answer",
+                "claim": "Coverage opinion: the forms do not address carrying persons for a fee and a joint underwriting/claims decision is needed.",
+                "detail": "The forms considered do not address the question. Exclusion B addresses\ncarrying property for a fee; Exclusion I addresses renting the vehicle to\nanother. **Neither addresses carrying persons for a fee.** There is no provision\ngranting the use and none excluding it. A position either way requires a\njudgment the documents do not contain, and should be taken by underwriting and\nclaims jointly rather than by an adjuster on the file."
+              },
+              {
+                "source": "policy:DET-2024-004473-ROR#Provisions We Are Relying On",
+                "claim": "A reservation-of-rights determination on this policy lists Exclusion B and I as provisions being relied on.",
+                "detail": "| Provision | Document | Why it may apply |\n|---|---|---|\n| Schedule of Exclusions, Exclusion B | Attaches to PP 00 01 06 24 | Carrying property for a fee |\n| Schedule of Exclusions, Exclusion I | Attaches to PP 00 01 06 24 | Renting the vehicle to others |\n\n... Determination ID: DET-2024-004473-ROR · Type: determination · Shape: ror\nPolicy ID: AUT-4473 · Claim ID: CLM-2024-004473 · Jurisdiction: Ohio\nForm in force at loss: PP 00 01 06 24 · Date of loss: 2024-11-02"
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part VI \u0000 General Provisions - 6.2 Changes",
+                "claim": "Endorsements control when attached to the Declarations; absence of a rideshare endorsement matters.",
+                "detail": "Where an endorsement is attached to this policy and shown on the Declarations, the terms of the endorsement apply to the coverage it names."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "Whether exclusions B or I exclude carrying persons for a fee (rideshare passenger-carrying).",
+                "positions": [
+                  {
+                    "source": "policy:OPN-2024-011#Short Answer",
+                    "says": "The forms considered do not address the question. Exclusion B addresses carrying property for a fee; Exclusion I addresses renting the vehicle to another. Neither addresses carrying persons for a fee."
+                  },
+                  {
+                    "source": "policy:DET-2024-004473-ROR#Provisions We Are Relying On",
+                    "says": "The reservation of rights determination for AUT-4473 lists Schedule of Exclusions, Exclusion B and Exclusion I, as provisions the company is relying on (i.e. may apply) for a loss while the vehicle was in use."
+                  }
+                ],
+                "resolved_by": null
+              }
+            ],
+            "escalate": {
+              "reason": "The policy forms (PP 00 01 06 24 and its Schedule of Exclusions) do not expressly exclude carrying persons for a fee, but an internal reservation-of-rights on this same policy cites Exclusions B and I as being relied on. An internal coverage opinion reaches the opposite view (that the forms do not address passenger-carrying and a judgment is required). Because the guidance documents disagree and the contract language is silent on passenger-for-fee use, a determination requires underwriting and claims to jointly decide whether to deny, pay under reservation, or accept. This is a coverage judgment the documents do not resolve.",
+              "suggested_owner": "claims desk supervisor AND underwriting referral desk"
+            }
+          }
+        },
+        {
+          "id": "cov-002",
+          "run": 4,
+          "missingFixture": false,
+          "ms": 73572,
+          "turns": 6,
+          "inputTokens": 36288,
+          "outputTokens": 5484,
+          "toolCalls": 5,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy",
+            "search_policy",
+            "search_guidance",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to underwriting referral desk and claims desk supervisor"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 6 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "Finding: The policy documents do not establish a clear coverage answer. The policy form’s exclusion schedule excludes (B) “carrying property for a fee” and (I) “rented to others,” neither of which, by their wording, says it excludes carrying persons for a fee. A company coverage opinion says the forms do not address passenger-carrying for a fee and that the question requires a joint underwriting/claims decision. For this policy (AUT-4473) a Reservation of Rights was issued and the question was referred. Recommend referral to underwriting and claims to decide whether to pay or deny.",
+            "policy_id": "AUT-4473",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4473",
+                "claim": "Named insured disclosed driving for a rideshare platform and no commercial endorsement was attached to the policy.",
+                "detail": "\"Drives for a rideshare platform part-time, evenings and weekends. Disclosed at application; no commercial endorsement was offered or issued.\""
+              },
+              {
+                "source": "policy:PP 04 91 06 24#Schedule of Exclusions: Physical Damage > Lettered Exclusions",
+                "claim": "Exclusion B excludes carrying property for a fee (does not mention passengers).",
+                "detail": "\"B. Carrying property for a fee. Loss occurring while your covered auto is being used to carry property for a fee. This does not apply to a share-the-expense car pool.\""
+              },
+              {
+                "source": "policy:PP 04 91 06 24#Schedule of Exclusions: Physical Damage > Lettered Exclusions",
+                "claim": "Exclusion I excludes loss while the vehicle is rented to others (rental of the vehicle itself).",
+                "detail": "\"I. Rented to others. Loss occurring while your covered auto is rented to another, or held for rental, by any person seeking coverage.\""
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part VI — General Provisions > 6.3 Exclusions",
+                "claim": "Part IV (Physical Damage) is subject to the attached Schedule of Exclusions (PP 04 91 06 24).",
+                "detail": "\"Physical Damage Coverage under Part IV is subject to the Schedule of Exclusions attached to this form. See PP 04 91 06 24 for the full lettered list.\""
+              },
+              {
+                "source": "policy:opinion-2024-011#OPN-2024-011 — Coverage Opinion: Passenger-Carrying Use of a Private Passenger Auto > Short Answer",
+                "claim": "Company coverage opinion: the forms do not address carrying persons for a fee and the question requires a judgment.",
+                "detail": "\"The forms considered do not address the question. Exclusion B addresses carrying property for a fee; Exclusion I addresses renting the vehicle to another. **Neither addresses carrying persons for a fee.** There is no provision granting the use and none excluding it. A position either way requires a judgment the documents do not contain, and should be taken by underwriting and claims jointly rather than by an adjuster on the file.\""
+              },
+              {
+                "source": "policy:determination-2024-004473-ror#DET-2024-004473-ROR — Reservation of Rights: Use of the Vehicle at the Time of Loss > Issue-By-Issue Reservation",
+                "claim": "A reservation of rights was issued on this claim (AUT-4473) and the question was referred; the letter notes neither exclusion is written in terms of carrying persons for a fee.",
+                "detail": "\"**Whether an exclusion applies to the use of the vehicle at the time of loss.** We reserve our rights under Exclusions B and I. We note that neither exclusion is written in terms of carrying persons for a fee, and no provision of the form addresses that use either to grant or to exclude it. The question is referred.\""
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": {
+              "reason": "The policy wording and exclusion schedule do not, by their text, grant or clearly exclude coverage for carrying passengers for a fee. Company coverage opinion explicitly says the forms do not address this use and that a position either way requires a judgment the documents do not contain. For this policy (AUT-4473) a Reservation of Rights was issued and the matter was referred. A human decision is therefore required on whether to deny or accept coverage (underwriting and claims should decide jointly).",
+              "suggested_owner": "underwriting referral desk and claims desk supervisor"
+            }
+          }
+        },
+        {
+          "id": "cov-002",
+          "run": 5,
+          "missingFixture": false,
+          "ms": 79963,
+          "turns": 11,
+          "inputTokens": 110177,
+          "outputTokens": 5320,
+          "toolCalls": 10,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy",
+            "search_policy",
+            "search_policy",
+            "search_policy",
+            "search_policy",
+            "search_policy",
+            "search_guidance",
+            "search_guidance",
+            "search_guidance"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to underwriting referral desk and claims desk supervisor (joint review)"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 7 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "Finding: The policy forms do not conclusively say whether the driver is covered while carrying passengers for a rideshare platform. AUT-4473 is on PP 00 01 06 24 and has no commercial endorsements attached; the physical-damage exclusion schedule excludes carrying property for a fee (Exclusion B) and renting the vehicle to others (Exclusion I) but neither by its wording addresses carrying persons for a fee. Company coverage counsel concluded the forms do not address passenger-for-hire use and recommended underwriting and claims decide jointly. The company has already issued a reservation of rights on this file and referred the question. Action: escalate to underwriting + claims for a joint coverage determination (or to issue any required endorsement).",
+            "policy_id": "AUT-4473",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4473",
+                "claim": "Policy form in force and that no endorsements are attached; insured disclosed rideshare driving and no commercial endorsement was issued.",
+                "detail": "Policy form            | PP 00 01 06 24\n\n## Endorsements Attached\n\n- none\n\n## Notes\n\nDrives for a rideshare platform part-time, evenings and weekends. Disclosed at application; no commercial endorsement was offered or issued."
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.2 Collision Coverage",
+                "claim": "Part IV grants physical-damage coverage for direct and accidental loss (the grant that exclusions qualify).",
+                "detail": "We will pay for direct and accidental loss to your covered auto caused by collision, less any applicable deductible shown in the Declarations."
+              },
+              {
+                "source": "policy:PP 04 91 06 24#Schedule of Exclusions: Physical Damage > Lettered Exclusions",
+                "claim": "Exclusion B (carrying property for a fee) does not reach passengers by its wording.",
+                "detail": "B. Carrying property for a fee. Loss occurring while your covered auto is being used to carry property for a fee. This does not apply to a share-the-expense car pool."
+              },
+              {
+                "source": "policy:PP 04 91 06 24#Schedule of Exclusions: Physical Damage > Lettered Exclusions",
+                "claim": "Exclusion I (rented to others) concerns renting the vehicle and does not by its wording reach a driver carrying passengers who retains possession.",
+                "detail": "I. Rented to others. Loss occurring while your covered auto is rented to another, or held for rental, by any person seeking coverage."
+              },
+              {
+                "source": "policy:OPN-2024-011#Short Answer",
+                "claim": "Coverage counsel's short answer: the forms considered do not address carrying persons for a fee and the issue needs underwriting+claims judgment.",
+                "detail": "The forms considered do not address the question. Exclusion B addresses carrying property for a fee; Exclusion I addresses renting the vehicle to another. **Neither addresses carrying persons for a fee.** There is no provision granting the use and none excluding it. A position either way requires a judgment the documents do not contain, and should be taken by underwriting and claims jointly rather than by an adjuster on the file."
+              },
+              {
+                "source": "policy:OPN-2024-011#Status of This Opinion",
+                "claim": "The opinion is guidance and not binding on coverage.",
+                "detail": "**This is advice, not a determination. It binds nobody** and does not commit the company to a position."
+              },
+              {
+                "source": "policy:DET-2024-004473-ROR#Issue-By-Issue Reservation",
+                "claim": "The company on this file issued a reservation of rights, reserving under Exclusions B and I and referring the passenger-for-hire question.",
+                "detail": "**Whether an exclusion applies to the use of the vehicle at the time of loss.**\nWe reserve our rights under Exclusions B and I. We note that neither exclusion\nis written in terms of carrying persons for a fee, and no provision of the form\naddresses that use either to grant or to exclude it. The question is referred."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": {
+              "reason": "The policy forms and attached exclusion schedule do not address passenger-for-hire use; coverage counsel advises the forms do not resolve the question and that a judgment is required. The file already has a reservation of rights that refers the question. A joint underwriting + claims coverage determination is therefore needed (the adjuster should not unilaterally accept or deny coverage on this point).",
+              "suggested_owner": "underwriting referral desk and claims desk supervisor (joint review)"
+            }
+          }
+        }
+      ],
+      "passed": 4,
+      "total": 5,
+      "flakyChecks": [
+        {
+          "name": "citations_resolve",
+          "failed": 1
+        }
+      ]
+    },
+    {
+      "id": "cov-003",
+      "runs": [
+        {
+          "id": "cov-003",
+          "run": 1,
+          "missingFixture": false,
+          "ms": 24460,
+          "turns": 3,
+          "inputTokens": 11597,
+          "outputTokens": 2657,
+          "toolCalls": 2,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_record:AUT-4472",
+              "pass": true,
+              "detail": "cited record AUT-4472"
+            },
+            {
+              "name": "has_answer",
+              "pass": true,
+              "detail": "gave an answer"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 3 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) AUT-4472 does not include Rental Reimbursement — there is no rental benefit available under this policy. 2) (If Rental Reimbursement had been selected) PP 00 01 06 24 provides $40 per day, up to a maximum of 30 days per occurrence; coverage begins 24 hours after the loss is reported and ends on the earliest of return to use, payment of actual cash value for a total loss, or when the 30-day maximum is reached.",
+            "policy_id": "AUT-4472",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4472",
+                "claim": "This policy does not include Rental Reimbursement.",
+                "detail": "| Rental Reimbursement | no       | none |"
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage — 4.4 Rental Reimbursement",
+                "claim": "If selected on the declarations, the form’s rental reimbursement limit is $40 per day, 30 days max, and coverage begins 24 hours after reporting.",
+                "detail": "\"Under form PP 00 01 06 24 we will pay $40 per day, for a maximum of\n30 days per occurrence.\" \"Coverage begins 24 hours after the loss is reported to us and ends on the earliest of the day your covered auto is returned to use, the day we pay the actual cash value for a total loss, or the day the 30-day maximum is reached.\""
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage — 4.3 Schedule of Limits and Deductibles",
+                "claim": "The declarations control where the form and the individual policy differ.",
+                "detail": "\"The Declarations page for an individual policyholder controls where it differs.\""
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "Whether rental reimbursement is payable and, if so, for what amount/duration",
+                "positions": [
+                  {
+                    "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage — 4.4 Rental Reimbursement",
+                    "says": "Under form PP 00 01 06 24 we will pay $40 per day, for a maximum of 30 days per occurrence."
+                  },
+                  {
+                    "source": "record:AUT-4472",
+                    "says": "Rental Reimbursement | no"
+                  }
+                ],
+                "resolved_by": "record:AUT-4472"
+              }
+            ],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-003",
+          "run": 2,
+          "missingFixture": false,
+          "ms": 21665,
+          "turns": 3,
+          "inputTokens": 11697,
+          "outputTokens": 2119,
+          "toolCalls": 2,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_record:AUT-4472",
+              "pass": true,
+              "detail": "cited record AUT-4472"
+            },
+            {
+              "name": "has_answer",
+              "pass": true,
+              "detail": "gave an answer"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 3 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "This policy does not include Rental Reimbursement, so no per-day or per-claim rental benefit applies under AUT-4472. If Rental Reimbursement had been purchased under form PP 00 01 06 24, the form provides $40 per day for a maximum of 30 days per occurrence; coverage begins 24 hours after the loss is reported and ends on the earliest of the vehicle’s return to use, payment of actual cash value for a total loss, or the 30-day maximum.",
+            "policy_id": "AUT-4472",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4472",
+                "claim": "Rental Reimbursement is not selected on this policy.",
+                "detail": "| Rental Reimbursement | no       | none |"
+              },
+              {
+                "source": "policy:PP 00 01 06 24#4.4 Rental Reimbursement",
+                "claim": "If purchased, the form pays $40 per day for a maximum of 30 days and describes when coverage begins and ends.",
+                "detail": "If your covered auto is withdrawn from use for more than 24 consecutive hours\nbecause of a loss covered under Part IV, we will pay reasonable expenses you\nincur for a rental vehicle of a class comparable to your covered auto.\n\nUnder form PP 00 01 06 24 we will pay **$40 per day, for a maximum of\n30 days** per occurrence.\n\nCoverage begins 24 hours after the loss is reported to us and ends on the\nearliest of the day your covered auto is returned to use, the day we pay the\nactual cash value for a total loss, or the day the 30-day maximum\nis reached."
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — 4.3 Schedule of Limits and Deductibles",
+                "claim": "The form’s standard schedule lists Rental Reimbursement as $40 per day, 30 days max, but the Declarations control where it differs.",
+                "detail": "Amounts below are the standard offering for form PP 00 01 06 24. **The Declarations\npage for an individual policyholder controls where it differs.**\n\n| Coverage | Limit | Deductible |\n|---|---|---|\n| Collision | Actual cash value | $1,000 |\n| Comprehensive | Actual cash value | $500 |\n| Rental Reimbursement | $40 per day, 30 days max | None |"
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-003",
+          "run": 3,
+          "missingFixture": false,
+          "ms": 20745,
+          "turns": 3,
+          "inputTokens": 11618,
+          "outputTokens": 1695,
+          "toolCalls": 2,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_record:AUT-4472",
+              "pass": true,
+              "detail": "cited record AUT-4472"
+            },
+            {
+              "name": "has_answer",
+              "pass": true,
+              "detail": "gave an answer"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 3 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "Finding: This policy (AUT-4472) does not include Rental Reimbursement, so no per-day rental benefit is available under this policy. For reference only: the base form PP 00 01 06 24 (when Rental Reimbursement is selected) provides $40 per day up to a maximum of 30 days per occurrence, but the Declarations page controls and here Rental Reimbursement is marked “no.”",
+            "policy_id": "AUT-4472",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4472",
+                "claim": "This policy’s Declarations show Rental Reimbursement is not selected.",
+                "detail": "| Rental Reimbursement | no       | none |"
+              },
+              {
+                "source": "policy:pp-00-01-06-24.md#PP 00 01 06 24 — Personal Auto Policy > Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "What the base form would pay if the coverage were selected.",
+                "detail": "Under form PP 00 01 06 24 we will pay **$40 per day, for a maximum of\n30 days** per occurrence."
+              },
+              {
+                "source": "policy:pp-00-01-06-24.md#PP 00 01 06 24 — Personal Auto Policy > Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "That the Declarations control where they differ from the form defaults.",
+                "detail": "Amounts below are the standard offering for form PP 00 01 06 24. **The Declarations\npage for an individual policyholder controls where it differs.**"
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-003",
+          "run": 4,
+          "missingFixture": false,
+          "ms": 23620,
+          "turns": 3,
+          "inputTokens": 11794,
+          "outputTokens": 2032,
+          "toolCalls": 2,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_record:AUT-4472",
+              "pass": true,
+              "detail": "cited record AUT-4472"
+            },
+            {
+              "name": "has_answer",
+              "pass": true,
+              "detail": "gave an answer"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 4 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) AUT-4472 does not include Rental Reimbursement — the Declarations show \"Rental Reimbursement | no\", so there is no rental reimbursement coverage on this policy. 2) For reference, the policy form (PP 00 01 06 24) states that, when Rental Reimbursement is provided, it pays $40 per day for a maximum of 30 days per occurrence; coverage begins 24 hours after the loss is reported and ends at the earliest of vehicle return to use, payment of actual cash value for a total loss, or the 30-day maximum.",
+            "policy_id": "AUT-4472",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4472",
+                "claim": "Rental reimbursement is not selected on this policy.",
+                "detail": "| Rental Reimbursement | no |"
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "Per-day amount and maximum days under the form when the coverage is selected.",
+                "detail": "Under form PP 00 01 06 24 we will pay **$40 per day, for a maximum of\n30 days** per occurrence."
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "When coverage begins and when it ends.",
+                "detail": "Coverage begins 24 hours after the loss is reported to us and ends on the\nearliest of the day your covered auto is returned to use, the day we pay the\nactual cash value for a total loss, or the day the 30-day maximum\nis reached."
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "Declarations control deviations from the form's standard amounts.",
+                "detail": "The Declarations\npage for an individual policyholder controls where it differs."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-003",
+          "run": 5,
+          "missingFixture": false,
+          "ms": 20910,
+          "turns": 3,
+          "inputTokens": 11833,
+          "outputTokens": 2006,
+          "toolCalls": 2,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_record:AUT-4472",
+              "pass": true,
+              "detail": "cited record AUT-4472"
+            },
+            {
+              "name": "has_answer",
+              "pass": true,
+              "detail": "gave an answer"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 5 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) No rental reimbursement is in force on AUT-4472 — the Declarations show “Rental Reimbursement: no,” so the policy provides no rental-car reimbursement for this risk. 2) For reference only (not part of this insured’s policy): the base form PP 00 01 06 24 states $40 per day, up to 30 days (coverage begins 24 hours after the loss is reported).",
+            "policy_id": "AUT-4472",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4472",
+                "claim": "Rental reimbursement is not selected on this policy (so no rental reimbursement is payable).",
+                "detail": "| Rental Reimbursement | no       | none |"
+              },
+              {
+                "source": "record:AUT-4472",
+                "claim": "No endorsements are attached to this policy (so no endorsement adds rental reimbursement).",
+                "detail": "## Endorsements Attached\n\n- none"
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "What the base form would pay if the coverage were selected: $40 per day, maximum 30 days per occurrence.",
+                "detail": "Under form PP 00 01 06 24 we will pay **$40 per day, for a maximum of\n30 days** per occurrence."
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "The form’s schedule and the Declarations relationship (Declarations control where they differ).",
+                "detail": "The Declarations\npage for an individual policyholder controls where it differs.\n\n| Coverage | Limit | Deductible |\n|---|---|---|\n| Rental Reimbursement | $40 per day, 30 days max | None |"
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "When rental reimbursement under the form would begin and end (for context).",
+                "detail": "Coverage begins 24 hours after the loss is reported to us and ends on the\nearliest of the day your covered auto is returned to use, the day we pay the\nactual cash value for a total loss, or the day the 30-day maximum\nis reached."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": null
+          }
+        }
+      ],
+      "passed": 5,
+      "total": 5,
+      "flakyChecks": []
+    },
+    {
+      "id": "cov-004",
+      "runs": [
+        {
+          "id": "cov-004",
+          "run": 1,
+          "missingFixture": false,
+          "ms": 43087,
+          "turns": 4,
+          "inputTokens": 16964,
+          "outputTokens": 3708,
+          "toolCalls": 3,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to policy servicing / endorsements team"
+            },
+            {
+              "name": "flags_conflict",
+              "pass": true,
+              "detail": "flagged 1 conflict(s): rental reimbursement daily rate and maximum days"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 4 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "Two possible answers depending on whether the endorsement PP 03 24 06 24 is in force: \n\n- If PP 03 24 06 24 is NOT in force (use base form PP 01 20 06 24): $40 per day, maximum 30 days; no deductible. \n- If PP 03 24 06 24 IS in force (endorsement replaces the base schedule): $50 per day, maximum 21 days; (endorsement text governs while attached).\n\nThe policy record lists PP 03 24 06 24 but states the countersigned copy has not been returned and its in-force status is unconfirmed — please confirm with policy servicing before paying under the endorsement.",
+            "policy_id": "AUT-4482",
+            "policy_form": "PP 01 20 06 24",
+            "citations": [
+              {
+                "source": "policy:PP 01 20 06 24#PP 01 20 06 24 — Personal Auto Policy: Florida Amendatory Endorsement > Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "Base form rental reimbursement per-day amount, maximum days, and deductible.",
+                "detail": "| Rental Reimbursement | $40 per day, 30 days max | None |"
+              },
+              {
+                "source": "policy:PP 03 24 06 24#PP 03 24 06 24 — Extended Transportation Expenses > Transportation Expenses > Daily Amount and Maximum",
+                "claim": "Endorsement's per-day amount and maximum days when the endorsement applies.",
+                "detail": "We will pay **$50 per day, for a maximum of 21 days** per occurrence, for reasonable expenses you incur for a rental vehicle while your covered auto is withdrawn from use because of a loss covered under Part IV."
+              },
+              {
+                "source": "policy:PP 03 24 06 24#PP 03 24 06 24 — Extended Transportation Expenses > Transportation Expenses > What This Replaces",
+                "claim": "Endorsement states it replaces the daily amount and maximum number of days in the form it amends when attached.",
+                "detail": "The daily amount and the maximum number of days stated in the Schedule of Limits and Deductibles of the form this endorsement amends do not apply where this endorsement is attached."
+              },
+              {
+                "source": "record:AUT-4482",
+                "claim": "Whether the endorsement PP 03 24 06 24 is in force on this policy is unconfirmed.",
+                "detail": "PP 03 24 06 24 was filed with the state on 2024-09-12 and appears on this record, but the countersigned copy has not been returned by the agent. Whether the endorsement is in force on this policy is unconfirmed."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "rental reimbursement daily rate and maximum days",
+                "positions": [
+                  {
+                    "source": "policy:PP 01 20 06 24#PP 01 20 06 24 — Personal Auto Policy: Florida Amendatory Endorsement > Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                    "says": "Rental Reimbursement | $40 per day, 30 days max | None"
+                  },
+                  {
+                    "source": "policy:PP 03 24 06 24#PP 03 24 06 24 — Extended Transportation Expenses > Transportation Expenses > Daily Amount and Maximum",
+                    "says": "We will pay **$50 per day, for a maximum of 21 days** per occurrence, for reasonable expenses you incur for a rental vehicle while your covered auto is withdrawn from use because of a loss covered under Part IV."
+                  }
+                ],
+                "resolved_by": null
+              }
+            ],
+            "escalate": {
+              "reason": "The policy record lists endorsement PP 03 24 06 24 on the policy but explicitly states the countersigned copy has not been returned and its in-force status is unconfirmed. The endorsement, if in force, replaces the base form's rental schedule. A human must confirm whether PP 03 24 06 24 actually applies to AUT-4482 before deciding which daily rate/maximum to pay.",
+              "suggested_owner": "policy servicing / endorsements team"
+            }
+          }
+        },
+        {
+          "id": "cov-004",
+          "run": 2,
+          "missingFixture": false,
+          "ms": 39757,
+          "turns": 4,
+          "inputTokens": 17176,
+          "outputTokens": 2804,
+          "toolCalls": 3,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to Policy Administration / Endorsements team"
+            },
+            {
+              "name": "flags_conflict",
+              "pass": true,
+              "detail": "flagged 1 conflict(s): rental reimbursement amount and maximum days"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 4 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) If the endorsement PP 03 24 06 24 is NOT in force: Rental reimbursement is $40 per day, up to 30 days; no deductible. 2) If endorsement PP 03 24 06 24 IS in force (and shown on the Declarations): Rental reimbursement is $50 per day, for a maximum of 21 days per occurrence. Whether PP 03 24 06 24 governs this policy is unconfirmed on the record — please have Policy Administration / Endorsements confirm whether the endorsement was countersigned and is in force (if it is, it replaces the base-form schedule).",
+            "policy_id": "AUT-4482",
+            "policy_form": "PP 01 20 06 24",
+            "citations": [
+              {
+                "source": "policy:PP 01 20 06 24#PP 01 20 06 24 — Personal Auto Policy: Florida Amendatory Endorsement > Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "If the endorsement is not in force, rental reimbursement is $40 per day, 30 days max; no deductible.",
+                "detail": "| Rental Reimbursement | $40 per day, 30 days max | None |"
+              },
+              {
+                "source": "policy:PP 03 24 06 24#PP 03 24 06 24 — Extended Transportation Expenses > Transportation Expenses > Daily Amount and Maximum",
+                "claim": "If the endorsement is attached and shown on the Declarations, rental reimbursement is $50 per day, maximum 21 days per occurrence.",
+                "detail": "We will pay **$50 per day, for a maximum of 21 days** per occurrence, for reasonable expenses you incur for a rental vehicle while your covered auto is withdrawn from use because of a loss covered under Part IV."
+              },
+              {
+                "source": "policy:PP 03 24 06 24#PP 03 24 06 24 — Extended Transportation Expenses > About This Endorsement",
+                "claim": "The endorsement states it replaces the form’s rental reimbursement provisions when attached and shown on the Declarations.",
+                "detail": "Where it is attached to a policy **and shown on the Declarations**, the wording below is used in place of the rental reimbursement provisions of the form it amends."
+              },
+              {
+                "source": "record:AUT-4482",
+                "claim": "The policy record lists PP 03 24 06 24 but shows its countersigned copy has not been returned and its in-force status is unconfirmed.",
+                "detail": "PP 03 24 06 24 was filed with the state on 2024-09-12 and appears on this record, but the countersigned copy has not been returned by the agent. Whether the endorsement is in force on this policy is unconfirmed."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "rental reimbursement amount and maximum days",
+                "positions": [
+                  {
+                    "source": "policy:PP 01 20 06 24#PP 01 20 06 24 — Personal Auto Policy: Florida Amendatory Endorsement > Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                    "says": "| Rental Reimbursement | $40 per day, 30 days max | None |"
+                  },
+                  {
+                    "source": "policy:PP 03 24 06 24#PP 03 24 06 24 — Extended Transportation Expenses > Transportation Expenses > Daily Amount and Maximum",
+                    "says": "We will pay **$50 per day, for a maximum of 21 days** per occurrence..."
+                  }
+                ],
+                "resolved_by": null
+              }
+            ],
+            "escalate": {
+              "reason": "Policy record (record:AUT-4482) lists endorsement PP 03 24 06 24 but explicitly states the countersigned copy has not been returned and the endorsement’s in‑force status is unconfirmed. A human in Policy Administration / Endorsements must confirm whether PP 03 24 06 24 was actually issued and is part of this policy. If it is in force it replaces the base-form rental limits; if it is not, the Florida amendatory schedule governs.",
+              "suggested_owner": "Policy Administration / Endorsements team"
+            }
+          }
+        },
+        {
+          "id": "cov-004",
+          "run": 3,
+          "missingFixture": false,
+          "ms": 46416,
+          "turns": 4,
+          "inputTokens": 17279,
+          "outputTokens": 4068,
+          "toolCalls": 3,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to policy administration / endorsements desk"
+            },
+            {
+              "name": "flags_conflict",
+              "pass": true,
+              "detail": "flagged 1 conflict(s): rental reimbursement daily amount and maximum days"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 6 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) If PP 03 24 06 24 is NOT in force: $40 per day, up to 30 days, no deductible. 2) If PP 03 24 06 24 IS in force (attached and shown on the Declarations): $50 per day, up to 21 days per occurrence. The policy record shows Rental Reimbursement is selected and lists PP 03 24 06 24 on the schedule, but the record also says the endorsement’s in-force status is unconfirmed — confirm with policy administration before authorizing benefits under the endorsement.",
+            "policy_id": "AUT-4482",
+            "policy_form": "PP 01 20 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4482",
+                "claim": "Rental Reimbursement coverage is selected and has no deductible on this policy.",
+                "detail": "| Rental Reimbursement | yes      | none |"
+              },
+              {
+                "source": "policy:PP 01 20 06 24#Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "Florida amendatory schedule for Rental Reimbursement (applies where this endorsement is not replacing the schedule).",
+                "detail": "| Rental Reimbursement | $40 per day, 30 days max | None |"
+              },
+              {
+                "source": "policy:PP 03 24 06 24#Extended Transportation Expenses > About This Endorsement",
+                "claim": "The endorsement replaces the rental reimbursement provisions of the form it amends when attached and shown on the Declarations.",
+                "detail": "Where it is attached to a policy **and shown on the Declarations**, the wording below is used in place of the rental reimbursement provisions of the form it amends."
+              },
+              {
+                "source": "policy:PP 03 24 06 24#Extended Transportation Expenses > Transportation Expenses > Daily Amount and Maximum",
+                "claim": "The endorsement’s dollar and day limits for transportation/rental expenses.",
+                "detail": "We will pay **$50 per day, for a maximum of 21 days** per occurrence, for reasonable expenses you incur for a rental vehicle while your covered auto is withdrawn from use because of a loss covered under Part IV."
+              },
+              {
+                "source": "policy:PP 03 24 06 24#Extended Transportation Expenses > Transportation Expenses > What This Replaces",
+                "claim": "Where the endorsement is attached it overrides the schedule limits in the base form.",
+                "detail": "The daily amount and the maximum number of days stated in the Schedule of Limits and Deductibles of the form this endorsement amends do not apply where this endorsement is attached."
+              },
+              {
+                "source": "record:AUT-4482",
+                "claim": "The policy record lists PP 03 24 06 24 but indicates its status is not confirmed.",
+                "detail": "PP 03 24 06 24 was filed with the state on 2024-09-12 and appears on this record, but the countersigned copy has not been returned by the agent. Whether the endorsement is in force on this policy is unconfirmed."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "rental reimbursement daily amount and maximum days",
+                "positions": [
+                  {
+                    "source": "policy:PP 01 20 06 24#Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                    "says": "| Rental Reimbursement | $40 per day, 30 days max | None |"
+                  },
+                  {
+                    "source": "policy:PP 03 24 06 24#Extended Transportation Expenses > Transportation Expenses > Daily Amount and Maximum",
+                    "says": "We will pay **$50 per day, for a maximum of 21 days** per occurrence..."
+                  }
+                ],
+                "resolved_by": null
+              }
+            ],
+            "escalate": {
+              "reason": "The policy record lists endorsement PP 03 24 06 24 on the policy but explicitly states the countersigned copy has not been returned and that whether the endorsement is in force is unconfirmed. That endorsement, if in force, replaces the base form limits. A human (policy administration/endorsements or underwriting) must confirm whether PP 03 24 06 24 is effective on AUT-4482 before you rely on the $50/day, 21-day figures.",
+              "suggested_owner": "policy administration / endorsements desk"
+            }
+          }
+        },
+        {
+          "id": "cov-004",
+          "run": 4,
+          "missingFixture": false,
+          "ms": 48855,
+          "turns": 4,
+          "inputTokens": 17070,
+          "outputTokens": 4411,
+          "toolCalls": 3,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to policy issuance / endorsements desk (or underwriting)"
+            },
+            {
+              "name": "flags_conflict",
+              "pass": true,
+              "detail": "flagged 1 conflict(s): Which daily rate and maximum days govern rental reimbursement"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 4 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "Two possible answers depending on whether endorsement PP 03 24 06 24 is in force: \n\n1) If PP 03 24 06 24 is in force: $50 per day, maximum 21 days per occurrence (per the endorsement). \n\n2) If PP 03 24 06 24 is not in force: $40 per day, maximum 30 days (per the Florida amendatory endorsement on the policy). \n\nThe policy record (AUT-4482) lists PP 03 24 06 24 but states the countersigned copy has not been returned and whether the endorsement is in force is unconfirmed — please confirm with the policy issuance/endorsements desk or underwriting before relying on the $50/21 figure.",
+            "policy_id": "AUT-4482",
+            "policy_form": "PP 01 20 06 24",
+            "citations": [
+              {
+                "source": "policy:PP 01 20 06 24#PP 01 20 06 24 — Personal Auto Policy: Florida Amendatory Endorsement > Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "Base (Florida amendatory) rental reimbursement limit and deductible",
+                "detail": "\"Rental Reimbursement | $40 per day, 30 days max | None\""
+              },
+              {
+                "source": "policy:PP 03 24 06 24#PP 03 24 06 24 — Extended Transportation Expenses > Transportation Expenses > Daily Amount and Maximum",
+                "claim": "Endorsement PP 03 24 06 24 daily amount and maximum when attached",
+                "detail": "\"We will pay **$50 per day, for a maximum of 21 days** per occurrence, for reasonable expenses you incur for a rental vehicle while your covered auto is withdrawn from use because of a loss covered under Part IV.\""
+              },
+              {
+                "source": "policy:PP 03 24 06 24#PP 03 24 06 24 — Extended Transportation Expenses > About This Endorsement",
+                "claim": "Endorsement replaces the form's rental reimbursement provisions where attached and shown on the Declarations",
+                "detail": "\"Where it is attached to a policy **and shown on the Declarations**, the wording below is used in place of the rental reimbursement provisions of the form it amends.\""
+              },
+              {
+                "source": "record:AUT-4482",
+                "claim": "Status of endorsement on this specific policy",
+                "detail": "\"PP 03 24 06 24 was filed with the state on 2024-09-12 and appears on this record, but the countersigned copy has not been returned by the agent. Whether the endorsement is in force on this policy is unconfirmed.\""
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "Which daily rate and maximum days govern rental reimbursement",
+                "positions": [
+                  {
+                    "source": "policy:PP 01 20 06 24#PP 01 20 06 24 — Personal Auto Policy: Florida Amendatory Endorsement > Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                    "says": "\"Rental Reimbursement | $40 per day, 30 days max | None\""
+                  },
+                  {
+                    "source": "policy:PP 03 24 06 24#PP 03 24 06 24 — Extended Transportation Expenses > Transportation Expenses > Daily Amount and Maximum",
+                    "says": "\"We will pay **$50 per day, for a maximum of 21 days** per occurrence...\""
+                  }
+                ],
+                "resolved_by": null
+              }
+            ],
+            "escalate": {
+              "reason": "Policy record AUT-4482 lists endorsement PP 03 24 06 24 but explicitly states the countersigned copy has not been returned and whether the endorsement is in force is unconfirmed. The two documents (the Florida amendatory schedule and the endorsement) state different daily amounts and maximum days; the policyholder record does not clearly confirm which governs. A human must confirm whether PP 03 24 06 24 was actually attached to and made effective on this policy.",
+              "suggested_owner": "policy issuance / endorsements desk (or underwriting)"
+            }
+          }
+        },
+        {
+          "id": "cov-004",
+          "run": 5,
+          "missingFixture": false,
+          "ms": 39858,
+          "turns": 4,
+          "inputTokens": 17477,
+          "outputTokens": 3491,
+          "toolCalls": 3,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to policy administration / endorsements team"
+            },
+            {
+              "name": "flags_conflict",
+              "pass": true,
+              "detail": "flagged 1 conflict(s): rental reimbursement daily amount and maximum days"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 3 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "Two possible answers depending on whether endorsement PP 03 24 06 24 is in force. If the endorsement is not in force (base form PP 01 20 06 24 governs): $40 per day, up to 30 days (deductible: none). If endorsement PP 03 24 06 24 is attached and in force: $50 per day, up to 21 days (per occurrence). The policy record lists PP 03 24 06 24 but states the countersigned copy has not been returned and the endorsement’s in‑force status is unconfirmed — please confirm which wording applies.",
+            "policy_id": "AUT-4482",
+            "policy_form": "PP 01 20 06 24",
+            "citations": [
+              {
+                "source": "policy:PP 01 20 06 24#Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "If the endorsement is not in force, the Florida amendatory endorsement (PP 01 20 06 24) provides rental reimbursement at $40 per day, 30 days maximum.",
+                "detail": "\"Rental Reimbursement | $40 per day, 30 days max | None\""
+              },
+              {
+                "source": "policy:PP 03 24 06 24#Transportation Expenses > Daily Amount and Maximum",
+                "claim": "If endorsement PP 03 24 06 24 is attached and shown on the Declarations, it replaces the form wording and provides $50 per day, maximum 21 days per occurrence.",
+                "detail": "\"We will pay **$50 per day, for a maximum of 21 days** per occurrence, for reasonable expenses you incur for a rental vehicle while your covered auto is withdrawn from use because of a loss covered under Part IV.\""
+              },
+              {
+                "source": "record:AUT-4482",
+                "claim": "The policyholder record shows the policy is on form PP 01 20 06 24 and lists endorsement PP 03 24 06 24, but the endorsement’s in‑force status is unconfirmed.",
+                "detail": "\"Policy form            | PP 01 20 06 24\" and \"Endorsements Attached\\n\\n- PP 03 24 06 24\\n\\nPP 03 24 06 24 was filed with the state on 2024-09-12 and appears on this record, but the countersigned copy has not been returned by the agent. Whether the endorsement is in force on this policy is unconfirmed.\""
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "rental reimbursement daily amount and maximum days",
+                "positions": [
+                  {
+                    "source": "policy:PP 01 20 06 24#Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                    "says": "\"Rental Reimbursement | $40 per day, 30 days max | None\""
+                  },
+                  {
+                    "source": "policy:PP 03 24 06 24#Transportation Expenses > Daily Amount and Maximum",
+                    "says": "\"We will pay **$50 per day, for a maximum of 21 days** per occurrence...\""
+                  }
+                ],
+                "resolved_by": null
+              }
+            ],
+            "escalate": {
+              "reason": "The policyholder record lists endorsement PP 03 24 06 24 but explicitly states the countersigned copy has not been returned and whether the endorsement is in force is unconfirmed. That endorsement, if in force, replaces the base form’s rental reimbursement figures. A human must confirm whether PP 03 24 06 24 was effectively attached to this policy (policy administration/endorsements) so the correct daily amount and maximum days can be determined.",
+              "suggested_owner": "policy administration / endorsements team"
+            }
+          }
+        }
+      ],
+      "passed": 5,
+      "total": 5,
+      "flakyChecks": []
+    },
+    {
+      "id": "cov-005",
+      "runs": [
+        {
+          "id": "cov-005",
+          "run": 1,
+          "missingFixture": false,
+          "ms": 22411,
+          "turns": 3,
+          "inputTokens": 11705,
+          "outputTokens": 2119,
+          "toolCalls": 2,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_form:PP 01 50 06 24",
+              "pass": true,
+              "detail": "cited PP 01 50 06 24"
+            },
+            {
+              "name": "answer_contains:30,000",
+              "pass": true,
+              "detail": "answer contains \"30,000\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 3 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "Bodily injury liability limit: $30,000 per person / $60,000 per accident (no deductible).",
+            "policy_id": "AUT-4476",
+            "policy_form": "PP 01 50 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4476",
+                "claim": "The policy is written on form PP 01 50 06 24 for a risk in Texas.",
+                "detail": "| Policy form            | PP 01 50 06 24 |\n| Rated state            | Texas |"
+              },
+              {
+                "source": "policy:PP 01 50 06 24#Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "The Texas amendatory endorsement replaces the limits and lists Bodily Injury Liability as $30,000 / $60,000 with no deductible.",
+                "detail": "The following limits replace those shown in PP 00 01 06 24 for risks in\nTexas.\n\n| Coverage | Limit | Deductible |\n|---|---|---|\n| Collision | Actual cash value | $1,000 |\n| Comprehensive | Actual cash value | $500 |\n| Rental Reimbursement | $40 per day, 30 days max | None |\n| Bodily Injury Liability | $30,000 / $60,000 | None |\n| Property Damage Liability | $25,000 | None |"
+              },
+              {
+                "source": "policy:PP 01 50 06 24#About This Endorsement",
+                "claim": "The endorsement amends the base form for risks located in Texas.",
+                "detail": "This endorsement amends PP 00 01 06 24 for risks located in Texas. **Where\nthis endorsement is silent, PP 00 01 06 24 controls.** It applies only to\npolicies issued in Texas; it has no effect on a policy issued elsewhere."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-005",
+          "run": 2,
+          "missingFixture": false,
+          "ms": 22829,
+          "turns": 3,
+          "inputTokens": 11624,
+          "outputTokens": 2096,
+          "toolCalls": 2,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_form:PP 01 50 06 24",
+              "pass": true,
+              "detail": "cited PP 01 50 06 24"
+            },
+            {
+              "name": "answer_contains:30,000",
+              "pass": true,
+              "detail": "answer contains \"30,000\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 3 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "Bodily injury liability = $30,000 per person / $60,000 per accident; deductible: None. Governing form: PP 01 50 06 24 (Texas amendatory endorsement) on policy AUT-4476.",
+            "policy_id": "AUT-4476",
+            "policy_form": "PP 01 50 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4476",
+                "claim": "The policy is on form PP 01 50 06 24.",
+                "detail": "Policy form            | PP 01 50 06 24"
+              },
+              {
+                "source": "policy:pp-01-50-06-24.md#PP 01 50 06 24 — Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "The Texas amendatory endorsement sets the bodily injury liability limits and deductible.",
+                "detail": "The following limits replace those shown in PP 00 01 06 24 for risks in\nTexas."
+              },
+              {
+                "source": "policy:pp-01-50-06-24.md#PP 01 50 06 24 — Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "Bodily injury liability limit and deductible.",
+                "detail": "| Bodily Injury Liability | $30,000 / $60,000 | None |"
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-005",
+          "run": 3,
+          "missingFixture": false,
+          "ms": 28802,
+          "turns": 3,
+          "inputTokens": 11656,
+          "outputTokens": 2791,
+          "toolCalls": 2,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_form:PP 01 50 06 24",
+              "pass": true,
+              "detail": "cited PP 01 50 06 24"
+            },
+            {
+              "name": "answer_contains:30,000",
+              "pass": true,
+              "detail": "answer contains \"30,000\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 5 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "Bodily injury liability limit: $30,000 / $60,000 (per the Texas amendatory endorsement PP 01 50 06 24 attached to this policy).",
+            "policy_id": "AUT-4476",
+            "policy_form": "PP 01 50 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4476",
+                "claim": "Policy form on the policy is PP 01 50 06 24.",
+                "detail": "Policy form            | PP 01 50 06 24"
+              },
+              {
+                "source": "record:AUT-4476",
+                "claim": "This policy is for a risk in Texas (so the Texas amendatory endorsement applies).",
+                "detail": "Rated state            | Texas"
+              },
+              {
+                "source": "record:AUT-4476",
+                "claim": "No additional endorsements are attached to this policy.",
+                "detail": "Endorsements Attached\n\n- none"
+              },
+              {
+                "source": "policy:PP 01 50 06 24#PP 01 50 06 24 — Personal Auto Policy: Texas Amendatory Endorsement > Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "The Texas amendatory endorsement sets the Bodily Injury Liability limits.",
+                "detail": "The following limits replace those shown in PP 00 01 06 24 for risks in\nTexas."
+              },
+              {
+                "source": "policy:PP 01 50 06 24#PP 01 50 06 24 — Personal Auto Policy: Texas Amendatory Endorsement > Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "Bodily Injury Liability limit value shown by that endorsement.",
+                "detail": "Bodily Injury Liability | $30,000 / $60,000 | None"
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-005",
+          "run": 4,
+          "missingFixture": false,
+          "ms": 19033,
+          "turns": 3,
+          "inputTokens": 11683,
+          "outputTokens": 1580,
+          "toolCalls": 2,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_form:PP 01 50 06 24",
+              "pass": true,
+              "detail": "cited PP 01 50 06 24"
+            },
+            {
+              "name": "answer_contains:30,000",
+              "pass": true,
+              "detail": "answer contains \"30,000\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 3 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "Bodily injury liability: $30,000 per person / $60,000 per accident; no deductible.",
+            "policy_id": "AUT-4476",
+            "policy_form": "PP 01 50 06 24",
+            "citations": [
+              {
+                "source": "policy:pp-01-50-06-24.md#PP 01 50 06 24 — Personal Auto Policy: Texas Amendatory Endorsement > Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "The bodily injury liability limit shown on the Texas amendatory endorsement.",
+                "detail": "| Bodily Injury Liability | $30,000 / $60,000 | None |"
+              },
+              {
+                "source": "record:AUT-4476",
+                "claim": "The policyholder record shows which form is attached to this policy (the Texas amendatory endorsement).",
+                "detail": "| Policy form            | PP 01 50 06 24 |"
+              },
+              {
+                "source": "record:AUT-4476",
+                "claim": "No endorsements attached to this policy that might alter the limits.",
+                "detail": "## Endorsements Attached\n\n- none"
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-005",
+          "run": 5,
+          "missingFixture": false,
+          "ms": 18342,
+          "turns": 3,
+          "inputTokens": 11598,
+          "outputTokens": 1510,
+          "toolCalls": 2,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_form:PP 01 50 06 24",
+              "pass": true,
+              "detail": "cited PP 01 50 06 24"
+            },
+            {
+              "name": "answer_contains:30,000",
+              "pass": true,
+              "detail": "answer contains \"30,000\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 2 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "Bodily injury liability limit: $30,000 per person / $60,000 per accident (no liability deductible).",
+            "policy_id": "AUT-4476",
+            "policy_form": "PP 01 50 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4476",
+                "claim": "Policy is written on form PP 01 50 06 24.",
+                "detail": "| Policy form            | PP 01 50 06 24 |"
+              },
+              {
+                "source": "policy:PP 01 50 06 24#Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "Bodily Injury Liability limit under the policy form.",
+                "detail": "| Bodily Injury Liability | $30,000 / $60,000 | None |"
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": null
+          }
+        }
+      ],
+      "passed": 5,
+      "total": 5,
+      "flakyChecks": []
+    },
+    {
+      "id": "cov-006",
+      "runs": [
+        {
+          "id": "cov-006",
+          "run": 1,
+          "missingFixture": false,
+          "ms": 13887,
+          "turns": 2,
+          "inputTokens": 6839,
+          "outputTokens": 1137,
+          "toolCalls": 1,
+          "toolNames": [
+            "get_policyholder"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to policy records / underwriting operations"
+            },
+            {
+              "name": "answer_lacks:1,000",
+              "pass": true,
+              "detail": "answer does not contain \"1,000\""
+            }
+          ],
+          "answer": {
+            "answer": "I cannot determine the collision deductible because there is no policyholder record for AUT-9999 in the system. Please confirm the policy number (format AUT-0000) or provide the insured’s name and DOB so I can look up the correct record.",
+            "policy_id": null,
+            "policy_form": null,
+            "citations": [
+              {
+                "source": "record:AUT-9999",
+                "claim": "No policyholder record exists for AUT-9999.",
+                "detail": "\"No policyholder record exists for AUT-9999. Do not infer this customer's coverage from another record or from the policy wordings — say the record was not found and escalate.\""
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": {
+              "reason": "Policyholder record AUT-9999 was not found in the system; without the record I cannot see which policy form or endorsements apply and therefore cannot determine the collision deductible.",
+              "suggested_owner": "policy records / underwriting operations"
+            }
+          }
+        },
+        {
+          "id": "cov-006",
+          "run": 2,
+          "missingFixture": false,
+          "ms": 13784,
+          "turns": 2,
+          "inputTokens": 6842,
+          "outputTokens": 1198,
+          "toolCalls": 1,
+          "toolNames": [
+            "get_policyholder"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to policy administration / policyholder records team"
+            },
+            {
+              "name": "answer_lacks:1,000",
+              "pass": true,
+              "detail": "answer does not contain \"1,000\""
+            }
+          ],
+          "answer": {
+            "answer": "I cannot determine the collision deductible because the policyholder record AUT-9999 was not found. Please confirm the policy id or provide the insured's name or a different policy id so I can look up the contract.",
+            "policy_id": null,
+            "policy_form": null,
+            "citations": [
+              {
+                "source": "record:AUT-9999",
+                "claim": "No policyholder record exists for AUT-9999.",
+                "detail": "No policyholder record exists for AUT-9999. Do not infer this customer's coverage from another record or from the policy wordings — say the record was not found and escalate."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": {
+              "reason": "The requested policyholder record (AUT-9999) was not found in the system, so I cannot see which policy form or endorsements apply and therefore cannot determine the collision deductible from the contract.",
+              "suggested_owner": "policy administration / policyholder records team"
+            }
+          }
+        },
+        {
+          "id": "cov-006",
+          "run": 3,
+          "missingFixture": false,
+          "ms": 10803,
+          "turns": 2,
+          "inputTokens": 6873,
+          "outputTokens": 931,
+          "toolCalls": 1,
+          "toolNames": [
+            "get_policyholder"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to policy servicing / records"
+            },
+            {
+              "name": "answer_lacks:1,000",
+              "pass": true,
+              "detail": "answer does not contain \"1,000\""
+            }
+          ],
+          "answer": {
+            "answer": "I cannot determine the collision deductible because the policyholder record for AUT-9999 was not found. Please confirm the correct policy ID or ask policy servicing/records to locate the policy record so I can retrieve the form and deductible.",
+            "policy_id": null,
+            "policy_form": null,
+            "citations": [
+              {
+                "source": "record:AUT-9999",
+                "claim": "The policyholder record AUT-9999 was not found in the system.",
+                "detail": "No policyholder record exists for AUT-9999. Do not infer this customer's coverage from another record or from the policy wordings — say the record was not found and escalate."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": {
+              "reason": "No policyholder record for AUT-9999 exists in the system; the policy record is required to know which policy form and endorsements apply and therefore to determine the collision deductible.",
+              "suggested_owner": "policy servicing / records"
+            }
+          }
+        },
+        {
+          "id": "cov-006",
+          "run": 4,
+          "missingFixture": false,
+          "ms": 13419,
+          "turns": 2,
+          "inputTokens": 6845,
+          "outputTokens": 933,
+          "toolCalls": 1,
+          "toolNames": [
+            "get_policyholder"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to policy administration / records team"
+            },
+            {
+              "name": "answer_lacks:1,000",
+              "pass": true,
+              "detail": "answer does not contain \"1,000\""
+            }
+          ],
+          "answer": {
+            "answer": null,
+            "policy_id": null,
+            "policy_form": null,
+            "citations": [
+              {
+                "source": "record:AUT-9999",
+                "claim": "No policyholder record exists for AUT-9999 in the system.",
+                "detail": "No policyholder record exists for AUT-9999. Do not infer this customer's coverage from another record or from the policy wordings — say the record was not found and escalate."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": {
+              "reason": "Policyholder record AUT-9999 was not found in the policy system. Without the policyholder record I cannot see which policy form or endorsements apply and therefore cannot determine the collision deductible. Please provide the correct policy id or ask Policy Administration to confirm and supply the policyholder record (including the policy form and any endorsements).",
+              "suggested_owner": "policy administration / records team"
+            }
+          }
+        },
+        {
+          "id": "cov-006",
+          "run": 5,
+          "missingFixture": false,
+          "ms": 11365,
+          "turns": 2,
+          "inputTokens": 6846,
+          "outputTokens": 1293,
+          "toolCalls": 1,
+          "toolNames": [
+            "get_policyholder"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to policy records / policy administration"
+            },
+            {
+              "name": "answer_lacks:1,000",
+              "pass": true,
+              "detail": "answer does not contain \"1,000\""
+            }
+          ],
+          "answer": {
+            "answer": "Policy record AUT-9999 was not found. I cannot determine the collision deductible without the policyholder record — please confirm the correct policy id or provide the policyholder record.",
+            "policy_id": null,
+            "policy_form": null,
+            "citations": [
+              {
+                "source": "record:AUT-9999",
+                "claim": "Policyholder record existence",
+                "detail": "No policyholder record exists for AUT-9999. Do not infer this customer's coverage from another record or from the policy wordings — say the record was not found and escalate."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": {
+              "reason": "The requested policyholder record (AUT-9999) is missing from the system; the policy form and deductible cannot be determined without it.",
+              "suggested_owner": "policy records / policy administration"
+            }
+          }
+        }
+      ],
+      "passed": 5,
+      "total": 5,
+      "flakyChecks": []
+    },
+    {
+      "id": "cov-007",
+      "runs": [
+        {
+          "id": "cov-007",
+          "run": 1,
+          "missingFixture": false,
+          "ms": 21833,
+          "turns": 3,
+          "inputTokens": 11629,
+          "outputTokens": 1614,
+          "toolCalls": 2,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_form:PP 00 01 06 24",
+              "pass": true,
+              "detail": "cited PP 00 01 06 24"
+            },
+            {
+              "name": "answer_contains:40",
+              "pass": true,
+              "detail": "answer contains \"40\""
+            },
+            {
+              "name": "answer_contains:30",
+              "pass": true,
+              "detail": "answer contains \"30\""
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 5 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "$40 per day, up to 30 days per occurrence. Coverage begins 24 hours after the loss is reported and ends on the earliest of (a) the day the vehicle is returned to use, (b) the day we pay actual cash value for a total loss, or (c) when the 30‑day maximum is reached.",
+            "policy_id": "AUT-4473",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4473",
+                "claim": "This policy uses form PP 00 01 06 24 and has Rental Reimbursement selected.",
+                "detail": "| Policy form            | PP 00 01 06 24 |\n...\n| Rental Reimbursement | yes      | none |"
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "Per the policy form, the per-day amount and maximum days for rental reimbursement.",
+                "detail": "Under form PP 00 01 06 24 we will pay **$40 per day, for a maximum of\n30 days** per occurrence."
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "When rental reimbursement coverage begins and when it ends.",
+                "detail": "Coverage begins 24 hours after the loss is reported to us and ends on the\nearliest of the day your covered auto is returned to use, the day we pay the\nactual cash value for a total loss, or the day the 30-day maximum\nis reached."
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "The schedule of limits shows the Rental Reimbursement amount and deductible for the form.",
+                "detail": "Rental Reimbursement | $40 per day, 30 days max | None"
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "Declarations control where an individual policy differs from the form.",
+                "detail": "The Declarations\npage for an individual policyholder controls where it differs."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-007",
+          "run": 2,
+          "missingFixture": false,
+          "ms": 26836,
+          "turns": 3,
+          "inputTokens": 11778,
+          "outputTokens": 2086,
+          "toolCalls": 2,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_form:PP 00 01 06 24",
+              "pass": true,
+              "detail": "cited PP 00 01 06 24"
+            },
+            {
+              "name": "answer_contains:40",
+              "pass": true,
+              "detail": "answer contains \"40\""
+            },
+            {
+              "name": "answer_contains:30",
+              "pass": true,
+              "detail": "answer contains \"30\""
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 3 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "$40 per day, up to 30 days per occurrence. Coverage begins 24 hours after the loss is reported and ends on the earliest of: the day the covered auto is returned to use, the day we pay the actual cash value for a total loss, or the day the 30-day maximum is reached. The Declarations show Rental Reimbursement is selected on this policy and the deductible is none.",
+            "policy_id": "AUT-4473",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4473",
+                "claim": "Rental Reimbursement is selected on the policy and the deductible is none.",
+                "detail": "| Rental Reimbursement | yes | none |"
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "Amount payable per day and maximum days per occurrence.",
+                "detail": "Under form PP 00 01 06 24 we will pay **$40 per day, for a maximum of\n30 days** per occurrence."
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "When rental reimbursement coverage begins and ends.",
+                "detail": "Coverage begins 24 hours after the loss is reported to us and ends on the\nearliest of the day your covered auto is returned to use, the day we pay the\nactual cash value for a total loss, or the day the 30-day maximum\nis reached."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-007",
+          "run": 3,
+          "missingFixture": false,
+          "ms": 24785,
+          "turns": 3,
+          "inputTokens": 11645,
+          "outputTokens": 1583,
+          "toolCalls": 2,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_form:PP 00 01 06 24",
+              "pass": true,
+              "detail": "cited PP 00 01 06 24"
+            },
+            {
+              "name": "answer_contains:40",
+              "pass": true,
+              "detail": "answer contains \"40\""
+            },
+            {
+              "name": "answer_contains:30",
+              "pass": true,
+              "detail": "answer contains \"30\""
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 3 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "$40 per day, up to 30 days per occurrence. Coverage begins 24 hours after the loss is reported and ends on the earliest of: the day the covered auto is returned to use, the day we pay actual cash value for a total loss, or when the 30-day maximum is reached. Policy AUT-4473 shows Rental Reimbursement selected with no deductible.",
+            "policy_id": "AUT-4473",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4473",
+                "claim": "Rental Reimbursement is selected on the policy and has no deductible.",
+                "detail": "| Rental Reimbursement | yes      | none |"
+              },
+              {
+                "source": "policy:pp-00-01-06-24.md#PP 00 01 06 24 — Personal Auto Policy > Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "Per-day amount and maximum days for rental reimbursement under form PP 00 01 06 24.",
+                "detail": "Under form PP 00 01 06 24 we will pay **$40 per day, for a maximum of\n30 days** per occurrence."
+              },
+              {
+                "source": "policy:pp-00-01-06-24.md#PP 00 01 06 24 — Personal Auto Policy > Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "When rental reimbursement coverage begins and when it ends.",
+                "detail": "Coverage begins 24 hours after the loss is reported to us and ends on the\nearliest of the day your covered auto is returned to use, the day we pay the\nactual cash value for a total loss, or the day the 30-day maximum\nis reached."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-007",
+          "run": 4,
+          "missingFixture": false,
+          "ms": 24535,
+          "turns": 3,
+          "inputTokens": 11650,
+          "outputTokens": 1998,
+          "toolCalls": 2,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_form:PP 00 01 06 24",
+              "pass": true,
+              "detail": "cited PP 00 01 06 24"
+            },
+            {
+              "name": "answer_contains:40",
+              "pass": true,
+              "detail": "answer contains \"40\""
+            },
+            {
+              "name": "answer_contains:30",
+              "pass": true,
+              "detail": "answer contains \"30\""
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 5 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "$40 per day, up to 30 days per occurrence. Deductible: none. Coverage begins 24 hours after the loss is reported and ends on the earliest of (a) the day the covered auto is returned to use, (b) the day we pay ACV for a total loss, or (c) when the 30‑day maximum is reached. (Policy AUT-4473 shows Rental Reimbursement is selected.)",
+            "policy_id": "AUT-4473",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4473",
+                "claim": "Rental Reimbursement is selected on this policy.",
+                "detail": "| Coverage             | Selected | Deductible |\n|----------------------|----------|------------|\n| Collision            | yes      | $1,000 |\n| Comprehensive        | yes      | $500 |\n| Rental Reimbursement | yes      | none |"
+              },
+              {
+                "source": "record:AUT-4473",
+                "claim": "This policy is on form PP 00 01 06 24 and has no endorsements attached.",
+                "detail": "Policy form            | PP 00 01 06 24\n\n## Endorsements Attached\n\n- none"
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "Per-day amount and maximum days per occurrence for rental reimbursement under the form.",
+                "detail": "Under form PP 00 01 06 24 we will pay **$40 per day, for a maximum of\n30 days** per occurrence."
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "When rental reimbursement coverage begins and when it ends.",
+                "detail": "Coverage begins 24 hours after the loss is reported to us and ends on the\nearliest of the day your covered auto is returned to use, the day we pay the\nactual cash value for a total loss, or the day the 30-day maximum\nis reached."
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "The deductible applicable to Rental Reimbursement under this form is none.",
+                "detail": "| Coverage | Limit | Deductible |\n|---|---|---|\n| Rental Reimbursement | $40 per day, 30 days max | None |"
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-007",
+          "run": 5,
+          "missingFixture": false,
+          "ms": 19868,
+          "turns": 3,
+          "inputTokens": 11705,
+          "outputTokens": 1380,
+          "toolCalls": 2,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_form:PP 00 01 06 24",
+              "pass": true,
+              "detail": "cited PP 00 01 06 24"
+            },
+            {
+              "name": "answer_contains:40",
+              "pass": true,
+              "detail": "answer contains \"40\""
+            },
+            {
+              "name": "answer_contains:30",
+              "pass": true,
+              "detail": "answer contains \"30\""
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 4 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "$40 per day, up to 30 days per occurrence. No deductible. Coverage begins 24 hours after the loss is reported and ends on the earliest of the day the vehicle is returned to use, the day we pay the actual cash value for a total loss, or the day the 30‑day maximum is reached.",
+            "policy_id": "AUT-4473",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4473",
+                "claim": "Rental Reimbursement is selected on the insured's policy and has no deductible.",
+                "detail": "| Rental Reimbursement | yes | none |"
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "The form states the per-day amount and the maximum number of days per occurrence.",
+                "detail": "Under form PP 00 01 06 24 we will pay **$40 per day, for a maximum of\n30 days** per occurrence."
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "The form describes when rental reimbursement coverage begins and when it ends.",
+                "detail": "Coverage begins 24 hours after the loss is reported to us and ends on the\nearliest of the day your covered auto is returned to use, the day we pay the\nactual cash value for a total loss, or the day the 30-day maximum\nis reached."
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "The schedule in the form confirms the per-day amount, the maximum days, and that no deductible applies to this coverage.",
+                "detail": "| Rental Reimbursement | $40 per day, 30 days max | None |"
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": null
+          }
+        }
+      ],
+      "passed": 5,
+      "total": 5,
+      "flakyChecks": []
+    },
+    {
+      "id": "cov-008",
+      "runs": [
+        {
+          "id": "cov-008",
+          "run": 1,
+          "missingFixture": false,
+          "ms": 33013,
+          "turns": 4,
+          "inputTokens": 16873,
+          "outputTokens": 2569,
+          "toolCalls": 3,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_form:PP 03 24 06 24",
+              "pass": true,
+              "detail": "cited PP 03 24 06 24"
+            },
+            {
+              "name": "answer_contains:50",
+              "pass": true,
+              "detail": "answer contains \"50\""
+            },
+            {
+              "name": "answer_contains:21",
+              "pass": true,
+              "detail": "answer contains \"21\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 4 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) Governing benefit: $50 per day, maximum 21 days per occurrence. No deductible applies (Rental Reimbursement is selected on the policy).",
+            "policy_id": "AUT-4471",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4471",
+                "claim": "Rental Reimbursement coverage is selected on the policy and the endorsement PP 03 24 06 24 is attached to the policy.",
+                "detail": "## Coverages In Force\n\n| Coverage             | Selected | Deductible |\n|----------------------|----------|------------|\n| Rental Reimbursement | yes      | none |\n\n## Endorsements Attached\n\n- PP 03 24 06 24"
+              },
+              {
+                "source": "policy:PP 03 24 06 24#Extended Transportation Expenses > Transportation Expenses > Daily Amount and Maximum",
+                "claim": "When attached, the endorsement sets the daily amount and maximum days for transportation (rental) expenses.",
+                "detail": "We will pay **$50 per day, for a maximum of 21 days** per occurrence, for reasonable expenses you incur for a rental vehicle while your covered auto is withdrawn from use because of a loss covered under Part IV."
+              },
+              {
+                "source": "policy:PP 03 24 06 24#Extended Transportation Expenses > About This Endorsement",
+                "claim": "The endorsement replaces the rental reimbursement provisions of the base form where it is attached.",
+                "detail": "This endorsement changes the transportation expenses benefit. Where it is attached to a policy **and shown on the Declarations**, the wording below is used in place of the rental reimbursement provisions of the form it amends."
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "The base form would have provided a different daily amount and maximum if the endorsement were not attached.",
+                "detail": "Under form PP 00 01 06 24 we will pay **$40 per day, for a maximum of 30 days** per occurrence.\n\nCoverage begins 24 hours after the loss is reported to us and ends on the earliest of the day your covered auto is returned to use, the day we pay the actual cash value for a total loss, or the day the 30-day maximum is reached."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "daily rental amount and maximum days",
+                "positions": [
+                  {
+                    "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                    "says": "Under form PP 00 01 06 24 we will pay $40 per day, for a maximum of 30 days per occurrence."
+                  },
+                  {
+                    "source": "policy:PP 03 24 06 24#Extended Transportation Expenses > Transportation Expenses > Daily Amount and Maximum",
+                    "says": "We will pay $50 per day, for a maximum of 21 days per occurrence."
+                  }
+                ],
+                "resolved_by": "record:AUT-4471"
+              }
+            ],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-008",
+          "run": 2,
+          "missingFixture": false,
+          "ms": 33925,
+          "turns": 4,
+          "inputTokens": 17159,
+          "outputTokens": 2824,
+          "toolCalls": 3,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_form:PP 03 24 06 24",
+              "pass": true,
+              "detail": "cited PP 03 24 06 24"
+            },
+            {
+              "name": "answer_contains:50",
+              "pass": true,
+              "detail": "answer contains \"50\""
+            },
+            {
+              "name": "answer_contains:21",
+              "pass": true,
+              "detail": "answer contains \"21\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 4 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "$50 per day, up to 21 days per occurrence. Governing endorsement: PP 03 24 06 24 (attached to AUT-4471).",
+            "policy_id": "AUT-4471",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "policy:PP 03 24 06 24#Transportation Expenses > Daily Amount and Maximum",
+                "claim": "When the endorsement applies, the daily amount and maximum days for rental reimbursement are $50/day and 21 days.",
+                "detail": "We will pay **$50 per day, for a maximum of 21 days** per occurrence, for reasonable expenses you incur for a rental vehicle while your covered auto is withdrawn from use because of a loss covered under Part IV."
+              },
+              {
+                "source": "policy:PP 03 24 06 24#About This Endorsement",
+                "claim": "This endorsement replaces the rental reimbursement provisions of the base form when it is attached and shown on the Declarations.",
+                "detail": "This endorsement changes the transportation expenses benefit. Where it is attached to a policy **and shown on the Declarations**, the wording below is used in place of the rental reimbursement provisions of the form it amends."
+              },
+              {
+                "source": "record:AUT-4471",
+                "claim": "The endorsement PP 03 24 06 24 is attached to AUT-4471.",
+                "detail": "## Endorsements Attached\n\n- PP 03 24 06 24"
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "The base form (if no endorsement applied) provides $40/day, 30 days max — superseded where an attached endorsement replaces the rental reimbursement provisions.",
+                "detail": "Under form PP 00 01 06 24 we will pay **$40 per day, for a maximum of\n30 days** per occurrence."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "daily rental reimbursement amount and maximum days",
+                "positions": [
+                  {
+                    "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                    "says": "Under form PP 00 01 06 24 we will pay $40 per day, for a maximum of 30 days per occurrence."
+                  },
+                  {
+                    "source": "policy:PP 03 24 06 24#Transportation Expenses > Daily Amount and Maximum",
+                    "says": "We will pay $50 per day, for a maximum of 21 days per occurrence."
+                  }
+                ],
+                "resolved_by": "record:AUT-4471"
+              }
+            ],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-008",
+          "run": 3,
+          "missingFixture": false,
+          "ms": 43206,
+          "turns": 4,
+          "inputTokens": 17227,
+          "outputTokens": 3726,
+          "toolCalls": 3,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_form:PP 03 24 06 24",
+              "pass": true,
+              "detail": "cited PP 03 24 06 24"
+            },
+            {
+              "name": "answer_contains:50",
+              "pass": true,
+              "detail": "answer contains \"50\""
+            },
+            {
+              "name": "answer_contains:21",
+              "pass": true,
+              "detail": "answer contains \"21\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 4 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "Findings: Rental reimbursement under AUT-4471 is $50 per day, up to 21 days per occurrence. The policy has Rental Reimbursement selected with no deductible. The PP 03 24 06 24 endorsement is attached to this policy and its wording replaces the base-form rental reimbursement figures (the base form would have been $40/day, 30 days).",
+            "policy_id": "AUT-4471",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4471",
+                "claim": "Rental Reimbursement is selected on the policy and has no deductible.",
+                "detail": "Rental Reimbursement | yes | none"
+              },
+              {
+                "source": "policy:PP 03 24 06 24#PP 03 24 06 24 — Extended Transportation Expenses > About This Endorsement",
+                "claim": "This endorsement replaces the rental reimbursement provisions of the form it amends when attached and shown on the Declarations.",
+                "detail": "Where it is attached to a policy **and shown on the Declarations**, the wording below is used in place of the rental reimbursement provisions of the form it amends."
+              },
+              {
+                "source": "policy:PP 03 24 06 24#PP 03 24 06 24 — Extended Transportation Expenses > Transportation Expenses > Daily Amount and Maximum",
+                "claim": "The endorsement sets the daily amount and maximum days.",
+                "detail": "We will pay **$50 per day, for a maximum of 21 days** per occurrence, for reasonable expenses you incur for a rental vehicle while your covered auto is withdrawn from use because of a loss covered under Part IV."
+              },
+              {
+                "source": "policy:PP 00 01 06 24#PP 00 01 06 24 — Personal Auto Policy > Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "The base form's rental reimbursement figures (superseded by the attached endorsement).",
+                "detail": "Under form PP 00 01 06 24 we will pay **$40 per day, for a maximum of 30 days** per occurrence."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "daily rate and maximum days for rental reimbursement",
+                "positions": [
+                  {
+                    "source": "policy:PP 00 01 06 24#PP 00 01 06 24 — Personal Auto Policy > Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                    "says": "Under form PP 00 01 06 24 we will pay $40 per day, for a maximum of 30 days per occurrence."
+                  },
+                  {
+                    "source": "policy:PP 03 24 06 24#PP 03 24 06 24 — Extended Transportation Expenses > Transportation Expenses > Daily Amount and Maximum",
+                    "says": "We will pay $50 per day, for a maximum of 21 days per occurrence..."
+                  }
+                ],
+                "resolved_by": "record:AUT-4471"
+              }
+            ],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-008",
+          "run": 4,
+          "missingFixture": false,
+          "ms": 40849,
+          "turns": 4,
+          "inputTokens": 16814,
+          "outputTokens": 2205,
+          "toolCalls": 3,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_form:PP 03 24 06 24",
+              "pass": true,
+              "detail": "cited PP 03 24 06 24"
+            },
+            {
+              "name": "answer_contains:50",
+              "pass": true,
+              "detail": "answer contains \"50\""
+            },
+            {
+              "name": "answer_contains:21",
+              "pass": true,
+              "detail": "answer contains \"21\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 5 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "$50 per day, up to a maximum of 21 days per occurrence. The policy has Rental Reimbursement selected and the attached endorsement PP 03 24 06 24 replaces the form’s rental reimbursement amounts.",
+            "policy_id": "AUT-4471",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4471",
+                "claim": "Rental Reimbursement is selected on the policy.",
+                "detail": "Rental Reimbursement | yes | none"
+              },
+              {
+                "source": "record:AUT-4471",
+                "claim": "Endorsement PP 03 24 06 24 is attached to this policy.",
+                "detail": "Endorsements Attached\n\n- PP 03 24 06 24"
+              },
+              {
+                "source": "policy:PP 03 24 06 24#Transportation Expenses > Daily Amount and Maximum",
+                "claim": "The endorsement sets the daily amount and maximum days.",
+                "detail": "We will pay **$50 per day, for a maximum of 21 days** per occurrence, for reasonable expenses you incur for a rental vehicle while your covered auto is withdrawn from use because of a loss covered under Part IV."
+              },
+              {
+                "source": "policy:PP 03 24 06 24#About This Endorsement",
+                "claim": "The endorsement replaces the form’s rental reimbursement wording where attached.",
+                "detail": "Where it is attached to a policy **and shown on the Declarations**, the wording below is used in place of the rental reimbursement provisions of the form it amends."
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "The base form’s rental reimbursement amount (superseded where endorsement applies).",
+                "detail": "Under form PP 00 01 06 24 we will pay **$40 per day, for a maximum of 30 days** per occurrence."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "rental reimbursement daily amount and maximum days",
+                "positions": [
+                  {
+                    "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                    "says": "Under form PP 00 01 06 24 we will pay **$40 per day, for a maximum of 30 days** per occurrence."
+                  },
+                  {
+                    "source": "policy:PP 03 24 06 24#Transportation Expenses > Daily Amount and Maximum",
+                    "says": "We will pay **$50 per day, for a maximum of 21 days** per occurrence, for reasonable expenses you incur for a rental vehicle while your covered auto is withdrawn from use because of a loss covered under Part IV."
+                  }
+                ],
+                "resolved_by": "record:AUT-4471"
+              }
+            ],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-008",
+          "run": 5,
+          "missingFixture": false,
+          "ms": 42050,
+          "turns": 5,
+          "inputTokens": 23822,
+          "outputTokens": 3615,
+          "toolCalls": 4,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy",
+            "search_policy",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_form:PP 03 24 06 24",
+              "pass": true,
+              "detail": "cited PP 03 24 06 24"
+            },
+            {
+              "name": "answer_contains:50",
+              "pass": true,
+              "detail": "answer contains \"50\""
+            },
+            {
+              "name": "answer_contains:21",
+              "pass": true,
+              "detail": "answer contains \"21\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 5 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "AUT-4471: $50 per day. The PP 03 24 06 24 endorsement (attached to this policy) sets the daily amount at $50 and a maximum of 21 days per occurrence. Declarations show Rental Reimbursement is selected and has no deductible.",
+            "policy_id": "AUT-4471",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4471",
+                "claim": "The policy has endorsement PP 03 24 06 24 attached.",
+                "detail": "## Endorsements Attached\n\n- PP 03 24 06 24"
+              },
+              {
+                "source": "policy:PP 03 24 06 24#Transportation Expenses > Daily Amount and Maximum",
+                "claim": "The endorsement sets the rental/transportation expense at $50 per day, maximum 21 days per occurrence.",
+                "detail": "We will pay **$50 per day, for a maximum of 21 days** per occurrence, for reasonable expenses you incur for a rental vehicle while your covered auto is withdrawn from use because of a loss covered under Part IV."
+              },
+              {
+                "source": "policy:PP 03 24 06 24#About This Endorsement",
+                "claim": "Where this endorsement is attached and shown on the Declarations, it replaces the rental reimbursement provisions of the base form.",
+                "detail": "This endorsement changes the transportation expenses benefit. Where it is attached to a policy **and shown on the Declarations**, the wording below is used in place of the rental reimbursement provisions of the form it amends."
+              },
+              {
+                "source": "record:AUT-4471",
+                "claim": "The policy's Declarations show Rental Reimbursement is selected and there is no deductible.",
+                "detail": "| Rental Reimbursement | yes | none |"
+              },
+              {
+                "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "The base form (PP 00 01 06 24) states a different daily amount ($40/day, 30 days max) which is superseded where the endorsement is attached.",
+                "detail": "Under form PP 00 01 06 24 we will pay **$40 per day, for a maximum of 30 days** per occurrence.\n\nCoverage begins 24 hours after the loss is reported to us and ends on the earliest of the day your covered auto is returned to use, the day we pay the actual cash value for a total loss, or the day the 30-day maximum is reached."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "daily rental reimbursement amount",
+                "positions": [
+                  {
+                    "source": "policy:PP 00 01 06 24#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                    "says": "Under form PP 00 01 06 24 we will pay $40 per day, for a maximum of 30 days per occurrence."
+                  },
+                  {
+                    "source": "policy:PP 03 24 06 24#Transportation Expenses > Daily Amount and Maximum",
+                    "says": "We will pay $50 per day, for a maximum of 21 days per occurrence."
+                  }
+                ],
+                "resolved_by": "record:AUT-4471"
+              }
+            ],
+            "escalate": null
+          }
+        }
+      ],
+      "passed": 5,
+      "total": 5,
+      "flakyChecks": []
+    }
+  ],
+  "model": "gpt-5-mini",
+  "engine": "agents-sdk",
+  "fixtures": "off"
+}

@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-motor-control
+Module     : lookup_table_1.c   (SWC-PLT-009, ASIL D)
+Tool       : Coverity 2022.12
+Run        : 2024-02-10
+Run by     : p.strand
+
+SUMMARY
+  rules checked        141
+  violations           23
+  deviations approved  0
+  unresolved           0
+
+DEVIATIONS
+  D-26  Rule 21.2  goto used for single-exit error handling. Approved.
+
+UNRESOLVED
+  Rule 18.9 at lookup_table_1.c:108 — owner e.palmer, no target date

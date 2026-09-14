@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-steer-by-wire
+Module     : debounce_4.c   (SWC-PLT-002, ASIL B)
+Tool       : Coverity 2022.12
+Run        : 2022-04-12
+Run by     : n.haas
+
+SUMMARY
+  rules checked        144
+  violations           4
+  deviations approved  2
+  unresolved           2
+
+DEVIATIONS
+  (none)
+
+UNRESOLVED
+  (none)

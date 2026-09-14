@@ -1,0 +1,13 @@
+# bottom-up estimate, built before nomination
+# author: E. Palmer   date: 2024-11-29
+# "basis" is free text. It is the only record of WHERE a number came from.
+work_package,discipline,hours,basis,confidence
+validation,calibration,670,supplier quote,low
+rack redesign,validation,355,from the last programme,high
+EOL calibration,hardware,210,supplier quote,high
+HIL rig update,safety,797,from the last programme,medium
+rack redesign,calibration,278,supplier quote,high
+EOL calibration,validation,426,similar to H1,medium
+assist tuning,validation,477,engineering judgement,medium
+HIL rig update,calibration,736,engineering judgement,low
+harness,validation,387,guess,high

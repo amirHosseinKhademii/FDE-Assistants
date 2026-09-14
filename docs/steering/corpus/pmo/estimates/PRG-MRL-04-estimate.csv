@@ -1,0 +1,17 @@
+# bottom-up estimate, built before nomination
+# author: I. Arnaud   date: 2025-10-15
+# "basis" is free text. It is the only record of WHERE a number came from.
+work_package,discipline,hours,basis,confidence
+ECU integration,hardware,595,similar to H1,low
+gearbox change,calibration,888,similar to H1,low
+gearbox change,software,734,from the last programme,high
+gearbox change,safety,49,from the last programme,medium
+EOL calibration,software,807,similar to H1,medium
+assist tuning,safety,754,guess,medium
+EOL calibration,validation,528,supplier quote,medium
+validation,safety,887,from the last programme,high
+rack redesign,validation,728,similar to H1,high
+validation,software,298,supplier quote,high
+assist tuning,pm,44,from the last programme,low
+EOL calibration,calibration,90,engineering judgement,low
+safety case,safety,714,guess,medium

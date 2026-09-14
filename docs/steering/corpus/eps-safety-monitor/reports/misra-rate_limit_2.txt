@@ -1,0 +1,19 @@
+MISRA C:2012 compliance report
+Repository : eps-safety-monitor
+Module     : rate_limit_2.c   (SWC-PLT-017, ASIL B)
+Tool       : Coverity 2022.12
+Run        : 2021-10-09
+Run by     : r.dietrich
+
+SUMMARY
+  rules checked        166
+  violations           23
+  deviations approved  0
+  unresolved           4
+
+DEVIATIONS
+  D-8  Rule 17.2  goto used for single-exit error handling. Approved.
+  D-37  Rule 9.9  pointer arithmetic in the buffer walk. Approved.
+
+UNRESOLVED
+  (none)

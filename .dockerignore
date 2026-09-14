@@ -1,0 +1,24 @@
+# The build context is the repo root, so this file is what keeps 1.4 GB of
+# host node_modules and a live .env out of the image.
+node_modules
+**/node_modules
+dist
+**/dist
+.output
+**/.output
+.turbo
+**/.turbo
+
+# Credentials and local state. .env in particular must NEVER be baked in:
+# every secret is injected by Container Apps at runtime.
+.env
+.env.*
+!.env.example
+logs
+*.log
+
+.git
+.github
+narration
+archive
+docs/**/results

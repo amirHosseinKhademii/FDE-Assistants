@@ -1,0 +1,19 @@
+MISRA C:2012 compliance report
+Repository : eps-diagnostics
+Module     : timebase_7.c   (SWC-PLT-009, ASIL C)
+Tool       : LDRA 9.8
+Run        : 2024-01-28
+Run by     : e.palmer
+
+SUMMARY
+  rules checked        152
+  violations           21
+  deviations approved  4
+  unresolved           0
+
+DEVIATIONS
+  (none)
+  D-14  Rule 20.6  goto used for single-exit error handling. Approved.
+
+UNRESOLVED
+  Rule 19.8 at timebase_7.c:289 — owner d.ferreira, no target date

@@ -1,0 +1,49 @@
+# exported from the requirements tool 2026-09-03
+# WARNING: rows with an empty system_req are NOT errors in the export.
+# They are requirements nobody has allocated yet.
+customer_req,system_req,coverage,notes
+CR-CHV-33-0554,SR-CHV-33-0780,full,
+CR-CHV-33-0554,SR-CHV-33-0790,full,
+CR-CHV-33-0555,SR-CHV-33-0785,full,"reviewed, see minutes"
+CR-CHV-33-0556,SR-CHV-33-0781,full,
+CR-CHV-33-0557,SR-CHV-33-0779,full,
+CR-CHV-33-0557,SR-CHV-33-0782,full,
+CR-CHV-33-0557,SR-CHV-33-0790,full,"reviewed, see minutes"
+CR-CHV-33-0557,SR-CHV-33-0794,full,
+CR-CHV-33-0558,SR-CHV-33-0796,full,"reviewed, see minutes"
+CR-CHV-33-0558,SR-CHV-33-0801,full,
+CR-CHV-33-0559,SR-CHV-33-0779,partial,
+CR-CHV-33-0559,SR-CHV-33-0802,full,
+CR-CHV-33-0560,SR-CHV-33-0780,partial,
+CR-CHV-33-0560,SR-CHV-33-0788,full,"reviewed, see minutes"
+CR-CHV-33-0560,SR-CHV-33-0798,full,
+CR-CHV-33-0561,,,
+CR-CHV-33-0562,SR-CHV-33-0781,full,
+CR-CHV-33-0562,SR-CHV-33-0784,full,
+CR-CHV-33-0562,SR-CHV-33-0800,full,"reviewed, see minutes"
+CR-CHV-33-0562,SR-CHV-33-0802,full,
+CR-CHV-33-0562,SR-CHV-33-0803,full,
+CR-CHV-33-0562,SR-CHV-33-0804,full,
+CR-CHV-33-0563,SR-CHV-33-0800,full,"reviewed, see minutes"
+CR-CHV-33-0564,SR-CHV-33-0792,full,
+CR-CHV-33-0564,SR-CHV-33-0793,full,
+CR-CHV-33-0565,,,
+CR-CHV-33-0566,SR-CHV-33-0776,full,
+CR-CHV-33-0566,SR-CHV-33-0778,partial,
+CR-CHV-33-0566,SR-CHV-33-0783,full,
+CR-CHV-33-0566,SR-CHV-33-0786,partial,
+CR-CHV-33-0566,SR-CHV-33-0789,full,
+CR-CHV-33-0567,SR-CHV-33-0795,full,
+CR-CHV-33-0568,SR-CHV-33-0789,full,
+CR-CHV-33-0568,SR-CHV-33-0799,partial,
+CR-CHV-33-0569,,,not yet allocated
+CR-CHV-33-0570,SR-CHV-33-0782,full,"reviewed, see minutes"
+CR-CHV-33-0571,SR-CHV-33-0777,partial,
+CR-CHV-33-0571,SR-CHV-33-0788,full,"reviewed, see minutes"
+CR-CHV-33-0571,SR-CHV-33-0797,full,
+CR-CHV-33-0572,SR-CHV-33-0791,full,
+CR-CHV-33-0572,SR-CHV-33-0799,full,
+CR-CHV-33-0573,SR-CHV-33-0785,full,
+CR-CHV-33-0574,SR-CHV-33-0784,full,
+CR-CHV-33-0574,SR-CHV-33-0787,partial,"reviewed, see minutes"
+CR-CHV-33-0574,SR-CHV-33-0793,full,

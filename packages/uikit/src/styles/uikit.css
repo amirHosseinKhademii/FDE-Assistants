@@ -1,0 +1,1124 @@
+/**
+ * @fde/uikit — the tokens, the controls and the motion.
+ *
+ * WHY THE TOKENS ARE NAMED `--ui-*` AND NOT AFTER A COLOUR OR A MOOD. This file
+ * ships dark defaults, but a design system whose components hard-code
+ * `text-dim` and `bg-raised` is not a design system — it is one product's
+ * stylesheet in a shared folder, and the second product can never adopt it. The
+ * insurance surface next door is light, serif, set like a paper claims file. It
+ * has no "raised" and no "dim". So every component in this package reads ONLY
+ * from the semantic names below, and a consumer re-points them.
+ *
+ * To theme: override any `--ui-*` on `:root` in your own stylesheet, imported
+ * after this one. Nothing else needs to change.
+ *
+ * COLOUR CARRIES MEANING, NOT DECORATION. Accent is action and live machinery.
+ * Danger, warn and info are severity. `--ui-ok` exists for "a tool returned
+ * something", and callers should think hard before using it to mean "this is
+ * fine" — in a domain where the product must never issue a clearance, a
+ * reassuring green is a claim the data may not support.
+ */
+
+/* The components live beside this file; Tailwind must scan them or every
+   utility used only inside the package is absent from the compiled CSS — a
+   failure that passes typecheck, passes the build, and leaves the markup intact
+   with no rules behind it. Paths are relative to THIS file, which is why this
+   climbs one level: the components are in `../components`, not beside the css. */
+@source "../";
+
+@theme {
+  /* Surfaces */
+  --color-ui-bg: #07080b;
+  --color-ui-surface: #0d0f15;
+  --color-ui-raised: #13161f;
+  --color-ui-line: #1e232e;
+  --color-ui-line-lit: #2b3240;
+
+  /* Text */
+  --color-ui-fg: #eef2f7;
+  --color-ui-dim: #98a2b3;
+  --color-ui-faint: #5f6878;
+
+  /* Meaning */
+  --color-ui-accent: #2dd4bf;
+  --color-ui-danger: #fb7185;
+  --color-ui-warn: #fbbf24;
+  --color-ui-info: #60a5fa;
+  --color-ui-ok: #34d399;
+
+  --font-ui-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-ui-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+}
+
+/* ── Controls ──────────────────────────────────────────────────────────────
+   ONE height, ONE padding scale, ONE focus treatment for every input, select
+   and button. The first version of this set those per element and the control
+   row visibly stair-stepped: a select sat below its neighbouring input, the
+   native select arrow landed at a different inset per browser, and the icons
+   floated off the text baseline. Alignment is not decoration — a row that does
+   not line up reads as unfinished. */
+@layer components {
+  .ui-control {
+    height: 2.75rem;
+    width: 100%;
+    border-radius: 0.5rem;
+    border: 1px solid var(--color-ui-line);
+    background: var(--color-ui-raised);
+    color: var(--color-ui-fg);
+    padding-inline: 0.875rem;
+    font-size: 0.9375rem;
+    line-height: 1.25rem;
+    outline: none;
+    transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+  }
+  /* Room for a leading icon, centred on the control's own axis. */
+  .ui-control--icon { padding-inline-start: 2.5rem; }
+
+  .ui-control:hover { border-color: var(--color-ui-line-lit); }
+  .ui-control:focus,
+  .ui-control:focus-visible {
+    border-color: var(--color-ui-accent);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-ui-accent) 22%, transparent);
+    background: color-mix(in oklab, var(--color-ui-raised) 92%, var(--color-ui-accent) 8%);
+  }
+  .ui-control::placeholder { color: var(--color-ui-faint); }
+
+  /* A textarea is the one control that must not be locked to the row height. */
+  textarea.ui-control {
+    height: auto;
+    padding-block: 0.75rem;
+    line-height: 1.6;
+    resize: vertical;
+  }
+
+  /* The native arrow cannot be styled and sits at a different inset per engine,
+     so it is removed and replaced by the package's own chevron. */
+  select.ui-control {
+    appearance: none;
+    padding-inline-end: 2.25rem;
+    cursor: pointer;
+  }
+  select.ui-control option {
+    background: var(--color-ui-raised);
+    color: var(--color-ui-fg);
+  }
+
+  .ui-icon {
+    position: absolute;
+    top: 50%;
+    translate: 0 -50%;
+    color: var(--color-ui-faint);
+    pointer-events: none;
+    transition: color 160ms ease;
+  }
+  .ui-field:focus-within .ui-icon { color: var(--color-ui-accent); }
+
+  .ui-btn {
+    height: 2.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.5rem;
+    padding-inline: 1.25rem;
+    font-weight: 500;
+    color: color-mix(in oklab, var(--color-ui-bg) 85%, black);
+    background: linear-gradient(
+      180deg,
+      var(--color-ui-accent),
+      color-mix(in oklab, var(--color-ui-accent) 78%, black)
+    );
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.18) inset,
+      0 6px 20px -8px color-mix(in oklab, var(--color-ui-accent) 70%, transparent);
+    transition: transform 140ms ease, box-shadow 140ms ease, filter 140ms ease;
+  }
+  .ui-btn:hover:not(:disabled) { transform: translateY(-1px); }
+  .ui-btn:active:not(:disabled) { transform: translateY(0); }
+  .ui-btn:disabled { filter: grayscale(0.7) brightness(0.75); cursor: not-allowed; }
+
+  .ui-card {
+    border: 1px solid var(--color-ui-line);
+    background: color-mix(in oklab, var(--color-ui-surface) 92%, transparent);
+    border-radius: 0.75rem;
+    backdrop-filter: blur(6px);
+  }
+}
+
+/* ── Motion ────────────────────────────────────────────────────────────────
+   Motion is used for three things only: arrival (something new is on screen),
+   liveness (work is happening right now), and severity (a blocker earns an
+   entrance the eye catches). Everything else is still. */
+
+@keyframes ui-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+.ui-rise { animation: ui-rise 460ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+.ui-stagger > * { animation: ui-rise 460ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.ui-stagger > *:nth-child(1) { animation-delay: 40ms; }
+.ui-stagger > *:nth-child(2) { animation-delay: 100ms; }
+.ui-stagger > *:nth-child(3) { animation-delay: 160ms; }
+.ui-stagger > *:nth-child(4) { animation-delay: 220ms; }
+.ui-stagger > *:nth-child(5) { animation-delay: 280ms; }
+.ui-stagger > *:nth-child(n + 6) { animation-delay: 340ms; }
+
+@keyframes ui-note-in {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: none; }
+}
+.ui-note-in { animation: ui-note-in 300ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@keyframes ui-ping {
+  0%   { transform: scale(1);   opacity: 0.9; }
+  70%  { transform: scale(2.4); opacity: 0; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+.ui-ping { animation: ui-ping 1.6s cubic-bezier(0, 0, 0.2, 1) infinite; }
+
+@keyframes ui-sweep { from { background-position: -140% 0; } to { background-position: 240% 0; } }
+.ui-sweep {
+  background-image: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.28) 50%,
+    transparent 80%
+  );
+  background-size: 220% 100%;
+  animation: ui-sweep 1.5s linear infinite;
+}
+
+/* THE LIVE ROW at the foot of a list of steps. Its job is to say "still
+   working" in the gaps BETWEEN steps, which on a slow job is most of the time:
+   the steps themselves land every few seconds and the column is otherwise
+   completely still.
+
+   The text shimmers rather than blinking. Blinking text is read as an error by
+   anyone who has used a terminal, and it is the first thing a person asks you
+   to turn off. */
+@keyframes ui-live-text {
+  0%   { background-position: 140% 0; }
+  100% { background-position: -40% 0; }
+}
+.ui-live-text {
+  background-image: linear-gradient(
+    100deg,
+    var(--color-ui-dim) 35%,
+    var(--color-ui-fg) 50%,
+    var(--color-ui-dim) 65%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: ui-live-text 2.2s linear infinite;
+}
+
+@keyframes ui-scan { from { transform: translateX(-100%); } to { transform: translateX(400%); } }
+.ui-scan { animation: ui-scan 1.9s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+
+@keyframes ui-count-in { from { opacity: 0; filter: blur(3px); } to { opacity: 1; filter: none; } }
+.ui-count-in { animation: ui-count-in 520ms ease-out both; }
+
+/* Every animation above is decoration over a page that already reads correctly
+   without it. Honour the preference and the page is merely still. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    /* THE DELAY MATTERS AS MUCH AS THE DURATION, and leaving it out was a bug
+       rather than an oversight of taste. A staggered list sets a per-item
+       `animation-delay` and a fill mode of `both`, which means each item HOLDS
+       its start frame — opacity zero — until its delay elapses. Kill the
+       duration alone and the motion is gone but the waiting is not: someone who
+       asked for less motion instead gets a list that materialises out of
+       nothing. Zeroing the delay is what makes the page merely still. */
+    animation-delay: 0ms !important;
+    transition-delay: 0ms !important;
+  }
+}
+
+* { scrollbar-color: var(--color-ui-line-lit) transparent; scrollbar-width: thin; }
+
+/* ── TILES, AND THE DIALOG ONE OPENS INTO ───────────────────────────────────
+   A row of peers, one of which the reader opens. Used by `Tile`,
+   `OriginDialog` and `FieldList`; the reasoning for each is in its own file.
+
+   `--ui-tone` IS THE CONSUMER'S, AND IT IS AN ACCENT RATHER THAN A WASH. A
+   product sets it per item to say which thing this is. The first version of
+   these rules tinted whole surfaces with it, and on a dark theme a 12% wash of
+   any hue does not read as identity — it reads as a muddy panel, and six of
+   them read as six muddy panels. So the tone lands on small bright things: a
+   hairline along a tile's top edge, the glow under a raised one, the border and
+   ring of an open dialog. Same information, a tenth of the ink. Unset, every
+   rule here falls back to `--ui-line-lit` and the set is monochrome.
+
+   THE MOTION ALL ANSWERS A PRESS. Nothing in this block runs on its own, so a
+   surface using it can still spend its ambient motion budget elsewhere.
+   ────────────────────────────────────────────────────────────────────────── */
+
+.ui-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.625rem;
+  margin-top: 2.5rem;
+}
+
+/* The rule between the customer's six and our one. It collapses to a full-width
+   hairline when the row wraps, because a vertical bar between two tiles that
+   are no longer side by side is a mark with nothing left to say. */
+.ui-tiles-divider {
+  width: 1px;
+  align-self: stretch;
+  margin-inline: 0.375rem;
+  background: var(--color-ui-line);
+}
+
+@media (max-width: 63.99rem) {
+  .ui-tiles-divider {
+    width: 100%;
+    height: 1px;
+    margin: 0.375rem 0;
+  }
+}
+
+.ui-tile {
+  /* SEVEN ACROSS AT FULL WIDTH, and the basis is what decides that. At 9.5rem
+     the seventh tile did not fit the 68rem column and `mrd_kb` wrapped onto its
+     own line, stretched full width — which put the one database that is NOT a
+     system of record in the most prominent position on the row. */
+  flex: 1 1 7.75rem;
+  min-width: 7.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.125rem;
+  position: relative;
+  padding: 1rem 0.875rem 0.875rem;
+  text-align: left;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.875rem;
+  background: var(--color-ui-surface);
+  cursor: pointer;
+  transition:
+    transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 220ms ease,
+    box-shadow 220ms ease;
+}
+
+/* The hairline along the top edge is where the hue lives when the tile is at
+   rest: enough to tell six tiles apart at a glance, not enough to tint one. */
+.ui-tile::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  border-radius: 0.875rem 0.875rem 0 0;
+  background: linear-gradient(90deg, transparent, var(--ui-tone, var(--color-ui-line-lit)), transparent);
+  opacity: 0.75;
+}
+
+.ui-tile:hover,
+.ui-tile:focus-visible {
+  transform: translateY(-3px);
+  border-color: color-mix(in oklab, var(--ui-tone, var(--color-ui-fg)) 45%, var(--color-ui-line));
+  box-shadow: 0 14px 30px -22px color-mix(in oklab, var(--ui-tone, var(--color-ui-fg)) 70%, transparent);
+}
+
+.ui-tile:focus-visible {
+  outline: 2px solid var(--color-ui-accent);
+  outline-offset: 2px;
+}
+
+/* The figure is whatever the consumer puts in the slot — an icon from this
+   package, or one of its own. Only its box is decided here. */
+.ui-tile > svg {
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-bottom: 0.375rem;
+  color: var(--color-ui-faint);
+  transition: color 220ms ease;
+}
+
+.ui-tile:hover > svg { color: var(--color-ui-dim); }
+
+.ui-tile-title {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-ui-fg);
+}
+
+.ui-tile-subtitle { font-size: 0.75rem; color: var(--color-ui-dim); }
+
+.ui-tile-detail {
+  margin-top: 0.25rem;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  color: var(--color-ui-faint);
+}
+
+.ui-tile-meta {
+  margin-top: 0.5rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.625rem;
+  color: var(--color-ui-faint);
+}
+
+/* ── THE DIALOG ────────────────────────────────────────────────────────────
+   It grows out of the tile that opened it. The origin is set from JavaScript —
+   the tile's centre in the panel's own coordinates — and everything else is
+   here.
+   ────────────────────────────────────────────────────────────────────────── */
+
+@keyframes ui-scrim-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.ui-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: color-mix(in oklab, var(--color-ui-bg) 72%, transparent);
+  backdrop-filter: blur(10px);
+  animation: ui-scrim-in 200ms ease both;
+}
+
+.ui-scrim[data-closing='true'] {
+  animation: ui-scrim-in 190ms ease reverse both;
+}
+
+/* THE ENTRANCE. Small and slightly soft at the start, full size and sharp at
+   the end, decelerating hard — which is what "it came out of that tile" looks
+   like. The blur is what stops the scale reading as a cheap zoom. */
+@keyframes ui-dialog-open {
+  from { opacity: 0; transform: scale(0.28); filter: blur(6px); }
+  60%  { opacity: 1; }
+  to   { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+.ui-dialog {
+  position: relative;
+  width: min(76rem, 100%);
+  max-height: min(46rem, 92vh);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid color-mix(in oklab, var(--ui-tone, var(--color-ui-line-lit)) 40%, var(--color-ui-line));
+  border-radius: 1.125rem;
+  background: var(--color-ui-surface);
+  box-shadow:
+    0 40px 90px -40px rgba(0, 0, 0, 0.9),
+    0 0 70px -40px color-mix(in oklab, var(--ui-tone, var(--color-ui-fg)) 70%, transparent);
+  animation: ui-dialog-open 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  overflow: hidden;
+}
+
+.ui-dialog:focus { outline: none; }
+
+.ui-dialog[data-closing='true'] {
+  animation: ui-dialog-open 190ms cubic-bezier(0.4, 0, 0.7, 0) reverse both;
+}
+
+.ui-dialog-head {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  flex: none;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--color-ui-line);
+}
+
+.ui-dialog-head > svg {
+  width: 2rem;
+  height: 2rem;
+  flex: none;
+  color: var(--color-ui-dim);
+}
+
+.ui-dialog-figs {
+  display: none;
+  margin-inline-start: auto;
+  gap: 1.5rem;
+  font-size: 0.8125rem;
+  color: var(--color-ui-faint);
+}
+
+@media (min-width: 40rem) {
+  .ui-dialog-figs { display: flex; }
+}
+
+/* PUSHED TO THE RIGHT EDGE BY THE BUTTON ITSELF, not by whatever the caller
+   put beside it. `.ui-dialog-figs` carries `margin-inline-start: auto` and
+   every header that has one looked correct; a header WITHOUT one left the
+   close button sitting against the title in the middle of the bar. A control
+   whose position depends on its neighbour existing is a control that is
+   misaligned the first time somebody writes a simpler header. */
+.ui-dialog-close {
+  flex: none;
+  margin-inline-start: auto;
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.5rem;
+  color: var(--color-ui-dim);
+  cursor: pointer;
+  transition: border-color 180ms ease, color 180ms ease;
+}
+
+.ui-dialog-close:hover { border-color: var(--color-ui-line-lit); color: var(--color-ui-fg); }
+
+.ui-dialog-close:focus-visible {
+  outline: 2px solid var(--color-ui-accent);
+  outline-offset: 2px;
+}
+
+/* The cross, drawn rather than imported: two lines on the same grid and stroke
+   weight as every other mark on this page. */
+.ui-dialog-close > span {
+  position: relative;
+  width: 0.625rem;
+  height: 0.625rem;
+}
+
+.ui-dialog-close > span::before,
+.ui-dialog-close > span::after {
+  content: '';
+  position: absolute;
+  inset: 50% 0 auto 0;
+  height: 1.5px;
+  background: currentColor;
+  border-radius: 1px;
+}
+
+.ui-dialog-close > span::before { transform: rotate(45deg); }
+.ui-dialog-close > span::after { transform: rotate(-45deg); }
+
+.ui-dialog-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0.875rem 1.25rem 1.25rem;
+  background: var(--color-ui-bg);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ui-line-lit) transparent;
+}
+
+.ui-dialog-body::-webkit-scrollbar { width: 6px; }
+.ui-dialog-body::-webkit-scrollbar-track { background: transparent; }
+.ui-dialog-body::-webkit-scrollbar-thumb {
+  background: var(--color-ui-line-lit);
+  border-radius: 999px;
+}
+
+
+/* ── THE FIELDS ────────────────────────────────────────────────────────────
+   Small, dense, and aligned down two edges: the name on the left, one real
+   value from the table on the right. A list you can run your eye down, not a
+   cloud of chips you have to read one at a time.
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* ── ONE NAMED VALUE READ OUT OF A TABLE ────────────────────────────────────
+   `ui-datum`, AND IT WAS `ui-field` UNTIL IT BROKE TWO PAGES.
+
+   `Field` — the labelled form control on the release desk and the supplier
+   form — has emitted `.ui-field` on its <label> since long before this set
+   existed. When `FieldList` was extracted into this package it took the same
+   name for a completely different thing, and unlayered CSS beats Tailwind's
+   utilities: `display: flex` here won over the `grid` class the form passes,
+   so every control collapsed to its content width, every label shrank to
+   10px, and each row grew a bullet and a bottom rule it never asked for.
+
+   A typecheck cannot see a class-name collision and neither can a screenshot
+   of the page that still looks right. The rename is one-way: the FORM keeps
+   `ui-field`, because it was there first and because a form field is what a
+   reader means by the words. This is a row of values, so it is a datum.
+   ────────────────────────────────────────────────────────────────────────── */
+.ui-data {
+  margin-top: 0.125rem;
+}
+
+.ui-datum {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.1875rem 0;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.625rem;
+  line-height: 1.5;
+  border-bottom: 1px solid color-mix(in oklab, var(--color-ui-line) 55%, transparent);
+}
+
+.ui-datum:last-child { border-bottom: 0; }
+
+.ui-datum::before {
+  content: '';
+  flex: none;
+  width: 0.25rem;
+  height: 0.25rem;
+  background: var(--color-ui-faint);
+  opacity: 0.7;
+}
+
+/* text — a square. number — a circle. date — a diamond. flag — a bar. Shapes,
+   because colour on this page already means which system a fact came from, and
+   a fifth palette for column types would put an amber mark next to a cylinder
+   whose amber means Transport. */
+.ui-datum--number::before { border-radius: 50%; }
+.ui-datum--date::before { transform: rotate(45deg); }
+.ui-datum--flag::before { width: 0.125rem; height: 0.375rem; }
+.ui-datum--json::before,
+.ui-datum--other::before {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--color-ui-faint);
+}
+
+.ui-datum-name {
+  color: var(--color-ui-dim);
+  white-space: nowrap;
+}
+
+.ui-datum-value {
+  margin-inline-start: auto;
+  min-width: 0;
+  max-width: 58%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-ui-faint);
+  text-align: right;
+}
+
+/* Shown only where there is no value to show — an empty table, or anything in
+   `mrd_kb`, whose rows are not ours to publish. */
+.ui-datum-fallback {
+  font-style: italic;
+  opacity: 0.7;
+}
+
+
+/* ── A DESCRIBED THING, AND A ROW OF FIGURES ────────────────────────────────
+   `DetailCard` and `Figures`. Both are layout and type only: what the numbers
+   mean, how they are formatted and which tone a card carries are the
+   consumer's, and nothing here reads a palette beyond `--ui-*` and the
+   caller-supplied `--ui-tone`.
+   ────────────────────────────────────────────────────────────────────────── */
+
+.ui-detail {
+  padding: 0.75rem 0.875rem 0.5rem;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.625rem;
+  background: var(--color-ui-surface);
+  transition: border-color 180ms ease;
+}
+
+.ui-detail:hover {
+  border-color: color-mix(in oklab, var(--ui-tone, var(--color-ui-fg)) 32%, var(--color-ui-line));
+}
+
+.ui-detail-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-ui-line);
+}
+
+/* The tone lands here and nowhere else on the card: the title is the word that
+   says which set this belongs to. */
+.ui-detail-title {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--ui-tone, var(--color-ui-fg));
+}
+
+.ui-detail-figure {
+  flex: none;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.875rem;
+  color: var(--color-ui-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.ui-detail-unit {
+  margin-inline-start: 0.3125rem;
+  font-size: 0.625rem;
+  color: var(--color-ui-faint);
+}
+
+.ui-detail-note {
+  margin: 0.5rem 0 0.25rem;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--color-ui-dim);
+}
+
+.ui-figures {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem 2rem;
+}
+
+.ui-figure {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.ui-figure-value {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 1.5rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--color-ui-fg);
+}
+
+.ui-figure-label { font-size: 0.875rem; color: var(--color-ui-dim); }
+
+.ui-figure-note {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.75rem;
+  color: var(--color-ui-faint);
+}
+
+/* ── THE FLOW MAP ───────────────────────────────────────────────────────────
+   `FlowMap`: nodes on a fixed grid, curved fibres between them, a pulse along
+   each in a given order, cards that turn over, and a readable stack where there
+   is no room for a graph. The reasoning for each piece is in the component;
+   this is how it looks and moves.
+
+   `--ui-tone` IS PROVENANCE. A node that is a SOURCE of facts carries one, and
+   the pulse coming BACK along a fibre takes it. The pulse going out is neutral,
+   because a request has no source. That is the one opinion in this block, and
+   it is why there is colour on the map at all.
+
+   EVERYTHING ELSE IS `--ui-*`. Re-point those and the whole map restyles.
+   ────────────────────────────────────────────────────────────────────────── */
+
+.ui-flow-scroll {
+  margin-inline: -1.25rem;
+  padding-inline: 1.25rem;
+  overflow-x: auto;
+  display: none;
+}
+
+.ui-flow-svg {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  overflow: visible;
+}
+
+/* ── THE MAP HAD A HORIZONTAL SCROLLBAR AT EVERY WIDTH, AND IT SCROLLED 58px
+      TO REVEAL NOTHING. Two rules below fix it, and both are about the gap
+      between what is PAINTED and what is LAID OUT.
+
+   A NODE IS A POINT, SO ITS BOX IS A POINT. The card inside is centred on its
+   node with `translate(-50%, -50%)`, and a transform moves the paint without
+   moving the box. A node anchored at 88.4% of the map therefore held a
+   full-card-width layout box running past the right edge while the card it
+   contains painted comfortably inside. `width: 0; height: 0` collapses the
+   anchor to what it actually is; the card carries its own explicit size, so it
+   costs the drawing nothing.
+
+   THE STAGE CLIPS RATHER THAN SCROLLS. That alone was not enough — the card's
+   own untransformed box is still counted, and Chrome does not carry the
+   transform up through the anchor. `overflow: clip` is the right tool and not
+   `hidden`: it stops the bleed becoming scrollable WITHOUT making this a scroll
+   container, and `overflow-clip-margin` keeps the bleed visible, which matters
+   because the open card scales past its box and the loop's web carries a glow
+   outside its ellipse.
+
+   1rem IS MEASURED, NOT CHOSEN. At 1280, 1100 and 1000 CSS pixels of viewport
+   it takes the scroller's overflow to exactly 0; 1.5rem leaves 4px behind at
+   two of those and 4rem brings the whole phantom back, because the clip region
+   then exceeds the container. 16px is still more than twice the 7px an open
+   card's 1.06 scale actually needs. Below ~960 the scroller reports real
+   overflow again, and it should: the map is genuinely wider than the window
+   there, which is the case `.ui-flow-scroll` exists for.
+
+   THE SCROLLER ABOVE STILL SCROLLS WHEN THERE IS SOMETHING TO SEE: below the
+   stage's 58rem minimum the map is genuinely wider than the viewport, and
+   `.ui-flow-scroll` does its job. What is gone is only the scroll over nothing.
+   ────────────────────────────────────────────────────────────────────────── */
+.ui-flow-node { position: absolute; width: 0; height: 0; }
+
+.ui-flow-stage {
+  overflow: clip;
+  overflow-clip-margin: 1rem;
+}
+
+.ui-flow-stages {
+  display: grid;
+  /* AS MANY COLUMNS AS THERE ARE STAGES. This read `repeat(4, ...)` when the
+     only caller had four, which is precisely the shape of assumption a package
+     extracted from one consumer encodes — the second caller has two, and would
+     have got its captions crushed into the left half of the map. */
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 1rem;
+  margin: 1rem auto 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-ui-line);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-ui-faint);
+}
+
+.ui-flow-stage-last { text-align: right; }
+
+/* The narrow surface. One of the two is always hidden; never both. */
+.ui-flow-list { display: block; margin-top: 2rem; }
+
+@media (min-width: 40rem) {
+  .ui-flow-scroll { display: block; }
+  .ui-flow-list { display: none; }
+}
+
+.ui-flow-list-stage {
+  padding: 1.5rem 0 0.75rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-ui-faint);
+}
+
+.ui-flow-list-items { display: flex; flex-direction: column; gap: 0.625rem; }
+
+.ui-flow-row-head { display: flex; align-items: center; gap: 0.75rem; }
+
+.ui-flow-row-name {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-ui-fg);
+}
+
+.ui-flow-row-sub { font-size: 0.75rem; color: var(--color-ui-dim); }
+
+.ui-flow-row-back {
+  margin-top: 0.625rem;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--color-ui-dim);
+}
+
+.ui-flow-list-note {
+  padding-top: 1.5rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-ui-faint);
+}
+
+/* A default size, so a consumer that says nothing still gets a usable card.
+   Per-kind overrides are the consumer's — what kinds exist is their vocabulary. */
+.ui-flow-stage {
+  /* On the ancestor, never on the card that flips: a per-element perspective
+     gives each card its own vanishing point and the row stops looking like one
+     object seen from one place. */
+  perspective: 1600px;
+}
+
+.ui-flow-edge {
+  transition: opacity 260ms ease;
+}
+
+@keyframes ui-flow-out {
+  0%      { stroke-dashoffset: 100; opacity: 0; }
+  4%      { opacity: 0.9; }
+  16%     { stroke-dashoffset: 0; opacity: 0.9; }
+  20%,100%{ stroke-dashoffset: 0; opacity: 0; }
+}
+
+@keyframes ui-flow-back {
+  0%      { stroke-dashoffset: 0; opacity: 0; }
+  4%      { opacity: 1; }
+  18%     { stroke-dashoffset: 100; opacity: 1; }
+  24%,100%{ stroke-dashoffset: 100; opacity: 0; }
+}
+
+.ui-flow-pulse {
+  animation-duration: 9s;
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1);
+}
+
+.ui-flow-pulse--out  { stroke-dasharray: 8 92;  animation-name: ui-flow-out; }
+
+.ui-flow-pulse--back { stroke-dasharray: 12 88; animation-name: ui-flow-back; }
+
+@keyframes ui-flow-fibre {
+  0%, 4%   { stroke-opacity: 0.18; }
+  9%       { stroke-opacity: 0.85; }
+  26%,100% { stroke-opacity: 0.18; }
+}
+
+.ui-flow-fibre {
+  stroke: var(--color-ui-dim);
+  stroke-width: 1;
+  stroke-opacity: 0.18;
+  animation: ui-flow-fibre 9s ease-in-out infinite;
+}
+
+.ui-flow-fibre--far { stroke-opacity: 0.1; stroke-dasharray: 2 4; }
+
+@keyframes ui-flow-synapse {
+  0%, 100% { transform: scale(0.82); }
+  50%      { transform: scale(1.18); }
+}
+
+.ui-flow-synapse {
+  fill: var(--color-ui-fg);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation-name: ui-flow-synapse;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes ui-flow-spark {
+  0%      { stroke-dashoffset: 100; opacity: 0; }
+  12%     { opacity: 0.95; }
+  70%     { opacity: 0.95; }
+  100%    { stroke-dashoffset: 0; opacity: 0; }
+}
+
+.ui-flow-spark {
+  stroke: var(--color-ui-fg);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-dasharray: 9 91;
+  animation-name: ui-flow-spark;
+  animation-timing-function: cubic-bezier(0.45, 0, 0.5, 1);
+  animation-iteration-count: infinite;
+}
+
+.ui-flow-glow {
+  fill: radial-gradient(transparent, transparent);
+  fill: color-mix(in oklab, var(--color-ui-fg) 3%, transparent);
+  filter: blur(22px);
+}
+
+.ui-flow-note {
+  fill: var(--color-ui-faint);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  transition: opacity 260ms ease;
+}
+
+.ui-flow-web { transition: opacity 260ms ease; }
+
+.ui-flow-card {
+  position: relative;
+  transform: translate(-50%, -50%);
+  transform-style: preserve-3d;
+  transition: transform 520ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 260ms ease;
+  text-align: left;
+  cursor: pointer;
+  width: 11.5rem;
+  /* Tall enough for the BACK face, which is three lines of explanation plus a
+     tag — the front face is the shorter of the two and a box sized to it
+     clipped the tag's baseline. Both faces are the same box on purpose: a card
+     that resized as it turned would shove its neighbours around the map. */
+  height: 4.75rem;
+}
+
+.ui-flow-card--dim { opacity: 0.4; }
+
+.ui-flow-card[data-open='true'] {
+  transform: translate(-50%, -50%) rotateY(180deg) scale(1.06);
+}
+
+.ui-flow-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.1875rem;
+  padding: 0.5625rem 0.875rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-ui-line);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 60%),
+    var(--color-ui-surface);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+}
+
+.ui-flow-face--back {
+  transform: rotateY(180deg);
+  justify-content: space-between;
+  border-color: color-mix(in oklab, var(--ui-tone, var(--color-ui-line-lit)) 45%, var(--color-ui-line));
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--ui-tone, transparent) 10%, transparent), transparent 70%),
+    var(--color-ui-raised);
+}
+
+.ui-flow-name {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-ui-fg);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.ui-flow-sub {
+  font-size: 0.75rem;
+  line-height: 1.3;
+  color: var(--color-ui-dim);
+}
+
+.ui-flow-step {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.625rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.625rem;
+  color: var(--ui-tone, var(--color-ui-faint));
+  opacity: 0.8;
+}
+
+.ui-flow-back-text {
+  font-size: 0.65rem;
+  line-height: 1.4;
+  color: var(--color-ui-fg);
+}
+
+.ui-flow-back-tag {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.5625rem;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--ui-tone, var(--color-ui-faint));
+}
+
+.ui-flow-card:hover .ui-flow-face--front,
+.ui-flow-card:focus-visible .ui-flow-face--front {
+  border-color: color-mix(in oklab, var(--ui-tone, var(--color-ui-fg)) 50%, var(--color-ui-line));
+}
+
+.ui-flow-card:focus-visible {
+  outline: 2px solid var(--color-ui-accent);
+  outline-offset: 4px;
+  border-radius: 0.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-flow-pulse--out { display: none; }
+  .ui-flow-pulse--back {
+    animation: none !important;
+    /* One dash-length short of a full period leaves the dash at the far end of
+       the path, against the system it was read from. */
+    stroke-dashoffset: 12;
+    opacity: 0.85;
+  }
+  .ui-flow-fibre { animation: none !important; stroke-opacity: 0.3; }
+  .ui-flow-synapse { animation: none !important; }
+  .ui-flow-spark { display: none; }
+}
+
+.ui-flow-face--front {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.3125rem;
+  border-color: transparent;
+  background: radial-gradient(
+    72% 80% at 50% 50%,
+    color-mix(in oklab, var(--color-ui-bg) 90%, transparent) 0%,
+    color-mix(in oklab, var(--color-ui-bg) 62%, transparent) 58%,
+    transparent 100%
+  );
+}
+
+.ui-flow-words {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.ui-flow-row {
+  position: relative;
+  padding: 0.75rem 0.875rem 0.875rem 1.125rem;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.75rem;
+  background: var(--color-ui-surface);
+}
+
+.ui-flow-row::before {
+  content: '';
+  position: absolute;
+  inset-block: 0.75rem;
+  inset-inline-start: 0;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--ui-tone, var(--color-ui-line-lit));
+}
+
+/* ── THE RUN FIGURES ────────────────────────────────────────────────────────
+   One cell of the cost row: a marked label over a value.
+
+   THE SIZES STEP DOWN ON A PHONE and the icon is what pays for it. A 10px
+   label is hard to read as a word and instantly identifiable as a shape, so
+   the mark carries the meaning at the small size and the word confirms it.
+   Both are there at both sizes; only the emphasis moves.
+   ────────────────────────────────────────────────────────────────────────── */
+.ui-run-figure {
+  display: grid;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.ui-run-label {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ui-faint);
+  white-space: nowrap;
+}
+
+/* The marks sit at the cap height of the label rather than at its full line
+   box, which is what stops a 18px icon making a 10px label look like a caption
+   underneath it. */
+.ui-run-label > span > svg {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.ui-run-value {
+  font-size: 0.8125rem;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 40rem) {
+  .ui-run-label { font-size: 0.6875rem; gap: 0.4375rem; }
+  .ui-run-label > span > svg { width: 1rem; height: 1rem; }
+  .ui-run-value { font-size: 0.875rem; }
+}

@@ -1,0 +1,35 @@
+# exported from the requirements tool 2026-09-02
+# WARNING: rows with an empty system_req are NOT errors in the export.
+# They are requirements nobody has allocated yet.
+customer_req,system_req,coverage,notes
+CR-CHV-07-0115,SR-CHV-07-0165,full,
+CR-CHV-07-0115,SR-CHV-07-0175,full,
+CR-CHV-07-0115,SR-CHV-07-0178,full,"reviewed, see minutes"
+CR-CHV-07-0116,SR-CHV-07-0170,full,"reviewed, see minutes"
+CR-CHV-07-0117,SR-CHV-07-0161,full,
+CR-CHV-07-0117,SR-CHV-07-0169,full,
+CR-CHV-07-0118,,,
+CR-CHV-07-0119,SR-CHV-07-0172,full,
+CR-CHV-07-0119,SR-CHV-07-0180,full,
+CR-CHV-07-0120,SR-CHV-07-0166,full,
+CR-CHV-07-0120,SR-CHV-07-0174,partial,
+CR-CHV-07-0120,SR-CHV-07-0179,full,
+CR-CHV-07-0121,SR-CHV-07-0163,full,
+CR-CHV-07-0121,SR-CHV-07-0164,full,
+CR-CHV-07-0121,SR-CHV-07-0171,full,
+CR-CHV-07-0121,SR-CHV-07-0180,full,
+CR-CHV-07-0122,SR-CHV-07-0164,partial,
+CR-CHV-07-0122,SR-CHV-07-0166,full,
+CR-CHV-07-0122,SR-CHV-07-0167,partial,"reviewed, see minutes"
+CR-CHV-07-0122,SR-CHV-07-0173,full,
+CR-CHV-07-0123,SR-CHV-07-0161,full,
+CR-CHV-07-0123,SR-CHV-07-0172,full,
+CR-CHV-07-0124,SR-CHV-07-0176,partial,
+CR-CHV-07-0125,SR-CHV-07-0170,full,
+CR-CHV-07-0125,SR-CHV-07-0171,full,"reviewed, see minutes"
+CR-CHV-07-0126,SR-CHV-07-0168,full,
+CR-CHV-07-0126,SR-CHV-07-0169,full,
+CR-CHV-07-0127,SR-CHV-07-0168,full,
+CR-CHV-07-0128,SR-CHV-07-0162,full,
+CR-CHV-07-0128,SR-CHV-07-0177,full,
+CR-CHV-07-0128,SR-CHV-07-0179,partial,

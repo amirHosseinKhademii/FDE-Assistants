@@ -1,0 +1,144 @@
+@import 'tailwindcss';
+
+/**
+ * The surface layer comes from `@fde/uikit`: the control sizing, the severity
+ * palette, the motion, and the `--ui-*` tokens every component reads. Its
+ * defaults are already dark, so this product overrides nothing — the theming
+ * hook exists for the LIGHT surface next door, which is set like a paper file
+ * and would re-point the same names.
+ */
+@import '@fde/uikit/styles.css';
+
+/**
+ * The site layer: the wash, the hero entrance, the estate section and the two
+ * drawings both engagements use. Shared with `apps/steering-app`, which is why
+ * it is a package rather than a section of this file.
+ *
+ * THE `@source` LINE IS LOAD-BEARING. Tailwind v4 does not look inside
+ * `node_modules`, and `@veresk/surface` is symlinked in there like any other
+ * workspace package. Without this, its components render with every utility
+ * class missing — from a build that SUCCEEDS. `@fde/uikit` needs no such line
+ * because it uses no utilities, which is the whole reason it is allowed to
+ * leave this repository and this package is not.
+ */
+@import '@veresk/surface/styles.css';
+@source '../../../../packages/surface/src';
+
+/**
+ * What is local to this product.
+ *
+ * Only two things: the typefaces, and the wash behind the page. Everything with
+ * an opinion about how a control or a severity looks lives in the package, which
+ * is the test of whether the extraction was real — if product-specific control
+ * styling had to be written here, the split would be in the wrong place.
+ */
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+}
+
+html {
+  background: var(--color-ui-bg);
+  color: var(--color-ui-fg);
+  -webkit-font-smoothing: antialiased;
+  color-scheme: dark;
+}
+
+body {
+  /* Two very soft pools of light, so a flat near-black does not read as
+     "unstyled". Subject to the reduced-motion rule in the package: they do not
+     move, so there is nothing to suppress. */
+  background-image:
+    radial-gradient(60rem 30rem at 15% -10%, rgba(45, 212, 191, 0.07), transparent 60%),
+    radial-gradient(50rem 25rem at 95% 0%, rgba(96, 165, 250, 0.05), transparent 60%);
+  background-repeat: no-repeat;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   THE LANDING PAGE'S OWN COLOUR AND MOTION.
+
+   Local to this file on purpose. `@fde/uikit` holds severity — colour that
+   MEANS something, where a wrong hue is a wrong claim about a batch. Nothing
+   below means anything: it is the front door, where no finding is being
+   reported and colour is free to be colour. Putting these in the package would
+   hand the next product a palette it has no use for.
+
+   THE SIX HUES ARE A ROUTE, NOT A RANKING. One per system of record, in the
+   order a lot actually travels them — materials, manufacture, quality, people,
+   registration, transport. They run teal → amber across the spectrum so the
+   eye reads a journey rather than six categories, which is the one thing the
+   page is trying to say: the answer is assembled by walking, one hop at a time.
+   ────────────────────────────────────────────────────────────────────────── */
+@theme {
+  --color-hop-1: #2dd4bf;
+  --color-hop-2: #22d3ee;
+  --color-hop-3: #60a5fa;
+  --color-hop-4: #a78bfa;
+  --color-hop-5: #f472b6;
+  --color-hop-6: #fbbf24;
+}
+
+/* WHERE THE SIX HUES GET USED BY SOMETHING THAT CANNOT KNOW THEM. The headline
+   gradient and the navigation bar both live in `@veresk/surface`, shared with a
+   second engagement that has an entirely different palette. They read these
+   names; the package supplies a neutral fallback, so forgetting them gives a
+   plain headline rather than the wrong customer's colours. */
+:root {
+  --title-1: #2dd4bf;
+  --title-2: #60a5fa;
+  --title-3: #a78bfa;
+  --title-4: #f472b6;
+  --ui-progress: linear-gradient(
+    90deg,
+    var(--color-hop-1), var(--color-hop-3), var(--color-hop-4),
+    var(--color-hop-5), var(--color-hop-6)
+  );
+}
+
+/* ── THE FLOW MAP, AT THE SIZES THIS PAGE USES ──────────────────────────────
+   `FlowMap` is `@fde/uikit`'s and knows nothing about what it is drawing. How
+   wide a card has to be for each KIND of node is this page's vocabulary, so it
+   is set here. The pharma deployment has its own six kinds and its own file.
+   ────────────────────────────────────────────────────────────────────────── */
+.ui-flow-card[data-kind='engagement'] { width: 14rem; height: 5.75rem; }
+.ui-flow-card[data-kind='package'] { width: 15rem; height: 5.25rem; }
+
+/* ── THE FIRM'S PAGE ────────────────────────────────────────────────────────
+   `/` has no palette of its own on purpose — see `pages/VereskLanding.tsx`.
+   These are layout only, and the accent appears on exactly the things that can
+   be pressed.
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* An engagement card. The two live ones lift and take the accent on their
+   border; the one that lives in another application does neither, because it
+   cannot be opened from here and should not look as if it could. */
+.case-card {
+  display: block;
+  padding: 1.25rem 1.25rem 1.375rem;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 1rem;
+  background: var(--color-ui-surface);
+  transition: border-color 200ms ease, transform 200ms ease;
+}
+
+a.case-card:hover {
+  border-color: color-mix(in oklab, var(--color-ui-accent) 45%, var(--color-ui-line));
+  transform: translateY(-3px);
+}
+
+a.case-card:focus-visible {
+  outline: 2px solid var(--color-ui-accent);
+  outline-offset: 3px;
+}
+
+.case-card--elsewhere {
+  background: transparent;
+  border-style: dashed;
+}
+
+
+/* The map's engagement cards need more room than a database's name. */
+.ui-flow-card[data-kind='engagement'] { width: 14rem; height: 5.75rem; }
+.ui-flow-card[data-kind='package'] { width: 15rem; height: 5.25rem; }
+
+

@@ -1,0 +1,14 @@
+# bottom-up estimate, built before nomination
+# author: P. Strand   date: 2021-05-05
+# "basis" is free text. It is the only record of WHERE a number came from.
+work_package,discipline,hours,basis,confidence
+rack redesign,systems,681,from the last programme,low
+EOL calibration,calibration,541,from the last programme,medium
+EOL calibration,pm,856,from the last programme,high
+harness,safety,44,from the last programme,high
+gearbox change,systems,469,engineering judgement,medium
+HIL rig update,pm,851,from the last programme,medium
+EOL calibration,systems,860,engineering judgement,medium
+safety case,safety,694,from the last programme,medium
+gearbox change,pm,675,guess,low
+HIL rig update,safety,805,engineering judgement,high

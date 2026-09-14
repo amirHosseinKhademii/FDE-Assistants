@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-end-of-line
+Module     : rate_limit_3.c   (SWC-PLT-023, ASIL B)
+Tool       : Coverity 2022.12
+Run        : 2022-05-29
+Run by     : s.beker
+
+SUMMARY
+  rules checked        170
+  violations           11
+  deviations approved  2
+  unresolved           4
+
+DEVIATIONS
+  (none)
+
+UNRESOLVED
+  Rule 8.6 at rate_limit_3.c:395 — owner m.lindqvist, no target date

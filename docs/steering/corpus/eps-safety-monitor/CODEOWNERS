@@ -1,0 +1,12 @@
+# Safety monitor
+*                    @vantis/functional-safety
+src/torque_bound.c        @vantis/functional-safety
+src/watchdog.c        @vantis/functional-safety
+src/plausibility.c        @vantis/functional-safety
+src/bitfield_1.c        @vantis/functional-safety
+src/rate_limit_2.c        @vantis/functional-safety
+src/event_queue_3.c        @vantis/functional-safety
+src/debounce_4.c        @vantis/functional-safety
+src/rate_limit_5.c        @vantis/functional-safety
+src/timebase_6.c        @vantis/functional-safety
+reports/             @vantis/functional-safety

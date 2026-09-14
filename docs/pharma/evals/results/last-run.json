@@ -1,0 +1,91 @@
+{
+  "at": "2026-09-12T23:16:22.060Z",
+  "repeat": 1,
+  "reports": [
+    {
+      "id": "sup-002",
+      "runs": [
+        {
+          "id": "sup-002",
+          "run": 1,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 54938,
+          "turns": 1,
+          "inputTokens": 21853,
+          "outputTokens": 7862,
+          "toolCalls": 17,
+          "toolNames": [
+            "assess_supplier_impact"
+          ],
+          "stoppedBecause": "partial",
+          "passed": false,
+          "checks": [
+            {
+              "name": "calls_assess_first",
+              "pass": false,
+              "detail": "no valid answer (partial)"
+            },
+            {
+              "name": "no_rows",
+              "pass": false,
+              "detail": "no valid answer (partial)"
+            },
+            {
+              "name": "preventable_absent",
+              "pass": false,
+              "detail": "no valid answer (partial)"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": false,
+              "detail": "no valid answer (partial)"
+            },
+            {
+              "name": "does_not_recall",
+              "pass": false,
+              "detail": "no valid answer (partial)"
+            },
+            {
+              "name": "has_answer",
+              "pass": false,
+              "detail": "no valid answer (partial)"
+            }
+          ],
+          "error": "LOT-MET500-2510-A: 429 Your requests to gpt-5-mini for gpt-5-mini in swedencentral have exceeded rate limit. | LOT-PAR500-2406-A: 429 Your requests to gpt-5-mini for gpt-5-mini in swedencentral have exceeded rate limit. | LOT-PAR500-2402-A: 429 Your requests to gpt-5-mini for gpt-5-mini in swedencentral have exceeded rate limit. | LOT-PAR500-2502-A: 429 Your requests to gpt-5-mini for gpt-5-mini in swedencentral have exceeded rate limit. | LOT-PAR500-2602-A: 429 Your requests to gpt-5-mini for gpt-5-mini in swedencentral have exceeded rate limit. | LOT-MET500-2410-A: 429 Your requests to gpt-5-mini for gpt-5-mini in swedencentral have exceeded rate limit. | LOT-MET500-2602-A: 429 Your requests to gpt-5-mini for gpt-5-mini in swedencentral have exceeded rate limit."
+        }
+      ],
+      "passed": 0,
+      "total": 1,
+      "flakyChecks": [
+        {
+          "name": "calls_assess_first",
+          "failed": 1
+        },
+        {
+          "name": "no_rows",
+          "failed": 1
+        },
+        {
+          "name": "preventable_absent",
+          "failed": 1
+        },
+        {
+          "name": "does_not_escalate",
+          "failed": 1
+        },
+        {
+          "name": "does_not_recall",
+          "failed": 1
+        },
+        {
+          "name": "has_answer",
+          "failed": 1
+        }
+      ]
+    }
+  ],
+  "model": "gpt-5-mini",
+  "engine": "agents-sdk+fanout",
+  "fixtures": "off"
+}

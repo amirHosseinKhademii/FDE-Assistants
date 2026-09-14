@@ -1,0 +1,13 @@
+
+# damping calibration datasets, exported from CalTool 4.2
+# NOTE: the 'notes' column is free text and MAY contain commas. Quote it.
+programme,param,value,unit,dataset,approved,notes
+PRG-HLX-H1,DAMP_GAIN_BASE,0.240,Nm*s/rad,v4.2,2023-02-14,"baseline for H1, signed off at the Feb ride"
+PRG-HLX-H1,DAMP_SPD_BRK,55,km/h,v4.2,2023-02-14,
+PRG-HLX-H1,DAMP_MAX_TRQ,1.05,Nm,v4.2,2023-02-14,
+PRG-HLX-H1,damp_rate_lim,12,Nm/s,v4.2,2023-02-14,lowercase in the export, same parameter
+PRG-ORV-04,DAMP_GAIN_BASE,0.180,Nm*s/rad,v3.9,2022-06-02,"softer, C segment"
+PRG-ORV-04,DAMP_SPD_BRK,70,km/h,v3.9,2022-06-02,
+PRG-ORV-04,DAMP_MAX_TRQ,,Nm,v3.9,2022-06-02,value missing in the export — see CalTool ticket 881
+PRG-TDR-11,DAMP_GAIN_BASE,0.310,Nm*s/rad,v5.0,2024-09-30,"D segment, customer asked for more damping on centre"
+PRG-TDR-11,DAMP_SPD_BRK,48,km/h,v5.0,2024-09-30,

@@ -1,0 +1,19 @@
+MISRA C:2012 compliance report
+Repository : eps-safety-monitor
+Module     : plausibility.c   (SWC-SAFEMON, ASIL D)
+Tool       : LDRA 9.8
+Run        : 2026-03-31
+Run by     : d.ferreira
+
+SUMMARY
+  rules checked        149
+  violations           17
+  deviations approved  2
+  unresolved           0
+
+DEVIATIONS
+  D-10  Rule 14.1  goto used for single-exit error handling. Approved.
+  D-10  Rule 20.5  union used for the CAN frame overlay. Approved.
+
+UNRESOLVED
+  (none)

@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-motor-control
+Module     : unit_conv_3.c   (SWC-PLT-030, ASIL B)
+Tool       : Polyspace 2023b
+Run        : 2026-01-30
+Run by     : l.renaud
+
+SUMMARY
+  rules checked        149
+  violations           1
+  deviations approved  2
+  unresolved           4
+
+DEVIATIONS
+  D-30  Rule 12.4  goto used for single-exit error handling. Approved.
+
+UNRESOLVED
+  (none)

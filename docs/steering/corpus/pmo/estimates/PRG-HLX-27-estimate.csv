@@ -1,0 +1,10 @@
+# bottom-up estimate, built before nomination
+# author: A. Kovac   date: 2024-05-24
+# "basis" is free text. It is the only record of WHERE a number came from.
+work_package,discipline,hours,basis,confidence
+EOL calibration,pm,483,guess,medium
+EOL calibration,validation,711,engineering judgement,medium
+gearbox change,pm,631,engineering judgement,medium
+validation,pm,538,engineering judgement,high
+EOL calibration,systems,698,engineering judgement,medium
+assist tuning,software,486,engineering judgement,low

@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-motor-control
+Module     : foc.c   (SWC-MOTCTL, ASIL D)
+Tool       : Coverity 2022.12
+Run        : 2023-02-06
+Run by     : m.lindqvist
+
+SUMMARY
+  rules checked        145
+  violations           7
+  deviations approved  1
+  unresolved           2
+
+DEVIATIONS
+  D-27  Rule 14.7  pointer arithmetic in the buffer walk. Approved.
+
+UNRESOLVED
+  (none)

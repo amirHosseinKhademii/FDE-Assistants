@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-steer-by-wire
+Module     : crc_3.c   (SWC-PLT-015, ASIL D)
+Tool       : LDRA 9.8
+Run        : 2022-09-06
+Run by     : l.renaud
+
+SUMMARY
+  rules checked        158
+  violations           19
+  deviations approved  3
+  unresolved           0
+
+DEVIATIONS
+  D-18  Rule 15.1  pointer arithmetic in the buffer walk. Approved.
+
+UNRESOLVED
+  Rule 15.7 at crc_3.c:322 — owner n.haas, no target date

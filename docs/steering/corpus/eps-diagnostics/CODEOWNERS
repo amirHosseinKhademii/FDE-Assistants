@@ -1,0 +1,14 @@
+# Diagnostics
+*                    @vantis/diagnostics
+src/dtc.c        @vantis/diagnostics
+src/uds.c        @vantis/diagnostics
+src/snapshot.c        @vantis/diagnostics
+src/lookup_table_1.c        @vantis/diagnostics
+src/bitfield_2.c        @vantis/diagnostics
+src/crc_3.c        @vantis/diagnostics
+src/fixpt_4.c        @vantis/diagnostics
+src/checksum_5.c        @vantis/diagnostics
+src/state_machine_6.c        @vantis/diagnostics
+src/timebase_7.c        @vantis/diagnostics
+src/checksum_8.c        @vantis/diagnostics
+reports/             @vantis/functional-safety

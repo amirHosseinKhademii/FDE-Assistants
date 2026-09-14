@@ -1,0 +1,14 @@
+# Motor current control
+*                    @vantis/motor-control
+src/foc.c        @vantis/motor-control
+src/field_weakening.c        @vantis/motor-control
+src/temp_derate.c        @vantis/motor-control
+src/lookup_table_1.c        @vantis/motor-control
+src/nvm_block_2.c        @vantis/motor-control
+src/unit_conv_3.c        @vantis/motor-control
+src/timebase_4.c        @vantis/motor-control
+src/rate_limit_5.c        @vantis/motor-control
+src/rate_limit_6.c        @vantis/motor-control
+src/sat_math_7.c        @vantis/motor-control
+src/nvm_block_8.c        @vantis/motor-control
+reports/             @vantis/functional-safety

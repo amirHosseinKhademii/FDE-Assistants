@@ -1,0 +1,32 @@
+# exported from the requirements tool 2026-09-12
+# WARNING: rows with an empty system_req are NOT errors in the export.
+# They are requirements nobody has allocated yet.
+customer_req,system_req,coverage,notes
+CR-KAI-16-0263,SR-KAI-16-0371,full,
+CR-KAI-16-0263,SR-KAI-16-0372,full,
+CR-KAI-16-0264,SR-KAI-16-0370,partial,
+CR-KAI-16-0265,SR-KAI-16-0383,full,
+CR-KAI-16-0266,,,not yet allocated
+CR-KAI-16-0267,SR-KAI-16-0376,partial,"reviewed, see minutes"
+CR-KAI-16-0267,SR-KAI-16-0378,full,
+CR-KAI-16-0267,SR-KAI-16-0379,full,
+CR-KAI-16-0268,SR-KAI-16-0369,full,
+CR-KAI-16-0268,SR-KAI-16-0380,full,
+CR-KAI-16-0268,SR-KAI-16-0387,full,
+CR-KAI-16-0269,SR-KAI-16-0368,full,
+CR-KAI-16-0270,,,
+CR-KAI-16-0271,SR-KAI-16-0376,full,"reviewed, see minutes"
+CR-KAI-16-0271,SR-KAI-16-0382,full,
+CR-KAI-16-0272,SR-KAI-16-0382,full,
+CR-KAI-16-0272,SR-KAI-16-0386,full,
+CR-KAI-16-0273,SR-KAI-16-0373,full,"reviewed, see minutes"
+CR-KAI-16-0273,SR-KAI-16-0374,full,
+CR-KAI-16-0274,SR-KAI-16-0368,full,
+CR-KAI-16-0274,SR-KAI-16-0369,full,
+CR-KAI-16-0274,SR-KAI-16-0377,full,
+CR-KAI-16-0274,SR-KAI-16-0385,full,
+CR-KAI-16-0275,SR-KAI-16-0375,full,"reviewed, see minutes"
+CR-KAI-16-0275,SR-KAI-16-0381,full,
+CR-KAI-16-0275,SR-KAI-16-0384,full,"reviewed, see minutes"
+CR-KAI-16-0275,SR-KAI-16-0387,partial,
+CR-KAI-16-0276,,,not yet allocated

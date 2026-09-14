@@ -1,0 +1,46 @@
+# exported from the requirements tool 2026-09-08
+# WARNING: rows with an empty system_req are NOT errors in the export.
+# They are requirements nobody has allocated yet.
+customer_req,system_req,coverage,notes
+CR-VGR-10-0163,SR-VGR-10-0233,full,
+CR-VGR-10-0163,SR-VGR-10-0236,full,
+CR-VGR-10-0164,SR-VGR-10-0230,full,"reviewed, see minutes"
+CR-VGR-10-0164,SR-VGR-10-0240,full,
+CR-VGR-10-0164,SR-VGR-10-0246,partial,
+CR-VGR-10-0164,SR-VGR-10-0251,full,
+CR-VGR-10-0165,SR-VGR-10-0228,full,
+CR-VGR-10-0165,SR-VGR-10-0239,full,
+CR-VGR-10-0166,SR-VGR-10-0242,full,
+CR-VGR-10-0166,SR-VGR-10-0247,full,
+CR-VGR-10-0167,,,not yet allocated
+CR-VGR-10-0168,SR-VGR-10-0249,full,
+CR-VGR-10-0169,,,
+CR-VGR-10-0170,SR-VGR-10-0232,partial,
+CR-VGR-10-0170,SR-VGR-10-0238,full,
+CR-VGR-10-0170,SR-VGR-10-0244,full,
+CR-VGR-10-0171,SR-VGR-10-0240,full,
+CR-VGR-10-0171,SR-VGR-10-0248,full,
+CR-VGR-10-0171,SR-VGR-10-0249,full,
+CR-VGR-10-0172,SR-VGR-10-0246,full,
+CR-VGR-10-0173,SR-VGR-10-0229,partial,
+CR-VGR-10-0173,SR-VGR-10-0244,full,
+CR-VGR-10-0173,SR-VGR-10-0245,full,
+CR-VGR-10-0173,SR-VGR-10-0250,full,"reviewed, see minutes"
+CR-VGR-10-0174,SR-VGR-10-0231,full,"reviewed, see minutes"
+CR-VGR-10-0174,SR-VGR-10-0239,full,
+CR-VGR-10-0174,SR-VGR-10-0253,full,
+CR-VGR-10-0175,SR-VGR-10-0243,partial,
+CR-VGR-10-0176,SR-VGR-10-0252,full,
+CR-VGR-10-0177,SR-VGR-10-0234,full,"reviewed, see minutes"
+CR-VGR-10-0178,SR-VGR-10-0233,full,
+CR-VGR-10-0178,SR-VGR-10-0236,full,
+CR-VGR-10-0178,SR-VGR-10-0237,full,
+CR-VGR-10-0178,SR-VGR-10-0247,full,"reviewed, see minutes"
+CR-VGR-10-0179,SR-VGR-10-0232,full,
+CR-VGR-10-0179,SR-VGR-10-0241,full,
+CR-VGR-10-0179,SR-VGR-10-0255,full,
+CR-VGR-10-0180,,,not yet allocated
+CR-VGR-10-0181,SR-VGR-10-0252,partial,
+CR-VGR-10-0181,SR-VGR-10-0254,full,
+CR-VGR-10-0182,SR-VGR-10-0235,full,
+CR-VGR-10-0182,SR-VGR-10-0237,full,

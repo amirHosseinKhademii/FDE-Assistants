@@ -1,0 +1,19 @@
+node_modules/
+dist/
+.env
+*.log
+evals/results/index.json
+evals/results/last-run.json
+narration/audio/
+narration/.generate.lock
+.env.bak*
+
+# Pillar 5 request log — local telemetry, not source
+logs/
+
+# turbo task cache
+.turbo/
+apps/*/.turbo/
+
+# Cached model responses — a paid run, kept so a later failure cannot waste it.
+.cache/

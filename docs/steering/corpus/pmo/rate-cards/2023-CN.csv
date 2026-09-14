@@ -1,0 +1,12 @@
+# Vantis Steering Systems — approved engineering rates
+# year: 2023   region: CN
+# approved by: S. Beker (finance)   date: 2022-11-16
+# rates are fully loaded and include overhead. Do not add a multiplier.
+discipline,rate_eur_per_hour
+systems,66.99
+software,64.20
+hardware,65.59
+calibration,60.01
+validation,54.43
+safety,75.36
+pm,71.18

@@ -1,0 +1,19 @@
+MISRA C:2012 compliance report
+Repository : eps-calibration-tools
+Module     : dataset.c   (SWC-PLT-002, ASIL QM)
+Tool       : LDRA 9.8
+Run        : 2021-06-16
+Run by     : j.moreau
+
+SUMMARY
+  rules checked        162
+  violations           18
+  deviations approved  5
+  unresolved           1
+
+DEVIATIONS
+  D-17  Rule 16.1  union used for the CAN frame overlay. Approved.
+  D-18  Rule 15.4  pointer arithmetic in the buffer walk. Approved.
+
+UNRESOLVED
+  (none)

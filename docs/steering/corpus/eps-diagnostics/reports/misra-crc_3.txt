@@ -1,0 +1,19 @@
+MISRA C:2012 compliance report
+Repository : eps-diagnostics
+Module     : crc_3.c   (SWC-PLT-019, ASIL C)
+Tool       : Coverity 2022.12
+Run        : 2025-01-16
+Run by     : a.kovac
+
+SUMMARY
+  rules checked        172
+  violations           10
+  deviations approved  3
+  unresolved           1
+
+DEVIATIONS
+  D-34  Rule 13.2  goto used for single-exit error handling. Approved.
+  D-23  Rule 11.1  pointer arithmetic in the buffer walk. Approved.
+
+UNRESOLVED
+  (none)

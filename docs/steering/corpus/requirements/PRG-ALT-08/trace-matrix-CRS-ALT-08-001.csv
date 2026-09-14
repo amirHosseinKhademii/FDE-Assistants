@@ -1,0 +1,35 @@
+# exported from the requirements tool 2026-09-02
+# WARNING: rows with an empty system_req are NOT errors in the export.
+# They are requirements nobody has allocated yet.
+customer_req,system_req,coverage,notes
+CR-ALT-08-0129,SR-ALT-08-0184,full,"reviewed, see minutes"
+CR-ALT-08-0129,SR-ALT-08-0187,full,
+CR-ALT-08-0129,SR-ALT-08-0195,full,"reviewed, see minutes"
+CR-ALT-08-0130,SR-ALT-08-0182,full,
+CR-ALT-08-0130,SR-ALT-08-0183,full,
+CR-ALT-08-0130,SR-ALT-08-0186,full,
+CR-ALT-08-0130,SR-ALT-08-0190,partial,
+CR-ALT-08-0130,SR-ALT-08-0197,full,
+CR-ALT-08-0131,SR-ALT-08-0182,partial,
+CR-ALT-08-0132,,,not yet allocated
+CR-ALT-08-0133,SR-ALT-08-0191,full,
+CR-ALT-08-0133,SR-ALT-08-0196,full,
+CR-ALT-08-0134,SR-ALT-08-0188,full,
+CR-ALT-08-0134,SR-ALT-08-0193,full,
+CR-ALT-08-0134,SR-ALT-08-0195,full,
+CR-ALT-08-0135,SR-ALT-08-0186,full,
+CR-ALT-08-0135,SR-ALT-08-0190,full,"reviewed, see minutes"
+CR-ALT-08-0135,SR-ALT-08-0198,full,
+CR-ALT-08-0136,,,not yet allocated
+CR-ALT-08-0137,SR-ALT-08-0189,full,
+CR-ALT-08-0138,SR-ALT-08-0191,full,
+CR-ALT-08-0138,SR-ALT-08-0196,full,
+CR-ALT-08-0139,SR-ALT-08-0192,full,
+CR-ALT-08-0140,SR-ALT-08-0184,full,
+CR-ALT-08-0140,SR-ALT-08-0185,full,
+CR-ALT-08-0140,SR-ALT-08-0188,full,
+CR-ALT-08-0140,SR-ALT-08-0198,partial,
+CR-ALT-08-0141,SR-ALT-08-0181,full,
+CR-ALT-08-0141,SR-ALT-08-0183,full,"reviewed, see minutes"
+CR-ALT-08-0141,SR-ALT-08-0187,full,
+CR-ALT-08-0141,SR-ALT-08-0194,full,

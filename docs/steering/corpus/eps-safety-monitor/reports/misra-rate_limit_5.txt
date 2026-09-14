@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-safety-monitor
+Module     : rate_limit_5.c   (SWC-PLT-035, ASIL QM)
+Tool       : Coverity 2022.12
+Run        : 2021-07-07
+Run by     : r.dietrich
+
+SUMMARY
+  rules checked        148
+  violations           18
+  deviations approved  1
+  unresolved           0
+
+DEVIATIONS
+  D-11  Rule 19.8  union used for the CAN frame overlay. Approved.
+
+UNRESOLVED
+  Rule 8.8 at rate_limit_5.c:123 — owner m.lindqvist, no target date

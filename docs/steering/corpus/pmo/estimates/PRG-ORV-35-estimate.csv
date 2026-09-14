@@ -1,0 +1,13 @@
+# bottom-up estimate, built before nomination
+# author: J. Moreau   date: 2022-01-19
+# "basis" is free text. It is the only record of WHERE a number came from.
+work_package,discipline,hours,basis,confidence
+assist tuning,validation,796,engineering judgement,medium
+harness,calibration,325,from the last programme,high
+harness,software,670,similar to H1,medium
+safety case,systems,881,from the last programme,medium
+safety case,safety,497,from the last programme,medium
+rack redesign,hardware,554,engineering judgement,low
+harness,software,153,engineering judgement,low
+ECU integration,calibration,801,engineering judgement,high
+ECU integration,hardware,844,guess,medium

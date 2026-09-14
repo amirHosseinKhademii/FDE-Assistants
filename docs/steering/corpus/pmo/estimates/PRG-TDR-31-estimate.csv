@@ -1,0 +1,13 @@
+# bottom-up estimate, built before nomination
+# author: S. Beker   date: 2022-05-25
+# "basis" is free text. It is the only record of WHERE a number came from.
+work_package,discipline,hours,basis,confidence
+validation,software,698,guess,medium
+EOL calibration,systems,53,guess,medium
+harness,software,467,engineering judgement,high
+EOL calibration,validation,333,supplier quote,low
+ECU integration,calibration,355,guess,low
+motor control,safety,410,supplier quote,low
+assist tuning,pm,357,supplier quote,medium
+diagnostics,systems,108,similar to H1,medium
+ECU integration,calibration,648,similar to H1,high

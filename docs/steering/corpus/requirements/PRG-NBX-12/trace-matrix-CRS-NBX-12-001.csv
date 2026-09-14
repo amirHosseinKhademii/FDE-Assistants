@@ -1,0 +1,39 @@
+# exported from the requirements tool 2026-09-03
+# WARNING: rows with an empty system_req are NOT errors in the export.
+# They are requirements nobody has allocated yet.
+customer_req,system_req,coverage,notes
+CR-NBX-12-0201,SR-NBX-12-0289,full,
+CR-NBX-12-0202,SR-NBX-12-0284,full,
+CR-NBX-12-0202,SR-NBX-12-0296,full,
+CR-NBX-12-0202,SR-NBX-12-0300,full,
+CR-NBX-12-0202,SR-NBX-12-0302,full,"reviewed, see minutes"
+CR-NBX-12-0203,SR-NBX-12-0285,full,
+CR-NBX-12-0203,SR-NBX-12-0286,full,
+CR-NBX-12-0203,SR-NBX-12-0299,full,"reviewed, see minutes"
+CR-NBX-12-0203,SR-NBX-12-0301,partial,
+CR-NBX-12-0204,SR-NBX-12-0286,full,
+CR-NBX-12-0204,SR-NBX-12-0290,full,
+CR-NBX-12-0204,SR-NBX-12-0293,full,
+CR-NBX-12-0205,SR-NBX-12-0287,full,
+CR-NBX-12-0205,SR-NBX-12-0288,full,
+CR-NBX-12-0205,SR-NBX-12-0295,full,"reviewed, see minutes"
+CR-NBX-12-0206,SR-NBX-12-0301,full,
+CR-NBX-12-0207,SR-NBX-12-0288,partial,
+CR-NBX-12-0207,SR-NBX-12-0295,full,
+CR-NBX-12-0207,SR-NBX-12-0300,full,
+CR-NBX-12-0208,SR-NBX-12-0283,full,
+CR-NBX-12-0208,SR-NBX-12-0294,full,
+CR-NBX-12-0209,,,not yet allocated
+CR-NBX-12-0210,SR-NBX-12-0282,full,
+CR-NBX-12-0210,SR-NBX-12-0290,full,"reviewed, see minutes"
+CR-NBX-12-0210,SR-NBX-12-0298,full,"reviewed, see minutes"
+CR-NBX-12-0211,SR-NBX-12-0281,full,
+CR-NBX-12-0211,SR-NBX-12-0292,full,"reviewed, see minutes"
+CR-NBX-12-0212,SR-NBX-12-0283,full,
+CR-NBX-12-0213,SR-NBX-12-0285,full,
+CR-NBX-12-0214,,,not yet allocated
+CR-NBX-12-0215,SR-NBX-12-0289,full,"reviewed, see minutes"
+CR-NBX-12-0215,SR-NBX-12-0291,full,
+CR-NBX-12-0215,SR-NBX-12-0299,full,
+CR-NBX-12-0216,SR-NBX-12-0296,full,"reviewed, see minutes"
+CR-NBX-12-0216,SR-NBX-12-0297,full,

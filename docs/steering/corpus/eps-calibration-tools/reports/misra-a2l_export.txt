@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-calibration-tools
+Module     : a2l_export.c   (SWC-PLT-001, ASIL QM)
+Tool       : LDRA 9.8
+Run        : 2025-12-03
+Run by     : r.dietrich
+
+SUMMARY
+  rules checked        159
+  violations           11
+  deviations approved  0
+  unresolved           2
+
+DEVIATIONS
+  (none)
+
+UNRESOLVED
+  (none)

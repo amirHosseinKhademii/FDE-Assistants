@@ -1,0 +1,943 @@
+@import 'tailwindcss';
+
+/**
+ * The surface layer comes from `@fde/uikit`: the control sizing, the severity
+ * palette, the motion, and the `--ui-*` tokens every component reads. Its
+ * defaults are already dark, so this product overrides nothing — the theming
+ * hook exists for the LIGHT surface next door, which is set like a paper file
+ * and would re-point the same names.
+ */
+@import '@fde/uikit/styles.css';
+
+/**
+ * The site layer: the wash, the hero entrance, the estate section and the two
+ * drawings both engagements use. Shared with `apps/steering-app`, which is why
+ * it is a package rather than a section of this file.
+ *
+ * THE `@source` LINE IS LOAD-BEARING. Tailwind v4 does not look inside
+ * `node_modules`, and `@veresk/surface` is symlinked in there like any other
+ * workspace package. Without this, its components render with every utility
+ * class missing — from a build that SUCCEEDS. `@fde/uikit` needs no such line
+ * because it uses no utilities, which is the whole reason it is allowed to
+ * leave this repository and this package is not.
+ */
+@import '@veresk/surface/styles.css';
+@source '../../../../packages/surface/src';
+
+/**
+ * What is local to this product.
+ *
+ * Only two things: the typefaces, and the wash behind the page. Everything with
+ * an opinion about how a control or a severity looks lives in the package, which
+ * is the test of whether the extraction was real — if product-specific control
+ * styling had to be written here, the split would be in the wrong place.
+ */
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+}
+
+html {
+  background: var(--color-ui-bg);
+  color: var(--color-ui-fg);
+  -webkit-font-smoothing: antialiased;
+  color-scheme: dark;
+}
+
+body {
+  /* Two very soft pools of light, so a flat near-black does not read as
+     "unstyled". Subject to the reduced-motion rule in the package: they do not
+     move, so there is nothing to suppress. */
+  background-image:
+    radial-gradient(60rem 30rem at 15% -10%, rgba(45, 212, 191, 0.07), transparent 60%),
+    radial-gradient(50rem 25rem at 95% 0%, rgba(96, 165, 250, 0.05), transparent 60%);
+  background-repeat: no-repeat;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   THE LANDING PAGE'S OWN COLOUR AND MOTION.
+
+   Local to this file on purpose. `@fde/uikit` holds severity — colour that
+   MEANS something, where a wrong hue is a wrong claim about a batch. Nothing
+   below means anything: it is the front door, where no finding is being
+   reported and colour is free to be colour. Putting these in the package would
+   hand the next product a palette it has no use for.
+
+   THE SIX HUES ARE A ROUTE, NOT A RANKING. One per system of record, in the
+   order a lot actually travels them — materials, manufacture, quality, people,
+   registration, transport. They run teal → amber across the spectrum so the
+   eye reads a journey rather than six categories, which is the one thing the
+   page is trying to say: the answer is assembled by walking, one hop at a time.
+   ────────────────────────────────────────────────────────────────────────── */
+@theme {
+  --color-hop-1: #2dd4bf;
+  --color-hop-2: #22d3ee;
+  --color-hop-3: #60a5fa;
+  --color-hop-4: #a78bfa;
+  --color-hop-5: #f472b6;
+  --color-hop-6: #fbbf24;
+}
+
+/* WHERE THE SIX HUES GET USED BY SOMETHING THAT CANNOT KNOW THEM. The headline
+   gradient and the navigation bar both live in `@veresk/surface`, shared with a
+   second engagement that has an entirely different palette. They read these
+   names; the package supplies a neutral fallback, so forgetting them gives a
+   plain headline rather than the wrong customer's colours. */
+:root {
+  --title-1: #2dd4bf;
+  --title-2: #60a5fa;
+  --title-3: #a78bfa;
+  --title-4: #f472b6;
+  --ui-progress: linear-gradient(
+    90deg,
+    var(--color-hop-1), var(--color-hop-3), var(--color-hop-4),
+    var(--color-hop-5), var(--color-hop-6)
+  );
+}
+
+/* ── THE THREE ACTORS ON THE DATA-FLOW PAGE ─────────────────────────────────
+   Blue is the person's screen, green is your own infrastructure, violet is the
+   model. Three hues far enough apart to be told apart at the size of a 12px
+   badge, which teal-and-blue were not.
+
+   THE MODEL WAS AMBER FIRST AND THAT WAS A MISTAKE — the same hue as
+   `--ui-warn`, which in the dossier means a gap or a decision owed. Every
+   crossing on this page therefore looked like a caution, on a page whose whole
+   argument is that a crossing is normal and bounded. Violet carries no such
+   baggage and is still unmistakable against the other two.
+
+   THEY GET THEIR OWN TOKENS RATHER THAN BORROWING, and both alternatives were
+   worse. A hop hue would clash with `DESIGN.md`, which fixes hop-1..6 as the
+   six systems of record. A severity token would be worse still: `--ui-ok` green
+   and `--ui-warn` amber mean "nothing found" and "a gap is owed" in the
+   dossier, and this page expresses no severity at all.
+
+   THE GREEN IS WORTH ONE MORE SENTENCE, because the product's standing rule is
+   that nothing reassuring may be green — a green tile on a dossier is a
+   clearance nobody audits. That rule is about VERDICTS ON A BATCH. Here green
+   says "this happens on your own machines", which is a statement about
+   topology, and no amount of it implies a lot may ship. Different surface,
+   different claim, and a token of its own so the two can never be confused.
+   ────────────────────────────────────────────────────────────────────────── */
+@theme {
+  --color-flow-person: #60a5fa;
+  --color-flow-internal: #34d399;
+  --color-flow-model: #c084fc;
+}
+
+/* ── HOW FAR THE MATERIAL GOT ───────────────────────────────────────────────
+   Five bands, and the scale is DISTANCE FROM THE PATIENT — not severity, and
+   emphatically not a green-to-red ramp.
+
+   The difference matters because a ramp would paint `in_our_control` green, and
+   a lot sitting in our own warehouse made with a disqualified supplier's
+   material is not fine — it is the one band where somebody can still act
+   cheaply. Green would say "cleared". The standing rule in `DESIGN.md` is that
+   nothing reassuring may be green on a verdict surface, and this is a verdict
+   surface. So the reachable band is BLUE: still ours, still owed an action.
+
+   Red → orange → amber → blue is therefore read as "how far out of reach", and
+   the ranking the orchestrator already applied is what the eye is following.
+
+   `expired` is the only desaturated band, and it earns it: it is the one
+   exposure where the schema allows `next_action` to be null, because there is
+   genuinely nothing left to do. Grey here means "no live exposure", never
+   "unimportant" — an expired lot still counts in the row total.
+   ────────────────────────────────────────────────────────────────────────── */
+@theme {
+  --color-exp-patient: #f87171;
+  --color-exp-distributor: #fb923c;
+  --color-exp-transit: #fbbf24;
+  --color-exp-ours: #60a5fa;
+  --color-exp-expired: #7c8598;
+}
+
+/* A row in the work list. The left edge carries the band, full height, so the
+   ranking survives being scrolled past at speed — the one thing a recall
+   coordinator does with this list. The tint is faint on purpose: five saturated
+   blocks stacked up is a chart, and this is a list to work down. */
+.exp-row {
+  position: relative;
+  border: 1px solid color-mix(in oklab, var(--band) 26%, var(--color-ui-line));
+  border-radius: 0.75rem;
+  background:
+    linear-gradient(90deg, color-mix(in oklab, var(--band) 9%, transparent), transparent 55%),
+    var(--color-ui-surface);
+}
+
+.exp-row::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  border-radius: 0.75rem 0 0 0.75rem;
+  background: var(--band);
+}
+
+/* The rank numeral. Numbered markers are usually decoration; here the number IS
+   the ranking the assessment produced — exposure band, then quantity — so it is
+   load-bearing and gets to look like it. */
+.exp-rank {
+  color: var(--band);
+  background: color-mix(in oklab, var(--band) 12%, var(--color-ui-bg));
+  border: 1px solid color-mix(in oklab, var(--band) 38%, transparent);
+}
+
+/* ── AGENTS LOOK LIKE AGENTS ────────────────────────────────────────────────
+   Everything a model participant says is labelled with a CALL SIGN set in the
+   monospace — `advocate.precaution`, `adjudicator`, `agent-07` — rather than a
+   human-sounding name. That is a deliberate register: these are processes with
+   instructions, not colleagues with opinions, and a page that named them
+   "Dr. Chen" would be inviting exactly the deference the whole product argues
+   against. A dotted identifier is what a log line looks like, and a log line is
+   what this actually is.
+
+   The tag carries its participant's colour through `--agent`, so a card, its
+   badge and its live dot cannot disagree about who is speaking.
+
+   The scanline is two pixels of moving highlight across the card's top edge
+   while it works. It is the one ornamental thing here and it earns its place by
+   being tied to a state — an agent that is thinking — rather than running on a
+   timer.
+   ────────────────────────────────────────────────────────────────────────── */
+/* ── THE READER'S FOCUS BAND ────────────────────────────────────────────────
+   Text at the top and bottom edges of the box is faded out, so the lines you
+   are actually on are the brightest thing in the column and the rest recedes.
+
+   THE MASK DOES THIS, NOT AN OVERLAY, and the difference matters. A gradient
+   div painted over the text fades it toward the panel's background colour,
+   which only works while that background is flat — put the box on the aurora
+   or on a tinted agent card and the "fade" becomes a smear of the wrong
+   colour. Masking the content's own alpha fades it toward whatever is actually
+   behind it, always.
+
+   IT IS ALSO WHY A CUT LINE READS AS "there is more" rather than as a
+   rendering fault: a hard edge looks like a bug, a fade looks like a window.
+   ────────────────────────────────────────────────────────────────────────── */
+.reader-focus {
+  /* The two stops are set per element and collapse to 0 at whichever end has
+     nothing more to show — see the note in `Debate.tsx`. */
+  --fade-top: 3.5rem;
+  --fade-bottom: 4.5rem;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 var(--fade-top),
+    #000 calc(100% - var(--fade-bottom)),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 var(--fade-top),
+    #000 calc(100% - var(--fade-bottom)),
+    transparent 100%
+  );
+  transition: --fade-top 300ms ease, --fade-bottom 300ms ease;
+}
+
+/* Light passes across a paragraph once, as it arrives. It is tied to the text
+   LANDING — the moment an agent's validated answer appears — and never repeats,
+   because a permanent shimmer on body copy is unreadable and says nothing. */
+@keyframes text-sweep {
+  from { background-position: -140% 0; }
+  to   { background-position: 240% 0; }
+}
+
+.text-sweep {
+  background-image: linear-gradient(
+    100deg,
+    transparent 35%,
+    color-mix(in oklab, var(--agent, var(--color-ui-accent)) 85%, white) 50%,
+    transparent 65%
+  );
+  background-size: 220% 100%;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: text-sweep 1100ms ease-out 1 both;
+}
+
+/* A scrollable reader. The scrollbar is thin and dim because it is furniture:
+   its job is to say "there is more" and then get out of the way of two columns
+   of argument that are already dense. */
+.reader {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ui-line-lit) transparent;
+  scroll-behavior: smooth;
+}
+
+.reader::-webkit-scrollbar { width: 6px; }
+.reader::-webkit-scrollbar-track { background: transparent; }
+
+.reader::-webkit-scrollbar-thumb {
+  background: var(--color-ui-line-lit);
+  border-radius: 999px;
+}
+
+.reader:focus-visible {
+  outline: 2px solid var(--color-ui-accent);
+  outline-offset: 2px;
+}
+
+.agent-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid color-mix(in oklab, var(--agent) 40%, transparent);
+  background: color-mix(in oklab, var(--agent) 12%, var(--color-ui-bg));
+  color: var(--agent);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  letter-spacing: 0.02em;
+}
+
+/* The square bullet: a process marker, not a person's avatar. */
+.agent-tag::before {
+  content: '';
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 1px;
+  background: var(--agent);
+  transform: rotate(45deg);
+}
+
+/* A working agent is scanned by a line of light, once per cycle, and only while
+   it is working. Tied to a state rather than a timer — a card that keeps
+   scanning after its agent has answered is lying about what is happening. */
+@keyframes agent-scan {
+  0%   { transform: translateY(-100%); opacity: 0; }
+  10%  { opacity: 0.9; }
+  90%  { opacity: 0.9; }
+  100% { transform: translateY(2000%); opacity: 0; }
+}
+
+/* Text that arrives from a machine arrives all at once, having been validated
+   — so this is a REVEAL, not a typewriter. A per-character type-out would imply
+   we are streaming tokens, and we are not: every argument here passed its
+   schema before it was sent. Clipping upward with a soft edge reads as "this
+   just landed" without claiming it trickled in. */
+@keyframes agent-land {
+  from { opacity: 0; transform: translateY(0.375rem); filter: blur(3px); }
+  to   { opacity: 1; transform: none; filter: blur(0); }
+}
+
+.agent-land {
+  animation: agent-land 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* The three dots after "thinking". Staggered opacity, no layout shift. */
+@keyframes agent-dot {
+  0%, 60%, 100% { opacity: 0.25; }
+  30%           { opacity: 1; }
+}
+
+.agent-dots > span { animation: agent-dot 1.4s ease-in-out infinite; }
+.agent-dots > span:nth-child(2) { animation-delay: 0.2s; }
+.agent-dots > span:nth-child(3) { animation-delay: 0.4s; }
+
+/* Corner brackets: a frame that reads as an instrument readout rather than a
+   content card. Drawn with two gradients so there is no extra markup. */
+.agent-frame {
+  position: relative;
+}
+
+.agent-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    linear-gradient(var(--agent), var(--agent)) 0 0 / 0.75rem 1px no-repeat,
+    linear-gradient(var(--agent), var(--agent)) 0 0 / 1px 0.75rem no-repeat,
+    linear-gradient(var(--agent), var(--agent)) 100% 100% / 0.75rem 1px no-repeat,
+    linear-gradient(var(--agent), var(--agent)) 100% 100% / 1px 0.75rem no-repeat;
+  opacity: 0.5;
+}
+
+/* Pending segments breathe rather than scale — see `FanoutProgress`. */
+@keyframes seg-waiting {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.85; }
+}
+
+.seg-waiting { animation: seg-waiting 1.8s ease-in-out infinite; }
+
+/* A segment for an agent that produced nothing. Hatched rather than coloured,
+   because failure here is an ABSENCE of information and every solid colour on
+   this page already means something about exposure. See `FanoutProgress`. */
+.seg-gap {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--color-ui-line-lit) 0 2px,
+    transparent 2px 5px
+  );
+  outline: 1px solid var(--color-ui-line-lit);
+  outline-offset: -1px;
+}
+
+.agent-card {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--agent) 5%, transparent), transparent 40%),
+    var(--color-ui-surface);
+}
+
+.agent-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--agent), transparent);
+  opacity: 0.55;
+}
+
+/* Only while the agent is actually working. */
+.agent-card--working::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--agent), transparent);
+  animation: agent-scan 2.6s linear infinite;
+  pointer-events: none;
+}
+
+/* THE ONE ORCHESTRATED MOMENT: a light walking the six systems in order,
+   pausing at each. It is the product's premise made literal — six databases
+   that cannot be joined, traversed one hop at a time. Each node carries its
+   own delay, so the sequence is the animation rather than six things blinking
+   together. */
+@keyframes hop-wake {
+  0%, 8%    { opacity: 0.32; transform: scale(1); }
+  16%       { opacity: 1;    transform: scale(1.28); }
+  34%, 100% { opacity: 0.32; transform: scale(1); }
+}
+.hop-wake { animation: hop-wake 6.4s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+
+@keyframes hop-label {
+  0%, 8%    { color: var(--color-ui-faint); }
+  16%       { color: var(--color-ui-fg); }
+  34%, 100% { color: var(--color-ui-faint); }
+}
+.hop-label { animation: hop-label 6.4s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+
+/* The gap between two systems, drawn as a rule that never closes. The dashes
+   ARE the information: no query joins these, which is why a person is opening
+   six tabs today. */
+@keyframes hop-span {
+  0%, 10%   { opacity: 0.15; }
+  20%       { opacity: 0.85; }
+  40%, 100% { opacity: 0.15; }
+}
+.hop-span { animation: hop-span 6.4s linear infinite; }
+
+/* The call to action breathes, very slightly. It is the only interactive thing
+   above the fold, and on a near-black page a static button reads as an image. */
+/* Enough to say "this is the live control", not enough to be the loudest thing
+   in the room. The first version threw a 52px halo on a two-second cycle and
+   pulled the eye away from the question being typed, which is the one thing on
+   the form that actually wants attention. Halved, softened, and slowed. */
+@keyframes cta-glow {
+  0%, 100% { box-shadow: 0 0 18px -8px rgba(45, 212, 191, 0.55); }
+  50%      { box-shadow: 0 0 26px -6px rgba(45, 212, 191, 0.8); }
+}
+.cta-glow { animation: cta-glow 4.6s ease-in-out infinite; }
+
+/* Every rule above is decoration over a page that reads correctly without it;
+   the package's reduced-motion block already stills all of them. */
+
+/* A card whose border is the six hues rather than a flat line. Drawn as a
+   gradient underlay with an inset background, so the frame is one pixel of
+   colour and the surface behind the content stays properly dark — a gradient
+   BEHIND the content would tint the text and cost contrast. */
+.card-aura {
+  position: relative;
+  border-radius: 1rem;
+  background:
+    linear-gradient(var(--color-ui-surface), var(--color-ui-surface)) padding-box,
+    linear-gradient(112deg, var(--color-hop-1), var(--color-hop-3), var(--color-hop-4), var(--color-hop-5)) border-box;
+  border: 1px solid transparent;
+}
+/* The glow sits outside the frame and never over the content. */
+.card-aura::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: 0 0 60px -22px rgba(45, 212, 191, 0.45);
+}
+
+/* A row that carries one of the six hues on its leading edge. Used where items
+   are a SEQUENCE — the history is newest-first, so the colour cycles rather
+   than ranks, and nothing should be read into which hue a row got. */
+.hop-rail { position: relative; }
+.hop-rail::before {
+  content: '';
+  position: absolute;
+  inset-block: 0.5rem;
+  inset-inline-start: 0;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--rail, var(--color-ui-line-lit));
+  opacity: 0.75;
+  transition: opacity 180ms ease, inset-block 180ms ease;
+}
+.hop-rail:hover::before { opacity: 1; inset-block: 0.25rem; }
+
+/* THE GLOW GOES ON THE BUTTON, NOT ITS WRAPPER. `SubmitButton` is a two-row
+   grid — a blank label spacer that keeps its top edge level with the labelled
+   controls beside it, then the button. A shadow on the wrapper therefore paints
+   a box around the spacer as well, which rendered as a dark slab floating above
+   the button. */
+.glow-btn .ui-btn { animation: cta-glow 4.6s ease-in-out infinite; }
+
+/* ── The controls, dressed up ───────────────────────────────────────────────
+   `@fde/uikit` owns the SIZING — one height, one padding scale, one focus ring,
+   and that is what stops a control row stair-stepping. What is added here is
+   only surface: a gradient rather than a flat fill, a hairline of light along
+   the top edge, and a focus state that lifts. None of it changes a box's
+   metrics, so the alignment the package guarantees still holds.
+   ────────────────────────────────────────────────────────────────────────── */
+.ui-control {
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 42%),
+    linear-gradient(180deg, var(--color-ui-raised), #0f121a);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 1px 2px rgba(0, 0, 0, 0.4);
+  transition:
+    border-color 180ms ease, box-shadow 180ms ease,
+    transform 180ms ease, background 180ms ease;
+}
+.ui-control:hover { transform: translateY(-1px); }
+.ui-control:focus,
+.ui-control:focus-visible {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 0 0 3px color-mix(in oklab, var(--color-ui-accent) 22%, transparent),
+    0 10px 30px -12px color-mix(in oklab, var(--color-ui-accent) 65%, transparent);
+}
+
+/* A LABEL SHOULD START WHERE ITS CONTROL'S TEXT STARTS. The control insets its
+   text by 0.875rem; the label above it did not, so every field read as very
+   slightly ragged down the left edge — most visibly on the question box, which
+   is the widest and the one people look at first. */
+.ui-field > span:first-child { padding-inline-start: 0.875rem; }
+
+/* The question box is the page's primary input and now looks like it: a little
+   more room, and text that starts where the eye expects after the label. */
+textarea.ui-control { padding-block: 0.875rem; }
+
+/* ── The working notes ──────────────────────────────────────────────────────
+   Each step arrives on its own, the marker lands, and the live one keeps a
+   slow halo so "still working" is legible from across a desk.
+   ────────────────────────────────────────────────────────────────────────── */
+@keyframes note-land {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes marker-land {
+  0%   { transform: scale(0.2); opacity: 0; }
+  60%  { transform: scale(1.5); opacity: 1; }
+  100% { transform: scale(1);   opacity: 1; }
+}
+@keyframes rail-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+
+.ui-note-in { animation: note-land 420ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.ui-note-in > span[aria-hidden] {
+  animation: marker-land 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: 90ms;
+}
+
+/* ── The dossier ────────────────────────────────────────────────────────────
+   A finding is a row with a rail in its own severity. The rail replaces the
+   flat divider that used to separate them: three findings stacked up ran into
+   one another, and a coloured edge lets the eye count them without reading
+   them. It takes `currentColor`, so the severity is set once on the row and the
+   rail, the ordinal and the code all follow it.
+   ────────────────────────────────────────────────────────────────────────── */
+.finding-row { position: relative; }
+.finding-row::before {
+  content: '';
+  position: absolute;
+  inset-block: 1.15rem;
+  inset-inline-start: 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+/* The gates, drawn as a route. Same idea as the walk on the front page: a
+   sequence should look like one, so the steps are strung on a line instead of
+   being a bulleted list wearing circles. */
+.gate-line { position: relative; }
+.gate-line::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0.625rem;
+  top: 1.5rem;
+  bottom: 0.5rem;
+  width: 1px;
+  background: linear-gradient(180deg, var(--color-ui-info), transparent);
+  opacity: 0.35;
+}
+
+/* The lede. The six hues down its edge, and a wash that fades out rather than
+   sitting as a flat tint — a solid panel would have made it a peer of the
+   findings below, and it is not one, it is the sentence a person actually
+   reads. */
+.lede {
+  position: relative;
+  border-radius: 0 0.875rem 0.875rem 0;
+  background:
+    linear-gradient(90deg, color-mix(in oklab, var(--color-ui-accent) 9%, transparent), transparent 58%),
+    var(--color-ui-raised);
+}
+.lede::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 3px;
+  border-radius: 3px;
+  background: linear-gradient(
+    180deg, var(--color-hop-1), var(--color-hop-3), var(--color-hop-4), var(--color-hop-5)
+  );
+}
+
+/* THE SUMMARY TAKES THE SEVERITY OF WHAT IT IS REPORTING, on the same rule as
+   the count tiles above it: colour arrives when there is something to colour.
+
+   A paragraph saying a batch is blocked and a paragraph saying nothing was
+   found looked identical, which made the one piece of prose written for a
+   person the only thing on the page with no state — the reader had to finish it
+   to learn which kind of news it was.
+
+   THERE IS NO THIRD, REASSURING VARIANT. "Nothing found" keeps the decorative
+   spectrum it always had, deliberately: it is a report on the checks that ran,
+   and a calm green panel would read as a clearance the schema has no field to
+   express. Bad news gets a colour; the absence of bad news does not get the
+   opposite colour. */
+.lede--danger {
+  background:
+    linear-gradient(90deg, color-mix(in oklab, var(--color-ui-danger) 14%, transparent), transparent 62%),
+    var(--color-ui-raised);
+}
+.lede--danger::before { background: var(--color-ui-danger); }
+
+.lede--warn {
+  background:
+    linear-gradient(90deg, color-mix(in oklab, var(--color-ui-warn) 13%, transparent), transparent 62%),
+    var(--color-ui-raised);
+}
+.lede--warn::before { background: var(--color-ui-warn); }
+
+/* ── The data-flow diagram ──────────────────────────────────────────────────
+   A channel between two lanes, with packets moving along it. The motion is the
+   only thing on that page that is doing real explanatory work rather than
+   decorating: "which way does the data go" is the question the page exists to
+   answer, and an arrowhead answers it far less immediately than something
+   actually travelling.
+
+   Direction is encoded twice — by the animation AND by a static arrow glyph —
+   because the reduced-motion rule stills the first, and a diagram that becomes
+   ambiguous for one reader is a broken diagram rather than a plainer one.
+   ────────────────────────────────────────────────────────────────────────── */
+@keyframes packet-right { from { left: -6%; } to { left: 104%; } }
+@keyframes packet-left  { from { left: 104%; } to { left: -6%; } }
+
+.packet {
+  position: absolute;
+  top: 50%;
+  height: 6px;
+  width: 6px;
+  margin-top: -3px;
+  border-radius: 9999px;
+  background: currentColor;
+  box-shadow: 0 0 10px 2px currentColor;
+}
+.packet--right { animation: packet-right 2.8s linear infinite; }
+.packet--left { animation: packet-left 2.8s linear infinite; }
+
+/* The wire the packets run along. Dashed, because a channel is a sequence of
+   discrete requests rather than an open pipe. */
+.wire {
+  background-image: repeating-linear-gradient(
+    90deg, currentColor 0 4px, transparent 4px 10px
+  );
+  opacity: 0.28;
+}
+
+/* A lane: one trust domain, one box, its own tone. The tone is the ONLY thing
+   carrying "whose machine is this", so it is set on the lane and inherited by
+   every node inside it — a node that picked its own colour could end up drawn
+   on the wrong side of the boundary. */
+.lane {
+  border-radius: 1rem;
+  border: 1px solid currentColor;
+  background: color-mix(in oklab, currentColor 6%, var(--color-ui-surface));
+}
+.node {
+  border-radius: 0.625rem;
+  border: 1px solid color-mix(in oklab, currentColor 35%, transparent);
+  background: color-mix(in oklab, currentColor 8%, var(--color-ui-bg));
+}
+
+/* ── The journey: one light, the whole way down ─────────────────────────────
+   ONE RAIL FOR THE WHOLE WALKTHROUGH, not one per turn. A request does not
+   restart at a turn boundary — turn 2 continues turn 1 — and a rail that
+   stopped and started said the opposite. The numbers now run 1..14 down a
+   single unbroken line, which is also what makes them read as one sequence
+   rather than five short lists.
+
+   THE TIMING IS MEASURED, NOT DERIVED. An earlier version computed each hop's
+   moment from its INDEX, on the assumption hops are evenly spaced. They are
+   not — a hop with a thirty-line payload is six times taller than one with a
+   single line — so the light and the numbers drifted apart down the page.
+   `Journey.tsx` now measures each marker's real offset and sets its delay from
+   that, so the box lights when the light is actually beside it, whatever the
+   content does.
+   ────────────────────────────────────────────────────────────────────────── */
+.journey-rail { position: relative; }
+.journey-rail::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: calc(1.5rem - 0.5px);
+  inset-block: 0;
+  width: 1px;
+  background: linear-gradient(
+    180deg, transparent, var(--color-ui-line-lit) 3%, var(--color-ui-line-lit) 97%, transparent
+  );
+}
+@keyframes journey-travel {
+  0%   { top: -5rem; opacity: 0; }
+  4%   { opacity: 1; }
+  96%  { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+.journey-rail::after {
+  content: '';
+  position: absolute;
+  inset-inline-start: calc(1.5rem - 1.5px);
+  width: 3px;
+  height: 5rem;
+  border-radius: 3px;
+  background: linear-gradient(180deg, transparent, var(--color-flow-internal), transparent);
+  animation: journey-travel var(--sweep, 12s) linear infinite;
+  pointer-events: none;
+}
+
+/* A marker wakes as the light reaches it. */
+@keyframes hop-mark {
+  0%, 2%    { box-shadow: 0 0 0 0 transparent; transform: scale(1); }
+  7%        { box-shadow: 0 0 18px 3px var(--lit); transform: scale(1.22); }
+  20%, 100% { box-shadow: 0 0 0 0 transparent; transform: scale(1); }
+}
+.hop-mark { animation: hop-mark var(--sweep, 12s) cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+
+/* The turn heading carries a live dot, so a reader can tell at a glance which
+   blocks are round trips to the model and which are local work. */
+@keyframes turn-dot { 0%, 100% { opacity: 0.35; transform: scale(1); } 50% { opacity: 1; transform: scale(1.35); } }
+.turn-dot { animation: turn-dot 3s ease-in-out infinite; }
+
+/* THE BOX LIGHTS WITH ITS NUMBER, then goes back.
+   Done as a box-shadow rather than by animating border-color or background: a
+   crossing payload already carries a blue border from a class, and an animation
+   that set border-color would hold its own value for the 70% of the loop it is
+   idle — quietly overriding the styling for most of the time. A shadow layers
+   on top and returns to nothing, so the resting state is untouched.
+
+   THE TIMING IS DERIVED, NOT GUESSED. `rail-travel` crosses the list once every
+   TURN_SWEEP_MS; a hop sitting at (i + 0.5) / n of the way down should light
+   when the light is there. `hopDelay()` in Journey.tsx computes exactly that
+   from the same constant, so adding a hop re-syncs the whole turn instead of
+   silently drifting. The two used to run on different clocks — the delay was
+   set on the <ol>, and an inline delay never reaches a ::after animation. */
+/* THE BOX LIGHTS WITH ITS NUMBER, then goes back.
+   Done as a box-shadow and a background rather than by animating border-color:
+   a crossing payload already carries a blue border from a class, and an
+   animation that set border-color would hold its own value for the 80% of the
+   loop it is idle — quietly overriding the styling almost all of the time. A
+   shadow and a wash layer on top and return to nothing, so the resting state is
+   untouched.
+
+   The glow colour comes from `--lit`, NOT from currentColor: the box sets its
+   own text colour, and adding a tone class to reach currentColor would have
+   recoloured the payload text — the one thing on the box that must stay
+   legible.
+
+   IT IS DELIBERATELY STRONG. A 1px ring at low opacity was invisible against a
+   near-black page from more than arm's length, which made the whole sequence
+   pointless: if the reader cannot see which box is live, the light is just
+   something moving. */
+@keyframes hop-lit {
+  0%, 2% {
+    box-shadow: 0 0 0 0 transparent;
+    background-color: color-mix(in oklab, var(--color-ui-bg) 70%, transparent);
+  }
+  7% {
+    box-shadow: 0 0 0 1px var(--lit), 0 0 44px -8px var(--lit);
+    background-color: color-mix(in oklab, var(--lit) 9%, var(--color-ui-bg));
+  }
+  20%, 100% {
+    box-shadow: 0 0 0 0 transparent;
+    background-color: color-mix(in oklab, var(--color-ui-bg) 70%, transparent);
+  }
+}
+.hop-lit { animation: hop-lit var(--sweep, 12s) cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+
+/* The title brightens with it — a dim caption above a lit box reads as a box
+   that lit up on its own. */
+@keyframes hop-title { 0%, 2% { opacity: 0.72; } 7% { opacity: 1; } 20%, 100% { opacity: 0.72; } }
+.hop-title { animation: hop-title var(--sweep, 12s) cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+
+/* ── THE FIGURES ON THE MAP, AND HOW BIG EACH KIND OF NODE IS ───────────────
+   `FlowMap` itself now lives in `@fde/uikit` — it is a graph, a pulse and a
+   card that turns over, and none of that knows what a batch is. What stayed
+   here is the part that does: the drawings (a reviewer at a desk, robot arms,
+   a database cylinder), and how wide a card has to be for each KIND of node,
+   because what kinds exist is this product's vocabulary and nobody else's.
+   ────────────────────────────────────────────────────────────────────────── */
+
+.ui-flow-card[data-kind='loop'] .ui-flow-face--front {
+  border-color: transparent;
+  background: radial-gradient(
+    60% 70% at 50% 50%,
+    color-mix(in oklab, var(--color-ui-bg) 88%, transparent) 0%,
+    color-mix(in oklab, var(--color-ui-bg) 60%, transparent) 55%,
+    transparent 100%
+  );
+  align-items: center;
+  text-align: center;
+}
+
+.ui-flow-card[data-kind='loop']:hover .ui-flow-face--front,
+.ui-flow-card[data-kind='loop']:focus-visible .ui-flow-face--front {
+  border-color: transparent;
+}
+
+.ui-flow-card[data-kind='loop']   { width: 13rem; height: 5rem; }
+
+.ui-flow-card[data-kind='system'] .ui-flow-face--front,
+.ui-flow-card[data-kind='corpus'] .ui-flow-face--front {
+  border-inline-start: 2px solid var(--node, var(--color-ui-line-lit));
+}
+
+.ui-flow-card[data-kind='corpus'] .ui-flow-face--front {
+  border-inline-start-style: dashed;
+}
+
+.nerve-glyph--wide {
+  width: 5.25rem;
+  height: 1.75rem;
+}
+
+.ui-flow-card[data-kind='you']    { width: 10rem; height: 5.75rem; }
+
+.ui-flow-card[data-kind='agents'] { width: 12rem; height: 5.75rem; }
+
+.ui-flow-card[data-kind='tool']   { width: 14rem; height: 5.75rem; }
+
+.ui-flow-card[data-kind='system'] .ui-flow-face--front,
+.ui-flow-card[data-kind='corpus'] .ui-flow-face--front {
+  flex-direction: row;
+  text-align: left;
+  gap: 0.625rem;
+}
+
+.ui-flow-card[data-kind='system'] .ui-flow-words,
+.ui-flow-card[data-kind='corpus'] .ui-flow-words {
+  align-items: flex-start;
+}
+
+.ui-flow-card:hover .nerve-glyph,
+.ui-flow-card[data-open='true'] .nerve-glyph {
+  color: var(--color-ui-fg);
+}
+
+@keyframes nerve-caret { 0%, 45% { opacity: 1; } 50%, 95% { opacity: 0.15; } }
+
+.nerve-caret { animation: nerve-caret 1.6s steps(1, end) infinite; }
+
+@keyframes nerve-arm {
+  0%, 8%    { transform: rotate(0deg); }
+  11%       { transform: rotate(-13deg); }
+  15%       { transform: rotate(6deg); }
+  19%       { transform: rotate(-8deg); }
+  24%, 100% { transform: rotate(0deg); }
+}
+
+.nerve-arm {
+  transform-origin: 8px 27.5px;
+  transform-box: fill-box;
+  animation: nerve-arm 9s cubic-bezier(0.4, 0, 0.3, 1) infinite;
+}
+
+.ui-flow-card[data-kind='system'] .ui-flow-face--front,
+.ui-flow-card[data-kind='corpus'] .ui-flow-face--front {
+  border-inline-start: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nerve-arm { animation: none !important; }
+  .nerve-caret { animation: none !important; opacity: 1; }
+}
+
+.ui-flow-row .nerve-glyph { width: 1.75rem; height: 1.75rem; }
+
+.ui-flow-row .nerve-glyph--wide { width: 4.25rem; height: 1.5rem; }
+
+/* ── THE PAIRED CONTROLS ON A PHONE ─────────────────────────────────────────
+   `Market`/`Engine` and `Engine`/`Ask` sit two-up below the `sm` breakpoint, so
+   each gets about 165px. A leading icon plus the chevron eats 44px of that and
+   "Agents SDK" came back as "Agents SD".
+
+   THE ICON IS THE THING THAT GOES, not the words. It is a decoration that
+   repeats what the label directly above it already says; the value is the only
+   part a reader cannot reconstruct. On a wide screen there is room for both and
+   both stay.
+   ────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 40rem) {
+  .field-tight .ui-icon.left-3 { display: none; }
+  .field-tight .ui-control--icon { padding-inline-start: 0.875rem; }
+}
+
+/* ── THE DESK HEADER, ON A PHONE ────────────────────────────────────────────
+   Three hard horizontal edges used to stack inside 90px: a border under the
+   bar, the six-hue rule at full strength under that, and a solid-filled tab
+   capsule between them. At 1400px wide those read as structure. At 390px they
+   are the width of the content and read as the page being chopped into bands.
+
+   The rule stays — it is the one that MEANS something, the six systems in the
+   order the assessment walks them — but it fades out at both ends rather than
+   running into the bezel, and it drops to a third of its strength. The border
+   under the bar goes entirely: the rule is already a divider and two is one too
+   many. The capsule goes translucent so it sits ON the header rather than on
+   top of it.
+
+   ALL OF IT IS BELOW `sm` ONLY. On a wide screen the original is right, and a
+   softening that followed the page up to the desk would be solving a problem
+   that is not there.
+   ────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 40rem) {
+  .desk-header { border-bottom-color: transparent; }
+
+  .desk-rule {
+    opacity: 0.35;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  }
+
+  .desk-tabs {
+    background: color-mix(in oklab, var(--color-ui-surface) 50%, transparent);
+    border-color: color-mix(in oklab, var(--color-ui-line) 55%, transparent);
+  }
+}

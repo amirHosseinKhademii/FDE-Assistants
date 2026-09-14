@@ -1,0 +1,12 @@
+# bottom-up estimate, built before nomination
+# author: R. Dietrich   date: 2025-11-16
+# "basis" is free text. It is the only record of WHERE a number came from.
+work_package,discipline,hours,basis,confidence
+ECU integration,software,482,similar to H1,medium
+diagnostics,pm,406,guess,medium
+safety case,systems,777,similar to H1,low
+assist tuning,hardware,645,similar to H1,medium
+rack redesign,calibration,232,supplier quote,high
+EOL calibration,pm,638,from the last programme,medium
+safety case,hardware,458,similar to H1,high
+HIL rig update,pm,397,from the last programme,medium

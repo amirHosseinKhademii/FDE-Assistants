@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-steer-by-wire
+Module     : road_wheel_actuator.c   (SWC-PLT-010, ASIL D)
+Tool       : Coverity 2022.12
+Run        : 2021-04-17
+Run by     : p.strand
+
+SUMMARY
+  rules checked        169
+  violations           13
+  deviations approved  0
+  unresolved           1
+
+DEVIATIONS
+  (none)
+
+UNRESOLVED
+  Rule 14.2 at road_wheel_actuator.c:230 — owner p.strand, no target date

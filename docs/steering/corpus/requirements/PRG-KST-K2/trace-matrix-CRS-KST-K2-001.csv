@@ -1,0 +1,30 @@
+# exported from the requirements tool 2026-09-09
+# WARNING: rows with an empty system_req are NOT errors in the export.
+# They are requirements nobody has allocated yet.
+customer_req,system_req,coverage,notes
+CR-K2-0101,SR-EPS-0407,full,
+CR-K2-0102,SR-EPS-0401,full,
+CR-K2-0103,SR-EPS-0408,full,
+CR-K2-0104,SR-EPS-0411,full,
+CR-K2-0105,SR-EPS-0402,full,
+CR-K2-0106,SR-EPS-0403,full,
+CR-K2-0107,SR-EPS-0404,full,
+CR-K2-0108,SR-EPS-0405,full,
+CR-K2-0109,SR-EPS-0406,partial,"reviewed, see minutes"
+CR-K2-0110,SR-EPS-0421,full,
+CR-K2-0110,SR-EPS-0409,full,
+CR-K2-0110,SR-EPS-0410,full,
+CR-K2-0111,SR-EPS-0412,full,
+CR-K2-0112,SR-EPS-0420,full,
+CR-K2-0113,SR-EPS-0422,full,
+CR-K2-0114,SR-EPS-0414,full,
+CR-K2-0115,SR-EPS-0416,full,
+CR-K2-0116,SR-EPS-0417,full,
+CR-K2-0117,SR-EPS-0418,full,
+CR-K2-0118,SR-EPS-0413,full,"reviewed, see minutes"
+CR-K2-0119,,,not yet allocated
+CR-K2-0120,SR-EPS-0419,full,
+CR-K2-0121,SR-EPS-0406,partial,
+CR-K2-0122,SR-EPS-0423,full,
+CR-K2-0123,,,
+CR-K2-0124,SR-EPS-0424,full,

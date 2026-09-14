@@ -1,0 +1,19 @@
+MISRA C:2012 compliance report
+Repository : eps-diagnostics
+Module     : state_machine_6.c   (SWC-PLT-017, ASIL QM)
+Tool       : Polyspace 2023b
+Run        : 2024-12-18
+Run by     : r.dietrich
+
+SUMMARY
+  rules checked        162
+  violations           11
+  deviations approved  5
+  unresolved           2
+
+DEVIATIONS
+  D-15  Rule 17.5  union used for the CAN frame overlay. Approved.
+  (none)
+
+UNRESOLVED
+  (none)

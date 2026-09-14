@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-steering-feel
+Module     : hysteresis_comp.c   (SWC-HYSTCOMP, ASIL B)
+Tool       : LDRA 9.8
+Run        : 2024-07-03
+Run by     : m.lindqvist
+
+SUMMARY
+  rules checked        150
+  violations           11
+  deviations approved  2
+  unresolved           0
+
+DEVIATIONS
+  D-5  Rule 15.1  goto used for single-exit error handling. Approved.
+
+UNRESOLVED
+  Rule 11.4 at hysteresis_comp.c:288 — owner n.haas, no target date

@@ -1,0 +1,30 @@
+# exported from the requirements tool 2026-09-08
+# WARNING: rows with an empty system_req are NOT errors in the export.
+# They are requirements nobody has allocated yet.
+customer_req,system_req,coverage,notes
+CR-CHV-36-0606,SR-CHV-36-0848,full,
+CR-CHV-36-0606,SR-CHV-36-0849,partial,
+CR-CHV-36-0606,SR-CHV-36-0851,full,
+CR-CHV-36-0606,SR-CHV-36-0862,full,"reviewed, see minutes"
+CR-CHV-36-0607,SR-CHV-36-0859,full,
+CR-CHV-36-0608,SR-CHV-36-0850,full,"reviewed, see minutes"
+CR-CHV-36-0608,SR-CHV-36-0852,full,
+CR-CHV-36-0608,SR-CHV-36-0855,full,
+CR-CHV-36-0609,SR-CHV-36-0853,partial,
+CR-CHV-36-0610,SR-CHV-36-0863,full,
+CR-CHV-36-0611,,,not yet allocated
+CR-CHV-36-0612,SR-CHV-36-0849,full,
+CR-CHV-36-0612,SR-CHV-36-0852,full,"reviewed, see minutes"
+CR-CHV-36-0612,SR-CHV-36-0855,partial,"reviewed, see minutes"
+CR-CHV-36-0612,SR-CHV-36-0856,partial,
+CR-CHV-36-0613,SR-CHV-36-0858,full,"reviewed, see minutes"
+CR-CHV-36-0614,SR-CHV-36-0850,full,
+CR-CHV-36-0614,SR-CHV-36-0854,partial,
+CR-CHV-36-0614,SR-CHV-36-0857,full,
+CR-CHV-36-0614,SR-CHV-36-0860,full,
+CR-CHV-36-0615,SR-CHV-36-0860,full,
+CR-CHV-36-0615,SR-CHV-36-0861,full,"reviewed, see minutes"
+CR-CHV-36-0615,SR-CHV-36-0864,partial,
+CR-CHV-36-0616,,,
+CR-CHV-36-0617,SR-CHV-36-0854,full,"reviewed, see minutes"
+CR-CHV-36-0617,SR-CHV-36-0863,full,"reviewed, see minutes"

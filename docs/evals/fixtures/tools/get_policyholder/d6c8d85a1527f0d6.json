@@ -1,0 +1,11 @@
+{
+  "tool": "get_policyholder",
+  "args": {
+    "policy_id": "AUT-4472"
+  },
+  "response": {
+    "policy_id": "AUT-4472",
+    "record": "# Policyholder Record AUT-4472 — Daniel Okafor\n\n> Meridian Mutual Insurance Company. Fictional document, written for an FDE\n> practice engagement. Do not use for anything real.\n>\n> Record type: policyholder · Policy ID: AUT-4472 · Form: PA-2023-01\n\n## Declarations\n\n| Field                  | Value |\n|------------------------|-------|\n| Policy ID              | AUT-4472 |\n| Named insured          | Daniel Okafor |\n| Policy form            | PA-2023-01 |\n| Rated state            | Illinois |\n| Effective date         | 2024-02-15 |\n| Expiration date        | 2025-02-15 |\n| Covered vehicle        | 2021 Toyota Camry SE |\n\n## Coverages In Force\n\n| Coverage             | Selected | Deductible |\n|----------------------|----------|------------|\n| Collision            | yes      | $500 |\n| Comprehensive        | yes      | $500 |\n| Rental Reimbursement | no       | none |\n\n## Endorsements Attached\n\n- none\n\n## Claim History\n\none comprehensive claim (hail), 2023-05\n",
+    "source": "record:AUT-4472"
+  }
+}

@@ -1,0 +1,9 @@
+# Steer-by-wire (pre-development)
+*                    @vantis/control
+src/road_wheel_actuator.c        @vantis/control
+src/feedback_actuator.c        @vantis/control
+src/filter_iir_1.c        @vantis/control
+src/rate_limit_2.c        @vantis/control
+src/crc_3.c        @vantis/control
+src/debounce_4.c        @vantis/control
+reports/             @vantis/functional-safety

@@ -1,0 +1,11 @@
+# bottom-up estimate, built before nomination
+# author: A. Kovac   date: 2024-11-10
+# "basis" is free text. It is the only record of WHERE a number came from.
+work_package,discipline,hours,basis,confidence
+harness,hardware,629,similar to H1,medium
+gearbox change,validation,814,guess,low
+rack redesign,calibration,325,from the last programme,high
+diagnostics,software,523,from the last programme,high
+motor control,calibration,80,from the last programme,medium
+motor control,systems,743,supplier quote,medium
+validation,pm,778,similar to H1,low

@@ -1,0 +1,471 @@
+# git log, exported 2026-09-07
+
+commit 00000196c9385120139e4fe12f06e4cd9b792f0b
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2023-11-07
+
+    fix table in motor-control
+
+commit 000002f4328ee6770f791a3abfc495d2b0a67816
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2022-12-14
+
+    remove guard in motor-control
+
+    Change-Request: CHR-2021-0177
+
+commit 0000033179b43e3668ff664d4d776719e243834d
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2024-03-21
+
+    fix map in motor-control
+
+commit 00000457f5463c1185a0344d3d742b379f99ed75
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2026-07-07
+
+    fix check in motor-control
+
+commit 0000057b46d32fddb557638c1ab71f8b22812577
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2018-07-29
+
+    update guard in motor-control
+
+    Change-Request: CHR-2021-0090
+
+commit 000006f0cbd934d74d1e2012878ddb9357aae707
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2024-11-21
+
+    add table in motor-control
+
+commit 000007815cb5551dec79e0c29e724a957826381f
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2025-05-03
+
+    fix handler in motor-control
+
+commit 00000805d5bd308827f7df829dd7d230eae14267
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2022-09-10
+
+    refactor guard in motor-control
+
+commit 0000098b4b845b4f4c554cf94243d9491e7dfd32
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2023-04-12
+
+    remove map in motor-control
+
+commit 00000a22ba9435e8d5ac585ab7a82add0b28f076
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2020-10-19
+
+    fix handler in motor-control
+
+commit 00000beb36ec4f396f281b622830474ae2502642
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2022-01-24
+
+    update map in motor-control
+
+commit 00000c033825076915f03c25d0210afab91e8392
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2020-06-07
+
+    refactor check in motor-control
+
+commit 00000d09a25b3a7ac067a7805e229894fac6657c
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2026-06-06
+
+    update handler in motor-control
+
+commit 00000e674301c73cd9db2c0ba74317615156554f
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2025-11-23
+
+    remove filter in motor-control
+
+commit 00000fc00d51f949fbb971c4354aef3b21f1d81b
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2018-03-12
+
+    refactor guard in motor-control
+
+commit 0000108dd05a95e45e837b9222317a1540cbdc73
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2024-03-01
+
+    fix filter in motor-control
+
+    Change-Request: CHR-2020-0014
+
+commit 000011f74c5d6f9a570feabac1668be75acabe64
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2021-06-21
+
+    add map in motor-control
+
+    Change-Request: CHR-2021-0095
+
+commit 000012907c106efc74805cea24910c354c70b148
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2026-02-08
+
+    refactor map in motor-control
+
+    Change-Request: CHR-2024-0017
+
+commit 00001348a5e6a4cdf6fc2f623b0895062ee085c0
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2024-10-06
+
+    refactor filter in motor-control
+
+commit 00001462ceb9b33cea5084e19e51177e2593739b
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2025-10-14
+
+    fix table in motor-control
+
+    Change-Request: CHR-2020-0129
+
+commit 000015241ec85931dff0d7c855d212a0d0e9c251
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2019-06-23
+
+    fix guard in motor-control
+
+commit 000016fd4d462bbadec4cda51dd9b9ef96e51b18
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2020-08-18
+
+    add guard in motor-control
+
+    Change-Request: CHR-2025-0071
+
+commit 000017eda68322347129866467ec412e9b5ed186
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2019-09-25
+
+    refactor map in motor-control
+
+    Change-Request: CHR-2024-0061
+
+commit 000018660df6dfa52ca2a7ff7aedd75c829aff00
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2018-12-29
+
+    fix map in motor-control
+
+commit 000019283a9fb78ae3b7f3b6133e433b56c6f703
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2020-06-18
+
+    add table in motor-control
+
+    Change-Request: CHR-2025-0171
+
+commit 00001a78d56b20e3a6c132fd5a10a304d0868339
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2022-11-23
+
+    refactor handler in motor-control
+
+commit 00001b823b00235f5748ab0b71516b3ae45c2571
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2022-08-23
+
+    fix map in motor-control
+
+commit 00001ce109e6b32cd737c9b25799eb2f9ef7c6a7
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2019-05-15
+
+    refactor handler in motor-control
+
+commit 00001da9201ef892aedc20c6406fcdf02ea6b920
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2018-03-06
+
+    fix table in motor-control
+
+commit 00001e49afbfecd60c9acd90d4e0ae6edfe13113
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2020-01-09
+
+    refactor filter in motor-control
+
+commit 00001fe99d9dbd655aa77c95cfe555e3011fbf92
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2022-01-19
+
+    fix filter in motor-control
+
+    Change-Request: CHR-2022-0108
+
+commit 0000209a20e52361039a1411cd9ec3c96d4e25a2
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2023-01-19
+
+    refactor check in motor-control
+
+    Change-Request: CHR-2022-0112
+
+commit 0000210c4141780b5ff37b5ad107fa41a075eff3
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2023-09-11
+
+    update check in motor-control
+
+commit 00002216f4fb98f383a23102c83e32b3d35644db
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2026-08-19
+
+    update check in motor-control
+
+commit 0000238eba3b7b37e459e3869c9c1c430ca87564
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2024-09-02
+
+    update map in motor-control
+
+commit 00002439ae3804fd58f9c4ec73a3c0c2491944ac
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2023-01-30
+
+    fix guard in motor-control
+
+commit 000025784641696ebd1ae660a0b5f20823be6096
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2026-06-17
+
+    fix check in motor-control
+
+commit 00002615f781658462949823c968128999449bd7
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2021-09-04
+
+    refactor guard in motor-control
+
+    Change-Request: CHR-2021-0057
+
+commit 00002761a1a1238e70a925eda6711da357a2e1d6
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2023-08-05
+
+    fix map in motor-control
+
+commit 000028edb65ec5dc8f89c0340fcedc77b7a1347c
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2018-02-10
+
+    refactor check in motor-control
+
+commit 0000292261faddde0cb538d24173f4ec39e33d3e
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2024-08-08
+
+    fix table in motor-control
+
+commit 00002afaad1d2bc8bc09fb61704d8f7498c3c835
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2019-07-12
+
+    add filter in motor-control
+
+commit 00002b7dbb070645aaed2e8627196b5c16d2394a
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2025-10-12
+
+    update filter in motor-control
+
+    Change-Request: CHR-2020-0173
+
+commit 00002c27ed2559457b7aa5e08e39fae24e710ea2
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2025-12-20
+
+    update map in motor-control
+
+commit 00002d6274514221cb71af9aace91cf44f354b95
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2025-11-03
+
+    fix handler in motor-control
+
+commit 00002e1cce004c09043f387e70433b939903c813
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2020-12-25
+
+    remove filter in motor-control
+
+commit 00002ffb46165862cd90adf568de21a3284f4cf8
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2021-12-31
+
+    fix filter in motor-control
+
+commit 00003088c8ab78d02cc9a89e35118cf071e413b9
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2025-04-04
+
+    update check in motor-control
+
+commit 000031a6aabecdd6539f887b098009f8664b1464
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2024-07-08
+
+    refactor map in motor-control
+
+commit 000032cfd4f05fb5b6dc2fc162f732b9664da23c
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2021-01-25
+
+    refactor handler in motor-control
+
+commit 0000338c61dd308554e3567f6a73f46f58b69bc9
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2023-06-04
+
+    update handler in motor-control
+
+commit 000034c1ed951c8c6da6db5ca13f92db1aee3d0d
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2024-12-24
+
+    update check in motor-control
+
+commit 000035e61a5c1ff48c1a47f9a0f072f2540bcd88
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2026-01-10
+
+    remove filter in motor-control
+
+commit 0000368670f0d38fe3bc3c8cf9ecd77d620f2b5b
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2025-01-11
+
+    update guard in motor-control
+
+commit 0000370c01592d032d340956db2b69df458cbd6e
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2021-07-02
+
+    fix guard in motor-control
+
+commit 00003896727b44a5cc5c885f9701d5e189825208
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2019-08-19
+
+    add table in motor-control
+
+commit 000039ccc27d35eeacbb374c16b0c6f81c4f06de
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2017-12-25
+
+    fix guard in motor-control
+
+commit 00003ad16b4f46110fc275580eee7f3d847454a6
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2026-04-03
+
+    add check in motor-control
+
+commit 00003b825bda7c061aa5f8b48305258c2440e0b9
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2025-12-11
+
+    refactor filter in motor-control
+
+    Change-Request: CHR-2021-0120
+
+commit 00003c87511ca6412344d1cebf52c55995e43953
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2024-01-29
+
+    remove guard in motor-control
+
+    Change-Request: CHR-2022-0188
+
+commit 00003d938e65ad85afd238f6b4e2a0298b7293d4
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2024-11-30
+
+    update guard in motor-control
+
+commit 00003e8b49a4786f36dea42cc18990a203c0b143
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2024-01-24
+
+    refactor guard in motor-control
+
+    Change-Request: CHR-2023-0028
+
+commit 00003fd97c9f752a06da61e789b01f9bfbfd6e71
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2021-02-11
+
+    remove map in motor-control
+
+commit 00004006aa3d21731e887e41a9b3a4f79a936492
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2021-10-21
+
+    refactor map in motor-control
+
+commit 000041be8b145380c50cf1ea589fb4e33681aea8
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2019-01-21
+
+    fix guard in motor-control
+
+commit 00004271b9c561b88532886c63092a729b9c5de9
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2022-05-06
+
+    fix table in motor-control
+
+    Change-Request: CHR-2023-0152
+
+commit 000043dcbd80ec8467e6675fa11337a292f6e501
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2020-12-11
+
+    refactor check in motor-control
+
+commit 000044ff1a37d4f9ef5b38a890d649d701b45481
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2023-10-13
+
+    remove table in motor-control
+
+commit 0000452e69063eb1816f38ad752e9d00ae6553bd
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2025-11-20
+
+    update check in motor-control
+
+commit 000046e5cdda12b460d2aa6a9d7d8d9af51ebc60
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2018-06-01
+
+    fix map in motor-control
+
+    Change-Request: CHR-2024-0127
+
+commit 00004718a97b666265bb4d76e8d9b7871c8e57c2
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2022-03-21
+
+    fix handler in motor-control
+
+commit 000048b2a63f526ab3c103bce90887361b77a787
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2018-07-11
+
+    fix table in motor-control
+
+    Change-Request: CHR-2025-0106

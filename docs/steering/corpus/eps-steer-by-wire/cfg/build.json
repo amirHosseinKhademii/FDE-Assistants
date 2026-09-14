@@ -1,0 +1,43 @@
+{
+  "repo": "eps-steer-by-wire",
+  "platform": "adaptive-autosar",
+  "toolchain": "tasking-6.3r1",
+  "modules": {
+    "road_wheel_actuator": {
+      "swc": "SWC-PLT-010",
+      "asil": "D",
+      "optimisation": "-O2",
+      "stack_bytes": 4008
+    },
+    "feedback_actuator": {
+      "swc": "SWC-PLT-011",
+      "asil": "D",
+      "optimisation": "-Os",
+      "stack_bytes": 1022
+    },
+    "filter_iir_1": {
+      "swc": "SWC-PLT-016",
+      "asil": "QM",
+      "optimisation": "-Os",
+      "stack_bytes": 1391
+    },
+    "rate_limit_2": {
+      "swc": "SWC-PLT-007",
+      "asil": "QM",
+      "optimisation": "-Os",
+      "stack_bytes": 681
+    },
+    "crc_3": {
+      "swc": "SWC-PLT-015",
+      "asil": "D",
+      "optimisation": "-O2",
+      "stack_bytes": 1722
+    },
+    "debounce_4": {
+      "swc": "SWC-PLT-002",
+      "asil": "B",
+      "optimisation": "-Os",
+      "stack_bytes": 1414
+    }
+  }
+}

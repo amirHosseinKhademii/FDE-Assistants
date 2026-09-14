@@ -1,0 +1,19 @@
+MISRA C:2012 compliance report
+Repository : eps-calibration-tools
+Module     : ring_buffer_2.c   (SWC-PLT-023, ASIL QM)
+Tool       : LDRA 9.8
+Run        : 2022-12-01
+Run by     : l.renaud
+
+SUMMARY
+  rules checked        143
+  violations           13
+  deviations approved  2
+  unresolved           2
+
+DEVIATIONS
+  D-22  Rule 19.9  goto used for single-exit error handling. Approved.
+  (none)
+
+UNRESOLVED
+  (none)

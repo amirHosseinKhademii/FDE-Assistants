@@ -1,0 +1,300 @@
+{
+  "seed": 0,
+  "tables": [
+    {
+      "system": "reg",
+      "table": "policies",
+      "rows": 8,
+      "sha": "0658d07a53739eaa"
+    },
+    {
+      "system": "reg",
+      "table": "sop_clause_links",
+      "rows": 34,
+      "sha": "c4cb0296b194108d"
+    },
+    {
+      "system": "reg",
+      "table": "sop_revisions",
+      "rows": 20,
+      "sha": "060b21c7aa92f12d"
+    },
+    {
+      "system": "reg",
+      "table": "sops",
+      "rows": 12,
+      "sha": "9c7bf7b63393b5a0"
+    },
+    {
+      "system": "reg",
+      "table": "standard_clauses",
+      "rows": 20,
+      "sha": "c35c1047d88e523f"
+    },
+    {
+      "system": "reg",
+      "table": "standards",
+      "rows": 26,
+      "sha": "27d35cfe2fd65951"
+    },
+    {
+      "system": "hcm",
+      "table": "departments",
+      "rows": 8,
+      "sha": "916f2b4fc2958de6"
+    },
+    {
+      "system": "hcm",
+      "table": "employees",
+      "rows": 60,
+      "sha": "186f4d6d6655d7ee"
+    },
+    {
+      "system": "hcm",
+      "table": "positions",
+      "rows": 15,
+      "sha": "895e3579066e0246"
+    },
+    {
+      "system": "hcm",
+      "table": "qualifications",
+      "rows": 40,
+      "sha": "8010d9a981cba763"
+    },
+    {
+      "system": "hcm",
+      "table": "signature_authority",
+      "rows": 28,
+      "sha": "0c745d5a1a688db3"
+    },
+    {
+      "system": "hcm",
+      "table": "training_curricula",
+      "rows": 10,
+      "sha": "4321bdf3ca2bcd3f"
+    },
+    {
+      "system": "hcm",
+      "table": "training_records",
+      "rows": 401,
+      "sha": "914b398afdda8713"
+    },
+    {
+      "system": "erp",
+      "table": "bill_of_materials",
+      "rows": 56,
+      "sha": "f3254d8127f6055b"
+    },
+    {
+      "system": "erp",
+      "table": "ingredients",
+      "rows": 18,
+      "sha": "a068ef7cde945ba9"
+    },
+    {
+      "system": "erp",
+      "table": "lot_material_consumption",
+      "rows": 190,
+      "sha": "0cbedb0d734a2d9e"
+    },
+    {
+      "system": "erp",
+      "table": "market_authorisations",
+      "rows": 24,
+      "sha": "2d8312723813c612"
+    },
+    {
+      "system": "erp",
+      "table": "material_lots",
+      "rows": 122,
+      "sha": "782260d4541ec411"
+    },
+    {
+      "system": "erp",
+      "table": "product_lots",
+      "rows": 94,
+      "sha": "8943cb255a0023b8"
+    },
+    {
+      "system": "erp",
+      "table": "products",
+      "rows": 12,
+      "sha": "78142dad2df58345"
+    },
+    {
+      "system": "erp",
+      "table": "suppliers",
+      "rows": 8,
+      "sha": "e2a7e74809dfe53e"
+    },
+    {
+      "system": "mes",
+      "table": "deviations",
+      "rows": 22,
+      "sha": "fa6fe42f12fa08a4"
+    },
+    {
+      "system": "mes",
+      "table": "equipment",
+      "rows": 24,
+      "sha": "01aebbd90c922246"
+    },
+    {
+      "system": "mes",
+      "table": "equipment_qualification",
+      "rows": 50,
+      "sha": "0a35cad7c1a90df3"
+    },
+    {
+      "system": "mes",
+      "table": "lines",
+      "rows": 6,
+      "sha": "5f1158d241760e8f"
+    },
+    {
+      "system": "mes",
+      "table": "process_parameters",
+      "rows": 564,
+      "sha": "24675af0c28722c0"
+    },
+    {
+      "system": "mes",
+      "table": "process_steps",
+      "rows": 564,
+      "sha": "70e49d9b80ac3e54"
+    },
+    {
+      "system": "mes",
+      "table": "sites",
+      "rows": 2,
+      "sha": "a1234fadd9fef9b1"
+    },
+    {
+      "system": "mes",
+      "table": "work_orders",
+      "rows": 94,
+      "sha": "c7384fb78e9796a9"
+    },
+    {
+      "system": "qms",
+      "table": "audits",
+      "rows": 4,
+      "sha": "07253dd3d1be1ad0"
+    },
+    {
+      "system": "qms",
+      "table": "batch_dispositions",
+      "rows": 94,
+      "sha": "ebb3904912c5ed28"
+    },
+    {
+      "system": "qms",
+      "table": "capas",
+      "rows": 13,
+      "sha": "7f3d2094262ed9b2"
+    },
+    {
+      "system": "qms",
+      "table": "change_controls",
+      "rows": 5,
+      "sha": "9823672b556cc416"
+    },
+    {
+      "system": "qms",
+      "table": "complaints",
+      "rows": 41,
+      "sha": "c16099386f845082"
+    },
+    {
+      "system": "qms",
+      "table": "lab_events",
+      "rows": 205,
+      "sha": "a860912bc1a12a65"
+    },
+    {
+      "system": "qms",
+      "table": "oos_investigations",
+      "rows": 2,
+      "sha": "c5294057395ef48d"
+    },
+    {
+      "system": "qms",
+      "table": "qc_tests",
+      "rows": 473,
+      "sha": "5674fa1812cf1d6f"
+    },
+    {
+      "system": "qms",
+      "table": "spec_limits",
+      "rows": 305,
+      "sha": "02787a17f9baa8c2"
+    },
+    {
+      "system": "qms",
+      "table": "specification_versions",
+      "rows": 61,
+      "sha": "ebdcbdc0f078ca7a"
+    },
+    {
+      "system": "qms",
+      "table": "specifications",
+      "rows": 24,
+      "sha": "05e96ca5ef0a8f53"
+    },
+    {
+      "system": "qms",
+      "table": "test_methods",
+      "rows": 10,
+      "sha": "a621d1619f6b1be0"
+    },
+    {
+      "system": "tms",
+      "table": "consignees",
+      "rows": 10,
+      "sha": "8e55b814b5dc9de9"
+    },
+    {
+      "system": "tms",
+      "table": "drivers",
+      "rows": 10,
+      "sha": "fb44eecb2d6aa59c"
+    },
+    {
+      "system": "tms",
+      "table": "routes",
+      "rows": 74,
+      "sha": "dc4d9cb0cbade8c5"
+    },
+    {
+      "system": "tms",
+      "table": "shipment_lines",
+      "rows": 39,
+      "sha": "d68262750276457a"
+    },
+    {
+      "system": "tms",
+      "table": "shipments",
+      "rows": 39,
+      "sha": "9f7076191d9ae5cb"
+    },
+    {
+      "system": "tms",
+      "table": "telematics_readings",
+      "rows": 959,
+      "sha": "143d59bbd40979e0"
+    },
+    {
+      "system": "tms",
+      "table": "trucks",
+      "rows": 8,
+      "sha": "3eecd177989e6918"
+    },
+    {
+      "system": "tms",
+      "table": "warehouses",
+      "rows": 3,
+      "sha": "727c2f1d00330c35"
+    }
+  ],
+  "sha": "bad1f166854fa697"
+}

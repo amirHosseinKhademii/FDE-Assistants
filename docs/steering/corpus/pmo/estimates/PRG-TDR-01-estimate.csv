@@ -1,0 +1,10 @@
+# bottom-up estimate, built before nomination
+# author: M. Lindqvist   date: 2021-11-03
+# "basis" is free text. It is the only record of WHERE a number came from.
+work_package,discipline,hours,basis,confidence
+diagnostics,software,744,engineering judgement,medium
+harness,software,62,guess,medium
+ECU integration,hardware,549,similar to H1,high
+safety case,systems,57,guess,low
+rack redesign,hardware,140,guess,high
+gearbox change,pm,876,engineering judgement,low

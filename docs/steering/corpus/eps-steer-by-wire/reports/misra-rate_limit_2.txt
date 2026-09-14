@@ -1,0 +1,19 @@
+MISRA C:2012 compliance report
+Repository : eps-steer-by-wire
+Module     : rate_limit_2.c   (SWC-PLT-007, ASIL QM)
+Tool       : Polyspace 2023b
+Run        : 2026-01-06
+Run by     : a.kovac
+
+SUMMARY
+  rules checked        162
+  violations           23
+  deviations approved  6
+  unresolved           4
+
+DEVIATIONS
+  D-37  Rule 10.1  pointer arithmetic in the buffer walk. Approved.
+  (none)
+
+UNRESOLVED
+  (none)

@@ -1,0 +1,14 @@
+# bottom-up estimate, built before nomination
+# author: D. Ferreira   date: 2022-01-31
+# "basis" is free text. It is the only record of WHERE a number came from.
+work_package,discipline,hours,basis,confidence
+diagnostics,validation,740,engineering judgement,medium
+validation,calibration,91,engineering judgement,low
+validation,software,271,from the last programme,medium
+assist tuning,pm,179,supplier quote,low
+motor control,validation,811,engineering judgement,low
+assist tuning,calibration,784,engineering judgement,high
+gearbox change,safety,288,from the last programme,medium
+EOL calibration,calibration,62,from the last programme,high
+gearbox change,software,891,supplier quote,low
+gearbox change,safety,504,supplier quote,high

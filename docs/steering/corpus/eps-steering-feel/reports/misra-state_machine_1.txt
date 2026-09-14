@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-steering-feel
+Module     : state_machine_1.c   (SWC-PLT-013, ASIL B)
+Tool       : Coverity 2022.12
+Run        : 2024-12-18
+Run by     : d.ferreira
+
+SUMMARY
+  rules checked        155
+  violations           19
+  deviations approved  0
+  unresolved           4
+
+DEVIATIONS
+  D-20  Rule 19.2  goto used for single-exit error handling. Approved.
+
+UNRESOLVED
+  Rule 18.3 at state_machine_1.c:359 — owner n.haas, no target date

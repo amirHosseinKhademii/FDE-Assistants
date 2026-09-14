@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-core
+Module     : veh_speed.c   (SWC-ARB, ASIL B)
+Tool       : Coverity 2022.12
+Run        : 2025-10-27
+Run by     : e.palmer
+
+SUMMARY
+  rules checked        152
+  violations           14
+  deviations approved  6
+  unresolved           2
+
+DEVIATIONS
+  D-16  Rule 14.5  union used for the CAN frame overlay. Approved.
+
+UNRESOLVED
+  Rule 11.5 at veh_speed.c:248 — owner s.beker, no target date

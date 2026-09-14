@@ -1,0 +1,1932 @@
+{
+  "at": "2026-09-13T22:23:39.484Z",
+  "repeat": 5,
+  "reports": [
+    {
+      "id": "asr-001",
+      "runs": [
+        {
+          "id": "asr-001",
+          "run": 1,
+          "passed": true,
+          "ms": 48675,
+          "inputTokens": 109894,
+          "outputTokens": 3667,
+          "toolCalls": 6,
+          "toolNames": [
+            "search_documents",
+            "search_documents",
+            "search_documents",
+            "search_documents",
+            "search_documents",
+            "find_comparable_work"
+          ],
+          "turns": 7,
+          "stoppedBecause": "model_finished",
+          "checks": [
+            {
+              "name": "finding:change_needed",
+              "pass": true,
+              "detail": "finding is change_needed"
+            },
+            {
+              "name": "not_finding:have_it",
+              "pass": true,
+              "detail": "finding is change_needed, not have_it"
+            },
+            {
+              "name": "cites_something",
+              "pass": true,
+              "detail": "4 citation(s)"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "6 citation(s), every file present"
+            },
+            {
+              "name": "citation_lines_land",
+              "pass": true,
+              "detail": "6 quote(s) land on their cited line"
+            },
+            {
+              "name": "conflict_about:rack",
+              "pass": true,
+              "detail": "recorded: Measurement point for the 8000 N figure (rack vs motor)"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "3 question(s) for a person"
+            },
+            {
+              "name": "refuses_price",
+              "pass": true,
+              "detail": "refused: Only 0 past job(s) match change_class = \"validation_only\", e"
+            },
+            {
+              "name": "no_commitment",
+              "pass": true,
+              "detail": "no commitment in any guarded field"
+            }
+          ],
+          "missingFixture": false,
+          "answer": {
+            "requirement_ref": "CR-K2-0101",
+            "finding": "change_needed",
+            "reasoning": "The requirement (>= 8000 N, verification by test) is present in the CRS and traced in the system requirements, but no test report or verification evidence is present in the documents. The programme's own review notes also record an ambiguity whether the figure is stated at the rack or at the motor which must be resolved before a demonstrable claim can be made.",
+            "citations": [
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 35,
+                "quote": "| | | CR-K2-0101 | 4.1.1 | Rack force capacity | >= 8000 N | test | B | must |"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/system-requirements-PRG-KST-K2.md",
+                "line": 16,
+                "quote": "The EPS assembly shall deliver at least 8000 N at the rack. Motor and gearbox output shall exceed this by the internal friction losses between motor and rack."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 72,
+                "quote": "Verification method per requirement is given above. Where the method is \"test\", the supplier shall provide a test report referencing this document and the requirement identifier."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/review-notes-PRG-KST-K2.md",
+                "line": 10,
+                "quote": "2. The rack force figure is stated at the rack in §4.1 and at the motor in §5.2. These are not the same number and the document does not say which governs."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "about": "Measurement point for the 8000 N figure (rack vs motor)",
+                "positions": [
+                  {
+                    "says": "The EPS assembly shall deliver at least 8000 N at the rack.",
+                    "citation": {
+                      "file": "requirements/PRG-KST-K2/system-requirements-PRG-KST-K2.md",
+                      "line": 16,
+                      "quote": "The EPS assembly shall deliver at least 8000 N at the rack. Motor and gearbox output shall exceed this by the internal friction losses between motor and rack."
+                    }
+                  },
+                  {
+                    "says": "The rack force figure is stated at the rack in §4.1 and at the motor in §5.2; the document does not say which governs.",
+                    "citation": {
+                      "file": "requirements/PRG-KST-K2/review-notes-PRG-KST-K2.md",
+                      "line": 10,
+                      "quote": "2. The rack force figure is stated at the rack in §4.1 and at the motor in §5.2. These are not the same number and the document does not say which governs."
+                    }
+                  }
+                ]
+              }
+            ],
+            "cost": {
+              "comparable_jobs": 0,
+              "median_hours": null,
+              "eur": null,
+              "refused_because": "Only 0 past job(s) match change_class = \"validation_only\", element_kind = \"mechanical\", asil = \"B\", safety_case_impact = false, tooling_required = false, out of 203 with attributable hours. Fewer than 3 is not enough for a median to mean anything, so there is no price. This needs a bottom-up estimate from somebody who has done one; history cannot help and should not be made to look like it can."
+            },
+            "decisions_for_human": [
+              {
+                "question": "Which measurement point governs the customer requirement: rack (as SR-EPS-0407 states) or motor output (as noted in §5.2 per the review notes)?",
+                "why_it_matters": "Governing measurement point changes test setup and pass/fail criteria, the gearbox sizing and friction budget, and therefore design scope and cost.",
+                "suggested_owner": "systems"
+              },
+              {
+                "question": "Who will own producing the required test report (including the exact test method: temperature 20 °C, supply 13.5 V, measurement instrumentation and measurement point) and when will it be delivered?",
+                "why_it_matters": "The CRS mandates a supplier test report for any 'test' verification; the report is the only demonstrable evidence that the requirement is met and will affect quotation and schedule.",
+                "suggested_owner": "validation / test engineering"
+              },
+              {
+                "question": "Assuming the figure is at the rack, shall the supplier size gearbox/motor to cover an explicit friction loss budget and provide that budget as part of the verification package?",
+                "why_it_matters": "If the gearbox/motor must exceed the rack number by an explicit budget, the mechanical design and part selection (and cost) can change materially.",
+                "suggested_owner": "hardware / mechanical design"
+              }
+            ]
+          }
+        },
+        {
+          "id": "asr-001",
+          "run": 2,
+          "passed": true,
+          "ms": 33613,
+          "inputTokens": 28686,
+          "outputTokens": 4199,
+          "toolCalls": 2,
+          "toolNames": [
+            "search_documents",
+            "search_documents"
+          ],
+          "turns": 3,
+          "stoppedBecause": "model_finished",
+          "checks": [
+            {
+              "name": "finding:change_needed",
+              "pass": true,
+              "detail": "finding is change_needed"
+            },
+            {
+              "name": "not_finding:have_it",
+              "pass": true,
+              "detail": "finding is change_needed, not have_it"
+            },
+            {
+              "name": "cites_something",
+              "pass": true,
+              "detail": "5 citation(s)"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "7 citation(s), every file present"
+            },
+            {
+              "name": "citation_lines_land",
+              "pass": true,
+              "detail": "7 quote(s) land on their cited line"
+            },
+            {
+              "name": "conflict_about:rack",
+              "pass": true,
+              "detail": "recorded: What measurement point the 8000 N figure applies to (rack vs motor out"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "4 question(s) for a person"
+            },
+            {
+              "name": "refuses_price",
+              "pass": true,
+              "detail": "refused: Cannot price until the work class is chosen: the programme m"
+            },
+            {
+              "name": "no_commitment",
+              "pass": true,
+              "detail": "no commitment in any guarded field"
+            }
+          ],
+          "missingFixture": false,
+          "answer": {
+            "requirement_ref": "CR-K2-0101",
+            "finding": "change_needed",
+            "reasoning": "CR-K2-0101 (>= 8000 N) is present and marked for test verification in the programme CRS and system requirements, but no document in the corpus demonstrates the system meets 8000 N at the rack under the specified conditions. Review notes also record an unresolved ambiguity whether the figure is stated at the rack or at the motor; that ambiguity must be resolved and a test report or equivalent demonstration produced before the requirement can be claimed as met.",
+            "citations": [
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 33,
+                "quote": "|   | ID | § | Title | Value | Verif. | ASIL | Class |\n|---|---|---|---|---|---|---|---|\n| | | CR-K2-0101 | 4.1.1 | Rack force capacity | >= 8000 N | test | B | must |"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/system-requirements-PRG-KST-K2.md",
+                "line": 16,
+                "quote": "The EPS assembly shall deliver at least 8000 N at the rack. Motor and gearbox output shall exceed this by the internal friction losses between motor and rack.\n\n- attribute: rack_force_capacity [N]\n- ASIL: B · verification: test · owner: systems\n- traces to: CR-K2-0101\n- rationale: CR-K2-0101 plus the motor-to-rack friction budget. The customer figure is AT THE RACK, so the gearbox must be sized above it."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevA.md",
+                "line": 33,
+                "quote": "| 1. Rack force capacity. The system should achieve 7.5kN, peak, 20 °C, 13.5 V. (test, ASIL B)"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevA.md",
+                "line": 85,
+                "quote": "Verification method per requirement is given above. Where the method is \"test\", the supplier shall provide a test report referencing this document and the requirement identifier."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/review-notes-PRG-KST-K2.md",
+                "line": 10,
+                "quote": "2. The rack force figure is stated at the rack in §4.1 and at the motor in §5.2. These are not the same number and the document does not say which governs."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "about": "What measurement point the 8000 N figure applies to (rack vs motor output).",
+                "positions": [
+                  {
+                    "says": "The EPS assembly shall deliver at least 8000 N at the rack.",
+                    "citation": {
+                      "file": "requirements/PRG-KST-K2/system-requirements-PRG-KST-K2.md",
+                      "line": 16,
+                      "quote": "The EPS assembly shall deliver at least 8000 N at the rack. Motor and gearbox output shall exceed this by the internal friction losses between motor and rack.\n\n- attribute: rack_force_capacity [N]\n- ASIL: B · verification: test · owner: systems\n- traces to: CR-K2-0101\n- rationale: CR-K2-0101 plus the motor-to-rack friction budget. The customer figure is AT THE RACK, so the gearbox must be sized above it."
+                    }
+                  },
+                  {
+                    "says": "The rack force figure is stated at the rack in §4.1 and at the motor in §5.2. These are not the same number and the document does not say which governs.",
+                    "citation": {
+                      "file": "requirements/PRG-KST-K2/review-notes-PRG-KST-K2.md",
+                      "line": 10,
+                      "quote": "2. The rack force figure is stated at the rack in §4.1 and at the motor in §5.2. These are not the same number and the document does not say which governs."
+                    }
+                  }
+                ]
+              }
+            ],
+            "cost": {
+              "comparable_jobs": null,
+              "median_hours": null,
+              "eur": null,
+              "refused_because": "Cannot price until the work class is chosen: the programme must decide whether this is (a) a missing verification deliverable (run bench/vehicle tests and supply a test report), or (b) a hardware sizing change (motor/gearbox redesign and re-qualification). Each option has materially different effort and safety-case impact; that choice is not determined by the documents."
+            },
+            "decisions_for_human": [
+              {
+                "question": "Which measurement point governs the contractual requirement: '8000 N at the rack' or a motor/gearbox output figure?",
+                "why_it_matters": "If the requirement is at the rack the supplier must demonstrate rack force (including gearbox losses). If it is at the motor the supplier must size motor/gearbox differently and report motor torque/output; the verification method and potential redesign differ and change cost/risk.",
+                "suggested_owner": "systems (requirements owner)"
+              },
+              {
+                "question": "Do we already have a test report demonstrating >= 8000 N at the rack at 20 °C and 13.5 V? If so, where is it and can it be submitted?",
+                "why_it_matters": "If an existing test report demonstrates compliance, no hardware change is needed and the work is validation-only (test report delivery). If no report exists, tests must be planned and run or a redesign may be required.",
+                "suggested_owner": "validation / test-lab"
+              },
+              {
+                "question": "If tests show the design does NOT meet 8000 N at the rack, is a redesign permitted or will a concession be sought?",
+                "why_it_matters": "Redesign (motor/gearbox sizing) is a significant hardware effort with potential safety-case rework; a concession changes programme scope and cost.",
+                "suggested_owner": "programme manager / hardware lead"
+              },
+              {
+                "question": "What exactly is the prescribed measurement method (rig setup and measurement point) and test conditions (temperature control, supply voltage tolerance) to accept a supplier test report?",
+                "why_it_matters": "Ambiguity in test procedure leads to disputes over pass/fail. Clear method is required to estimate test duration and to accept the result without re-test.",
+                "suggested_owner": "systems with validation"
+              }
+            ]
+          }
+        },
+        {
+          "id": "asr-001",
+          "run": 3,
+          "passed": true,
+          "ms": 59838,
+          "inputTokens": 217124,
+          "outputTokens": 4651,
+          "toolCalls": 8,
+          "toolNames": [
+            "search_documents",
+            "search_documents",
+            "search_documents",
+            "search_documents",
+            "search_documents",
+            "search_documents",
+            "find_comparable_work",
+            "find_comparable_work"
+          ],
+          "turns": 9,
+          "stoppedBecause": "model_finished",
+          "checks": [
+            {
+              "name": "finding:change_needed",
+              "pass": true,
+              "detail": "finding is change_needed"
+            },
+            {
+              "name": "not_finding:have_it",
+              "pass": true,
+              "detail": "finding is change_needed, not have_it"
+            },
+            {
+              "name": "cites_something",
+              "pass": true,
+              "detail": "5 citation(s)"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "7 citation(s), every file present"
+            },
+            {
+              "name": "citation_lines_land",
+              "pass": true,
+              "detail": "7 quote(s) land on their cited line"
+            },
+            {
+              "name": "conflict_about:rack",
+              "pass": true,
+              "detail": "recorded: Which element the 8000 N figure applies to (rack vs motor)."
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "4 question(s) for a person"
+            },
+            {
+              "name": "refuses_price",
+              "pass": true,
+              "detail": "refused: Only 2 past job(s) match change_class = \"validation_only\", e"
+            },
+            {
+              "name": "no_commitment",
+              "pass": true,
+              "detail": "no commitment in any guarded field"
+            }
+          ],
+          "missingFixture": false,
+          "answer": {
+            "requirement_ref": "CR-K2-0101",
+            "finding": "change_needed",
+            "reasoning": "The requirement (>= 8000 N) and its verification method (test) are stated in the programme CRS and system requirements, and the CRS requires the supplier to provide a test report. The corpus contains no test report or other demonstration showing the EPS assembly achieved >= 8000 N at the rack under the specified conditions, and the programme's review notes record an ambiguity whether the figure is stated at the rack or at the motor (§5.2) that must be resolved before a passing demonstration can be produced.",
+            "citations": [
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 35,
+                "quote": "| | | CR-K2-0101 | 4.1.1 | Rack force capacity | >= 8000 N | test | B | must |"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/system-requirements-PRG-KST-K2.md",
+                "line": 16,
+                "quote": "The EPS assembly shall deliver at least 8000 N at the rack. Motor and gearbox output shall exceed this by the internal friction losses between motor and rack."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 72,
+                "quote": "Where the method is \"test\", the supplier shall provide a test report referencing this document and the requirement identifier."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/review-notes-PRG-KST-K2.md",
+                "line": 10,
+                "quote": "2. The rack force figure is stated at the rack in §4.1 and at the motor in §5.2. These are not the same number and the document does not say which governs."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/architecture-PRG-KST-K2.md",
+                "line": 48,
+                "quote": "- SR-EPS-0407 → EL-K2-GEAR-01\n- SR-EPS-0407 → EL-K2-MOT-01\n- SR-EPS-0407 → EL-K2-RACK-01"
+              }
+            ],
+            "unverified_claims": [
+              "No supplier test report demonstrating CR-K2-0101 (>= 8000 N at the rack, peak, 20 °C, 13.5 V) was found in the programme corpus."
+            ],
+            "conflicts": [
+              {
+                "about": "Which element the 8000 N figure applies to (rack vs motor).",
+                "positions": [
+                  {
+                    "says": "The EPS assembly shall deliver at least 8000 N at the rack.",
+                    "citation": {
+                      "file": "requirements/PRG-KST-K2/system-requirements-PRG-KST-K2.md",
+                      "line": 16,
+                      "quote": "The EPS assembly shall deliver at least 8000 N at the rack. Motor and gearbox output shall exceed this by the internal friction losses between motor and rack."
+                    }
+                  },
+                  {
+                    "says": "The rack force figure is stated at the rack in §4.1 and at the motor in §5.2.",
+                    "citation": {
+                      "file": "requirements/PRG-KST-K2/review-notes-PRG-KST-K2.md",
+                      "line": 10,
+                      "quote": "2. The rack force figure is stated at the rack in §4.1 and at the motor in §5.2. These are not the same number and the document does not say which governs."
+                    }
+                  }
+                ]
+              }
+            ],
+            "cost": {
+              "comparable_jobs": 2,
+              "median_hours": null,
+              "eur": null,
+              "refused_because": "Only 2 past job(s) match change_class = \"validation_only\", element_kind = \"mechanical\", out of 203 with attributable hours. Fewer than 3 is not enough for a median to mean anything, so there is no price. This needs a bottom-up estimate from somebody who has done one; history cannot help and should not be made to look like it can."
+            },
+            "decisions_for_human": [
+              {
+                "question": "Which measurement point governs: the customer figure at the rack (SR-EPS-0407 / CR-K2-0101) or the motor-level value noted in §5.2?",
+                "why_it_matters": "If the governing figure is at the motor, the supplier can demonstrate motor torque and apply a friction budget; if it is at the rack, the gearbox and mechanical path must be sized and demonstrated at the rack (likely a different test and higher mechanical capability). This changes scope, hardware sizing and testing approach.",
+                "suggested_owner": "systems engineering (customer interface) / requirements owner"
+              },
+              {
+                "question": "Is a supplier-provided rack-level test report at 20 °C and 13.5 V (referencing CR-K2-0101) acceptable as the sole demonstration, or must we additionally demonstrate motor output and show the friction budget linking motor output to rack force?",
+                "why_it_matters": "Determines the verification method and test rig needed (rack-level rig vs motor test with mechanical integration), and therefore cost and schedule.",
+                "suggested_owner": "verification lead / test engineering"
+              },
+              {
+                "question": "Does producing the required demonstration require any design changes (gearbox upsizing, different motor) that will impact the safety argument or require a safety-case rebuild?",
+                "why_it_matters": "If safety case elements must be rebuilt or requalified, cost and lead time increase substantially and additional verification/qualification work will be required.",
+                "suggested_owner": "safety manager"
+              },
+              {
+                "question": "Will existing test rigs and tooling suffice for a rack-level peak force measurement at 20 °C and 13.5 V, or must new tooling/fixtures be procured and qualified?",
+                "why_it_matters": "Tooling changes drive procurement lead time and labour; if new tooling is required the cost estimate from historical validation jobs is not directly applicable.",
+                "suggested_owner": "test engineering / lab manager"
+              }
+            ]
+          }
+        },
+        {
+          "id": "asr-001",
+          "run": 4,
+          "passed": true,
+          "ms": 48250,
+          "inputTokens": 147801,
+          "outputTokens": 4968,
+          "toolCalls": 6,
+          "toolNames": [
+            "search_documents",
+            "search_documents",
+            "search_documents",
+            "find_comparable_work",
+            "find_comparable_work",
+            "find_comparable_work"
+          ],
+          "turns": 7,
+          "stoppedBecause": "model_finished",
+          "checks": [
+            {
+              "name": "finding:change_needed",
+              "pass": true,
+              "detail": "finding is change_needed"
+            },
+            {
+              "name": "not_finding:have_it",
+              "pass": true,
+              "detail": "finding is change_needed, not have_it"
+            },
+            {
+              "name": "cites_something",
+              "pass": true,
+              "detail": "5 citation(s)"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "7 citation(s), every file present"
+            },
+            {
+              "name": "citation_lines_land",
+              "pass": true,
+              "detail": "7 quote(s) land on their cited line"
+            },
+            {
+              "name": "conflict_about:rack",
+              "pass": true,
+              "detail": "recorded: What measurement point the customer rack-force figure applies to (rack"
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "3 question(s) for a person"
+            },
+            {
+              "name": "refuses_price",
+              "pass": true,
+              "detail": "refused: Only 0 past job(s) match change_class = \"validation_only\", e"
+            },
+            {
+              "name": "no_commitment",
+              "pass": true,
+              "detail": "no commitment in any guarded field"
+            }
+          ],
+          "missingFixture": false,
+          "answer": {
+            "requirement_ref": "CR-K2-0101",
+            "finding": "change_needed",
+            "reasoning": "The requirement (>= 8000 N) is stated in the programme CRS and the system requirements and the verification method is 'test', but no test report or demonstration is present in the documents. The programme's review notes also record an unresolved ambiguity (rack versus motor measurement point) that must be settled before a supplier can claim compliance.",
+            "citations": [
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 35,
+                "quote": "| | | CR-K2-0101 | 4.1.1 | Rack force capacity | >= 8000 N | test | B | must |"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/system-requirements-PRG-KST-K2.md",
+                "line": 16,
+                "quote": "The EPS assembly shall deliver at least 8000 N at the rack. Motor and gearbox output shall exceed this by the internal friction losses between motor and rack."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/review-notes-PRG-KST-K2.md",
+                "line": 10,
+                "quote": "2. The rack force figure is stated at the rack in §4.1 and at the motor in §5.2. These are not the same number and the document does not say which governs."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevA.md",
+                "line": 33,
+                "quote": "| 1. Rack force capacity. The system should achieve 7.5kN, peak, 20 °C, 13.5 V. (test, ASIL B)"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 72,
+                "quote": "Where the method is \"test\", the supplier shall provide a test report referencing this document and the requirement identifier."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "about": "What measurement point the customer rack-force figure applies to (rack vs motor).",
+                "positions": [
+                  {
+                    "says": "The EPS assembly shall deliver at least 8000 N at the rack.",
+                    "citation": {
+                      "file": "requirements/PRG-KST-K2/system-requirements-PRG-KST-K2.md",
+                      "line": 16,
+                      "quote": "The EPS assembly shall deliver at least 8000 N at the rack. Motor and gearbox output shall exceed this by the internal friction losses between motor and rack."
+                    }
+                  },
+                  {
+                    "says": "The rack force figure is stated at the rack in §4.1 and at the motor in §5.2; the document does not say which governs.",
+                    "citation": {
+                      "file": "requirements/PRG-KST-K2/review-notes-PRG-KST-K2.md",
+                      "line": 10,
+                      "quote": "2. The rack force figure is stated at the rack in §4.1 and at the motor in §5.2. These are not the same number and the document does not say which governs."
+                    }
+                  }
+                ]
+              }
+            ],
+            "cost": {
+              "comparable_jobs": 0,
+              "median_hours": null,
+              "eur": null,
+              "refused_because": "Only 0 past job(s) match change_class = \"validation_only\", element_kind = \"mechanical\", asil = \"B\", safety_case_impact = false, tooling_required = false, out of 203 with attributable hours. Fewer than 3 is not enough for a median to mean anything, so there is no price. This needs a bottom-up estimate from somebody who has done one; history cannot help and should not be made to look like it can."
+            },
+            "decisions_for_human": [
+              {
+                "question": "Which measurement point governs compliance: the rack (force measured at the rack) or the motor/gearbox output (force measured before internal friction)?",
+                "why_it_matters": "Specifying the measurement point changes test setup, who carries the test risk, and whether existing motor/gearbox data can be claimed; gearbox sizing and design margin depend on it.",
+                "suggested_owner": "systems"
+              },
+              {
+                "question": "Does the customer require a supplier-delivered test report (per CRS RevB §5) or will an analysis/from-supplier datasheet be accepted for initial quotation?",
+                "why_it_matters": "If a formal test report is required, the supplier must budget hardware rig time, instrumentation and witnessed test cycles; if not, initial cost and schedule can be lower.",
+                "suggested_owner": "test engineering"
+              },
+              {
+                "question": "If a test shows the assembly cannot reach 8000 N at the rack, is acceptance at motor output (with documented friction losses) permitted or is a redesign required?",
+                "why_it_matters": "Allowing motor-level acceptance reduces immediate hardware rework but may require additional contractual trace and margin; requiring redesign increases cost and schedule substantially.",
+                "suggested_owner": "hardware / systems"
+              }
+            ]
+          }
+        },
+        {
+          "id": "asr-001",
+          "run": 5,
+          "passed": true,
+          "ms": 60752,
+          "inputTokens": 215193,
+          "outputTokens": 4874,
+          "toolCalls": 8,
+          "toolNames": [
+            "search_documents",
+            "search_documents",
+            "search_documents",
+            "search_documents",
+            "search_documents",
+            "search_documents",
+            "search_documents",
+            "find_comparable_work"
+          ],
+          "turns": 9,
+          "stoppedBecause": "model_finished",
+          "checks": [
+            {
+              "name": "finding:change_needed",
+              "pass": true,
+              "detail": "finding is change_needed"
+            },
+            {
+              "name": "not_finding:have_it",
+              "pass": true,
+              "detail": "finding is change_needed, not have_it"
+            },
+            {
+              "name": "cites_something",
+              "pass": true,
+              "detail": "6 citation(s)"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "8 citation(s), every file present"
+            },
+            {
+              "name": "citation_lines_land",
+              "pass": true,
+              "detail": "8 quote(s) land on their cited line"
+            },
+            {
+              "name": "conflict_about:rack",
+              "pass": true,
+              "detail": "recorded: Measurement point for the 8000 N figure (at the rack vs at the motor)."
+            },
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "3 question(s) for a person"
+            },
+            {
+              "name": "refuses_price",
+              "pass": true,
+              "detail": "refused: Only 0 past job(s) match change_class = \"validation_only\", e"
+            },
+            {
+              "name": "no_commitment",
+              "pass": true,
+              "detail": "no commitment in any guarded field"
+            }
+          ],
+          "missingFixture": false,
+          "answer": {
+            "requirement_ref": "CR-K2-0101",
+            "finding": "change_needed",
+            "reasoning": "The requirement is present in the programme documents and calls for TEST verification, but the corpus contains no test report or demonstrated measurement showing the EPS assembly delivers >= 8000 N at the rack. The requirements/architecture materials also show ambiguity about whether the 8000 N is measured at the rack or at the motor, which must be resolved before verification can be accepted.",
+            "citations": [
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 35,
+                "quote": "| | | CR-K2-0101 | 4.1.1 | Rack force capacity | >= 8000 N | test | B | must |"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/system-requirements-PRG-KST-K2.md",
+                "line": 16,
+                "quote": "The EPS assembly shall deliver at least 8000 N at the rack. Motor and gearbox output shall exceed this by the internal friction losses between motor and rack."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevA.md",
+                "line": 26,
+                "quote": "Rev A   2026-05-12   Initial issue for quotation.\n   Rev B   2026-07-30   Rack force capacity raised from 7500 N to 8000 N following a kerb-strike load case review. All other requirements unchanged."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevA.md",
+                "line": 85,
+                "quote": "Verification method per requirement is given above. Where the method is\n   \"test\", the supplier shall provide a test report referencing this\n   document and the requirement identifier."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/review-notes-PRG-KST-K2.md",
+                "line": 10,
+                "quote": "2. The rack force figure is stated at the rack in §4.1 and at the motor in §5.2. These are not the same number and the document does not say which governs."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/architecture-PRG-KST-K2.md",
+                "line": 48,
+                "quote": "- SR-EPS-0407 → EL-K2-GEAR-01\n- SR-EPS-0407 → EL-K2-MOT-01\n- SR-EPS-0407 → EL-K2-RACK-01"
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "about": "Measurement point for the 8000 N figure (at the rack vs at the motor).",
+                "positions": [
+                  {
+                    "says": "The EPS assembly shall deliver at least 8000 N at the rack.",
+                    "citation": {
+                      "file": "requirements/PRG-KST-K2/system-requirements-PRG-KST-K2.md",
+                      "line": 16,
+                      "quote": "The EPS assembly shall deliver at least 8000 N at the rack. Motor and gearbox output shall exceed this by the internal friction losses between motor and rack."
+                    }
+                  },
+                  {
+                    "says": "The rack force figure is stated at the rack in §4.1 and at the motor in §5.2. These are not the same number and the document does not say which governs.",
+                    "citation": {
+                      "file": "requirements/PRG-KST-K2/review-notes-PRG-KST-K2.md",
+                      "line": 10,
+                      "quote": "2. The rack force figure is stated at the rack in §4.1 and at the motor in §5.2. These are not the same number and the document does not say which governs."
+                    }
+                  }
+                ]
+              }
+            ],
+            "cost": {
+              "comparable_jobs": 0,
+              "median_hours": null,
+              "eur": null,
+              "refused_because": "Only 0 past job(s) match change_class = \"validation_only\", element_kind = \"mechanical\", asil = \"B\", safety_case_impact = false, tooling_required = false, out of 203 with attributable hours. Fewer than 3 is not enough for a median to mean anything, so there is no price. This needs a bottom-up estimate from somebody who has done one; history cannot help and should not be made to look like it can."
+            },
+            "decisions_for_human": [
+              {
+                "question": "Does the customer insist the 8000 N figure is measured at the rack, or will a motor-output measurement (with a specified friction/budget) be accepted?",
+                "why_it_matters": "Whether the measurement point is at the rack or at the motor changes the verification procedure and may change scope: a motor-level test or datasheet claim is not the same as a rack-level assembly test and may require gearbox sizing or additional testing.",
+                "suggested_owner": "systems"
+              },
+              {
+                "question": "If no rack-level test report exists, do we treat this as 'test only' (run a rack-capacity test on prototype/first-article) or must we redesign/upspec the gearbox/motor now?",
+                "why_it_matters": "Test-only verification assumes current hardware meets the requirement and costs only lab time; redesign/upspec adds hardware engineering, supplier changes, revalidation and a much larger cost and schedule impact.",
+                "suggested_owner": "hardware (lead) with input from test-lab and systems"
+              },
+              {
+                "question": "Is an updated, signed test report referencing CR-K2-0101 acceptable deliverable for quotation, and who signs off acceptance of the test plan and measurement points?",
+                "why_it_matters": "The CRS requires a supplier test report for 'test' verifications; agreeing the test plan and sign-off authority avoids later disputes about measurement point and conditioning (20 °C, 13.5 V).",
+                "suggested_owner": "quality / validation owner and systems"
+              }
+            ]
+          }
+        }
+      ],
+      "passed": 5,
+      "total": 5,
+      "flakyChecks": []
+    },
+    {
+      "id": "asr-002",
+      "runs": [
+        {
+          "id": "asr-002",
+          "run": 1,
+          "passed": true,
+          "ms": 45631,
+          "inputTokens": 82186,
+          "outputTokens": 5079,
+          "toolCalls": 5,
+          "toolNames": [
+            "search_documents",
+            "search_documents",
+            "search_documents",
+            "find_comparable_work",
+            "find_comparable_work"
+          ],
+          "turns": 6,
+          "stoppedBecause": "model_finished",
+          "checks": [
+            {
+              "name": "cites_something",
+              "pass": true,
+              "detail": "8 citation(s)"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "10 citation(s), every file present"
+            },
+            {
+              "name": "citation_lines_land",
+              "pass": true,
+              "detail": "10 quote(s) land on their cited line"
+            },
+            {
+              "name": "no_commitment",
+              "pass": true,
+              "detail": "no commitment in any guarded field"
+            },
+            {
+              "name": "priced_or_refused",
+              "pass": true,
+              "detail": "refused, with a reason"
+            }
+          ],
+          "missingFixture": false,
+          "answer": {
+            "requirement_ref": "CR-K2-0104",
+            "finding": "change_needed",
+            "reasoning": "CR-K2-0104 (0.5 N·m hysteresis) is present in the programme's CRS and system requirements and its verification method is 'test' with an explicit supplier-test-report requirement. No test report or other demonstration of compliance was found in the documents, and programme review notes record missing/unclear test conditions. Therefore the requirement exists but work (tests and/or clarification of test conditions and report) is required before it can be claimed as demonstrated.",
+            "citations": [
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevA.md",
+                "line": 37,
+                "quote": "[CR-K2-0103] On-centre steering wheel torque. The system shall achieve 2.7 Nm, at 30° steering wheel angle, ISO 13674-1 weave, 100 km/h, 0.2 Hz, 2 m/s² peak lateral. (test, ASIL QM)"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevA.md",
+                "line": 39,
+                "quote": "[CR-K2-0104] On-centre torque hysteresis. The system shall achieve 0.5 Nm, same test point as §4.3.1. (test, ASIL QM)"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/system-requirements-PRG-KST-K2.md",
+                "line": 34,
+                "quote": "Hysteresis loop width shall not exceed 0.5 N·m, apportioned per BUD-K2-HYST-CTRL."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 38,
+                "quote": "|   | CR-K2-0104 | 4.3.2 | On-centre torque hysteresis | <= 0.5 Nm | test | QM | must |"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 63,
+                "quote": "The steering wheel torque at 30 degrees of steering wheel angle shall not exceed 2.9 Nm."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 66,
+                "quote": "[NOTE: this restates §4.3.1 with a different figure. §4.3.1 says 2.7 Nm. Raised with the customer 2026-08-20, no response at time of issue.]"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevA.md",
+                "line": 85,
+                "quote": "Verification method per requirement is given above. Where the method is \"test\", the supplier shall provide a test report referencing this document and the requirement identifier."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/review-notes-PRG-KST-K2.md",
+                "line": 12,
+                "quote": "Verification method for the on-centre requirements is \"test\" but no test condition is given for the 0 to 20 km/h range."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "about": "Which on-centre torque value / test point governs §4.3.1 (and hence the test referenced by CR-K2-0104).",
+                "positions": [
+                  {
+                    "says": "[CR-K2-0103] On-centre steering wheel torque. The system shall achieve 2.7 Nm, at 30° steering wheel angle, ISO 13674-1 weave, 100 km/h, 0.2 Hz, 2 m/s² peak lateral. (test, ASIL QM)",
+                    "citation": {
+                      "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevA.md",
+                      "line": 37,
+                      "quote": "[CR-K2-0103] On-centre steering wheel torque. The system shall achieve 2.7 Nm, at 30° steering wheel angle, ISO 13674-1 weave, 100 km/h, 0.2 Hz, 2 m/s² peak lateral. (test, ASIL QM)"
+                    }
+                  },
+                  {
+                    "says": "The steering wheel torque at 30 degrees of steering wheel angle shall not exceed 2.9 Nm. [NOTE: this restates §4.3.1 with a different figure. §4.3.1 says 2.7 Nm.]",
+                    "citation": {
+                      "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                      "line": 66,
+                      "quote": "[NOTE: this restates §4.3.1 with a different figure. §4.3.1 says 2.7 Nm. Raised with the customer 2026-08-20, no response at time of issue.]"
+                    }
+                  }
+                ]
+              }
+            ],
+            "cost": {
+              "comparable_jobs": 0,
+              "median_hours": null,
+              "eur": null,
+              "refused_because": "Only 0 past job(s) match change_class = \"validation_only\", element_kind = \"mechanical\", asil = \"QM\", safety_case_impact = false, tooling_required = false, out of 203 with attributable hours. Fewer than 3 is not enough for a median to mean anything, so there is no price. This needs a bottom-up estimate from somebody who has done one; history cannot help and should not be made to look like it can."
+            },
+            "decisions_for_human": [
+              {
+                "question": "Which on-centre torque value governs §4.3.1 for verification: the 2.7 N·m value (CRS RevA / SR-EPS-0408) or the 2.9 N·m value added in CRS RevB §4.9?",
+                "why_it_matters": "CR-K2-0104 references the §4.3.1 test point; which torque value governs changes the test setup, pass/fail margin and whether existing test hardware/data are relevant.",
+                "suggested_owner": "systems"
+              },
+              {
+                "question": "Provide the definitive test procedure/conditions (speed, excitation, measurement points) to be used for CR-K2-0103/CR-K2-0104, and clarify the 0–20 km/h test condition noted as missing in the review notes.",
+                "why_it_matters": "The requirement is 'test' verified; without an agreed test plan the supplier cannot produce an acceptable test report and cannot claim demonstrated compliance.",
+                "suggested_owner": "validation / systems"
+              }
+            ]
+          }
+        },
+        {
+          "id": "asr-002",
+          "run": 2,
+          "passed": true,
+          "ms": 49266,
+          "inputTokens": 93834,
+          "outputTokens": 4930,
+          "toolCalls": 6,
+          "toolNames": [
+            "search_documents",
+            "search_documents",
+            "search_documents",
+            "find_comparable_work",
+            "find_comparable_work",
+            "search_documents"
+          ],
+          "turns": 7,
+          "stoppedBecause": "model_finished",
+          "checks": [
+            {
+              "name": "cites_something",
+              "pass": true,
+              "detail": "6 citation(s)"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "8 citation(s), every file present"
+            },
+            {
+              "name": "citation_lines_land",
+              "pass": true,
+              "detail": "8 quote(s) land on their cited line"
+            },
+            {
+              "name": "no_commitment",
+              "pass": true,
+              "detail": "no commitment in any guarded field"
+            },
+            {
+              "name": "priced_or_refused",
+              "pass": true,
+              "detail": "refused, with a reason"
+            }
+          ],
+          "missingFixture": false,
+          "answer": {
+            "requirement_ref": "CR-K2-0104",
+            "finding": "change_needed",
+            "reasoning": "The requirement is present in the programme documents and its verification method is \"test\", but no test report or other demonstration that the 0.5 N·m hysteresis limit has been met is present in the corpus. Additionally, the governing on-centre test point is ambiguous in the documents, which must be resolved before a valid verification can be performed.",
+            "citations": [
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevA.md",
+                "line": 39,
+                "quote": "4. [CR-K2-0104] On-centre torque hysteresis. The system shall achieve 0.5 Nm, same test point as §4.3.1. (test, ASIL QM)"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/system-requirements-PRG-KST-K2.md",
+                "line": 34,
+                "quote": "Hysteresis loop width shall not exceed 0.5 N·m, apportioned per BUD-K2-HYST-CTRL."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 37,
+                "quote": "|   | CR-K2-0103 | 4.3.1 | On-centre steering wheel torque | <= 2.7 Nm | test | QM | must |\n|   | CR-K2-0104 | 4.3.2 | On-centre torque hysteresis | <= 0.5 Nm | test | QM | must |"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/system-requirements-PRG-KST-K2.md",
+                "line": 25,
+                "quote": "Steering wheel torque at 30° SWA shall not exceed 2.7 N·m, apportioned per BUD-K2-ONCTR-TRQ."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 63,
+                "quote": "The steering wheel torque at 30 degrees of steering wheel angle shall not exceed 2.9 Nm.\n\n[NOTE: this restates §4.3.1 with a different figure. §4.3.1 says 2.7 Nm.  Raised with the customer 2026-08-20, no response at time of issue.]\n\n\n5. VERIFICATION\n\n   Verification method per requirement is given above. Where the method is\n   \"test\", the supplier shall provide a test report referencing this\n   document and the requirement identifier."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/review-notes-PRG-KST-K2.md",
+                "line": 12,
+                "quote": "3. Verification method for the on-centre requirements is \"test\" but no test condition is given for the 0 to 20 km/h range."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "about": "Which numeric on-centre torque governs §4.3.1 (the test point CR-K2-0104 references).",
+                "positions": [
+                  {
+                    "says": "Steering wheel torque at 30° SWA shall not exceed 2.7 N·m, apportioned per BUD-K2-ONCTR-TRQ.",
+                    "citation": {
+                      "file": "requirements/PRG-KST-K2/system-requirements-PRG-KST-K2.md",
+                      "line": 25,
+                      "quote": "Steering wheel torque at 30° SWA shall not exceed 2.7 N·m, apportioned per BUD-K2-ONCTR-TRQ."
+                    }
+                  },
+                  {
+                    "says": "The steering wheel torque at 30 degrees of steering wheel angle shall not exceed 2.9 Nm.",
+                    "citation": {
+                      "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                      "line": 63,
+                      "quote": "The steering wheel torque at 30 degrees of steering wheel angle shall not exceed 2.9 Nm.\n\n[NOTE: this restates §4.3.1 with a different figure. §4.3.1 says 2.7 Nm.  Raised with the customer 2026-08-20, no response at time of issue.]"
+                    }
+                  }
+                ]
+              }
+            ],
+            "cost": {
+              "comparable_jobs": 0,
+              "median_hours": null,
+              "eur": null,
+              "refused_because": "Only 0 past job(s) match change_class = \"validation_only\", element_kind = \"mechanical\", asil = \"QM\", safety_case_impact = false, tooling_required = false, out of 203 with attributable hours. Fewer than 3 is not enough for a median to mean anything, so there is no price. This needs a bottom-up estimate from somebody who has done one; history cannot help and should not be made to look like it can."
+            },
+            "decisions_for_human": [
+              {
+                "question": "Which numeric value governs §4.3.1 (2.7 N·m or the later 2.9 N·m statement), and therefore which test point should CR-K2-0104 use?",
+                "why_it_matters": "The hysteresis test is performed at the §4.3.1 point; a different governing torque changes the test set-up and may change the pass/fail result and re-test scope (and thus cost and schedule).",
+                "suggested_owner": "systems"
+              },
+              {
+                "question": "Provide or approve the detailed hysteresis test procedure (exact test point details, speed range, ISO references, measurement method and acceptance metric) or confirm any existing lab report that demonstrates compliance.",
+                "why_it_matters": "The requirements and review notes show 'test' as the verification method but no test conditions are in the programme documents; without an agreed procedure a supplier cannot produce a valid test report or price the work accurately.",
+                "suggested_owner": "test engineering / validation lead"
+              },
+              {
+                "question": "Does any internal supplier or programme test evidence exist that demonstrates on-centre hysteresis ≤ 0.5 N·m (and, if so, where is the test report stored and who will authorise its use in the customer's verification)?",
+                "why_it_matters": "If an existing report demonstrates compliance, no additional lab campaign may be needed; otherwise a validation campaign must be planned and costed.",
+                "suggested_owner": "validation lead"
+              }
+            ]
+          }
+        },
+        {
+          "id": "asr-002",
+          "run": 3,
+          "passed": true,
+          "ms": 35300,
+          "inputTokens": 51165,
+          "outputTokens": 4204,
+          "toolCalls": 4,
+          "toolNames": [
+            "search_documents",
+            "search_documents",
+            "find_comparable_work",
+            "find_comparable_work"
+          ],
+          "turns": 5,
+          "stoppedBecause": "model_finished",
+          "checks": [
+            {
+              "name": "cites_something",
+              "pass": true,
+              "detail": "5 citation(s)"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "7 citation(s), every file present"
+            },
+            {
+              "name": "citation_lines_land",
+              "pass": true,
+              "detail": "7 quote(s) land on their cited line"
+            },
+            {
+              "name": "no_commitment",
+              "pass": true,
+              "detail": "no commitment in any guarded field"
+            },
+            {
+              "name": "priced_or_refused",
+              "pass": true,
+              "detail": "refused, with a reason"
+            }
+          ],
+          "missingFixture": false,
+          "answer": {
+            "requirement_ref": "CR-K2-0104",
+            "finding": "change_needed",
+            "reasoning": "The requirement and its verification method (test) are specified in the programme documents, but no test report or demonstration that the hysteresis meets 0.5 N·m is present in the corpus. Review notes record missing test conditions for the on-centre requirements, and CRS RevB introduces an inconsistent value for the referenced §4.3.1 test point, creating ambiguity that must be resolved before a verification claim can be made.",
+            "citations": [
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevA.md",
+                "line": 37,
+                "quote": "3. [CR-K2-0103] On-centre steering wheel torque. The system shall achieve 2.7 Nm, at 30° steering wheel angle, ISO 13674-1 weave, 100 km/h, 0.2 Hz, 2 m/s² peak lateral. (test, ASIL QM)\n\n  4. [CR-K2-0104] On-centre torque hysteresis. The system shall achieve 0.5 Nm, same test point as §4.3.1. (test, ASIL QM)"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/system-requirements-PRG-KST-K2.md",
+                "line": 34,
+                "quote": "Hysteresis loop width shall not exceed 0.5 N·m, apportioned per BUD-K2-HYST-CTRL.\n\n- attribute: on_center_hysteresis_nm [Nm]\n- ASIL: QM · verification: test · owner: systems\n- traces to: CR-K2-0104\n- rationale: CR-K2-0104."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/review-notes-PRG-KST-K2.md",
+                "line": 8,
+                "quote": "1. Two requirements cover assist cut-off. One says taper, one says step. Taper assumed.\n\n2. The rack force figure is stated at the rack in §4.1 and at the motor in §5.2. These are not the same number and the document does not say which governs.\n\n3. Verification method for the on-centre requirements is \"test\" but no test condition is given for the 0 to 20 km/h range."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 37,
+                "quote": "|   | CR-K2-0103 | 4.3.1 | On-centre steering wheel torque | <= 2.7 Nm | test | QM | must |\n|   | CR-K2-0104 | 4.3.2 | On-centre torque hysteresis | <= 0.5 Nm | test | QM | must |"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 61,
+                "quote": "4.9 ADDITIONAL — STEERING EFFORT (added at the Rev B review)\n\n    The steering wheel torque at 30 degrees of steering wheel angle shall not\n    exceed 2.9 Nm.\n\n    [NOTE: this restates §4.3.1 with a different figure. §4.3.1 says 2.7 Nm.\n     Raised with the customer 2026-08-20, no response at time of issue.]\n\n\n5. VERIFICATION\n\n   Verification method per requirement is given above. Where the method is\n   \"test\", the supplier shall provide a test report referencing this\n   document and the requirement identifier."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "about": "Which numeric value governs the §4.3.1 on-centre test point (the test point referenced by CR-K2-0104).",
+                "positions": [
+                  {
+                    "says": "The system shall achieve 2.7 Nm, at 30° steering wheel angle ... (test, ASIL QM)",
+                    "citation": {
+                      "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevA.md",
+                      "line": 37,
+                      "quote": "3. [CR-K2-0103] On-centre steering wheel torque. The system shall achieve 2.7 Nm, at 30° steering wheel angle, ISO 13674-1 weave, 100 km/h, 0.2 Hz, 2 m/s² peak lateral. (test, ASIL QM)"
+                    }
+                  },
+                  {
+                    "says": "The steering wheel torque at 30 degrees of steering wheel angle shall not exceed 2.9 Nm (this restates §4.3.1 with a different figure).",
+                    "citation": {
+                      "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                      "line": 63,
+                      "quote": "The steering wheel torque at 30 degrees of steering wheel angle shall not\n    exceed 2.9 Nm.\n\n    [NOTE: this restates §4.3.1 with a different figure. §4.3.1 says 2.7 Nm.\n     Raised with the customer 2026-08-20, no response at time of issue.]"
+                    }
+                  }
+                ]
+              }
+            ],
+            "cost": {
+              "comparable_jobs": 0,
+              "median_hours": null,
+              "eur": null,
+              "refused_because": "Only 0 past job(s) match change_class = \"validation_only\", element_kind = \"mechanical\", asil = \"QM\", safety_case_impact = false, tooling_required = false, out of 203 with attributable hours. Fewer than 3 is not enough for a median to mean anything, so there is no price. This needs a bottom-up estimate from somebody who has done one; history cannot help and should not be made to look like it can."
+            },
+            "decisions_for_human": [
+              {
+                "question": "Which numeric value governs the §4.3.1 on-centre test point: 2.7 Nm (CRS RevA / system requirements) or 2.9 Nm (CRS RevB additional)?",
+                "why_it_matters": "CR-K2-0104 references the §4.3.1 test point; the torque value governing that test point affects the test setup and could change measured hysteresis and pass/fail criteria.",
+                "suggested_owner": "systems"
+              },
+              {
+                "question": "What are the exact test conditions to be used for verifying CR-K2-0104 (speed range, ISO weave variant, lateral acceleration, measurement method and sampling/averaging), in particular for the 0–20 km/h range flagged in the review notes?",
+                "why_it_matters": "The verification is by test and the review notes state no test condition is given for 0–20 km/h; without agreed test conditions a supplied test report will be rejected or require re-test.",
+                "suggested_owner": "systems (verification/test lead)"
+              },
+              {
+                "question": "Does an existing test report or lab data exist that demonstrates the hysteresis loop width ≤ 0.5 N·m at the agreed §4.3.1 test point for the current design?",
+                "why_it_matters": "If an acceptable test report already exists the supplier cost is limited to packaging that evidence; if not, execution of a validation campaign (test rig time, instrumentation, test article) is needed and must be planned and priced.",
+                "suggested_owner": "test/validation lead"
+              }
+            ]
+          }
+        },
+        {
+          "id": "asr-002",
+          "run": 4,
+          "passed": true,
+          "ms": 37830,
+          "inputTokens": 44796,
+          "outputTokens": 4924,
+          "toolCalls": 3,
+          "toolNames": [
+            "search_documents",
+            "search_documents",
+            "find_comparable_work"
+          ],
+          "turns": 4,
+          "stoppedBecause": "model_finished",
+          "checks": [
+            {
+              "name": "cites_something",
+              "pass": true,
+              "detail": "7 citation(s)"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "9 citation(s), every file present"
+            },
+            {
+              "name": "citation_lines_land",
+              "pass": true,
+              "detail": "9 quote(s) land on their cited line"
+            },
+            {
+              "name": "no_commitment",
+              "pass": true,
+              "detail": "no commitment in any guarded field"
+            },
+            {
+              "name": "priced_or_refused",
+              "pass": true,
+              "detail": "refused, with a reason"
+            }
+          ],
+          "missingFixture": false,
+          "answer": {
+            "requirement_ref": "CR-K2-0104",
+            "finding": "change_needed",
+            "reasoning": "The requirement is stated in the programme documents and is specified as a test (supplier to provide a test report), but no test report or an explicit test procedure/conditions for the referenced test point is present in the corpus. Review notes explicitly flag that no test condition is given for the on-centre requirements in the 0–20 km/h range, so demonstration evidence and test conditions are missing and must be supplied.",
+            "citations": [
+              {
+                "file": "requirements/PRG-KST-K2/system-requirements-PRG-KST-K2.md",
+                "line": 34,
+                "quote": "Hysteresis loop width shall not exceed 0.5 N·m, apportioned per BUD-K2-HYST-CTRL."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevA.md",
+                "line": 39,
+                "quote": "4. [CR-K2-0104] On-centre torque hysteresis. The system shall achieve 0.5 Nm, same test point as §4.3.1. (test, ASIL QM)"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 38,
+                "quote": "|   | CR-K2-0104 | 4.3.2 | On-centre torque hysteresis | <= 0.5 Nm | test | QM | must |"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 72,
+                "quote": "Where the method is \"test\", the supplier shall provide a test report referencing this document and the requirement identifier."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/review-notes-PRG-KST-K2.md",
+                "line": 12,
+                "quote": "Verification method for the on-centre requirements is \"test\" but no test condition is given for the 0 to 20 km/h range."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/system-requirements-PRG-KST-K2.md",
+                "line": 25,
+                "quote": "Steering wheel torque at 30° SWA shall not exceed 2.7 N·m, apportioned per BUD-K2-ONCTR-TRQ."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 63,
+                "quote": "The steering wheel torque at 30 degrees of steering wheel angle shall not exceed 2.9 Nm."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "about": "Which numerical on-centre steering wheel torque value (§4.3.1) is authoritative (the hysteresis requirement references that test point).",
+                "positions": [
+                  {
+                    "says": "Steering wheel torque at 30° SWA shall not exceed 2.7 N·m, apportioned per BUD-K2-ONCTR-TRQ.",
+                    "citation": {
+                      "file": "requirements/PRG-KST-K2/system-requirements-PRG-KST-K2.md",
+                      "line": 25,
+                      "quote": "Steering wheel torque at 30° SWA shall not exceed 2.7 N·m, apportioned per BUD-K2-ONCTR-TRQ."
+                    }
+                  },
+                  {
+                    "says": "The steering wheel torque at 30 degrees of steering wheel angle shall not exceed 2.9 Nm.",
+                    "citation": {
+                      "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                      "line": 63,
+                      "quote": "The steering wheel torque at 30 degrees of steering wheel angle shall not exceed 2.9 Nm."
+                    }
+                  }
+                ]
+              }
+            ],
+            "cost": {
+              "comparable_jobs": 0,
+              "median_hours": null,
+              "eur": null,
+              "refused_because": "Only 0 past job(s) match change_class = \"validation_only\", element_kind = \"mechanical\", asil = \"QM\", safety_case_impact = false, tooling_required = false, out of 203 with attributable hours. Fewer than 3 is not enough for a median to mean anything, so there is no price. This needs a bottom-up estimate from somebody who has done one; history cannot help and should not be made to look like it can."
+            },
+            "decisions_for_human": [
+              {
+                "question": "Which document/value governs §4.3.1 (2.7 N·m from the system requirements, or 2.9 N·m from CRS RevB)?",
+                "why_it_matters": "CR-K2-0104 ties hysteresis to the §4.3.1 test point; an authoritative on-centre torque value is needed to define the exact test point and conditions for hysteresis verification and may change test set-up and pass/fail.",
+                "suggested_owner": "systems engineering / programme manager"
+              },
+              {
+                "question": "Does the supplier need to develop and propose the detailed test procedure (including speeds, ISO references and measurement points) for the on-centre hysteresis test, especially for the 0–20 km/h range, or will the customer provide a procedure?",
+                "why_it_matters": "If the supplier must create the procedure, additional test development and validation effort (and acceptance of the procedure by the customer) will be required; if the customer provides it, the supplier's effort is limited to executing the test and producing the report.",
+                "suggested_owner": "test engineering / systems"
+              },
+              {
+                "question": "Is the hysteresis verification intended as a validation-only activity (single-run validation test) or does it also need end-of-line/production-level capability (requiring an EOL test or production calibration step)?",
+                "why_it_matters": "End-of-line or production-test requirements change scope and cost materially (test hardware, automation, cycle time) compared with a one-off validation test and test report.",
+                "suggested_owner": "manufacturing/test engineering"
+              }
+            ]
+          }
+        },
+        {
+          "id": "asr-002",
+          "run": 5,
+          "passed": true,
+          "ms": 31515,
+          "inputTokens": 43195,
+          "outputTokens": 3000,
+          "toolCalls": 3,
+          "toolNames": [
+            "search_documents",
+            "find_comparable_work",
+            "find_comparable_work"
+          ],
+          "turns": 4,
+          "stoppedBecause": "model_finished",
+          "checks": [
+            {
+              "name": "cites_something",
+              "pass": true,
+              "detail": "5 citation(s)"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "7 citation(s), every file present"
+            },
+            {
+              "name": "citation_lines_land",
+              "pass": true,
+              "detail": "7 quote(s) land on their cited line"
+            },
+            {
+              "name": "no_commitment",
+              "pass": true,
+              "detail": "no commitment in any guarded field"
+            },
+            {
+              "name": "priced_or_refused",
+              "pass": true,
+              "detail": "refused, with a reason"
+            }
+          ],
+          "missingFixture": false,
+          "answer": {
+            "requirement_ref": "CR-K2-0104",
+            "finding": "change_needed",
+            "reasoning": "The requirement and its test-method are present in the programme documents, but no test report or demonstration evidence is in the corpus and reviewers have noted missing test conditions for the on-centre requirements. Because demonstration (a test report) is required before the supplier can claim compliance, work is required (define test conditions and produce the test report, and resolve the §4.3.1 ambiguity) before this can be marked as met.",
+            "citations": [
+              {
+                "file": "requirements/PRG-KST-K2/system-requirements-PRG-KST-K2.md",
+                "line": 34,
+                "quote": "Hysteresis loop width shall not exceed 0.5 N·m, apportioned per BUD-K2-HYST-CTRL."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevA.md",
+                "line": 39,
+                "quote": "4. [CR-K2-0104] On-centre torque hysteresis. The system shall achieve 0.5 Nm, same test point as §4.3.1. (test, ASIL QM)"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 38,
+                "quote": "|   | CR-K2-0104 | 4.3.2 | On-centre torque hysteresis | <= 0.5 Nm | test | QM | must |"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 72,
+                "quote": "Where the method is \"test\", the supplier shall provide a test report referencing this document and the requirement identifier."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/review-notes-PRG-KST-K2.md",
+                "line": 12,
+                "quote": "Verification method for the on-centre requirements is \"test\" but no test condition is given for the 0 to 20 km/h range."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "about": "Which numeric on-centre torque governs at the §4.3.1 test point referenced by CR-K2-0104",
+                "positions": [
+                  {
+                    "says": "On-centre steering wheel torque at 30° SWA shall not exceed 2.7 N·m.",
+                    "citation": {
+                      "file": "requirements/PRG-KST-K2/system-requirements-PRG-KST-K2.md",
+                      "line": 25,
+                      "quote": "Steering wheel torque at 30° SWA shall not exceed 2.7 N·m, apportioned per BUD-K2-ONCTR-TRQ."
+                    }
+                  },
+                  {
+                    "says": "The steering wheel torque at 30 degrees of steering wheel angle shall not exceed 2.9 Nm.",
+                    "citation": {
+                      "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                      "line": 63,
+                      "quote": "The steering wheel torque at 30 degrees of steering wheel angle shall not exceed 2.9 Nm."
+                    }
+                  }
+                ]
+              }
+            ],
+            "cost": {
+              "comparable_jobs": 0,
+              "median_hours": null,
+              "eur": null,
+              "refused_because": "Only 0 past job(s) match change_class = \"validation_only\", element_kind = \"mechanical\", asil = \"QM\", safety_case_impact = false, tooling_required = false, out of 203 with attributable hours. Fewer than 3 is not enough for a median to mean anything, so there is no price. This needs a bottom-up estimate from somebody who has done one; history cannot help and should not be made to look like it can."
+            },
+            "decisions_for_human": [
+              {
+                "question": "Which numeric on-centre torque value is authoritative for §4.3.1 (2.7 N·m or the 2.9 N·m stated in the Rev B note)?",
+                "why_it_matters": "CR-K2-0104 references the §4.3.1 test point; the torque value at that point defines the test setup and could change whether the hysteresis measurement passes or needs design change.",
+                "suggested_owner": "requirements owner / systems engineering"
+              },
+              {
+                "question": "What are the full, unambiguous test conditions for CR-K2-0103/CR-K2-0104 (including speed band, vehicle manoeuvre, measurement point and instrumentation), and is the 0–20 km/h range intended to use the same conditions?",
+                "why_it_matters": "Review notes state no test condition is given for 0–20 km/h; without defined test conditions the test report cannot be produced or accepted, and test reproducibility and pass/fail are undefined.",
+                "suggested_owner": "test engineering (with systems)"
+              },
+              {
+                "question": "Has a test been run and a test report produced for CR-K2-0104 that is not in the document corpus (EOL or supplier lab), and if so can it be provided as demonstration evidence?",
+                "why_it_matters": "A test report demonstrating hysteresis ≤ 0.5 N·m would change the finding to have_it; without it the requirement remains unverified.",
+                "suggested_owner": "project test lead / supplier quality"
+              }
+            ]
+          }
+        }
+      ],
+      "passed": 5,
+      "total": 5,
+      "flakyChecks": []
+    },
+    {
+      "id": "asr-003",
+      "runs": [
+        {
+          "id": "asr-003",
+          "run": 1,
+          "passed": true,
+          "ms": 38541,
+          "inputTokens": 80507,
+          "outputTokens": 4216,
+          "toolCalls": 5,
+          "toolNames": [
+            "search_documents",
+            "search_documents",
+            "search_documents",
+            "search_documents",
+            "find_comparable_work"
+          ],
+          "turns": 6,
+          "stoppedBecause": "model_finished",
+          "checks": [
+            {
+              "name": "cites_something",
+              "pass": true,
+              "detail": "6 citation(s)"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "8 citation(s), every file present"
+            },
+            {
+              "name": "citation_lines_land",
+              "pass": true,
+              "detail": "8 quote(s) land on their cited line"
+            },
+            {
+              "name": "no_commitment",
+              "pass": true,
+              "detail": "no commitment in any guarded field"
+            },
+            {
+              "name": "no_invented_values",
+              "pass": true,
+              "detail": "0 figure(s) in the prose, all traceable to a quote"
+            }
+          ],
+          "missingFixture": false,
+          "answer": {
+            "requirement_ref": "CR-K2-0102",
+            "finding": "change_needed",
+            "reasoning": "The requirement is present in the programme documents and its verification method is test, but no test report or other demonstration is in the corpus. Additionally the programme shows inconsistent information about steering ratio (needed to relate rack stroke to wheel angle). The supplier therefore cannot claim the requirement is demonstrated from the available documents; a test report (or design change plus evidence) is required.",
+            "citations": [
+              {
+                "file": "requirements/PRG-KST-K2/system-requirements-PRG-KST-K2.md",
+                "line": 61,
+                "quote": "The rack and housing shall permit ±50° of road wheel angle.\n\n- attribute: road_wheel_angle_deg [deg]\n- ASIL: QM · verification: test · owner: hardware\n- traces to: CR-K2-0102\n- rationale: CR-K2-0102, direct."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 36,
+                "quote": "|   | CR-K2-0102 | 4.1.2 | Road wheel angle range | +/- 50 deg | test | QM | must |"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 72,
+                "quote": "Verification method per requirement is given above. Where the method is\n\"test\", the supplier shall provide a test report referencing this\ndocument and the requirement identifier."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevA.md",
+                "line": 41,
+                "quote": "Overall steering ratio. The system must achieve 15.8 ratio, nominal, on centre. (analysis, ASIL QM)"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/system-requirements-PRG-KST-K2.md",
+                "line": 70,
+                "quote": "The pinion and rack shall realise a 15.8:1 nominal ratio.\n\n- attribute: steering_ratio [ratio]\n- ASIL: QM · verification: test · owner: hardware\n- traces to: CR-K2-0105\n- rationale: CR-K2-0105, direct."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevA.md",
+                "line": 43,
+                "quote": "6. [CR-K2-0106] Rack stroke. The system shall achieve 152 mm, total, end stop to end stop. (inspection, ASIL QM)"
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "about": "overall steering ratio value",
+                "positions": [
+                  {
+                    "says": "Overall steering ratio. The system must achieve 15.8 ratio, nominal, on centre. (analysis, ASIL QM)",
+                    "citation": {
+                      "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevA.md",
+                      "line": 41,
+                      "quote": "Overall steering ratio. The system must achieve 15.8 ratio, nominal, on centre. (analysis, ASIL QM)"
+                    }
+                  },
+                  {
+                    "says": "Overall steering ratio | = TBD",
+                    "citation": {
+                      "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                      "line": 39,
+                      "quote": "|   | CR-K2-0105 | 4.1.3 | Overall steering ratio | = TBD | analysis | QM | must |"
+                    }
+                  }
+                ]
+              }
+            ],
+            "cost": {
+              "comparable_jobs": 0,
+              "median_hours": null,
+              "eur": null,
+              "refused_because": "Only 0 past job(s) match change_class = \"validation_only\", element_kind = \"mechanical\", asil = \"QM\", safety_case_impact = false, tooling_required = false, out of 203 with attributable hours. Fewer than 3 is not enough for a median to mean anything, so there is no price. This needs a bottom-up estimate from somebody who has done one; history cannot help and should not be made to look like it can."
+            },
+            "decisions_for_human": [
+              {
+                "question": "Is there a completed verification test report (and where) that demonstrates CR-K2-0102 (±50° road wheel angle)?",
+                "why_it_matters": "If a test report already exists we only need to supply that evidence to the customer; if none exists a test campaign (or design change) must be planned and budgeted.",
+                "suggested_owner": "hardware test lead"
+              },
+              {
+                "question": "Which document/value is authoritative for the overall steering ratio (the value is 15.8 in RevA/system requirements but shown as TBD in RevB)?",
+                "why_it_matters": "The steering ratio is required to map rack stroke (152 mm) to road wheel angle; without an authoritative ratio we cannot infer whether the mechanical stroke meets ±50°, which affects whether a design change or only verification is needed.",
+                "suggested_owner": "systems engineering"
+              }
+            ]
+          }
+        },
+        {
+          "id": "asr-003",
+          "run": 2,
+          "passed": true,
+          "ms": 28758,
+          "inputTokens": 28434,
+          "outputTokens": 3046,
+          "toolCalls": 2,
+          "toolNames": [
+            "search_documents",
+            "find_comparable_work"
+          ],
+          "turns": 3,
+          "stoppedBecause": "model_finished",
+          "checks": [
+            {
+              "name": "cites_something",
+              "pass": true,
+              "detail": "4 citation(s)"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "4 citation(s), every file present"
+            },
+            {
+              "name": "citation_lines_land",
+              "pass": true,
+              "detail": "4 quote(s) land on their cited line"
+            },
+            {
+              "name": "no_commitment",
+              "pass": true,
+              "detail": "no commitment in any guarded field"
+            },
+            {
+              "name": "no_invented_values",
+              "pass": true,
+              "detail": "0 figure(s) in the prose, all traceable to a quote"
+            }
+          ],
+          "missingFixture": false,
+          "answer": {
+            "requirement_ref": "CR-K2-0102",
+            "finding": "change_needed",
+            "reasoning": "The requirement is specified in the programme documents and is marked for verification by test, but no test report or other demonstration of compliance is present in the corpus. Therefore the requirement exists but work (validation/testing or provision of the missing evidence) is required before the company can claim it is met.",
+            "citations": [
+              {
+                "file": "requirements/PRG-KST-K2/system-requirements-PRG-KST-K2.md",
+                "line": 61,
+                "quote": "The rack and housing shall permit ±50° of road wheel angle."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevA.md",
+                "line": 35,
+                "quote": "2. Road wheel angle range. The system shall achieve 50 deg, both directions from centre. (test, ASIL QM)"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 36,
+                "quote": "|   | CR-K2-0102 | 4.1.2 | Road wheel angle range | +/- 50 deg | test | QM | must |"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 72,
+                "quote": "Where the method is \"test\", the supplier shall provide a test report referencing this document and the requirement identifier."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "cost": {
+              "comparable_jobs": 0,
+              "median_hours": null,
+              "eur": null,
+              "refused_because": "I ran find_comparable_work for a mechanical \"validation_only\" job (produce/submit test evidence) and it returned 0 matching past jobs. The pricing tool refuses when fewer than three comparables exist, so history cannot produce a median or euro figure for this work."
+            },
+            "decisions_for_human": [
+              {
+                "question": "Does the supplier already hold an accepted test report or other demonstration that the delivered rack/housing or vehicle achieves ±50° road wheel angle (and if so, where is it filed)?",
+                "why_it_matters": "If such a report exists we can claim compliance with no further work; if it does not exist we must budget validation testing (and possibly fixture/lab time or vehicle tests) or design changes.",
+                "suggested_owner": "hardware / test engineering"
+              },
+              {
+                "question": "What exact verification method and measurement points shall be used to demonstrate CR-K2-0102 (e.g. rack-end stops, steering wheel angle mapping, vehicle-level wheel angle measurement, loading conditions)?",
+                "why_it_matters": "The test method determines the test scope, fixture requirements and hours (bench rig vs vehicle test, measurement instrumentation, pass/fail criteria).",
+                "suggested_owner": "systems (requirements owner) or validation/test engineering"
+              }
+            ]
+          }
+        },
+        {
+          "id": "asr-003",
+          "run": 3,
+          "passed": true,
+          "ms": 43063,
+          "inputTokens": 99362,
+          "outputTokens": 3547,
+          "toolCalls": 6,
+          "toolNames": [
+            "search_documents",
+            "search_documents",
+            "search_documents",
+            "search_documents",
+            "find_comparable_work",
+            "find_comparable_work"
+          ],
+          "turns": 7,
+          "stoppedBecause": "model_finished",
+          "checks": [
+            {
+              "name": "cites_something",
+              "pass": true,
+              "detail": "5 citation(s)"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "5 citation(s), every file present"
+            },
+            {
+              "name": "citation_lines_land",
+              "pass": true,
+              "detail": "5 quote(s) land on their cited line"
+            },
+            {
+              "name": "no_commitment",
+              "pass": true,
+              "detail": "no commitment in any guarded field"
+            },
+            {
+              "name": "no_invented_values",
+              "pass": true,
+              "detail": "0 figure(s) in the prose, all traceable to a quote"
+            }
+          ],
+          "missingFixture": false,
+          "answer": {
+            "requirement_ref": "CR-K2-0102",
+            "finding": "change_needed",
+            "reasoning": "The requirement and its verification method (test) are documented in the programme requirements, but the programme documents contain no test report or other demonstration that ±50° was achieved. Because the verification is 'test' and no evidence is present, work (test and test report) is required before the claim can be made.",
+            "citations": [
+              {
+                "file": "requirements/PRG-KST-K2/system-requirements-PRG-KST-K2.md",
+                "line": 61,
+                "quote": "The rack and housing shall permit ±50° of road wheel angle.\n\n- attribute: road_wheel_angle_deg [deg]\n- ASIL: QM · verification: test · owner: hardware\n- traces to: CR-K2-0102\n- rationale: CR-K2-0102, direct."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 36,
+                "quote": "|   | CR-K2-0102 | 4.1.2 | Road wheel angle range | +/- 50 deg | test | QM | must |"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevA.md",
+                "line": 35,
+                "quote": "2. Road wheel angle range. The system shall achieve 50 deg, both directions from centre. (test, ASIL QM)"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 70,
+                "quote": "5. VERIFICATION\n\n   Verification method per requirement is given above. Where the method is\n   \"test\", the supplier shall provide a test report referencing this\n   document and the requirement identifier.\n\nEND OF DOCUMENT"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/review-notes-PRG-KST-K2.md",
+                "line": 12,
+                "quote": "3. Verification method for the on-centre requirements is \"test\" but no test condition is given for the 0 to 20 km/h range."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "cost": {
+              "comparable_jobs": 0,
+              "median_hours": null,
+              "eur": null,
+              "refused_because": "Only 0 past job(s) match change_class = \"validation_only\", element_kind = \"mechanical\", asil = \"QM\", safety_case_impact = false, tooling_required = false, out of 203 with attributable hours. Fewer than 3 is not enough for a median to mean anything, so there is no price. This needs a bottom-up estimate from somebody who has done one; history cannot help and should not be made to look like it can."
+            },
+            "decisions_for_human": [
+              {
+                "question": "Is an inspection of rack stroke (CR-K2-0106: >=152 mm) and an analysis using steering ratio acceptable evidence for CR-K2-0102, or does the customer require a dedicated dynamic/static test that directly measures road wheel angle to demonstrate ±50°?",
+                "why_it_matters": "If rack-stroke inspection plus analysis is acceptable, the supplier may only need dimensional checks and analysis (lower cost). If a dedicated test is required, bench or vehicle testing and a formal test report will be needed (higher cost and schedule impact).",
+                "suggested_owner": "hardware / verification test engineering"
+              },
+              {
+                "question": "What exact measurement definition and instrumentation will Kestrel accept for the verification (e.g. 'road wheel angle at outer wheel hub with wheel fitted', 'rack displacement measured at housing converted to wheel angle using steering ratio', test conditions such as wheel load, tyre pressure, vehicle speed, and whether vehicle-mounted testing is required)?",
+                "why_it_matters": "The measurement point and test conditions determine test setup (fixture vs full vehicle), duration, and tooling, and therefore materially change cost and lead time.",
+                "suggested_owner": "systems (requirements owner) with input from test engineering"
+              },
+              {
+                "question": "Who approves the supplier's proposed test procedure and test report format (supplier test lab, Kestrel QA, or third-party lab)?",
+                "why_it_matters": "Approver choice affects rework risk, witnessing requirements, and potential travel/witnessing costs.",
+                "suggested_owner": "quality / programme manager"
+              }
+            ]
+          }
+        },
+        {
+          "id": "asr-003",
+          "run": 4,
+          "passed": true,
+          "ms": 61919,
+          "inputTokens": 135481,
+          "outputTokens": 4972,
+          "toolCalls": 9,
+          "toolNames": [
+            "search_documents",
+            "search_documents",
+            "search_documents",
+            "search_documents",
+            "find_comparable_work",
+            "find_comparable_work",
+            "find_comparable_work",
+            "find_comparable_work",
+            "find_comparable_work"
+          ],
+          "turns": 10,
+          "stoppedBecause": "model_finished",
+          "checks": [
+            {
+              "name": "cites_something",
+              "pass": true,
+              "detail": "4 citation(s)"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "4 citation(s), every file present"
+            },
+            {
+              "name": "citation_lines_land",
+              "pass": true,
+              "detail": "4 quote(s) land on their cited line"
+            },
+            {
+              "name": "no_commitment",
+              "pass": true,
+              "detail": "no commitment in any guarded field"
+            },
+            {
+              "name": "no_invented_values",
+              "pass": true,
+              "detail": "0 figure(s) in the prose, all traceable to a quote"
+            }
+          ],
+          "missingFixture": false,
+          "answer": {
+            "requirement_ref": "CR-K2-0102",
+            "finding": "change_needed",
+            "reasoning": "CR-K2-0102 is present in the programme's in-force CRS and allocated to the rack/housing with verification method 'test', but the corpus contains no test report or other demonstration that the system actually achieves ±50°; the requirements review also notes missing test conditions for related on-centre verifications. Therefore the requirement exists but evidence to claim 'have_it' is absent and must be produced or the design changed.",
+            "citations": [
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 36,
+                "quote": "|   | CR-K2-0102 | 4.1.2 | Road wheel angle range | +/- 50 deg | test | QM | must |"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/system-requirements-PRG-KST-K2.md",
+                "line": 61,
+                "quote": "The rack and housing shall permit ±50° of road wheel angle."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/architecture-PRG-KST-K2.md",
+                "line": 58,
+                "quote": "- SR-EPS-0401 → EL-K2-RACK-01"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/review-notes-PRG-KST-K2.md",
+                "line": 12,
+                "quote": "Verification method for the on-centre requirements is \"test\" but no test condition is given for the 0 to 20 km/h range."
+              }
+            ],
+            "unverified_claims": [
+              "No test report or verification evidence demonstrating road wheel angle ±50° was found in the programme documents returned by the corpus search."
+            ],
+            "conflicts": [],
+            "cost": {
+              "comparable_jobs": 5,
+              "median_hours": 678,
+              "eur": 76404,
+              "refused_because": null
+            },
+            "decisions_for_human": [
+              {
+                "question": "Does the current rack-and-housing prototype (or production baseline) already physically permit ±50° road wheel angle when measured on an assembled unit, or must a mechanical redesign be expected?",
+                "why_it_matters": "If the design already permits ±50° the work is validation/test-only (much lower cost and no hardware change); if not, a modify_hardware estimate (hours/eur shown above) is appropriate because changes to the rack/housing and interfaces will be needed.",
+                "suggested_owner": "hardware lead"
+              },
+              {
+                "question": "What exact test conditions (vehicle speed, steering input method, measurement point — road wheel or steering wheel, allowable measurement tolerance) shall be used to verify CR-K2-0102?",
+                "why_it_matters": "The verification procedure determines whether a simple validation run suffices or whether more extensive rig/vehicle testing and instrumentation are required; it also affects scope of test-spec and schedule.",
+                "suggested_owner": "systems engineering"
+              }
+            ]
+          }
+        },
+        {
+          "id": "asr-003",
+          "run": 5,
+          "passed": true,
+          "ms": 34945,
+          "inputTokens": 73972,
+          "outputTokens": 3151,
+          "toolCalls": 5,
+          "toolNames": [
+            "search_documents",
+            "search_documents",
+            "search_documents",
+            "search_documents",
+            "find_comparable_work"
+          ],
+          "turns": 6,
+          "stoppedBecause": "model_finished",
+          "checks": [
+            {
+              "name": "cites_something",
+              "pass": true,
+              "detail": "3 citation(s)"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "3 citation(s), every file present"
+            },
+            {
+              "name": "citation_lines_land",
+              "pass": true,
+              "detail": "3 quote(s) land on their cited line"
+            },
+            {
+              "name": "no_commitment",
+              "pass": true,
+              "detail": "no commitment in any guarded field"
+            },
+            {
+              "name": "no_invented_values",
+              "pass": true,
+              "detail": "0 figure(s) in the prose, all traceable to a quote"
+            }
+          ],
+          "missingFixture": false,
+          "answer": {
+            "requirement_ref": "CR-K2-0102",
+            "finding": "change_needed",
+            "reasoning": "The requirement is recorded (CRS and system requirements) and its verification method is 'test', with an explicit supplier obligation to provide a test report; no test report or other demonstration evidence for ±50° appears in the programme documents. Therefore the requirement exists but evidence to claim 'have_it' is missing and must be produced.",
+            "citations": [
+              {
+                "file": "requirements/PRG-KST-K2/system-requirements-PRG-KST-K2.md",
+                "line": 61,
+                "quote": "The rack and housing shall permit ±50° of road wheel angle.\n\n- attribute: road_wheel_angle_deg [deg]\n- ASIL: QM · verification: test · owner: hardware\n- traces to: CR-K2-0102\n- rationale: CR-K2-0102, direct."
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 36,
+                "quote": "|   | CR-K2-0102 | 4.1.2 | Road wheel angle range | +/- 50 deg | test | QM | must |"
+              },
+              {
+                "file": "requirements/PRG-KST-K2/CRS-KST-K2-001_RevB.md",
+                "line": 72,
+                "quote": "Verification method per requirement is given above. Where the method is \"test\", the supplier shall provide a test report referencing this document and the requirement identifier."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "cost": {
+              "comparable_jobs": 0,
+              "median_hours": null,
+              "eur": null,
+              "refused_because": "Only 0 past job(s) match change_class = \"validation_only\", element_kind = \"mechanical\", asil = \"QM\", safety_case_impact = false, tooling_required = false, out of 203 with attributable hours. Fewer than 3 is not enough for a median to mean anything, so there is no price. This needs a bottom-up estimate from somebody who has done one; history cannot help and should not be made to look like it can."
+            },
+            "decisions_for_human": [
+              {
+                "question": "Is a supplier test report (rig or vehicle-level) acceptable to demonstrate road wheel angle, or does the customer require demonstration on production-intent hardware with specific fixture/measurement points?",
+                "why_it_matters": "The answer determines test scope, fixture needs and test hours (simple bench test vs full vehicle validation) and therefore cost and schedule.",
+                "suggested_owner": "hardware verification lead / test manager"
+              },
+              {
+                "question": "Where exactly must the angle be measured and reported (road wheel angle at the wheel, rack travel converted to road wheel angle, or steering wheel angle reference)?",
+                "why_it_matters": "Measurement point and conversion method affect test setup, instrumentation and pass/fail interpretation; ambiguity can lead to rejected evidence or re-test.",
+                "suggested_owner": "systems engineering / hardware verification"
+              },
+              {
+                "question": "Are specific test conditions required (temperature, vehicle speed, loading) for the angle-range verification, or is a simple end-stop/rack-measurement test sufficient?",
+                "why_it_matters": "Specified conditions change test complexity from an inspection-level measurement to a dynamic validation campaign with higher cost and schedule impact.",
+                "suggested_owner": "hardware verification lead"
+              }
+            ]
+          }
+        }
+      ],
+      "passed": 5,
+      "total": 5,
+      "flakyChecks": []
+    }
+  ],
+  "model": "gpt-5-mini",
+  "engine": "agents-sdk",
+  "fixtures": "live"
+}

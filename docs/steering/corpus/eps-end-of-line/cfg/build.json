@@ -1,0 +1,43 @@
+{
+  "repo": "eps-end-of-line",
+  "platform": "classic-autosar",
+  "toolchain": "greenhills-2022.1",
+  "modules": {
+    "eol_learn": {
+      "swc": "SWC-EOL",
+      "asil": "QM",
+      "optimisation": "-O2",
+      "stack_bytes": 3370
+    },
+    "eol_seq": {
+      "swc": "SWC-EOL",
+      "asil": "QM",
+      "optimisation": "-O2",
+      "stack_bytes": 3983
+    },
+    "rate_limit_1": {
+      "swc": "SWC-PLT-022",
+      "asil": "B",
+      "optimisation": "-Os",
+      "stack_bytes": 3527
+    },
+    "can_shim_2": {
+      "swc": "SWC-PLT-006",
+      "asil": "QM",
+      "optimisation": "-Os",
+      "stack_bytes": 1616
+    },
+    "rate_limit_3": {
+      "swc": "SWC-PLT-023",
+      "asil": "B",
+      "optimisation": "-O2",
+      "stack_bytes": 944
+    },
+    "unit_conv_4": {
+      "swc": "SWC-PLT-001",
+      "asil": "B",
+      "optimisation": "-O2",
+      "stack_bytes": 1570
+    }
+  }
+}

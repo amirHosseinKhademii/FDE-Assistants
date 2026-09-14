@@ -1,0 +1,49 @@
+# exported from the requirements tool 2026-09-02
+# WARNING: rows with an empty system_req are NOT errors in the export.
+# They are requirements nobody has allocated yet.
+customer_req,system_req,coverage,notes
+CR-KAI-20-0332,,,not yet allocated
+CR-KAI-20-0333,,,not yet allocated
+CR-KAI-20-0334,SR-KAI-20-0478,full,"reviewed, see minutes"
+CR-KAI-20-0334,SR-KAI-20-0480,partial,"reviewed, see minutes"
+CR-KAI-20-0335,SR-KAI-20-0484,partial,
+CR-KAI-20-0336,SR-KAI-20-0467,full,"reviewed, see minutes"
+CR-KAI-20-0336,SR-KAI-20-0474,full,"reviewed, see minutes"
+CR-KAI-20-0336,SR-KAI-20-0484,partial,
+CR-KAI-20-0336,SR-KAI-20-0485,full,"reviewed, see minutes"
+CR-KAI-20-0337,SR-KAI-20-0470,partial,
+CR-KAI-20-0337,SR-KAI-20-0476,partial,
+CR-KAI-20-0337,SR-KAI-20-0486,full,
+CR-KAI-20-0338,SR-KAI-20-0469,full,
+CR-KAI-20-0338,SR-KAI-20-0482,full,
+CR-KAI-20-0338,SR-KAI-20-0488,full,
+CR-KAI-20-0339,SR-KAI-20-0489,full,
+CR-KAI-20-0339,SR-KAI-20-0493,full,"reviewed, see minutes"
+CR-KAI-20-0340,,,
+CR-KAI-20-0341,SR-KAI-20-0471,full,
+CR-KAI-20-0341,SR-KAI-20-0480,full,
+CR-KAI-20-0341,SR-KAI-20-0489,full,
+CR-KAI-20-0342,SR-KAI-20-0466,full,
+CR-KAI-20-0342,SR-KAI-20-0483,full,
+CR-KAI-20-0342,SR-KAI-20-0487,full,
+CR-KAI-20-0342,SR-KAI-20-0488,partial,
+CR-KAI-20-0343,SR-KAI-20-0472,full,"reviewed, see minutes"
+CR-KAI-20-0344,SR-KAI-20-0476,full,
+CR-KAI-20-0344,SR-KAI-20-0493,full,"reviewed, see minutes"
+CR-KAI-20-0345,SR-KAI-20-0481,full,
+CR-KAI-20-0346,SR-KAI-20-0468,full,
+CR-KAI-20-0346,SR-KAI-20-0477,partial,
+CR-KAI-20-0346,SR-KAI-20-0478,full,
+CR-KAI-20-0346,SR-KAI-20-0479,full,
+CR-KAI-20-0347,SR-KAI-20-0475,partial,
+CR-KAI-20-0348,SR-KAI-20-0490,full,
+CR-KAI-20-0349,SR-KAI-20-0473,full,
+CR-KAI-20-0349,SR-KAI-20-0481,full,
+CR-KAI-20-0350,,,not yet allocated
+CR-KAI-20-0351,SR-KAI-20-0470,full,
+CR-KAI-20-0351,SR-KAI-20-0475,full,
+CR-KAI-20-0351,SR-KAI-20-0492,full,
+CR-KAI-20-0352,SR-KAI-20-0465,full,
+CR-KAI-20-0352,SR-KAI-20-0479,full,"reviewed, see minutes"
+CR-KAI-20-0352,SR-KAI-20-0490,full,
+CR-KAI-20-0352,SR-KAI-20-0491,full,"reviewed, see minutes"

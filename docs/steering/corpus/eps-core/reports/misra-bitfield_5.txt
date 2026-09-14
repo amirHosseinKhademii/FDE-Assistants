@@ -1,0 +1,19 @@
+MISRA C:2012 compliance report
+Repository : eps-core
+Module     : bitfield_5.c   (SWC-PLT-001, ASIL C)
+Tool       : Polyspace 2023b
+Run        : 2022-06-16
+Run by     : n.haas
+
+SUMMARY
+  rules checked        174
+  violations           14
+  deviations approved  5
+  unresolved           3
+
+DEVIATIONS
+  D-17  Rule 11.1  pointer arithmetic in the buffer walk. Approved.
+  (none)
+
+UNRESOLVED
+  Rule 16.1 at bitfield_5.c:383 — owner a.kovac, no target date

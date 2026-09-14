@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-diagnostics
+Module     : uds.c   (SWC-DIAG, ASIL QM)
+Tool       : Polyspace 2023b
+Run        : 2021-03-31
+Run by     : r.dietrich
+
+SUMMARY
+  rules checked        157
+  violations           13
+  deviations approved  3
+  unresolved           0
+
+DEVIATIONS
+  D-6  Rule 11.2  pointer arithmetic in the buffer walk. Approved.
+
+UNRESOLVED
+  (none)

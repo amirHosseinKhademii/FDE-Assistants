@@ -1,0 +1,61 @@
+{
+  "repo": "eps-safety-monitor",
+  "platform": "classic-autosar",
+  "toolchain": "gcc-arm-11.2",
+  "modules": {
+    "torque_bound": {
+      "swc": "SWC-SAFEMON",
+      "asil": "D",
+      "optimisation": "-O2",
+      "stack_bytes": 3273
+    },
+    "watchdog": {
+      "swc": "SWC-SAFEMON",
+      "asil": "D",
+      "optimisation": "-O2",
+      "stack_bytes": 1378
+    },
+    "plausibility": {
+      "swc": "SWC-SAFEMON",
+      "asil": "D",
+      "optimisation": "-O2",
+      "stack_bytes": 2706
+    },
+    "bitfield_1": {
+      "swc": "SWC-PLT-017",
+      "asil": "D",
+      "optimisation": "-O2",
+      "stack_bytes": 1232
+    },
+    "rate_limit_2": {
+      "swc": "SWC-PLT-017",
+      "asil": "B",
+      "optimisation": "-Os",
+      "stack_bytes": 2206
+    },
+    "event_queue_3": {
+      "swc": "SWC-PLT-011",
+      "asil": "B",
+      "optimisation": "-Os",
+      "stack_bytes": 1415
+    },
+    "debounce_4": {
+      "swc": "SWC-PLT-002",
+      "asil": "C",
+      "optimisation": "-O2",
+      "stack_bytes": 2753
+    },
+    "rate_limit_5": {
+      "swc": "SWC-PLT-035",
+      "asil": "QM",
+      "optimisation": "-O2",
+      "stack_bytes": 1168
+    },
+    "timebase_6": {
+      "swc": "SWC-PLT-031",
+      "asil": "QM",
+      "optimisation": "-O2",
+      "stack_bytes": 1600
+    }
+  }
+}

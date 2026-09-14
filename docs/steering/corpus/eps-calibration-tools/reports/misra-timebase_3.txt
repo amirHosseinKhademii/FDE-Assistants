@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-calibration-tools
+Module     : timebase_3.c   (SWC-PLT-001, ASIL B)
+Tool       : Coverity 2022.12
+Run        : 2021-12-05
+Run by     : n.haas
+
+SUMMARY
+  rules checked        167
+  violations           24
+  deviations approved  0
+  unresolved           1
+
+DEVIATIONS
+  (none)
+
+UNRESOLVED
+  Rule 9.1 at timebase_3.c:335 — owner e.palmer, no target date

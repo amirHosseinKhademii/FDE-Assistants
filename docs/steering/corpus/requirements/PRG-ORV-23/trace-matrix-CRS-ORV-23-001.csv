@@ -1,0 +1,32 @@
+# exported from the requirements tool 2026-09-12
+# WARNING: rows with an empty system_req are NOT errors in the export.
+# They are requirements nobody has allocated yet.
+customer_req,system_req,coverage,notes
+CR-ORV-23-0394,SR-ORV-23-0560,full,
+CR-ORV-23-0394,SR-ORV-23-0567,full,"reviewed, see minutes"
+CR-ORV-23-0395,SR-ORV-23-0552,full,
+CR-ORV-23-0395,SR-ORV-23-0556,full,
+CR-ORV-23-0395,SR-ORV-23-0564,full,
+CR-ORV-23-0396,SR-ORV-23-0556,full,
+CR-ORV-23-0396,SR-ORV-23-0565,full,
+CR-ORV-23-0397,,,
+CR-ORV-23-0398,SR-ORV-23-0551,full,
+CR-ORV-23-0398,SR-ORV-23-0559,full,
+CR-ORV-23-0398,SR-ORV-23-0566,full,
+CR-ORV-23-0399,SR-ORV-23-0555,full,
+CR-ORV-23-0399,SR-ORV-23-0557,full,
+CR-ORV-23-0400,SR-ORV-23-0555,full,
+CR-ORV-23-0400,SR-ORV-23-0557,full,
+CR-ORV-23-0400,SR-ORV-23-0563,full,
+CR-ORV-23-0401,,,not yet allocated
+CR-ORV-23-0402,SR-ORV-23-0553,full,"reviewed, see minutes"
+CR-ORV-23-0402,SR-ORV-23-0558,full,"reviewed, see minutes"
+CR-ORV-23-0402,SR-ORV-23-0560,full,
+CR-ORV-23-0403,SR-ORV-23-0551,full,
+CR-ORV-23-0403,SR-ORV-23-0562,full,"reviewed, see minutes"
+CR-ORV-23-0403,SR-ORV-23-0566,full,
+CR-ORV-23-0404,SR-ORV-23-0554,full,
+CR-ORV-23-0404,SR-ORV-23-0559,full,
+CR-ORV-23-0404,SR-ORV-23-0561,full,
+CR-ORV-23-0404,SR-ORV-23-0562,full,
+CR-ORV-23-0405,SR-ORV-23-0563,full,

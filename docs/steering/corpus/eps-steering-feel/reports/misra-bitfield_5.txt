@@ -1,0 +1,19 @@
+MISRA C:2012 compliance report
+Repository : eps-steering-feel
+Module     : bitfield_5.c   (SWC-PLT-034, ASIL QM)
+Tool       : LDRA 9.8
+Run        : 2026-03-22
+Run by     : s.beker
+
+SUMMARY
+  rules checked        175
+  violations           14
+  deviations approved  6
+  unresolved           1
+
+DEVIATIONS
+  (none)
+  D-3  Rule 14.5  union used for the CAN frame overlay. Approved.
+
+UNRESOLVED
+  (none)

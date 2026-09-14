@@ -1,0 +1,11 @@
+{
+  "tool": "get_policyholder",
+  "args": {
+    "policy_id": "AUT-4476"
+  },
+  "response": {
+    "policy_id": "AUT-4476",
+    "record": "# Policyholder Record AUT-4476 — Robert Kaminski\n\n> Meridian Mutual Insurance Company. Fictional document, written for an FDE\n> practice engagement. Do not use for anything real.\n>\n> Record type: policyholder · Policy ID: AUT-4476 · Form: PA-2023-01-TX\n\n## Declarations\n\n| Field                  | Value |\n|------------------------|-------|\n| Policy ID              | AUT-4476 |\n| Named insured          | Robert Kaminski |\n| Policy form            | PA-2023-01-TX |\n| Rated state            | Texas |\n| Effective date         | 2024-01-10 |\n| Expiration date        | 2025-01-10 |\n| Covered vehicle        | 2015 Chevrolet Silverado |\n\n## Coverages In Force\n\n| Coverage             | Selected | Deductible |\n|----------------------|----------|------------|\n| Collision            | yes      | $1,000 |\n| Comprehensive        | yes      | $500 |\n| Rental Reimbursement | no       | none |\n\n## Endorsements Attached\n\n- none\n\n## Claim History\n\ntwo collision claims, 2021-08 and 2022-12\n\n## Notes\n\nSelf-employed contractor. Vehicle used to carry personal tools to job sites.\n",
+    "source": "record:AUT-4476"
+  }
+}

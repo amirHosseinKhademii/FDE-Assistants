@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-steering-feel
+Module     : event_queue_7.c   (SWC-PLT-019, ASIL B)
+Tool       : Coverity 2022.12
+Run        : 2023-11-03
+Run by     : j.moreau
+
+SUMMARY
+  rules checked        157
+  violations           2
+  deviations approved  6
+  unresolved           0
+
+DEVIATIONS
+  D-1  Rule 18.9  union used for the CAN frame overlay. Approved.
+
+UNRESOLVED
+  Rule 20.6 at event_queue_7.c:245 — owner p.strand, no target date

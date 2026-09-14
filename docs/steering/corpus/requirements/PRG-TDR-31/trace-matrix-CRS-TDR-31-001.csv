@@ -1,0 +1,46 @@
+# exported from the requirements tool 2026-09-05
+# WARNING: rows with an empty system_req are NOT errors in the export.
+# They are requirements nobody has allocated yet.
+customer_req,system_req,coverage,notes
+CR-TDR-31-0516,SR-TDR-31-0727,full,
+CR-TDR-31-0517,SR-TDR-31-0726,partial,
+CR-TDR-31-0517,SR-TDR-31-0742,full,
+CR-TDR-31-0518,SR-TDR-31-0745,full,
+CR-TDR-31-0518,SR-TDR-31-0747,full,
+CR-TDR-31-0519,SR-TDR-31-0723,full,
+CR-TDR-31-0519,SR-TDR-31-0729,full,
+CR-TDR-31-0520,SR-TDR-31-0730,full,
+CR-TDR-31-0520,SR-TDR-31-0741,full,
+CR-TDR-31-0520,SR-TDR-31-0742,partial,
+CR-TDR-31-0521,SR-TDR-31-0733,partial,
+CR-TDR-31-0521,SR-TDR-31-0734,full,
+CR-TDR-31-0522,SR-TDR-31-0751,full,"reviewed, see minutes"
+CR-TDR-31-0523,SR-TDR-31-0739,full,
+CR-TDR-31-0524,SR-TDR-31-0743,partial,
+CR-TDR-31-0524,SR-TDR-31-0748,full,"reviewed, see minutes"
+CR-TDR-31-0525,SR-TDR-31-0728,full,
+CR-TDR-31-0525,SR-TDR-31-0729,full,
+CR-TDR-31-0525,SR-TDR-31-0733,full,
+CR-TDR-31-0526,SR-TDR-31-0735,full,"reviewed, see minutes"
+CR-TDR-31-0526,SR-TDR-31-0738,full,
+CR-TDR-31-0526,SR-TDR-31-0743,full,
+CR-TDR-31-0526,SR-TDR-31-0746,full,
+CR-TDR-31-0527,SR-TDR-31-0736,full,
+CR-TDR-31-0527,SR-TDR-31-0746,full,"reviewed, see minutes"
+CR-TDR-31-0527,SR-TDR-31-0751,full,
+CR-TDR-31-0528,SR-TDR-31-0724,full,
+CR-TDR-31-0529,SR-TDR-31-0725,full,
+CR-TDR-31-0529,SR-TDR-31-0731,full,
+CR-TDR-31-0529,SR-TDR-31-0750,full,
+CR-TDR-31-0530,SR-TDR-31-0727,partial,
+CR-TDR-31-0530,SR-TDR-31-0730,full,
+CR-TDR-31-0531,SR-TDR-31-0734,partial,
+CR-TDR-31-0532,,,
+CR-TDR-31-0533,SR-TDR-31-0728,full,
+CR-TDR-31-0534,SR-TDR-31-0732,full,
+CR-TDR-31-0534,SR-TDR-31-0740,full,
+CR-TDR-31-0534,SR-TDR-31-0749,full,
+CR-TDR-31-0535,SR-TDR-31-0744,full,
+CR-TDR-31-0535,SR-TDR-31-0748,full,
+CR-TDR-31-0536,SR-TDR-31-0737,full,
+CR-TDR-31-0536,SR-TDR-31-0739,full,

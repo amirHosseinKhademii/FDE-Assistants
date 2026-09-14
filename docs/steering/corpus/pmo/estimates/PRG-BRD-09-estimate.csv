@@ -1,0 +1,13 @@
+# bottom-up estimate, built before nomination
+# author: N. Haas   date: 2024-11-10
+# "basis" is free text. It is the only record of WHERE a number came from.
+work_package,discipline,hours,basis,confidence
+assist tuning,validation,872,guess,medium
+EOL calibration,calibration,256,engineering judgement,high
+safety case,safety,804,guess,medium
+diagnostics,software,81,from the last programme,high
+HIL rig update,pm,273,engineering judgement,low
+rack redesign,pm,357,engineering judgement,high
+diagnostics,systems,557,from the last programme,high
+assist tuning,calibration,46,from the last programme,medium
+EOL calibration,software,301,engineering judgement,high

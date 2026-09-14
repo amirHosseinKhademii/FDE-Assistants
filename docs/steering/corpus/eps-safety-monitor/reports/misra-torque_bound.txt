@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-safety-monitor
+Module     : torque_bound.c   (SWC-SAFEMON, ASIL D)
+Tool       : Coverity 2022.12
+Run        : 2024-12-15
+Run by     : s.beker
+
+SUMMARY
+  rules checked        171
+  violations           17
+  deviations approved  2
+  unresolved           2
+
+DEVIATIONS
+  D-20  Rule 9.6  pointer arithmetic in the buffer walk. Approved.
+
+UNRESOLVED
+  (none)

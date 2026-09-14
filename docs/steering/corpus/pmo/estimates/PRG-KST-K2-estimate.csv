@@ -1,0 +1,13 @@
+# bottom-up estimate, built before nomination
+# author: P. Strand   date: 2021-10-02
+# "basis" is free text. It is the only record of WHERE a number came from.
+work_package,discipline,hours,basis,confidence
+motor control,validation,625,supplier quote,low
+assist tuning,calibration,455,guess,high
+diagnostics,software,347,from the last programme,high
+motor control,safety,36,guess,medium
+EOL calibration,systems,615,guess,low
+gearbox change,safety,529,similar to H1,medium
+ECU integration,calibration,473,engineering judgement,medium
+validation,systems,795,from the last programme,high
+ECU integration,calibration,656,from the last programme,medium

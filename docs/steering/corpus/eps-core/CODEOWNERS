@@ -1,0 +1,12 @@
+# EPS core control
+*                    @vantis/control
+src/assist.c        @vantis/control
+src/arbitration.c        @vantis/control
+src/torque_sense.c        @vantis/control
+src/veh_speed.c        @vantis/control
+src/state_machine_1.c        @vantis/control
+src/filter_iir_2.c        @vantis/control
+src/timebase_3.c        @vantis/control
+src/fixpt_4.c        @vantis/control
+src/bitfield_5.c        @vantis/control
+reports/             @vantis/functional-safety

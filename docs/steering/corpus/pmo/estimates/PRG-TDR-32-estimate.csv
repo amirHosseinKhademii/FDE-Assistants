@@ -1,0 +1,13 @@
+# bottom-up estimate, built before nomination
+# author: T. Sala   date: 2024-05-13
+# "basis" is free text. It is the only record of WHERE a number came from.
+work_package,discipline,hours,basis,confidence
+harness,systems,317,similar to H1,low
+gearbox change,hardware,859,from the last programme,medium
+HIL rig update,systems,646,supplier quote,low
+harness,validation,427,similar to H1,high
+rack redesign,safety,243,engineering judgement,low
+harness,validation,607,engineering judgement,medium
+rack redesign,software,554,engineering judgement,high
+diagnostics,safety,25,similar to H1,medium
+diagnostics,calibration,582,guess,medium

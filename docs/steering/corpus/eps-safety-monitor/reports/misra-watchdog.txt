@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-safety-monitor
+Module     : watchdog.c   (SWC-SAFEMON, ASIL D)
+Tool       : Coverity 2022.12
+Run        : 2023-03-26
+Run by     : a.kovac
+
+SUMMARY
+  rules checked        153
+  violations           22
+  deviations approved  2
+  unresolved           1
+
+DEVIATIONS
+  D-23  Rule 11.3  union used for the CAN frame overlay. Approved.
+
+UNRESOLVED
+  Rule 9.3 at watchdog.c:93 — owner d.ferreira, no target date

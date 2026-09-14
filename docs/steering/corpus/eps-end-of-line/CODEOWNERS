@@ -1,0 +1,9 @@
+# End-of-line calibration
+*                    @vantis/diagnostics
+src/eol_learn.c        @vantis/diagnostics
+src/eol_seq.c        @vantis/diagnostics
+src/rate_limit_1.c        @vantis/diagnostics
+src/can_shim_2.c        @vantis/diagnostics
+src/rate_limit_3.c        @vantis/diagnostics
+src/unit_conv_4.c        @vantis/diagnostics
+reports/             @vantis/functional-safety

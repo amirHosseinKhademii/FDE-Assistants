@@ -1,0 +1,2251 @@
+{
+  "at": "2026-09-06T17:05:02.110Z",
+  "fixtures": "off",
+  "model": "gpt-5-mini",
+  "engine": "agents-sdk",
+  "repeat": 5,
+  "reports": [
+    {
+      "id": "cov-001",
+      "runs": [
+        {
+          "id": "cov-001",
+          "run": 1,
+          "missingFixture": false,
+          "ms": 30779,
+          "turns": 4,
+          "inputTokens": 11863,
+          "outputTokens": 2030,
+          "toolCalls": 3,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "cites_form:PA-END-2024-03",
+              "pass": true,
+              "detail": "cited PA-END-2024-03"
+            },
+            {
+              "name": "answer_contains:50",
+              "pass": true,
+              "detail": "answer contains \"50\""
+            },
+            {
+              "name": "answer_contains:21",
+              "pass": true,
+              "detail": "answer contains \"21\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 3 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) $50 per day. 2) Up to 21 days per occurrence. The PA-END-2024-03 endorsement is attached to AUT-4471 and its wording applies.",
+            "policy_id": "AUT-4471",
+            "policy_form": "PA-2023-01",
+            "citations": [
+              {
+                "source": "record:AUT-4471",
+                "claim": "PA-END-2024-03 is attached to this policy.",
+                "detail": "## Endorsements Attached\n\n- PA-END-2024-03"
+              },
+              {
+                "source": "policy:PA-END-2024-03#About This Endorsement",
+                "claim": "The endorsement's wording is used when attached to a policy.",
+                "detail": "Where this endorsement is attached to a policy, the wording below is used."
+              },
+              {
+                "source": "policy:PA-END-2024-03#Daily Limit",
+                "claim": "When the endorsement applies, the daily limit and maximum days for temporary transportation.",
+                "detail": "We pay **$50 per day**, up to **21 days** for each occurrence."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "rental reimbursement daily amount and maximum days",
+                "positions": [
+                  {
+                    "source": "policy:PA-2023-01#4.4 Rental Reimbursement",
+                    "says": "If your covered auto is withdrawn from use for more than 24 consecutive hours because of a loss covered under Part IV, we will pay reasonable expenses you incur for a rental vehicle of a class comparable to your covered auto.\n\nWe will pay **$40 per day, for a maximum of 30 days** per occurrence."
+                  },
+                  {
+                    "source": "policy:PA-END-2024-03#Daily Limit",
+                    "says": "We pay **$50 per day**, up to **21 days** for each occurrence."
+                  }
+                ],
+                "resolved_by": "record:AUT-4471"
+              }
+            ],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-001",
+          "run": 2,
+          "missingFixture": false,
+          "ms": 21612,
+          "turns": 4,
+          "inputTokens": 12270,
+          "outputTokens": 2098,
+          "toolCalls": 3,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "cites_form:PA-END-2024-03",
+              "pass": true,
+              "detail": "cited PA-END-2024-03"
+            },
+            {
+              "name": "answer_contains:50",
+              "pass": true,
+              "detail": "answer contains \"50\""
+            },
+            {
+              "name": "answer_contains:21",
+              "pass": true,
+              "detail": "answer contains \"21\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 4 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "$50 per day, up to 21 days per occurrence (per the PA-END-2024-03 endorsement attached to AUT-4471).",
+            "policy_id": "AUT-4471",
+            "policy_form": "PA-2023-01",
+            "citations": [
+              {
+                "source": "record:AUT-4471",
+                "claim": "Endorsement PA-END-2024-03 is attached to this policy.",
+                "detail": "- PA-END-2024-03"
+              },
+              {
+                "source": "policy:PA-END-2024-03#Collision Coverage > Temporary Transportation > Daily Limit",
+                "claim": "When the endorsement applies, the temporary transportation daily limit and maximum days.",
+                "detail": "We pay **$50 per day**, up to **21 days** for each occurrence."
+              },
+              {
+                "source": "policy:PA-END-2024-03#About This Endorsement",
+                "claim": "This endorsement's wording replaces the base form where attached.",
+                "detail": "Where this endorsement is attached to a policy, the wording below is used."
+              },
+              {
+                "source": "policy:PA-2023-01#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "The base form's rental reimbursement amount and maximum days (before endorsement).",
+                "detail": "We will pay **$40 per day, for a maximum of 30 days** per occurrence."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "per-day amount and maximum days for rental reimbursement",
+                "positions": [
+                  {
+                    "source": "policy:PA-2023-01#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                    "says": "We will pay **$40 per day, for a maximum of 30 days** per occurrence."
+                  },
+                  {
+                    "source": "policy:PA-END-2024-03#Collision Coverage > Temporary Transportation > Daily Limit",
+                    "says": "We pay **$50 per day**, up to **21 days** for each occurrence."
+                  }
+                ],
+                "resolved_by": "record:AUT-4471"
+              }
+            ],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-001",
+          "run": 3,
+          "missingFixture": false,
+          "ms": 20968,
+          "turns": 3,
+          "inputTokens": 8619,
+          "outputTokens": 2528,
+          "toolCalls": 3,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "cites_form:PA-END-2024-03",
+              "pass": true,
+              "detail": "cited PA-END-2024-03"
+            },
+            {
+              "name": "answer_contains:50",
+              "pass": true,
+              "detail": "answer contains \"50\""
+            },
+            {
+              "name": "answer_contains:21",
+              "pass": true,
+              "detail": "answer contains \"21\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 5 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "$50 per day, up to 21 days per covered loss. The endorsement PA-END-2024-03 attached to AUT-4471 replaces the base-form temporary transportation wording and states the $50/day, 21-day limit; the endorsement applies when the car cannot be driven for more than 24 hours because of a covered collision or comprehensive loss.",
+            "policy_id": "AUT-4471",
+            "policy_form": "PA-2023-01",
+            "citations": [
+              {
+                "source": "record:AUT-4471",
+                "claim": "Which form and endorsements are on the policy (shows PA-2023-01 and PA-END-2024-03 attached).",
+                "detail": "Policy form            | PA-2023-01\n\n## Endorsements Attached\n\n- PA-END-2024-03"
+              },
+              {
+                "source": "policy:PA-END-2024-03#Collision Coverage > Temporary Transportation > Daily Limit",
+                "claim": "Endorsement daily limit and maximum days.",
+                "detail": "We pay **$50 per day**, up to **21 days** for each occurrence."
+              },
+              {
+                "source": "policy:PA-END-2024-03#Collision Coverage > Temporary Transportation",
+                "claim": "When the endorsement's temporary transportation benefit applies.",
+                "detail": "If your car cannot be driven for more than 24 hours because of a covered\ncollision or comprehensive loss, we help with the cost of a rental car in the\nsame class as your car."
+              },
+              {
+                "source": "policy:PA-END-2024-03#About This Endorsement",
+                "claim": "Endorsement replaces base-form wording when attached.",
+                "detail": "Where this endorsement is attached to a policy, the wording below is used."
+              },
+              {
+                "source": "policy:PA-2023-01#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "Base form (if no endorsement) — shows a different daily limit and max days.",
+                "detail": "We will pay **$40 per day, for a maximum of 30 days** per occurrence."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "daily rate and maximum days for rental reimbursement",
+                "positions": [
+                  {
+                    "source": "policy:PA-2023-01#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                    "says": "We will pay **$40 per day, for a maximum of 30 days** per occurrence."
+                  },
+                  {
+                    "source": "policy:PA-END-2024-03#Collision Coverage > Temporary Transportation > Daily Limit",
+                    "says": "We pay **$50 per day**, up to **21 days** for each occurrence."
+                  }
+                ],
+                "resolved_by": "record:AUT-4471"
+              }
+            ],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-001",
+          "run": 4,
+          "missingFixture": false,
+          "ms": 21043,
+          "turns": 5,
+          "inputTokens": 17488,
+          "outputTokens": 2130,
+          "toolCalls": 4,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "cites_form:PA-END-2024-03",
+              "pass": true,
+              "detail": "cited PA-END-2024-03"
+            },
+            {
+              "name": "answer_contains:50",
+              "pass": true,
+              "detail": "answer contains \"50\""
+            },
+            {
+              "name": "answer_contains:21",
+              "pass": true,
+              "detail": "answer contains \"21\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 4 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1. $50 per day, up to 21 days per occurrence (the PA-END-2024-03 endorsement is attached to AUT-4471 and its wording applies).",
+            "policy_id": "AUT-4471",
+            "policy_form": "PA-2023-01",
+            "citations": [
+              {
+                "source": "record:AUT-4471",
+                "claim": "PA-END-2024-03 is attached to this policy.",
+                "detail": "## Endorsements Attached\n\n- PA-END-2024-03"
+              },
+              {
+                "source": "policy:PA-END-2024-03#Daily Limit",
+                "claim": "The endorsement sets the daily limit and maximum days.",
+                "detail": "We pay **$50 per day**, up to **21 days** for each occurrence."
+              },
+              {
+                "source": "policy:PA-END-2024-03#About This Endorsement",
+                "claim": "The endorsement replaces the base form wording where attached.",
+                "detail": "Where this endorsement is attached to a policy, the wording below is used."
+              },
+              {
+                "source": "policy:PA-2023-01#4.4 Rental Reimbursement",
+                "claim": "The base form (without endorsement) states a different daily limit and maximum days.",
+                "detail": "We will pay **$40 per day, for a maximum of 30 days** per occurrence."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "rental reimbursement daily amount and maximum days",
+                "positions": [
+                  {
+                    "source": "policy:PA-2023-01#4.4 Rental Reimbursement",
+                    "says": "We will pay **$40 per day, for a maximum of 30 days** per occurrence."
+                  },
+                  {
+                    "source": "policy:PA-END-2024-03#Daily Limit",
+                    "says": "We pay **$50 per day**, up to **21 days** for each occurrence."
+                  }
+                ],
+                "resolved_by": "record:AUT-4471"
+              }
+            ],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-001",
+          "run": 5,
+          "missingFixture": false,
+          "ms": 27293,
+          "turns": 4,
+          "inputTokens": 11937,
+          "outputTokens": 2725,
+          "toolCalls": 3,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "cites_form:PA-END-2024-03",
+              "pass": true,
+              "detail": "cited PA-END-2024-03"
+            },
+            {
+              "name": "answer_contains:50",
+              "pass": true,
+              "detail": "answer contains \"50\""
+            },
+            {
+              "name": "answer_contains:21",
+              "pass": true,
+              "detail": "answer contains \"21\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 4 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1. $50 per day, up to 21 days per occurrence — the PA-END-2024-03 endorsement attached to AUT-4471 governs and replaces the base-form limits.",
+            "policy_id": "AUT-4471",
+            "policy_form": "PA-2023-01",
+            "citations": [
+              {
+                "source": "record:AUT-4471",
+                "claim": "PA-END-2024-03 is attached to policy AUT-4471.",
+                "detail": "## Endorsements Attached\n\n- PA-END-2024-03"
+              },
+              {
+                "source": "policy:PA-END-2024-03#Collision Coverage > Temporary Transportation > Daily Limit",
+                "claim": "When PA-END-2024-03 applies, the daily rental reimbursement is $50 and the maximum is 21 days per occurrence.",
+                "detail": "We pay **$50 per day**, up to **21 days** for each occurrence."
+              },
+              {
+                "source": "policy:PA-END-2024-03#About This Endorsement",
+                "claim": "The endorsement's wording replaces the base form when it is attached.",
+                "detail": "Where this endorsement is attached to a policy, the wording below is used."
+              },
+              {
+                "source": "policy:PA-2023-01#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "The base PA-2023-01 form provides $40 per day, 30 days max (but is superseded by the attached endorsement).",
+                "detail": "We will pay **$40 per day, for a maximum of 30 days** per occurrence."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "daily limit and maximum days for rental reimbursement",
+                "positions": [
+                  {
+                    "source": "policy:PA-2023-01#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                    "says": "We will pay **$40 per day, for a maximum of 30 days** per occurrence."
+                  },
+                  {
+                    "source": "policy:PA-END-2024-03#Collision Coverage > Temporary Transportation > Daily Limit",
+                    "says": "We pay **$50 per day**, up to **21 days** for each occurrence."
+                  }
+                ],
+                "resolved_by": "record:AUT-4471"
+              }
+            ],
+            "escalate": null
+          }
+        }
+      ],
+      "passed": 5,
+      "total": 5,
+      "flakyChecks": []
+    },
+    {
+      "id": "cov-002",
+      "runs": [
+        {
+          "id": "cov-002",
+          "run": 1,
+          "missingFixture": false,
+          "ms": 32989,
+          "turns": 9,
+          "inputTokens": 63932,
+          "outputTokens": 3030,
+          "toolCalls": 8,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to underwriting referral desk"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 4 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) I cannot determine from the available policy documents whether the insured is covered while driving for a rideshare platform with passengers. The policyholder record shows the customer is on form PA-2023-01 and disclosed rideshare activity but has no commercial endorsement attached; the policy wording passages retrieved do not include an explicit clause about transporting passengers for a fee (rideshare/TNC). Escalation to underwriting is needed to decide whether liability for carrying passengers for hire is excluded or requires an endorsement.",
+            "policy_id": "AUT-4473",
+            "policy_form": "PA-2023-01",
+            "citations": [
+              {
+                "source": "record:AUT-4473",
+                "claim": "Policy form and endorsement status for this insured.",
+                "detail": "\"Policy form            | PA-2023-01\"; \"Endorsements Attached\\n\\n- none\"; \"Notes\\n\\nDrives for a rideshare platform part-time, evenings and weekends. Disclosed at application; no commercial endorsement was offered or issued.\""
+              },
+              {
+                "source": "policy:PA-2023-01#SCHEDULE OF EXCLUSIONS — PHYSICAL DAMAGE (Attaches to PA-2023-01) > PREAMBLE",
+                "claim": "Scope of the retrieved exclusions document (physical damage exclusions).",
+                "detail": "\"We do not provide Physical Damage Coverage — Comprehensive or Collision — for any loss described in EXCLUSION A through EXCLUSION K below. Where an exclusion applies to only one coverage, that is stated in the exclusion.\\n\\nAn exclusion applies whether or not any other cause contributed concurrently or in any sequence to the loss.\""
+              },
+              {
+                "source": "policy:PA-2023-01#SCHEDULE OF EXCLUSIONS — PHYSICAL DAMAGE (Attaches to PA-2023-01) > EXCLUSION B — TRANSPORTING GOODS OR PROPERTY FOR A FEE",
+                "claim": "The policy specifically excludes physical-damage losses while the vehicle is used to carry goods for a fee (delivery), but this clause is limited to goods/property, not passengers.",
+                "detail": "\"Loss to your covered auto occurring while it is being used to carry goods, freight, cargo, or property of others for compensation. This includes courier work, parcel delivery, freight hauling, and food or package delivery performed under contract with a third party.\\n\\nThis exclusion does not apply to:\\n\\n1. Occasional carriage of property belonging to a friend, relative, or neighbor without compensation;\\n2. Property carried in the course of the named insured's own trade where the named insured is not paid for the carriage itself.\""
+              },
+              {
+                "source": "policy:PA-2023-01#SCHEDULE OF EXCLUSIONS — PHYSICAL DAMAGE (Attaches to PA-2023-01) > APPLICATION NOTES FOR UNDERWRITING",
+                "claim": "Underwriting notes show an example where paid delivery shifts are treated as not covered under the physical-damage exclusions.",
+                "detail": "\"| Situation                                       | Exclusion | Coverage outcome |\\n|-------------------------------------------------|-----------|------------------|\\n| ...                                             | ...       | ...              |\\n| Paid food delivery shift                         | B         | Not covered      |\\n| ...                                             | ...       | ...              |\\n\\nQuestions on the application of any exclusion above go to the underwriting referral desk before a coverage position is communicated to the policyholder.\""
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": {
+              "reason": "The retrieved policy text includes the physical-damage exclusions but does not include (or the search did not return) any liability wording or an explicit exclusion or endorsement addressing \"transporting passengers for a fee\" (rideshare/TNC). The record shows the insured disclosed rideshare activity and has no commercial endorsement attached. Determining whether liability (or physical damage) for carrying passengers for hire is excluded, limited, or requires a rideshare/TNC endorsement requires review by underwriting or locating the liability section/endorsement language that governs passenger-for-hire activity.",
+              "suggested_owner": "underwriting referral desk"
+            }
+          }
+        },
+        {
+          "id": "cov-002",
+          "run": 2,
+          "missingFixture": false,
+          "ms": 37656,
+          "turns": 8,
+          "inputTokens": 49356,
+          "outputTokens": 3921,
+          "toolCalls": 7,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to underwriting referral desk"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 6 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) Escalate — I cannot determine from the policy documents returned whether driving for a rideshare platform with passengers is covered. Findings from the record and the PA-2023-01 wording: \n\n• The policy on file is form PA-2023-01 and no endorsements are attached to this policy.  \n• The policyholder disclosed driving for a rideshare platform and no commercial endorsement was issued.  \n• The PA-2023-01 physical-damage exclusion schedule includes an exclusion for transporting goods or property for a fee (examples: courier, parcel, food delivery) but the returned passages do not contain an explicit exclusion for transporting passengers for a fee or a “livery / for-hire passengers” clause that would settle the question.  \n\nBecause the documents returned do not settle whether passenger-for-hire (rideshare with passengers) use is excluded or requires a specific endorsement, underwriting/coverage must decide. Suggested owner: underwriting referral desk or coverage counsel (per the application notes in the exclusions schedule).\n",
+            "policy_id": "AUT-4473",
+            "policy_form": "PA-2023-01",
+            "citations": [
+              {
+                "source": "record:AUT-4473",
+                "claim": "Which policy form applies to this policy.",
+                "detail": "| Policy form            | PA-2023-01 |"
+              },
+              {
+                "source": "record:AUT-4473",
+                "claim": "Which endorsements are attached to this policy.",
+                "detail": "## Endorsements Attached\n\n- none"
+              },
+              {
+                "source": "record:AUT-4473",
+                "claim": "Policyholder disclosed rideshare driving and no commercial endorsement was issued.",
+                "detail": "Drives for a rideshare platform part-time, evenings and weekends. Disclosed at application; no commercial endorsement was offered or issued."
+              },
+              {
+                "source": "policy:PA-2023-01#SCHEDULE OF EXCLUSIONS — PHYSICAL DAMAGE (Attaches to PA-2023-01) > PREAMBLE",
+                "claim": "Scope of the exclusions schedule returned (physical-damage exclusions apply to Parts of coverage listed).",
+                "detail": "We do not provide Physical Damage Coverage — Comprehensive or Collision — for any loss described in EXCLUSION A through EXCLUSION K below. Where an exclusion applies to only one coverage, that is stated in the exclusion.\n\nAn exclusion applies whether or not any other cause contributed concurrently or in any sequence to the loss."
+              },
+              {
+                "source": "policy:PA-2023-01#SCHEDULE OF EXCLUSIONS — PHYSICAL DAMAGE (Attaches to PA-2023-01) > EXCLUSION B — TRANSPORTING GOODS OR PROPERTY FOR A FEE",
+                "claim": "Physical-damage exclusion for transporting goods for a fee (examples given).",
+                "detail": "Loss to your covered auto occurring while it is being used to carry goods, freight, cargo, or property of others for compensation. This includes courier work, parcel delivery, freight hauling, and food or package delivery performed under contract with a third party.\n\nThis exclusion does not apply to:\n\n1. Occasional carriage of property belonging to a friend, relative, or neighbor without compensation;\n2. Property carried in the course of the named insured's own trade where the named insured is not paid for the carriage itself."
+              },
+              {
+                "source": "policy:PA-2023-01#SCHEDULE OF EXCLUSIONS — PHYSICAL DAMAGE (Attaches to PA-2023-01) > APPLICATION NOTES FOR UNDERWRITING",
+                "claim": "Where to send questions about how an exclusion applies.",
+                "detail": "Questions on the application of any exclusion above go to the underwriting referral desk before a coverage position is communicated to the policyholder."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": {
+              "reason": "The PA-2023-01 form and its attached physical-damage exclusion schedule returned here do not contain a clear livery / passenger-for-hire exclusion or an endorsement on this policy that settles whether rideshare driving with passengers is excluded or covered. The record confirms no commercial endorsement is attached. Coverage counsel or underwriting must decide whether passenger-for-hire use is excluded under liability coverages or requires a specific endorsement for this policy.",
+              "suggested_owner": "underwriting referral desk"
+            }
+          }
+        },
+        {
+          "id": "cov-002",
+          "run": 3,
+          "missingFixture": false,
+          "ms": 42832,
+          "turns": 9,
+          "inputTokens": 81961,
+          "outputTokens": 4176,
+          "toolCalls": 8,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to underwriting referral desk / product operations"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 6 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) I cannot tell from the policy forms returned whether liability coverage applies while the insured is driving for a rideshare platform with passengers — escalate. 2) What I found: the policy on file is PA-2023-01 and the record notes the insured “Drives for a rideshare platform part-time, evenings and weekends. Disclosed at application; no commercial endorsement was offered or issued.” 3) The attached Schedule of Exclusions is labeled for Physical Damage only and contains exclusions for things like transporting goods for a fee and rental/lease to others, but I did not find any clause in PA-2023-01 or the attached Physical Damage exclusions that addresses transporting persons for a fee (rideshare) or states whether Part II (liability) covers driving for a rideshare with passengers. Recommendation: refer to the underwriting referral desk / product operations to confirm whether liability for passenger-for-hire (rideshare) driving is covered for this policy or whether a commercial/rideshare endorsement is required.",
+            "policy_id": "AUT-4473",
+            "policy_form": "PA-2023-01",
+            "citations": [
+              {
+                "source": "record:AUT-4473",
+                "claim": "Policy form on the policyholder record is PA-2023-01.",
+                "detail": "Policy form            | PA-2023-01"
+              },
+              {
+                "source": "record:AUT-4473",
+                "claim": "The policyholder disclosed rideshare driving at application and no commercial endorsement was attached.",
+                "detail": "Drives for a rideshare platform part-time, evenings and weekends. Disclosed at application; no commercial endorsement was offered or issued."
+              },
+              {
+                "source": "policy:PA-2023-01#Part VI — General Provisions > 6.2 Changes",
+                "claim": "Endorsements control changed terms where attached.",
+                "detail": "Where an endorsement is attached to this policy, the terms of the endorsement apply to the coverage it names."
+              },
+              {
+                "source": "policy:PA-2023-01#SCHEDULE OF EXCLUSIONS — PHYSICAL DAMAGE (Attaches to PA-2023-01) > PREAMBLE",
+                "claim": "The SCHEDULE OF EXCLUSIONS applies to Physical Damage (Comprehensive/Collision).",
+                "detail": "We do not provide Physical Damage Coverage — Comprehensive or Collision — for any loss described in EXCLUSION A through EXCLUSION K below. Where an exclusion applies to only one coverage, that is stated in the exclusion."
+              },
+              {
+                "source": "policy:PA-2023-01#SCHEDULE OF EXCLUSIONS — PHYSICAL DAMAGE (Attaches to PA-2023-01) > EXCLUSION B — TRANSPORTING GOODS OR PROPERTY FOR A FEE",
+                "claim": "The Physical Damage schedule excludes loss while the covered auto is being used to carry goods for compensation.",
+                "detail": "Loss to your covered auto occurring while it is being used to carry goods, freight, cargo, or property of others for compensation. This includes courier work, parcel delivery, freight hauling, and food or package delivery performed under contract with a third party."
+              },
+              {
+                "source": "policy:PA-2023-01#SCHEDULE OF EXCLUSIONS — PHYSICAL DAMAGE (Attaches to PA-2023-01) > APPLICATION NOTES FOR UNDERWRITING",
+                "claim": "Application notes show examples where exclusions are applied (e.g., paid food delivery excluded).",
+                "detail": "| Situation                                       | Exclusion | Coverage outcome |\n|-------------------------------------------------|-----------|------------------|\n| Paid food delivery shift                         | B         | Not covered      |\n| Vehicle listed on a peer-to-peer rental platform | I         | Not covered      |"
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": {
+              "reason": "PA-2023-01 and its attached Physical Damage exclusions do not state whether Part II (liability) covers transporting persons for a fee (rideshare) — the record shows the insured disclosed rideshare and no commercial endorsement is attached. Coverage for passenger-for-hire driving requires a human decision (underwriting/product) because the policy forms returned do not address it.",
+              "suggested_owner": "underwriting referral desk / product operations"
+            }
+          }
+        },
+        {
+          "id": "cov-002",
+          "run": 4,
+          "missingFixture": false,
+          "ms": 44275,
+          "turns": 6,
+          "inputTokens": 29659,
+          "outputTokens": 3222,
+          "toolCalls": 5,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to underwriting referral desk"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 6 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) I cannot determine from the returned policy documents whether Naomi Ferreira is covered while carrying rideshare passengers. Escalate to underwriting/coverage for a coverage determination.\n\nFindings you can rely on from the record and policy forms:\n- The policy for AUT-4473 is on form PA-2023-01 and the policyholder record notes the insured disclosed driving for a rideshare platform but has no commercial endorsement attached. (See citations 1–3.)\n- The insurer’s Physical Damage Schedule of Exclusions includes an exclusion for transporting goods or property for a fee (Exclusion B) but the returned passages do not contain a clause that expressly addresses transporting passengers for compensation or rideshare operations. The Application Notes direct questions about the application of exclusions to the underwriting referral desk. (See citations 4–5.)\n\nRecommended next step: send to the underwriting referral desk / coverage specialist to determine whether the company treats rideshare passenger-carrying as a covered private-use risk on PA-2023-01 (or whether a commercial/rideshare endorsement is required).",
+            "policy_id": "AUT-4473",
+            "policy_form": "PA-2023-01",
+            "citations": [
+              {
+                "source": "record:AUT-4473",
+                "claim": "Policy form and endorsements attached to AUT-4473.",
+                "detail": "\"Policy form            | PA-2023-01\\n...\\n## Endorsements Attached\\n\\n- none\""
+              },
+              {
+                "source": "record:AUT-4473",
+                "claim": "Named insured disclosed driving for a rideshare platform and no commercial endorsement was issued.",
+                "detail": "\"## Notes\\n\\nDrives for a rideshare platform part-time, evenings and weekends. Disclosed at application; no commercial endorsement was offered or issued.\""
+              },
+              {
+                "source": "record:AUT-4473",
+                "claim": "Coverages in force (for context).",
+                "detail": "\"## Coverages In Force\\n\\n| Coverage             | Selected | Deductible |\\n|----------------------|----------|------------|\\n| Collision            | yes      | $1,000 |\\n| Comprehensive        | yes      | $500 |\\n| Rental Reimbursement | yes      | none |\""
+              },
+              {
+                "source": "policy:PA-2023-01#SCHEDULE OF EXCLUSIONS — PHYSICAL DAMAGE > EXCLUSION B — TRANSPORTING GOODS OR PROPERTY FOR A FEE",
+                "claim": "Physical Damage exclusion for transporting goods or property for a fee (does not mention passengers).",
+                "detail": "\"Loss to your covered auto occurring while it is being used to carry goods,\\nfreight, cargo, or property of others for compensation. This includes courier\\nwork, parcel delivery, freight hauling, and food or package delivery performed\\nunder contract with a third party.\\n\\nThis exclusion does not apply to:\\n\\n1. Occasional carriage of property belonging to a friend, relative, or\\n   neighbor without compensation;\\n2. Property carried in the course of the named insured's own trade where the\\n   named insured is not paid for the carriage itself.\""
+              },
+              {
+                "source": "policy:PA-2023-01#SCHEDULE OF EXCLUSIONS — PHYSICAL DAMAGE > APPLICATION NOTES FOR UNDERWRITING",
+                "claim": "Application notes point underwriting questions to the underwriting referral desk.",
+                "detail": "\"| Situation                                       | Exclusion | Coverage outcome |\\n|-------------------------------------------------|-----------|------------------|\\n...\\n\\nQuestions on the application of any exclusion above go to the underwriting\\nreferral desk before a coverage position is communicated to the policyholder.\""
+              },
+              {
+                "source": "policy:PA-2023-01#Part VI — General Provisions > 6.2 Changes",
+                "claim": "Endorsements control when attached; policy terms cannot be changed except by endorsement.",
+                "detail": "\"This policy contains all the agreements between you and us. Its terms may not\\nbe changed or waived except by endorsement issued by us. Where an endorsement\\nis attached to this policy, the terms of the endorsement apply to the coverage\\nit names.\""
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": {
+              "reason": "The PA-2023-01 form and the attached Physical Damage exclusions returned by search do not contain an explicit liability or physical-damage clause stating whether transporting passengers for compensation (rideshare/livery) is covered. The policyholder record shows no commercial/rideshare endorsement is attached. This is a classic underwriting/coverage question that the policy documents did not settle; underwriting must decide whether rideshare passenger-carrying is permitted on this policy or requires a specific endorsement.",
+              "suggested_owner": "underwriting referral desk"
+            }
+          }
+        },
+        {
+          "id": "cov-002",
+          "run": 5,
+          "missingFixture": false,
+          "ms": 33568,
+          "turns": 8,
+          "inputTokens": 58077,
+          "outputTokens": 3183,
+          "toolCalls": 7,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to underwriting referral desk / product operations (coverage counsel)"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 7 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) Escalate — the documents retrieved do not say whether liability coverage applies while the insured is driving for a rideshare (transportation network) platform with passengers. I cannot determine coverage from the form and attachments available.  \n\nPartial findings:  \n- The policy is on form PA-2023-01 and the insured disclosed rideshare driving at application; no commercial endorsement was attached.  \n- The PA-2023-01 file and its attached Physical Damage exclusions that I retrieved do not contain an explicit clause about transporting passengers for a fee or about rideshare/transportation-network operations.  \n\nRecommended next step: refer to underwriting/product (underwriting referral desk or product operations / coverage counsel) to confirm whether PA-2023-01 (as issued to AUT-4473) excludes or requires an endorsement for rideshare driving with passengers before making a coverage denial or acceptance. If this is an active claim, do not deny on this basis without that referral.",
+            "policy_id": "AUT-4473",
+            "policy_form": "PA-2023-01",
+            "citations": [
+              {
+                "source": "record:AUT-4473",
+                "claim": "Policy is on form PA-2023-01.",
+                "detail": "| Policy form            | PA-2023-01 |"
+              },
+              {
+                "source": "record:AUT-4473",
+                "claim": "No endorsements are attached to the policy.",
+                "detail": "## Endorsements Attached\n\n- none"
+              },
+              {
+                "source": "record:AUT-4473",
+                "claim": "Insured disclosed driving for a rideshare platform at application and no commercial endorsement was offered or issued.",
+                "detail": "Notes\n\nDrives for a rideshare platform part-time, evenings and weekends. Disclosed at application; no commercial endorsement was offered or issued."
+              },
+              {
+                "source": "policy:PA-2023-01#Part VI — General Provisions > 6.2 Changes",
+                "claim": "Endorsements control changes to policy terms.",
+                "detail": "This policy contains all the agreements between you and us. Its terms may not be changed or waived except by endorsement issued by us. Where an endorsement is attached to this policy, the terms of the endorsement apply to the coverage it names."
+              },
+              {
+                "source": "policy:PA-2023-01#Part IV — Physical Damage Coverage > PREAMBLE",
+                "claim": "The attached exclusions schedule applies to Physical Damage (Comprehensive/Collision) only.",
+                "detail": "We do not provide Physical Damage Coverage — Comprehensive or Collision — for any loss described in EXCLUSION A through EXCLUSION K below. Where an exclusion applies to only one coverage, that is stated in the exclusion."
+              },
+              {
+                "source": "policy:PA-2023-01#SCHEDULE OF EXCLUSIONS — PHYSICAL DAMAGE (Attaches to PA-2023-01) > EXCLUSION B — TRANSPORTING GOODS OR PROPERTY FOR A FEE",
+                "claim": "The physical-damage exclusions include a transporting-goods-for-fee exclusion (but not a transporting-passengers-for-fee clause in the passages retrieved).",
+                "detail": "Loss to your covered auto occurring while it is being used to carry goods, freight, cargo, or property of others for compensation. This includes courier work, parcel delivery, freight hauling, and food or package delivery performed under contract with a third party."
+              },
+              {
+                "source": "policy:PA-2023-01#Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "The policy includes liability coverages (limits shown), but presence of limits does not answer whether they apply during rideshare operations.",
+                "detail": "| Bodily Injury Liability      | $100,000 / $300,000      | None       |"
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": {
+              "reason": "The policy record shows no commercial/rideshare endorsement attached but the policy form and attached Physical Damage exclusions retrieved do not state whether personal auto liability coverage applies while the insured is driving for a rideshare/TNC with passengers. This is a coverage determination that requires underwriting/product or coverage counsel (the documents do not settle it).",
+              "suggested_owner": "underwriting referral desk / product operations (coverage counsel)"
+            }
+          }
+        }
+      ],
+      "passed": 5,
+      "total": 5,
+      "flakyChecks": []
+    },
+    {
+      "id": "cov-003",
+      "runs": [
+        {
+          "id": "cov-003",
+          "run": 1,
+          "missingFixture": false,
+          "ms": 14223,
+          "turns": 3,
+          "inputTokens": 8209,
+          "outputTokens": 1595,
+          "toolCalls": 2,
+          "stoppedBecause": "model_finished",
+          "passed": false,
+          "checks": [
+            {
+              "name": "cites_record:AUT-4472",
+              "pass": true,
+              "detail": "cited record AUT-4472"
+            },
+            {
+              "name": "has_answer",
+              "pass": true,
+              "detail": "gave an answer"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "answer_lacks:$40",
+              "pass": false,
+              "detail": "answer wrongly contains \"$40\": \"1) None — this policy (AUT-4472) does not include Rental Reimbursement, so no per-day rental reimbursement is payable under this policy. 2) \""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 2 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) None — this policy (AUT-4472) does not include Rental Reimbursement, so no per-day rental reimbursement is payable under this policy. 2) For reference, the PA-2023-01 form (if Rental Reimbursement were purchased) provides $40 per day, up to 30 days per occurrence.",
+            "policy_id": "AUT-4472",
+            "policy_form": "PA-2023-01",
+            "citations": [
+              {
+                "source": "record:AUT-4472",
+                "claim": "This policy does not include Rental Reimbursement.",
+                "detail": "| Rental Reimbursement | no       | none |"
+              },
+              {
+                "source": "policy:PA-2023-01#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "If Rental Reimbursement is purchased on this form, the per-day amount and maximum days.",
+                "detail": "\"We will pay **$40 per day, for a maximum of 30 days** per occurrence.\""
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-003",
+          "run": 2,
+          "missingFixture": false,
+          "ms": 17118,
+          "turns": 3,
+          "inputTokens": 7989,
+          "outputTokens": 1833,
+          "toolCalls": 2,
+          "stoppedBecause": "model_finished",
+          "passed": false,
+          "checks": [
+            {
+              "name": "cites_record:AUT-4472",
+              "pass": true,
+              "detail": "cited record AUT-4472"
+            },
+            {
+              "name": "has_answer",
+              "pass": true,
+              "detail": "gave an answer"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "answer_lacks:$40",
+              "pass": false,
+              "detail": "answer wrongly contains \"$40\": \"1) AUT-4472: No rental reimbursement is selected on the policy — there is no rental reimbursement coverage for this policy. 2) (If it were s\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 2 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) AUT-4472: No rental reimbursement is selected on the policy — there is no rental reimbursement coverage for this policy. 2) (If it were selected) Form PA-2023-01 provides $40 per day, up to 30 days per occurrence.",
+            "policy_id": "AUT-4472",
+            "policy_form": "PA-2023-01",
+            "citations": [
+              {
+                "source": "record:AUT-4472",
+                "claim": "Rental Reimbursement is not selected on AUT-4472.",
+                "detail": "| Rental Reimbursement | no       | none |"
+              },
+              {
+                "source": "policy:PA-2023-01#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "If selected, the form pays $40 per day, for a maximum of 30 days per occurrence.",
+                "detail": "We will pay **$40 per day, for a maximum of 30 days** per occurrence."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-003",
+          "run": 3,
+          "missingFixture": false,
+          "ms": 19860,
+          "turns": 3,
+          "inputTokens": 8074,
+          "outputTokens": 2210,
+          "toolCalls": 2,
+          "stoppedBecause": "model_finished",
+          "passed": false,
+          "checks": [
+            {
+              "name": "cites_record:AUT-4472",
+              "pass": true,
+              "detail": "cited record AUT-4472"
+            },
+            {
+              "name": "has_answer",
+              "pass": true,
+              "detail": "gave an answer"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "answer_lacks:$40",
+              "pass": false,
+              "detail": "answer wrongly contains \"$40\": \"1. This policy (AUT-4472) does not include Rental Reimbursement — there is no per‑day or per‑loss payment for rental cars on this policy. 2.\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 3 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1. This policy (AUT-4472) does not include Rental Reimbursement — there is no per‑day or per‑loss payment for rental cars on this policy. 2. (If Rental Reimbursement were purchased on form PA-2023-01) the form provides $40 per day, up to a maximum of 30 days per occurrence; coverage begins 24 hours after the loss is reported.",
+            "policy_id": "AUT-4472",
+            "policy_form": "PA-2023-01",
+            "citations": [
+              {
+                "source": "record:AUT-4472",
+                "claim": "This policy does not include Rental Reimbursement.",
+                "detail": "| Rental Reimbursement | no       | none       |"
+              },
+              {
+                "source": "policy:PA-2023-01#PA-2023-01 — Personal Auto Policy, National Form (rev. Jan 2023) > Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "Amount and days the form provides for Rental Reimbursement if purchased.",
+                "detail": "We will pay **$40 per day, for a maximum of 30 days** per occurrence."
+              },
+              {
+                "source": "policy:PA-2023-01#PA-2023-01 — Personal Auto Policy, National Form (rev. Jan 2023) > Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "When rental reimbursement coverage begins under the form.",
+                "detail": "Coverage begins 24 hours after the loss is reported to us and ends on the earliest of:\n\n- The day your covered auto is returned to use;\n- The day we pay the actual cash value, if the vehicle is a total loss;\n- The day the 30-day maximum is reached."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-003",
+          "run": 4,
+          "missingFixture": false,
+          "ms": 14958,
+          "turns": 3,
+          "inputTokens": 8085,
+          "outputTokens": 1772,
+          "toolCalls": 2,
+          "stoppedBecause": "model_finished",
+          "passed": false,
+          "checks": [
+            {
+              "name": "cites_record:AUT-4472",
+              "pass": true,
+              "detail": "cited record AUT-4472"
+            },
+            {
+              "name": "has_answer",
+              "pass": true,
+              "detail": "gave an answer"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "answer_lacks:$40",
+              "pass": false,
+              "detail": "answer wrongly contains \"$40\": \"1) AUT-4472: Rental Reimbursement is not purchased on this policy, so no rental reimbursement is payable under this policy.\n2) (If the cover\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 3 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) AUT-4472: Rental Reimbursement is not purchased on this policy, so no rental reimbursement is payable under this policy.\n2) (If the coverage were selected) the PA-2023-01 form provides $40 per day, up to a maximum of 30 days; coverage begins 24 hours after the loss is reported.",
+            "policy_id": "AUT-4472",
+            "policy_form": "PA-2023-01",
+            "citations": [
+              {
+                "source": "record:AUT-4472",
+                "claim": "Rental Reimbursement is not purchased on AUT-4472.",
+                "detail": "| Rental Reimbursement | no       | none |"
+              },
+              {
+                "source": "policy:PA-2023-01#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "If selected, the form pays $40 per day, up to 30 days.",
+                "detail": "We will pay **$40 per day, for a maximum of 30 days** per occurrence."
+              },
+              {
+                "source": "policy:PA-2023-01#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "Coverage begins 24 hours after the loss is reported.",
+                "detail": "Coverage begins 24 hours after the loss is reported to us and ends on the earliest of:"
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-003",
+          "run": 5,
+          "missingFixture": false,
+          "ms": 6252,
+          "turns": 2,
+          "inputTokens": 4464,
+          "outputTokens": 785,
+          "toolCalls": 1,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "cites_record:AUT-4472",
+              "pass": true,
+              "detail": "cited record AUT-4472"
+            },
+            {
+              "name": "has_answer",
+              "pass": true,
+              "detail": "gave an answer"
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "answer_lacks:$40",
+              "pass": true,
+              "detail": "answer does not contain \"$40\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 2 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) None — Rental Reimbursement is not purchased on AUT-4472, so there is no per-day or per-claim rental reimbursement available under this policy.",
+            "policy_id": "AUT-4472",
+            "policy_form": "PA-2023-01",
+            "citations": [
+              {
+                "source": "record:AUT-4472",
+                "claim": "Policy form",
+                "detail": "Policy form            | PA-2023-01"
+              },
+              {
+                "source": "record:AUT-4472",
+                "claim": "Rental reimbursement selection for this policy",
+                "detail": "Rental Reimbursement | no       | none"
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": null
+          }
+        }
+      ],
+      "passed": 1,
+      "total": 5,
+      "flakyChecks": [
+        {
+          "name": "answer_lacks:$40",
+          "failed": 4
+        }
+      ]
+    },
+    {
+      "id": "cov-004",
+      "runs": [
+        {
+          "id": "cov-004",
+          "run": 1,
+          "missingFixture": false,
+          "ms": 23617,
+          "turns": 4,
+          "inputTokens": 12475,
+          "outputTokens": 2311,
+          "toolCalls": 3,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to policy administration / underwriting referral desk"
+            },
+            {
+              "name": "flags_conflict",
+              "pass": true,
+              "detail": "flagged 1 conflict(s): rental reimbursement daily limit and maximum days"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 3 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) Two possible rental-reimbursement schedules appear in the policy documents: • PA-2023-01-FL (base form): $40 per day, for a maximum of 30 days per occurrence. • PA-END-2024-03 (endorsement): $50 per day, up to 21 days per occurrence. 2) Which applies to AUT-4482 is unresolved: the policy record lists PA-END-2024-03 among endorsements but states the endorsement’s in-force status is unconfirmed. Escalate to confirm whether PA-END-2024-03 is effective on this policy; until then both wordings must be considered.",
+            "policy_id": "AUT-4482",
+            "policy_form": "PA-2023-01-FL",
+            "citations": [
+              {
+                "source": "policy:PA-2023-01-FL#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "Base form rental reimbursement limit and duration.",
+                "detail": "\"Under form PA-2023-01-FL we will pay **$40 per day, for a maximum of\n30 days** per occurrence.\""
+              },
+              {
+                "source": "policy:PA-END-2024-03#Endorsement PA-END-2024-03 > Collision Coverage > Temporary Transportation > Daily Limit",
+                "claim": "Endorsement rental reimbursement limit and duration.",
+                "detail": "\"We pay **$50 per day**, up to **21 days** for each occurrence.\""
+              },
+              {
+                "source": "record:AUT-4482",
+                "claim": "Whether the endorsement PA-END-2024-03 is in force on this policy is unconfirmed.",
+                "detail": "\"PA-END-2024-03 was filed with the state on 2024-09-12 and appears on this record, but the countersigned copy has not been returned by the agent. Whether the endorsement is in force on this policy is unconfirmed.\""
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "rental reimbursement daily limit and maximum days",
+                "positions": [
+                  {
+                    "source": "policy:PA-2023-01-FL#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                    "says": "\"Under form PA-2023-01-FL we will pay **$40 per day, for a maximum of\n30 days** per occurrence.\""
+                  },
+                  {
+                    "source": "policy:PA-END-2024-03#Endorsement PA-END-2024-03 > Collision Coverage > Temporary Transportation > Daily Limit",
+                    "says": "\"We pay **$50 per day**, up to **21 days** for each occurrence.\""
+                  }
+                ],
+                "resolved_by": null
+              }
+            ],
+            "escalate": {
+              "reason": "The base policy form and the attached endorsement state different per-day limits and different maximum days for rental-reimbursement. The policyholder record lists PA-END-2024-03 but explicitly notes the countersigned copy has not been returned and the endorsement’s in-force status is unconfirmed. A human must confirm whether PA-END-2024-03 is effective on AUT-4482 (policy administration or underwriting/policy services) before applying either limit.",
+              "suggested_owner": "policy administration / underwriting referral desk"
+            }
+          }
+        },
+        {
+          "id": "cov-004",
+          "run": 2,
+          "missingFixture": false,
+          "ms": 23244,
+          "turns": 4,
+          "inputTokens": 11998,
+          "outputTokens": 2663,
+          "toolCalls": 3,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to underwriting referral desk"
+            },
+            {
+              "name": "flags_conflict",
+              "pass": true,
+              "detail": "flagged 1 conflict(s): rental reimbursement per-day amount and maximum days"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 3 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) Two possible answers depending on whether endorsement PA-END-2024-03 applies: \n- If PA-END-2024-03 does NOT apply (base form PA-2023-01-FL): $40 per day, maximum 30 days per occurrence.\n- If PA-END-2024-03 DOES apply: $50 per day, up to 21 days per occurrence.\n\nThe policy file lists PA-END-2024-03 but its in-force status is unconfirmed — please have underwriting/agent confirm whether that endorsement applies (this determines which limit governs).",
+            "policy_id": "AUT-4482",
+            "policy_form": "PA-2023-01-FL",
+            "citations": [
+              {
+                "source": "policy:PA-2023-01-FL#PA-2023-01-FL — Personal Auto Policy — Florida Amendatory (rev. Jan 2023) > Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "Base form daily amount and maximum (if endorsement does not apply).",
+                "detail": "Under form PA-2023-01-FL we will pay **$40 per day, for a maximum of\n30 days** per occurrence."
+              },
+              {
+                "source": "policy:PA-END-2024-03#Endorsement PA-END-2024-03 > Collision Coverage > Temporary Transportation > Daily Limit",
+                "claim": "Endorsement daily amount and maximum (if endorsement applies).",
+                "detail": "We pay **$50 per day**, up to **21 days** for each occurrence."
+              },
+              {
+                "source": "record:AUT-4482",
+                "claim": "Policy record about the endorsement's attachment and its unconfirmed status.",
+                "detail": "PA-END-2024-03 was filed with the state on 2024-09-12 and appears on this record, but the countersigned copy has not been returned by the agent. Whether the endorsement is in force on this policy is unconfirmed."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "rental reimbursement per-day amount and maximum days",
+                "positions": [
+                  {
+                    "source": "policy:PA-2023-01-FL#PA-2023-01-FL — Personal Auto Policy — Florida Amendatory (rev. Jan 2023) > Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                    "says": "Under form PA-2023-01-FL we will pay **$40 per day, for a maximum of\n30 days** per occurrence."
+                  },
+                  {
+                    "source": "policy:PA-END-2024-03#Endorsement PA-END-2024-03 > Collision Coverage > Temporary Transportation > Daily Limit",
+                    "says": "We pay **$50 per day**, up to **21 days** for each occurrence."
+                  }
+                ],
+                "resolved_by": null
+              }
+            ],
+            "escalate": {
+              "reason": "The policy record lists endorsement PA-END-2024-03 but states the countersigned copy has not been returned and that whether the endorsement is in force is unconfirmed. The base form and the endorsement give different daily limits and maximum days; a human must confirm whether PA-END-2024-03 is in force to determine which limit applies.",
+              "suggested_owner": "underwriting referral desk"
+            }
+          }
+        },
+        {
+          "id": "cov-004",
+          "run": 3,
+          "missingFixture": false,
+          "ms": 25286,
+          "turns": 5,
+          "inputTokens": 17486,
+          "outputTokens": 2865,
+          "toolCalls": 4,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to underwriting referral desk (endorsement confirmation) or policy issuance"
+            },
+            {
+              "name": "flags_conflict",
+              "pass": true,
+              "detail": "flagged 1 conflict(s): daily per-day amount and maximum rental-days for rental reimbursement"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 5 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) If the PA-END-2024-03 endorsement does NOT apply: rental reimbursement is $40 per day, up to 30 days per occurrence (per the PA-2023-01-FL form). 2) If PA-END-2024-03 does apply: temporary transportation is $50 per day, up to 21 days per occurrence (per PA-END-2024-03). The policy record lists PA-END-2024-03 but states the endorsement’s in-force status is unconfirmed, so a human must confirm which wording governs this policy before paying.",
+            "policy_id": "AUT-4482",
+            "policy_form": "PA-2023-01-FL",
+            "citations": [
+              {
+                "source": "record:AUT-4482",
+                "claim": "Rental Reimbursement is selected on the declarations and has no deductible.",
+                "detail": "| Rental Reimbursement | yes      | none |"
+              },
+              {
+                "source": "policy:PA-2023-01-FL#PA-2023-01-FL — Personal Auto Policy — Florida Amendatory (rev. Jan 2023) > Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "Base form rental reimbursement limit and duration.",
+                "detail": "Under form PA-2023-01-FL we will pay **$40 per day, for a maximum of\n30 days** per occurrence."
+              },
+              {
+                "source": "policy:PA-END-2024-03#Endorsement PA-END-2024-03 > Collision Coverage > Temporary Transportation > Daily Limit",
+                "claim": "Endorsement temporary transportation limit and duration.",
+                "detail": "We pay **$50 per day**, up to **21 days** for each occurrence."
+              },
+              {
+                "source": "record:AUT-4482",
+                "claim": "The endorsement PA-END-2024-03 is listed on the policy but its in-force status is unconfirmed.",
+                "detail": "PA-END-2024-03 was filed with the state on 2024-09-12 and appears on this record, but the countersigned copy has not been returned by the agent. Whether the endorsement is in force on this policy is unconfirmed."
+              },
+              {
+                "source": "policy:PA-END-2024-03#Endorsement PA-END-2024-03 > About This Endorsement",
+                "claim": "Endorsement replaces base wording where attached.",
+                "detail": "Where this endorsement is attached to a policy, the wording below is used."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "daily per-day amount and maximum rental-days for rental reimbursement",
+                "positions": [
+                  {
+                    "source": "policy:PA-2023-01-FL#PA-2023-01-FL — Personal Auto Policy — Florida Amendatory (rev. Jan 2023) > Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                    "says": "Under form PA-2023-01-FL we will pay **$40 per day, for a maximum of\n30 days** per occurrence."
+                  },
+                  {
+                    "source": "policy:PA-END-2024-03#Endorsement PA-END-2024-03 > Collision Coverage > Temporary Transportation > Daily Limit",
+                    "says": "We pay **$50 per day**, up to **21 days** for each occurrence."
+                  }
+                ],
+                "resolved_by": null
+              }
+            ],
+            "escalate": {
+              "reason": "The policy record lists endorsement PA-END-2024-03 but explicitly marks the endorsement’s in-force status as unconfirmed (countersigned copy not returned). The base form and the endorsement state different per-day limits and different maximum days. A human (underwriting/policy issuance) must confirm whether PA-END-2024-03 is effective on AUT-4482 before selecting which limit to apply.",
+              "suggested_owner": "underwriting referral desk (endorsement confirmation) or policy issuance"
+            }
+          }
+        },
+        {
+          "id": "cov-004",
+          "run": 4,
+          "missingFixture": false,
+          "ms": 38593,
+          "turns": 5,
+          "inputTokens": 18251,
+          "outputTokens": 4681,
+          "toolCalls": 3,
+          "stoppedBecause": "schema_invalid",
+          "passed": false,
+          "checks": [
+            {
+              "name": "escalates",
+              "pass": false,
+              "detail": "no valid answer (schema_invalid)"
+            },
+            {
+              "name": "flags_conflict",
+              "pass": false,
+              "detail": "no valid answer (schema_invalid)"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": false,
+              "detail": "no valid answer (schema_invalid)"
+            }
+          ],
+          "error": "internally inconsistent: conflict \"(placeholder)\" lists fewer than two positions | internally inconsistent: conflict \"(none)\" lists fewer than two positions"
+        },
+        {
+          "id": "cov-004",
+          "run": 5,
+          "missingFixture": false,
+          "ms": 26301,
+          "turns": 4,
+          "inputTokens": 12873,
+          "outputTokens": 3223,
+          "toolCalls": 3,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to underwriting referral desk"
+            },
+            {
+              "name": "flags_conflict",
+              "pass": true,
+              "detail": "flagged 1 conflict(s): rental reimbursement daily rate and maximum days"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 6 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "Two possible answers on AUT-4482 depending on whether endorsement PA-END-2024-03 is in force: \n\n- If PA-END-2024-03 is NOT in force (base form PA-2023-01-FL applies): $40 per day, up to 30 days per occurrence. \n- If PA-END-2024-03 IS in force (it amends the temporary transportation benefit): $50 per day, up to 21 days per occurrence. \n\nThe policy record shows the endorsement on the file but its effective status is unconfirmed; please confirm whether PA-END-2024-03 is in force.",
+            "policy_id": "AUT-4482",
+            "policy_form": "PA-2023-01-FL",
+            "citations": [
+              {
+                "source": "policy:PA-2023-01-FL#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "PA-2023-01-FL: rental reimbursement amount and maximum days",
+                "detail": "Under form PA-2023-01-FL we will pay **$40 per day, for a maximum of\n30 days** per occurrence."
+              },
+              {
+                "source": "policy:PA-2023-01-FL#Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "PA-2023-01-FL: schedule showing rental reimbursement limit and deductible",
+                "detail": "| Rental Reimbursement         | $40 per day, 30 days max | None       |"
+              },
+              {
+                "source": "policy:PA-END-2024-03#Endorsement PA-END-2024-03 > Collision Coverage > Temporary Transportation > Daily Limit",
+                "claim": "PA-END-2024-03: endorsement daily limit and maximum days",
+                "detail": "We pay **$50 per day**, up to **21 days** for each occurrence."
+              },
+              {
+                "source": "policy:PA-END-2024-03#Endorsement PA-END-2024-03 > Collision Coverage > Temporary Transportation > When It Starts and Stops",
+                "claim": "PA-END-2024-03: when the temporary transportation benefit starts and stops",
+                "detail": "The benefit starts once you tell us about the loss. It ends on whichever of\nthese happens first:\n\n- your car is back on the road;\n- we pay you the value of the car because it is a total loss;\n- you reach 21 days.\n\nWe do not pay for rental days before you reported the loss to us."
+              },
+              {
+                "source": "record:AUT-4482",
+                "claim": "Policy record shows the endorsement is listed but its in-force status is unconfirmed",
+                "detail": "PA-END-2024-03 was filed with the state on 2024-09-12 and appears on this record, but the countersigned copy has not been returned by the agent. Whether the endorsement is in force on this policy is unconfirmed."
+              },
+              {
+                "source": "record:AUT-4482",
+                "claim": "Policy record shows Rental Reimbursement coverage is selected on the policy",
+                "detail": "| Rental Reimbursement | yes | none |"
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "rental reimbursement daily rate and maximum days",
+                "positions": [
+                  {
+                    "source": "policy:PA-2023-01-FL#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                    "says": "Under form PA-2023-01-FL we will pay **$40 per day, for a maximum of\n30 days** per occurrence."
+                  },
+                  {
+                    "source": "policy:PA-END-2024-03#Endorsement PA-END-2024-03 > Collision Coverage > Temporary Transportation > Daily Limit",
+                    "says": "We pay **$50 per day**, up to **21 days** for each occurrence."
+                  }
+                ],
+                "resolved_by": null
+              }
+            ],
+            "escalate": {
+              "reason": "Endorsement PA-END-2024-03 appears on the policy record but the record explicitly states the countersigned copy has not been returned and the endorsement's in-force status is unconfirmed. Need a human to confirm whether PA-END-2024-03 is effective for AUT-4482 so we can determine which daily limit/maximum days apply.",
+              "suggested_owner": "underwriting referral desk"
+            }
+          }
+        }
+      ],
+      "passed": 4,
+      "total": 5,
+      "flakyChecks": [
+        {
+          "name": "escalates",
+          "failed": 1
+        },
+        {
+          "name": "flags_conflict",
+          "failed": 1
+        },
+        {
+          "name": "citations_resolve",
+          "failed": 1
+        }
+      ]
+    },
+    {
+      "id": "cov-005",
+      "runs": [
+        {
+          "id": "cov-005",
+          "run": 1,
+          "missingFixture": false,
+          "ms": 19607,
+          "turns": 3,
+          "inputTokens": 7975,
+          "outputTokens": 2462,
+          "toolCalls": 2,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "cites_form:PA-2023-01-TX",
+              "pass": true,
+              "detail": "cited PA-2023-01-TX"
+            },
+            {
+              "name": "answer_contains:30,000",
+              "pass": true,
+              "detail": "answer contains \"30,000\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 2 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "Finding: Not confirmed on the file. The policy form’s standard Bodily Injury Liability limit is $30,000 per person / $60,000 per accident, but the Declarations page controls and AUT-4476’s record does not show a bodily-injury limit — obtain the Declarations to confirm the actual limit on this policy.",
+            "policy_id": "AUT-4476",
+            "policy_form": "PA-2023-01-TX",
+            "citations": [
+              {
+                "source": "policy:PA-2023-01-TX#PA-2023-01-TX — Personal Auto Policy — Texas Amendatory (rev. Jan 2023) > Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "The policy form’s standard Bodily Injury Liability limit is $30,000 / $60,000.",
+                "detail": "\"Amounts below are the standard offering for form PA-2023-01-TX. The Declarations page for an individual policyholder controls where it differs.\\n\\n| Coverage                     | Limit                    | Deductible |\\n|------------------------------|--------------------------|------------|\\n| ...\\n| Bodily Injury Liability      | $30,000 / $60,000        | None       |\""
+              },
+              {
+                "source": "record:AUT-4476",
+                "claim": "The AUT-4476 record on file does not list a bodily injury liability limit in its Coverages In Force section.",
+                "detail": "\"## Coverages In Force\\n\\n| Coverage             | Selected | Deductible |\\n|----------------------|----------|------------|\\n| Collision            | yes      | $1,000 |\\n| Comprehensive        | yes      | $500 |\\n| Rental Reimbursement | no       | none |\""
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": {
+              "reason": "The policy form states the Declarations page controls where it differs, but the AUT-4476 record does not include the Declarations’ bodily injury limit. The actual limit must be confirmed from the policy Declarations or by policy operations/underwriting before setting reserve or making coverage decisions.",
+              "suggested_owner": "policy operations / underwriting"
+            }
+          }
+        },
+        {
+          "id": "cov-005",
+          "run": 2,
+          "missingFixture": false,
+          "ms": 21035,
+          "turns": 3,
+          "inputTokens": 7867,
+          "outputTokens": 2551,
+          "toolCalls": 2,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "cites_form:PA-2023-01-TX",
+              "pass": true,
+              "detail": "cited PA-2023-01-TX"
+            },
+            {
+              "name": "answer_contains:30,000",
+              "pass": true,
+              "detail": "answer contains \"30,000\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 2 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) The PA-2023-01-TX form’s standard Bodily Injury Liability is $30,000 per person / $60,000 per accident. 2) I cannot confirm the actual BI limit on AUT-4476 because the policyholder record’s Coverages In Force does not show any liability limits — the Declarations page controls and is not included here. Please obtain the policy Declarations or contact policy administration to confirm the limit for AUT-4476.",
+            "policy_id": "AUT-4476",
+            "policy_form": "PA-2023-01-TX",
+            "citations": [
+              {
+                "source": "policy:PA-2023-01-TX#Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "The form’s standard Bodily Injury Liability limit",
+                "detail": "\"Amounts below are the standard offering for form PA-2023-01-TX. The Declarations\npage for an individual policyholder controls where it differs.\n\n| Coverage                     | Limit                    | Deductible |\n|------------------------------|--------------------------|------------|\n| Collision                    | Actual cash value        | $1,000     |\n| Comprehensive                | Actual cash value        | $500       |\n| Rental Reimbursement         | $40 per day, 30 days max | None       |\n| Bodily Injury Liability      | $30,000 / $60,000        | None       |\n| Property Damage Liability    | $25,000                  | None       |\""
+              },
+              {
+                "source": "record:AUT-4476",
+                "claim": "The policyholder record does not list a bodily injury limit on the Declarations/Coverages In Force",
+                "detail": "\"## Coverages In Force\n\n| Coverage             | Selected | Deductible |\n|----------------------|----------|------------|\n| Collision            | yes      | $1,000 |\n| Comprehensive        | yes      | $500 |\n| Rental Reimbursement | no       | none |\""
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": {
+              "reason": "The policy form shows a standard BI limit of $30,000/$60,000 but the AUT-4476 policyholder record provided does not include the Declarations line showing the actual BI limit. The Declarations page controls for deviations from the form. Please obtain the Declarations page or have policy administration confirm the insured's actual BI limit.",
+              "suggested_owner": "policy administration / policy services"
+            }
+          }
+        },
+        {
+          "id": "cov-005",
+          "run": 3,
+          "missingFixture": false,
+          "ms": 108308,
+          "turns": 3,
+          "inputTokens": 7948,
+          "outputTokens": 15947,
+          "toolCalls": 2,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "cites_form:PA-2023-01-TX",
+              "pass": true,
+              "detail": "cited PA-2023-01-TX"
+            },
+            {
+              "name": "answer_contains:30,000",
+              "pass": true,
+              "detail": "answer contains \"30,000\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 2 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) The PA-2023-01-TX form’s standard Bodily Injury Liability limit is $30,000 per person / $60,000 per accident. 2) I cannot confirm that is the limit on AUT-4476 because the policyholder record does not show a bodily injury limit on the Declarations; the form says the Declarations page controls. Please provide the policy Declarations page or confirm the BI limit. (Recommend policy administration to confirm.)",
+            "policy_id": "AUT-4476",
+            "policy_form": "PA-2023-01-TX",
+            "citations": [
+              {
+                "source": "policy:PA-2023-01-TX#Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "The form’s standard Bodily Injury Liability limit is $30,000 / $60,000.",
+                "detail": "\"Amounts below are the standard offering for form PA-2023-01-TX. The Declarations page for an individual policyholder controls where it differs.\n\n| Coverage                     | Limit                    | Deductible |\n|------------------------------|--------------------------|------------|\n| ...\n| Bodily Injury Liability      | $30,000 / $60,000        | None       |\""
+              },
+              {
+                "source": "record:AUT-4476",
+                "claim": "The AUT-4476 record does not list a bodily injury liability limit on its Declarations/Coverages In Force; only physical damage coverages are shown.",
+                "detail": "\"Policy form            | PA-2023-01-TX\"\n\n\"## Coverages In Force\n\n| Coverage             | Selected | Deductible |\n|----------------------|----------|------------|\n| Collision            | yes      | $1,000 |\n| Comprehensive        | yes      | $500 |\n| Rental Reimbursement | no       | none |\"\n]},"
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": {
+              "reason": "The PA-2023-01-TX form shows a standard Bodily Injury limit of $30,000/$60,000 but states: 'The Declarations page for an individual policyholder controls where it differs.' The AUT-4476 record returned does not list any bodily injury liability limit on its Declarations/Coverages In Force, so we cannot confirm whether the standard limit applies to this insured. Need the policy Declarations page or confirmation of the liability limits.",
+              "suggested_owner": "policy administration / underwriting"
+            }
+          }
+        },
+        {
+          "id": "cov-005",
+          "run": 4,
+          "missingFixture": false,
+          "ms": 22312,
+          "turns": 3,
+          "inputTokens": 7892,
+          "outputTokens": 2420,
+          "toolCalls": 2,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "cites_form:PA-2023-01-TX",
+              "pass": true,
+              "detail": "cited PA-2023-01-TX"
+            },
+            {
+              "name": "answer_contains:30,000",
+              "pass": true,
+              "detail": "answer contains \"30,000\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 4 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) The PA-2023-01-TX form’s standard Bodily Injury Liability shown in the form’s Schedule is $30,000 / $60,000 (i.e. $30,000 per person / $60,000 per accident).  2) The form also says the Declarations page controls where it differs — the AUT-4476 record does not show a liability limit on the Declarations, so please confirm the actual Declarations page to be certain this standard limit applies.",
+            "policy_id": "AUT-4476",
+            "policy_form": "PA-2023-01-TX",
+            "citations": [
+              {
+                "source": "policy:PA-2023-01-TX#Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "The form’s Schedule lists the standard Bodily Injury Liability limit.",
+                "detail": "| Bodily Injury Liability      | $30,000 / $60,000        | None       |"
+              },
+              {
+                "source": "policy:PA-2023-01-TX#Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "The Declarations page controls where the standard schedule differs for an individual policyholder.",
+                "detail": "Amounts below are the standard offering for form PA-2023-01-TX. The Declarations page for an individual policyholder controls where it differs."
+              },
+              {
+                "source": "record:AUT-4476",
+                "claim": "This policy is on form PA-2023-01-TX (so the form citation above is the correct one to use).",
+                "detail": "| Policy form            | PA-2023-01-TX |"
+              },
+              {
+                "source": "record:AUT-4476",
+                "claim": "No endorsements are attached to AUT-4476 that might modify the form limits.",
+                "detail": "## Endorsements Attached\n\n- none"
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": {
+              "reason": "The policy form shows a standard Bodily Injury limit of $30,000/$60,000 but the form explicitly states the Declarations page controls where it differs. The AUT-4476 record provided does not show the Declarations’ liability limits, so a human must confirm the Declarations page (or policy jacket) to verify the actual limit on this policy.",
+              "suggested_owner": "policy administration / policy servicing desk"
+            }
+          }
+        },
+        {
+          "id": "cov-005",
+          "run": 5,
+          "missingFixture": false,
+          "ms": 22410,
+          "turns": 3,
+          "inputTokens": 7963,
+          "outputTokens": 2910,
+          "toolCalls": 2,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "cites_form:PA-2023-01-TX",
+              "pass": true,
+              "detail": "cited PA-2023-01-TX"
+            },
+            {
+              "name": "answer_contains:30,000",
+              "pass": true,
+              "detail": "answer contains \"30,000\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 3 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) The PA-2023-01-TX form’s standard Schedule of Limits shows Bodily Injury Liability $30,000 per person / $60,000 per accident. 2) I cannot confirm that is the actual limit on AUT-4476 because the policyholder record’s Declarations do not list any liability limits — the Declarations control where they differ. Please confirm the Declarations page (policy administration or underwriting referral desk).",
+            "policy_id": "AUT-4476",
+            "policy_form": "PA-2023-01-TX",
+            "citations": [
+              {
+                "source": "policy:PA-2023-01-TX#PA-2023-01-TX — Personal Auto Policy — Texas Amendatory (rev. Jan 2023) > Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "The PA-2023-01-TX form’s standard Schedule of Limits shows Bodily Injury Liability $30,000 per person / $60,000 per accident.",
+                "detail": "Amounts below are the standard offering for form PA-2023-01-TX. The Declarations\npage for an individual policyholder controls where it differs.\n\n| Coverage                     | Limit                    | Deductible |\n|------------------------------|--------------------------|------------|\n| Collision                    | Actual cash value        | $1,000     |\n| Comprehensive                | Actual cash value        | $500       |\n| Rental Reimbursement         | $40 per day, 30 days max | None       |\n| Bodily Injury Liability      | $30,000 / $60,000        | None       |\n| Property Damage Liability    | $25,000                  | None       |"
+              },
+              {
+                "source": "record:AUT-4476",
+                "claim": "The policyholder record for AUT-4476 does not show any bodily injury liability limit on the Declarations; it lists form PA-2023-01-TX and only Collision, Comprehensive, Rental Reimbursement under \"Coverages In Force.\"",
+                "detail": "Record type: policyholder · Policy ID: AUT-4476 · Form: PA-2023-01-TX\n\n## Declarations\n\n| Field                  | Value |\n|------------------------|-------|\n| Policy ID              | AUT-4476 |\n| Named insured          | Robert Kaminski |\n| Policy form            | PA-2023-01-TX |\n| Rated state            | Texas |\n| Effective date         | 2024-01-10 |\n| Expiration date        | 2025-01-10 |\n| Covered vehicle        | 2015 Chevrolet Silverado |\n\n## Coverages In Force\n\n| Coverage             | Selected | Deductible |\n|----------------------|----------|------------|\n| Collision            | yes      | $1,000 |\n| Comprehensive        | yes      | $500 |\n| Rental Reimbursement | no       | none |"
+              },
+              {
+                "source": "record:AUT-4476",
+                "claim": "No endorsements are attached to AUT-4476 that might change limits.",
+                "detail": "## Endorsements Attached\n\n- none"
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": {
+              "reason": "The PA-2023-01-TX form shows a standard BI limit ($30,000/$60,000) but the Declarations page controls and the AUT-4476 record does not list any liability limits (or endorsements that would change them). I cannot confirm the actual BI limit on this policy from the documents available; the Declarations page or policy administration must be checked to confirm.",
+              "suggested_owner": "policy administration / underwriting referral desk"
+            }
+          }
+        }
+      ],
+      "passed": 5,
+      "total": 5,
+      "flakyChecks": []
+    },
+    {
+      "id": "cov-006",
+      "runs": [
+        {
+          "id": "cov-006",
+          "run": 1,
+          "missingFixture": false,
+          "ms": 12441,
+          "turns": 2,
+          "inputTokens": 4312,
+          "outputTokens": 761,
+          "toolCalls": 1,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to policyholder records / policy administration"
+            },
+            {
+              "name": "answer_lacks:1,000",
+              "pass": true,
+              "detail": "answer does not contain \"1,000\""
+            }
+          ],
+          "answer": {
+            "answer": null,
+            "policy_id": "AUT-9999",
+            "policy_form": null,
+            "citations": [
+              {
+                "source": "record:AUT-9999",
+                "claim": "No policyholder record exists for AUT-9999.",
+                "detail": "\"No policyholder record exists for AUT-9999. Do not infer this customer's coverage from another record or from the policy wordings — say the record was not found and escalate.\""
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": {
+              "reason": "The policyholder record for AUT-9999 is not found in the system, so the policy form, coverages, and collision deductible cannot be determined. Confirm the correct policy ID or supply the policyholder record before coverage can be looked up.",
+              "suggested_owner": "policyholder records / policy administration"
+            }
+          }
+        },
+        {
+          "id": "cov-006",
+          "run": 2,
+          "missingFixture": false,
+          "ms": 9170,
+          "turns": 2,
+          "inputTokens": 4312,
+          "outputTokens": 986,
+          "toolCalls": 1,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to policyholder records / records team"
+            },
+            {
+              "name": "answer_lacks:1,000",
+              "pass": true,
+              "detail": "answer does not contain \"1,000\""
+            }
+          ],
+          "answer": {
+            "answer": "I cannot determine the collision deductible — no policyholder record exists for AUT-9999 in the system. Please confirm the policy id or ask the records team to supply the policy file so I can retrieve the deductible.",
+            "policy_id": null,
+            "policy_form": null,
+            "citations": [
+              {
+                "source": "record:AUT-9999",
+                "claim": "No policyholder record exists for AUT-9999.",
+                "detail": "\"No policyholder record exists for AUT-9999. Do not infer this customer's coverage from another record or from the policy wordings — say the record was not found and escalate.\""
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": {
+              "reason": "Policyholder record AUT-9999 was not found. Without the record I cannot tell which policy form or endorsements apply and therefore cannot determine the collision deductible.",
+              "suggested_owner": "policyholder records / records team"
+            }
+          }
+        },
+        {
+          "id": "cov-006",
+          "run": 3,
+          "missingFixture": false,
+          "ms": 8817,
+          "turns": 2,
+          "inputTokens": 4319,
+          "outputTokens": 1018,
+          "toolCalls": 1,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to policy records / policy administration"
+            },
+            {
+              "name": "answer_lacks:1,000",
+              "pass": true,
+              "detail": "answer does not contain \"1,000\""
+            }
+          ],
+          "answer": {
+            "answer": "Not found — there is no policyholder record for AUT-9999 in the system, so I cannot determine the collision deductible. Please confirm the policy number or have the records/policy administration locate the correct file.",
+            "policy_id": "AUT-9999",
+            "policy_form": null,
+            "citations": [
+              {
+                "source": "record:AUT-9999",
+                "claim": "No policyholder record exists for AUT-9999.",
+                "detail": "No policyholder record exists for AUT-9999. Do not infer this customer's coverage from another record or from the policy wordings — say the record was not found and escalate."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": {
+              "reason": "Policy record AUT-9999 is not present in the policy database; without the record I cannot tell which policy form or endorsements apply and therefore cannot determine the collision deductible. A human must locate or correct the policy record.",
+              "suggested_owner": "policy records / policy administration"
+            }
+          }
+        },
+        {
+          "id": "cov-006",
+          "run": 4,
+          "missingFixture": false,
+          "ms": 10717,
+          "turns": 2,
+          "inputTokens": 4313,
+          "outputTokens": 1191,
+          "toolCalls": 1,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to policy records / customer service"
+            },
+            {
+              "name": "answer_lacks:1,000",
+              "pass": true,
+              "detail": "answer does not contain \"1,000\""
+            }
+          ],
+          "answer": {
+            "answer": null,
+            "policy_id": null,
+            "policy_form": null,
+            "citations": [
+              {
+                "source": "record:AUT-9999",
+                "claim": "Policyholder record not found for AUT-9999.",
+                "detail": "No policyholder record exists for AUT-9999. Do not infer this customer's coverage from another record or from the policy wordings — say the record was not found and escalate."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": {
+              "reason": "No policyholder record exists for AUT-9999 in the system; I cannot determine the collision deductible without the policy record. Please confirm the correct policy ID or provide the policyholder record (including the policy form and any attached endorsements).",
+              "suggested_owner": "policy records / customer service"
+            }
+          }
+        },
+        {
+          "id": "cov-006",
+          "run": 5,
+          "missingFixture": false,
+          "ms": 10844,
+          "turns": 2,
+          "inputTokens": 4313,
+          "outputTokens": 1242,
+          "toolCalls": 1,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "escalates",
+              "pass": true,
+              "detail": "escalated to policyholder records / policy services (confirm policy id and supply the policyholder record)"
+            },
+            {
+              "name": "answer_lacks:1,000",
+              "pass": true,
+              "detail": "answer does not contain \"1,000\""
+            }
+          ],
+          "answer": {
+            "answer": "Cannot determine — policy record AUT-9999 was not found in the system. Please provide the correct policy id or ask policy records to confirm so I can look up the collision deductible.",
+            "policy_id": "AUT-9999",
+            "policy_form": null,
+            "citations": [
+              {
+                "source": "record:AUT-9999",
+                "claim": "Policy record not found for AUT-9999",
+                "detail": "\"No policyholder record exists for AUT-9999. Do not infer this customer's coverage from another record or from the policy wordings — say the record was not found and escalate.\""
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": {
+              "reason": "Policy record AUT-9999 does not exist in the system. The collision deductible is recorded on the insured's policyholder record, so I cannot determine it without a valid record. Please provide the correct policy id or have policy records confirm and supply the record.",
+              "suggested_owner": "policyholder records / policy services (confirm policy id and supply the policyholder record)"
+            }
+          }
+        }
+      ],
+      "passed": 5,
+      "total": 5,
+      "flakyChecks": []
+    },
+    {
+      "id": "cov-007",
+      "runs": [
+        {
+          "id": "cov-007",
+          "run": 1,
+          "missingFixture": false,
+          "ms": 20972,
+          "turns": 3,
+          "inputTokens": 8026,
+          "outputTokens": 1462,
+          "toolCalls": 2,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "cites_form:PA-2023-01",
+              "pass": true,
+              "detail": "cited PA-2023-01"
+            },
+            {
+              "name": "answer_contains:40",
+              "pass": true,
+              "detail": "answer contains \"40\""
+            },
+            {
+              "name": "answer_contains:30",
+              "pass": true,
+              "detail": "answer contains \"30\""
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 3 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) $40 per day. 2) Maximum 30 days per occurrence.",
+            "policy_id": "AUT-4473",
+            "policy_form": "PA-2023-01",
+            "citations": [
+              {
+                "source": "record:AUT-4473",
+                "claim": "The policy has Rental Reimbursement selected (so the policyholder has this coverage).",
+                "detail": "Rental Reimbursement | yes | none"
+              },
+              {
+                "source": "policy:PA-2023-01#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "The form specifies the per-day amount and the maximum number of days.",
+                "detail": "We will pay **$40 per day, for a maximum of 30 days** per occurrence."
+              },
+              {
+                "source": "policy:PA-2023-01#Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "The schedule of limits in the form repeats the per-day and maximum-days limits.",
+                "detail": "Rental Reimbursement         | $40 per day, 30 days max | None"
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-007",
+          "run": 2,
+          "missingFixture": false,
+          "ms": 22146,
+          "turns": 3,
+          "inputTokens": 7944,
+          "outputTokens": 1948,
+          "toolCalls": 2,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "cites_form:PA-2023-01",
+              "pass": true,
+              "detail": "cited PA-2023-01"
+            },
+            {
+              "name": "answer_contains:40",
+              "pass": true,
+              "detail": "answer contains \"40\""
+            },
+            {
+              "name": "answer_contains:30",
+              "pass": true,
+              "detail": "answer contains \"30\""
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 2 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "$40 per day, up to 30 days per occurrence. (Rental Reimbursement is selected on AUT-4473.)",
+            "policy_id": "AUT-4473",
+            "policy_form": "PA-2023-01",
+            "citations": [
+              {
+                "source": "policy:PA-2023-01#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "Amount per day and maximum days covered for rental reimbursement.",
+                "detail": "We will pay **$40 per day, for a maximum of 30 days** per occurrence."
+              },
+              {
+                "source": "record:AUT-4473",
+                "claim": "This policy has Rental Reimbursement selected.",
+                "detail": "Rental Reimbursement | yes | none"
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-007",
+          "run": 3,
+          "missingFixture": false,
+          "ms": 12921,
+          "turns": 3,
+          "inputTokens": 8046,
+          "outputTokens": 1306,
+          "toolCalls": 2,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "cites_form:PA-2023-01",
+              "pass": true,
+              "detail": "cited PA-2023-01"
+            },
+            {
+              "name": "answer_contains:40",
+              "pass": true,
+              "detail": "answer contains \"40\""
+            },
+            {
+              "name": "answer_contains:30",
+              "pass": true,
+              "detail": "answer contains \"30\""
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 2 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) $40 per day. 2) Up to 30 days per occurrence.",
+            "policy_id": "AUT-4473",
+            "policy_form": "PA-2023-01",
+            "citations": [
+              {
+                "source": "policy:PA-2023-01#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "The policy's rental reimbursement limit and duration.",
+                "detail": "\"We will pay **$40 per day, for a maximum of 30 days** per occurrence.\""
+              },
+              {
+                "source": "record:AUT-4473",
+                "claim": "Rental reimbursement coverage is selected on this policy.",
+                "detail": "\"Rental Reimbursement | yes      | none\""
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-007",
+          "run": 4,
+          "missingFixture": false,
+          "ms": 15982,
+          "turns": 3,
+          "inputTokens": 8060,
+          "outputTokens": 1583,
+          "toolCalls": 2,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "cites_form:PA-2023-01",
+              "pass": true,
+              "detail": "cited PA-2023-01"
+            },
+            {
+              "name": "answer_contains:40",
+              "pass": true,
+              "detail": "answer contains \"40\""
+            },
+            {
+              "name": "answer_contains:30",
+              "pass": true,
+              "detail": "answer contains \"30\""
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 3 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "1) $40 per day. 2) Up to 30 days per occurrence. (Coverage begins 24 hours after the loss is reported to us.)",
+            "policy_id": "AUT-4473",
+            "policy_form": "PA-2023-01",
+            "citations": [
+              {
+                "source": "policy:PA-2023-01#4.4 Rental Reimbursement",
+                "claim": "Per-day amount and maximum days",
+                "detail": "We will pay **$40 per day, for a maximum of 30 days** per occurrence."
+              },
+              {
+                "source": "policy:PA-2023-01#4.4 Rental Reimbursement",
+                "claim": "When rental reimbursement coverage begins",
+                "detail": "Coverage begins 24 hours after the loss is reported to us and ends on the earliest of:\n\n- The day your covered auto is returned to use;\n- The day we pay the actual cash value, if the vehicle is a total loss;\n- The day the 30-day maximum is reached."
+              },
+              {
+                "source": "record:AUT-4473",
+                "claim": "Policyholder has Rental Reimbursement selected",
+                "detail": "| Rental Reimbursement | yes      | none |"
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": null
+          }
+        },
+        {
+          "id": "cov-007",
+          "run": 5,
+          "missingFixture": false,
+          "ms": 15471,
+          "turns": 3,
+          "inputTokens": 7992,
+          "outputTokens": 1512,
+          "toolCalls": 2,
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "cites_form:PA-2023-01",
+              "pass": true,
+              "detail": "cited PA-2023-01"
+            },
+            {
+              "name": "answer_contains:40",
+              "pass": true,
+              "detail": "answer contains \"40\""
+            },
+            {
+              "name": "answer_contains:30",
+              "pass": true,
+              "detail": "answer contains \"30\""
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 3 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "$40 per day, up to a maximum of 30 days per occurrence. (Coverage begins 24 hours after the loss is reported.)",
+            "policy_id": "AUT-4473",
+            "policy_form": "PA-2023-01",
+            "citations": [
+              {
+                "source": "policy:PA-2023-01#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "Amount per day and maximum days for rental reimbursement.",
+                "detail": "We will pay **$40 per day, for a maximum of 30 days** per occurrence."
+              },
+              {
+                "source": "policy:PA-2023-01#Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "When rental reimbursement coverage begins.",
+                "detail": "Coverage begins 24 hours after the loss is reported to us and ends on the earliest of:"
+              },
+              {
+                "source": "record:AUT-4473",
+                "claim": "Rental reimbursement is selected on this policy.",
+                "detail": "Rental Reimbursement | yes | none"
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [],
+            "escalate": null
+          }
+        }
+      ],
+      "passed": 5,
+      "total": 5,
+      "flakyChecks": []
+    }
+  ]
+}

@@ -1,0 +1,469 @@
+# git log, exported 2026-09-07
+
+commit 0000010dac9b98bb53c9fffcc3fc6b85aa583a92
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2024-08-01
+
+    update table in end-of-line
+
+    Change-Request: CHR-2024-0127
+
+commit 000002a5812eb3ddba9096f50c390d1c72117a2e
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2025-09-22
+
+    refactor guard in end-of-line
+
+commit 000003d992847c1d8653a04d8df12b10c30a4299
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2020-09-16
+
+    fix map in end-of-line
+
+commit 000004b3372a9e3993c696ba923029de3ba9ba62
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2024-03-10
+
+    remove check in end-of-line
+
+commit 000005d51567050cbbbc4ff8eb3a46d93741e8f3
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2025-06-05
+
+    refactor handler in end-of-line
+
+commit 0000060d1b0236f8f00d361d16f63f5abb864497
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2018-04-05
+
+    add map in end-of-line
+
+commit 000007d514cac0d0916a22b6203d9b518186d702
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2025-09-10
+
+    update table in end-of-line
+
+commit 000008a9744164664f8066e51a6b75e37bec0f8b
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2022-07-11
+
+    update check in end-of-line
+
+    Change-Request: CHR-2021-0202
+
+commit 000009e9f60da19b012975089fb6b1e9fe9f4ba2
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2025-06-02
+
+    remove map in end-of-line
+
+commit 00000aca95e0095760d82e52015817cb3cc207de
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2024-04-04
+
+    fix guard in end-of-line
+
+    Change-Request: CHR-2025-0083
+
+commit 00000b75484badbac0b4ef366694ff9a17e9e98b
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2019-01-25
+
+    remove check in end-of-line
+
+    Change-Request: CHR-2020-0173
+
+commit 00000cd007ba37f4b80103f9974b095c9b34919d
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2018-01-21
+
+    remove filter in end-of-line
+
+    Change-Request: CHR-2024-0043
+
+commit 00000d77425a1c683adaec63aa30c5b636822c73
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2019-01-13
+
+    refactor guard in end-of-line
+
+commit 00000e353c58036803cb5dcd17cb3890d89e4513
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2024-08-29
+
+    update handler in end-of-line
+
+commit 00000f11494315e03dc8dcf61981066432d797d7
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2026-05-10
+
+    update check in end-of-line
+
+    Change-Request: CHR-2021-0203
+
+commit 000010e1ac1914302410ed78d73863440df3fadc
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2020-02-08
+
+    remove map in end-of-line
+
+commit 0000119625370bde7e95bc96ef974cf4e319e9f1
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2024-10-15
+
+    refactor check in end-of-line
+
+commit 000012ccbfe8dac4c7f8c752232147d51bbf355a
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2021-04-24
+
+    add handler in end-of-line
+
+commit 00001344651fa14786696ef4fcbdf77bbcf602af
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2022-05-03
+
+    refactor filter in end-of-line
+
+    Change-Request: CHR-2025-0068
+
+commit 0000141219f84bd03c1c9896505a352eaf80b869
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2019-11-30
+
+    add guard in end-of-line
+
+commit 0000152af11158e3071307ed709fda3404d07acc
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2020-07-10
+
+    refactor handler in end-of-line
+
+commit 00001665cfe5d6fe5566d839d8307fd3336080cf
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2018-09-23
+
+    fix handler in end-of-line
+
+    Change-Request: CHR-2024-0198
+
+commit 000017ede47839a178dcceb94aafa976dcc08ac4
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2019-04-16
+
+    fix guard in end-of-line
+
+commit 000018db84fbc7ef197dcc2b5548c2c85e60e16f
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2019-10-05
+
+    add check in end-of-line
+
+commit 00001957e5c7be498a4f9cf9ddbfff2d976b2c05
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2018-04-13
+
+    add handler in end-of-line
+
+commit 00001a83bc3e05da27b4398e8b331c011c341a99
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2023-04-22
+
+    remove table in end-of-line
+
+commit 00001b6795fa5946300e4689908eddfcdfe32c69
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2017-12-23
+
+    fix filter in end-of-line
+
+commit 00001c81cf77ba477f7f9056574f6b324a6cc34a
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2018-10-15
+
+    update table in end-of-line
+
+commit 00001d3fbc39b29b1feb346a738b67e7fef70f4c
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2024-02-16
+
+    fix guard in end-of-line
+
+    Change-Request: CHR-2025-0034
+
+commit 00001e6b7e4f263f69a43fa676e2ab7bd5348183
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2018-03-03
+
+    add map in end-of-line
+
+    Change-Request: CHR-2022-0108
+
+commit 00001f355a59e24ca6bd73b043aa4b5572edfa1d
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2021-12-07
+
+    update filter in end-of-line
+
+    Change-Request: CHR-2023-0134
+
+commit 00002061820beb435d680832afda4ad8b3fd4cb7
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2021-08-03
+
+    add guard in end-of-line
+
+    Change-Request: CHR-2025-0082
+
+commit 00002135212c5ff37e4e0b26733a148e2840a5e5
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2023-08-23
+
+    update table in end-of-line
+
+    Change-Request: CHR-2024-0117
+
+commit 0000222bb88845582b20b40a92363ed699762b53
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2023-07-01
+
+    add filter in end-of-line
+
+commit 000023188b6ca0fcf64e80c3d1aaadbbf21fe743
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2026-06-12
+
+    add table in end-of-line
+
+commit 000024067dbd39ce7349da919a41c0b8854f7439
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2021-09-17
+
+    fix map in end-of-line
+
+    Change-Request: CHR-2021-0110
+
+commit 000025d056415e21b2880acf51438649c1d88bf1
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2022-07-12
+
+    refactor guard in end-of-line
+
+    Change-Request: CHR-2023-0088
+
+commit 0000266e94b6408afba9a226b46e453993454165
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2021-12-19
+
+    fix handler in end-of-line
+
+commit 000027b012e0737a1a9cd18915bb0b305bd99b51
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2019-12-25
+
+    remove table in end-of-line
+
+commit 000028d7b6d2ac2ad186748b689e0d5090ad6cf4
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2025-07-21
+
+    add map in end-of-line
+
+commit 000029a58604a68684f5c96ed7dc1f1045f56da7
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2024-05-30
+
+    add table in end-of-line
+
+commit 00002a8db13cf9ff1bdfae475d9e64fb7373f8b3
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2019-11-02
+
+    update map in end-of-line
+
+commit 00002be2e4d2b5d1e6220845b9417b3aa6edd23a
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2025-05-05
+
+    remove map in end-of-line
+
+commit 00002cbe6df6c372bff0f6e00947164e7542272d
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2018-09-09
+
+    remove table in end-of-line
+
+commit 00002d0c6bce13fd2980a693135464d37f9fa4d1
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2025-02-14
+
+    update guard in end-of-line
+
+    Change-Request: CHR-2024-0081
+
+commit 00002e63024c7c55a5fefb02eff53dd3aa31c705
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2021-06-29
+
+    add guard in end-of-line
+
+commit 00002f8c425dba63b2d6c8fefd358c925282335d
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2023-08-22
+
+    update check in end-of-line
+
+    Change-Request: CHR-2023-0045
+
+commit 00003026da2e6fb013fe9125f412cc7a2024d84a
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2023-12-07
+
+    refactor guard in end-of-line
+
+commit 000031d3db3e84d21e390e3c7ecd48968b9f1bbd
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2024-02-11
+
+    update table in end-of-line
+
+commit 0000329f94de6e8442f5246cb3398d334c630683
+Author: a.kovac <a.kovac@vantis-steering.example>
+Date:   2025-09-07
+
+    update table in end-of-line
+
+commit 0000338c1329649aa639fd22a568f7242755ed15
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2019-10-01
+
+    fix filter in end-of-line
+
+commit 000034d5c9ea7e1db3508fc92408955bafbc860d
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2020-04-07
+
+    remove handler in end-of-line
+
+    Change-Request: CHR-2024-0146
+
+commit 00003563a3dac6fb54e2c723ce7f37e5c9d41da7
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2020-11-02
+
+    refactor filter in end-of-line
+
+commit 0000365233467871e5b6d0ad8f4569be427a2fc1
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2019-07-05
+
+    update filter in end-of-line
+
+commit 0000379634df5d48e13087de9a9c86d2f0d30928
+Author: s.beker <s.beker@vantis-steering.example>
+Date:   2020-07-30
+
+    remove filter in end-of-line
+
+    Change-Request: CHR-2022-0032
+
+commit 0000386e820d4f904d42cebc37eb11a0e402b086
+Author: l.renaud <l.renaud@vantis-steering.example>
+Date:   2020-02-11
+
+    refactor handler in end-of-line
+
+    Change-Request: CHR-2022-0006
+
+commit 0000393fbf2778675b2ac9863fc8e806a3416bca
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2026-07-01
+
+    fix filter in end-of-line
+
+commit 00003a5fb1fe3147e1086a7655af4bb358af001f
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2025-03-11
+
+    remove guard in end-of-line
+
+    Change-Request: CHR-2024-0117
+
+commit 00003baeac7130e0440562d558e16d5ed98aac2f
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2019-05-07
+
+    remove check in end-of-line
+
+    Change-Request: CHR-2024-0078
+
+commit 00003c7c8f154d015d9a839b8f4094490d0d74de
+Author: i.arnaud <i.arnaud@vantis-steering.example>
+Date:   2020-02-09
+
+    fix guard in end-of-line
+
+    Change-Request: CHR-2021-0085
+
+commit 00003dd4272a82435d4d9d4867ac621f1244b6c1
+Author: r.dietrich <r.dietrich@vantis-steering.example>
+Date:   2022-01-23
+
+    add guard in end-of-line
+
+commit 00003e51f91fbedbf92c50530c7929942178c5ca
+Author: e.palmer <e.palmer@vantis-steering.example>
+Date:   2024-12-19
+
+    fix table in end-of-line
+
+commit 00003fdacb33db4d26bdbc9b421a4e472759c900
+Author: d.ferreira <d.ferreira@vantis-steering.example>
+Date:   2019-11-15
+
+    update filter in end-of-line
+
+commit 0000400f13a5656cb45356d1790f7f80b3e803aa
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2019-07-22
+
+    add table in end-of-line
+
+commit 000041f2dcbb3059a39f67a854ca964d6e569746
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2020-12-11
+
+    add handler in end-of-line
+
+commit 000042d4ae26e8aa55f6279741f2241ccc7e72f7
+Author: m.lindqvist <m.lindqvist@vantis-steering.example>
+Date:   2023-01-20
+
+    fix handler in end-of-line
+
+commit 0000437f86fba2826e0ee429c37aabf818e1f71e
+Author: t.sala <t.sala@vantis-steering.example>
+Date:   2020-01-27
+
+    refactor table in end-of-line
+
+    Change-Request: CHR-2021-0090
+
+commit 0000440485a34448db1558f3907fc1636fabdb99
+Author: p.strand <p.strand@vantis-steering.example>
+Date:   2020-03-14
+
+    fix guard in end-of-line
+
+commit 0000452f8b952593b9b8764df9b7d1da0009c846
+Author: j.moreau <j.moreau@vantis-steering.example>
+Date:   2023-07-31
+
+    refactor handler in end-of-line
+
+commit 0000460adea50eb99a29a71a415f4567aa8120bb
+Author: n.haas <n.haas@vantis-steering.example>
+Date:   2021-09-03
+
+    add handler in end-of-line

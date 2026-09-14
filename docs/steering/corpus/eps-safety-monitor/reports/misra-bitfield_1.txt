@@ -1,0 +1,19 @@
+MISRA C:2012 compliance report
+Repository : eps-safety-monitor
+Module     : bitfield_1.c   (SWC-PLT-017, ASIL D)
+Tool       : Polyspace 2023b
+Run        : 2025-04-09
+Run by     : e.palmer
+
+SUMMARY
+  rules checked        159
+  violations           19
+  deviations approved  6
+  unresolved           2
+
+DEVIATIONS
+  D-29  Rule 8.5  goto used for single-exit error handling. Approved.
+  D-22  Rule 20.2  union used for the CAN frame overlay. Approved.
+
+UNRESOLVED
+  (none)

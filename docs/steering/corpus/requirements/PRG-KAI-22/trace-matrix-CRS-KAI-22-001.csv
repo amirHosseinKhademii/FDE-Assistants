@@ -1,0 +1,50 @@
+# exported from the requirements tool 2026-09-02
+# WARNING: rows with an empty system_req are NOT errors in the export.
+# They are requirements nobody has allocated yet.
+customer_req,system_req,coverage,notes
+CR-KAI-22-0374,SR-KAI-22-0524,full,
+CR-KAI-22-0375,SR-KAI-22-0529,full,
+CR-KAI-22-0376,SR-KAI-22-0530,full,
+CR-KAI-22-0377,SR-KAI-22-0525,full,
+CR-KAI-22-0377,SR-KAI-22-0534,full,
+CR-KAI-22-0378,SR-KAI-22-0550,full,
+CR-KAI-22-0379,SR-KAI-22-0523,full,
+CR-KAI-22-0379,SR-KAI-22-0540,full,
+CR-KAI-22-0380,SR-KAI-22-0541,full,
+CR-KAI-22-0381,SR-KAI-22-0533,full,
+CR-KAI-22-0381,SR-KAI-22-0545,full,"reviewed, see minutes"
+CR-KAI-22-0381,SR-KAI-22-0549,full,
+CR-KAI-22-0381,SR-KAI-22-0550,full,
+CR-KAI-22-0382,SR-KAI-22-0536,full,"reviewed, see minutes"
+CR-KAI-22-0382,SR-KAI-22-0539,full,
+CR-KAI-22-0383,SR-KAI-22-0527,full,
+CR-KAI-22-0384,SR-KAI-22-0537,full,
+CR-KAI-22-0384,SR-KAI-22-0538,full,"reviewed, see minutes"
+CR-KAI-22-0384,SR-KAI-22-0547,partial,
+CR-KAI-22-0384,SR-KAI-22-0548,partial,
+CR-KAI-22-0385,SR-KAI-22-0528,full,
+CR-KAI-22-0385,SR-KAI-22-0531,full,"reviewed, see minutes"
+CR-KAI-22-0386,SR-KAI-22-0523,full,
+CR-KAI-22-0386,SR-KAI-22-0531,partial,
+CR-KAI-22-0386,SR-KAI-22-0546,full,
+CR-KAI-22-0386,SR-KAI-22-0548,full,
+CR-KAI-22-0387,SR-KAI-22-0524,full,
+CR-KAI-22-0387,SR-KAI-22-0525,full,
+CR-KAI-22-0387,SR-KAI-22-0532,full,
+CR-KAI-22-0387,SR-KAI-22-0535,full,
+CR-KAI-22-0387,SR-KAI-22-0537,full,
+CR-KAI-22-0387,SR-KAI-22-0542,full,
+CR-KAI-22-0387,SR-KAI-22-0546,full,
+CR-KAI-22-0387,SR-KAI-22-0549,full,
+CR-KAI-22-0388,SR-KAI-22-0526,full,
+CR-KAI-22-0388,SR-KAI-22-0542,full,
+CR-KAI-22-0388,SR-KAI-22-0543,full,
+CR-KAI-22-0388,SR-KAI-22-0544,full,
+CR-KAI-22-0389,SR-KAI-22-0534,full,
+CR-KAI-22-0390,SR-KAI-22-0535,full,
+CR-KAI-22-0390,SR-KAI-22-0545,full,"reviewed, see minutes"
+CR-KAI-22-0391,,,not yet allocated
+CR-KAI-22-0392,SR-KAI-22-0527,full,
+CR-KAI-22-0392,SR-KAI-22-0528,full,
+CR-KAI-22-0392,SR-KAI-22-0544,full,
+CR-KAI-22-0393,SR-KAI-22-0529,full,

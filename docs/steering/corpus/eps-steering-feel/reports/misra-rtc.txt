@@ -1,0 +1,19 @@
+MISRA C:2012 compliance report
+Repository : eps-steering-feel
+Module     : rtc.c   (SWC-RTC, ASIL B)
+Tool       : LDRA 9.8
+Run        : 2024-07-22
+Run by     : p.strand
+
+SUMMARY
+  rules checked        143
+  violations           17
+  deviations approved  0
+  unresolved           2
+
+DEVIATIONS
+  D-27  Rule 10.7  goto used for single-exit error handling. Approved.
+  D-27  Rule 19.7  union used for the CAN frame overlay. Approved.
+
+UNRESOLVED
+  (none)

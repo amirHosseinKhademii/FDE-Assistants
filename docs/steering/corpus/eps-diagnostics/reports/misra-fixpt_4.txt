@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-diagnostics
+Module     : fixpt_4.c   (SWC-PLT-012, ASIL QM)
+Tool       : Polyspace 2023b
+Run        : 2022-12-11
+Run by     : e.palmer
+
+SUMMARY
+  rules checked        172
+  violations           1
+  deviations approved  5
+  unresolved           4
+
+DEVIATIONS
+  D-34  Rule 12.6  goto used for single-exit error handling. Approved.
+
+UNRESOLVED
+  (none)

@@ -1,0 +1,19 @@
+MISRA C:2012 compliance report
+Repository : eps-steering-feel
+Module     : checksum_8.c   (SWC-PLT-003, ASIL B)
+Tool       : LDRA 9.8
+Run        : 2026-08-11
+Run by     : n.haas
+
+SUMMARY
+  rules checked        144
+  violations           11
+  deviations approved  2
+  unresolved           3
+
+DEVIATIONS
+  D-9  Rule 19.2  goto used for single-exit error handling. Approved.
+  D-28  Rule 15.6  pointer arithmetic in the buffer walk. Approved.
+
+UNRESOLVED
+  Rule 18.2 at checksum_8.c:276 — owner a.kovac, no target date

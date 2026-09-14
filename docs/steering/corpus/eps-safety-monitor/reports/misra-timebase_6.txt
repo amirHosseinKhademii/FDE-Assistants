@@ -1,0 +1,18 @@
+MISRA C:2012 compliance report
+Repository : eps-safety-monitor
+Module     : timebase_6.c   (SWC-PLT-031, ASIL QM)
+Tool       : Coverity 2022.12
+Run        : 2022-09-15
+Run by     : s.beker
+
+SUMMARY
+  rules checked        145
+  violations           22
+  deviations approved  6
+  unresolved           3
+
+DEVIATIONS
+  D-39  Rule 10.1  goto used for single-exit error handling. Approved.
+
+UNRESOLVED
+  (none)
