@@ -14,9 +14,10 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "@fde/foundry": "workspace:*",
+    "@ai-sdk/amazon-bedrock": "^5.0.82",
     "@ai-sdk/openai-compatible": "^3.0.47",
     "@azure/identity": "^4.5.0",
+    "@fde/foundry": "workspace:*",
     "@langchain/core": "^1.2.11",
     "@langchain/langgraph": "^1.4.15",
     "@langchain/openai": "^1.5.13",
