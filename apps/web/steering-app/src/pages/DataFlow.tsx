@@ -47,9 +47,17 @@ const RESIDENCY = [
 /**
  * Every claim, and how each one is known.
  *
- * `strength` is the whole point — see the header. The two vendor rows are not
- * padding: leaving them off would make the list look stronger than it is, which
- * is the failure this column exists to prevent.
+ * `strength` is the whole point — see the header. The `must be arranged` rows
+ * are not padding: leaving them off would make the list look stronger than it
+ * is, which is the failure this column exists to prevent.
+ *
+ * `vendor statement` currently has no rows, and the category stays in the type
+ * on purpose. It held two — "Microsoft does not train on the data" and "data
+ * stays in the region" — and both were the wrong frame for this deployment
+ * rather than facts that changed: the model runs in the customer's own Foundry
+ * resource, in their tenant, so those are properties of their subscription and
+ * not promises from a shared service. The category will be needed again the
+ * first time something genuinely rests on a supplier's word.
  */
 const CLAIMS: Array<{ strength: 'verified here' | 'vendor statement' | 'must be arranged'; claim: string; detail: string; cmd?: string }> = [
   {
@@ -106,15 +114,11 @@ const CLAIMS: Array<{ strength: 'verified here' | 'vendor statement' | 'must be 
       'Every one of the 220 reports carries a `Prepared by:` line — 12 distinct people across the set. Nothing else about a person does: no email addresses, no employee ids, and no per-person hours, because effort is aggregated by discipline before it is written down. Counted over the corpus, not estimated: `grep -c "Prepared by" docs/steering/corpus/pmo/closure-reports/*.md`. If your review needs that field gone, it is a redaction at extraction time rather than a change to anything downstream.',
   },
   {
-    strength: 'vendor statement',
-    claim: 'Microsoft does not train on the data',
+    strength: 'verified here',
+    claim: 'The model is a deployment in your own resource, not a shared service',
     detail:
-      'Microsoft’s documented position for Azure OpenAI. We can show what our code sends; we cannot show what the provider then does with it. Quote it from a current source with a date on it rather than from an engineer’s memory — that is how a review gets an answer that is right today and wrong at renewal.',
-  },
-  {
-    strength: 'vendor statement',
-    claim: 'Data stays in the chosen region',
-    detail: 'Also Microsoft’s documented position. The region itself is verified above; what happens to data inside it is theirs to state.',
+      'The capture reads one <resource>.services.ai.azure.com host inside your own tenant, and the deployment name comes from your own configuration — `FOUNDRY_OPENAI_ENDPOINT` and `FOUNDRY_CHAT_DEPLOYMENT`. There is no shared public endpoint in this path and no third-party inference provider. That is the honest answer to "does it train on our data": the arrangement is a dedicated deployment in your subscription, in the region you chose.',
+    cmd: 'pnpm steering:derived-compliance-check',
   },
   {
     strength: 'must be arranged',
@@ -185,8 +189,6 @@ export function DataFlow() {
           </div>
         </section>
 
-        <Review />
-
         <Walkthrough />
 
         <Split />
@@ -206,99 +208,6 @@ export function DataFlow() {
  * result is the useful one, and it is what makes "nothing may leave our tenant"
  * a configuration question instead of a blocker.
  */
-
-/**
- * What a data-protection reviewer has to establish, in their order.
- *
- * WHY THIS IS AT THE TOP AND THE WALK IS NOT. The hop-by-hop below is the
- * evidence, and it reads as an engineer's trace because that is what it is.
- * A reviewer opening this page does not want to start at `POST /api/assess` —
- * they want the six answers their own checklist asks for, then the trace when
- * an answer needs backing. Putting the trace first made the page something you
- * had to already understand in order to read.
- *
- * `verdict` is deliberately not a colour-coded pass. Two of these are "yes, and
- * here is exactly what", one is an open item, and a green tick on any of them
- * would be the page overselling itself — which is the one thing that loses a
- * review outright.
- */
-const REVIEW: Array<{ q: string; a: string; verdict: 'answered' | 'yes, with limits' | 'open item'; where: string }> = [
-  {
-    q: 'What actually leaves our infrastructure?',
-    a: '220 closure reports, one per request, about 900 bytes each — and nothing else. Not the four systems of record, not the timesheets, not the source code, not the rate cards.',
-    verdict: 'answered',
-    where: 'the walk below, and the first check in “Every claim”',
-  },
-  {
-    q: 'Does any personal data leave with it?',
-    a: 'Yes — one field. Each report names its author on a `Prepared by:` line; 12 distinct people across the 220. No email addresses, no employee ids, and no per-person hours: effort is aggregated by discipline before it is written down.',
-    verdict: 'yes, with limits',
-    where: 'counted over the corpus — the command is in “Every claim”',
-  },
-  {
-    q: 'Where does it physically go?',
-    a: 'One host: our own Azure AI Foundry resource in Sweden. No other host is contacted during a request, which is asserted on the outgoing bytes rather than on the configuration that sets them.',
-    verdict: 'answered',
-    where: 'pnpm steering:derived-compliance-check',
-  },
-  {
-    q: 'Is it retained, and for how long?',
-    a: 'We tell the provider to retain nothing, and that is asserted on the wire. Separately, Azure OpenAI keeps prompts for up to 30 days for abuse monitoring — `store: false` does not turn that off, and Modified Abuse Monitoring has not been applied for.',
-    verdict: 'open item',
-    where: 'the last two rows of “Every claim”',
-  },
-  {
-    q: 'Is it used to train a model?',
-    a: 'Microsoft’s documented position is that it is not. We can show you what our code sends; we cannot show you what the provider does afterwards, so this is their statement and not our measurement.',
-    verdict: 'yes, with limits',
-    where: 'marked “vendor statement” in “Every claim”',
-  },
-  {
-    q: 'Who can make it happen at all?',
-    a: 'A fail-closed API key: no key configured means the request is refused, never allowed. The endpoint is not yet on a Private Endpoint, so network isolation is a control still to arrange.',
-    verdict: 'open item',
-    where: 'hop 2 below, and the final row of “Every claim”',
-  },
-];
-
-/** The answers a reviewer came for, before the evidence that backs them. */
-function Review() {
-  return (
-    <section className="lift-in pb-16" style={{ animationDelay: '120ms' }}>
-      <h2 className="font-mono text-2xl font-medium tracking-tight md:text-3xl">
-        If you are reviewing this for compliance.
-      </h2>
-      <p className="mt-4 max-w-[64ch] leading-relaxed text-ui-dim">
-        Six questions, answered here rather than discovered. Two of them are open items, and they
-        are marked as open rather than dressed up — a page where everything passes is a page that
-        was written to be approved instead of read.
-      </p>
-
-      <dl className="mt-8 grid gap-4">
-        {REVIEW.map((r) => (
-          <div key={r.q} className="rounded-xl border border-ui-line bg-ui-raised/40 p-5">
-            <dt className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span className="text-[0.9375rem] font-medium text-ui-fg">{r.q}</span>
-              <span
-                className={`rounded-full border px-2 py-px font-mono text-[0.625rem] ${
-                  r.verdict === 'open item'
-                    ? 'border-ui-warn/40 bg-ui-warn/5 text-ui-warn'
-                    : r.verdict === 'yes, with limits'
-                      ? 'border-ui-info/40 bg-ui-info/5 text-ui-info'
-                      : 'border-ui-accent/40 bg-ui-accent/5 text-ui-accent'
-                }`}
-              >
-                {r.verdict}
-              </span>
-            </dt>
-            <dd className="mt-2 text-sm leading-relaxed text-ui-dim">{r.a}</dd>
-            <dd className="mt-2 font-mono text-[0.6875rem] text-ui-faint">{r.where}</dd>
-          </div>
-        ))}
-      </dl>
-    </section>
-  );
-}
 
 /**
  * One requirement, every hop.

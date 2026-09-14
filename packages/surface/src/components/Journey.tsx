@@ -23,6 +23,20 @@ export interface Hop {
   title: string;
   /** The literal thing that moved, as close to the wire as is readable. */
   payload?: string;
+  /**
+   * WHAT MOVES, WHERE IT GOES — one short plain sentence, no jargon.
+   *
+   * ADDED BECAUSE THE PAGE HAD TWO AUDIENCES AND SERVED ONE. The payload and
+   * the detail are written for somebody who will grep them against the source.
+   * A compliance reviewer reads the same steps needing a different thing:
+   * which data, and to whom, at THIS step. That was living in a separate block
+   * of six questions above the walk, which meant reading the answer in one
+   * place and its evidence in another.
+   *
+   * Optional, so the engagement that has not written them renders exactly as
+   * before rather than showing empty rows.
+   */
+  plain?: string;
   detail: string;
   ms?: string;
 }
@@ -30,6 +44,24 @@ export interface Hop {
 export interface Turn {
   label: string;
   note: string;
+  /**
+   * THE THREE THINGS A TURN OWES THE READER, and it owed none of them.
+   *
+   * A turn used to be a coloured heading and a paragraph. Every HOP beneath it
+   * carried a number, a literal payload and a plain sentence — so the group
+   * headings were the one place on the page a reader could not see which step
+   * they were on, what moved, or what it meant. Scanning the page, the turns
+   * read as decoration between the real content.
+   *
+   * All three are optional: the engagement that has not written them renders
+   * exactly as before, with no empty number chip and no blank box.
+   */
+  /** Step number, shown as a chip. A string so "1" and "2–6" both work. */
+  n?: string;
+  /** What moves at this turn, in one short sentence, no jargon. */
+  plain?: string;
+  /** A literal example of the data at this turn. */
+  example?: string;
   /** Does this block cross to the model at all? Drives the whole block's tone. */
   crosses: boolean;
   hops: Hop[];
@@ -104,11 +136,12 @@ function useSyncedDelays(count: number) {
  */
 const WHERE: Record<
   Where,
-  { label: string; tone: string; dot: string; lit: string; icon: () => React.ReactElement }
+  { label: string; tone: string; tint: string; dot: string; lit: string; icon: () => React.ReactElement }
 > = {
   browser: {
     label: 'browser',
     tone: 'text-flow-person',
+    tint: 'border-flow-person/30 bg-flow-person/[0.045]',
     dot: 'bg-flow-person',
     lit: 'var(--color-flow-person)',
     icon: () => <WindowIcon className="h-3 w-3" />,
@@ -116,6 +149,7 @@ const WHERE: Record<
   yours: {
     label: 'your network',
     tone: 'text-flow-internal',
+    tint: 'border-flow-internal/30 bg-flow-internal/[0.045]',
     dot: 'bg-flow-internal',
     lit: 'var(--color-flow-internal)',
     icon: () => <ServerIcon className="h-3 w-3" />,
@@ -123,6 +157,7 @@ const WHERE: Record<
   crosses: {
     label: 'crosses to the model',
     tone: 'text-flow-model',
+    tint: 'border-flow-model/30 bg-flow-model/[0.045]',
     dot: 'bg-flow-model',
     lit: 'var(--color-flow-model)',
     icon: () => <CloudIcon className="h-3 w-3" />,
@@ -130,6 +165,7 @@ const WHERE: Record<
   back: {
     label: 'from the model',
     tone: 'text-flow-model',
+    tint: 'border-flow-model/30 bg-flow-model/[0.045]',
     dot: 'bg-flow-model',
     lit: 'var(--color-flow-model)',
     icon: () => <CloudIcon className="h-3 w-3" />,
@@ -168,8 +204,36 @@ export function Journey({ turns }: { turns: Turn[] }) {
                   turn.crosses ? 'turn-dot' : 'opacity-50'
                 }`}
               />
+              {turn.n && (
+                <span
+                  className={`mr-3 shrink-0 rounded-md border border-current px-2 py-0.5 font-mono text-[0.8125rem] ${
+                    turn.crosses ? 'text-flow-model' : 'text-flow-internal'
+                  }`}
+                >
+                  {turn.n}
+                </span>
+              )}
               {turn.label}
             </h3>
+
+            {turn.plain && (
+              <p className="mt-2 max-w-[62ch] text-[0.9375rem] leading-relaxed text-ui-fg/90">
+                {turn.plain}
+              </p>
+            )}
+
+            {turn.example && (
+              <pre
+                className={`mt-2.5 overflow-x-auto rounded-lg border px-3.5 py-2.5 font-mono text-[0.75rem] leading-relaxed text-ui-fg/85 ${
+                  turn.crosses
+                    ? 'border-flow-model/30 bg-flow-model/[0.045]'
+                    : 'border-flow-internal/30 bg-flow-internal/[0.045]'
+                }`}
+              >
+                {turn.example}
+              </pre>
+            )}
+
             <p className="mt-2 max-w-[62ch] text-sm leading-relaxed text-ui-dim">{turn.note}</p>
 
             <ol className="mt-6 grid gap-6">
@@ -218,15 +282,28 @@ export function Journey({ turns }: { turns: Turn[] }) {
                         {hop.ms && <Mono className="text-[0.6875rem] text-ui-faint">{hop.ms}</Mono>}
                       </p>
 
+                      {/* The plain answer sits ABOVE the payload, because the
+                          reader who needs it is the one least likely to read
+                          past a block of monospace. */}
+                      {hop.plain && (
+                        <p className="mt-2 max-w-[68ch] text-sm leading-relaxed text-ui-fg/90">
+                          {hop.plain}
+                        </p>
+                      )}
+
                       {hop.payload && (
                         /* The literal payload, monospaced and boxed. This is the
                            part a reviewer grep-checks against the source, so it
                            is styled as evidence rather than as illustration. */
                         <pre
-                          className={`hop-lit mt-2.5 overflow-x-auto rounded-lg border px-3.5 py-2.5 font-mono text-[0.75rem] leading-relaxed text-ui-fg/85 ${
-                            hop.where === 'crosses'
-                              ? 'payload-crossing border-flow-model/35'
-                              : 'border-ui-line'
+                          /* TINTED WITH ITS OWN STEP'S COLOUR. Every box used
+                             to be the same grey except the crossing one, so
+                             the palette said "this one is different" and
+                             nothing about the rest. Now the box carries the
+                             lane it belongs to, at 4.5% — enough to group by
+                             eye, far too little to read as a highlight. */
+                          className={`hop-lit mt-2.5 overflow-x-auto rounded-lg border px-3.5 py-2.5 font-mono text-[0.75rem] leading-relaxed text-ui-fg/85 ${w.tint} ${
+                            hop.where === 'crosses' ? 'payload-crossing' : ''
                           }`}
                           style={{ animationDelay: delay, ['--lit' as any]: lit }}
                         >
