@@ -125,6 +125,7 @@
     "steering:worked-example": "pnpm --filter @vantis/steering worked-example",
     "bedrock:check": "pnpm --filter @fde/bedrock check",
     "provider:check": "pnpm --filter @fde/agent check",
+    "settle:check": "pnpm --filter @fde/agent check:settle",
     "steering:ping": "pnpm --filter @vantis/steering ping"
   },
   "devDependencies": {

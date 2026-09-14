@@ -44,13 +44,13 @@ import { FOUNDRY_SCOPE, env } from '@fde/foundry';
 import type { ToolRegistry } from '../core/registry';
 import type { ToolCallRecord } from '../core/tool.types';
 import { summariseResult } from '../core/summarise';
+import { schemaGate } from '../core/settle';
 import {
   DEFAULT_BEDROCK_MODEL,
   DEFAULT_MAX_TURNS,
   type LoopOptions,
   type LoopResult,
   type TurnRecord,
-  type ValidationResult,
 } from '../core/loop.types';
 
 // require(), not import: @mastra/core is dual-published but `ai` and
@@ -262,25 +262,13 @@ export async function runLoopMastra<T = unknown>(
   opts: LoopOptions = {},
 ): Promise<LoopResult<T>> {
   const maxTurns = opts.maxTurns ?? DEFAULT_MAX_TURNS;
-  const schemaErrors: string[] = [];
-  let retriesLeft = opts.structuredRetries ?? 1;
+  // Owns the retry budget, the running error list and the one copy of the retry
+  // sentence — shared with the other two engines. `schemaErrors` is the same
+  // array by reference. See core/settle.ts.
+  const gate = schemaGate<T>(opts);
+  const schemaErrors = gate.errors;
 
   const dispatched: ToolCallRecord[] = [];
-  const validate =
-    opts.validate ??
-    // NO DOMAIN DEFAULT, and asking for a schema without a validator is a
-    // mistake rather than a shortcut: it would let raw text through as if it
-    // had passed, and it would typecheck. So it throws instead.
-    (() => {
-      if (opts.responseFormat) {
-        throw new Error(
-          'responseFormat was set without a validate function. @fde/agent ships no ' +
-            'default validator — the answer contract is yours. Pass one (see @fde/schema).',
-        );
-      }
-      return (raw: string): ValidationResult => ({ ok: true, value: raw as unknown });
-    })();
-
   const agent = new Agent({
     name: opts.agentName ?? 'agent',
     instructions: opts.system ?? '',
@@ -318,38 +306,18 @@ export async function runLoopMastra<T = unknown>(
         ? res.text
         : JSON.stringify(res.object ?? '');
 
-    if (!opts.responseFormat) {
-      return { text, turns, stoppedBecause: 'model_finished', schemaErrors };
-    }
+    // The gate decides finished-or-retry, including the re-validation Mastra's
+    // own `structuredOutput` cannot do: it enforces SHAPE and knows nothing
+    // about a schema's coherence rules. See core/settle.ts.
+    const outcome = gate.settle(text, turns);
+    if (outcome.kind === 'done') return outcome.result;
 
-    // WHY RE-VALIDATE WHAT MASTRA ALREADY VALIDATED. `structuredOutput` enforces
-    // SHAPE. It knows nothing about coverage-schema.ts's `coherenceErrors()` —
-    // above all "an unresolved conflict with no escalation is rejected", which is
-    // the model silently picking a side while looking fully compliant.
-    const validated = validate(text);
-    if (validated.ok) {
-      return {
-        text,
-        turns,
-        structured: validated.value as T,
-        stoppedBecause: 'model_finished',
-        schemaErrors,
-      };
-    }
-
-    schemaErrors.push(validated.errors!);
-    opts.onEvent?.({ type: 'schema_retry', turn: turns.length, error: validated.errors! });
-
-    if (retriesLeft <= 0) {
-      // Fail loudly. Silent repair hides the failure rate, and the failure rate
-      // is a number you need.
-      return { text, turns, stoppedBecause: 'schema_invalid', schemaErrors };
-    }
-    retriesLeft--;
-
-    input =
-      `${prompt}\n\nYour previous response did not satisfy the required schema: ` +
-      `${validated.errors}. Reply again with valid JSON only.`;
+    // THE ONE GENUINELY PER-ENGINE LINE, and Mastra's is the odd one: there is
+    // no history object to append to, so `generate()` is handed the whole
+    // conversation again as a string — hence the prompt is repeated in front of
+    // the instruction. The instruction itself is the same sentence all three
+    // engines send.
+    input = `${prompt}\n\n${outcome.instruction}`;
   }
 }
 
