@@ -23,7 +23,7 @@ import {
   type Check as GenericCheck,
   type CheckResult,
 } from '@fde/evals';
-import { PACKAGE_ROOT } from '../../config/connections';
+import { REPO_ROOT } from '../../config/connections';
 import type { SupplierImpactAnswer, SupplierImpactRow } from '../../schema/supplier-impact-schema';
 import { ASSESS_SUPPLIER_IMPACT } from '../../agent/tool/assess-supplier-impact.tool';
 
@@ -36,7 +36,7 @@ const no = (detail: string): CheckResult => ({ pass: false, detail });
 // ── what the corpus actually contains ───────────────────────────────────────
 
 const CORPUS_DIR = process.env.PHARMA_CORPUS_DIR
-  ?? resolve(PACKAGE_ROOT, '..', '..', 'docs', 'pharma', 'corpus');
+  ?? resolve(REPO_ROOT, 'docs', 'pharma', 'corpus');
 
 /**
  * Revision ids present in the corpus. Duplicated from `checks.ts` rather than

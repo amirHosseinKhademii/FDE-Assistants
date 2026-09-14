@@ -41,7 +41,7 @@ can be exercised honestly.
 | `sop-scm-004-rev-5.md` | 2023-04-01 → current | the rule N2 cites: what must happen when a supplier is disqualified |
 
 **The first two are a pair, on purpose.** They are what
-[`release-001`](cases/release-001.md) depends on, and if retrieval cannot keep
+[`release-001`](../cases/release-001.md) depends on, and if retrieval cannot keep
 them apart then nothing built on top of it will work — which is much cheaper to
 discover at two documents than at eighty.
 
@@ -49,7 +49,7 @@ discover at two documents than at eighty.
 `SOP-SCM-004 Rev 5` existed in `mrd_reg` as a metadata row and nowhere else, so
 the supplier-impact answer would have had to describe the disqualification rule
 from a revision id — the exact failure `search_procedures` was built to fix for
-release, repeated one bottleneck later. See [`NEXT.md` §N5](NEXT.md).
+release, repeated one bottleneck later. See [`NEXT.md` §N5](../NEXT.md).
 
 A corpus grows because a question needs it, never to look bigger. Each of these
 three is the smallest document that makes a specific answer citable rather than

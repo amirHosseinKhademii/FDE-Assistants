@@ -2,7 +2,7 @@
 
 *Written 2026-09-11, before any corpus design. Everything here was run or read,
 not inferred. This is the input to the Step 2 design in
-[`CORPUS-PLAN.md`](../CORPUS-PLAN.md); the other files in this directory are
+[`CORPUS-PLAN.md`](../plans/CORPUS.md); the other files in this directory are
 web research into what real claims documents look like.*
 
 ---

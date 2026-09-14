@@ -1,6 +1,6 @@
 # Cluster 2 — Insurer-authored internal documents (US personal auto)
 
-*Research file. No code. Written 2026-09-11 for Step 1 of [`CORPUS-PLAN.md`](../CORPUS-PLAN.md).*
+*Research file. No code. Written 2026-09-11 for Step 1 of [`CORPUS-PLAN.md`](../plans/CORPUS.md).*
 
 Scope: the three document families an insurer writes **for its own staff and its
 own producers** — underwriting manuals, claims handling procedures, and

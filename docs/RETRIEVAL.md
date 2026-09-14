@@ -6,13 +6,19 @@ does" line was read out of the shipped file.*
 
 Companions: [`AUGMENTED-GENERATION.md`](AUGMENTED-GENERATION.md) is the **A and
 the G** — what happens to a passage once it is found, and what the answer must
-look like. [`ENGINES.md`](steering/ENGINES.md) is which library drives the loop that reads
+look like. [`ENGINES.md`](ENGINES.md) is which library drives the loop that reads
 them, and which cloud serves the model.
 [`steering/GROUNDING-WALKTHROUGH.md`](steering/GROUNDING-WALKTHROUGH.md) is the
 **file-by-file trace of one question through one corpus**; this document is the
 other axis — what each stage *is*, cross-engagement, and what the machine
 literally does. Read that one to follow a question; read this one to know what
 the words mean.
+
+> **New to any of this?** Start at
+> [**Appendix A**](#appendix-a--vector-databases-and-vector-search-from-scratch)
+> at the end — what an embedding actually is, what a vector database actually is
+> (less than you think), and why this repo has no vector index at all. It assumes
+> nothing and the rest of the document does not depend on it.
 
 ---
 
@@ -497,3 +503,232 @@ stops failing, the comparison above it has gone blind.
 | **There is no reranker, and no measurement saying one would help.** | Its absence is a gap named, not a decision defended. |
 | **`similarity` is a within-result-set rank, not a quality score.** | §5. The top hit is `1.000` on every query ever made, including one that matched nothing useful. |
 | **`CLAUDE.md` and several file comments cite `pnpm chunks`, `pnpm ingest`, `pnpm query`, `pnpm corpus:check` at the repo root.** | Those scripts exist only in `packages/insurance/package.json`; at the root they are not defined. Use the `--filter` form above. |
+
+---
+
+# Appendix A · Vector databases and vector search, from scratch
+
+*Added 2026-09-14. Nothing above depends on this section — it is here for anyone
+who wants the mechanism rather than the decisions. Everything claimed about this
+repo was read out of `store.ts` and out of `@langchain/pgvector`'s shipped
+`dist/`.*
+
+## A.1 · An embedding is a list of numbers, and that is genuinely all it is
+
+You hand a passage to an embedding model. It hands back a fixed-length list of
+numbers — **1536** of them for `text-embedding-3-small`, **384** for the local
+bge-small. Always the same length, whether the passage is six words or six
+hundred.
+
+```
+  "we will pay $40 per day for a rental"  ──► [ 0.0123, -0.0456, 0.0789, … ]
+                                                └──── 1536 numbers ────┘
+```
+
+**No individual number means anything.** There is no "cost" dimension or
+"vehicle" dimension you could look up. What carries the meaning is the
+**direction** the whole list points in, taken together.
+
+The useful way to picture it is to drop from 1536 dimensions to 2, where you can
+actually draw it:
+
+```
+        ▲
+        │        ● "rental reimbursement $40/day"
+        │       ╱
+        │      ╱ ● "we pay for a hire car while yours is repaired"
+        │     ╱ ╱          ← nearly the same DIRECTION
+        │    ╱ ╱             different words, same meaning
+        │   ╱ ╱
+        │  ╱ ╱
+        │ ╱ ╱  ╲
+        │╱╱     ╲
+        └────────●──────────────────────────────►
+                  "collision deductible $1,000"
+                       ← a different direction entirely
+```
+
+The model was trained so that passages people would call similar end up pointing
+similar ways. That training is the entire magic, and it happened long before your
+corpus existed.
+
+## A.2 · "Search" becomes "which of these arrows points most like mine"
+
+Once every passage is an arrow, a question is just another arrow — embed it the
+same way — and searching means **finding the nearest arrows.**
+
+Nearest by **angle**, not by length:
+
+```
+   cosine distance = 0.0   same direction          → as good as identical
+                   = 0.3   pointing roughly alike  → related
+                   = 1.0   at right angles         → unrelated
+                   = 2.0   opposite                → (rare in practice)
+```
+
+**Why angle and not straight-line distance.** A long passage and a short one
+about the same thing produce arrows of different *lengths* but similar
+*direction*. Measuring length would rank by how much text there is. Measuring
+angle ignores that, which is what you want.
+
+In Postgres this is an operator. Cosine distance is `<=>`, and the whole of
+"vector search" is one ordinary SQL query:
+
+```sql
+SELECT content, metadata
+  FROM document_chunks
+ ORDER BY vector <=> $1      -- $1 is the question's 1536 numbers
+ LIMIT 120;
+```
+
+That is it. `ORDER BY ... LIMIT` — the same shape as any other query you have
+ever written. The tool then reports `1 - distance` so that **bigger means closer**,
+because a number that goes *down* as things get better reads backwards to
+everyone. *(What the tool finally shows the model has been through rank fusion
+as well — see §5, which is why that number is not a raw cosine.)*
+
+## A.3 · So what IS a "vector database"?
+
+This is the part that is over-sold. A vector database is **three capabilities**,
+and you can get all three without adopting a new product:
+
+| | What it is | Here |
+|---|---|---|
+| **A column type** | somewhere to put 1536 numbers so they are not JSON text | `vector`, from the `pgvector` extension |
+| **A distance operator** | a way to ask "how far apart" in SQL | `<=>` |
+| **An index** *(optional!)* | make it fast without comparing everything | **we have none — see A.4** |
+
+There is **no separate vector database in this repo.** There is Postgres with an
+extension switched on. The table `PGVectorStore` creates is unremarkable:
+
+```sql
+CREATE EXTENSION IF NOT EXISTS vector;
+
+CREATE TABLE document_chunks (
+  id        uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  content   text,      -- the passage: heading trail + body
+  metadata  jsonb,     -- documentId, section, startLine, status, facets…
+  vector    vector     -- the numbers
+);
+
+-- added by OUR ingest, for the keyword arm:
+ALTER TABLE document_chunks ADD COLUMN content_ts tsvector
+  GENERATED ALWAYS AS (to_tsvector('english', content)) STORED;
+CREATE INDEX … ON document_chunks USING gin (content_ts);
+```
+
+Note the `vector` column is declared with **no dimension**. That is why
+`EMBEDDINGS=local` (384) and the hosted model (1536) can both be stored without a
+migration — though they still can't be *mixed*, which is why switching means
+re-ingesting.
+
+> **The FDE point, and it is not a technical one.** Choosing Postgres was never
+> about pgvector being the best nearest-neighbour engine — it isn't. It was about
+> *"can we run Postgres"* never being a blocker, while *"can we stand up a vector
+> database"* is a new infrastructure conversation with a team that has not met
+> you yet.
+
+## A.4 · The index — and the honest fact that this repo has none
+
+With no index, Postgres compares the question to **every single row**, every
+query. That is called a brute-force or exact scan, and the alternative is an
+**approximate** index (HNSW, IVFFlat) that skips most rows by keeping a
+navigable graph of which vectors are near which.
+
+```
+  EXACT (no index)                    APPROXIMATE (HNSW / IVFFlat)
+  ────────────────                    ────────────────────────────
+  compare all N rows                  walk a graph, touch ~log(N)
+  perfect results, always             may MISS a true nearest neighbour
+  slow as N grows                     fast at millions of rows
+  nothing to tune                     m, ef_construction, ef_search
+  nothing to rebuild                  rebuild after big writes
+```
+
+**`@langchain/pgvector` ships `createHnswIndex()`, and `openStore()` never calls
+it.** It is an opt-in method, not part of `initialize()`. So every dense search
+in this repo is an exact sequential scan.
+
+**That is the right call at this size, not an oversight.** The arithmetic:
+
+| | rows | × 1536 floats × 4 bytes | brute-force scan |
+|---|---|---|---|
+| insurance | 555 | ≈ 3.4 MB | trivial |
+| pharma | 75 | ≈ 0.5 MB | trivial |
+| steering | 3,854 | ≈ 23 MB | still trivial |
+
+The whole vector set fits in memory several times over. An approximate index
+here would add tuning parameters, a rebuild step, and a **recall loss** — a real
+chance of missing the right passage — in exchange for speeding up something that
+is already imperceptible.
+
+> **Approximate search trades correctness for speed. Buy that trade when you have
+> the scale problem, not before.** The number to watch is rows, and the honest
+> statement today is: nobody here has measured where it starts to hurt.
+
+Note the asymmetry, because it surprises people: **the keyword arm IS indexed**
+(GIN, created by our ingest) and the vector arm is not. Full-text search over
+unindexed text is genuinely slow; exact vector scan over a few thousand rows is
+not.
+
+## A.5 · Why the vector arm is not enough on its own
+
+Embeddings are strong at paraphrase and weak at rare literal strings — which is
+exactly backwards from what a policy corpus needs.
+
+| | Vector search | Keyword search (`tsvector`) |
+|---|---|---|
+| Matches on | meaning / direction | the words themselves |
+| *"hire car"* finds *"rental reimbursement"* | ✅ yes | ❌ no |
+| *"livery"* | ❌ few neighbours — retrieves general prose | ✅ one hop |
+| An exact form id | ❌ unreliable | ✅ exact |
+| A typo | ✅ tolerant | ❌ misses |
+| Needs a model at query time | yes — embed the question | no |
+
+`"livery"` is the real example from a traced run: a rare legal term has almost no
+neighbours in embedding space, so the dense arm returns vaguely
+vehicle-flavoured prose and never the clause. The keyword arm finds it
+immediately. That single asymmetry is the entire argument for running both and
+fusing them — which is §4.
+
+## A.6 · The whole mechanism on one screen
+
+```
+  ══ ONCE, AT INGEST ═════════════════════════════════════════════════
+
+    passage text ──► embedding model ──► [1536 numbers] ──┐
+         │                                                 │
+         └──► to_tsvector('english', …) ──► word index ──┐ │
+                                                         │ │
+                          ┌──────────────────────────────▼─▼──────┐
+                          │  document_chunks (ordinary Postgres)  │
+                          │   content · metadata · vector · content_ts │
+                          │   GIN index on content_ts ✅          │
+                          │   NO index on vector      ⚠ exact scan │
+                          └───────────────────────────────────────┘
+
+  ══ PER QUESTION ════════════════════════════════════════════════════
+
+    "is a hire car covered?"
+         │
+         ├─► embed ──► [1536 numbers] ──► ORDER BY vector <=> $1
+         │                                  scans all 555 rows      → 120 hits
+         │
+         └─► strip to words ──► to_tsquery('hire | car | covered')
+                                  GIN index lookup                  → 120 hits
+                                              │
+                                              ▼
+                        fuse by RANK (RRF, K=60) — magnitudes discarded
+                                              │
+                                              ▼
+                        gate by docType + status, keep top 5
+                                              │
+                                              ▼
+                              passages as TEXT in the prompt
+```
+
+**The one sentence to take away:** a vector database is an ordinary table with a
+numbers column and a distance operator, and "vector search" is `ORDER BY ...
+LIMIT`. Everything that makes retrieval good or bad here happened *before* that
+query — in what was chunked, what metadata travelled with it, and what the other
+arm found.

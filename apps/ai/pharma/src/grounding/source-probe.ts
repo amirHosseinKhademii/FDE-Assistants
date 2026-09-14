@@ -17,11 +17,11 @@
  */
 import { fileDocumentSource } from '@fde/grounding';
 import { resolve } from 'node:path';
-import { PACKAGE_ROOT } from '../config/connections';
+import { REPO_ROOT } from '../config/connections';
 import { PHARMA_DOCUMENTS } from '../config/pharma-documents';
 
 const CORPUS_DIR = process.env.PHARMA_CORPUS_DIR
-  ?? resolve(PACKAGE_ROOT, '..', '..', 'docs', 'pharma', 'corpus');
+  ?? resolve(REPO_ROOT, 'docs', 'pharma', 'corpus');
 
 async function main(): Promise<void> {
   const docs = await fileDocumentSource(CORPUS_DIR, PHARMA_DOCUMENTS).list();

@@ -48,7 +48,7 @@
     "ingest": "ts-node src/grounding/cli.ts ingest",
     "query": "ts-node src/grounding/cli.ts query",
     "source:probe": "ts-node src/grounding/source-probe.ts",
-    "price:check": "ts-node ../telemetry/src/price-selftest.ts",
+    "price:check": "ts-node ../../../packages/telemetry/src/price-selftest.ts",
     "history:stats": "ts-node src/cli/ask-history-stats.ts",
     "world:check": "ts-node src/db/seed/world-check.ts",
     "debate": "ts-node src/cli/lot-debate.ts",

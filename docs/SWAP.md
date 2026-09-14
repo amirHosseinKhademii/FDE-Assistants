@@ -4,8 +4,8 @@
 order; each section says what is lost as well as what is gained.*
 
 Companion: [`RUN.md`](../RUN.md) for the pillars as they run today,
-[`NEXT.md`](NEXT.md) for work already in flight,
-[`CORPUS-PLAN.md`](CORPUS-PLAN.md) for the corpus decisions this sits on top of.
+[`NEXT.md`](ROADMAP.md) for work already in flight,
+[`CORPUS-PLAN.md`](plans/CORPUS.md) for the corpus decisions this sits on top of.
 
 ---
 
@@ -43,7 +43,7 @@ suite         8 cases x 5 runs, 13 checks, 2 of which read the tool trace
 1. **The total-loss tax case.** The only thing that would give hybrid search a
    number. Documents exist (`CIR-IL-2024-03` includes tax + title +
    registration; `CIR-NY-2024-02` includes tax but NOT title fee); no case
-   exercises them. Designed in [`CORPUS-PLAN.md`](CORPUS-PLAN.md) §2.5.
+   exercises them. Designed in [`CORPUS-PLAN.md`](plans/CORPUS.md) §2.5.
 2. **The other planted traps have no cases either** — superseded bulletin,
    stale determination and its control, endorsement absent from the
    declarations. The corpus is booby-trapped and the suite does not step on it.
@@ -191,7 +191,7 @@ not a better index.
 **The lesson worth keeping: measure the thing you changed, on a case that can
 show it.** `cov-002` is routing-bound, so it could never have demonstrated
 retrieval quality either way. The case that would is the total-loss tax case in
-[`CORPUS-PLAN.md`](CORPUS-PLAN.md) §2.5, and it does not exist yet.
+[`CORPUS-PLAN.md`](plans/CORPUS.md) §2.5, and it does not exist yet.
 
 **Keep hybrid** — it is correct, it is cheap, and the retrieval evidence is
 real. But it is currently a change with no measured effect on any answer.

@@ -40,7 +40,7 @@
     "severity:check": "ts-node src/eval/scorecard-selftest.ts",
     "logs:sync": "ts-node src/telemetry/logs-sync.ts",
     "corpus": "node scripts/generate-corpus.mjs",
-    "guard:check": "ts-node ../guard/src/selftest.ts",
+    "guard:check": "ts-node ../../../packages/guard/src/selftest.ts",
     "corpus:load": "ts-node src/grounding/cli.ts corpus:load",
     "corpus:check": "ts-node src/grounding/cli.ts corpus:check"
   },

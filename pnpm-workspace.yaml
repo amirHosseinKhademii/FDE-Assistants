@@ -52,5 +52,20 @@
 # The root is a workspace root and nothing else: no src, no dependencies of its
 # own, scripts that delegate.
 packages:
-  - 'apps/*'
+  # THREE GLOBS, AND THE SPLIT IS THE POINT.
+  #
+  #   apps/fullstack/*  a deployable surface: TanStack Start, a vite.config.ts,
+  #                     a port, an entry in .github/workflows/deploy.yml
+  #   apps/ai/*         an engagement's own judgement and its CLIs — the agent
+  #                     loops, the tools, the prompts, the schemas, the evals.
+  #                     No port. Imported BY the surface next door.
+  #   packages/*        what is left is what transfers: every @fde/*, plus
+  #                     @veresk/surface, which is this site's own shared parts.
+  #
+  # `leak:check` keys on the `@fde/` PREFIX, not on this directory, so moving
+  # the engagements out of packages/ did not change what it guards. It scans
+  # packages/ and every name there that starts with @fde/ must stay free of one
+  # customer's vocabulary.
+  - 'apps/fullstack/*'
+  - 'apps/ai/*'
   - 'packages/*'

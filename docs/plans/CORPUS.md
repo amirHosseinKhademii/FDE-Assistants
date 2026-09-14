@@ -8,9 +8,9 @@ problems that matter at that size are visible at this one. This is the plan to
 close that — without throwing away the thing that makes this repo worth
 anything, which is that every claim about it is checkable.
 
-Companion: [`RUN.md`](../RUN.md) for the pillars as they stand,
-[`GUIDE.md`](../GUIDE.md) §3 for why the corpus is shaped the way it is,
-[`NEXT.md`](NEXT.md) for the work already in flight.
+Companion: [`RUN.md`](../../RUN.md) for the pillars as they stand,
+[`GUIDE.md`](../../GUIDE.md) §3 for why the corpus is shaped the way it is,
+[`NEXT.md`](../ROADMAP.md) for the work already in flight.
 
 ---
 
@@ -103,7 +103,7 @@ material. Everything generated must be original text in the *shape* of these
 documents, and every file keeps the existing "Fictional document, written for an
 FDE practice engagement" header.
 
-**Output:** `docs/corpus-research.md` — one section per type, with what it is,
+**Output:** `docs/corpus-research/README.md` — one section per type, with what it is,
 its structure, its precedence rules, and a sample skeleton.
 
 ---
@@ -314,10 +314,10 @@ because a tidy one means you skipped the job.
 this section is reviewed before Step 3, and it is — the open decisions are
 collected at the end.*
 
-Step 1's output is [`docs/corpus-research.md`](corpus-research.md), with
+Step 1's output is [`docs/corpus-research/README.md`](../corpus-research/README.md), with
 the sourced detail in [`docs/corpus-research/`](corpus-research/) and the
 measured facts about our own code in
-[`docs/corpus-research/00-code-facts.md`](corpus-research/00-code-facts.md).
+[`docs/corpus-research/00-code-facts.md`](../corpus-research/00-code-facts.md).
 This section decides; that one establishes.
 
 ---
@@ -827,7 +827,7 @@ right there is the temptation that would undo `get_policyholder`.
 ## 2.10 Revised order
 
 ```
-1   research      DONE — docs/corpus-research.md
+1   research      DONE — docs/corpus-research/README.md
 2   design        THIS SECTION — review gate here
 2b  documents     Postgres, with the four schema corrections
 3   generate      seeded, additive, committed

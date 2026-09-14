@@ -23,7 +23,8 @@
  * every file here and in `@fde/grounding` uses them.
  */
 import { config } from 'dotenv';
-import { resolve } from 'node:path';
+import { existsSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
 import { redactedConnectionString } from '@fde/grounding';
 
 /**
@@ -39,7 +40,36 @@ import { redactedConnectionString } from '@fde/grounding';
 export const PACKAGE_ROOT = resolve(__dirname, '..', '..');
 
 /** The workspace root, where the single shared `.env` lives. */
-export const REPO_ROOT = resolve(PACKAGE_ROOT, '..', '..');
+/**
+ * The workspace root — where the single shared `.env` lives.
+ *
+ * FOUND BY WALKING UP, NOT BY COUNTING `..`. It used to be
+ * `resolve(PACKAGE_ROOT, '..', '..')`, which encoded "this package sits two
+ * levels below the root" — true at `packages/{name}`, false the moment it moved
+ * to `apps/ai/{name}`, and WRONG IN SILENCE: `.env` simply would not be found,
+ * `dotenv` reports nothing, and the first symptom is a connection string that
+ * is undefined three layers away.
+ *
+ * `pnpm-workspace.yaml` is the thing that actually defines the root, so look
+ * for it. A move cannot break this, and if one ever does it throws here with
+ * the path it searched instead of failing somewhere else.
+ */
+function findWorkspaceRoot(from: string): string {
+  let dir = from;
+  for (;;) {
+    if (existsSync(resolve(dir, 'pnpm-workspace.yaml'))) return dir;
+    const up = dirname(dir);
+    if (up === dir) {
+      throw new Error(
+        `no pnpm-workspace.yaml above ${from} — cannot locate the workspace root, ` +
+          'and the shared .env lives there',
+      );
+    }
+    dir = up;
+  }
+}
+
+export const REPO_ROOT = findWorkspaceRoot(PACKAGE_ROOT);
 
 config({ path: resolve(REPO_ROOT, '.env'), quiet: true });
 

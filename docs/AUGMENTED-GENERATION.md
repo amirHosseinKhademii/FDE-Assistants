@@ -4,7 +4,7 @@
 validation messages in §8 are captured output, not paraphrase.*
 
 Companions: [`RETRIEVAL.md`](RETRIEVAL.md) is the **R** — how a passage is found
-in the first place. [`ENGINES.md`](steering/ENGINES.md) is **which library drives the loop
+in the first place. [`ENGINES.md`](ENGINES.md) is **which library drives the loop
 and which cloud serves the model**. This document is the third question, and the
 only one of the three that is entirely domain judgment: *what goes into the
 context window, and what is allowed to come out.*

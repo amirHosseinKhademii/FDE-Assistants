@@ -3,7 +3,7 @@
 > Revision Id: SOP-QC-003 Rev 5 · SOP Id: SOP-QC-003 · Revision: 5 · Status: current · Effective: 2025-04-01 · Owner: DEPT-QC · Category: quality · Implements: CFR-211.192, CFR-211.194 · Supersedes: SOP-QC-003 Rev 4 · Change Control: CC-25-0014
 
 *FABRICATED. Meridian Pharma does not exist and this procedure was never
-followed. See [CORPUS.md](../CORPUS.md).*
+followed. See [CORPUS.md](README.md).*
 
 ## 1. Purpose
 

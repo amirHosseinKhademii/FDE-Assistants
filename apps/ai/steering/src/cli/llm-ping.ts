@@ -17,14 +17,20 @@
  */
 import { config } from 'dotenv';
 import { resolve } from 'node:path';
+import { REPO_ROOT } from '../config/connections';
 import { completion, describeProvider, provider } from '../llm/provider';
 
 // THE SHARED `.env`, LOADED THE WAY `config/connections.ts` LOADS IT — resolved
-// from this file rather than `process.cwd()`, because cwd is the repo root
-// under a root script and the package dir under a workspace filter. Skipping
-// this is not a silent degradation: the first run of this command reported
-// `FOUNDRY_CHAT_DEPLOYMENT is unset` on a machine where it was plainly set.
-config({ path: resolve(__dirname, '..', '..', '..', '..', '.env'), quiet: true });
+// from the workspace root rather than `process.cwd()`, because cwd is the repo
+// root under a root script and the package dir under a workspace filter.
+// Skipping this is not a silent degradation: the first run of this command
+// reported `FOUNDRY_CHAT_DEPLOYMENT is unset` on a machine where it was plainly
+// set.
+//
+// It used to count four `..` from this file. That broke the moment the package
+// moved from `packages/steering` to `apps/ai/steering` — and broke silently,
+// which is why `REPO_ROOT` now FINDS the root instead of counting to it.
+config({ path: resolve(REPO_ROOT, '.env'), quiet: true });
 
 const PROMPT = 'Reply with exactly: OK';
 

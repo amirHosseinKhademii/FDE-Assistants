@@ -1,7 +1,7 @@
 # What a claims corpus actually holds — Step 1
 
 *Written 2026-09-11. This is the deliverable for
-[`CORPUS-PLAN.md`](CORPUS-PLAN.md) Step 1, and the input to Step 2.
+[`CORPUS-PLAN.md`](../plans/CORPUS.md) Step 1, and the input to Step 2.
 **No code was written and no corpus file was touched.***
 
 Four researchers covered ten document types from primary sources — state DOI
@@ -13,11 +13,11 @@ from it.
 
 | file | covers | lines |
 |---|---|---|
-| [`00-code-facts.md`](corpus-research/00-code-facts.md) | what OUR code does today, measured | 233 |
-| [`10-forms-and-endorsements.md`](corpus-research/10-forms-and-endorsements.md) | forms, endorsements, state amendatories, declarations | 923 |
-| [`20-manuals-and-bulletins.md`](corpus-research/20-manuals-and-bulletins.md) | underwriting manuals, claims procedures, adjuster bulletins | 1076 |
-| [`30-regulatory.md`](corpus-research/30-regulatory.md) | DOI circulars, regulations, statutes | 571 |
-| [`40-determinations-and-opinions.md`](corpus-research/40-determinations-and-opinions.md) | file notes, position letters, RORs, denials, coverage opinions | 1146 |
+| [`00-code-facts.md`](00-code-facts.md) | what OUR code does today, measured | 233 |
+| [`10-forms-and-endorsements.md`](10-forms-and-endorsements.md) | forms, endorsements, state amendatories, declarations | 923 |
+| [`20-manuals-and-bulletins.md`](20-manuals-and-bulletins.md) | underwriting manuals, claims procedures, adjuster bulletins | 1076 |
+| [`30-regulatory.md`](30-regulatory.md) | DOI circulars, regulations, statutes | 571 |
+| [`40-determinations-and-opinions.md`](40-determinations-and-opinions.md) | file notes, position letters, RORs, denials, coverage opinions | 1146 |
 
 **Copyright.** Nothing below reproduces licensed form wording. Real ISO text is
 licensed material; everything generated must be original prose in the *shape* of
@@ -32,7 +32,7 @@ practice engagement" banner.
 beats which." The research says **there is no single such graph**, and two
 researchers reached that independently from different sources.
 
-From [`30-regulatory.md`](corpus-research/30-regulatory.md):
+From [`30-regulatory.md`](30-regulatory.md):
 
 > A DOI bulletin does **NOT** beat a policy form as a matter of law — bulletins
 > "neither establish binding norms nor finally determine issues or rights"
@@ -42,7 +42,7 @@ From [`30-regulatory.md`](corpus-research/30-regulatory.md):
 > departure is examined as a general business practice during market conduct
 > exams.
 
-From [`20-manuals-and-bulletins.md`](corpus-research/20-manuals-and-bulletins.md):
+From [`20-manuals-and-bulletins.md`](20-manuals-and-bulletins.md):
 
 > The policy form beats a bulletin on coverage, always — **the bulletin binds
 > the adjuster, not the contract.**
@@ -311,7 +311,7 @@ has and the plan's one-line version would have lost.
 
 ## 5. What the research says about our own code
 
-Full detail in [`00-code-facts.md`](corpus-research/00-code-facts.md); the four
+Full detail in [`00-code-facts.md`](00-code-facts.md); the four
 findings, briefly, because Step 2 has to decide on all of them:
 
 1. **`documentIdPattern` returns `""` for every new type.** Consequence (a):

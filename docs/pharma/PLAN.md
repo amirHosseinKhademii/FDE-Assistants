@@ -4,11 +4,11 @@
 4,911 rows (counts refreshed 2026-09-13 by `pnpm pharma:estate`), `db:check` 21/21. Steps 2 onward are still design only. Where this
 document and the code disagree, the code is right and this is stale.*
 
-**Built:** [`docs/pharma/cases/release-001.md`](pharma/cases/release-001.md) is
+**Built:** [`docs/pharma/cases/release-001.md`](cases/release-001.md) is
 the acceptance case, derived from the loaded rows.
 
-Companion: [`TEMPLATE.md`](TEMPLATE.md) for what transfers from the insurance
-build and what does not, [`CORPUS-PLAN.md`](CORPUS-PLAN.md) for the
+Companion: [`TEMPLATE.md`](../TEMPLATE.md) for what transfers from the insurance
+build and what does not, [`CORPUS-PLAN.md`](../plans/CORPUS.md) for the
 data-vs-documents distinction this plan inherits wholesale.
 
 ---
@@ -47,7 +47,7 @@ It is the single best-shaped question in industry for what this repo is about.
 
 ## The distinction that decides the whole plan — inherited, not re-litigated
 
-[`CORPUS-PLAN.md`](CORPUS-PLAN.md) established it for insurance and it carries
+[`CORPUS-PLAN.md`](../plans/CORPUS.md) established it for insurance and it carries
 over unchanged:
 
 ```
@@ -277,7 +277,7 @@ needs the same thing pointed the other way.
 ## Step 1 — what was built
 
 ```
-docs/PHARMA-PLAN.md                  this file
+docs/pharma/PLAN.md                  this file
 docs/pharma/cases/release-001.md     the acceptance question, hand-derived
 packages/pharma/db/schema/*.sql      six files, one per database — 47 tables
 packages/pharma/db/connections.mjs   one base URL in, six named databases out
