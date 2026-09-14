@@ -70,15 +70,35 @@ on:
   workflow_dispatch:
   push:
     branches: [master]
-    # Path-filtered on purpose. A README edit should not rebuild two images.
-    # `packages/**` covers both because `@fde/uikit` and `@veresk/surface` are
+    # Path-filtered on purpose. A README edit should not rebuild three images.
+    #
+    # THIS LIST HAS TO NAME EVERY SOURCE THAT ENDS UP IN AN IMAGE, and it twice
+    # did not:
+    #
+    #   `apps/ai/**` was covered by `packages/**` until the engagements moved out
+    #   of packages/ into apps/ai/. After that a change to the domain logic —
+    #   the tools, the prompts, the schemas, the thing most likely to change —
+    #   triggered NOTHING. A push landed and no run started, which is the worst
+    #   shape of failure here: the deploy did not fail, it silently did not
+    #   happen, and the running image stayed one version behind the repo.
+    #
+    #   `apps/web/pharma-app/**` and `infra/pharma/Dockerfile` were never listed
+    #   at all, while job 1b builds a pharma image and 2b deploys it. So a
+    #   pharma-surface-only change has never triggered its own deploy.
+    #
+    # `packages/**` stays because @fde/*, @veresk/surface and @fde/uikit are
     # workspace source compiled into each image, not published packages.
+    # `apps/web/insurance-app` is deliberately absent — there is no insurance
+    # image and no job that deploys one.
     paths:
+      - 'apps/ai/**'
       - 'apps/web/veresk-app/**'
       - 'apps/web/steering-app/**'
+      - 'apps/web/pharma-app/**'
       - 'packages/**'
       - 'infra/veresk/Dockerfile'
       - 'infra/steering/Dockerfile'
+      - 'infra/pharma/Dockerfile'
       - 'pnpm-lock.yaml'
       - '.github/workflows/deploy.yml'
 
@@ -334,6 +354,20 @@ jobs:
 
           grep -qa 'Vantis Steering' /tmp/page.html \
             || { echo "::error::the page rendered without its own name in it"; exit 1; }
+
+          # THE SAME ASSERTION THE PHARMA JOB MAKES, and for the same reason: a
+          # deploy that shipped an empty API_KEY would serve a healthy-looking
+          # assistant to anyone on the internet, and only this notices. Steering
+          # is the one where it matters most — `/api/assess` is the expensive
+          # route, so an open one is an open wallet on the Foundry resource.
+          #
+          # The guard runs before the body is parsed, so the payload only has to
+          # be valid JSON; 401 is a fact about the key, not about the request.
+          guard=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 \
+            -X POST "$url/api/assess" \
+            -H 'content-type: application/json' -d '{"ref":"ping"}')
+          echo "POST /api/assess without a key -> $guard"
+          [ "$guard" = "401" ] || { echo "::error::the guard did not refuse an unauthenticated request (got $guard — 503 means API_KEY is unset on the app, 200 means it is not guarded at all)"; exit 1; }
 
           echo "✅ **2a · steering deployed** — <$url>" >> "$GITHUB_STEP_SUMMARY"
 
