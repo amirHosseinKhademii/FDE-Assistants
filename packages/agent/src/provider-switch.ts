@@ -38,12 +38,16 @@
  * Azure's liveness is `pnpm steering:ping`; Bedrock has never reached the
  * network at all (`docs/BEDROCK.md` — on-demand inference quota reads 0.0).
  *
- * IT COVERS TWO ENGINES, and the last section is the reason. `LLM_PROVIDER`
- * has to mean the same thing everywhere or it is not one switch, it is two that
- * happen to share a name — and the failure mode is a fleet where half the
- * traffic silently went to a different cloud. Mastra and LangGraph select
- * through different code (`selectModel` vs `selectChatModel`, AI SDK vs
- * LangChain), so agreement is a property to assert rather than to assume.
+ * IT COVERS ALL THREE ENGINES, AND THEY DO NOT ALL ANSWER THE SAME WAY.
+ * `LLM_PROVIDER` has to mean one thing everywhere or it is not one switch, it
+ * is several that share a name — and the failure mode is a fleet where some of
+ * the traffic silently went to a different cloud. Mastra and LangGraph both
+ * serve `bedrock`, through entirely different code (`selectModel` vs
+ * `selectChatModel`, AI SDK vs LangChain), so their agreement is asserted
+ * rather than assumed. The Agents SDK CANNOT serve it — it takes an OpenAI
+ * client object — so the property asserted there is that it REFUSES. A
+ * documented limit that throws is a switch; an undocumented one that runs
+ * anyway is the bug.
  *
  * THE THREE PATHS DO NOT EVEN SHARE AN AWS API, read out of each package's own
  * dist rather than its README:
@@ -62,6 +66,7 @@
  */
 import { selectModel } from './mastra/loop-mastra';
 import { selectChatModel } from './langgraph/loop-langgraph';
+import { configureSdk } from './sdk/loop-sdk';
 import { DEFAULT_BEDROCK_MODEL } from './core/loop.types';
 
 let failed = 0;
@@ -265,6 +270,34 @@ export function runProviderSwitchCheck(): number {
     lgTypo ? `"${lgTypo.message}"` : 'LLM_PROVIDER=bedrok ran happily on the LangGraph engine',
   );
 
+  console.log('\nTHE THIRD ENGINE — agents-sdk cannot reach AWS, and must say so');
+
+  // Driven through `configureSdk`, the real entry point, rather than the guard
+  // it calls — so removing the guard from production breaks this, which is the
+  // whole value. The SDK globals it sets are process-wide and harmless here.
+  const sdk = (e: Record<string, string | undefined>) => withEnv(e, () => configureSdk({} as never));
+
+  const sdkAzure = threw({ LLM_PROVIDER: undefined }, sdk);
+  check(
+    sdkAzure === undefined,
+    'azure is fine on the default engine, as it always was',
+    'LLM_PROVIDER unset → configureSdk ran, no refusal',
+  );
+
+  const sdkBedrock = threw({ LLM_PROVIDER: 'bedrock' }, sdk);
+  check(
+    sdkBedrock !== undefined,
+    'bedrock is REFUSED rather than quietly served by azure',
+    sdkBedrock
+      ? 'LLM_PROVIDER=bedrock refused'
+      : 'it ran — on Azure, silently, which is a whole run about a cloud nobody chose',
+  );
+  check(
+    !!sdkBedrock && sdkBedrock.message.includes('LOOP=mastra'),
+    'and the refusal names the engines that CAN serve it',
+    sdkBedrock ? `"${sdkBedrock.message}"` : 'no error to read',
+  );
+
   console.log('\nAGREEMENT — one variable must mean one thing, or it is two switches');
 
   const AWS = (p: string) => p === 'amazon-bedrock' || p === 'chat_bedrock_converse';
@@ -292,7 +325,7 @@ export function runProviderSwitchCheck(): number {
 
   console.log(
     failed === 0
-      ? '\nprovider: PASS — azure by default on both engines, bedrock on request with its own model id, a typo refused, and the two engines in agreement\n'
+      ? '\nprovider: PASS — azure by default everywhere, bedrock served by two engines and refused by the third, and no engine quietly disagrees\n'
       : `\nprovider: FAIL — ${failed} problem(s)\n`,
   );
   return failed;
