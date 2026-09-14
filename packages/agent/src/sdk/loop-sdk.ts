@@ -84,8 +84,42 @@ import {
  * while looking like it passed. To drive a genuinely different client, build an
  * `OpenAIResponsesModel` explicitly and hand it to the Agent as `model`.
  */
+/**
+ * THIS ENGINE REACHES AZURE ONLY, AND SAYS SO RATHER THAN PRETENDING.
+ *
+ * `loop-mastra.ts` and `loop-langgraph.ts` both honour `LLM_PROVIDER` because
+ * they build their own model object and ignore the `client` argument. This one
+ * cannot: the Agents SDK takes an OpenAI CLIENT OBJECT through
+ * `setDefaultOpenAIClient`, so reaching Bedrock means handing it a client that
+ * speaks OpenAI's protocol to Anthropic's API. That is exactly what
+ * `@fde/bedrock` was written to be — and it is not wired to this loop yet.
+ *
+ * Until it is, `LLM_PROVIDER=bedrock` on the DEFAULT engine (`LOOP` defaults to
+ * `sdk`) used to run happily on Azure: no error, no warning, every number in
+ * the run about a cloud nobody chose. That is the precise failure
+ * `selectModel`'s throw exists to prevent, and it was sitting in the path that
+ * runs when you type nothing.
+ *
+ * So it throws. A refusal costs a run; a silent wrong cloud costs an afternoon
+ * and a wrong conclusion. Note what does NOT change: the raw
+ * `chat.completions.create` path (`@vantis/steering`'s `llm/provider.ts`) still
+ * reaches Bedrock through `@fde/bedrock`, because that caller hands over a
+ * request rather than a client.
+ */
+function refuseUnreachableProvider(): void {
+  const raw = process.env.LLM_PROVIDER?.trim().toLowerCase();
+  if (!raw || raw === 'azure') return;
+  throw new Error(
+    `LLM_PROVIDER="${process.env.LLM_PROVIDER}" cannot be served by the agents-sdk engine, ` +
+      'which reaches Azure only — it takes an OpenAI client object, and @fde/bedrock is not ' +
+      'wired to it yet. Use LOOP=mastra or LOOP=langgraph for bedrock, or unset LLM_PROVIDER ' +
+      'for azure. Refusing to run on a cloud you did not ask for.',
+  );
+}
+
 let configured = false;
 export function configureSdk(client: OpenAI): void {
+  refuseUnreachableProvider();
   if (configured) return;
   // Traces would otherwise go to api.openai.com. See the header.
   setTracingDisabled(true);
