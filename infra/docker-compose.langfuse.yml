@@ -1,0 +1,158 @@
+# Self-hosted Langfuse, for pillar 4's dashboard and run history.
+#
+# WHY SELF-HOSTED AND NOT THE CLOUD. An eval trace here carries policy ids,
+# coverage amounts, and the model's reasoning about what a named customer is
+# entitled to. Synthetic in this repo; a real insurer's data during an
+# engagement. Sending that to a vendor's cloud makes them a data processor for
+# insurance data — a DPA to negotiate and a vendor assessment to open, which is
+# the slow, engagement-blocking process FDE.md keeps warning about. Self-hosted,
+# the data never leaves the machine you run this on.
+#
+#   docker compose -f docker-compose.langfuse.yml up -d
+#   open http://localhost:3000   → create a project → copy the two API keys
+#
+# Then put the keys in .env (see .env.example) and run `pnpm eval`. Without
+# those keys the suite runs exactly as it did before — Langfuse is additive.
+#
+# NOTE ON THE SECRETS BELOW. They are development defaults and are fine on a
+# laptop. Before this is reachable by anyone else, replace every one of them:
+# NEXTAUTH_SECRET, SALT, ENCRYPTION_KEY and the three passwords. `openssl rand
+# -hex 32` for the first two and the encryption key.
+#
+# Postgres here is Langfuse's own metadata store on port 5434, deliberately NOT
+# the claims pgvector database on 5433. Sharing one Postgres between the app
+# under test and the tool observing it means a schema migration in the observer
+# can take down the thing being observed.
+services:
+  langfuse-db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: langfuse
+      POSTGRES_PASSWORD: langfuse
+      POSTGRES_DB: langfuse
+    ports:
+      - '5434:5432'
+    volumes:
+      - langfuse-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U langfuse']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.3
+    restart: unless-stopped
+    environment:
+      CLICKHOUSE_USER: clickhouse
+      CLICKHOUSE_PASSWORD: clickhouse
+      CLICKHOUSE_DB: default
+    volumes:
+      - langfuse-clickhouse:/var/lib/clickhouse
+    healthcheck:
+      test: ['CMD-SHELL', 'wget --spider -q localhost:8123/ping || exit 1']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  minio:
+    image: minio/minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: miniosecret
+    volumes:
+      - langfuse-minio:/data
+    healthcheck:
+      test: ['CMD-SHELL', 'mc ready local || exit 1']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # Creates the bucket Langfuse uploads raw events to. Without it the server
+  # starts healthy, accepts a trace, and then 500s on ingestion with
+  # "NoSuchBucket" — healthy-but-broken, which is the worst failure shape:
+  # `docker compose ps` says everything is fine.
+  minio-init:
+    image: minio/mc
+    depends_on:
+      minio: { condition: service_healthy }
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 minio miniosecret &&
+      mc mb --ignore-existing local/langfuse &&
+      echo 'bucket ready'
+      "
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    command: --requirepass redissecret
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', 'redissecret', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  langfuse-worker:
+    image: langfuse/langfuse-worker:3
+    restart: unless-stopped
+    depends_on:
+      langfuse-db: { condition: service_healthy }
+      clickhouse: { condition: service_healthy }
+      minio-init: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+    environment: &langfuse-env
+      DATABASE_URL: postgresql://langfuse:langfuse@langfuse-db:5432/langfuse
+      SALT: dev-salt-replace-me
+      ENCRYPTION_KEY: f5bc4ff22656173660fbf04c1c9096b8f5a440f69973767f633b405474ea2935
+      NEXTAUTH_SECRET: dev-secret-replace-me
+      NEXTAUTH_URL: http://localhost:3000
+      TELEMETRY_ENABLED: 'false'
+      LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES: 'true'
+      CLICKHOUSE_MIGRATION_URL: clickhouse://clickhouse:9000
+      CLICKHOUSE_URL: http://clickhouse:8123
+      CLICKHOUSE_USER: clickhouse
+      CLICKHOUSE_PASSWORD: clickhouse
+      CLICKHOUSE_CLUSTER_ENABLED: 'false'
+      LANGFUSE_S3_EVENT_UPLOAD_BUCKET: langfuse
+      LANGFUSE_S3_EVENT_UPLOAD_REGION: auto
+      LANGFUSE_S3_EVENT_UPLOAD_ACCESS_KEY_ID: minio
+      LANGFUSE_S3_EVENT_UPLOAD_SECRET_ACCESS_KEY: miniosecret
+      LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT: http://minio:9000
+      LANGFUSE_S3_EVENT_UPLOAD_FORCE_PATH_STYLE: 'true'
+      LANGFUSE_S3_EVENT_UPLOAD_PREFIX: events/
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      REDIS_AUTH: redissecret
+      # Headless provisioning. Without these you have to click through a signup
+      # form before you can copy an API key, which makes "clone the repo and run
+      # the evals" a manual step that goes stale in the README. With them, the
+      # keys below are the ones in .env.example and the whole thing is turnkey.
+      # Development only — see the warning at the top of this file.
+      LANGFUSE_INIT_ORG_ID: meridian
+      LANGFUSE_INIT_ORG_NAME: Meridian Mutual
+      LANGFUSE_INIT_PROJECT_ID: claims
+      LANGFUSE_INIT_PROJECT_NAME: Insurance Claims Assistant
+      LANGFUSE_INIT_PROJECT_PUBLIC_KEY: pk-lf-claims-dev
+      LANGFUSE_INIT_PROJECT_SECRET_KEY: sk-lf-claims-dev
+      LANGFUSE_INIT_USER_EMAIL: dev@claims.local
+      LANGFUSE_INIT_USER_NAME: Dev
+      LANGFUSE_INIT_USER_PASSWORD: claims-dev-password
+
+  langfuse:
+    image: langfuse/langfuse:3
+    restart: unless-stopped
+    depends_on:
+      langfuse-worker: { condition: service_started }
+    ports:
+      - '3000:3000'
+    environment:
+      <<: *langfuse-env
+
+volumes:
+  langfuse-db:
+  langfuse-clickhouse:
+  langfuse-minio:
