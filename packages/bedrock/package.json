@@ -1,0 +1,27 @@
+{
+  "name": "@fde/bedrock",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Amazon Bedrock client with AWS credentials — the sibling @fde/foundry's docstring promised.",
+  "license": "UNLICENSED",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@anthropic-ai/bedrock-sdk": "^0.33.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.3.1",
+    "typescript": "^5.1.3"
+  },
+  "files": [
+    "dist",
+    "package.json"
+  ]
+}

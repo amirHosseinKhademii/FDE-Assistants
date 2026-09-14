@@ -14,6 +14,9 @@
 #   packages/telemetry   @fde/telemetry   one durable line per request.
 #   packages/foundry     @fde/foundry     Azure credentials, no stored key.
 #   packages/guard       @fde/guard       fail-closed API auth.
+#   packages/bedrock     @fde/bedrock     AWS credentials for Amazon
+#                        Bedrock — the sibling @fde/foundry's docstring
+#                        promised, written to find out if the claim held.
 #
 #   packages/insurance   @claims/insurance THE JUDGMENT. The corpus and its
 #                        generator, the three tools, the prompt, the answer
