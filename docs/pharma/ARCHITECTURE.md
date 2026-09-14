@@ -4,7 +4,7 @@
 
 *Written 2026-09-12, after the restructure. This is the authoritative map of
 `packages/pharma/src/`. [`NEXT.md`](NEXT.md) says what is being built;
-[`../PHARMA-PLAN.md`](../PHARMA-PLAN.md) says why the estate looks the way it
+[`../PHARMA-PLAN.md`](PLAN.md) says why the estate looks the way it
 does. This file says where code goes and why it may not go elsewhere.
 [`EXTRACTION.md`](EXTRACTION.md) says which of this code should stop living
 here at all — and, just as importantly, which duplication is deliberate.

@@ -11,12 +11,15 @@ policy language — the assistant answers coverage questions from the insurer's
 own policy documents, with citations, conflict detection, and escalation when
 the answer isn't actually in the corpus.
 
+**`docs/README.md` is the documentation index** — what to read when, the three
+engagements' folders, and the naming rules. Start there when looking for a doc.
+
 **Read `README.md` first** — it is *how to run it* and has the fuller version
 of everything below (corpus layout, the four planted flaws, eval scorecard).
 `GUIDE.md` is the full narrative (what FDE is, the eight pillars, framework vs.
 hand-rolled, status) — start there if coming to this cold; it also has an
 [audio version](narration/README.md). `docs/PROGRESS.md` is the dated
-engineering log. `docs/NEXT.md` is the plan being worked right now.
+engineering log. `docs/ROADMAP.md` is the plan being worked right now.
 `docs/TEMPLATE.md` explains what transfers to a new domain and what doesn't —
 `grep -rn "DOMAIN:" packages/insurance/src/` is the seam list.
 
@@ -194,6 +197,10 @@ documents aren't source code — `CORPUS_DIR` / `RECORDS_DIR` env vars point
 elsewhere at a real engagement, and none of `docs/examples/` gets read.
 
 ### The answer contract
+
+See `docs/AUGMENTED-GENERATION.md` for the whole picture — what is assembled into
+the context window (the A) and what an answer must satisfy (the G), including the
+captured validation messages and why coherence is not a Zod refinement.
 
 `packages/insurance/src/schema/coverage-schema.ts` — `CoverageAnswerSchema` (Zod,
 `z.strictObject`). Fields: `answer`, `policy_id`, `policy_form`, `citations`,

@@ -56,10 +56,10 @@ This plan covers **step 1 and nothing else: the estate and the data in it.**
 The FDE capability that motivates the whole thing — *a new customer requirement
 lands, what do we have, what must change, what must be built, what do we quote*
 — is sketched at the end as steps 2+ and deliberately left unbuilt, exactly as
-[`PHARMA-PLAN.md`](../PHARMA-PLAN.md) left its own steps 2–4 sketched so step 1
+[`PHARMA-PLAN.md`](../pharma/PLAN.md) left its own steps 2–4 sketched so step 1
 could not corner them.
 
-Companions: [`PHARMA-PLAN.md`](../PHARMA-PLAN.md) for the estate pattern this
+Companions: [`PHARMA-PLAN.md`](../pharma/PLAN.md) for the estate pattern this
 inherits, [`TEMPLATE.md`](../TEMPLATE.md) for what transfers between domains,
 [`GUIDE.md`](../../GUIDE.md) for the eight pillars.
 
@@ -143,7 +143,7 @@ escalate, always.
 
 **The decision is inherited from pharma and is not re-litigated: separate
 databases, same Postgres host, soft keys across the seams.** The reasoning is in
-[`PHARMA-PLAN.md`](../PHARMA-PLAN.md) § "The decision the plan turns on" — an
+[`PHARMA-PLAN.md`](../pharma/PLAN.md) § "The decision the plan turns on" — an
 assistant that must fetch from each system and stitch in code is doing what an
 integration actually is, and a single clever `JOIN` lets you fake your way past
 it.

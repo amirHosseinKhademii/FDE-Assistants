@@ -25,7 +25,7 @@ import {
   type Check as GenericCheck,
   type CheckResult,
 } from '@fde/evals';
-import { PACKAGE_ROOT } from '../../config/connections';
+import { PACKAGE_ROOT, REPO_ROOT } from '../../config/connections';
 import type { ReleaseAnswer, ReleaseBlocker, ReleaseCitation } from '../../schema/release-schema';
 import { isDatedSource } from '../../schema/release-schema';
 import { ASSESS_RELEASE } from '../../agent/tool/assess-release.tool';
@@ -39,7 +39,7 @@ const no = (detail: string): CheckResult => ({ pass: false, detail });
 // ── what the corpus and the schema actually contain ─────────────────────────
 
 const CORPUS_DIR = process.env.PHARMA_CORPUS_DIR
-  ?? resolve(PACKAGE_ROOT, '..', '..', 'docs', 'pharma', 'corpus');
+  ?? resolve(REPO_ROOT, 'docs', 'pharma', 'corpus');
 const SCHEMA_DIR = resolve(PACKAGE_ROOT, 'db', 'schema');
 
 /** Revision ids present in the corpus, e.g. `SOP-QC-014 Rev 7`. Read once. */

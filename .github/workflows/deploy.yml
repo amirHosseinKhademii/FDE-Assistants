@@ -74,8 +74,8 @@ on:
     # `packages/**` covers both because `@fde/uikit` and `@veresk/surface` are
     # workspace source compiled into each image, not published packages.
     paths:
-      - 'apps/veresk-app/**'
-      - 'apps/steering-app/**'
+      - 'apps/fullstack/veresk-app/**'
+      - 'apps/fullstack/steering-app/**'
       - 'packages/**'
       - 'infra/veresk/Dockerfile'
       - 'infra/steering/Dockerfile'
@@ -315,7 +315,7 @@ jobs:
           # It was typed here once, the database was renamed, and this step then
           # failed twelve green 200s in a row — the deploy was fine and the
           # assertion was stale. Reading it from the source cannot rot.
-          MARKER=$(grep -oam1 "vst_[a-z]*" apps/steering-app/src/lib/estate.generated.ts | head -1)
+          MARKER=$(grep -oam1 "vst_[a-z]*" apps/fullstack/steering-app/src/lib/estate.generated.ts | head -1)
           [ -n "$MARKER" ] || { echo "::error::could not read a database name out of estate.generated.ts"; exit 1; }
           echo "asserting the page contains $MARKER"
 

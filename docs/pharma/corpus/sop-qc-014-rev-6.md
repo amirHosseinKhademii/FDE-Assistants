@@ -3,7 +3,7 @@
 > Revision Id: SOP-QC-014 Rev 6 · SOP Id: SOP-QC-014 · Revision: 6 · Status: superseded · Effective: 2023-07-01 · Expires: 2026-02-28 · Owner: DEPT-QA · Category: quality · Implements: ANNEX16-1.5, CFR-211.165, CFR-211.22
 
 *FABRICATED. Meridian Pharma does not exist and this procedure was never
-followed. See [CORPUS.md](../CORPUS.md).*
+followed. See [CORPUS.md](README.md).*
 
 ## 1. Purpose
 

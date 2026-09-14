@@ -14,7 +14,7 @@
       "outputs": [
         "dist/**",
         ".output/**",
-        "apps/insurance-app/dist/**"
+        "apps/fullstack/insurance-app/dist/**"
       ]
     },
     "dev": {

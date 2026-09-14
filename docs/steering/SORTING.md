@@ -3,7 +3,7 @@
 *Written 2026-09-13. Step S6 of [`PLAN.md`](PLAN.md). Companion to
 [`WALKTHROUGH.md`](WALKTHROUGH.md), which is the answer key in prose.*
 
-> **Coming back cold?** [`STATE.md`](STATE.md) — what exists, what it proved,
+> **Coming back cold?** [`STATE.md`](NEXT.md) — what exists, what it proved,
 > what is unfinished, and the next command.
 >
 > **What next?** [`NEXT.md`](NEXT.md) — the programme filter, the trace panel,

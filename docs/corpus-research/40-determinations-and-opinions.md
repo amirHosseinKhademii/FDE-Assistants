@@ -5,7 +5,7 @@ BY DECIDING A CLAIM, rather than by writing a policy.*
 
 Companion files: `10-*` (forms and editions), `20-*` (bulletins and circulars),
 `30-*` (manuals and procedures). Composed together they become the corpus design
-input for [`CORPUS-PLAN.md`](../CORPUS-PLAN.md) Step 2.
+input for [`CORPUS-PLAN.md`](../plans/CORPUS.md) Step 2.
 
 ---
 

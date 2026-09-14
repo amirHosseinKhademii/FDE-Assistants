@@ -24,7 +24,7 @@ import {
   fileDocumentSource,
   runGroundingCli,
 } from '@fde/grounding';
-import { KB_DB, urlFor, PACKAGE_ROOT } from '../config/connections';
+import { KB_DB, urlFor, REPO_ROOT } from '../config/connections';
 import { PHARMA_DOCUMENTS } from '../config/pharma-documents';
 import { openEmbeddings, embeddingsChoice, embeddingUsage } from './embeddings.factory';
 import { join, resolve } from 'node:path';
@@ -36,7 +36,7 @@ import { join, resolve } from 'node:path';
  * engagement they are not in this repo at all.
  */
 const CORPUS_DIR = process.env.PHARMA_CORPUS_DIR
-  ?? resolve(PACKAGE_ROOT, '..', '..', 'docs', 'pharma', 'corpus');
+  ?? resolve(REPO_ROOT, 'docs', 'pharma', 'corpus');
 
 const KB_URL = urlFor(KB_DB);
 

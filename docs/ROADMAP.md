@@ -448,7 +448,7 @@ chunk; one logged line per real request with a cost on it.
   similarity** (0.654 vs 0.518), so without the gate the stale document wins.
   **No eval case exercises it yet.** The cases that would — superseded-bulletin,
   stale-determination and its control, total-loss tax — are designed in
-  [`CORPUS-PLAN.md`](CORPUS-PLAN.md) §2.5 and unwritten. Until they exist, the
+  [`CORPUS-PLAN.md`](plans/CORPUS.md) §2.5 and unwritten. Until they exist, the
   tool is code nothing measures, and `cov-001`–`cov-008` all pass without ever
   calling it.
 - **`cov-004` on Mastra** — one dangerous failure in 35, rate unmeasured.
