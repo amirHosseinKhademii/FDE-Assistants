@@ -35,7 +35,8 @@
 import { z } from 'zod';
 import type { ComplianceFixture } from '../sdk/compliance-sdk';
 import { ToolRegistry } from '../core/registry';
-import { buildFoundryChatModel, toLangGraphTools } from './loop-langgraph';
+import { buildFoundryChatModel } from './provider';
+import { toLangGraphTools } from './tools';
 
 const { createReactAgent } = require('@langchain/langgraph/prebuilt');
 
@@ -95,7 +96,7 @@ function captureFetch(bucket: { url: string; body: any }[]) {
 }
 
 export async function runLangGraphComplianceCheck(fixture: ComplianceFixture): Promise<number> {
-  console.log('\nCompliance self-test — the LangGraph loop (loop-langgraph.ts)\n');
+  console.log('\nCompliance self-test — the LangGraph loop (langgraph/)\n');
 
   // Catch anything that bypasses our transport: telemetry, a second exporter,
   // a phone-home on first use. Same trick the other two self-tests use.

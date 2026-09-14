@@ -65,8 +65,8 @@
  *   pnpm provider:check
  */
 import { selectModel } from './mastra/provider';
-import { selectChatModel } from './langgraph/loop-langgraph';
-import { configureSdk } from './sdk/loop-sdk';
+import { selectChatModel } from './langgraph/provider';
+import { configureSdk } from './sdk/provider';
 import { DEFAULT_BEDROCK_MODEL } from './core/loop.types';
 
 let failed = 0;

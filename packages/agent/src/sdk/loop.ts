@@ -45,18 +45,9 @@
  * the wire.
  */
 import type OpenAI from 'openai';
-import {
-  Agent,
-  run,
-  tool,
-  setDefaultOpenAIClient,
-  setOpenAIAPI,
-  setTracingDisabled,
-  MaxTurnsExceededError,
-} from '@openai/agents';
+import { Agent, run, MaxTurnsExceededError } from '@openai/agents';
 import type { ToolRegistry } from '../core/registry';
 import type { ToolCallRecord } from '../core/tool.types';
-import { summariseResult } from '../core/summarise';
 import { schemaGate } from '../core/settle';
 import {
   DEFAULT_MAX_TURNS,
@@ -64,70 +55,9 @@ import {
   type LoopResult,
   type TurnRecord,
 } from '../core/loop.types';
-
-/**
- * Point the SDK at OUR client and shut off its telemetry.
- *
- * `setDefaultOpenAIClient` is the whole Azure story: the SDK does not need to
- * know about Foundry, it just uses the already-configured `OpenAI` instance
- * from `foundry/client.ts` — same endpoint, same DefaultAzureCredential, same
- * region. There is no Azure-specific code path.
- *
- * Idempotent because these are process-wide globals and both `ask` and `eval`
- * may configure before running.
- *
- * NOTE, and it cost an hour to learn: `setDefaultOpenAIClient` is FIRST-WRITE-
- * WINS. The SDK caches the client when it first resolves a model and ignores
- * later calls. There is deliberately no `reset()` here, because a function that
- * appears to swap the client and cannot would be worse than none — the
- * compliance self-test had exactly that bug and silently recorded zero requests
- * while looking like it passed. To drive a genuinely different client, build an
- * `OpenAIResponsesModel` explicitly and hand it to the Agent as `model`.
- */
-/**
- * THIS ENGINE REACHES AZURE ONLY, AND SAYS SO RATHER THAN PRETENDING.
- *
- * `mastra/loop.ts` and `loop-langgraph.ts` both honour `LLM_PROVIDER` because
- * they build their own model object and ignore the `client` argument. This one
- * cannot: the Agents SDK takes an OpenAI CLIENT OBJECT through
- * `setDefaultOpenAIClient`, so reaching Bedrock means handing it a client that
- * speaks OpenAI's protocol to Anthropic's API. That is exactly what
- * `@fde/bedrock` was written to be — and it is not wired to this loop yet.
- *
- * Until it is, `LLM_PROVIDER=bedrock` on the DEFAULT engine (`LOOP` defaults to
- * `sdk`) used to run happily on Azure: no error, no warning, every number in
- * the run about a cloud nobody chose. That is the precise failure
- * `selectModel`'s throw exists to prevent, and it was sitting in the path that
- * runs when you type nothing.
- *
- * So it throws. A refusal costs a run; a silent wrong cloud costs an afternoon
- * and a wrong conclusion. Note what does NOT change: the raw
- * `chat.completions.create` path (`@vantis/steering`'s `llm/provider.ts`) still
- * reaches Bedrock through `@fde/bedrock`, because that caller hands over a
- * request rather than a client.
- */
-function refuseUnreachableProvider(): void {
-  const raw = process.env.LLM_PROVIDER?.trim().toLowerCase();
-  if (!raw || raw === 'azure') return;
-  throw new Error(
-    `LLM_PROVIDER="${process.env.LLM_PROVIDER}" cannot be served by the agents-sdk engine, ` +
-      'which reaches Azure only — it takes an OpenAI client object, and @fde/bedrock is not ' +
-      'wired to it yet. Use LOOP=mastra or LOOP=langgraph for bedrock, or unset LLM_PROVIDER ' +
-      'for azure. Refusing to run on a cloud you did not ask for.',
-  );
-}
-
-let configured = false;
-export function configureSdk(client: OpenAI): void {
-  refuseUnreachableProvider();
-  if (configured) return;
-  // Traces would otherwise go to api.openai.com. See the header.
-  setTracingDisabled(true);
-  setDefaultOpenAIClient(client as never);
-  // Be explicit: the Responses API, the same surface loop.ts drives by hand.
-  setOpenAIAPI('responses');
-  configured = true;
-}
+import { configureSdk } from './provider';
+import { toSdkTools } from './tools';
+import { turnsFrom } from './turns';
 
 export async function runLoopSdk<T = unknown>(
   client: OpenAI,
@@ -148,39 +78,7 @@ export async function runLoopSdk<T = unknown>(
   // Tool calls in dispatch order, sliced back into per-turn buckets at the end.
   const dispatched: ToolCallRecord[] = [];
 
-  // Every tool keeps going through OUR registry, so fixtures, timing, error
-  // shaping and the `source: 'live' | 'fixture'` record are unchanged. The SDK
-  // only decides WHEN to call them.
-  const tools = registry.schemas().map((s) =>
-    tool({
-      name: s.name,
-      description: s.description,
-      // A Zod object, taken natively — this is the payoff for standardising on
-      // Zod across output AND tool parameters rather than only the former.
-      parameters: s.parameters,
-      strict: true,
-      execute: async (args: unknown) => {
-        opts.onEvent?.({ type: 'tool_call', turn: 0, name: s.name, args });
-        const rec = await registry.dispatch(s.name, args);
-        dispatched.push(rec);
-        opts.onEvent?.({
-          type: 'tool_result',
-          turn: 0,
-          name: rec.name,
-          ok: rec.ok,
-          ms: rec.ms,
-          summary: rec.ok ? summariseResult(rec.result, opts.summariseResult) : (rec.error ?? 'failed'),
-        });
-        // Same contract the hand-rolled loop had — a failed tool comes back as
-        // readable JSON the model can recover from, never a thrown exception.
-        return JSON.stringify(rec.ok ? rec.result : { error: rec.error });
-      },
-      // Belt and braces: registry.dispatch already catches, but if it ever
-      // throws the model should still get text rather than the run dying.
-      errorFunction: (_ctx, error) =>
-        JSON.stringify({ error: error instanceof Error ? error.message : String(error) }),
-    }),
-  );
+  const tools = toSdkTools(registry, dispatched, opts);
 
   const agent = new Agent({
     name: opts.agentName ?? 'agent',
@@ -292,73 +190,3 @@ export async function runLoopSdk<T = unknown>(
     input = [...result.history, { role: 'user', content: outcome.instruction }];
   }
 }
-
-/**
- * Rebuild `TurnRecord[]` from the SDK's raw model responses.
- *
- * One `rawResponse` is one model round-trip, which is exactly what `loop.ts`
- * calls a turn — so token counts and turn counts stay comparable across the two
- * engines. Tool calls are re-attached by walking the responses in order and
- * taking as many dispatched records as each response asked for; tools run in
- * request order, so the slices line up.
- *
- * `ms` per turn is not available from the SDK (it does not time individual
- * round-trips), so it is reported as 0 rather than guessed. Total wall-clock is
- * still measured by the caller, which is what the scorecard actually reports.
- */
-/**
- * Cached input tokens out of an Agents SDK usage object, or `undefined`.
- *
- * The count lives under `inputTokensDetails.cached_tokens`, which is the
- * Responses API's own key passed through. The SDK exposes that as an ARRAY on
- * the aggregate `Usage` (one entry per request) and as a plain object on a
- * single `RequestUsage`, so both shapes are handled.
- *
- * RETURNS `undefined`, NOT `0`, WHEN THE KEY IS ABSENT. The detail object is
- * documented as not needing to carry every key, so "no `cached_tokens` here"
- * means the provider did not say — which is a different fact from "nothing was
- * cached", and `TurnRecord` keeps them apart deliberately.
- */
-function cachedFrom(usage: any): number | undefined {
-  const details = usage?.inputTokensDetails ?? usage?.input_tokens_details;
-  if (!details) return undefined;
-
-  const entries: any[] = Array.isArray(details) ? details : [details];
-  const present = entries.filter((d) => typeof d?.cached_tokens === 'number');
-  if (present.length === 0) return undefined;
-
-  return present.reduce((n, d) => n + d.cached_tokens, 0);
-}
-
-function turnsFrom(
-  result: any,
-  dispatched: ToolCallRecord[],
-  turnOffset: number,
-  toolOffset: number,
-): TurnRecord[] {
-  const responses: any[] = result.rawResponses ?? [];
-  const turns: TurnRecord[] = [];
-  let taken = toolOffset;
-
-  responses.forEach((res, i) => {
-    const wanted = (res.output ?? []).filter((o: any) => o.type === 'function_call').length;
-    const calls = dispatched.slice(taken, taken + wanted);
-    taken += wanted;
-    turns.push({
-      turn: turnOffset + i + 1,
-      ms: 0,
-      inputTokens: res.usage?.inputTokens ?? res.usage?.input_tokens ?? 0,
-      // `inputTokensDetails` is an ARRAY on the SDK's aggregate `Usage` — one
-      // entry per request — and a plain object on a single `RequestUsage`. Both
-      // shapes appear depending on what produced `res`, so both are summed.
-      // Reading only the object form would silently return nothing on the
-      // aggregate, which looks identical to a cache that never hit.
-      cachedInputTokens: cachedFrom(res.usage),
-      outputTokens: res.usage?.outputTokens ?? res.usage?.output_tokens ?? 0,
-      toolCalls: calls,
-    });
-  });
-
-  return turns;
-}
-
