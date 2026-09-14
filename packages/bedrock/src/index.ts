@@ -13,3 +13,5 @@
  * not.
  */
 export { env, bedrockClient, credentialKind } from './client';
+export { chatCompletion } from './openai-shape';
+export type { ChatRequest, ChatResponse } from './openai-shape';
