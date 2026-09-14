@@ -4,8 +4,10 @@
 number below was printed by a command named next to it; every "what it actually
 does" line was read out of the shipped file.*
 
-Companions: [`ENGINES.md`](ENGINES.md) is the other half — once passages are
-retrieved, that is what drives the loop that reads them.
+Companions: [`AUGMENTED-GENERATION.md`](AUGMENTED-GENERATION.md) is the **A and
+the G** — what happens to a passage once it is found, and what the answer must
+look like. [`ENGINES.md`](steering/ENGINES.md) is which library drives the loop that reads
+them, and which cloud serves the model.
 [`steering/GROUNDING-WALKTHROUGH.md`](steering/GROUNDING-WALKTHROUGH.md) is the
 **file-by-file trace of one question through one corpus**; this document is the
 other axis — what each stage *is*, cross-engagement, and what the machine
