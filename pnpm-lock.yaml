@@ -550,6 +550,18 @@ importers:
         specifier: ^5.1.3
         version: 5.9.3
 
+  packages/scanner:
+    devDependencies:
+      '@types/node':
+        specifier: ^20.3.1
+        version: 20.19.43
+      ts-node:
+        specifier: ^10.9.2
+        version: 10.9.2(@types/node@20.19.43)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.1.3
+        version: 5.9.3
+
   packages/schema:
     dependencies:
       zod:
