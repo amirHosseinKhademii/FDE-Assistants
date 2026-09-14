@@ -15,11 +15,11 @@
  * inlined here; its two original bugs are recorded in that file's header.
  */
 import { fetchRequirement } from '../answer/requirements';
-import { recordAssessment, closeHistory } from '../answer/filed-assessments';
+import { closeHistory } from '../answer/filed-assessments';
 import { assessRequirement, closeAssessmentContext } from '../agent/loop/assess-requirement';
 import { SYSTEM_PROMPT } from '../agent/prompt/assess-requirement';
+import { fileAssessment } from './file-assessment';
 import type { RequirementAssessment } from '../schema/assessment-schema';
-import type { AssessResult } from '../agent/loop/assess-requirement';
 
 const DRY = process.argv.includes('--dry-run');
 const TRACE = process.argv.includes('--trace');
@@ -143,48 +143,7 @@ async function main(): Promise<void> {
     (result.schemaErrors.length ? ` · ${result.schemaErrors.length} schema retry(s)` : ''));
   line();
 
-  await file(ref, req.text, result);
-}
-
-/**
- * File the assessment, the same way the web desk does.
- *
- * ── WHY THIS WAS MISSING, AND WHAT IT COST ───────────────────────────────
- *
- * Only the app filed anything, so a day of command-line assessments left a
- * history holding ONE answer — written by the desk. The assessments themselves
- * were printed and gone. Nothing was wrong with them; they were simply never
- * written down, and `pnpm steering:summarise` had nothing to read.
- *
- * ── A FAILED RUN IS FILED TOO ────────────────────────────────────────────
- *
- * With `answer: null` and the reason, which is the rule the table's header
- * already states: a run that failed still spent tokens and still took a
- * minute, and dropping those rows makes the history quietly cheaper and more
- * reliable than the system is.
- *
- * `surface` says `steering:assess`, never the desk's label. Where an assessment
- * was made is part of what it is.
- */
-async function file(ref: string, text: string, result: AssessResult): Promise<void> {
-  const run = {
-    engine: result.engine,
-    turns: result.turns.length,
-    ms: result.ms,
-    stoppedBecause: result.stoppedBecause,
-  };
-  await recordAssessment({
-    ref,
-    text,
-    loop: result.engine,
-    surface: 'steering:assess',
-    answer: result.assessment ? { assessment: result.assessment, citations: result.citations } : null,
-    failure: result.assessment
-      ? null
-      : { message: result.schemaErrors.join(' | ') || 'no valid answer', stoppedBecause: result.stoppedBecause, run },
-    run,
-    trace: result.turns,
-  });
+  await fileAssessment(ref, req.text, result, 'steering:assess');
 }
 
 /** Guarded, like every entry point here — importing one must not run it. */

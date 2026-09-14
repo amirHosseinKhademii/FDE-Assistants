@@ -302,29 +302,117 @@ function ensureTable(): Promise<void> {
   return ready!;
 }
 
-/** File one finished assessment. Reports nothing — see the header. */
-export async function recordAssessment(record: AssessRecord): Promise<void> {
+/**
+ * What happened to the row. NEVER a thrown error — see below.
+ */
+export interface FilingResult {
+  filed: boolean;
+  /** Why it was not filed. Present only when `filed` is false. */
+  error?: string;
+}
+
+/**
+ * File one finished assessment.
+ *
+ * ── IT STILL NEVER THROWS. IT NO LONGER SAYS NOTHING. ────────────────────
+ *
+ * The original swallowed every failure on purpose, and that reasoning stands
+ * for the surface it was written for: the answer is already on the reader's
+ * screen, and a lost row must not turn into a failed request.
+ *
+ * What the silence cost showed up the first time a BATCH used this. Fifteen
+ * requirements were queued; the first was assessed, paid for, and its row never
+ * landed. Nothing anywhere said so — `catch {}` had eaten the reason, and the
+ * only evidence was a work list that refused to get shorter. Diagnosing it
+ * needed a `select` run by hand.
+ *
+ * So the contract is now: a caller that does not care still cannot be hurt —
+ * no throw, no rejection — and a caller that DOES care is told. The web route
+ * ignores the return and behaves exactly as before.
+ */
+/**
+ * Is this failure worth trying once more?
+ *
+ * ── THE TWO KINDS OF FAILURE WANT OPPOSITE RESPONSES ─────────────────────
+ *
+ * A `22P05` or `22P02` is a byte in the payload that Postgres will never
+ * accept. Retrying sends the same byte again, fails the same way, and doubles
+ * the delay before anyone is told — so those are reported immediately.
+ *
+ * A connection that died is the other case entirely, and it is the one that
+ * actually happened: a batch run leaves this pool idle for the forty-odd
+ * seconds each assessment takes, a serverless Postgres hangs up on idle
+ * connections, and the next insert is the thing that discovers the socket is
+ * gone. `pg` discards the broken client when the query fails, so the retry
+ * gets a fresh one and succeeds — which is exactly what happened by hand when
+ * the same requirement was simply run again.
+ *
+ * This is the same argument `ensureTable` already makes above, applied to the
+ * statement rather than the DDL: *a cold start is the single most likely first
+ * request failure here*, and an idle hang-up is the most likely later one.
+ *
+ * ── THE CLASSES, AND WHY THEY ARE MATCHED BY PREFIX ──────────────────────
+ *
+ * Postgres groups these by design: `08***` is every connection exception, and
+ * `57P01`/`57P02`/`57P03` are the server saying it is going away. Listing
+ * individual codes would mean discovering each new one the expensive way.
+ * Node's own socket errors arrive before Postgres can assign a code at all.
+ */
+const RETRYABLE_SOCKET_ERRORS = new Set(['ECONNRESET', 'EPIPE', 'ETIMEDOUT', 'ENOTFOUND', 'ECONNREFUSED']);
+
+function worthRetrying(e: any): boolean {
+  const code = e?.code;
+  if (typeof code === 'string') {
+    if (code.startsWith('08')) return true;
+    if (code.startsWith('57P')) return true;
+    return RETRYABLE_SOCKET_ERRORS.has(code);
+  }
+  // `pg` raises this one with no code at all when the pool hands out a client
+  // whose socket has already been closed by the far end.
+  return /connection terminated|connection error|socket hang up/i.test(String(e?.message ?? ''));
+}
+
+async function insertOnce(record: AssessRecord): Promise<void> {
+  await ensureTable();
+  await connect().query(
+    `insert into assess_history (ref, text, loop, surface, answer, failure, run, trace)
+     values ($1, $2, $3, $4, $5, $6, $7, $8)`,
+    [
+      record.ref,
+      record.text,
+      record.loop,
+      record.surface,
+      record.answer === null ? null : JSON.stringify(record.answer),
+      record.failure === null ? null : JSON.stringify(record.failure),
+      record.run === null ? null : JSON.stringify(record.run),
+      JSON.stringify(record.trace ?? []),
+    ],
+  );
+}
+
+export async function recordAssessment(record: AssessRecord): Promise<FilingResult> {
   try {
-    await ensureTable();
-    await connect().query(
-      `insert into assess_history (ref, text, loop, surface, answer, failure, run, trace)
-       values ($1, $2, $3, $4, $5, $6, $7, $8)`,
-      [
-        record.ref,
-        record.text,
-        record.loop,
-        record.surface,
-        record.answer === null ? null : JSON.stringify(record.answer),
-        record.failure === null ? null : JSON.stringify(record.failure),
-        record.run === null ? null : JSON.stringify(record.run),
-        JSON.stringify(record.trace ?? []),
-      ],
-    );
-  } catch {
-    // Deliberately silent, and the one place in this file where that is right:
-    // the answer has already been sent, and a lost row must not turn into a
-    // failed request. `ensureTable` has cleared itself, so the next assessment
-    // retries rather than inheriting this failure.
+    try {
+      await insertOnce(record);
+    } catch (first: any) {
+      if (!worthRetrying(first)) throw first;
+      // ONCE, not a loop with backoff. A dead socket is replaced by the pool on
+      // the first failure, so the second attempt either works or the database
+      // is genuinely unreachable — and a caller waiting on an answer should not
+      // sit through an escalating retry ladder to be told so.
+      await insertOnce(record);
+    }
+    return { filed: true };
+  } catch (e: any) {
+    // STILL CAUGHT — the answer has already been sent, and a lost row must not
+    // turn into a failed request. `ensureTable` has cleared itself, so the next
+    // assessment retries rather than inheriting this failure.
+    //
+    // The code is kept alongside the message because it is the part that says
+    // what KIND of failure this was — and by the time it reaches here, a
+    // connection-class failure has already been retried once and failed twice.
+    const code = e?.code ? `${e.code} ` : '';
+    return { filed: false, error: `${code}${e?.message ?? String(e)}` };
   }
 }
 
