@@ -35,7 +35,7 @@ exist before `deploy-steering.yml` can update it.
 
 ```bash
 az login
-az account set --subscription 7b5e3d35-a724-46cd-9bc7-1d98ab39eb03
+az account set --subscription <subscription-id>
 ```
 
 For the very first image, push one by hand — `az containerapp create` needs *an*

@@ -33,16 +33,28 @@ the trap in that is written up in the steering DEPLOY.md.
 
 ## What exists
 
+> **The `<angle-bracket>` values are redacted on purpose.** This repository is
+> public, and a tenant id next to a client id names the exact app registration
+> to attack — even though neither is a credential and the federated token
+> exchange is what actually authenticates. Read the real values out of the
+> portal, or:
+>
+>     az account show --query '{subscription:id, tenant:tenantId}'
+>     az ad app list --display-name gh-deploy-pharma --query '[].appId'
+>     az containerapp show -n pharma-app -g rg-claims-fde --query identity.principalId
+>
+> What this document is *for* is the prose around the table, not the ids.
+
 | Piece | Value |
 |---|---|
-| Subscription | `Claims FDE` — `7b5e3d35-a724-46cd-9bc7-1d98ab39eb03` |
+| Subscription | `Claims FDE` — `<subscription-id>` |
 | Resource group | `rg-claims-fde` (shared with the Foundry resource, deliberately) |
 | Region | `swedencentral` — same as Foundry. Neon is Frankfurt. The whole path stays in the EU. |
 | Environment | `cae-pharma`, **Consumption-only** |
 | App | `pharma-app` — renamed from `pharma-app` on 2026-09-13. Azure has no rename for a container app, so this was a recreate: same image, same two secrets, same environment, a fresh system-assigned identity granted the same Foundry role, verified end to end, and only then pointed at by the pipeline. The FQDN changed with it. |
 | URL | https://pharma-app.yellowsmoke-eeb8b48f.swedencentral.azurecontainerapps.io |
 | Image | `docker.io/amir2575/veresk` — was `meridian-pharma`; the repo name follows the app, the old one is left in place rather than deleted |
-| Identity | system-assigned, `cc03b053-9a12-49a6-9aa3-7801e4dd06ee`, holding `Cognitive Services OpenAI User` on `claims-fde-byron`. The old app's was `cc03b053-…`; a recreate gets a new principal, so the role assignment has to be made again — forgetting it gives a page that loads and fails on the first question. |
+| Identity | system-assigned, `<identity-principal-id>`, holding `Cognitive Services OpenAI User` on `<foundry-resource>`. The old app's was `<old-identity-principal-id>`; a recreate gets a new principal, so the role assignment has to be made again — forgetting it gives a page that loads and fails on the first question. |
 | Databases | unchanged — the same Neon project the laptop uses |
 
 ## Why it is free, and the one setting that decides it
@@ -68,7 +80,7 @@ attribute. Give it its own resource before quoting a number to anyone.
 ## Credentials — what is a secret and what is not
 
 Foundry access uses the **system-assigned managed identity** holding
-*Cognitive Services OpenAI User* on `claims-fde-byron`. No key, anywhere. This
+*Cognitive Services OpenAI User* on `<foundry-resource>`. No key, anywhere. This
 is the same `DefaultAzureCredential` code path as `az login` on the laptop,
 which is why nothing in the app changed to deploy it.
 
@@ -122,8 +134,8 @@ position the managed identity takes for Foundry. What was created:
 
 | Object | Value |
 |---|---|
-| App registration | `gh-deploy-pharma` — client id `12d3b82f-3308-493a-80f2-b583109033a1` |
-| Service principal | `76b86c45-69cd-4393-b7cf-9f9dac5e469d` |
+| App registration | `gh-deploy-pharma` — client id `<client-id>` |
+| Service principal | `<service-principal-id>` |
 | Federated subject | `repo:amirHosseinKhademii/Insurance-Assistant:ref:refs/heads/master` **and** the ID-qualified form below |
 | Role | **Contributor scoped to the `pharma-app` resource** — not the resource group |
 
@@ -146,9 +158,9 @@ either direction keeps working.
 
 ### Repository secrets
 
-    AZURE_CLIENT_ID        12d3b82f-3308-493a-80f2-b583109033a1
-    AZURE_TENANT_ID        0d3b04a3-3f6f-413e-8d16-44f9c0a18282
-    AZURE_SUBSCRIPTION_ID  7b5e3d35-a724-46cd-9bc7-1d98ab39eb03
+    AZURE_CLIENT_ID        <client-id>
+    AZURE_TENANT_ID        <tenant-id>
+    AZURE_SUBSCRIPTION_ID  <subscription-id>
     DOCKERHUB_USERNAME     amir2575
     DOCKERHUB_TOKEN        read/WRITE Docker Hub token
 

@@ -57,7 +57,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { assessRequirement } from '@vantis/steering/assess';
 import { fetchRequirement } from '@vantis/steering/requirements';
-import { authorize } from '@fde/guard';
+import { authorize, publicError } from '@fde/guard';
 import { recordAssessment } from '../server/assess-history';
 
 const encoder = new TextEncoder();
@@ -246,7 +246,12 @@ export const Route = createFileRoute('/api/assess')({
                 await recordAssessment({ ...filed, answer: null, failure, run });
               }
             } catch (e: any) {
-              send('error', { message: e?.message ?? String(e), stoppedBecause: 'exception' });
+              // `stoppedBecause: 'exception'` is the honest part and stays. The
+              // exception TEXT does not: the throw can come from either estate
+              // database or the Foundry client, and all of them name the host
+              // they could not reach. The ref joins this frame to the log.
+              const safe = publicError(e, { context: 'POST /api/assess' });
+              send('error', { message: safe.error, ref: safe.ref, stoppedBecause: 'exception' });
             } finally {
               clearInterval(heartbeat);
               controller.close();

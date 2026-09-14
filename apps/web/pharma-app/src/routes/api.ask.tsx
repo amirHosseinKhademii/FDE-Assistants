@@ -34,7 +34,7 @@
  */
 import { createFileRoute } from '@tanstack/react-router';
 import { askRelease } from '@meridian/pharma';
-import { authorize } from '@fde/guard';
+import { authorize, publicError } from '@fde/guard';
 import { recordAsk } from '../server/ask-history';
 
 const encoder = new TextEncoder();
@@ -177,7 +177,12 @@ export const Route = createFileRoute('/api/ask')({
                 });
               }
             } catch (e: any) {
-              const failure = { message: e?.message ?? String(e), stoppedBecause: 'exception' };
+              // Safe BEFORE it is filed, not just before it is sent: this same
+              // object goes into the ask log, and `/api/history` reads that log
+              // back out to the browser. Sanitising only the SSE frame would
+              // have left the identical text on the slower path.
+              const safe = publicError(e, { context: 'POST /api/ask' });
+              const failure = { message: safe.error, ref: safe.ref, stoppedBecause: 'exception' };
               send('error', failure);
               await recordAsk({
                 kind: 'release',
