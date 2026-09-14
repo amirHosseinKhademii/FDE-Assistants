@@ -132,29 +132,32 @@ function requestIds(e: unknown): string[] {
   return out;
 }
 
-main().catch((e: unknown) => {
-  const msg = e instanceof Error ? e.message : String(e);
-  const status = (e as { status?: number })?.status;
-  console.error(`\n  ping: FAIL — ${msg}`);
+/** Guarded, like every entry point here — importing one must not run it. */
+if (require.main === module) {
+  main().catch((e: unknown) => {
+    const msg = e instanceof Error ? e.message : String(e);
+    const status = (e as { status?: number })?.status;
+    console.error(`\n  ping: FAIL — ${msg}`);
 
-  const ids = requestIds(e);
-  console.error(
-    ids.length
-      ? `\n  request id(s), for a provider support case:\n${ids.map((s) => `    ${s}`).join('\n')}`
-      : '\n  request id: none found on the error object',
-  );
-
-  // A zero-quota 429 is not a rate limit you can wait out; say so here rather
-  // than letting someone retry for an afternoon.
-  if (status === 429) {
+    const ids = requestIds(e);
     console.error(
-      '\n  NOTE: a 429 on an account with ~zero usage is usually an AWS provisioning\n' +
-        '        defect, not a rate limit — quotas initialised to 0 instead of the\n' +
-        '        default. `request-service-quota-increase` is REJECTED in that state\n' +
-        '        ("must be greater than the default"). The route is an AWS Support\n' +
-        '        case quoting the request id above. See docs/BEDROCK.md.',
+      ids.length
+        ? `\n  request id(s), for a provider support case:\n${ids.map((s) => `    ${s}`).join('\n')}`
+        : '\n  request id: none found on the error object',
     );
-  }
-  console.error('');
-  process.exitCode = 1;
-});
+
+    // A zero-quota 429 is not a rate limit you can wait out; say so here rather
+    // than letting someone retry for an afternoon.
+    if (status === 429) {
+      console.error(
+        '\n  NOTE: a 429 on an account with ~zero usage is usually an AWS provisioning\n' +
+          '        defect, not a rate limit — quotas initialised to 0 instead of the\n' +
+          '        default. `request-service-quota-increase` is REJECTED in that state\n' +
+          '        ("must be greater than the default"). The route is an AWS Support\n' +
+          '        case quoting the request id above. See docs/BEDROCK.md.',
+      );
+    }
+    console.error('');
+    process.exitCode = 1;
+  });
+}
