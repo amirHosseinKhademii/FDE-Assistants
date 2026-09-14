@@ -54,7 +54,14 @@ WORKDIR /repo
 #    reads to decide WHICH pnpm runs. Without it here, this layer silently used
 #    pnpm 12 (corepack's default) to write a store that pnpm 9 then had to read
 #    two layers later. Same command, two versions, one store format.
-COPY package.json pnpm-lock.yaml ./
+# `.npmrc` COMES WITH THEM, AND LEAVING IT OUT COST A BUILD. It carries
+# `dedupe-peer-dependents=true` and `node-linker=hoisted` — the two settings that
+# stop pnpm building peer-variant duplicates of a library, which TypeScript then
+# refuses to pass between: "Types have separate declarations of a private
+# property". The host has the file, so `pnpm build` passed locally while the
+# image produced two `@langchain/pgvector` builds against two `@langchain/core`
+# versions and failed. It holds no credentials; see the file for the full story.
+COPY package.json pnpm-lock.yaml .npmrc ./
 #    `--ignore-scripts` because onnxruntime-node, sharp and protobufjs ship
 #    native build scripts that pnpm refuses to run unattended. They were already
 #    being skipped by the plain `pnpm install` this replaces — `pnpm fetch` just
@@ -69,7 +76,15 @@ RUN pnpm fetch --ignore-scripts
 #    directory structure, so packages/foo/package.json lands where it belongs
 #    instead of collapsing onto one path (hence the `-labs` syntax at the top).
 COPY pnpm-workspace.yaml ./
-COPY --parents */*/package.json ./
+# TWO DEPTHS, NOT ONE. `*/*/package.json` matches exactly two levels, which was
+# every workspace until the tree grew a third: `apps/web/*`, `apps/ai/*` and
+# `packages/providers/*`. Nine manifests stopped being copied, pnpm linked no
+# node_modules for them, and the build died on `tsc: not found` in
+# packages/providers/foundry — a missing devDependency wearing a missing-binary
+# error. `pnpm install` on the host still worked, so nothing local caught it and
+# only CI did. Both globs, and a `pnpm-workspace.yaml` glob added in future needs
+# a line here too.
+COPY --parents */*/package.json */*/*/package.json ./
 RUN pnpm install --frozen-lockfile --offline
 
 # 3. NOW the source. Editing it re-runs the two steps below and nothing above.
