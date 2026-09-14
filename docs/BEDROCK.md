@@ -4,6 +4,11 @@
 exact commands to resume. Every claim here is from a check that ran or an API
 that answered.*
 
+Companion: [`ENGINES.md`](ENGINES.md) — the two switches (`LOOP` x
+`LLM_PROVIDER`), what each engine does under the hood, when to use which, and
+the engine x cloud matrix. **This file is the AWS estate**: the account, the
+guardrails, the four access gates and the quota defect.
+
 ---
 
 ## Why
@@ -89,16 +94,35 @@ run.
 Comments are exempt; executable strings are not, and the scanner cannot tell
 that verb from insurance's noun. Correct behaviour, reworded.
 
-### The cheaper route, not taken
+### The cheaper route — TAKEN, 2026-09-14
 
 The Vercel AI SDK (already here as `@ai-sdk/openai-compatible`) has an official
-`@ai-sdk/amazon-bedrock` provider. For the **Mastra** and **LangGraph** loops
-that is ~5 lines instead of a translator.
+`@ai-sdk/amazon-bedrock` provider. For the **Mastra** loop that is ~5 lines
+instead of a translator; **LangGraph** is another ~5 via `@langchain/aws`. Both
+are now built, behind one `LLM_PROVIDER` switch, with `pnpm provider:check`
+asserting the routing on all three engines offline.
 
-It does not reach the **Agents SDK** loop (which wants an OpenAI *client
+It still does not reach the **Agents SDK** loop (which wants an OpenAI *client
 object* via `setDefaultOpenAIClient`) or the three raw `chat.completions.create`
-call sites — which is why the adapter exists. Doing both and writing down what
-each costs is the more valuable artefact. **Not yet done.**
+call sites — which is why the adapter exists. That loop now **refuses**
+`LLM_PROVIDER=bedrock` rather than running silently on Azure, which it did until
+this was charted.
+
+**And doing both paid off in a way the plan did not predict.** Read out of each
+package's own dist, the three do not share an AWS api:
+
+```
+@fde/bedrock            AnthropicBedrock.messages.create  → Anthropic Messages API
+@ai-sdk/amazon-bedrock  /converse, /invoke                → Converse, invoke fallback
+@langchain/aws          ConverseCommand                   → Converse only
+```
+
+Neither framework provider speaks Anthropic at all — both speak Converse, AWS's
+cross-model normalisation layer, which translates server-side. So the
+hand-written adapter is not "the same thing for 25x the lines"; it is access to
+fields Converse normalises away, `pause_turn` being the concrete one. The full
+comparison, the engine x cloud matrix and when to use which engine are in
+[`ENGINES.md`](ENGINES.md).
 
 ---
 
@@ -336,6 +360,8 @@ LLM_PROVIDER=bedrock AWS_PROFILE=bedrock pnpm bedrock:check
   branch has never reached the network.
 - **Wire the switch to a real call site.** `extract/run.ts:296` is the obvious
   first one — single-turn, non-agent. Blocked on the line above, deliberately.
+  (The switch itself now reaches three of the four paths — see
+  [`ENGINES.md`](ENGINES.md) §4 for the matrix and its one deliberate hole.)
 - **Prove the deny actually denies.** Attach `deny-bedrock` to `bedrock-invoke`,
   watch a real call fail, detach, watch it work. Both halves, the way
   `packages/guard/src/selftest.ts` does it. Not possible until a call succeeds.

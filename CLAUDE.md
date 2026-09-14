@@ -90,9 +90,15 @@ packages/
                                 directory structure IS the pillar table below.
   grounding/  @fde/grounding   load → chunk → embed → store → hybrid search.
                                 Domain-neutral: takes a source + descriptor.
-  agent/      @fde/agent       the tool-calling loop, two interchangeable
-                                engines (OpenAI Agents SDK, Mastra), registry,
-                                fixtures, compliance tests.
+  agent/      @fde/agent       the tool-calling loop, THREE interchangeable
+                                engines (OpenAI Agents SDK, Mastra, LangGraph)
+                                behind `LOOP=`, registry, fixtures, compliance
+                                tests, and the `LLM_PROVIDER=azure|bedrock`
+                                switch two of the three honour. See
+                                `docs/ENGINES.md` — it is the chart for which
+                                engine reaches which cloud, and why the default
+                                engine refuses bedrock rather than serving it
+                                from Azure.
   evals/      @fde/evals       repeat runs, severity buckets, baselines,
                                 diffs, scorecards, the classifier verifier.
   schema/     @fde/schema      parse → shape-check → coherence rules, plus
