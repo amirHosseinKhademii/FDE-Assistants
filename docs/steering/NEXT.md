@@ -1,8 +1,76 @@
 # Next, for steering
 
-*Written 2026-09-13, at the end of the session that built the loop and the
-evals. Two items found by watching a real trace in the UI, plus what was
-already queued. Ordered by what costs most to leave alone.*
+*Started 2026-09-13, at the end of the session that built the loop and the
+evals. Extended 2026-09-14 by the session that built the fan-out and ran the
+whole bid — §0 is that session's finding and it displaces the rest. Ordered by
+what costs most to leave alone; sections keep their own dates because several
+have been corrected by later evidence and the corrections are the useful part.*
+
+---
+
+## 0 · Twenty-three of twenty-four requirements are unpriced — 2026-09-14
+
+*The whole K2 bid was assessed on 2026-09-14 — 24 requirements, $0.26, ~55 s
+each. This is what it found, and it displaces everything below it.*
+
+The system exists to price a bid from the company's own history. It priced
+**one** requirement: 119 h, EUR 12,138, from 19 past jobs. The other twenty-three
+came back with no price, and **seven of those never queried the history at all** —
+the agent judged the scope too unclear to ask.
+
+Every individual refusal is CORRECT. `find_comparable_work` will not take a
+median of two jobs, and that rule is the difference between a grounded number and
+an invented one. But a tool that correctly refuses 96% of the time has not done
+the job it was built for, and it erodes the refusal itself: people discount a
+warning that fires on everything.
+
+### The diagnostic already says where it breaks
+
+The counts added for §5b are the whole story, and they repeat across almost every
+refusal:
+
+```
+safety_case_impact: 146 on its own, 0 without it
+asil:                37 on its own, 0 without it
+change_class:        19 on its own, 0 without it
+element_kind:        17 on its own, 0 without it
+```
+
+Each filter matches plenty **alone**. The combination matches **nothing**, out of
+203 jobs with attributable hours. The agent keeps classifying K2 work as
+*validation-only, mechanical, QM, no safety-case impact* — and that conjunction
+has essentially no history behind it.
+
+### The question to answer first, and it is a fork
+
+**Either** the agent is over-constraining a history that could answer, **or** the
+history genuinely holds no work of this kind. Those need opposite fixes and the
+numbers to tell them apart are already being printed:
+
+- if `validation_only` alone matches 19 jobs and `mechanical` alone matches 17,
+  but together they match 0, the history has the work and not in that shape
+- if the estate simply contains no validation-only mechanical work, then the
+  honest product answer is *"we have never done this"*, and the refusal should
+  SAY that rather than reading as a filter problem
+
+§5b already established that `walk-cost` and the agent classify the same job
+differently — the walk assumes `modify_hardware` on a gearbox, the agent reads it
+as validation on mechanical — and that **which reading is right is the open
+question the walk itself puts to a human**. Twenty-three refusals say that is not
+one requirement's ambiguity; it is the shape of the whole bid.
+
+### What is NOT allowed, still
+
+Widening the filter automatically. `walk-check` asserts that dropping the ASIL
+filter produces an answer 3.5x too low, and that assertion stands. Counts, never
+medians, remain the thing a widened set may report.
+
+### Worth measuring before changing anything
+
+Run `find_comparable_work` directly over the 24 classifications the agent
+actually chose, and count how many jobs each field combination reaches. That is
+free, deterministic, needs no model, and it answers the fork above before a line
+of prompt is rewritten.
 
 ---
 
@@ -176,17 +244,49 @@ which one produced the evidence that survived into the dossier.
 
 ---
 
-## 3 · Already queued, unchanged
+## 3 · Already queued
 
-- **Fan-out over 24 requirements** — the first thing that cannot fit in a turn,
-  and where all four context verbs apply at once.
+- ~~**Fan-out over 24 requirements**~~ — **BUILT 2026-09-14**, `steering:assess-all`.
+  Serial, resumable, `--run` opt-in. All 24 assessed for $0.26. What it found is
+  §0 above.
 - **The debate** — on the two questions `walk-cost` already prints as open items.
+  §0 makes this more attractive, not less: the fork it names (over-constrained
+  filter vs. a history that genuinely lacks the work) is exactly a question two
+  agents could argue from the same counts.
 - **A case that catches over-caution.** The eval suite has ten checks for
   over-confidence and one for the other direction, admitted in
-  `eval/severity/assessment-severity.ts`. It needs a requirement with a healthy
-  comparable set, which none of the three cases has.
+  `eval/severity/assessment-severity.ts`. **Twenty-three refusals out of
+  twenty-four make this the interesting direction, not the safe one.** It needs a
+  requirement with a healthy comparable set, which none of the three cases has —
+  `CR-K2-0111` is the one requirement in the bid that priced, from 19 jobs.
 - **`walk-angle` cannot be closed** — its part numbers appear in one file out of
   1,069. That is a corpus gap, not a pipeline one.
+
+### 3a · Added 2026-09-14
+
+- **`@fde/foundry` reports an expired credential as `Connection error.`** The
+  Entra token is fetched inside a custom `fetch`, so when `az login` has lapsed
+  the OpenAI SDK cannot tell it from a dead socket and wraps both as
+  `APIConnectionError`. It sent one session chasing a network fault, then a
+  Postgres fault, before `cause` was dumped and the real message appeared. The
+  fix is small; the package is shared with insurance and pharma, so it is its own
+  change rather than a fold-in.
+- **`explain` is undocumented and untested.** `agent/loop/explain-assessment.ts`,
+  `schema/explanation-schema.ts`, `/api/explain` and `Explain.tsx` all exist and
+  typecheck. No document here mentions them, there is no self-test where the
+  assessment and bid-summary schemas each have one, and the `steering:explain`
+  surface label it logs under belongs to no script.
+- **The fan-out has no self-test.** `workList`'s three-state logic — answered /
+  attempted-and-failed / never-attempted — is exactly the shape that breaks
+  silently: a resume that counts a failed row as done gets shorter every run and
+  looks like it is working. Worth a `sortRows`-style offline test with a re-run
+  and a failure planted in it.
+- **Concurrency was considered and deliberately NOT built.** Eleven requirements
+  ran serially in 650 s with zero rate limits and zero failures — the 429 problem
+  this codebase fought four times never appeared. A concurrency layer would be
+  built for a load that did not materialise, which `CONCEPTS.md` already puts on
+  its "deliberately not on the list". It becomes worth it at a few hundred
+  requirements, not 24.
 
 ---
 
@@ -278,7 +378,7 @@ are what the summariser reads. Recorded as measured.
 failures. Reading the fifteen answers rather than the summary shows two
 behaviours no check currently objects to.
 
-### 5a · The `finding` field has stopped discriminating
+### 5a · The `finding` field barely discriminates — ANSWERED 2026-09-14
 
 All fifteen runs, across three different requirements, returned
 `change_needed`. `asr-003` returned `cannot_tell` in a UI run the day before —
@@ -297,6 +397,35 @@ other three values are currently decorative.
 Worth measuring before rewording again: run a requirement that genuinely does
 not exist in the estate and see whether `new_work` is reachable at all. If three
 of four values are unreachable, the enum is a boolean wearing four labels.
+
+#### The measurement, on all 24 requirements — 2026-09-14
+
+**The hypothesis as stated is wrong, and the correction is worth more than it.**
+
+`CR-K2-0124` (start of production) returned **`have_it`**. So the enum is not a
+boolean: a second value is reachable, on a real requirement, with no prompt
+change. The claim that the enum rewrite pushed every case into one box does not
+survive.
+
+What IS true is weaker and still worth fixing:
+
+| | |
+|---|---|
+| `change_needed` | 23 of 24 |
+| `have_it` | 1 |
+| `new_work` · `cannot_tell` | 0, across 24 genuinely different subjects |
+
+One value in 24 is a signal, barely. And `cannot_tell` returning zero times is
+the surprising half — `asr-003` returned it in a UI run, and twenty-four real
+requirements did not, including seven whose own reasoning says the scope is too
+unclear to price. **A requirement the agent refuses to price because it cannot
+tell what the work is, and then labels `change_needed`, is answering two
+questions with one word.**
+
+Look at `CR-K2-0124` before rewording anything: `have_it` for a schedule
+constraint is itself questionable. Its own text says *"this requirement is a
+schedule (SOP) constraint, not a discrete technical change"* — which reads like
+`cannot_tell` rather than "we already have it".
 
 ### 5b · CORRECTED — the agent classifies differently, it does not over-filter
 
