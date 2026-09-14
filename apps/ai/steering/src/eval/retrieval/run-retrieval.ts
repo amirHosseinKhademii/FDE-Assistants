@@ -248,12 +248,38 @@ async function main(): Promise<void> {
         const poolRanked = rank(hits);
         const inPool = c.expect.filter((e) => poolRanked.includes(e)).length / c.expect.length;
 
+        // WHICH ARM FOUND THE THING WE WANTED, and where the fuser put it.
+        //
+        // This exists because the first write-up of `ret-007` credited the
+        // reranker with understanding a question no keyword could match. That
+        // was wrong: the keyword arm had ranked the target FIRST and the dense
+        // arm had not returned it at all, and RRF buried it at 35 because a
+        // single-arm hit scores 1/61 while any document BOTH arms rank 50th
+        // scores 2/110. The reranker was undoing the fuser's damage.
+        //
+        // A claim about WHY a retriever failed is worth exactly as much as the
+        // diagnostic behind it, so the diagnostic ships rather than the claim.
+        const armNotes: string[] = [];
+        for (const want of c.expect) {
+          const at = poolRanked.indexOf(want);
+          if (at === -1) continue;
+          const h = hits[at]!;
+          const arm = h.denseRank && h.sparseRank ? 'both' : h.denseRank ? 'meaning' : 'keywords';
+          if (arm !== 'both' || at >= c.k) {
+            armNotes.push(
+              `        \x1b[2mwanted: fused ${at + 1}/${POOL}  dense=${h.denseRank ?? '—'} ` +
+                `sparse=${h.sparseRank ?? '—'}  found by ${arm}\x1b[0m`,
+            );
+          }
+        }
+
         const reranked = await rerankHits(c.query, hits, { pool: POOL });
         const ranked = rank(reranked.slice(0, c.k));
         const s = scoreCase(c, ranked);
         scores.push(s);
         (perCase[c.id] ??= {}).reranked = s;
         line(s, c, ranked);
+        for (const n of armNotes) console.log(n);
 
         const moved = reranked
           .slice(0, c.k)

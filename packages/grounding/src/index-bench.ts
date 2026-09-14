@@ -161,7 +161,9 @@ export async function benchmarkVectorIndex(opts: IndexBenchmarkOptions): Promise
   });
   const notices: string[] = [];
   client.on('notice', (n) => {
-    if (n.message) notices.push(n.message);
+    // `drop ... if exists` announces every no-op, and this file issues several
+    // on purpose. Keeping them would bury the one message worth reading.
+    if (n.message && !/does not exist, skipping/.test(n.message)) notices.push(n.message);
   });
   await client.connect();
 

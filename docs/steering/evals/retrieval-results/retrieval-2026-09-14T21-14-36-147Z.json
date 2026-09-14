@@ -1,0 +1,61 @@
+{
+  "at": "2026-09-14T21:14:36.147Z",
+  "k": 6,
+  "pool": 50,
+  "rerankModel": "Xenova/ms-marco-MiniLM-L-6-v2",
+  "embeddings": "foundry",
+  "corpus": {
+    "documents": 922,
+    "passages": 3854
+  },
+  "arms": [
+    {
+      "arm": "baseline",
+      "cases": 8,
+      "passed": 6,
+      "recall": 0.8125,
+      "mrr": 0.6916666666666667
+    },
+    {
+      "arm": "reranked",
+      "cases": 8,
+      "passed": 7,
+      "recall": 0.9375,
+      "mrr": 0.875
+    }
+  ],
+  "cases": {
+    "ret-001": {
+      "baseline": 1,
+      "reranked": 1
+    },
+    "ret-002": {
+      "baseline": 1,
+      "reranked": 1
+    },
+    "ret-003": {
+      "baseline": 1,
+      "reranked": 1
+    },
+    "ret-004": {
+      "baseline": 1,
+      "reranked": 1
+    },
+    "ret-005": {
+      "baseline": 0.5,
+      "reranked": 0.5
+    },
+    "ret-006": {
+      "baseline": 1,
+      "reranked": 1
+    },
+    "ret-007": {
+      "baseline": 0,
+      "reranked": 1
+    },
+    "ret-008": {
+      "baseline": 1,
+      "reranked": 1
+    }
+  }
+}

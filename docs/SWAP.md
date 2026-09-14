@@ -267,6 +267,17 @@ and p95 is already 50s on the full suite.
 **Sequence:** do §1 first. "The reranker bought seven points" is only a sentence
 you can say against a measured hybrid baseline.
 
+> **BUILT 2026-09-14, and measured on steering rather than here.** The stage
+> lives in `@fde/grounding` (`rerank.ts`, `RERANK=local`, default off) and is
+> therefore available to this engagement at no new vendor and no egress — the
+> local cross-encoder called for above, not the hosted one. On steering's
+> 8-case suite it bought **+12.5 points of recall@6 and +18.3 of MRR for ~2 s
+> per question**, and it made one case *worse* by promoting a superseded
+> document over the current one, which is this engagement's form-revision trap
+> wearing different clothes. **Insurance still cannot run this measurement** —
+> §1 below is still the blocker, exactly as sequenced. See
+> `docs/steering/evals/RETRIEVAL.md` and `PROGRESS.md` §23.
+
 ---
 
 ## 4 · The eval harness — SWAP the runner, KEEP the checks
@@ -372,7 +383,9 @@ solved job.
 ◐  langfuse (ask)    customer traffic is NOT traced — a data-residency call
 1  total-loss case   the case that would finally measure hybrid. §2.5 of
                      CORPUS-PLAN.md, still unwritten
-2  reranker          only after §1 above gives hybrid a number
+◐  reranker          BUILT and measured on STEERING (+12.5 pts recall@6);
+                     shared code, so insurance can use it — but still cannot
+                     MEASURE it until §1 gives hybrid a number here
 3  eval harness      only against a stable baseline, and only if severity
                      survives the move
 4  pdf ingest        when a real corpus arrives, not before

@@ -17,8 +17,9 @@ the words mean.
 > **New to any of this?** Start at
 > [**Appendix A**](#appendix-a--vector-databases-and-vector-search-from-scratch)
 > at the end — what an embedding actually is, what a vector database actually is
-> (less than you think), and why this repo has no vector index at all. It assumes
-> nothing and the rest of the document does not depend on it.
+> (less than you think), and why this repo has no vector index at all — measured
+> in A.4, not assumed. It assumes nothing and the rest of the document does not
+> depend on it.
 
 ---
 
@@ -53,9 +54,9 @@ Most of the confusion in RAG is that ten different operations share five words.
 | **Index** | store those numbers so "nearest" is a fast query, plus a second index over the words | ✅ | `store.ts` (pgvector) + `hybrid.ts` (tsvector/GIN) |
 | **Retrieve** | ask the index for candidates | ✅ **two arms** | `hybrid.ts` |
 | **Rank** | order candidates within one arm | ✅ | cosine distance; `ts_rank` |
-| **Fuse** | merge two rankings into one | ✅ RRF | `hybrid.ts`, `RRF_K = 60` |
+| **Fuse** | merge two rankings into one | ✅ RRF — **and it has a measured flaw**, see §9 | `hybrid.ts`, `RRF_K = 60` |
 | **Filter / gate** | drop candidates by metadata, before or after ranking | ✅ **both** | `search-policy.tool.ts` |
-| **Rerank** | a *second model* re-scores the shortlist (cross-encoder, LLM-as-judge) | ✅ **steering, off by default** | `rerank.ts`, `RERANK=local` |
+| **Rerank** | a *second model* re-scores the shortlist (cross-encoder, LLM-as-judge) | ◐ **built and measured, called by no answer path** | `rerank.ts`, `RERANK=local` |
 | **Query rewriting** | a model rephrases the question before searching | ❌ none as a stage | the model just searches again |
 | **Route** | choose *which* retriever/tool the question goes to | ✅ | three tools, and the model picks |
 | **Parse** *(out)* | check the model's own citation names a real document | ✅ | `corpus-index.ts` |
@@ -485,6 +486,7 @@ pnpm --filter @meridian/pharma retrieval:eval  # live retrieval, needs the index
 pnpm --filter @vantis/steering code-chunk:check
 pnpm steering:retrieval-scorer-check            # the retrieval SCORER, offline
 pnpm steering:retrieval-eval --both             # live: baseline vs reranked
+pnpm steering:index-bench                       # exact vs HNSW: worth an index? (A.4)
 pnpm leak:check                                # no domain words in @fde/*
 ```
 
@@ -509,6 +511,7 @@ stops failing, the comparison above it has gone blind.
 | **Orphan count is the only chunk-quality metric.** | It catches a table row severed from its header. It says nothing about a clause split mid-sentence. |
 | **A reranker now exists and is measured — on steering only.** | `pnpm steering:retrieval-eval --both`, 2026-09-14: a local cross-encoder over a 50-candidate pool bought **+12.5 points of recall@6 and +18.3 points of MRR** (0.813 → 0.938, 6/8 → 7/8 cases) for ~2 s per question. It is **off by default** and **no answer path calls it**; that is a latency decision nobody has made yet, not an oversight. It also made one case worse — see [`steering/evals/RETRIEVAL.md`](steering/evals/RETRIEVAL.md). |
 | **Insurance and pharma still have no reranker and no measurement saying one would help.** | The stage is now available to them at no new vendor and no egress, and neither has a retrieval suite to measure it with. For insurance that remains a gap named, not a decision defended. |
+| **RRF discards a hit only one arm found, and this is now measured.** | A document the keyword arm ranks **1st** and the dense arm misses scores `1/61 = 0.0164`; a document **both** arms rank **50th** scores `2/110 = 0.0182` and wins. Found on **two of steering's eight cases, and they are the two that need the keyword arm**: `ret-007` (keyword rank 1, dense absent, fused **35th**) and `ret-003`, the bare identifier `SR-EPS-0421` (keyword rank 3, dense absent, fused **27th**) — embeddings cannot separate `SR-EPS-0421` from `SR-EPS-0407`, which is the exact scenario `hybrid.ts`'s own header justifies the keyword arm with. `hybridSearch` is shared, so insurance and pharma fuse identically and have no suite that could see it. Unchanged on purpose — a fix is a guess until it is scored. |
 | **`similarity` is a within-result-set rank, not a quality score.** | §5. The top hit is `1.000` on every query ever made, including one that matched nothing useful. |
 | **`CLAUDE.md` and several file comments cite `pnpm chunks`, `pnpm ingest`, `pnpm query`, `pnpm corpus:check` at the repo root.** | Those scripts exist only in `packages/insurance/package.json`; at the root they are not defined. Use the `--filter` form above. |
 
@@ -604,7 +607,7 @@ and you can get all three without adopting a new product:
 |---|---|---|
 | **A column type** | somewhere to put 1536 numbers so they are not JSON text | `vector`, from the `pgvector` extension |
 | **A distance operator** | a way to ask "how far apart" in SQL | `<=>` |
-| **An index** *(optional!)* | make it fast without comparing everything | **we have none — see A.4** |
+| **An index** *(optional!)* | make it fast without comparing everything | **none — and the column as declared cannot take one, see A.4** |
 
 There is **no separate vector database in this repo.** There is Postgres with an
 extension switched on. The table `PGVectorStore` creates is unremarkable:
@@ -616,7 +619,8 @@ CREATE TABLE document_chunks (
   id        uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   content   text,      -- the passage: heading trail + body
   metadata  jsonb,     -- documentId, section, startLine, status, facets…
-  vector    vector     -- the numbers
+  vector    vector     -- the numbers. NO DIMENSION, so it takes any embedding
+                       -- model — and so it cannot be indexed at all (A.4)
 );
 
 -- added by OUR ingest, for the keyword arm:
@@ -628,7 +632,8 @@ CREATE INDEX … ON document_chunks USING gin (content_ts);
 Note the `vector` column is declared with **no dimension**. That is why
 `EMBEDDINGS=local` (384) and the hosted model (1536) can both be stored without a
 migration — though they still can't be *mixed*, which is why switching means
-re-ingesting.
+re-ingesting. It is also, exactly, why there is no vector index: pgvector will
+not index a dimensionless column. A.4 is what that costs and what it buys.
 
 > **The FDE point, and it is not a technical one.** Choosing Postgres was never
 > about pgvector being the best nearest-neighbour engine — it isn't. It was about
@@ -636,7 +641,7 @@ re-ingesting.
 > database"* is a new infrastructure conversation with a team that has not met
 > you yet.
 
-## A.4 · The index — and the honest fact that this repo has none
+## A.4 · The index — measured, and still not built
 
 With no index, Postgres compares the question to **every single row**, every
 query. That is called a brute-force or exact scan, and the alternative is an
@@ -657,27 +662,120 @@ navigable graph of which vectors are near which.
 it.** It is an opt-in method, not part of `initialize()`. So every dense search
 in this repo is an exact sequential scan.
 
-**That is the right call at this size, not an oversight.** The arithmetic:
+There are two reasons it stays that way, and the first one is not the one
+anybody expects.
+
+### A.4.1 · The first reason is the column, not the performance
+
+**You cannot add an index to this schema at all.** A.3 pointed out that the
+`vector` column is declared with no dimension — that is what lets a 384-number
+local corpus and a 1536-number hosted one share one table. pgvector will not
+index such a column, and it refuses both kinds:
+
+```
+HNSW     REFUSED: column does not have dimensions
+IVFFlat  REFUSED: column does not have dimensions
+```
+
+So "add an index" is not `createHnswIndex()`. It is
+`ALTER COLUMN vector TYPE vector(1536)` first — a **full table rewrite**, 358 ms
+on steering's 3,854 rows — and the pin is the thing that actually costs
+something. It converts `EMBEDDINGS=local` from *"re-ingest, and your old
+numbers are incomparable"* into a **hard insert error**, in a package that
+insurance and pharma import too. The dimensionless column is not an oversight
+that happens to block indexing; blocking indexing is what it costs, and A.3 is
+where it was bought.
+
+> **A trap worth recording, because it produced a confident wrong answer.** The
+> first attempt at this reported that IVFFlat built fine. It had not built at
+> all. A failed `CREATE INDEX CONCURRENTLY` leaves an **invalid** index in the
+> catalogue — `pg_index.indisvalid = false` — and the next
+> `CREATE INDEX CONCURRENTLY IF NOT EXISTS` under the same name sees the name,
+> skips, and **returns success**. `index-bench.ts` uses plain `CREATE INDEX`
+> for exactly this reason, and says so where it does it.
+
+### A.4.2 · The second reason is that it is now measured
+
+```bash
+pnpm steering:index-bench    # one embedding call, a table copy, dropped after
+```
+
+Steering, because it is the big corpus and therefore hits any threshold first.
+The benchmark copies the chunk table, times the exact scan, pins the dimension
+on the **copy**, builds HNSW three times, and reports the spread — three, because one build is a
+sample of one presented as a property of the index. The live table is read and
+never written.
+
+One run, 2026-09-14 — and the timings are stable while the recall column is
+not, which is the finding:
+
+| | server-side | recall@32, mean (worst–best of 3 builds) |
+|---|---|---|
+| exact scan — what ships | **19.2 ms** | 100% *(it is the ground truth)* |
+| HNSW `ef_search=40` (default) | **0.9 ms** | 98.4% (97.9–99.5) |
+| HNSW `ef_search=64` | 1.1 ms | 99.7% (99.5–100.0) |
+| HNSW `ef_search=128` | 1.5 ms | 100.0% (100.0–100.0) |
+
+Index build 1,780 ms; **31 MB of index over a 23 MB vector set**. Planner
+chooses it unaided: **yes**. Network floor (`select 1` to eu-central-1):
+**118 ms**.
+
+**So the index is genuinely 20× faster and it still does not earn its place.**
+
+- **The wire eats it.** 18 ms saved behind a 118 ms round trip is 15% of one
+  query, inside a request that also spends an embedding call and a model turn.
+  Nobody can perceive it. This is the number the old arithmetic below missed:
+  the question was never how big the vectors are, it was where the database is.
+- **Recall is not free, it is not stable, and the table above is a good day.**
+  *Run it again and the recall column moves.* Across **14 controlled builds over
+  byte-identical rows**, recall at the default `ef_search` ranged from **67.2%
+  to 97.9%** — and only 4 of the 14 cleared 86%. The table above happens to show
+  one of those four, which is exactly why it is labelled as one run.
+  **`ef_search` does not rescue a bad build**: where the default gave 83.9%,
+  raising it to 128 recovered only to 85.9%, so what was lost is in the *graph*,
+  not in the search. A rebuild is not a rare event — it is what happens after
+  every re-ingest — so the typical re-ingest would silently cost a sixth of the
+  exact top-32, to save 18 ms of a 118 ms trip.
+
+  **What the cause is not:** parallel build. Forcing
+  `max_parallel_maintenance_workers = 0` left the spread unchanged (85.4 / 97.9
+  / 83.9 / 83.9 across four serial builds). Curiously, a copy carrying **only**
+  `id` and `vector` built the *same* graph six times running — it is the full
+  four-column table that wanders. That was not chased further: the verdict does
+  not depend on the mechanism, only on the spread, and a cause guessed at is
+  worse here than one left open.
+- **The old argument still holds too**, and it is worth keeping:
 
 | | rows | × 1536 floats × 4 bytes | brute-force scan |
 |---|---|---|---|
 | insurance | 555 | ≈ 3.4 MB | trivial |
 | pharma | 75 | ≈ 0.5 MB | trivial |
-| steering | 3,854 | ≈ 23 MB | still trivial |
+| steering | 3,854 | ≈ 23 MB | 19 ms, measured |
 
-The whole vector set fits in memory several times over. An approximate index
-here would add tuning parameters, a rebuild step, and a **recall loss** — a real
-chance of missing the right passage — in exchange for speeding up something that
-is already imperceptible.
+> **Approximate search trades correctness for speed. Buy that trade when you
+> have the scale problem, not before.** What has changed is that this is no
+> longer a belief. `pnpm steering:index-bench` prints the trade, computes the
+> verdict from the two thresholds that decide it, and will say *build it* on its
+> own the day they move.
 
-> **Approximate search trades correctness for speed. Buy that trade when you have
-> the scale problem, not before.** The number to watch is rows, and the honest
-> statement today is: nobody here has measured where it starts to hurt.
+### A.4.3 · The hazard to remember if you ever do build one
 
-Note the asymmetry, because it surprises people: **the keyword arm IS indexed**
-(GIN, created by our ingest) and the vector arm is not. Full-text search over
-unindexed text is genuinely slow; exact vector scan over a few thousand rows is
-not.
+`hnsw.ef_search` **caps how many rows a single index scan can return**, and its
+default is **40**. The dense arm does not fetch the k a caller types — it
+fetches `k × overFetch`, which for steering is `8 × 4 = 32`. That fits under 40
+with eight rows to spare. **Raise `k` past 10 and the dense arm silently
+truncates**, handing RRF a short list, and `HybridResult.fullText` will not
+catch it because that flag only ever guarded the *keyword* arm.
+
+That is the same failure shape as the `plainto_tsquery` bug in §3 — an arm that
+quietly returns less than it should, while everything above it reports success.
+The benchmark checks for it (`rows returned` against `expected`) and warns.
+
+### A.4.4 · Note the asymmetry
+
+**The keyword arm IS indexed** (GIN, created by our ingest) and the vector arm
+is not. Full-text search over unindexed text is genuinely slow; an exact vector
+scan over a few thousand rows costs 19 ms.
 
 ## A.5 · Why the vector arm is not enough on its own
 
@@ -712,7 +810,9 @@ fusing them — which is §4.
                           │  document_chunks (ordinary Postgres)  │
                           │   content · metadata · vector · content_ts │
                           │   GIN index on content_ts ✅          │
-                          │   NO index on vector      ⚠ exact scan │
+                          │   NO index on vector — exact scan,    │
+                          │   19 ms / 3,854 rows, and the column  │
+                          │   cannot take one (A.4)               │
                           └───────────────────────────────────────┘
 
   ══ PER QUESTION ════════════════════════════════════════════════════
