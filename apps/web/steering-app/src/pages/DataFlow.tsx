@@ -24,7 +24,7 @@ import { Aurora, Journey, type AuroraTone } from '@veresk/surface';
 import { Extraction } from '../components/Extraction';
 import { Landed } from '../components/Landed';
 import { PHARMA, VERESK } from '../lib/links';
-import { ASSESS_TURNS } from './assess-turns';
+import { ASSESS_TURNS, INDEX_TURNS } from './assess-turns';
 import { WORKED } from '../lib/worked-example.generated';
 
 const AURORA: AuroraTone[] = [
@@ -227,6 +227,8 @@ export function DataFlow() {
 
         <Walkthrough />
 
+        <Indexing />
+
         <Split />
         <Extraction />
         <Landed />
@@ -244,6 +246,33 @@ export function DataFlow() {
  * result is the useful one, and it is what makes "nothing may leave our tenant"
  * a configuration question instead of a blocker.
  */
+
+/**
+ * The indexing pass, which the page used to omit entirely.
+ *
+ * It belongs BELOW the walk and not above it: a reader's first question is what
+ * happens when they ask something, and indexing is a thing that already
+ * happened. But it has to be on the page, because the tiles at the top now say
+ * 3,854 passages were embedded once and a reader is entitled to see that hop by
+ * hop like everything else.
+ */
+function Indexing() {
+  return (
+    <section className="lift-in pb-16" style={{ animationDelay: '200ms' }}>
+      <h2 className="font-mono text-2xl font-medium tracking-tight md:text-3xl">
+        Before any of that: building the index.
+      </h2>
+      <p className="mt-4 max-w-[64ch] leading-relaxed text-ui-dim">
+        One pass over the corpus, once, so that a question can be answered from passages instead of
+        from whole files. It is the only time the full corpus text is sent anywhere — and it goes to
+        the same Foundry resource in your own tenant that the model is deployed in.
+      </p>
+      <div className="mt-10">
+        <Journey turns={INDEX_TURNS} />
+      </div>
+    </section>
+  );
+}
 
 /**
  * One requirement, every hop.
