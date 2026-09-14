@@ -5,8 +5,8 @@ a time, with a decision point before anything irreversible.
 
 **Status key:** ☐ not started · ◐ in progress · ☑ done
 
-Companion: [`RUN.md`](../RUN.md) for the pillars already walked,
-[`GUIDE.md`](../GUIDE.md) §10 for why these two, [`DEPLOYMENT.md`](../infra/DEPLOYMENT.md)
+Companion: [`RUN.md`](RUN.md) for the pillars already walked,
+[`GUIDE.md`](GUIDE.md) §10 for why these two, [`DEPLOYMENT.md`](../infra/DEPLOYMENT.md)
 for what happens after.
 
 ---

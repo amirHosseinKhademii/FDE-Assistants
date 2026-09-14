@@ -1,7 +1,7 @@
 # Running it from scratch — Pillar 1, grounding
 
-> **Companions:** [`GUIDE.md`](GUIDE.md) for *why*, [`TEMPLATE.md`](docs/TEMPLATE.md)
-> to reuse this on another customer, [`SWAP.md`](docs/SWAP.md) for what could be
+> **Companions:** [`GUIDE.md`](GUIDE.md) for *why*, [`TEMPLATE.md`](TEMPLATE.md)
+> to reuse this on another customer, [`SWAP.md`](SWAP.md) for what could be
 > replaced by a package and what state each swap is in.
 >
 > **Last full verification: 2026-09-11 — `pnpm eval` 40/40, 0 dangerous
@@ -584,7 +584,7 @@ by docType      : bulletin=162, determination=150, procedure=54, form=52,
 Every chunk carries its document type, so the 465 guidance chunks are in the
 index and identifiable. They are **not** reachable by a form-filtered search:
 a bulletin is not a form and has no form id. That is the `search_guidance` work
-recorded in [`CORPUS-PLAN.md`](docs/CORPUS-PLAN.md) §2.6, and until it is built a
+recorded in [`CORPUS-PLAN.md`](plans/CORPUS.md) §2.6, and until it is built a
 filtered query sees 90 chunks out of 555.
 
 > **This used to leak your password, and the fix is worth copying.** `env:check`
@@ -782,7 +782,7 @@ rental"* it is useless, because the answer is in a bulletin and the filter
 excludes it.
 
 That gap is the `search_guidance` work recorded in
-[`CORPUS-PLAN.md`](docs/CORPUS-PLAN.md) §2.6.
+[`CORPUS-PLAN.md`](plans/CORPUS.md) §2.6.
 
 
 ### How it works

@@ -2,7 +2,7 @@
 
 Written 2026-09-04, end of the first build session. Updated 2026-09-05 with the
 first real baseline (§5.6). Companion to
-[`README.md`](../README.md) (how to run it) and [`GUIDE.md`](../GUIDE.md) (everything
+[`README.md`](../README.md) (how to run it) and [`GUIDE.md`](GUIDE.md) (everything
 else in one pass). This file is the one that explains **decisions and
 reasoning**, including the things that went wrong.
 
@@ -898,7 +898,7 @@ Consequence: baselines recorded before this date are not comparable on cov-003.
 ## 8. What to do next
 
 *This section is the **customer** backlog. A parallel, job-shaped plan lives in
-[`GUIDE.md`](../GUIDE.md) §10 — a second agent framework, a streaming surface, a
+[`GUIDE.md`](GUIDE.md) §10 — a second agent framework, a streaming surface, a
 second provider. It shares the eval gate with this list and nothing else; keep
 the two orderings separate, because the argument below ("fix the checker before
 trusting any number") stops being readable if they interleave.*

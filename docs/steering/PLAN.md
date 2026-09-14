@@ -61,7 +61,7 @@ could not corner them.
 
 Companions: [`PHARMA-PLAN.md`](../pharma/PLAN.md) for the estate pattern this
 inherits, [`TEMPLATE.md`](../TEMPLATE.md) for what transfers between domains,
-[`GUIDE.md`](../../GUIDE.md) for the eight pillars.
+[`GUIDE.md`](../GUIDE.md) for the eight pillars.
 
 **Status key:** ☐ not started · ◐ in progress · ☑ done
 **S0–S4 are ☑ as of 2026-09-13. S5 is ◐ — the acceptance walkthrough is the remaining gate.**

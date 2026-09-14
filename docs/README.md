@@ -64,8 +64,9 @@ its documents sit at the top level.
 [`EXTRACTION.md`](pharma/EXTRACTION.md) which code should stop living in the
 package, and which duplication is deliberate ·
 [`BOTTLENECK-2.md`](pharma/BOTTLENECK-2.md) what to point it at next ·
-[`corpus/README.md`](pharma/corpus/README.md) **the corpus is fabricated — read
-this before quoting any of it.**
+[`CORPUS.md`](pharma/CORPUS.md) **the corpus is fabricated — read this before
+quoting any of it.** (It lives beside `corpus/`, never inside it — see the rule
+below.)
 
 ### steering — the rest
 
@@ -111,7 +112,14 @@ And two rules about **where** a document lives:
    engagement's folder. A repo-wide document lives at `docs/`. There is no third
    option — `PHARMA-PLAN.md` at the top level was confusing precisely because it
    was neither.
-2. **A plan with a horizon longer than the current work goes in `plans/`.**
+2. **Never put a document inside a corpus directory.** `docs/pharma/corpus/` and
+   `docs/steering/corpus/` are `CORPUS_DIR` — the haystack the assistants
+   retrieve from. `@fde/grounding`'s loader ingests **every** `.md` it finds
+   there, with no exclusion list, so a README about the corpus becomes a
+   retrievable document the model can cite as if it were a procedure. A
+   meta-document goes *beside* the folder, never in it. This happened on
+   2026-09-14 and `pharma:corpus-check` caught it: 75 chunks became 80.
+3. **A plan with a horizon longer than the current work goes in `plans/`.**
    `ROADMAP.md` is the live queue; `plans/` is for the design documents behind a
    specific piece of work.
 
