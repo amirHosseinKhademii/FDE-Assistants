@@ -1461,6 +1461,13 @@ body {
 
 .x-ask {
   display: grid;
+  /* THE COLUMN IS `minmax(0, 1fr)`, NOT `auto`. An auto column is sized to the
+     min-content of its widest item, and the item here is a <select> whose
+     min-content is its longest option — `CR-K2-0101 — Rack force capacity`, 444px.
+     The card grew to 527 inside a 390px phone and took the page's horizontal
+     scrollbar with it. A 1fr column is capped by the parent; `minmax(0, …)` is
+     what stops the implied `min-width: auto` putting the floor back. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.75rem;
   border: 1px solid var(--color-ui-line);
   border-radius: 1rem;
@@ -1518,17 +1525,30 @@ body {
 
 .x-ask-picked--new { color: var(--color-ui-faint); }
 
+/* Mobile first: the label and the dropdown stack, and the dropdown takes the
+   line it wrapped onto. `min-width: 0` on both is the load-bearing part — a
+   flex item defaults to `min-width: auto`, so without it neither will shrink
+   below the widest option and the overflow simply moves up a level. */
 .x-ask-or {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.625rem;
-  margin-inline-start: auto;
+  min-width: 0;
   font-size: 0.75rem;
   color: var(--color-ui-faint);
 }
 
 .x-ask-select {
+  /* `max-width: 100%` was already here and does nothing on its own: it is not a
+     minimum, and `min-width: auto` is what was holding the width open. */
+  flex: 1 1 100%;
+  min-width: 0;
   max-width: 100%;
+  /* Once it can shrink, a long option would be cut mid-word in the closed
+     state. The open dropdown is native UI and is unaffected. */
+  overflow: hidden;
+  text-overflow: ellipsis;
   border: 1px solid var(--color-ui-line);
   border-radius: 0.625rem;
   padding: 0.625rem 0.75rem;
@@ -1540,6 +1560,17 @@ body {
 
 .x-ask-select:focus-visible { outline: 2px solid var(--color-ui-accent); outline-offset: 2px; }
 .x-ask-select:disabled { color: var(--color-ui-faint); }
+
+/* Wide enough for the pair to share a line, which is where the auto margin that
+   pushes them to the trailing edge belongs. Below this it would shove a wrapped
+   line to the right on its own and read as a mistake. */
+@media (min-width: 40rem) {
+  .x-ask-or {
+    flex-wrap: nowrap;
+    margin-inline-start: auto;
+  }
+  .x-ask-select { flex: 0 1 auto; }
+}
 
 .x-ask-error {
   border-inline-start: 2px solid color-mix(in oklab, var(--color-ui-warn) 60%, transparent);
@@ -1895,6 +1926,9 @@ body {
   margin-top: 0.625rem;
   cursor: pointer;
   border: 0;
+  /* 18px tall was under the 24px WCAG 2.2 AA floor for a touch target. The
+     padding is vertical only so the underline still sits under the words. */
+  padding: 0.375rem 0;
   background: none;
   font-size: 0.75rem;
   color: var(--color-ui-dim);
@@ -2060,7 +2094,8 @@ body {
   margin-top: 0.875rem;
   cursor: pointer;
   border: 0;
-  padding: 0;
+  /* Was 20px tall — under the 24px WCAG 2.2 AA floor. */
+  padding: 0.25rem 0;
   background: none;
   font-size: 0.8125rem;
   color: var(--color-ui-faint);
@@ -2271,12 +2306,26 @@ body {
    THE HEADING GETS OUT OF ITS WAY rather than the button getting smaller: the
    finding label has padding-right reserved for it, so a long label wraps
    instead of running under a floating control. */
-.x-finding-wrap { position: relative; }
+/* MOBILE FIRST, AND THE ORDER IS THE POINT. The button is a sibling that comes
+   AFTER the finding in the markup, so simply un-positioning it would drop it
+   under the card — which is the arrangement `BidDesk.tsx` explicitly rejected
+   ("one more thing to scroll past"). `order: -1` puts it above instead: still
+   the first thing found, still not on top of anything.
+
+   It has to leave the corner at all because at 390px the button is 238px wide
+   against a 342px card and the finding label wraps to four lines beneath it —
+   the page's primary output, covered by the shortcut past it. */
+.x-finding-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
 
 .x-explain-btn {
-  position: absolute;
-  top: 0.875rem;
-  inset-inline-end: 0.875rem;
+  order: -1;
+  align-self: stretch;
+  justify-content: center;
   z-index: 2;
   display: inline-flex;
   flex-wrap: wrap;
@@ -2351,6 +2400,20 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .x-explain-btn { animation: none; }
   .x-explain-btn:hover { transform: none; }
+}
+
+/* Wide enough for the corner to be empty again: the label fits beside the
+   button, so the top-right placement and the one-saturated-object budget above
+   go back to being exactly what they were. */
+@media (min-width: 40rem) {
+  .x-finding-wrap { display: block; }
+  .x-explain-btn {
+    position: absolute;
+    top: 0.875rem;
+    inset-inline-end: 0.875rem;
+    align-self: auto;
+    justify-content: flex-start;
+  }
 }
 
 .x-explain-btn:focus-visible { outline: 2px solid var(--color-ui-accent); outline-offset: 2px; }
