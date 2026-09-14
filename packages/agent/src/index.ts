@@ -67,7 +67,15 @@ export {
 } from './core/fixtures';
 
 export { runLoopSdk } from './sdk/loop-sdk';
-export { runLoopMastra, buildFoundryProvider, toMastraTools } from './mastra/loop-mastra';
+export {
+  runLoopMastra,
+  buildFoundryProvider,
+  buildBedrockProvider,
+  selectModel,
+  toMastraTools,
+  DEFAULT_BEDROCK_MODEL,
+} from './mastra/loop-mastra';
+export { runProviderSwitchCheck } from './mastra/provider-switch';
 export { runLoopLangGraph, buildFoundryChatModel, toLangGraphTools } from './langgraph/loop-langgraph';
 export { runLoop, loopChoice, engineLabel, type LoopChoice } from './core/loop.factory';
 
