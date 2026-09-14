@@ -12,7 +12,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "check": "ts-node src/provider-switch.ts",
+    "check": "ts-node src/provider-switch-selftest.ts",
     "check:settle": "ts-node src/core/settle-selftest.ts"
   },
   "dependencies": {
