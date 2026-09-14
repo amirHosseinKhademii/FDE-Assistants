@@ -72,6 +72,89 @@ actually chose, and count how many jobs each field combination reaches. That is
 free, deterministic, needs no model, and it answers the fork above before a line
 of prompt is rewritten.
 
+### MEASURED — `pnpm steering:why-unpriced`, 2026-09-14
+
+Built and run. It re-reads the `find_comparable_work` calls already stored in
+`assess_history.trace`, counts each key against the estate, and for every
+refusal prints what the estate carries BESIDE the value the agent chose. Free,
+no model, re-runnable — §0 asks for a before and an after.
+
+**The missing prices are not one problem. They are four, and only one of them is
+about the customer's data:**
+
+| | | |
+|---|---|---|
+| 13 | asked, understood, too few comparable jobs | a fact about the **estate** |
+| 7 | never called the pricing tool at all | a **prompt** problem, entirely ours |
+| 4 | called it, arguments not kept by the trace | **unknowable**, see below |
+| 0 | asked with a value no document uses | no vocabulary mismatch at all |
+
+**Seven requirements never asked.** `CR-K2-0105`, `0106`, `0109`, `0112`,
+`0114`, `0123`, `0124`. The agent searched, decided the scope was too unclear to
+price, and wrote that up — without ever putting a question to the tool that
+would have told it how much history existed. That is 29% of the bid, it is not
+the estate's fault, and it is the cheapest of the four to fix.
+
+#### For the 13 that did ask, the agent is NOT being over-narrow
+
+This is the arm of the fork the marginals settle, and it is the opposite of what
+"the filter is too tight" implies. Almost every refusal keyed on
+`validation_only` + `mechanical`:
+
+```
+of the 19 jobs with changeClass = validation_only,
+   elementKind is: ecu 5, software_domain 4, sensor 4, motor 3, mechanical 2, (not recorded) 1
+of the 17 jobs with elementKind = mechanical,
+   changeClass is: modify_hardware 5, recalibrate 3, reuse_as_is 2, validation_only 2, ...
+```
+
+Both marginals agree: **Vantis has booked exactly two validation-only mechanical
+jobs, ever.** The conjunction is not an artefact of a greedy filter — the work
+genuinely is not in the history. The refusal is a TRUE statement about the
+company, worded as though it were a fault in the query.
+
+**So the fix for these 13 is the sentence, not the filter.** *"We have never
+done this kind of work"* is a finding a bid meeting can act on — it means
+subcontract, or estimate bottom-up, or decline. *"Your filter matched 0"* reads
+like a tooling failure and gets ignored.
+
+#### The one filter genuinely worth reconsidering is `asil`, and it is a corpus defect
+
+```
+of the 146 jobs with safetyCaseImpact = false,
+   asil is: (not recorded) 58, B 32, QM 31, C 13, D 12
+```
+
+**Forty percent of the usable history has no ASIL recorded at all.** Any filter
+on `asil` therefore discards two fifths of the sample before it starts — not
+because those jobs were at a different safety level, but because nobody wrote it
+down. That is finding #2 of the four about the customer's paperwork (*"the safety
+level is not recorded next to the cost"*), showing up as a pricing failure two
+steps downstream.
+
+This does NOT license dropping the filter. `walk-check` asserts that dropping
+ASIL produces an answer 3.5x too low, and that assertion stands. What it licenses
+is saying so: a refusal that filtered on ASIL should report how much of the
+history was excluded for having no ASIL at all, because *"40% of our own records
+cannot answer this"* is a different problem from *"we have not done this work"*.
+
+#### Four are unknowable, and that is a defect in the desk
+
+`CR-K2-0102`, `0104`, `0110`, `0111`. **`assess_history.trace` holds two
+different shapes.** The CLI files `result.turns` — `TurnRecord[]`, carrying each
+call's arguments and full result. The web desk files `events` — `LoopEvent[]`,
+carrying a tool name, a timing and a one-line summary, and **no arguments**.
+
+Nothing documents this and nothing asserts it. The first version of the
+diagnostic read only the turn shape, found no tool calls in any desk row, and
+was about to report `CR-K2-0111` — the one requirement in the bid carrying a
+price — as having invented it. **It had called the pricing tool three times.**
+
+Two fixes, and they are independent: file `result.turns` from the app as the CLI
+does, so both surfaces are auditable; and assert the shape, because a column
+holding two incompatible structures with no discriminator is a trap for
+everything that reads it later.
+
 ---
 
 ## 1 · The programme filter is never used — CORRECTNESS, not tidiness
