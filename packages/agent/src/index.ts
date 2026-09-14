@@ -68,13 +68,9 @@ export {
 } from './core/fixtures';
 
 export { runLoopSdk } from './sdk/loop-sdk';
-export {
-  runLoopMastra,
-  buildFoundryProvider,
-  buildBedrockProvider,
-  selectModel,
-  toMastraTools,
-} from './mastra/loop-mastra';
+export { runLoopMastra } from './mastra/loop';
+export { buildFoundryProvider, buildBedrockProvider, selectModel } from './mastra/provider';
+export { toMastraTools } from './mastra/tools';
 // The two package-level self-tests. Named `*-selftest.ts` like every other one
 // in this repo — `provider-switch.ts` read like a module you could import for
 // its behaviour, and it is a check you run.

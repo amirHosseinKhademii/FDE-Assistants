@@ -87,7 +87,7 @@ import {
 /**
  * THIS ENGINE REACHES AZURE ONLY, AND SAYS SO RATHER THAN PRETENDING.
  *
- * `loop-mastra.ts` and `loop-langgraph.ts` both honour `LLM_PROVIDER` because
+ * `mastra/loop.ts` and `loop-langgraph.ts` both honour `LLM_PROVIDER` because
  * they build their own model object and ignore the `client` argument. This one
  * cannot: the Agents SDK takes an OpenAI CLIENT OBJECT through
  * `setDefaultOpenAIClient`, so reaching Bedrock means handing it a client that

@@ -31,7 +31,7 @@ import type OpenAI from 'openai';
 import type { ToolRegistry } from './registry';
 import type { LoopOptions, LoopResult } from './loop.types';
 import { runLoopSdk } from '../sdk/loop-sdk';
-import { runLoopMastra } from '../mastra/loop-mastra';
+import { runLoopMastra } from '../mastra/loop';
 import { runLoopLangGraph } from '../langgraph/loop-langgraph';
 
 export type LoopChoice = 'sdk' | 'mastra' | 'langgraph';

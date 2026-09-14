@@ -29,7 +29,8 @@
 import { z } from 'zod';
 import type { ComplianceFixture } from '../sdk/compliance-sdk';
 import { ToolRegistry } from '../core/registry';
-import { buildFoundryProvider, toMastraTools } from './loop-mastra';
+import { buildFoundryProvider } from './provider';
+import { toMastraTools } from './tools';
 
 const { Agent } = require('@mastra/core/agent');
 
@@ -77,7 +78,7 @@ const stubTool = (name: string): any => ({
 });
 
 export async function runMastraComplianceCheck(fixture: ComplianceFixture): Promise<number> {
-  console.log('\nCompliance self-test — the Mastra loop (loop-mastra.ts)\n');
+  console.log('\nCompliance self-test — the Mastra loop (mastra/)\n');
 
   // Catch anything that bypasses our transport: telemetry, a second exporter,
   // a phone-home on first use. Same trick the SDK self-test uses.
