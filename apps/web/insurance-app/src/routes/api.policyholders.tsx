@@ -6,7 +6,7 @@
  */
 import { createFileRoute } from '@tanstack/react-router';
 import { listPolicyholders } from '@claims/insurance/directory';
-import { authorize } from '@claims/insurance/security';
+import { authorize } from '@fde/guard';
 
 export const Route = createFileRoute('/api/policyholders')({
   server: {

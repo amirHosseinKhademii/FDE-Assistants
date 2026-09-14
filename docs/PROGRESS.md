@@ -966,6 +966,12 @@ with accuracy, p95 latency, and cost per query in each row
 That table is worth more than the app. Adding a reranker now is guessing it
 helps; adding it after gives you "the reranker bought 7 points."
 
+> **DONE — on steering, not on insurance, 2026-09-14 (§23).** The table exists
+> and the sentence is real: *the reranker bought 12.5 points of recall@6.* It
+> also took the predicted route — the baseline had to be built first, and it was
+> the baseline that turned up the RRF flaw, not the reranker. **Insurance still
+> has no retrieval suite**, so for insurance this item is unchanged.
+
 ### 8.6 Then — Pillars 6–8
 
 The HTTP surface exists (`POST /api/ask`) and its **fail-closed** API key guard
@@ -3064,3 +3070,179 @@ Not blocking, and true as of today: the green eval baseline ran `fixtures: live`
 rather than fixture-backed, so it is not reproducible offline; and
 `CONCEPTS.md`'s pillar table still reads *"not started"* for three pillars that
 are built and green.
+
+---
+
+## 23. Retrieval gets a number, and the reranker is not the finding — 2026-09-14
+
+`docs/RETRIEVAL.md` §9 carried this row:
+
+> **There is no reranker, and no measurement saying one would help.**
+> Its absence is a gap named, not a decision defended.
+
+Both halves are now closed for steering. The second half was the blocker, and
+the order was not negotiable — §8 of this file has said so since the first week:
+*"Adding a reranker now is guessing it helps; adding it after gives you 'the
+reranker bought 7 points.'"*
+
+```
+  arm        cases  recall@6   MRR
+  baseline    6/8   0.813     0.692
+  reranked    7/8   0.938     0.875
+
+  +12.5 points of recall@6, +18.3 points of MRR, ~2 s per question
+```
+
+`pnpm steering:retrieval-eval --both`. 8 cases, 922 documents, 3,854 passages,
+`Xenova/ms-marco-MiniLM-L-6-v2` local on CPU.
+
+### The chain, because the reranker was the last link and not the first
+
+Steering had **no retrieval measurement of any kind.** `retrieval:check` is five
+hand-written predicates that pass or fail — and a predicate cannot regress by
+four points. So:
+
+```
+a label for a steering passage  →  8 cases  →  an offline scorer + its plants
+                                →  the BASELINE  →  the reranker  →  the delta
+```
+
+Only the first link was new work in the judgement sense. `@fde/evals` already
+owned recall@k, MRR, the pass rule and the summary; pharma had already proved
+them. What no package can supply is **what a retrieved passage is called.**
+
+### Pharma's label would have been silently wrong here
+
+Pharma labels by revision and clause (`SOP-QC-014 Rev 7 §7.3`), read entirely out
+of the heading trail. Copying that was the obvious move and the corpus refuses
+it. Measured over all 3,854 passages:
+
+| trail shape | passages | |
+|---|---|---|
+| a real heading trail | 2,835 | |
+| the document title alone | 467 | |
+| **nothing at all** | 293 | every closure report, every MISRA report |
+| **a `====` banner** | 259 | every CRS |
+
+A trail-only label is `null` for 552 of them — including all 220 closure
+reports, which are what `find_comparable_work` prices from. And `@fde/evals`
+spells out the consequence in its own header: an unlabelled hit still occupies a
+top-k slot while being neither a hit nor an intruder, so it is **invisible in a
+recall number**. The single most important document class would have left the
+measurement without a word.
+
+Steering's label is the **path**, refined by the leaf's identifier when the trail
+has one — `null` for **0 of 3,854**, 2,828 distinct labels over 3,854 passages.
+The path also carries the confusable pairs for free: twelve programmes state a
+rack force with different numbers at twelve paths, and `CRS-…_RevA.md`
+(superseded) is a different path from `_RevB.md` (in force). That is this
+corpus's Rev 6 / Rev 7 trap, solved by an identifier that was already there.
+
+**The transferable rule:** the package takes the arithmetic, the domain keeps the
+identity — and *what the identity is* does not transfer between domains even when
+the shape of the problem does.
+
+### The write-up was wrong the first time, and the correction is the finding
+
+The first draft credited the reranker with understanding a question no keyword
+could match: `ret-007` asks *"was any effort booked to a charge code that also
+covers unrelated work?"*, the answer is one of 220 near-identical closure
+reports, hybrid search ranked it 35th and the cross-encoder moved it to 1st.
+
+That explanation was contradicted by a probe run earlier in the same session —
+the distinguishing phrase *"for want of a separate code"* appears in exactly one
+document. So the diagnostic was built rather than the claim defended:
+
+```
+ret-003   wanted: fused 27/50   dense=—  sparse=3   found by keywords
+ret-007   wanted: fused 35/50   dense=—  sparse=1   found by keywords
+```
+
+**The keyword arm had ranked both targets near the top. The dense arm returned
+neither. RRF buried both.** The arithmetic is not close:
+
+| what the arms said | fused score |
+|---|---|
+| keyword arm **1st**, dense arm absent | 1/61 = **0.0164** |
+| **both** arms **50th** | 2/110 = **0.0182** |
+
+A document both arms rank fiftieth outranks a document the keyword arm ranks
+first. That is RRF working as designed — corroboration is evidence — and it is
+wrong exactly when the two arms are good at different things, which is the entire
+reason `hybrid.ts` exists. Its own header argues the keyword arm in with *"a rare
+legal term has few neighbours in embedding space."*
+
+`ret-003` is the query `SR-EPS-0421`, written into the suite as *"the case only
+the KEYWORD arm can win"* because embeddings cannot separate it from
+`SR-EPS-0407`. The keyword arm won it at rank 3. The fuser put it 27th.
+
+**`hybridSearch` is `@fde/grounding`, so insurance and pharma fuse identically**
+and neither has a retrieval suite that could see this. Nothing was changed about
+the fuser: a per-arm floor or a lower `K` are guesses until this suite scores
+them, which is the rule the reranker was held to.
+
+### Two costs, printed rather than buried
+
+**`ret-005` the reranker could not fix**, and the runner says why:
+
+```
+ceiling: only 50% of the expected labels were in the top-50 pool at all
+```
+
+A reranker cannot retrieve — recall@k after is bounded by recall@pool before.
+Without that line the obvious next move is raising the pool to 200 and spending
+four times the latency discovering it changes nothing.
+
+**`ret-008` the reranker made worse.** The question is where a module's behaviour
+is actually recorded; the answer is a test file whose banner says the 2015 design
+note has gone stale and the tests are the surviving specification. The
+cross-encoder promoted **the stale design note** above it. Relevance and currency
+are different questions, a relevance model can only see the first, and that is
+the same shape as insurance's form-revision trap. It is a better argument for
+leaving the stage off than the latency is.
+
+### Shipped off
+
+`RERANK=local`, default off, called by **no answer path**. +12.5 points against
+~2 s per question is a decision for whoever owns the latency budget —
+`assess-all` already runs ~55 s per requirement — and it needs an answer to
+`ret-008` first. Shipping a stage on the grounds that it is usually an
+improvement is how a pipeline acquires parts nobody can account for.
+
+### Rule 20, honoured twice
+
+Both label plants were sabotaged and **watched to go red** before being restored:
+
+- **the banner trap** — scanning the whole trail instead of its leaf's first line
+  pulls `CRS-ALT-08-001` out of a confidentiality notice and calls it a section
+  anchor. 259 passages mislabelled, each plausible. When planted it took the
+  superseded-revision assertion down with it, because Rev A and Rev B then
+  collide on one label — exactly the damage it describes.
+- **the two-digit clause** — `\d` instead of `\d+` makes §10 unlabelled rather
+  than §1, silently merging it into the document preamble.
+
+A third guard is free and runs before any money is spent: every `expect` label is
+checked against the labels the index actually carries, because a case naming a
+label no passage has can never pass and fails looking exactly like a retrieval
+regression.
+
+### What this does not prove
+
+Eight cases cannot say a retriever is good; they can say it got worse, which is
+the job. One run rather than five, deliberately: every stage is deterministic,
+and three runs gave identical summary numbers.
+
+**One number in the first draft of this entry was wrong, and checking it changed
+the conclusion.** It claimed the cross-encoder scores correct passages "near the
+floor" at a raw logit of −9.3, out of domain. That −9.3 came from a paraphrase
+typed by hand into a feasibility probe, not from the corpus. Measured against the
+*real* indexed passages: **+7.75** for `ret-001`, against **+8.76** for an MS
+MARCO pair the model was trained on. It transfers to prose-shaped engineering
+documents far better than assumed. `ret-007`'s correct passage does score low —
+**−0.88** — and was still ranked first, because ranking is relative. The real
+pattern is document **shape**, not subject: terse fielded records score far below
+prose, and this corpus holds 220 of them. A number quoted from a scratch probe is
+not a measurement, which is the same lesson as the `ret-007` write-up two
+sections up, learned twice in one session.
+
+Full write-up, including every case note: `docs/steering/evals/RETRIEVAL.md`.

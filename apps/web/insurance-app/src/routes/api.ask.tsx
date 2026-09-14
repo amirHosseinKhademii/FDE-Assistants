@@ -29,7 +29,7 @@
  */
 import { createFileRoute } from '@tanstack/react-router';
 import { askCoverage } from '@claims/insurance';
-import { authorize } from '@claims/insurance/security';
+import { authorize } from '@fde/guard';
 
 const encoder = new TextEncoder();
 

@@ -18,7 +18,6 @@
     "./embeddings": "./dist/grounding/embeddings.factory.js",
     "./telemetry": "./dist/telemetry/request-log.js",
     "./config": "./dist/config/domain.js",
-    "./security": "./dist/security/guard.js",
     "./directory": "./dist/directory.js"
   },
   "scripts": {

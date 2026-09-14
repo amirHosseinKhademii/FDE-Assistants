@@ -243,6 +243,9 @@ importers:
       '@claims/insurance':
         specifier: workspace:*
         version: link:../../ai/insurance
+      '@fde/guard':
+        specifier: workspace:*
+        version: link:../../../packages/guard
       '@fde/uikit':
         specifier: workspace:*
         version: link:../../../packages/uikit

@@ -495,18 +495,48 @@ hand-written predicates that pass or fail, and a predicate cannot regress by fou
 points. So the chain was: a label for a steering passage → 8 cases → an offline
 scorer with plants → the baseline → the reranker → the delta.
 
-**The reranker's whole argument is one case.** `ret-007` asks *"was any effort
-booked to a charge code that also covers unrelated work?"*. The answer is in one
-of 220 near-identical closure reports — `EFF-2021-0443`, which booked a
-production-line transfer to a gearbox housing code *"for want of a separate
-code"*, so its hours are contaminated and a median over it is wrong. Not one word
-of the question appears in the document. Hybrid search ranked it **35th**; the
-cross-encoder moved it to **1st**.
+### The reranker is not the most valuable thing this turned up
+
+`ret-007` asks *"was any effort booked to a charge code that also covers
+unrelated work?"*. The answer is in one of 220 near-identical closure reports —
+`EFF-2021-0443`, which booked a production-line transfer to a gearbox housing
+code *"for want of a separate code"*, so its hours are contaminated and a median
+over it is wrong. Hybrid search ranked it **35th**; the cross-encoder moved it to
+**1st**.
+
+Asking why produced the real finding:
+
+```
+denseRank = —     sparseRank = 1     foundBy: keywords
+```
+
+**The keyword arm ranked it first and the dense arm never returned it**, and RRF
+buried it because RRF rewards agreement between arms:
+
+| what the arms said | fused score |
+|---|---|
+| keyword arm **1st**, dense arm absent | 1/61 = **0.0164** |
+| **both** arms **50th** | 2/110 = **0.0182** |
+
+A document both arms rank fiftieth outranks a document the keyword arm ranks
+first. **Two of the eight cases hit this, and they are the two that need the
+keyword arm** — `ret-003` (the bare identifier `SR-EPS-0421`, written into the
+suite as "the case only the keyword arm can win": keyword rank 3, fused 27th) and
+`ret-007` (keyword rank 1, fused 35th). That is RRF working as designed and it is
+wrong exactly when the two arms are good at different things — which is the reason `hybrid.ts` exists at all, and
+its own header says so. **This affects insurance and pharma identically**;
+`hybridSearch` is `@fde/grounding`. Nothing has been changed about the fuser —
+a floor per arm, or a lower `K`, are guesses until this suite scores them, which
+is the rule the reranker was held to.
 
 **It is off by default (`RERANK=local`) and no answer path calls it.** +12.5
 points against ~2 s per question is a latency decision for whoever owns it, and
-`assess-all` already runs ~55 s per requirement. Wiring it in is a deliberate
-next step, not an oversight.
+`assess-all` already runs ~55 s per requirement. But latency is the weaker
+reason: on `ret-008` the reranker promoted a **stale** design note above the test
+file that the corpus itself marks as the surviving specification. Relevance and
+currency are different questions and a cross-encoder can only see the first —
+the same shape as insurance's form-revision trap. Wiring it in is a deliberate
+next step, and it needs an answer to that first.
 
 ### What this says about §0, and it is not what you would guess
 

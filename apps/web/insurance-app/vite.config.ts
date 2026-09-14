@@ -23,6 +23,12 @@ import tailwindcss from '@tailwindcss/vite';
  */
 const DOMAIN_EXTERNALS = [
   '@claims/insurance',
+  // CommonJS, like the domain package — Vite's SSR runner would evaluate its
+  // dist as ESM and die on `ReferenceError: exports is not defined`. pharma-app
+  // has carried this line since it started using the guard; insurance-app
+  // reached for `@claims/insurance/security` instead, a module that has never
+  // existed on any ref, so it never got here to find out.
+  '@fde/guard',
   '@mastra/core',
   '@ai-sdk/openai-compatible',
   'ai',
