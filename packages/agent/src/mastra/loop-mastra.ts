@@ -96,6 +96,79 @@ function foundryProvider(): any {
 }
 
 /**
+ * The same job as `buildFoundryProvider`, for AWS — and the point of it is the
+ * SIZE DIFFERENCE, not the feature.
+ *
+ * `@fde/bedrock` translates between OpenAI's protocol and Anthropic's by hand:
+ * system prompts move out of the message list, `max_tokens` becomes mandatory,
+ * `json_schema.name` is dropped, `pause_turn` has no equivalent. Roughly 130
+ * lines and 30 assertions to hold those rules still. It has to exist, because
+ * the Agents SDK loop and three raw `chat.completions.create` call sites want an
+ * OpenAI-shaped client and there is nothing else to give them.
+ *
+ * THIS IS THE SAME PORT IN FIVE LINES, because the AI SDK never translates. It
+ * keeps one native provider per service behind a shared interface, so nothing is
+ * converted — Mastra asks for "a language model" and whichever provider it was
+ * handed speaks its own protocol from there.
+ *
+ * Keep both, and the repo answers a question it could not otherwise: what does
+ * writing the translation yourself buy, and what does it cost? Knowing that
+ * `pause_turn` has no OpenAI equivalent is the kind of thing you only learn the
+ * expensive way, and it is invisible from here.
+ *
+ * CREDENTIALS RESOLVE THEMSELVES, exactly as in `@fde/bedrock/client.ts` — the
+ * provider carries AWS's own chain (env vars, then a named profile, then SSO,
+ * then instance roles). No key is passed in, and none exists in this path.
+ */
+export function buildBedrockProvider(overrides: { region?: string } = {}): any {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { createAmazonBedrock } = require('@ai-sdk/amazon-bedrock');
+  return createAmazonBedrock({ region: overrides.region ?? process.env.AWS_REGION ?? 'eu-north-1' });
+}
+
+let bedrock: any;
+function bedrockProvider(): any {
+  if (!bedrock) bedrock = buildBedrockProvider();
+  return bedrock;
+}
+
+/**
+ * Which provider serves this loop, and which model id it wants.
+ *
+ * AZURE IS THE DEFAULT AND SILENCE MEANS AZURE — an unset variable, a typo, a
+ * value Turbo stripped all land on the path with a measured eval baseline behind
+ * it. An unknown value THROWS rather than falling back quietly, because
+ * `LLM_PROVIDER=bedrok` running happily on Azure is the failure that wastes an
+ * afternoon: everything works, nothing is wrong, and the run you wanted never
+ * happened.
+ *
+ * THE MODEL ID CHANGES WITH THE PROVIDER. `model` here is an Azure DEPLOYMENT
+ * name (`gpt-5-mini`), which means nothing to Bedrock — it wants an inference
+ * profile id (`eu.anthropic.claude-haiku-4-5-…`). Passing one to the other
+ * fails with a validation error that reads like missing access and is not.
+ */
+function selectModel(model: string): any {
+  const raw = process.env.LLM_PROVIDER?.trim().toLowerCase();
+  if (!raw || raw === 'azure') {
+    // `.languageModel`, not `.chatModel`. Both are on the openai-compatible
+    // provider, but only `languageModel` is on the shared `ProviderV4`
+    // interface that Bedrock also implements — so the provider-specific spelling
+    // this line used to carry would have blocked the swap on its own. The
+    // abstraction was there; the call site was not using it.
+    return foundryProvider().languageModel(model);
+  }
+  if (raw === 'bedrock') {
+    return bedrockProvider().languageModel(
+      process.env.BEDROCK_MODEL ?? 'eu.anthropic.claude-haiku-4-5-20251001-v1:0',
+    );
+  }
+  throw new Error(
+    `LLM_PROVIDER="${process.env.LLM_PROVIDER}" is not a provider. Use "azure" or "bedrock", ` +
+      'or unset it for azure. Refusing to guess.',
+  );
+}
+
+/**
  * Every tool still goes through OUR registry, so fixtures, timing, error
  * shaping and the `source: 'live' | 'fixture'` record are identical on both
  * engines. Mastra only decides WHEN to call them.
@@ -191,7 +264,7 @@ export async function runLoopMastra<T = unknown>(
   const agent = new Agent({
     name: opts.agentName ?? 'agent',
     instructions: opts.system ?? '',
-    model: foundryProvider().chatModel(model),
+    model: selectModel(model),
     tools: toMastraTools(registry, dispatched, opts),
   });
 
