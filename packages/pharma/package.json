@@ -61,6 +61,7 @@
     "dotenv": "^16.4.5",
     "pg": "^8.23.0",
     "@fde/grounding": "workspace:*",
+    "@fde/scanner": "workspace:*",
     "@fde/schema": "workspace:*",
     "@fde/agent": "workspace:*",
     "@fde/evals": "workspace:*",

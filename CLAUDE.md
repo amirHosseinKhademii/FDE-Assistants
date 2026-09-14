@@ -89,7 +89,10 @@ packages/
                                 src/eval, src/telemetry, src/foundry) — that
                                 directory structure IS the pillar table below.
   grounding/  @fde/grounding   load → chunk → embed → store → hybrid search.
-                                Domain-neutral: takes a source + descriptor.
+                                Domain-neutral: takes a source + descriptor. See
+                                `docs/RETRIEVAL.md` — what each RAG stage is,
+                                what the machine literally does, and the two
+                                things here that are NOT retrieval.
   agent/      @fde/agent       the tool-calling loop, THREE interchangeable
                                 engines (OpenAI Agents SDK, Mastra, LangGraph)
                                 behind `LOOP=`, registry, fixtures, compliance

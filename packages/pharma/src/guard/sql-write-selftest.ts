@@ -45,6 +45,7 @@
  * green tick from, and an argument never seen to fail is the same thing.
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { walkSources, executableLines } from '@fde/scanner';
 import { resolve } from 'node:path';
 import { PACKAGE_ROOT, REPO_ROOT } from '../config/connections';
 
@@ -85,14 +86,20 @@ interface Hit {
   text: string;
 }
 
-function walk(dir: string, out: string[] = []): string[] {
-  for (const name of readdirSync(dir)) {
-    const p = resolve(dir, name);
-    if (statSync(p).isDirectory()) walk(p, out);
-    else if (p.endsWith('.ts')) out.push(p);
-  }
-  return out;
-}
+/**
+ * `walkSources` and `executableLines` come from `@fde/scanner` now. They used
+ * to be local, and the local comment-stripper CUT AT THE FIRST `//` — which
+ * truncated `postgresql://host` to `postgresql:` and made this guard blind to a
+ * write on any line that also held a URL:
+ *
+ *   const url = 'postgresql://mrd@host/db'; insert into audit values (1);
+ *     before → scanned "const url = 'postgresql:"   and reported clean
+ *     after  → sees the insert
+ *
+ * That is the same defect `scripts/leak-check.mjs` records having found and
+ * fixed in itself, still live here because the two were separate copies. The
+ * shared version pins it with a test; see `packages/scanner/src/selftest.ts`.
+ */
 
 /** This file. Excluded because it contains the planted violations and the pattern itself. */
 const SELF = 'guard/sql-write-selftest.ts';
@@ -104,50 +111,15 @@ const SELF = 'guard/sql-write-selftest.ts';
  * `matchAll(/create table (\w+)/gi)`. That is the scan READING schema, not
  * software writing to a database — and the first version of this guard flagged
  * it, which is the shape of finding that gets a checker disabled rather than
- * fixed. Regex literals are stripped before matching; string literals are not,
- * because that is where a real query lives.
+ * fixed. `@fde/scanner` blanks regex literals before matching; string literals
+ * it keeps, because that is where a real query lives.
  */
-const REGEX_LITERAL = /\/(?:[^/\\\n\[]|\\.|\[(?:[^\]\\]|\\.)*\])+\/[gimsuy]*/g;
-
-/**
- * Comments are EXEMPT, and that is not laziness.
- *
- * The reasoning in these files is often *about* writes — why `db:drop` cannot
- * reach `mrd_kb`, why a prune refused. A checker that read prose would be
- * silenced within a week by someone deleting the explanation instead of the
- * risk. Strings and code are what execute; those are what is checked.
- */
-function executableLines(src: string): Array<{ line: number; text: string }> {
-  const out: Array<{ line: number; text: string }> = [];
-  let inBlock = false;
-  src.split('\n').forEach((raw, i) => {
-    let t = raw;
-    if (inBlock) {
-      const end = t.indexOf('*/');
-      if (end === -1) return;
-      t = t.slice(end + 2);
-      inBlock = false;
-    }
-    const open = t.indexOf('/*');
-    if (open !== -1) {
-      const close = t.indexOf('*/', open);
-      if (close === -1) { t = t.slice(0, open); inBlock = true; }
-      else t = t.slice(0, open) + t.slice(close + 2);
-    }
-    const lineComment = t.indexOf('//');
-    if (lineComment !== -1) t = t.slice(0, lineComment);
-    t = t.replace(REGEX_LITERAL, ' ');
-    if (t.trim()) out.push({ line: i + 1, text: t });
-  });
-  return out;
-}
-
 function scan(): Hit[] {
   const hits: Hit[] = [];
   const files: string[] = [];
 
   for (const dir of ANSWER_PATH) {
-    try { walk(resolve(SRC, dir), files); } catch { /* directory not present */ }
+    try { files.push(...walkSources(resolve(SRC, dir))); } catch { /* directory not present */ }
   }
   if (SCAN_SRC_ROOT) {
     for (const name of readdirSync(SRC)) {
@@ -241,7 +213,7 @@ function auditWriter(rel: string, src: string): string[] {
 }
 
 const appFiles: string[] = [];
-try { walk(APP_SRC, appFiles); } catch { /* the app is optional */ }
+try { appFiles.push(...walkSources(APP_SRC)); } catch { /* the app is optional */ }
 
 const writers: string[] = [];
 const appProblems: string[] = [];
@@ -319,6 +291,31 @@ console.log(
   missed.length
     ? `        missed: ${missed.join(' | ')}`
     : `        all ${PLANTS.length} plants caught — the scan above can fail, so its silence means something`,
+);
+
+/**
+ * THE CONTROL THAT WOULD HAVE CAUGHT THE STRIPPING BUG, AND DID NOT EXIST.
+ *
+ * Every plant above tests the PATTERN — `WRITE.test(raw)` — and the pattern was
+ * never wrong. What was wrong was the STRIPPER in front of it: the local
+ * `executableLines` cut at the first `//`, so a line holding a URL arrived at
+ * the pattern already truncated to `const url = 'postgresql:`. The scan was
+ * blind to a write on any such line while this file printed "all 4 plants
+ * caught", because the plants never went through the stripper.
+ *
+ * A control that exercises half the pipeline tells you about half the pipeline.
+ * This one runs the real thing, in the real order, and it is the regression test
+ * for the defect `@fde/scanner` was extracted to fix.
+ */
+const PLANTED_AFTER_A_URL =
+  `const url = 'postgresql://mrd@host/db'; await client.query('insert into audit values (1)');`;
+const seenThroughStripper = executableLines(PLANTED_AFTER_A_URL).some((l) => WRITE.test(l.text));
+if (!seenThroughStripper) failed = 1;
+console.log(`\n  ${seenThroughStripper ? 'ok  ' : 'FAIL'}  control: a write AFTER a URL survives comment-stripping`);
+console.log(
+  seenThroughStripper
+    ? '        `//` in a URL is not a comment — the plant reaches the pattern intact'
+    : `        stripped to ${JSON.stringify(executableLines(PLANTED_AFTER_A_URL)[0]?.text ?? '')} — the scan is blind`,
 );
 
 /** The other direction: ordinary reads must NOT trip it, or the check gets disabled. */

@@ -512,6 +512,9 @@ importers:
       '@fde/grounding':
         specifier: workspace:*
         version: link:../grounding
+      '@fde/scanner':
+        specifier: workspace:*
+        version: link:../scanner
       '@fde/schema':
         specifier: workspace:*
         version: link:../schema

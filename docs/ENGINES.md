@@ -6,6 +6,8 @@ the wire; where something is wired but has never run, it says so.*
 
 Companion: [`BEDROCK.md`](BEDROCK.md) for the AWS estate, the quota defect and
 the Support case. [`SWAP.md`](SWAP.md) for the hand-written predecessors.
+[`RETRIEVAL.md`](RETRIEVAL.md) for the other half — how a passage reaches the
+loop in the first place.
 
 ---
 
