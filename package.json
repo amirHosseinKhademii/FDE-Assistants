@@ -120,6 +120,7 @@
     "steering:eval-smoke": "pnpm --filter @vantis/steering eval:smoke",
     "steering:assess": "pnpm --filter @vantis/steering assess",
     "steering:assess-all": "pnpm --filter @vantis/steering assess:all",
+    "steering:why-unpriced": "pnpm --filter @vantis/steering why-unpriced",
     "steering:derived-fetch-check": "pnpm --filter @vantis/steering derived:fetch-check",
     "steering:worked-example": "pnpm --filter @vantis/steering worked-example",
     "bedrock:check": "pnpm --filter @fde/bedrock check",

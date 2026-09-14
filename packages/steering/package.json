@@ -57,6 +57,7 @@
     "schema:check": "ts-node src/schema/assessment-selftest.ts",
     "assess": "ts-node src/cli/assess.ts",
     "assess:all": "ts-node src/cli/assess-all.ts",
+    "why-unpriced": "ts-node src/cli/why-unpriced.ts",
     "summarise": "ts-node src/cli/summarise.ts",
     "summary:check": "ts-node src/agent/summary/summary-selftest.ts",
     "checks:check": "ts-node src/eval/checks/checks-selftest.ts",
