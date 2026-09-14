@@ -2,10 +2,15 @@
  * `pnpm db:drop` — tear down the six, and nothing else.
  *
  * `assertOurs()` is the only thing standing between a typo and someone else's
- * data. It is checked per database rather than once, because the dangerous
- * version of this script is the one that takes a name from somewhere.
+ * data. It is handed to `@fde/estate`, which now checks EVERY name before it
+ * drops ANY — this script used to assert and drop in the same loop, so a
+ * foreign name in fourth place was found after three databases were already
+ * gone, and DROP DATABASE has no undo.
+ *
+ * Asking is still ours, because the two engagements ask differently: this one
+ * refuses outright, steering prints what it would destroy.
  */
-import { Client } from 'pg';
+import { dropDatabases } from '@fde/estate';
 import { SYSTEMS, adminUrl, assertOurs, redact } from '../../config/connections';
 
 if (!process.argv.includes('--yes')) {
@@ -20,23 +25,13 @@ async function main(): Promise<void> {
   const admin = adminUrl();
   console.log(`\nDropping the Meridian estate on ${redact(admin)}\n`);
 
-  const client = new Client({ connectionString: admin });
-  await client.connect();
-
-  for (const { db } of SYSTEMS) {
-    assertOurs(db);
-    await client.query(`drop database if exists "${db}" with (force)`);
+  for (const db of await dropDatabases(admin, SYSTEMS, assertOurs)) {
     console.log(`  drop    ${db}`);
   }
 
-  await client.end();
   console.log('\ndrop: done\n');
 }
 
-// A CommonJS build has no top-level await, so the body above is a function
-// and this is its only caller. The catch is not decoration: an unhandled
-// rejection exits 0 in some Node versions, and a seed script that fails
-// silently with a success code is the worst possible outcome.
 main().catch((e: unknown) => {
   console.error(`\n  ${e instanceof Error ? e.message : String(e)}\n`);
   process.exit(1);

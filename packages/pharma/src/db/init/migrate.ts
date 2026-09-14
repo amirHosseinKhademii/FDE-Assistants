@@ -8,18 +8,23 @@
  * is the wrong shape and should be replaced rather than extended.
  *
  * Idempotent through `if not exists` on the objects plus a skip when the
- * system already has tables.
+ * system already has tables. The skip, the transaction and the table counting
+ * are `@fde/estate`'s; reading the file is ours, for the reason below.
  */
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { Client } from 'pg';
-import { SYSTEMS, urlFor, redact, PACKAGE_ROOT } from '../../config/connections';
+import { migrateSchemas } from '@fde/estate';
+import { SYSTEMS, urlFor, PACKAGE_ROOT } from '../../config/connections';
 
 /**
  * The DDL lives in `db/schema/`, OUTSIDE `src/`, because `tsc` compiles
  * TypeScript and copies nothing. A `.sql` file under `src/` would be present
  * when run through ts-node and absent from `dist/`, which is a failure that
  * only appears after a build.
+ *
+ * That is also why `@fde/estate` takes a READER rather than a directory: the
+ * package never touches the filesystem, so it cannot have an opinion about a
+ * layout that is this package's problem.
  */
 const SCHEMA_DIR = join(PACKAGE_ROOT, 'db', 'schema');
 const force = process.argv.includes('--force');
@@ -27,36 +32,19 @@ const force = process.argv.includes('--force');
 async function main(): Promise<void> {
   console.log('\nApplying schemas\n');
 
-  for (const { db, schema, label } of SYSTEMS) {
-    const url = urlFor(db);
-    const client = new Client({ connectionString: url });
-    await client.connect();
+  const results = await migrateSchemas(
+    urlFor,
+    SYSTEMS,
+    (schema) => readFile(join(SCHEMA_DIR, schema), 'utf8'),
+    { force },
+  );
 
-    const { rows } = await client.query(
-      "select count(*)::int n from information_schema.tables where table_schema = 'public'",
+  for (const { db, schema, label, skipped, tables } of results) {
+    console.log(
+      skipped
+        ? `  skip    ${db.padEnd(9)} ${tables} table(s) already — ${label}`
+        : `  apply   ${db.padEnd(9)} ${String(schema).padEnd(12)} ${tables} tables — ${label}`,
     );
-    if (rows[0].n > 0 && !force) {
-      console.log(`  skip    ${db.padEnd(9)} ${rows[0].n} table(s) already — ${label}`);
-      await client.end();
-      continue;
-    }
-
-    const ddl = await readFile(join(SCHEMA_DIR, schema), 'utf8');
-    await client.query('begin');
-    try {
-      await client.query(ddl);
-      await client.query('commit');
-    } catch (e: any) {
-      await client.query('rollback');
-      console.error(`  FAIL    ${db} — ${e.message}`);
-      await client.end();
-      process.exit(1);
-    }
-    const after = await client.query(
-      "select count(*)::int n from information_schema.tables where table_schema = 'public'",
-    );
-    console.log(`  apply   ${db.padEnd(9)} ${schema.padEnd(12)} ${after.rows[0].n} tables — ${label}`);
-    await client.end();
   }
 
   // The host, not a fake database name: `urlFor('…')` ran the ellipsis through

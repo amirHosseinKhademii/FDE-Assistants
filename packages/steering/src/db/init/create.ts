@@ -3,35 +3,29 @@
  *
  * CREATE DATABASE cannot run through pgbouncer: it is not transactional and the
  * pooler refuses it, with an error about transaction blocks that says nothing
- * about poolers. `direct()` strips `-pooler` for this script and this script
+ * about poolers. `adminUrl()` strips `-pooler` for this script and this script
  * only; everything else uses the pooled endpoint an app would use.
  *
  * Idempotent: an existing database is reported and left alone. Re-running this
  * must never be the destructive step — that is `db:drop`, which asks.
  */
-import { Client } from 'pg';
+import { createDatabases } from '@fde/estate';
 import { SYSTEMS, adminUrl, redact } from '../../config/connections';
 
 async function main(): Promise<void> {
   const admin = adminUrl();
   console.log(`\nCreating the Vantis estate on ${redact(admin)}\n`);
 
-  const client = new Client({ connectionString: admin });
-  await client.connect();
-
-  for (const { db, label, standsFor } of SYSTEMS) {
-    const { rows } = await client.query('select 1 from pg_database where datname = $1', [db]);
-    if (rows.length) {
-      console.log(`  skip    ${db}  already exists — ${label}`);
-      continue;
-    }
-    // Identifiers cannot be parameterised. `db` comes from the SYSTEMS
-    // constant, never from input, and the quoting is belt-and-braces on top.
-    await client.query(`create database "${db}"`);
-    console.log(`  create  ${db}  ${label.padEnd(28)} (stands for ${standsFor})`);
+  // `standsFor` is ours and `@fde/estate` has never heard of it — the
+  // descriptor comes back whole, which is why this line still exists.
+  for (const { db, label, standsFor, created } of await createDatabases(admin, SYSTEMS)) {
+    console.log(
+      created
+        ? `  create  ${db}  ${label.padEnd(28)} (stands for ${standsFor})`
+        : `  skip    ${db}  already exists — ${label}`,
+    );
   }
 
-  await client.end();
   console.log('\ncreate: done — four databases, no joins between them.');
   console.log('        The code base is NOT here: it is files, under docs/steering/corpus/.\n');
 }
