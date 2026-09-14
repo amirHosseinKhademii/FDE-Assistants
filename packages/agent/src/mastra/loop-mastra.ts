@@ -45,6 +45,7 @@ import type { ToolRegistry } from '../core/registry';
 import type { ToolCallRecord } from '../core/tool.types';
 import { summariseResult } from '../core/summarise';
 import {
+  DEFAULT_BEDROCK_MODEL,
   DEFAULT_MAX_TURNS,
   type LoopOptions,
   type LoopResult,
@@ -132,15 +133,6 @@ function bedrockProvider(): any {
   return bedrock;
 }
 
-/**
- * The inference profile, NOT the bare model id — `eu.` prefixed. Calling
- * `anthropic.claude-haiku-4-5-…` in an EU region fails with *"Invocation with
- * on-demand throughput isn't supported"*, which reads like missing access and
- * is not. Named rather than inlined so `provider-switch.ts` can assert the
- * default without restating the string, which is how a default and its test
- * drift apart.
- */
-export const DEFAULT_BEDROCK_MODEL = 'eu.anthropic.claude-haiku-4-5-20251001-v1:0';
 
 /** What a self-test may inject so the Azure branch needs no env and no credential. */
 export type FoundryOverrides = {

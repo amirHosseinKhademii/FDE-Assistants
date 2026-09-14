@@ -35,6 +35,20 @@ export interface ValidationResult<T = unknown> {
  */
 export const DEFAULT_MAX_TURNS = 12;
 
+/**
+ * The Bedrock inference profile — `eu.` prefixed, NOT the bare model id.
+ * Calling `anthropic.claude-haiku-4-5-…` in an EU region fails with
+ * *"Invocation with on-demand throughput isn't supported"*, which reads like
+ * missing model access and is not.
+ *
+ * HERE RATHER THAN IN AN ENGINE FOLDER because two engines reach Bedrock and
+ * `sdk/`, `mastra/`, `langgraph/` must not import each other — the Mastra
+ * module constructs an Azure credential and loads `@mastra/core` at import
+ * time, so a LangGraph user who borrowed the constant from there would pay for
+ * an engine they are not running. Same reason `DEFAULT_MAX_TURNS` lives here.
+ */
+export const DEFAULT_BEDROCK_MODEL = 'eu.anthropic.claude-haiku-4-5-20251001-v1:0';
+
 export interface LoopOptions {
   /** System prompt, sent as the first input item. */
   system?: string;

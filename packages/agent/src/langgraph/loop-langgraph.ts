@@ -44,7 +44,12 @@ import { FOUNDRY_SCOPE, env } from '@fde/foundry';
 import type { ToolRegistry } from '../core/registry';
 import type { ToolCallRecord } from '../core/tool.types';
 import { summariseResult } from '../core/summarise';
+
 import {
+  // ONE constant for the inference profile, shared with the Mastra engine. Two
+  // copies would drift the first time the Support case hands back a different
+  // profile, and the drift would look like an access problem on one engine only.
+  DEFAULT_BEDROCK_MODEL,
   DEFAULT_MAX_TURNS,
   type LoopOptions,
   type LoopResult,
@@ -89,6 +94,77 @@ export function buildFoundryChatModel(
       },
     },
   });
+}
+
+/**
+ * The same job as `buildFoundryChatModel`, for AWS — and the THIRD way this
+ * repo reaches Bedrock, which is the point of writing it.
+ *
+ * `@fde/bedrock` hand-translates OpenAI's protocol to Anthropic's, ~130 lines
+ * and 30 assertions. `loop-mastra.ts` does it in five, because the AI SDK keeps
+ * one native provider per service. This is five too — but it is NOT the same
+ * five, and the difference is not cosmetic:
+ *
+ *   @fde/bedrock            AnthropicBedrock.messages.create  → Anthropic Messages API
+ *   @ai-sdk/amazon-bedrock  /converse, /invoke                → Converse, invoke fallback
+ *   @langchain/aws          ConverseCommand                   → Converse only
+ *
+ * (Read out of each package's own dist, not out of its README.)
+ *
+ * SO THE TWO FRAMEWORK PROVIDERS DO NOT SPEAK ANTHROPIC AT ALL. They speak
+ * Converse — AWS's own cross-model normalisation layer, which does the
+ * translating server-side. That reframes what the hand-written adapter buys:
+ * not "the same thing for more lines", but ACCESS TO FIELDS CONVERSE NORMALISES
+ * AWAY. `pause_turn` is the concrete one — `@fde/bedrock` passes it through
+ * unmapped precisely because a paused turn is resumable and a stopped one is
+ * not, and a layer whose job is to make every model look alike has nowhere to
+ * put it.
+ *
+ * NO CREDENTIAL IS PASSED, here or in the Mastra sibling. `ChatBedrockConverse`
+ * carries AWS's own chain (env vars, named profile, SSO, instance roles) and
+ * resolves it at call time — verified by constructing this with every AWS_*
+ * variable deleted, which is what lets `provider-switch.ts` assert the routing
+ * offline.
+ */
+export function buildBedrockChatModel(
+  overrides: { model?: string; region?: string } = {},
+): any {
+  const { ChatBedrockConverse } = require('@langchain/aws');
+  return new ChatBedrockConverse({
+    model: overrides.model ?? process.env.BEDROCK_MODEL ?? DEFAULT_BEDROCK_MODEL,
+    region: overrides.region ?? process.env.AWS_REGION ?? 'eu-north-1',
+  });
+}
+
+/**
+ * Which provider serves this loop — the same contract as `loop-mastra.ts`'s
+ * `selectModel`, deliberately: one variable, `LLM_PROVIDER`, means the same
+ * thing on every engine, or it is not a switch, it is two switches.
+ *
+ * AZURE IS THE DEFAULT AND SILENCE MEANS AZURE. An unknown value THROWS rather
+ * than falling back, for the reason the Mastra sibling records at length:
+ * `LLM_PROVIDER=bedrok` running happily on Azure is the failure where
+ * everything works, nothing is wrong, and the run you wanted never happened.
+ *
+ * THE MODEL ID CHANGES WITH THE PROVIDER. `model` is an Azure DEPLOYMENT name;
+ * Bedrock wants an `eu.` inference profile. Passing one to the other fails with
+ * a validation error that reads like missing model access and is not.
+ *
+ * `overrides` exists only so `provider-switch.ts` can drive this exact function
+ * offline — `env.openaiEndpoint()` goes through `required()` and throws when
+ * unset. Both branches call the same builder either way.
+ */
+export function selectChatModel(
+  model: string,
+  overrides: { baseURL?: string; token?: () => Promise<string>; fetch?: typeof fetch } = {},
+): any {
+  const raw = process.env.LLM_PROVIDER?.trim().toLowerCase();
+  if (!raw || raw === 'azure') return buildFoundryChatModel(model, overrides);
+  if (raw === 'bedrock') return buildBedrockChatModel();
+  throw new Error(
+    `LLM_PROVIDER="${process.env.LLM_PROVIDER}" is not a provider. Use "azure" or "bedrock", ` +
+      'or unset it for azure. Refusing to guess.',
+  );
 }
 
 /**
@@ -198,7 +274,7 @@ export async function runLoopLangGraph<T = unknown>(
     })();
 
   const agent = createReactAgent({
-    llm: buildFoundryChatModel(model),
+    llm: selectChatModel(model),
     tools: toLangGraphTools(registry, dispatched, opts),
     name: opts.agentName ?? 'agent',
     ...(opts.system ? { prompt: opts.system } : {}),
