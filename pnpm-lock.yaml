@@ -556,6 +556,9 @@ importers:
       '@fde/agent':
         specifier: workspace:*
         version: link:../agent
+      '@fde/bedrock':
+        specifier: workspace:*
+        version: link:../bedrock
       '@fde/evals':
         specifier: workspace:*
         version: link:../evals

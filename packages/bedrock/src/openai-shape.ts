@@ -54,7 +54,16 @@ export interface ChatRequest {
   max_tokens?: number;
   response_format?: {
     type: 'json_schema';
-    json_schema: { name?: string; strict?: boolean; schema: Record<string, unknown> };
+    /**
+     * `name` is REQUIRED even though Bedrock ignores it, and that asymmetry is
+     * the rule rather than an inconvenience: a request type that has to satisfy
+     * two providers must require the UNION of what they require, while only
+     * being able to use the INTERSECTION of what they support. Azure's
+     * `ResponseFormatJSONSchema` will not compile without a name; Anthropic's
+     * `JSONOutputFormat` has nowhere to put one. So the caller supplies it and
+     * one side throws it away.
+     */
+    json_schema: { name: string; strict?: boolean; schema: Record<string, unknown> };
   };
   /** Accepted and ignored — see the `store: false` note above. */
   store?: boolean;
