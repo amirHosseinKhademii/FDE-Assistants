@@ -25,6 +25,7 @@ Reviewed and remediated 2026-09-14.
 | 5 · committed build artifacts | left alone; noise, not a security issue |
 | 6 · dead `UI_API_KEY` | left alone; a local `.env` value, never committed — but see 7, it is the fix for it |
 | 7 · steering dev server open on the LAN | **found by running the apps.** Dev-only, live now, one-line fix — awaiting your call |
+| 8 · unhandled pg `Pool` error kills the process | **found by running the apps**, and **fixed** — the repo's own `survivesDisconnect` helper was never applied to this pool |
 
 ## Verdict
 
@@ -243,6 +244,44 @@ to `API_KEY` does both jobs at once.
 The alternative — teaching the route that `isDev` no longer implies loopback —
 is more honest but lands in the same place, because the only safe thing it can
 then do is demand a key.
+
+### 8 — MEDIUM · an unhandled pg `Pool` error killed the whole process
+
+*Also found by running the apps: `pnpm steering:dev` died on its own after 23
+minutes of idling, taking every route with it.*
+
+    derived: connection dropped — Connection terminated unexpectedly. Reconnecting on next query.
+    node:events:497  throw er; // Unhandled 'error' event
+    Error: Connection terminated unexpectedly
+        at Connection.<anonymous> (node_modules/pg/lib/client.js:204:73)
+
+The first line is `tools/utils/handle.ts` correctly surviving its own drop. The
+crash is a *different* connection: the `Pool` in
+`apps/ai/steering/src/answer/filed-assessments.ts`, which had no `error`
+listener. A pg `Pool` re-emits the errors of its idle clients, and in Node an
+'error' event with no listener is rethrown as an uncaught exception — it
+terminates the process, not the query. Neon closes idle connections, so this
+fires on a server left open and never on a CLI.
+
+Availability, not confidentiality — but a route that can kill its own process
+from the outside by doing nothing is worth the same attention. `/api/history`
+and `/api/summary` both use this pool, so the deployed app has the same defect;
+Container Apps would restart it, which makes it self-healing and invisible
+rather than absent.
+
+**What makes it notable:** the repo already had the fix. `survivesDisconnect()`
+in `@fde/grounding` exists for exactly this, its header describes this precise
+failure, and `handle.ts` — the file *next to* the pool — carries the same
+warning and uses it. The pool was simply missed. Every gate was green the whole
+time, because no self-test outlives an idle timeout.
+
+**FIXED.** The pool is wrapped in `survivesDisconnect`. No `onDrop` is passed,
+on purpose: a Pool replaces its own dead idle clients, so unlike the cached
+single `Client` next door there is nothing for the caller to discard.
+
+The other 25 `new Pool` / `new Client` sites were audited. All are
+open-work-exit scripts, and `answer/requirements.ts` closes in a `finally` —
+none holds a connection idle, which is the condition this needs.
 
 ## Not findings, but worth knowing
 

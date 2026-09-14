@@ -39,6 +39,7 @@
  * a row it did not understand is the quietest possible way to be wrong.
  */
 import { Pool } from 'pg';
+import { survivesDisconnect } from '@fde/grounding';
 import { derivedUrl } from '../config/connections';
 import { FINDINGS, type RequirementAssessment } from '../schema/assessment-schema';
 
@@ -270,12 +271,29 @@ export interface HistoryRow extends AssessRecord {
  * One pool for the process, created on first use. A pool rather than a client
  * per request because a serverless Postgres wakes slowly, and a fresh
  * connection per refetch is the thing that makes it feel broken.
+ *
+ * `survivesDisconnect` IS LOAD-BEARING, and its absence killed the dev server
+ * after 23 minutes of idling on 2026-09-14. A pg `Pool` re-emits the errors of
+ * its idle clients, and in Node an 'error' event with no listener is rethrown
+ * as an uncaught exception — it terminates the PROCESS, not the query. Neon
+ * closes idle connections, so this fires on any server left open rather than on
+ * a CLI, which is why every gate was green while `/api/history` was one idle
+ * timeout away from taking the whole app down.
+ *
+ * `tools/utils/handle.ts` carries the same warning and got the handler; this
+ * pool sat next to it without one. Nothing is passed for `onDrop` on purpose:
+ * a Pool replaces its own dead idle clients, so unlike the cached single Client
+ * next door there is nothing here for the caller to discard.
  */
 let pool: Pool | undefined;
 let ready: Promise<void> | undefined;
 
 function connect(): Pool {
-  if (!pool) pool = new Pool({ connectionString: derivedUrl(), max: 4 });
+  if (!pool) {
+    pool = survivesDisconnect(new Pool({ connectionString: derivedUrl(), max: 4 }), {
+      label: 'assess_history',
+    });
+  }
   return pool;
 }
 
