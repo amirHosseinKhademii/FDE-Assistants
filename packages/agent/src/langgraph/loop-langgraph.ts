@@ -45,6 +45,7 @@ import type { ToolRegistry } from '../core/registry';
 import type { ToolCallRecord } from '../core/tool.types';
 import { summariseResult } from '../core/summarise';
 
+import { schemaGate } from '../core/settle';
 import {
   // ONE constant for the inference profile, shared with the Mastra engine. Two
   // copies would drift the first time the Support case hands back a different
@@ -54,7 +55,6 @@ import {
   type LoopOptions,
   type LoopResult,
   type TurnRecord,
-  type ValidationResult,
 } from '../core/loop.types';
 
 const { ChatOpenAI } = require('@langchain/openai');
@@ -255,24 +255,13 @@ export async function runLoopLangGraph<T = unknown>(
   opts: LoopOptions = {},
 ): Promise<LoopResult<T>> {
   const maxTurns = opts.maxTurns ?? DEFAULT_MAX_TURNS;
-  const schemaErrors: string[] = [];
-  let retriesLeft = opts.structuredRetries ?? 1;
+  // Owns the retry budget, the running error list and the one copy of the retry
+  // sentence — shared with the other two engines. `schemaErrors` is the same
+  // array by reference. See core/settle.ts.
+  const gate = schemaGate<T>(opts);
+  const schemaErrors = gate.errors;
 
   const dispatched: ToolCallRecord[] = [];
-  const validate =
-    opts.validate ??
-    // NO DOMAIN DEFAULT, and asking for a schema without a validator is a
-    // mistake rather than a shortcut — see loop-sdk.ts / loop-mastra.ts.
-    (() => {
-      if (opts.responseFormat) {
-        throw new Error(
-          'responseFormat was set without a validate function. @fde/agent ships no ' +
-            'default validator — the answer contract is yours. Pass one (see @fde/schema).',
-        );
-      }
-      return (raw: string): ValidationResult => ({ ok: true, value: raw as unknown });
-    })();
-
   const agent = createReactAgent({
     llm: selectChatModel(model),
     tools: toLangGraphTools(registry, dispatched, opts),
@@ -317,43 +306,15 @@ export async function runLoopLangGraph<T = unknown>(
         ? lastAi.content
         : JSON.stringify(lastAi?.content ?? '');
 
-    if (!opts.responseFormat) {
-      return { text, turns, stoppedBecause: 'model_finished', schemaErrors };
-    }
+    // The gate decides finished-or-retry, including the re-validation
+    // `responseFormat` cannot do: its separate structuring call enforces SHAPE
+    // and knows nothing about a schema's coherence rules. See core/settle.ts.
+    const outcome = gate.settle(text, turns);
+    if (outcome.kind === 'done') return outcome.result;
 
-    // WHY RE-VALIDATE WHAT LANGGRAPH ALREADY VALIDATED. `responseFormat`
-    // enforces SHAPE via its own separate structuring call — it knows nothing
-    // about a schema's coherence rules (e.g. an unresolved conflict/blocker
-    // with no escalation), which is where the model can look fully compliant
-    // and still be silently wrong. Same reasoning as the other two engines.
-    const validated = validate(text);
-    if (validated.ok) {
-      return {
-        text,
-        turns,
-        structured: validated.value as T,
-        stoppedBecause: 'model_finished',
-        schemaErrors,
-      };
-    }
-
-    schemaErrors.push(validated.errors!);
-    opts.onEvent?.({ type: 'schema_retry', turn: turns.length, error: validated.errors! });
-
-    if (retriesLeft <= 0) {
-      // Fail loudly. Silent repair hides the failure rate, and the failure
-      // rate is a number you need.
-      return { text, turns, stoppedBecause: 'schema_invalid', schemaErrors };
-    }
-    retriesLeft--;
-
-    // Continue the SAME conversation: the full accumulated history plus the
-    // error, mirroring how the other two engines retry.
-    currentMessages = [
-      ...allMessages,
-      new HumanMessage(
-        `Your previous response did not satisfy the required schema: ${validated.errors}. Reply again with valid JSON only.`,
-      ),
-    ];
+    // THE ONE GENUINELY PER-ENGINE LINE. Continue the SAME conversation: the
+    // full accumulated history plus the error as a HumanMessage. The sentence
+    // inside it is the one all three engines share.
+    currentMessages = [...allMessages, new HumanMessage(outcome.instruction)];
   }
 }

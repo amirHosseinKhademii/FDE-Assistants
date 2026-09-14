@@ -57,12 +57,12 @@ import {
 import type { ToolRegistry } from '../core/registry';
 import type { ToolCallRecord } from '../core/tool.types';
 import { summariseResult } from '../core/summarise';
+import { schemaGate } from '../core/settle';
 import {
   DEFAULT_MAX_TURNS,
   type LoopOptions,
   type LoopResult,
   type TurnRecord,
-  type ValidationResult,
 } from '../core/loop.types';
 
 /**
@@ -139,8 +139,11 @@ export async function runLoopSdk<T = unknown>(
   configureSdk(client);
 
   const maxTurns = opts.maxTurns ?? DEFAULT_MAX_TURNS;
-  const schemaErrors: string[] = [];
-  let retriesLeft = opts.structuredRetries ?? 1;
+  // Owns the retry budget, the running error list and the one copy of the retry
+  // sentence. `schemaErrors` below is the same array by reference, read by the
+  // max_turns returns. See core/settle.ts for why the sentence is not local.
+  const gate = schemaGate<T>(opts);
+  const schemaErrors = gate.errors;
 
   // Tool calls in dispatch order, sliced back into per-turn buckets at the end.
   const dispatched: ToolCallRecord[] = [];
@@ -200,21 +203,6 @@ export async function runLoopSdk<T = unknown>(
     // capturing the outgoing request; see coverage-schema.ts's header.
     ...(opts.responseFormat ? { outputType: opts.responseFormat } : {}),
   });
-
-  const validate =
-    opts.validate ??
-    // NO DOMAIN DEFAULT, and asking for a schema without a validator is a
-    // mistake rather than a shortcut: it would let raw text through as if it
-    // had passed, and it would typecheck. So it throws instead.
-    (() => {
-      if (opts.responseFormat) {
-        throw new Error(
-          'responseFormat was set without a validate function. @fde/agent ships no ' +
-            'default validator — the answer contract is yours. Pass one (see @fde/schema).',
-        );
-      }
-      return (raw: string): ValidationResult => ({ ok: true, value: raw as unknown });
-    })();
 
   let input: any = prompt;
   let turns: TurnRecord[] = [];
@@ -289,50 +277,19 @@ export async function runLoopSdk<T = unknown>(
 
     for (const t of turns) opts.onTurn?.(t);
 
-    if (!opts.responseFormat) {
-      return { text, turns, stoppedBecause: 'model_finished', schemaErrors };
-    }
+    // The gate decides finished-or-retry. What it CANNOT decide is the next
+    // line: `outputType` enforces SHAPE, and coherence — an unresolved conflict
+    // with no escalation, the rule PROGRESS.md calls "the single most important
+    // rule in this file" — is the caller's validator's job. Both live in
+    // core/settle.ts now, in one copy rather than three.
+    const outcome = gate.settle(text, turns);
+    if (outcome.kind === 'done') return outcome.result;
 
-    // WHY WE RE-VALIDATE WHAT THE SDK ALREADY VALIDATED. `outputType` enforces
-    // SHAPE — fields present, right types — and hands back a parsed object. It
-    // knows nothing about coverage-schema.ts's `coherenceErrors()`, which is
-    // where the rule PROGRESS.md calls "the single most important rule in this
-    // file" lives: an unresolved conflict with no escalation is the model
-    // silently picking a side while looking fully compliant. That object is
-    // shape-valid. Without this block cov-004 could start passing for the wrong
-    // reason and the baseline would stop being comparable.
-    const validated = validate(text);
-    if (validated.ok) {
-      return {
-        text,
-        turns,
-        structured: validated.value as T,
-        stoppedBecause: 'model_finished',
-        schemaErrors,
-      };
-    }
-
-    schemaErrors.push(validated.errors!);
-    opts.onEvent?.({ type: 'schema_retry', turn: turns.length, error: validated.errors! });
-
-    if (retriesLeft <= 0) {
-      // Fail loudly, exactly as loop.ts:210 does. Silent repair hides the
-      // failure rate, and the failure rate is a number you need.
-      return { text, turns, stoppedBecause: 'schema_invalid', schemaErrors };
-    }
-    retriesLeft--;
-
-    // Continue the SAME conversation: history + the error, mirroring
-    // loop.ts:214-222 so a retry costs the same and looks the same.
-    input = [
-      ...result.history,
-      {
-        role: 'user',
-        content:
-          `Your previous response did not satisfy the required schema: ` +
-          `${validated.errors}. Reply again with valid JSON only.`,
-      },
-    ];
+    // THE ONE GENUINELY PER-ENGINE LINE. Continue the SAME conversation —
+    // history plus the error — mirroring loop.ts:214-222 so a retry costs the
+    // same and looks the same. Mastra re-sends a string and LangGraph pushes a
+    // HumanMessage; all three say the identical sentence, from one source.
+    input = [...result.history, { role: 'user', content: outcome.instruction }];
   }
 }
 
