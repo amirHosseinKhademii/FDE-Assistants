@@ -8,7 +8,7 @@ you do not already have, that is a bug in this file.
 Everything except the code blocks has an [audio version](narration/README.md).
 
 **The other two docs.** [`README.md`](README.md) is how to run it.
-[`PROGRESS.md`](docs/PROGRESS.md) is the engineering log — every decision, bug and
+[`PROGRESS.md`](PROGRESS.md) is the engineering log — every decision, bug and
 date, in full. This file replaces the former `FDE.md`, `FRAMEWORKS.md`,
 `PILLARS.md` and `JOB-PLAN.md`, which are kept unedited in
 [`archive/docs/`](archive/docs/) for the rejected options and the long
@@ -22,8 +22,8 @@ walkthroughs that did not survive the merge.
 |---|---|
 | **`GUIDE.md`** (this) | *why* the code looks like this — long-form reasoning per pillar |
 | [`RUN.md`](RUN.md) | *how to run it* — why → command → file → what you should see, every number measured |
-| [`TEMPLATE.md`](docs/TEMPLATE.md) | **use it on another customer** — what transfers, what you rewrite, what to build first |
-| [`SWAP.md`](docs/SWAP.md) | what is hand-written, what a package could replace, and what state each swap is in |
+| [`TEMPLATE.md`](TEMPLATE.md) | **use it on another customer** — what transfers, what you rewrite, what to build first |
+| [`SWAP.md`](SWAP.md) | what is hand-written, what a package could replace, and what state each swap is in |
 
 If you are picking this up cold: `RUN.md` to run it, `TEMPLATE.md` to reuse it.
 
@@ -1051,7 +1051,7 @@ running both.
 So since 2026-09-10 there is a **second engine behind the same contract**: `LOOP=mastra`
 runs `loop-mastra.ts` on `@mastra/core` + `@ai-sdk/openai-compatible`, with its
 own wire assertions in `pnpm compliance:mastra`. Two live implementations are
-what keep the contract honest rather than assumed. See [`NEXT.md`](docs/NEXT.md).
+what keep the contract honest rather than assumed. See [`NEXT.md`](ROADMAP.md).
 
 ---
 
@@ -1815,7 +1815,7 @@ phases, in order, with the eval suite gating all of them:
 authenticates to Foundry with an Entra token and no API key, via
 `@ai-sdk/openai-compatible` and a custom `fetch`; `@mastra/core` is
 CJS-requireable and the ESM-only AI SDK loads through Node 22's `require(esm)`.
-Details in [`NEXT.md`](docs/NEXT.md).)* `loop.types.ts` exists precisely for
+Details in [`NEXT.md`](ROADMAP.md).)* `loop.types.ts` exists precisely for
 this: `ask.ts`, `eval/run.ts` and every check depend on `LoopOptions` /
 `LoopResult` and on nothing about how the loop is driven. Build
 `loop-mastra.ts` against the same contract, add `--loop sdk|mastra`, record a

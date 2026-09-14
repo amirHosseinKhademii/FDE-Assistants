@@ -3,7 +3,7 @@
 *Written 2026-09-11. **Nothing here is built yet.** This is the plan and the
 order; each section says what is lost as well as what is gained.*
 
-Companion: [`RUN.md`](../RUN.md) for the pillars as they run today,
+Companion: [`RUN.md`](RUN.md) for the pillars as they run today,
 [`NEXT.md`](ROADMAP.md) for work already in flight,
 [`CORPUS-PLAN.md`](plans/CORPUS.md) for the corpus decisions this sits on top of.
 

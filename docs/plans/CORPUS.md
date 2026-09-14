@@ -8,8 +8,8 @@ problems that matter at that size are visible at this one. This is the plan to
 close that — without throwing away the thing that makes this repo worth
 anything, which is that every claim about it is checkable.
 
-Companion: [`RUN.md`](../../RUN.md) for the pillars as they stand,
-[`GUIDE.md`](../../GUIDE.md) §3 for why the corpus is shaped the way it is,
+Companion: [`RUN.md`](../RUN.md) for the pillars as they stand,
+[`GUIDE.md`](../GUIDE.md) §3 for why the corpus is shaped the way it is,
 [`NEXT.md`](../ROADMAP.md) for the work already in flight.
 
 ---

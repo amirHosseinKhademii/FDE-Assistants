@@ -3,7 +3,7 @@
 > Revision Id: SOP-SCM-004 Rev 5 · SOP Id: SOP-SCM-004 · Revision: 5 · Status: current · Effective: 2023-04-01 · Owner: DEPT-SCM · Category: warehouse · Implements: ICHQ7-6.1, CFR-211.22
 
 *FABRICATED. Meridian Pharma does not exist and this procedure was never
-followed. See [CORPUS.md](README.md).*
+followed. See [CORPUS.md](../CORPUS.md).*
 
 ## 1. Purpose
 

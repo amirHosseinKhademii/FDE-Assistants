@@ -14,9 +14,9 @@ except the code, read aloud, one MP3 per section.
 [`PROGRESS.md`](docs/PROGRESS.md) is *what was built, why, what broke, and what is
 left* — the engineering log, with dates.
 
-[`CORPUS-PLAN.md`](docs/CORPUS-PLAN.md) is *the plan for making the corpus realistic* —
+[`CORPUS-PLAN.md`](docs/plans/CORPUS.md) is *the plan for making the corpus realistic* —
 thousands of documents rather than twelve, with the eval set growing alongside.
-[`NEXT.md`](docs/NEXT.md) is *the plan being worked right now* — Mastra, then a
+[`NEXT.md`](docs/ROADMAP.md) is *the plan being worked right now* — Mastra, then a
 streaming web surface, step by step.
 [`TEMPLATE.md`](docs/TEMPLATE.md) is *how to reuse this repo for another domain* —
 what transfers, what you rewrite, and `grep -rn "DOMAIN:" packages/insurance/src/`

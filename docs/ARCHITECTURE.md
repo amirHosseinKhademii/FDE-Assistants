@@ -291,27 +291,64 @@ with the files, all from **grepping instead of reading**:
 
 ---
 
-## 7 · The physical layout — in flight, deliberately not charted here
+## 7 · The physical layout — three globs, and the split is the point
 
-A top-level restructure is **in progress and uncommitted** as this is written:
-the engagements and the apps are moving out of their current directories, and
-the `@fde/*` packages stay where they are.
+Landed 2026-09-14 in `8ff105a`. `pnpm-workspace.yaml` is the authority:
 
-**Nothing in this document depends on where a file sits.** Package names,
-contracts and dependency edges are unaffected by a move, which is why they are
-what is charted above.
+```
+  apps/web/*          a DEPLOYABLE SURFACE
+                      TanStack Start · a vite.config.ts · a port ·
+                      an entry in .github/workflows/deploy.yml
+      insurance-app        3000        pharma-app      3301
+      steering-app         3400        veresk-app      3300
 
-When that lands, the layout belongs here as §7 — one chart, one table, and a
-pointer from `CLAUDE.md`. Until then, `pnpm-workspace.yaml` is the only
-trustworthy statement of where things are, and reading it takes five seconds.
+  apps/ai/*           AN ENGAGEMENT'S OWN JUDGEMENT, and its CLIs
+                      agent loops · tools · prompts · schemas · evals
+                      NO PORT. Imported BY the surface next door.
+      insurance            pharma          steering
 
-> Depth-sensitive paths are the known hazard in a move like this, and two classes
-> have already bitten: `REPO_ROOT` constants that counted `..` segments (now they
-> walk up looking for `pnpm-workspace.yaml`), and `package.json` scripts with
-> relative `../guard` paths. **A constant that counts directory levels is a
-> dependency on the layout that no typecheck can see.**
+  packages/*          WHAT TRANSFERS
+                      every @fde/*, plus @veresk/surface
+      grounding  agent  evals  schema  telemetry  guard
+      scanner    estate foundry bedrock uikit      surface
+```
 
----
+**Why the engagements moved out of `packages/`.** They were never packages in the
+sense the others are — nothing installs them as a library, and they cannot
+transfer by construction. Sitting them in `packages/` implied a reusability they
+do not have. `apps/ai/*` says what they are: an application's brain, with no
+surface of its own.
+
+**`leak:check` did not change, and that is the load-bearing detail.** It keys on
+the `@fde/` **prefix**, not on a directory — so moving the engagements out of
+`packages/` did not alter what it guards. A rule anchored to a naming convention
+survives a reorganisation; one anchored to a path would have silently stopped
+checking.
+
+### What a move like this actually breaks
+
+Nothing in §1–§6 changed — names, contracts and edges are invariant under a move.
+What breaks is **anything that encoded the old depth**, and two classes did:
+
+| | |
+|---|---|
+| `REPO_ROOT` constants that counted `..` segments | now walk **up** looking for `pnpm-workspace.yaml` |
+| `package.json` scripts with relative `../guard`, `../telemetry` paths | repointed |
+
+> **A constant that counts directory levels is a dependency on the layout that no
+> typecheck can see.** Both classes compiled perfectly before and after; only
+> running them showed the difference.
+
+Two things the move left behind, recorded rather than smoothed:
+
+- **`pnpm-workspace.yaml`'s own header comment is stale.** It still describes
+  `packages/insurance` and `apps/insurance-app`, which no longer exist. The
+  `packages:` globs at the bottom are correct; the prose above them predates the
+  move.
+- **`insurance-app` does not boot**, and it is **not** a consequence of this move:
+  it imports `@claims/insurance/security`, whose exports map points at
+  `dist/security/guard.js`, and `src/security/` has never existed on any ref in
+  git history. The other three surfaces serve HTTP 200.
 
 ## 8 · What holds the architecture up
 
