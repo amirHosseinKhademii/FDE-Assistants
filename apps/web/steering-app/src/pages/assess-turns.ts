@@ -242,3 +242,81 @@ export const ASSESS_TURNS: Turn[] = [
     ],
   },
 ];
+
+/**
+ * The indexing pass — the one time the whole corpus is read out loud.
+ *
+ * SEPARATE FROM `ASSESS_TURNS` BECAUSE IT IS NOT PART OF A QUESTION, and that
+ * is exactly why the page owed it a section. The walk above is scrupulous about
+ * what leaves per request and it was, for a while, the only thing said — which
+ * left a reader to assume the 1,069 files were never sent anywhere. They are:
+ * once, to be embedded, before any question is asked.
+ *
+ * `EMBEDDINGS` defaults to `hosted`, so this is the default configuration and
+ * not an option somebody turned on. The endpoint is the customer's own Azure AI
+ * Foundry resource — the same one the chat model is deployed in — so nothing
+ * here reaches a third party. Saying so plainly is worth more than the smaller
+ * claim it replaces, because the smaller claim was not true.
+ */
+export const INDEX_TURNS: Turn[] = [
+  {
+    label: 'Once, before any question is asked',
+    n: '1',
+    plain:
+      'Every file in the corpus is read on your own machine and cut into passages. Nothing has left yet.',
+    example:
+      '1,069 files  ->  3,854 passages\naverage 137 tokens each, longest 1,520 characters',
+    note: '0 model requests. Closure reports, requirements and the EPS source, split so a clause or a function keeps its context.',
+    crosses: false,
+    hops: [
+      {
+        where: 'yours',
+        title: 'The corpus is read and split',
+        plain: 'Nothing leaves. Files are read from disk and cut into passages, locally.',
+        payload: 'docs/steering/corpus/  ->  3,854 passages',
+        detail:
+          'Prose is split by heading and code by function, so a passage is a unit somebody could actually cite rather than a fixed number of characters.',
+      },
+    ],
+  },
+  {
+    label: 'Each passage is embedded — this is the part that is sent',
+    n: '2',
+    plain:
+      'The text of all 3,854 passages goes to your own Azure AI Foundry resource, once. The passage text is sent; a list of numbers comes back.',
+    example:
+      'text-embedding-3-small   1536 numbers per passage\n3,854 passages, one time, EMBEDDINGS=hosted (the default)',
+    note: 'This is the only time the full corpus text crosses, and it is not during a question. Set EMBEDDINGS=local to do it on your own machine instead, at 384 dimensions.',
+    crosses: true,
+    hops: [
+      {
+        where: 'crosses',
+        title: 'Passage text out, vectors back',
+        plain:
+          'All 3,854 passages leave — to the same resource the chat model lives in, in your tenant, in Sweden. No third party.',
+        payload:
+          'POST /embeddings\n{ "model": "text-embedding-3-small",\n  "input": [ "\u2026 at least 8000 N at the rack \u2026", \u2026 ] }',
+        detail:
+          'The same Foundry resource as every other call on this page. It is a deployment in your own subscription rather than a shared public endpoint, which is why this is a statement about where your data sits rather than a promise from a supplier.',
+      },
+    ],
+  },
+  {
+    label: 'Stored as an index you own',
+    n: '3',
+    plain: 'Nothing leaves. The vectors land in your own Postgres, beside the text they came from.',
+    example: 'vst_derived.document_chunks   3,854 rows',
+    note: '0 model requests. Rebuildable from the files at any time, which is what makes the embedding step repeatable rather than a one-way door.',
+    crosses: false,
+    hops: [
+      {
+        where: 'yours',
+        title: 'Vectors land in your database',
+        plain: 'Nothing leaves. The index is yours and can be rebuilt or deleted at will.',
+        payload: 'insert into document_chunks (text, embedding, \u2026)',
+        detail:
+          'Deleting the index does not lose anything: the corpus on disk is the source, and `pnpm steering:index` rebuilds it.',
+      },
+    ],
+  },
+];

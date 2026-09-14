@@ -6,11 +6,16 @@
  * Not a buyer: the page assumes the reader knows what an RFQ is and does not
  * explain the industry to them.
  *
- * IT OPENS ON WHAT IS NOT BUILT, WHICH IS UNUSUAL AND DELIBERATE. The pharma
- * page opens on a question it can answer. This one cannot answer anything yet,
- * and a page that implied otherwise would be the exact brochure this portfolio
- * is arguing against. So the state is the second thing a reader sees, before
- * the estate they might otherwise assume is wired to something.
+ * IT USED TO OPEN ON WHAT WAS NOT BUILT, AND THAT WAS RIGHT UNTIL IT WAS NOT.
+ * When nothing had run, a hero claiming anything would have been the exact
+ * brochure this portfolio argues against, so the hero ended on "we have not
+ * measured anything here yet". The whole K2 bid was assessed on 2026-09-14 and
+ * that sentence became a stale claim rather than an honest one — modesty that
+ * has stopped being true is just another inaccuracy. The hero now leads with
+ * the job and carries the measurement, bad half included: twenty-three of the
+ * twenty-four refused a price, and that sits in the same line as the two
+ * figures that flatter us. `State`, further down, still holds the full ledger
+ * of what is and is not built.
  *
  * THE STATE PANEL IS THE PART THAT MOVES, and it moved twice on 2026-09-13.
  * `docs/steering/PLAN.md` corrected itself first: the four databases were
@@ -31,12 +36,13 @@
  * estate section further down shows are deliberately absent from the request
  * path.
  *
- * THE NUMBERS ARE MEASURED, AND BY TWO DIFFERENT COMMANDS. 13,705 rows and the
- * per-database counts come from `pnpm steering:estate`, which counts the live
- * databases. 1,069 files and 1.9 MB come from `pnpm steering:corpus-check`,
- * which walks the directory. The 180-hour figure is the industry number for a
- * full RFQ response quoted in the plan, and is labelled as somebody else's
- * number rather than ours.
+ * THE NUMBERS ARE MEASURED, AND BY THREE DIFFERENT COMMANDS. The per-database
+ * counts come from `pnpm steering:estate`, which counts the live databases.
+ * 1,069 files and 1.9 MB come from `pnpm steering:corpus-check`, which walks the
+ * directory. The hero's three figures come from the 2026-09-14 fan-out recorded
+ * in `docs/steering/NEXT.md` — `pnpm steering:assess-all --run`. The 180-hour
+ * figure is the industry number for a full RFQ response quoted in the plan, and
+ * is labelled as somebody else's number rather than ours.
  */
 import { BoxIcon } from '@fde/uikit';
 import { Aurora, type AuroraTone } from '@veresk/surface';
@@ -126,30 +132,62 @@ export function SteeringLanding() {
       </nav>
 
       <main className="relative z-10 mx-auto max-w-6xl px-5 sm:px-6">
-        <section className="pt-10 pb-12 sm:pt-16 md:pt-24">
+        <section className="pt-10 pb-12 sm:pt-14 md:pt-20">
+          {/* THE HEADLINE NAMES THE JOB INSTEAD OF ASKING ABOUT IT. It read
+              "What of this do we already have?", and `this` had no referent — a
+              headline is read before the paragraph that would have supplied
+              one, so the first thing on the page pointed at nothing. The job
+              itself is two numbers and needs no setting up. */}
           <h1
-            className="lift-in title-spectrum max-w-4xl font-mono text-[1.75rem] leading-[1.1] font-semibold tracking-tighter break-words sm:text-5xl md:text-7xl"
+            className="lift-in title-spectrum max-w-4xl font-mono text-[1.75rem] leading-[1.08] font-semibold tracking-tighter break-words sm:text-[2.5rem] md:text-[3.5rem]"
             style={{ animationDelay: '60ms' }}
           >
-            What of this do we already have?
+            Four hundred requirements. Two weeks.
           </h1>
 
+          {/* ONE PARAGRAPH, AND THE 180 HOURS SURVIVED THE CUT because it is
+              the only figure here that belongs to the industry rather than to
+              us, which is exactly why it is worth quoting. */}
           <p
-            className="lift-in mt-6 max-w-[50ch] leading-relaxed text-ui-dim sm:text-lg md:mt-8 md:text-xl"
+            className="lift-in mt-5 max-w-[54ch] leading-relaxed text-ui-dim md:mt-6 md:text-lg"
             style={{ animationDelay: '200ms' }}
           >
-            An OEM sends four hundred requirements and wants a price in two weeks. The answer lives
-            in four systems and in six colleagues' memories, and the same question asked twice gets
-            two different answers.
+            Every one of them is the same question — have we built this before? — and the answer is
+            spread across four systems and six colleagues' memories. The industry allows up to 180
+            hours for the reply; that is their figure, not ours.
           </p>
 
-          <p
-            className="lift-in mt-6 max-w-[56ch] leading-relaxed text-ui-faint"
+          {/* THE PARAGRAPH THAT WAS HERE SAID "we have not measured anything
+              here yet", AND IT HAD BECOME FALSE. It was written honestly, on a
+              day when nothing had run. The whole K2 bid was assessed on
+              2026-09-14 — 24 of 24, about 55 seconds each — so the hedge was no
+              longer modesty, it was a stale claim, and it was the last thing a
+              reader saw before leaving the hero.
+
+              WHAT REPLACES IT IS MEASURED AND INCLUDES THE BAD HALF. Leading on
+              the run time and hiding that twenty-three of the twenty-four
+              refused a price would be the brochure this portfolio argues
+              against; the refusal is `find_comparable_work` declining to price
+              on fewer than three comparable jobs, which is the tool working. It
+              goes in the same line as the two figures that flatter us.
+
+              AND THERE IS NOW A BUTTON. The page had no call to action at all —
+              the only way to the desk was a nav link, on a page whose entire
+              argument is that there is a desk. */}
+          <div
+            className="lift-in mt-8 flex flex-wrap items-center gap-x-6 gap-y-4"
             style={{ animationDelay: '320ms' }}
           >
-            The industry number for a full RFQ response is up to 180 labour hours. That is their
-            figure, not ours — we have not measured anything here yet.
-          </p>
+            <a
+              href="/desk"
+              className="rounded-xl bg-ui-accent px-6 py-3 font-medium text-ui-bg transition-transform hover:scale-[1.03] active:scale-[0.98] focus-visible:ring-3 focus-visible:ring-ui-accent/40 focus-visible:outline-none"
+            >
+              Assess a requirement
+            </a>
+            <p className="font-mono text-sm text-ui-faint">
+              24 of 24 assessed · ~55 s each · 23 of them refused a price
+            </p>
+          </div>
         </section>
 
         {/* FIRST, DIRECTLY UNDER THE HERO, AND IT WAS BRIEFLY FOURTH. Under

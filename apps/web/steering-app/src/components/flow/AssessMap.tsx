@@ -184,7 +184,9 @@ const NODES: FlowNode[] = [
     id: 'you',
     kind: 'you',
     name: 'A requirement',
-    sub: 'one line of an OEM spec',
+    /* Short enough not to wrap in a 10rem card — the narrowest on the map,
+       and it has to stay narrow or it runs off the left edge. */
+    sub: 'one line of a spec',
     back: 'Its text is the only thing about your bid that leaves this page.',
     x: 78,
     y: 240,

@@ -37,11 +37,42 @@ const AURORA: AuroraTone[] = [
   },
 ];
 
-/** The shape of the answer, in three numbers. */
+/**
+ * The shape of the answer, in three numbers.
+ *
+ * THE FIRST TILE USED TO SAY `220 of 1,069 files ever leave the machine`, AND
+ * THAT WAS WRONG. It described the per-question path and quietly omitted
+ * indexing: `EMBEDDINGS` defaults to `hosted`, so every one of the 3,854
+ * passages — closure reports, requirements AND the EPS source — had its text
+ * embedded by `text-embedding-3-small`. Not 220 files. All of them, once.
+ *
+ * The number was wrong in the direction that matters, in the first thing a
+ * reviewer reads, on the one page whose entire value is being checkable. A
+ * reviewer who finds that themselves stops believing the other two tiles, and
+ * they would be right to.
+ *
+ * What makes it fine is the thing that was never the issue: the embedding
+ * endpoint is the SAME Azure AI Foundry resource as the chat model — the
+ * customer's own, in their tenant, in their region. No third party is in the
+ * path at either step. So the fix is to say the larger true thing rather than
+ * the smaller false one, and the larger true thing is still reassuring.
+ */
 const RESIDENCY = [
-  { figure: '220', of: 'of 1,069 files', what: 'ever leave the machine — the closure reports, about 900 bytes each.' },
-  { figure: '1', of: 'host contacted', what: 'our own Azure AI Foundry resource, in Sweden. Nothing else is reached during a request.' },
-  { figure: '0', of: 'databases sent', what: 'the four systems of record and vst_derived are read by plain code, locally, and go nowhere.' },
+  {
+    figure: '10',
+    of: 'passages per search',
+    what: 'about 900 bytes each — the only document text sent while answering. Separately, all 3,854 passages were embedded once when the index was built.',
+  },
+  {
+    figure: '1',
+    of: 'resource reached',
+    what: 'your own Azure AI Foundry, in Sweden — the chat model and the embeddings are both deployments inside it. No third party is in the path.',
+  },
+  {
+    figure: '0',
+    of: 'databases sent',
+    what: 'the four systems of record and vst_derived are read by plain code, locally, and go nowhere.',
+  },
 ];
 
 /**
@@ -166,14 +197,19 @@ export function DataFlow() {
 
       <main className="relative z-10 mx-auto max-w-5xl px-5 pb-24 sm:px-6">
         <section className="lift-in pt-10 pb-10 md:pt-12">
-          <h2 className="max-w-[24ch] font-mono text-[1.75rem] leading-[1.12] font-semibold tracking-tighter sm:text-5xl">
+          {/* SHORTER AND A SIZE SMALLER, and the sentence that went was
+              "Nothing about them is sent anywhere." It was redundant with the
+              `0 databases sent` tile three inches below it, and the tile is the
+              better place for it because a tile carries a figure. A compliance
+              page is read rather than admired, so the display size comes down a
+              step to match pharma's. */}
+          <h2 className="max-w-[24ch] font-mono text-[1.75rem] leading-[1.12] font-semibold tracking-tighter sm:text-4xl">
             Almost none of it leaves.
           </h2>
-          <p className="mt-6 max-w-[60ch] leading-relaxed text-ui-dim sm:text-lg">
+          <p className="mt-5 max-w-[60ch] leading-relaxed text-ui-dim">
             The timesheets, rate cards, quotations, estimates, source code and all four databases
-            are read by plain code on the machine doing the reading. Nothing about them is sent
-            anywhere. Only the documents that genuinely need reading comprehension are, and only the
-            part of them that does.
+            are read by plain code on the machine doing the reading. Only prose that needs reading
+            comprehension is sent, and only the part that does.
           </p>
 
           <div className="mt-10 grid gap-4 sm:grid-cols-3">

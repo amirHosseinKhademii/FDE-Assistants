@@ -190,18 +190,21 @@ export function DataFlow() {
       </header>
 
       <main className="relative z-10 mx-auto max-w-5xl px-5 pb-28 sm:px-6">
+        {/* TWO PARAGRAPHS BECAME ONE, AND THE SECOND ONE IS WHAT SURVIVED.
+            The first was scaffolding — "this page says exactly which parts" is
+            a page describing itself, which is a thing a reader can see for
+            themselves by scrolling. The refusal underneath it is the actual
+            thesis and the reason anybody should trust the rest, so it moved up
+            and the scaffolding went. 78 words to 44, and the display size down
+            a step: a compliance page is read, not admired. */}
         <section className="lift-in pt-10 pb-10 md:pt-12">
-          <h2 className="max-w-[22ch] font-mono text-[1.75rem] leading-[1.12] font-semibold tracking-tighter sm:text-5xl">
+          <h2 className="max-w-[22ch] font-mono text-[1.75rem] leading-[1.12] font-semibold tracking-tighter sm:text-4xl">
             One boundary, and what crosses it.
           </h2>
-          <p className="mt-6 max-w-[62ch] leading-relaxed text-ui-dim">
-            Answering a question means sending some of your data to a language model. This page says
-            exactly which parts, exactly where they stop, and gives you the command that proves each
-            claim — so you can check it rather than take it.
-          </p>
-          <p className="mt-4 max-w-[62ch] leading-relaxed text-ui-dim">
-            What it will not tell you is that nothing reaches the model. That would not be true, and
-            an unfalsifiable promise is worth less than a narrow one you can test.
+          <p className="mt-5 max-w-[62ch] leading-relaxed text-ui-dim">
+            Which parts of your data reach the model, where they stop, and the command that proves
+            each claim. What this will not tell you is that nothing reaches the model — that would
+            not be true, and an unfalsifiable promise is worth less than a narrow one you can test.
           </p>
         </section>
 

@@ -94,25 +94,39 @@ export function PharmaLanding() {
       </nav>
 
       <main className="relative z-10 mx-auto max-w-6xl px-5 sm:px-6">
-        <section className="pt-10 pb-16 sm:pt-16 md:pt-24 md:pb-20">
+        <section className="pt-10 pb-14 sm:pt-14 md:pt-20 md:pb-16">
+          {/* THE DISPLAY SIZE CAME DOWN, AND IT IS THE SAME SIZE THE STEERING
+              PAGE TOOK. Two engagement front doors at 72px and the size stops
+              being emphasis and starts being the house font; the pair has to
+              move together or the firm's two doors stop looking like one
+              firm's.
+
+              56px RATHER THAN 60 IS MEASURED, AND THE CONSTRAINT IS THE OTHER
+              PAGE'S HEADLINE. JetBrains Mono advances about 0.6em, so at 60px
+              inside `max-w-4xl` (896px) steering's "Four hundred requirements."
+              is 936px and breaks after "Four hundred" — a three-line hero. At
+              56px it is 874px and breaks at the full stop, which is where the
+              sentence breaks anyway. This one reads "Can this batch ship?" and
+              fits on one line either way; it takes the smaller size so that the
+              two doors match rather than because it needs to. */}
           <h1
-            className="lift-in title-spectrum max-w-4xl font-mono text-[1.75rem] leading-[1.1] font-semibold tracking-tighter break-words sm:text-5xl md:text-7xl"
+            className="lift-in title-spectrum max-w-4xl font-mono text-[1.75rem] leading-[1.08] font-semibold tracking-tighter break-words sm:text-[2.5rem] md:text-[3.5rem]"
             style={{ animationDelay: '60ms' }}
           >
             Can this batch ship?
           </h1>
 
           <p
-            className="lift-in mt-6 max-w-[46ch] leading-relaxed text-ui-dim sm:text-lg md:mt-8 md:text-xl"
+            className="lift-in mt-5 max-w-[48ch] leading-relaxed text-ui-dim md:mt-6 md:text-lg"
             style={{ animationDelay: '200ms' }}
           >
-            Six systems hold the answer and none of them can see the other five. Today a reviewer
-            opens all six and joins them by hand. This walks them in about a minute and names what
-            would stop the batch leaving.
+            Six systems hold the answer and none can see the other five. Today a reviewer opens all
+            six and joins them by hand. This walks them in about a minute and names what would stop
+            the batch leaving.
           </p>
 
           <div
-            className="lift-in mt-10 flex flex-wrap items-center gap-x-6 gap-y-4"
+            className="lift-in mt-8 flex flex-wrap items-center gap-x-6 gap-y-4"
             style={{ animationDelay: '340ms' }}
           >
             <Link
