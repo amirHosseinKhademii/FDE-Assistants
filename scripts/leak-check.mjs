@@ -132,18 +132,51 @@ function walk(dir) {
   return found;
 }
 
+/**
+ * Every directory under `packages/` that HAS a package.json, however deep.
+ *
+ * IT USED TO READ ONE LEVEL, AND THAT WOULD HAVE FAILED SILENTLY. When
+ * `@fde/foundry` and `@fde/bedrock` moved to `packages/providers/`, the flat
+ * loop found `providers/` with no package.json of its own, hit the `catch`, and
+ * skipped it — taking both packages out of the scan. The check would still have
+ * printed PASS, just over eight packages instead of ten, and nothing anywhere
+ * would have said so.
+ *
+ * That is the failure this file already documents in another form: a scanner
+ * that silently drops input is indistinguishable from a clean codebase. So it
+ * recurses, and `EXPECTED_AT_LEAST` below refuses to let the count shrink
+ * unnoticed next time.
+ */
+function reusablePackages(dir) {
+  const found = [];
+  for (const entry of readdirSync(dir)) {
+    const full = join(dir, entry);
+    if (!statSync(full).isDirectory() || entry === 'node_modules' || entry === 'dist') continue;
+    let name;
+    try {
+      name = JSON.parse(readFileSync(join(full, 'package.json'), 'utf8')).name;
+    } catch {
+      // Not a package — a grouping directory like `providers/`. Look inside it.
+      found.push(...reusablePackages(full));
+      continue;
+    }
+    if (name?.startsWith(REUSABLE_PREFIX)) found.push({ name, dir: full });
+  }
+  return found;
+}
+
+/**
+ * A FLOOR, NOT AN EXACT COUNT. New reusable packages should not need a line
+ * changed here; a DISAPPEARING one should fail loudly. Raise it when the set
+ * grows and you want the new member guarded.
+ */
+const EXPECTED_AT_LEAST = 10;
+
 const hits = [];
 const scanned = [];
-for (const pkg of readdirSync(PACKAGES)) {
-  let name;
-  try {
-    name = JSON.parse(readFileSync(join(PACKAGES, pkg, 'package.json'), 'utf8')).name;
-  } catch {
-    continue;
-  }
-  if (!name?.startsWith(REUSABLE_PREFIX)) continue;
+for (const { name, dir } of reusablePackages(PACKAGES)) {
   scanned.push(name);
-  const src = join(PACKAGES, pkg, 'src');
+  const src = join(dir, 'src');
   try {
     if (!statSync(src).isDirectory()) continue;
   } catch {
@@ -153,6 +186,26 @@ for (const pkg of readdirSync(PACKAGES)) {
 }
 
 console.log('\nLeak check — domain vocabulary in reusable packages\n');
+
+/**
+ * THE COVERAGE ASSERTION, and it is not ceremony.
+ *
+ * Every check above reports on what it FOUND. None of them can tell you about a
+ * package it never looked at — and the failure mode is silent PASS, which is
+ * worse than a red line because nobody investigates a green one. Nesting two
+ * packages under `providers/` was enough to hide them once; the next
+ * reorganisation will be something else.
+ */
+const enough = scanned.length >= EXPECTED_AT_LEAST;
+console.log(
+  `  ${enough ? 'ok  ' : 'FAIL'}  the scan reached every reusable package it should`,
+);
+console.log(
+  enough
+    ? `        ${scanned.length} found, at least ${EXPECTED_AT_LEAST} expected — a package that vanished from the walk would fail here`
+    : `        only ${scanned.length} found, expected at least ${EXPECTED_AT_LEAST} — packages are being SKIPPED and the result below is meaningless`,
+);
+
 
 if (hits.length === 0) {
   console.log(`  ok    no banned word reaches executable code in ${scanned.length} package(s): ${scanned.sort().join(', ')}`);
@@ -186,8 +239,18 @@ console.log(
     }`,
 );
 
+// `enough` IS IN HERE, and it was not at first. With the floor deliberately
+// raised to prove the coverage check could fail, the line above printed FAIL and
+// this line still printed `leak: PASS` — a summary contradicting the check
+// directly above it, which is how somebody reads the last line, believes it, and
+// ships. A summary must consider every assertion that can fail.
 console.log(
-  `\nleak: ${hits.length === 0 && controlOk ? 'PASS' : 'FAIL'}` +
-    (hits.length ? ` — ${hits.length} leak(s)` : '') + '\n',
+  `\nleak: ${hits.length === 0 && controlOk && enough ? 'PASS' : 'FAIL'}` +
+    (hits.length ? ` — ${hits.length} leak(s)` : '') +
+    (enough ? '' : ` — only ${scanned.length} of at least ${EXPECTED_AT_LEAST} packages scanned`) + '\n',
 );
-process.exit(hits.length === 0 && controlOk ? 0 : 1);
+// `enough` here too. `process.exit()` OVERRIDES `process.exitCode`, so the
+// earlier `process.exitCode = 1` on a coverage failure was being discarded by
+// this line and the check exited 0 while printing FAIL. Two bugs, one cause:
+// a pass/fail decision written down in more than one place.
+process.exit(hits.length === 0 && controlOk && enough ? 0 : 1);

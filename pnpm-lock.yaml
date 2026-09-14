@@ -28,7 +28,7 @@ importers:
         version: link:../../../packages/evals
       '@fde/foundry':
         specifier: workspace:*
-        version: link:../../../packages/foundry
+        version: link:../../../packages/providers/foundry
       '@fde/grounding':
         specifier: workspace:*
         version: link:../../../packages/grounding
@@ -138,7 +138,7 @@ importers:
         version: link:../../../packages/evals
       '@fde/foundry':
         specifier: workspace:*
-        version: link:../../../packages/foundry
+        version: link:../../../packages/providers/foundry
       '@fde/grounding':
         specifier: workspace:*
         version: link:../../../packages/grounding
@@ -190,7 +190,7 @@ importers:
         version: link:../../../packages/agent
       '@fde/bedrock':
         specifier: workspace:*
-        version: link:../../../packages/bedrock
+        version: link:../../../packages/providers/bedrock
       '@fde/estate':
         specifier: workspace:*
         version: link:../../../packages/estate
@@ -199,7 +199,7 @@ importers:
         version: link:../../../packages/evals
       '@fde/foundry':
         specifier: workspace:*
-        version: link:../../../packages/foundry
+        version: link:../../../packages/providers/foundry
       '@fde/grounding':
         specifier: workspace:*
         version: link:../../../packages/grounding
@@ -459,7 +459,7 @@ importers:
         version: 4.13.2
       '@fde/foundry':
         specifier: workspace:*
-        version: link:../foundry
+        version: link:../providers/foundry
       '@langchain/aws':
         specifier: ^1.4.5
         version: 1.4.5(@langchain/core@1.2.11(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@2.11.0(@opentelemetry/api@1.9.1))(openai@7.10.0(@aws-sdk/credential-provider-node@3.972.83)(@smithy/signature-v4@5.7.3)(undici@7.29.1)(ws@8.21.3)(zod@4.5.4))(ws@8.21.3))
@@ -487,25 +487,6 @@ importers:
       zod:
         specifier: ^4.5.4
         version: 4.5.4
-    devDependencies:
-      '@types/node':
-        specifier: ^20.3.1
-        version: 20.19.43
-      ts-node:
-        specifier: ^10.9.2
-        version: 10.9.2(@types/node@20.19.43)(typescript@5.9.3)
-      typescript:
-        specifier: ^5.1.3
-        version: 5.9.3
-
-  packages/bedrock:
-    dependencies:
-      '@anthropic-ai/bedrock-sdk':
-        specifier: ^0.33.5
-        version: 0.33.5(zod@4.5.4)
-      '@anthropic-ai/sdk':
-        specifier: ^0.125.0
-        version: 0.125.0(zod@4.5.4)
     devDependencies:
       '@types/node':
         specifier: ^20.3.1
@@ -567,22 +548,6 @@ importers:
         specifier: ^5.1.3
         version: 5.9.3
 
-  packages/foundry:
-    dependencies:
-      '@azure/identity':
-        specifier: ^4.5.0
-        version: 4.13.2
-      openai:
-        specifier: ^7.10.0
-        version: 7.10.0(@aws-sdk/credential-provider-node@3.972.83)(@smithy/signature-v4@5.7.3)(undici@7.29.1)(ws@8.21.3)(zod@4.5.4)
-    devDependencies:
-      '@types/node':
-        specifier: ^20.3.1
-        version: 20.19.43
-      typescript:
-        specifier: ^5.1.3
-        version: 5.9.3
-
   packages/grounding:
     dependencies:
       '@langchain/classic':
@@ -626,6 +591,41 @@ importers:
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@types/node@20.19.43)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.1.3
+        version: 5.9.3
+
+  packages/providers/bedrock:
+    dependencies:
+      '@anthropic-ai/bedrock-sdk':
+        specifier: ^0.33.5
+        version: 0.33.5(zod@4.5.4)
+      '@anthropic-ai/sdk':
+        specifier: ^0.125.0
+        version: 0.125.0(zod@4.5.4)
+    devDependencies:
+      '@types/node':
+        specifier: ^20.3.1
+        version: 20.19.43
+      ts-node:
+        specifier: ^10.9.2
+        version: 10.9.2(@types/node@20.19.43)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.1.3
+        version: 5.9.3
+
+  packages/providers/foundry:
+    dependencies:
+      '@azure/identity':
+        specifier: ^4.5.0
+        version: 4.13.2
+      openai:
+        specifier: ^7.10.0
+        version: 7.10.0(@aws-sdk/credential-provider-node@3.972.83)(@smithy/signature-v4@5.7.3)(undici@7.29.1)(ws@8.21.3)(zod@4.5.4)
+    devDependencies:
+      '@types/node':
+        specifier: ^20.3.1
+        version: 20.19.43
       typescript:
         specifier: ^5.1.3
         version: 5.9.3

@@ -61,6 +61,20 @@ packages:
   #                     No port. Imported BY the surface next door.
   #   packages/*        what is left is what transfers: every @fde/*, plus
   #                     @veresk/surface, which is this site's own shared parts.
+  #   packages/providers/*
+  #                     the two DEPLOYMENT adapters — how a model is reached,
+  #                     not what is asked of it. Two packages and not one on
+  #                     purpose: @fde/bedrock brings the AWS and Anthropic SDKs
+  #                     and exactly ONE package depends on it, while four depend
+  #                     on @fde/foundry. Merging them would hand the AWS SDK to
+  #                     @fde/agent, insurance and pharma for code none of them
+  #                     calls — and `openai@7` declares an OPTIONAL PEER on
+  #                     @aws-sdk/credential-provider-node, which is the whole
+  #                     reason .npmrc exists. The 92-vs-567 line difference
+  #                     between them is also a measurement worth keeping visible:
+  #                     Azure serves the OpenAI protocol natively and needs no
+  #                     translation; Anthropic does not, and 167 of those lines
+  #                     are the translator.
   #
   # `leak:check` keys on the `@fde/` PREFIX, not on this directory, so moving
   # the engagements out of packages/ did not change what it guards. It scans
@@ -69,3 +83,4 @@ packages:
   - 'apps/web/*'
   - 'apps/ai/*'
   - 'packages/*'
+  - 'packages/providers/*'

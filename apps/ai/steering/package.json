@@ -49,6 +49,7 @@
     "sql:check": "ts-node src/guard/sql-write-selftest.ts",
     "derived:fetch-check": "ts-node src/tools/departments/derived-selftest.ts",
     "index": "ts-node src/grounding/index-cli.ts",
+    "index:bench": "ts-node src/grounding/index-bench-cli.ts",
     "search": "ts-node src/cli/search.ts",
     "retrieval:check": "ts-node src/tools/departments/documents-selftest.ts",
     "code-chunk:check": "ts-node src/grounding/code-chunker-selftest.ts",
@@ -66,7 +67,8 @@
     "severity:check": "ts-node src/eval/severity/severity-selftest.ts",
     "worked-example": "ts-node src/cli/worked-example.ts",
     "ping": "ts-node src/cli/llm-ping.ts",
-    "retrieval-scorer:check": "ts-node src/eval/retrieval/retrieval-selftest.ts"
+    "retrieval-scorer:check": "ts-node src/eval/retrieval/retrieval-selftest.ts",
+    "retrieval:eval": "ts-node src/eval/retrieval/run-retrieval.ts"
   },
   "dependencies": {
     "@fde/agent": "workspace:*",

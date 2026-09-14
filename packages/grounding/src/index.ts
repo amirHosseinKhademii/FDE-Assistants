@@ -72,6 +72,26 @@ export {
 } from './hybrid';
 
 export {
+  benchmarkVectorIndex,
+  type IndexBenchmark,
+  type IndexBenchmarkOptions,
+  type ApproximateSample,
+} from './index-bench';
+
+export {
+  rerankHits,
+  rerankerChoice,
+  rerankUsage,
+  DEFAULT_RERANK_MODEL,
+  DEFAULT_POOL,
+  DEFAULT_MAX_CHARS,
+  type RerankOptions,
+  type RerankedScored,
+  type RerankerChoice,
+  type RerankUsage,
+} from './rerank';
+
+export {
   ingestDocuments,
   toLangChainDocument,
   type IngestResult,

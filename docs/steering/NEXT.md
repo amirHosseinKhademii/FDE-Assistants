@@ -472,6 +472,76 @@ everything that reads it later.
 
 ---
 
+## 0b · Retrieval is now measured, and a reranker buys +12.5 points — 2026-09-14
+
+*Closes the row in `docs/RETRIEVAL.md` §9 that read "There is no reranker, and no
+measurement saying one would help. Its absence is a gap named, not a decision
+defended." Both halves, in that order, because the second is worthless without
+the first.*
+
+```
+  arm        cases  recall@6   MRR
+  baseline    6/8   0.813     0.692
+  reranked    7/8   0.938     0.875      + local cross-encoder, 50-candidate pool
+```
+
+```bash
+pnpm steering:retrieval-scorer-check     # free, offline — does the SCORER work
+pnpm steering:retrieval-eval --both      # the table above. ~200 embedding tokens
+```
+
+Steering had **no retrieval measurement of any kind**. `retrieval:check` is five
+hand-written predicates that pass or fail, and a predicate cannot regress by four
+points. So the chain was: a label for a steering passage → 8 cases → an offline
+scorer with plants → the baseline → the reranker → the delta.
+
+**The reranker's whole argument is one case.** `ret-007` asks *"was any effort
+booked to a charge code that also covers unrelated work?"*. The answer is in one
+of 220 near-identical closure reports — `EFF-2021-0443`, which booked a
+production-line transfer to a gearbox housing code *"for want of a separate
+code"*, so its hours are contaminated and a median over it is wrong. Not one word
+of the question appears in the document. Hybrid search ranked it **35th**; the
+cross-encoder moved it to **1st**.
+
+**It is off by default (`RERANK=local`) and no answer path calls it.** +12.5
+points against ~2 s per question is a latency decision for whoever owns it, and
+`assess-all` already runs ~55 s per requirement. Wiring it in is a deliberate
+next step, not an oversight.
+
+### What this says about §0, and it is not what you would guess
+
+`ret-005` — *does the damping software already meet the safety level K2
+requires?* — **the reranker could not fix**, and the runner says why:
+
+```
+ceiling: only 50% of the expected labels were in the top-50 pool at all
+         — a reranker cannot fix that
+```
+
+The 2021 safety assessment's classification section is not in the top 50 **at
+all**. That is a retrieval failure, not a ranking one, and it sits directly
+underneath §0's finding that seven requirements never called the pricing tool
+because the agent judged the scope too unclear. Worth testing whether those seven
+were working from passages that never arrived. `--show-labels` and the `got:`
+line make that checkable without spending a model call.
+
+### The one thing that could not be borrowed from pharma
+
+`@fde/evals` already owned recall@k and MRR. What steering had to supply is what
+a passage is CALLED — and pharma's scheme, read entirely out of the heading
+trail, would have been silently wrong here: 293 passages have no trail at all
+(every closure report, every MISRA report) and 259 have a `====` banner instead
+of one. A trail-only label is `null` for 552 of 3,854, an unlabelled hit is
+invisible to scoring, and the unnameable class would have been exactly the one
+`find_comparable_work` prices from.
+
+Steering's label is the **path**, refined by the leaf's identifier when there is
+one — `null` for 0 of 3,854. Full write-up, including the two plants that were
+sabotaged and watched to fire, in
+[`evals/RETRIEVAL.md`](evals/RETRIEVAL.md).
+
+---
+
 ## 1 · The programme filter is never used — CORRECTNESS, not tidiness
 
 A trace of a real assessment returned passages from **six different
