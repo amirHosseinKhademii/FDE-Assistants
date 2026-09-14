@@ -63,7 +63,8 @@
     "eval": "ts-node src/eval/run.ts",
     "eval:smoke": "ts-node src/eval/run.ts --repeat 1",
     "severity:check": "ts-node src/eval/severity/severity-selftest.ts",
-    "worked-example": "ts-node src/cli/worked-example.ts"
+    "worked-example": "ts-node src/cli/worked-example.ts",
+    "ping": "ts-node src/cli/llm-ping.ts"
   },
   "dependencies": {
     "@fde/agent": "workspace:*",

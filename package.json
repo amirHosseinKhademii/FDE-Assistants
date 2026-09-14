@@ -122,7 +122,8 @@
     "steering:assess-all": "pnpm --filter @vantis/steering assess:all",
     "steering:derived-fetch-check": "pnpm --filter @vantis/steering derived:fetch-check",
     "steering:worked-example": "pnpm --filter @vantis/steering worked-example",
-    "bedrock:check": "pnpm --filter @fde/bedrock check"
+    "bedrock:check": "pnpm --filter @fde/bedrock check",
+    "steering:ping": "pnpm --filter @vantis/steering ping"
   },
   "devDependencies": {
     "turbo": "^2.10.12"
