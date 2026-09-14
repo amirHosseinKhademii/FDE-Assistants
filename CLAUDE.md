@@ -105,10 +105,14 @@ packages/
                                 flow map, field lists, figure rows.
   pharma/     @meridian/pharma the second engagement's judgement + its estate.
   steering/   @vantis/steering the third engagement: the estate, the derived
-                                database, the two tools, the assessment loop
-                                and a second, smaller agent that summarises
-                                across finished assessments. `docs/steering/`
-                                is its written record; STATE.md is where it is.
+                                database, the two tools, the assessment loop,
+                                the fan-out that runs a whole 24-requirement bid
+                                (`steering:assess-all` — serial, resumable,
+                                `--run` opt-in) and a second, smaller agent that
+                                summarises across finished assessments.
+                                `docs/steering/` is its written record; STATE.md
+                                is where it is, and NEXT.md §0 is the open
+                                problem: 23 of 24 requirements price to nothing.
   surface/    @veresk/surface  THE SITE'S OWN SHARED PARTS, and NOT `@fde/*`:
                                 the estate explorer, the wash behind a hero, the
                                 hero entrance, the numbered step, the database
