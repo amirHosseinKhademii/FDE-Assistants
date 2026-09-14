@@ -3246,3 +3246,131 @@ not a measurement, which is the same lesson as the `ret-007` write-up two
 sections up, learned twice in one session.
 
 Full write-up, including every case note: `docs/steering/evals/RETRIEVAL.md`.
+
+---
+
+## 24. The index question, answered no — and four wrong answers on the way — 2026-09-14
+
+§23 gave the retriever a number. This is the other half of the same question:
+**should the dense arm have an index at all?** Appendix A.4 of
+[`RETRIEVAL.md`](RETRIEVAL.md) had said for a long time that the repo builds
+none, that this is right at our size, and then ended honestly: *"nobody here has
+measured where it starts to hurt."* That sentence is the whole reason this
+section exists.
+
+The answer is **no**, and it is now a measurement rather than a belief.
+
+### The first reason is the column, and nobody expected that
+
+You cannot add an index to this schema. The `vector` column is declared with no
+dimension — which is exactly what lets a 384-number local corpus and a
+1536-number hosted one share one table — and pgvector will not index such a
+column:
+
+```
+HNSW     REFUSED: column does not have dimensions
+IVFFlat  REFUSED: column does not have dimensions
+```
+
+So "add an index" is not `createHnswIndex()`; it is
+`ALTER COLUMN vector TYPE vector(1536)` first, a full table rewrite, and the pin
+is what actually costs. It turns `EMBEDDINGS=local` from *"re-ingest, and your
+old numbers are incomparable"* into a **hard insert error**, in a package
+insurance and pharma import too. A.3 had documented the dimensionless column as
+a deliberate convenience; it had never priced what it forecloses.
+
+### The second reason is the measurement
+
+`pnpm steering:index-bench` — steering because it is the big corpus, 3,854
+passages against insurance's 555, so it hits any threshold first.
+
+| | server-side | recall@32 |
+|---|---|---|
+| exact scan — what ships | **19 ms** | 100% (ground truth) |
+| HNSW `ef_search=40` | **0.9 ms** | see below |
+
+Twenty times faster, and it still does not earn its place, for two reasons that
+have nothing to do with each other:
+
+**The wire eats it.** `select 1` to eu-central-1 is a **118 ms** floor. Saving
+18 ms behind that is 15% of one query, inside a request that also spends an
+embedding call and a model turn. The old arithmetic in A.4 asked how big the
+vectors were; the question was always *where the database is*.
+
+**Recall is unstable, and that is the real finding.** Across **14 controlled
+builds over byte-identical rows**, recall at the default `ef_search` ranged from
+**67.2% to 97.9%**, and only 4 of 14 cleared 86%. `ef_search` does not rescue a
+bad build — where the default gave 83.9%, raising it to 128 recovered only to
+85.9% — so what is lost is in the **graph**, not the search. A rebuild is not a
+rare event; it is what happens after every re-ingest. The typical re-ingest
+would silently cost a sixth of the exact top-32 to save 18 ms.
+
+Ruled out as the cause: **parallel build**. Forcing
+`max_parallel_maintenance_workers = 0` left the spread unchanged. Curiously, a
+copy carrying only `id` and `vector` built the same graph six times running; it
+is the full four-column table that wanders. Not chased further — the verdict
+rests on the spread, not the mechanism, and a cause guessed at would be worse
+than one left open.
+
+### Four wrong answers, and what each one was
+
+This section had to be rewritten four times, and every failure was in the
+measurement rather than in the thing measured — which is Rule 20 territory and
+worth naming individually.
+
+1. **"IVFFlat built fine."** It had not built at all. A failed
+   `CREATE INDEX CONCURRENTLY` leaves an **invalid** index in the catalogue
+   (`pg_index.indisvalid = false`), and the next
+   `CREATE INDEX CONCURRENTLY IF NOT EXISTS` under the same name sees the name,
+   skips, and **returns success**. The bench now uses plain `CREATE INDEX` and
+   says why at the line where it does.
+2. **"Recall is 100%, so recall is not the argument."** The probe queries had
+   never touched the index — the planner was still choosing a sequential scan,
+   so "HNSW recall" was being measured against HNSW-shaped seq scans. Turning
+   `enable_seqscan` off is a measurement instrument, and leaving it out made a
+   test that could only pass.
+3. **"The planner refuses the index."** It does not; it picks it unaided. That
+   answer came from a script that ran `Promise.all` over one `pg` client, which
+   pipelines queries onto a connection that cannot interleave them. The driver
+   printed a deprecation warning saying so and it was read past.
+4. **"Graph construction varies because of insertion order and parallel
+   workers."** A plausible mechanism attached to a real observation — and the
+   run data did not support it. Ruled out above.
+
+The pattern across all four: a benchmark is code, it fails the same ways other
+code fails, and a number it prints has no more authority than the method behind
+it. The same lesson as §23's `−9.3`, arrived at from a different direction.
+
+### Shipped
+
+- `packages/grounding/src/index-bench.ts` — `benchmarkVectorIndex()`,
+  domain-neutral. Copies the chunk table, times the exact scan, pins the
+  dimension **on the copy**, builds three times, reports the spread, drops it in
+  a `finally`. The live table is read and never written. Three builds because
+  one is a sample of one presented as a property of the index.
+- `pnpm steering:index-bench` — steering's probe questions (real ones; a probe
+  taken from the table matches itself at distance zero and measures nothing) and
+  a verdict **computed from the two thresholds that decide it**, so it will say
+  *build it* on its own the day they move, rather than restating today's
+  conclusion forever.
+- A.3, A.4 (now A.4.1–A.4.4), the A.6 diagram and §9 of `RETRIEVAL.md`.
+
+### One live hazard recorded while it was in view
+
+`hnsw.ef_search` caps how many rows one index scan can return, and its default
+is **40**. The dense arm does not fetch the `k` a caller types — it fetches
+`k × overFetch`, which for steering is `8 × 4 = 32`. That fits, with eight rows
+to spare. **Raise `k` past 10 and the dense arm truncates silently**, handing RRF
+a short list, and `HybridResult.fullText` will not catch it because that flag
+only ever guarded the *keyword* arm. Same shape as the `plainto_tsquery` bug. The
+bench checks returned-vs-expected rows and warns.
+
+### What this does not prove
+
+The verdict is **"not yet at this size, at this distance"** — not "approximate
+indexes are bad". Three things would flip it, and only one is about row count: a
+corpus roughly 10× this one, a database that stops being a round trip away
+(co-located compute makes 18 ms the whole query rather than 15% of it), or a
+recall spread that turns out to be an artefact of something fixable. The
+benchmark is the thing that answers it next time; the number in this entry will
+be stale before the argument is.
