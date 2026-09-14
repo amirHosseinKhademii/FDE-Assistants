@@ -123,7 +123,7 @@ export function buildFoundryChatModel(
  * NO CREDENTIAL IS PASSED, here or in the Mastra sibling. `ChatBedrockConverse`
  * carries AWS's own chain (env vars, named profile, SSO, instance roles) and
  * resolves it at call time — verified by constructing this with every AWS_*
- * variable deleted, which is what lets `provider-switch.ts` assert the routing
+ * variable deleted, which is what lets `provider-switch-selftest.ts` assert the routing
  * offline.
  */
 export function buildBedrockChatModel(
@@ -150,7 +150,7 @@ export function buildBedrockChatModel(
  * Bedrock wants an `eu.` inference profile. Passing one to the other fails with
  * a validation error that reads like missing model access and is not.
  *
- * `overrides` exists only so `provider-switch.ts` can drive this exact function
+ * `overrides` exists only so `provider-switch-selftest.ts` can drive this exact function
  * offline — `env.openaiEndpoint()` goes through `required()` and throws when
  * unset. Both branches call the same builder either way.
  */
