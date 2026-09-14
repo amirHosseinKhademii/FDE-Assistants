@@ -69,10 +69,17 @@ negative control must still fire.
 
 ## Part C · Two convergences — no new abstraction, just use what exists
 
-**C1. `pharma/src/eval/run.ts` does not use `@fde/evals`.** Steering's does
-(`runEvalCli`, `EvalCase`). Pharma reimplements `main()` itself. One engagement
-uses the shared runner; the other has a copy. **Risk: low-medium** — it is the
-eval runner, so a baseline should be recorded before and after.
+**C1. ~~`pharma/src/eval/run.ts` does not use `@fde/evals`.~~ WRONG — WITHDRAWN
+2026-09-14.** It does, and always did: `runEvalCli` is imported on line 28 and
+drives the whole suite. The claim came from a grep that matched only
+single-line `from '@fde/…'` imports and missed a multi-line one — and it
+contradicted this plan's own usage table two sections earlier, which says pharma
+reaches into `@fde/evals` from **12** files and steering from 3. Backwards.
+
+Nothing to do. Recorded rather than deleted, because the lesson is the one this
+whole document is about: **a convergence already done looks exactly like one
+that is missing, if you measure with the wrong instrument.** The fix was to open
+the file.
 
 **C2. `db/init/{create,drop,migrate}.ts` are 53–67 % identical** across pharma
 and steering — the genuine shared skeleton the scan found. ~160 lines each side,
@@ -131,7 +138,22 @@ pharma/src/db/init/check.ts              642
 1. **Part A** — finish the engine split. Mechanical, proven, low risk.
 2. **Part C2** — `db/init/*`, the small measured skeleton. Offline, low risk.
 3. **Part B** — `@fde/scanner`. The one with a real bug class behind it.
-4. **Part C1** — pharma onto `@fde/evals`. Record a baseline first.
+4. ~~**Part C1**~~ — withdrawn, see above. Already converged.
 
-Parts A and C2 are safe to do back to back. B and C1 each deserve their own
-commit and their own verification pass.
+---
+
+## Done — 2026-09-14
+
+| Part | Commit | Result |
+|---|---|---|
+| A | `dba714d`, `e31433a` | three engines, four files each, structurally identical |
+| B | `3b11713`, `28d1cb0` | `@fde/scanner`; pharma's write guard was blind to a write after a URL |
+| C2 | `0f61914` | `@fde/estate`; drop now checks every name before destroying any |
+| C1 | — | withdrawn, already done |
+| D, E | — | left alone, as measured |
+
+**Three of my own claims were wrong and are corrected in place above and in the
+commits:** `@fde/guard` is not duplicated, steering's comment-stripping is
+deliberate rather than absent, and C1 was already done. All three came from
+grepping instead of reading. The measurement in Part D held up; the impressions
+did not.
