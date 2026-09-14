@@ -234,6 +234,9 @@ importers:
       '@fde/foundry':
         specifier: workspace:*
         version: link:../foundry
+      '@langchain/aws':
+        specifier: ^1.4.5
+        version: 1.4.5(@langchain/core@1.2.11(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@2.11.0(@opentelemetry/api@1.9.1))(openai@7.10.0(@aws-sdk/credential-provider-node@3.972.83)(@smithy/signature-v4@5.7.3)(undici@7.29.1)(ws@8.21.3)(zod@4.5.4))(ws@8.21.3))
       '@langchain/core':
         specifier: ^1.2.11
         version: 1.2.11(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@2.11.0(@opentelemetry/api@1.9.1))(openai@7.10.0(@aws-sdk/credential-provider-node@3.972.83)(@smithy/signature-v4@5.7.3)(undici@7.29.1)(ws@8.21.3)(zod@4.5.4))(ws@8.21.3)
@@ -802,8 +805,16 @@ packages:
   '@aws-crypto/util@4.0.0':
     resolution: {integrity: sha512-2EnmPy2gsFZ6m8bwUQN4jq+IyXV3quHAcwPOS6ZA3k+geujiqI8aRokO2kFJe+idJ/P3v4qWI186rVMo0+zLDQ==}
 
+  '@aws-sdk/client-bedrock-agent-runtime@3.1131.0':
+    resolution: {integrity: sha512-GRXNVmp2/W/Wb/EeC4rVaMYJnu1MYw2VjUWeN2xaFgxxX/Oo3uyLp6uWojnG70DQ/mkFlsdW3Mgg4DMRL9qpFw==}
+    engines: {node: '>=20.0.0'}
+
   '@aws-sdk/client-bedrock-runtime@3.1131.0':
     resolution: {integrity: sha512-q0MTJy3yknOJDt7RfX156CZ/RMkp9X0dWUNBkhEaPU3l+rLV5VYkjsbucF1397UD4eKu1AiMKfP62yE08zblBg==}
+    engines: {node: '>=20.0.0'}
+
+  '@aws-sdk/client-kendra@3.1131.0':
+    resolution: {integrity: sha512-8ABypPT5eP5XYinpwRZyJ8b2DjrCcZgOPO2b4L+2Ul4wn/aQroE6rkNbWqRLf+XzC+CWBBYreSuadRePQb8feQ==}
     engines: {node: '>=20.0.0'}
 
   '@aws-sdk/core@3.978.0':
@@ -1198,6 +1209,12 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
+
+  '@langchain/aws@1.4.5':
+    resolution: {integrity: sha512-FMrZ5yCtD6iQc+gjNOV5lZSpdKejbCT2h+D5jgSzKbO60nnt6X9yLugDSItdqzbDjOHAT6QiiI3RjLR7WQn9kg==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      '@langchain/core': ^1.2.9
 
   '@langchain/classic@1.0.46':
     resolution: {integrity: sha512-WAnyAAjTDko+tkNc7y7PISEcM19XQDmfStE8ChWctGAMYE1RD6i/Bgo6CvAMuxeeIVqIKqt3C0Cq/qpPB6kxMw==}
@@ -4154,6 +4171,17 @@ snapshots:
       '@aws-sdk/util-utf8-browser': 3.259.0
       tslib: 1.14.1
 
+  '@aws-sdk/client-bedrock-agent-runtime@3.1131.0':
+    dependencies:
+      '@aws-sdk/core': 3.978.0
+      '@aws-sdk/credential-provider-node': 3.972.83
+      '@aws-sdk/types': 3.974.5
+      '@smithy/core': 3.34.1
+      '@smithy/fetch-http-handler': 5.8.0
+      '@smithy/node-http-handler': 4.12.1
+      '@smithy/types': 4.18.0
+      tslib: 2.8.1
+
   '@aws-sdk/client-bedrock-runtime@3.1131.0':
     dependencies:
       '@aws-sdk/core': 3.978.0
@@ -4162,6 +4190,17 @@ snapshots:
       '@aws-sdk/middleware-eventstream': 3.972.29
       '@aws-sdk/middleware-websocket': 3.972.53
       '@aws-sdk/token-providers': 3.1131.0
+      '@aws-sdk/types': 3.974.5
+      '@smithy/core': 3.34.1
+      '@smithy/fetch-http-handler': 5.8.0
+      '@smithy/node-http-handler': 4.12.1
+      '@smithy/types': 4.18.0
+      tslib: 2.8.1
+
+  '@aws-sdk/client-kendra@3.1131.0':
+    dependencies:
+      '@aws-sdk/core': 3.978.0
+      '@aws-sdk/credential-provider-node': 3.972.83
       '@aws-sdk/types': 3.974.5
       '@smithy/core': 3.34.1
       '@smithy/fetch-http-handler': 5.8.0
@@ -4710,6 +4749,14 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.6.0
+
+  '@langchain/aws@1.4.5(@langchain/core@1.2.11(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@2.11.0(@opentelemetry/api@1.9.1))(openai@7.10.0(@aws-sdk/credential-provider-node@3.972.83)(@smithy/signature-v4@5.7.3)(undici@7.29.1)(ws@8.21.3)(zod@4.5.4))(ws@8.21.3))':
+    dependencies:
+      '@aws-sdk/client-bedrock-agent-runtime': 3.1131.0
+      '@aws-sdk/client-bedrock-runtime': 3.1131.0
+      '@aws-sdk/client-kendra': 3.1131.0
+      '@aws-sdk/credential-provider-node': 3.972.83
+      '@langchain/core': 1.2.11(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@2.11.0(@opentelemetry/api@1.9.1))(openai@7.10.0(@aws-sdk/credential-provider-node@3.972.83)(@smithy/signature-v4@5.7.3)(undici@7.29.1)(ws@8.21.3)(zod@4.5.4))(ws@8.21.3)
 
   '@langchain/classic@1.0.46(@aws-sdk/credential-provider-node@3.972.83)(@langchain/core@1.2.9(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@2.11.0(@opentelemetry/api@1.9.1))(openai@7.10.0(@aws-sdk/credential-provider-node@3.972.83)(@smithy/signature-v4@5.7.3)(undici@7.29.1)(ws@8.21.3)(zod@4.5.4))(ws@8.21.3))(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@2.11.0(@opentelemetry/api@1.9.1))(@smithy/signature-v4@5.7.3)(openai@7.10.0(@aws-sdk/credential-provider-node@3.972.83)(@smithy/signature-v4@5.7.3)(undici@7.29.1)(ws@8.21.3)(zod@4.5.4))(undici@7.29.1)(ws@8.21.3)':
     dependencies:

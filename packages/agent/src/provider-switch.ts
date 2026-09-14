@@ -1,6 +1,6 @@
 /**
- * Does `LLM_PROVIDER` actually route where it says? Offline, instant, no
- * credentials, no spend.
+ * Does `LLM_PROVIDER` actually route where it says — on BOTH engines that can
+ * reach a second cloud? Offline, instant, no credentials, no spend.
  *
  * WHY THIS EXISTS SEPARATELY FROM `compliance-mastra.ts`. That file asks a
  * data-egress question — what goes on the wire, to which host, with what
@@ -38,9 +38,31 @@
  * Azure's liveness is `pnpm steering:ping`; Bedrock has never reached the
  * network at all (`docs/BEDROCK.md` — on-demand inference quota reads 0.0).
  *
+ * IT COVERS TWO ENGINES, and the last section is the reason. `LLM_PROVIDER`
+ * has to mean the same thing everywhere or it is not one switch, it is two that
+ * happen to share a name — and the failure mode is a fleet where half the
+ * traffic silently went to a different cloud. Mastra and LangGraph select
+ * through different code (`selectModel` vs `selectChatModel`, AI SDK vs
+ * LangChain), so agreement is a property to assert rather than to assume.
+ *
+ * THE THREE PATHS DO NOT EVEN SHARE AN AWS API, read out of each package's own
+ * dist rather than its README:
+ *
+ *   @fde/bedrock            AnthropicBedrock.messages.create  → Anthropic Messages API
+ *   @ai-sdk/amazon-bedrock  /converse, /invoke                → Converse, invoke fallback
+ *   @langchain/aws          ConverseCommand                   → Converse only
+ *
+ * IT SITS ABOVE THE ENGINE FOLDERS, not inside one, because it imports from
+ * both — and `sdk/`, `mastra/` and `langgraph/` are not allowed to import each
+ * other (loading the Mastra module constructs an Azure credential and pulls in
+ * `@mastra/core`, which a LangGraph user should not pay for). A comparison
+ * between engines is the one thing that legitimately knows about all of them.
+ *
  *   pnpm provider:check
  */
-import { selectModel, DEFAULT_BEDROCK_MODEL } from './loop-mastra';
+import { selectModel } from './mastra/loop-mastra';
+import { selectChatModel } from './langgraph/loop-langgraph';
+import { DEFAULT_BEDROCK_MODEL } from './core/loop.types';
 
 let failed = 0;
 
@@ -86,9 +108,25 @@ function route(env: Record<string, string | undefined>): { provider: string; mod
   });
 }
 
-function threw(env: Record<string, string | undefined>): Error | undefined {
+/**
+ * The same question of the LangGraph engine. LangChain models carry a different
+ * identity pair — `_llmType()` and `.model`, not `.provider` and `.modelId` —
+ * so this cannot be shared with `route` above, and pretending otherwise would
+ * mean asserting on a field one of them does not have.
+ */
+function routeLangGraph(env: Record<string, string | undefined>): { provider: string; modelId: string } {
+  return withEnv(env, () => {
+    const m = selectChatModel('gpt-5-mini', FAKE);
+    return { provider: String(m._llmType()), modelId: String(m.model) };
+  });
+}
+
+function threw(
+  env: Record<string, string | undefined>,
+  via: (e: Record<string, string | undefined>) => unknown = route,
+): Error | undefined {
   try {
-    route(env);
+    via(env);
     return undefined;
   } catch (e) {
     return e as Error;
@@ -119,7 +157,7 @@ function control(): void {
 }
 
 export function runProviderSwitchCheck(): number {
-  console.log('\nProvider switch — LLM_PROVIDER routing (loop-mastra.ts selectModel)\n');
+  console.log('\nProvider switch — LLM_PROVIDER routing, on both engines that can reach AWS\n');
   console.log('ROUTING — where each environment actually sends the loop');
 
   const unset = route({ LLM_PROVIDER: undefined, BEDROCK_MODEL: undefined });
@@ -192,12 +230,69 @@ export function runProviderSwitchCheck(): number {
     `LLM_PROVIDER="   " → ${empty.provider}. Turbo strips values; an empty one must not throw`,
   );
 
+  console.log('\nTHE SECOND ENGINE — LangGraph selects through entirely different code');
+
+  const lgUnset = routeLangGraph({ LLM_PROVIDER: undefined, BEDROCK_MODEL: undefined });
+  check(
+    lgUnset.provider === 'openai' && lgUnset.modelId === 'gpt-5-mini',
+    'silence means azure here too',
+    `LLM_PROVIDER unset → ${lgUnset.provider} / ${lgUnset.modelId} (ChatOpenAI at the Foundry endpoint)`,
+  );
+
+  const lgBed = routeLangGraph({ LLM_PROVIDER: 'bedrock', BEDROCK_MODEL: undefined });
+  check(
+    lgBed.provider === 'chat_bedrock_converse',
+    'bedrock reaches AWS through the CONVERSE api, not the Messages api',
+    `LLM_PROVIDER=bedrock → ${lgBed.provider} — a different AWS surface from @fde/bedrock's`,
+  );
+  check(
+    lgBed.modelId === DEFAULT_BEDROCK_MODEL,
+    'and it carries the same inference profile the Mastra engine does',
+    `modelId = ${lgBed.modelId}`,
+  );
+
+  const lgPinned = routeLangGraph({ LLM_PROVIDER: 'bedrock', BEDROCK_MODEL: 'eu.anthropic.other-v1:0' });
+  check(
+    lgPinned.modelId === 'eu.anthropic.other-v1:0',
+    'BEDROCK_MODEL overrides on this engine too',
+    `modelId = ${lgPinned.modelId} — one variable, not one per engine`,
+  );
+
+  const lgTypo = threw({ LLM_PROVIDER: 'bedrok', BEDROCK_MODEL: undefined }, routeLangGraph);
+  check(
+    lgTypo !== undefined && lgTypo.message.includes('azure') && lgTypo.message.includes('bedrock'),
+    'and a typo is refused the same way, with the same message',
+    lgTypo ? `"${lgTypo.message}"` : 'LLM_PROVIDER=bedrok ran happily on the LangGraph engine',
+  );
+
+  console.log('\nAGREEMENT — one variable must mean one thing, or it is two switches');
+
+  const AWS = (p: string) => p === 'amazon-bedrock' || p === 'chat_bedrock_converse';
+  const cases: { env: Record<string, string | undefined>; label: string }[] = [
+    { env: { LLM_PROVIDER: undefined }, label: 'unset' },
+    { env: { LLM_PROVIDER: 'azure' }, label: 'azure' },
+    { env: { LLM_PROVIDER: '  AZURE ' }, label: '"  AZURE "' },
+    { env: { LLM_PROVIDER: '   ' }, label: 'whitespace' },
+    { env: { LLM_PROVIDER: 'bedrock' }, label: 'bedrock' },
+  ];
+  const disagreed = cases.filter(({ env }) => {
+    const e = { ...env, BEDROCK_MODEL: undefined };
+    return AWS(route(e).provider) !== AWS(routeLangGraph(e).provider);
+  });
+  check(
+    disagreed.length === 0,
+    'mastra and langgraph pick the same cloud for every value tested',
+    disagreed.length === 0
+      ? `${cases.length} values agree: ${cases.map((c) => c.label).join(', ')}`
+      : `DISAGREED on: ${disagreed.map((c) => c.label).join(', ')} — half the fleet is on another cloud`,
+  );
+
   console.log('\nNEGATIVE CONTROL — the checks above must be capable of failing');
   control();
 
   console.log(
     failed === 0
-      ? '\nprovider: PASS — azure by default, bedrock on request with its own model id, and a typo refused\n'
+      ? '\nprovider: PASS — azure by default on both engines, bedrock on request with its own model id, a typo refused, and the two engines in agreement\n'
       : `\nprovider: FAIL — ${failed} problem(s)\n`,
   );
   return failed;

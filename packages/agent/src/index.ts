@@ -37,6 +37,7 @@
  * replayed a fixture.
  */
 export {
+  DEFAULT_BEDROCK_MODEL,
   DEFAULT_MAX_TURNS,
   type LoopOptions,
   type LoopEvent,
@@ -73,10 +74,15 @@ export {
   buildBedrockProvider,
   selectModel,
   toMastraTools,
-  DEFAULT_BEDROCK_MODEL,
 } from './mastra/loop-mastra';
-export { runProviderSwitchCheck } from './mastra/provider-switch';
-export { runLoopLangGraph, buildFoundryChatModel, toLangGraphTools } from './langgraph/loop-langgraph';
+export { runProviderSwitchCheck } from './provider-switch';
+export {
+  runLoopLangGraph,
+  buildFoundryChatModel,
+  buildBedrockChatModel,
+  selectChatModel,
+  toLangGraphTools,
+} from './langgraph/loop-langgraph';
 export { runLoop, loopChoice, engineLabel, type LoopChoice } from './core/loop.factory';
 
 export {

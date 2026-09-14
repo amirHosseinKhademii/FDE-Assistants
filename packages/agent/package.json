@@ -12,13 +12,14 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "check": "ts-node src/mastra/provider-switch.ts"
+    "check": "ts-node src/provider-switch.ts"
   },
   "dependencies": {
     "@ai-sdk/amazon-bedrock": "^5.0.82",
     "@ai-sdk/openai-compatible": "^3.0.47",
     "@azure/identity": "^4.5.0",
     "@fde/foundry": "workspace:*",
+    "@langchain/aws": "^1.4.5",
     "@langchain/core": "^1.2.11",
     "@langchain/langgraph": "^1.4.15",
     "@langchain/openai": "^1.5.13",
