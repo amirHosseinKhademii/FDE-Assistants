@@ -126,6 +126,7 @@
     "bedrock:check": "pnpm --filter @fde/bedrock check",
     "provider:check": "pnpm --filter @fde/agent check",
     "scanner:check": "pnpm --filter @fde/scanner check",
+    "estate:check": "pnpm --filter @fde/estate check",
     "settle:check": "pnpm --filter @fde/agent check:settle",
     "steering:ping": "pnpm --filter @vantis/steering ping"
   },

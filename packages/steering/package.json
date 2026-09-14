@@ -70,6 +70,7 @@
   "dependencies": {
     "@fde/agent": "workspace:*",
     "@fde/bedrock": "workspace:*",
+    "@fde/estate": "workspace:*",
     "@fde/evals": "workspace:*",
     "@fde/foundry": "workspace:*",
     "@fde/grounding": "workspace:*",

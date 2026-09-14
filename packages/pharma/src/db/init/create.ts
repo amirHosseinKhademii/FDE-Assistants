@@ -3,35 +3,28 @@
  *
  * CREATE DATABASE cannot run through pgbouncer: it is not transactional and the
  * pooler refuses it, with an error about transaction blocks that says nothing
- * about poolers. `direct()` strips `-pooler` from the host for this script and
+ * about poolers. `adminUrl()` strips `-pooler` from the host for this script and
  * this script only; everything else uses the pooled endpoint an app would use.
  *
- * Idempotent: an existing database is reported and left alone. Re-running this
- * must never be the destructive step — that is `db:drop`, which asks.
+ * The SQL and the idempotency are `@fde/estate`'s; the words are ours. Steering
+ * runs the identical three statements and prints them completely differently,
+ * which is why the package returns what it did instead of saying it.
  */
-import { Client } from 'pg';
+import { createDatabases } from '@fde/estate';
 import { SYSTEMS, adminUrl, redact } from '../../config/connections';
 
 async function main(): Promise<void> {
   const admin = adminUrl();
   console.log(`\nCreating the Meridian estate on ${redact(admin)}\n`);
 
-  const client = new Client({ connectionString: admin });
-  await client.connect();
-
-  for (const { db, label } of SYSTEMS) {
-    const { rows } = await client.query('select 1 from pg_database where datname = $1', [db]);
-    if (rows.length) {
-      console.log(`  skip    ${db.padEnd(9)} already exists — ${label}`);
-      continue;
-    }
-    // Identifiers cannot be parameterised. `db` comes from the SYSTEMS constant,
-    // never from input, and the quoting is belt-and-braces on top of that.
-    await client.query(`create database "${db}"`);
-    console.log(`  create  ${db.padEnd(9)} ${label}`);
+  for (const { db, label, created } of await createDatabases(admin, SYSTEMS)) {
+    console.log(
+      created
+        ? `  create  ${db.padEnd(9)} ${label}`
+        : `  skip    ${db.padEnd(9)} already exists — ${label}`,
+    );
   }
 
-  await client.end();
   console.log('\ncreate: done — six databases, one branch, no joins between them\n');
 }
 

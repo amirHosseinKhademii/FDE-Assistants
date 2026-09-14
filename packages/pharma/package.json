@@ -58,19 +58,20 @@
     "injection:check": "ts-node src/guard/injection-selftest.ts"
   },
   "dependencies": {
-    "dotenv": "^16.4.5",
-    "pg": "^8.23.0",
+    "@fde/agent": "workspace:*",
+    "@fde/estate": "workspace:*",
+    "@fde/evals": "workspace:*",
+    "@fde/foundry": "workspace:*",
     "@fde/grounding": "workspace:*",
     "@fde/scanner": "workspace:*",
     "@fde/schema": "workspace:*",
-    "@fde/agent": "workspace:*",
-    "@fde/evals": "workspace:*",
     "@fde/telemetry": "workspace:*",
-    "zod": "^4.5.4",
-    "@fde/foundry": "workspace:*",
     "@langchain/core": "^1.2.9",
     "@langchain/pgvector": "^0.1.0",
-    "openai": "^7.10.0"
+    "dotenv": "^16.4.5",
+    "openai": "^7.10.0",
+    "pg": "^8.23.0",
+    "zod": "^4.5.4"
   },
   "main": "./dist/agent/loop/release-agent.js",
   "exports": {

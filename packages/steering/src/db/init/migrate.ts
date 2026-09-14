@@ -9,14 +9,15 @@
  */
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { Client } from 'pg';
+import { migrateSchemas } from '@fde/estate';
 import { SYSTEMS, urlFor, PACKAGE_ROOT } from '../../config/connections';
 
 /**
  * The DDL lives in `db/schema/`, OUTSIDE `src/`, because tsc compiles
  * TypeScript and copies nothing. A `.sql` file under `src/` would be present
  * under ts-node and absent from `dist/` — a failure that only appears after a
- * build.
+ * build. `@fde/estate` takes a reader rather than a directory for that reason:
+ * the layout is this package's problem, not the package's.
  */
 const SCHEMA_DIR = join(PACKAGE_ROOT, 'db', 'schema');
 const force = process.argv.includes('--force');
@@ -24,35 +25,19 @@ const force = process.argv.includes('--force');
 async function main(): Promise<void> {
   console.log('\nApplying schemas\n');
 
-  for (const { db, schema, label } of SYSTEMS) {
-    const client = new Client({ connectionString: urlFor(db) });
-    await client.connect();
+  const results = await migrateSchemas(
+    urlFor,
+    SYSTEMS,
+    (schema) => readFile(join(SCHEMA_DIR, schema), 'utf8'),
+    { force },
+  );
 
-    const { rows } = await client.query(
-      "select count(*)::int n from information_schema.tables where table_schema = 'public'",
+  for (const { db, schema, label, skipped, tables } of results) {
+    console.log(
+      skipped
+        ? `  skip    ${db}  ${tables} table(s) already — ${label}`
+        : `  apply   ${db}  ${String(schema).padEnd(12)} ${tables} tables — ${label}`,
     );
-    if (rows[0].n > 0 && !force) {
-      console.log(`  skip    ${db}  ${rows[0].n} table(s) already — ${label}`);
-      await client.end();
-      continue;
-    }
-
-    const ddl = await readFile(join(SCHEMA_DIR, schema), 'utf8');
-    await client.query('begin');
-    try {
-      await client.query(ddl);
-      await client.query('commit');
-    } catch (e: any) {
-      await client.query('rollback');
-      console.error(`  FAIL    ${db} — ${e.message}`);
-      await client.end();
-      process.exit(1);
-    }
-    const after = await client.query(
-      "select count(*)::int n from information_schema.tables where table_schema = 'public'",
-    );
-    console.log(`  apply   ${db}  ${schema.padEnd(12)} ${after.rows[0].n} tables — ${label}`);
-    await client.end();
   }
 
   console.log(`\nmigrate: done — ${SYSTEMS.length} databases on ${new URL(urlFor('vst_crm')).host}\n`);
