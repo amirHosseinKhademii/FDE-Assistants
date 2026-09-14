@@ -1,7 +1,7 @@
 {
   "name": "claims-assistant",
   "private": true,
-  "description": "FDE practice #2 \u2014 Turborepo workspace. See README.md.",
+  "description": "FDE practice #2 — Turborepo workspace. See README.md.",
   "license": "UNLICENSED",
   "packageManager": "pnpm@9.15.9",
   "scripts": {
@@ -99,9 +99,12 @@
     "steering:derived-drop": "pnpm --filter @vantis/steering derived:drop",
     "steering:derived-parse": "pnpm --filter @vantis/steering derived:parse",
     "steering:index": "pnpm --filter @vantis/steering index",
+    "steering:index-bench": "pnpm --filter @vantis/steering index:bench",
     "steering:code-chunk-check": "pnpm --filter @vantis/steering code-chunk:check",
     "steering:search": "pnpm --filter @vantis/steering search",
     "steering:retrieval-check": "pnpm --filter @vantis/steering retrieval:check",
+    "steering:retrieval-scorer-check": "pnpm --filter @vantis/steering retrieval-scorer:check",
+    "steering:retrieval-eval": "pnpm --filter @vantis/steering retrieval:eval",
     "steering:comparables-check": "pnpm --filter @vantis/steering comparables:check",
     "steering:search-tool-check": "pnpm --filter @vantis/steering search-tool:check",
     "steering:derived-reconcile": "pnpm --filter @vantis/steering derived:reconcile",

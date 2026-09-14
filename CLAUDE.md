@@ -91,7 +91,9 @@ packages/
                                 (src/grounding, src/tools, src/schema,
                                 src/eval, src/telemetry, src/foundry) — that
                                 directory structure IS the pillar table below.
-  grounding/  @fde/grounding   load → chunk → embed → store → hybrid search.
+  grounding/  @fde/grounding   load → chunk → embed → store → hybrid search →
+                                optional cross-encoder rerank (`RERANK=local`,
+                                off by default, measured only on steering).
                                 Domain-neutral: takes a source + descriptor. See
                                 `docs/RETRIEVAL.md` — what each RAG stage is,
                                 what the machine literally does, and the two
@@ -122,9 +124,13 @@ packages/
                                 (`steering:assess-all` — serial, resumable,
                                 `--run` opt-in) and a second, smaller agent that
                                 summarises across finished assessments.
-                                `docs/steering/` is its written record; STATE.md
-                                is where it is, and NEXT.md §0 is the open
-                                problem: 23 of 24 requirements price to nothing.
+                                `docs/steering/` is its written record; NEXT.md
+                                opens with the handover (STATE.md was merged into
+                                it on 2026-09-14), §0 is the open problem — 23 of
+                                24 requirements price to nothing — and §0b is the
+                                retrieval measurement: recall@6 0.813 baseline,
+                                0.938 with a reranker. `evals/RETRIEVAL.md` is
+                                the detail.
   surface/    @veresk/surface  THE SITE'S OWN SHARED PARTS, and NOT `@fde/*`:
                                 the estate explorer, the wash behind a hero, the
                                 hero entrance, the numbered step, the database

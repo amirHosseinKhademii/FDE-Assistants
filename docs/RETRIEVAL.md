@@ -55,15 +55,20 @@ Most of the confusion in RAG is that ten different operations share five words.
 | **Rank** | order candidates within one arm | ✅ | cosine distance; `ts_rank` |
 | **Fuse** | merge two rankings into one | ✅ RRF | `hybrid.ts`, `RRF_K = 60` |
 | **Filter / gate** | drop candidates by metadata, before or after ranking | ✅ **both** | `search-policy.tool.ts` |
-| **Rerank** | a *second model* re-scores the shortlist (cross-encoder, LLM-as-judge) | ❌ **none** | — |
+| **Rerank** | a *second model* re-scores the shortlist (cross-encoder, LLM-as-judge) | ✅ **steering, off by default** | `rerank.ts`, `RERANK=local` |
 | **Query rewriting** | a model rephrases the question before searching | ❌ none as a stage | the model just searches again |
 | **Route** | choose *which* retriever/tool the question goes to | ✅ | three tools, and the model picks |
 | **Parse** *(out)* | check the model's own citation names a real document | ✅ | `corpus-index.ts` |
 | **Extract** | a model reads documents and writes *structured fields* into a database | ✅ — **and it is not retrieval** | `steering/src/derived/extract/` |
 
-> **On "no reranker":** there is no cross-encoder and no LLM re-scoring pass
-> (`grep` confirms). But RRF *is* a re-order, so the honest line is **"fusion by
-> rank is the only re-ordering, and it uses no model."**
+> **On reranking:** added 2026-09-14, in `@fde/grounding` and therefore
+> available to all three engagements — but **measured only on steering, and
+> wired into no answer path yet.** It is off unless `RERANK=local` is set. For
+> insurance and pharma the old line still holds exactly: fusion by rank is the
+> only re-ordering, and it uses no model. See
+> [`steering/evals/RETRIEVAL.md`](steering/evals/RETRIEVAL.md) for the number
+> and [§9](#9--what-asserts-this-and-what-none-of-it-proves) for what it does
+> not prove.
 
 ---
 
@@ -478,6 +483,8 @@ pnpm --filter @claims/insurance corpus:check   # file source vs DB source, finge
 pnpm --filter @meridian/pharma retrieval:check # the retrieval SCORER, offline
 pnpm --filter @meridian/pharma retrieval:eval  # live retrieval, needs the index
 pnpm --filter @vantis/steering code-chunk:check
+pnpm steering:retrieval-scorer-check            # the retrieval SCORER, offline
+pnpm steering:retrieval-eval --both             # live: baseline vs reranked
 pnpm leak:check                                # no domain words in @fde/*
 ```
 
@@ -498,9 +505,10 @@ stops failing, the comparison above it has gone blind.
 
 | | |
 |---|---|
-| **No recall@k or nDCG number exists for insurance.** | Pharma has `retrieval:eval`, which scores the *ranking*. Insurance's only retrieval signal is `citations_resolve` (§6) — it catches an **invented** source but says nothing about whether the right passage was ranked first, or retrieved at all. A model can cite a real document and still have been served the wrong one; that is exactly how a retrieval failure hides behind a green answer check. |
+| **No recall@k or nDCG number exists for insurance.** | Pharma and steering both have `retrieval:eval`, which scores the *ranking*. Insurance's only retrieval signal is `citations_resolve` (§6) — it catches an **invented** source but says nothing about whether the right passage was ranked first, or retrieved at all. A model can cite a real document and still have been served the wrong one; that is exactly how a retrieval failure hides behind a green answer check. |
 | **Orphan count is the only chunk-quality metric.** | It catches a table row severed from its header. It says nothing about a clause split mid-sentence. |
-| **There is no reranker, and no measurement saying one would help.** | Its absence is a gap named, not a decision defended. |
+| **A reranker now exists and is measured — on steering only.** | `pnpm steering:retrieval-eval --both`, 2026-09-14: a local cross-encoder over a 50-candidate pool bought **+12.5 points of recall@6 and +18.3 points of MRR** (0.813 → 0.938, 6/8 → 7/8 cases) for ~2 s per question. It is **off by default** and **no answer path calls it**; that is a latency decision nobody has made yet, not an oversight. It also made one case worse — see [`steering/evals/RETRIEVAL.md`](steering/evals/RETRIEVAL.md). |
+| **Insurance and pharma still have no reranker and no measurement saying one would help.** | The stage is now available to them at no new vendor and no egress, and neither has a retrieval suite to measure it with. For insurance that remains a gap named, not a decision defended. |
 | **`similarity` is a within-result-set rank, not a quality score.** | §5. The top hit is `1.000` on every query ever made, including one that matched nothing useful. |
 | **`CLAUDE.md` and several file comments cite `pnpm chunks`, `pnpm ingest`, `pnpm query`, `pnpm corpus:check` at the repo root.** | Those scripts exist only in `packages/insurance/package.json`; at the root they are not defined. Use the `--filter` form above. |
 
