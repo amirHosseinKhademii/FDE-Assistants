@@ -133,6 +133,23 @@ function bedrockProvider(): any {
 }
 
 /**
+ * The inference profile, NOT the bare model id — `eu.` prefixed. Calling
+ * `anthropic.claude-haiku-4-5-…` in an EU region fails with *"Invocation with
+ * on-demand throughput isn't supported"*, which reads like missing access and
+ * is not. Named rather than inlined so `provider-switch.ts` can assert the
+ * default without restating the string, which is how a default and its test
+ * drift apart.
+ */
+export const DEFAULT_BEDROCK_MODEL = 'eu.anthropic.claude-haiku-4-5-20251001-v1:0';
+
+/** What a self-test may inject so the Azure branch needs no env and no credential. */
+export type FoundryOverrides = {
+  baseURL?: string;
+  token?: () => Promise<string>;
+  fetch?: typeof fetch;
+};
+
+/**
  * Which provider serves this loop, and which model id it wants.
  *
  * AZURE IS THE DEFAULT AND SILENCE MEANS AZURE — an unset variable, a typo, a
@@ -146,8 +163,15 @@ function bedrockProvider(): any {
  * name (`gpt-5-mini`), which means nothing to Bedrock — it wants an inference
  * profile id (`eu.anthropic.claude-haiku-4-5-…`). Passing one to the other
  * fails with a validation error that reads like missing access and is not.
+ *
+ * EXPORTED, AND `overrides` EXISTS ONLY SO A TEST CAN REACH THIS FUNCTION.
+ * `buildFoundryProvider` reads `FOUNDRY_OPENAI_ENDPOINT` through `required()`,
+ * which throws when unset — so without an injection point a self-test would
+ * have to build its own provider and assert against a construction production
+ * never runs. That is the trap `buildFoundryProvider`'s own docstring names.
+ * Both paths call the same builder; the only difference is memoisation.
  */
-function selectModel(model: string): any {
+export function selectModel(model: string, overrides: FoundryOverrides = {}): any {
   const raw = process.env.LLM_PROVIDER?.trim().toLowerCase();
   if (!raw || raw === 'azure') {
     // `.languageModel`, not `.chatModel`. Both are on the openai-compatible
@@ -155,12 +179,16 @@ function selectModel(model: string): any {
     // interface that Bedrock also implements — so the provider-specific spelling
     // this line used to carry would have blocked the swap on its own. The
     // abstraction was there; the call site was not using it.
-    return foundryProvider().languageModel(model);
+    const p = Object.keys(overrides).length ? buildFoundryProvider(overrides) : foundryProvider();
+    return p.languageModel(model);
   }
   if (raw === 'bedrock') {
-    return bedrockProvider().languageModel(
-      process.env.BEDROCK_MODEL ?? 'eu.anthropic.claude-haiku-4-5-20251001-v1:0',
-    );
+    // NO OVERRIDES NEEDED HERE. The Bedrock provider constructs with no
+    // credentials at all — AWS's chain resolves lazily, at call time — so a
+    // self-test drives the real production construction offline. Verified, not
+    // assumed: `buildBedrockProvider()` with every AWS_* variable deleted
+    // returns a working provider whose model carries the right `modelId`.
+    return bedrockProvider().languageModel(process.env.BEDROCK_MODEL ?? DEFAULT_BEDROCK_MODEL);
   }
   throw new Error(
     `LLM_PROVIDER="${process.env.LLM_PROVIDER}" is not a provider. Use "azure" or "bedrock", ` +

@@ -107,7 +107,14 @@ export async function runMastraComplianceCheck(fixture: ComplianceFixture): Prom
   const agent = new Agent({
     name: 'compliance',
     instructions: 'test',
-    model: provider.chatModel('gpt-5-mini'),
+    // `.languageModel`, matching what `selectModel` now calls in production.
+    // It said `.chatModel` until 2026-09-14, which is exactly the drift this
+    // file's own header warns about: the Bedrock swap moved production onto the
+    // shared `ProviderV4` spelling and left the check asserting against the
+    // openai-compatible-only one. Both were then measured to put a
+    // byte-identical request on the wire, so nothing regressed — but the check
+    // had stopped being able to notice either way.
+    model: provider.languageModel('gpt-5-mini'),
     tools: toMastraTools(registry, [], {}),
   });
 
@@ -196,7 +203,7 @@ export async function runMastraComplianceCheck(fixture: ComplianceFixture): Prom
   const naiveAgent = new Agent({
     name: 'naive',
     instructions: 'test',
-    model: naive.chatModel('gpt-5-mini'),
+    model: naive.languageModel('gpt-5-mini'),
     // NO tools, and NO structuredOutput below.
   });
   try {
