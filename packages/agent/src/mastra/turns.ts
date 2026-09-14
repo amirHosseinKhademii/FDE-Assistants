@@ -28,7 +28,7 @@ export function turnsFrom(steps: any[], dispatched: ToolCallRecord[]): TurnRecor
     turns.push({
       turn: i + 1,
       // Mastra does not time individual round-trips, so this is 0 rather than a
-      // guess — the same choice loop-sdk.ts makes. Wall clock is the caller's.
+      // guess — the same choice sdk/turns.ts makes. Wall clock is the caller's.
       ms: 0,
       inputTokens: step.usage?.inputTokens ?? 0,
       // The AI SDK surfaces this at the TOP LEVEL of usage, already typed

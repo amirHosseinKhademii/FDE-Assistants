@@ -1,7 +1,7 @@
 /**
  * The compliance test for the SDK engine. `pnpm compliance:check`.
  *
- * WHAT THIS IS FOR. `loop-sdk.ts` sets two non-default options — `store: false`
+ * WHAT THIS IS FOR. `sdk/` sets two non-default options — `store: false`
  * and `setTracingDisabled(true)` — and the entire data-protection story rests on
  * them. A comment saying "we set store to false" is worth nothing: it is not
  * checked, it drifts, and an SDK upgrade can change a default underneath it.
@@ -33,7 +33,7 @@
  */
 import { setTraceProcessors, setTracingDisabled } from '@openai/agents';
 import { ToolRegistry } from '../core/registry';
-import { runLoopSdk } from './loop-sdk';
+import { runLoopSdk } from './loop';
 
 /**
  * What these checks need from YOUR application.
@@ -68,7 +68,7 @@ interface Captured {
 /**
  * A tool that does nothing, purely so we can assert it reaches the wire.
  *
- * This exists because of a real bug: the first version of loop-sdk.ts built its
+ * This exists because of a real bug: the first version of the loop built its
  * tool array and then forgot to pass it to `new Agent(...)`. The model got zero
  * tools and answered from nothing. The eval suite caught it — but two cases
  * PASSED anyway, because both are escalation cases and a model with no tools
@@ -175,14 +175,14 @@ async function exercise(fixture: ComplianceFixture): Promise<void> {
     system: 'test',
     responseFormat: fixture.responseFormat,
     // Same validator production uses. A compliance test that drove a
-    // DIFFERENT construction would prove nothing — the trap loop-sdk.ts
+    // DIFFERENT construction would prove nothing — the trap sdk/
     // records from its own history.
     validate: fixture.validate,
   });
 }
 
 export async function runSdkComplianceCheck(fixture: ComplianceFixture): Promise<number> {
-  console.log('\nCompliance self-test — the agent loop (loop-sdk.ts)\n');
+  console.log('\nCompliance self-test — the agent loop (sdk/)\n');
 
   // Anything reaching the network at all should show up as a URL, not a silent
   // pass. Restored in the finally block.

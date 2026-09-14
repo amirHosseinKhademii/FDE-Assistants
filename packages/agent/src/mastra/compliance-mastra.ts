@@ -2,7 +2,7 @@
  * Compliance self-test for the MASTRA loop. Offline: fake transport, fake token,
  * no credential, no spend.
  *
- * WHY A SECOND FILE. `compliance-selftest.ts` asserts against `loop-sdk.ts` by
+ * WHY A SECOND FILE. `compliance-selftest.ts` asserts against `sdk/loop.ts` by
  * handing it a fake OpenAI client and reading the captured params. None of that
  * reaches this path — different provider, different transport, different request
  * shape. Adding an engine without adding its own wire assertions would leave a

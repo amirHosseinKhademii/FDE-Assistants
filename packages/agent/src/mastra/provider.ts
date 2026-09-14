@@ -37,7 +37,7 @@ const token = getBearerTokenProvider(new DefaultAzureCredential(), FOUNDRY_SCOPE
  * Built here rather than inline so `compliance-selftest.ts` can drive this exact
  * code path with a fake transport and a fake token — offline, no credential, no
  * spend. A compliance check that tests a DIFFERENT construction than production
- * uses is a check that proves nothing, which is the trap `loop-sdk.ts` records
+ * uses is a check that proves nothing, which is the trap `sdk/compliance-sdk.ts` records
  * from its own history.
  */
 export function buildFoundryProvider(

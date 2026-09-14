@@ -67,7 +67,9 @@ export {
   type FixtureMode,
 } from './core/fixtures';
 
-export { runLoopSdk } from './sdk/loop-sdk';
+export { runLoopSdk } from './sdk/loop';
+export { configureSdk } from './sdk/provider';
+export { toSdkTools } from './sdk/tools';
 export { runLoopMastra } from './mastra/loop';
 export { buildFoundryProvider, buildBedrockProvider, selectModel } from './mastra/provider';
 export { toMastraTools } from './mastra/tools';
@@ -76,13 +78,13 @@ export { toMastraTools } from './mastra/tools';
 // its behaviour, and it is a check you run.
 export { runProviderSwitchCheck } from './provider-switch-selftest';
 export { runSettleCheck } from './core/settle-selftest';
+export { runLoopLangGraph } from './langgraph/loop';
 export {
-  runLoopLangGraph,
   buildFoundryChatModel,
   buildBedrockChatModel,
   selectChatModel,
-  toLangGraphTools,
-} from './langgraph/loop-langgraph';
+} from './langgraph/provider';
+export { toLangGraphTools } from './langgraph/tools';
 export { runLoop, loopChoice, engineLabel, type LoopChoice } from './core/loop.factory';
 
 export {
