@@ -375,28 +375,74 @@ If you do want a per-case figure on the hybrid page, take lesson 2's rank data
 verbatim rather than the recall/rr values in `HYBRID.md` §5 — the table there is
 prose, not a chart spec.
 
-### `BarRows` clips a long `display` on the largest row — four figures need `max`
+### `detail` in the jsonc maps to `note`, not `display` — and the clipping it caused is fixed
 
-Found by the UI session on `FIG-HYB-3`, where `2/110 = 0.0182` rendered as
-`2/110 = 0.01` — on the one figure whose entire point is the arithmetic.
-`BarRows` draws the value at `labelWidth + barWidth + 8`, and the longest bar
-reaches `1000 - 90`, leaving roughly 82px: **a `display` string over ~13
-characters on the max row is cut.** The caller's fix is headroom in `max`.
+**Nothing here needs changing. This section is kept because getting it wrong was
+instructive.**
 
-`FIG-HYB-3` is fixed. These are measured from the jsonc as written, so they will
-hit it too:
+Each figure's jsonc carries a `detail` string. It maps to `BarRows`'s **`note`**,
+which gets its own row under the bar, *not* to `display`, which is printed at the
+end of the bar in the gutter. The UI session made that call and it was the right
+one — `FIG-COR-2` keeps `display: '0.654'` with `note: 'retired — must not be
+used'`, so the argument sits beside the taller bar and nothing had to be
+shortened.
 
-| figure | max row | `display` | |
-|---|---|---|---|
-| `FIG-AGT-2` | routed badly — 11 calls | 45 chars | **worst** — set `max`, or shorten to `122k tokens` and move the ratio to `sub` |
-| `FIG-MMD-4` | ColPali (fp16) | 32 chars | set `max`; the `100k pages ≈ 25 GB` half belongs in `sub` |
-| `FIG-COR-2` | superseded bulletin | 26 chars | **do not shorten this one** — "retired — must not be used" is the finding. Set `max`. |
-| `FIG-GRF-3` | diversity | 14 chars | marginal; `max: 100` is natural here anyway |
-| `FIG-AGT-6` | 12 turns (n=7) | 13 chars | exactly at the edge. Set `max` and stop thinking about it. |
+An earlier version of this section said the opposite. It assumed `detail` →
+`display`, measured every max-row string by **character count**, listed five
+figures as at risk and told the reader to set `max` on each. Every part of that
+was wrong:
 
-Shortening the string is the wrong default: on `FIG-COR-2` the `display` *is* the
-argument. Set `max` with headroom and let the string be as long as it needs to
-be.
+- the mapping was wrong, so none of the five were ever at risk;
+- **character count is the wrong instrument.** `1/61 = 0.0164` and
+  `WWWWWWWWWWWWW` are both 13 characters and one is half again as wide. A proxy
+  that is wrong in both directions cannot find the cases it misses or clear the
+  ones it flags;
+- and the remedy was per-figure, for a defect that was in the component.
+
+What actually found it: a probe that calls `getBBox()` on every `<text>` in every
+`.learn-chart` **after layout** and compares it to that SVG's own viewBox. Over
+23 lesson routes it found **six clipped labels, five of them on pages predating
+this track** — the worst on `/learn/generation`, where `110,130 input tokens`
+rendered as `110,130 inpu` on the figure whose entire subject is the comparison
+between those runs, while its three shorter rows printed their units in full. A
+chart cut mid-word reads as deliberate.
+
+The fix went into `BarRows`: the gutter is computed from the longest string it
+will actually print, floored at 90 so charts that were already fine are
+pixel-identical.
+
+```ts
+// apps/web/veresk-app/src/components/learn/charts/BarRows.tsx:141  — VERBATIM
+  const gutter = Math.max(90, Math.round(longestLabel * 6.6) + 18);
+```
+
+Six clipped before, zero after, and the `max={0.024}` workaround added to
+`FIG-HYB-3` came back out. **So a future figure may use a 45-character label and
+will get the room.**
+
+> **The finding, which `Path` v1 shares:** a width that only exists after layout,
+> guessed at beforehand, twice, in two components. Invisible to `tsc` and to an
+> HTTP 200. The probe is the durable part, and it is recorded in `SITE.md`
+> beside the overflow probe.
+
+**Why the existing sweep could never have caught it, stated precisely** — because
+the next person to extend that sweep will want to know this was a blind spot by
+construction rather than a miss. A `<text>` cropped by its own viewBox **is not
+an overflowing element.** It is an element drawn outside a coordinate system, and
+the DOM reports nothing unusual about it: no `scrollWidth`, no `clientWidth`,
+nothing for `overflow: hidden | clip` to bite on. The geometry probe is not badly
+written. It measures a different quantity.
+
+That is what makes this different from the six incidents on `/learn/drift`. All
+six are *a number went stale*: something was written down, something changed, the
+two disagreed, and a wrong value sat on a page for a reader to catch. Here there
+was **nothing to catch** — no number was wrong, nothing contradicted anything,
+and on `/learn/generation` the shorter rows printing their units in full made the
+cropped ones read as deliberate.
+
+> *"Give the number a producer"* is the fix `/learn/drift` recommends. This is the
+> case one step before it: some things have no producer and no claim, and the
+> only way to find them is to decide what to measure.
 
 ### The one new chart
 

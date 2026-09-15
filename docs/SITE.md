@@ -776,6 +776,25 @@ It reads:
 A promise phrased as a count goes stale when the thing it counts grows. Phrased
 as a rule it cannot, and `Figure`'s strict default enforces it.
 
+### The width you cannot measure until it renders
+
+`BarRows` reserved a flat 90 units for the value label it writes after the bar,
+which is a guess about how wide that label would be. It was wrong on four pages
+in five places — `/learn/generation` printed `110,130 inpu`, cut mid-word — and
+`Path`'s first version made the identical mistake with an SVG label under an
+arrow. **SVG has no text metrics at render time**, so in both cases a width that
+only exists after layout was guessed beforehand, invisibly to `tsc` and to the
+build.
+
+`BarRows` computes its gutter from the longest string it will actually print
+now, floored at 90 so charts that were already fine are untouched. `Path` lists
+its sources in HTML under the drawing, where the browser wraps them.
+
+**The probe is the durable part** and it belongs beside the overflow probe
+above: `getBBox()` on every `<text>` in every `.learn-chart` against its own
+viewBox, after layout. A character count is a proxy for this and is wrong in
+both directions. Six clipped labels before, none after.
+
 ### `scripts/validate_palette.js` is not in this repo
 
 The ΔE 6.8 finding below is real and still governs the hue rule. The command

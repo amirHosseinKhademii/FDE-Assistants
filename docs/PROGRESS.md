@@ -3839,35 +3839,107 @@ run behind them at all, and saying so out loud is the honest thing for them.
 All three non-default kinds take the same amber marker. They differ in
 provenance, not in severity, and the words carry that.
 
-### One new chart, and it was wrong the first time in the documented way
+### One new chart, `Path`
 
-`Path` — a fixed-layout chain for the two-hop question in `GRAPH.md` §4.
-Deliberately not force-directed: the claim is the path, not the topology, and a
-figure whose positions come from a simulation draws differently on every reload.
+A fixed-layout chain for the two-hop question in `GRAPH.md` §4. Deliberately not
+force-directed: the claim is the path, not the topology, and a figure whose
+positions come from a simulation draws differently on every reload.
 
-The first version put each hop's source file in an SVG `<text>` under its own
-arrow. `requirements/PRG-KST-K2/…` is far wider than the ~90px gap between two
-boxes, so it ran under the node rectangles and lost its leading characters.
-**SVG has no text metrics at render time** — this repo has met that exact wall
-once before, on `BarRows`, and the fix is the same: stop putting two things on
-one line. The hops are drawn; their sources are an HTML list underneath, where
-the browser can wrap them.
+### THE FINDING OF THIS SESSION — a string nobody can measure until it renders
 
-Found by screenshotting the page. The typecheck passed.
+Two bugs an afternoon apart, in two different components, looked separate and
+are one. Recording them together because the shared cause is the useful part.
 
-### Three more defects the render sweep found, none visible to a check
+**`Path` v1** put each hop's source file in an SVG `<text>` under its own arrow.
+`requirements/PRG-KST-K2/…` is far wider than the ~90px gap between two boxes,
+so it ran under the node rectangles and lost its leading characters.
 
-1. **A value label ran off the plot.** `BarRows` draws its number at
-   `labelWidth + barWidth + 8`, and the longest bar reaches `1000 - 90` — so a
-   14-character label on the MAX row has about 82px, and `2/110 = 0.0182`
-   rendered as `2/110 = 0.01`. On the one figure whose entire point is that the
-   two numbers are nearly equal and the ORDERING is the finding. Fixed with
-   headroom in `max`, which keeps the arithmetic on the chart.
-2. **Two notes sat closer to the wrong row than the right one**, and one
+**`BarRows` reserved a flat 90 units** for the value label it writes after the
+bar. The longest bar always ends at `1000 - gutter`, so every chart got the same
+~82 usable units regardless of what it actually had to print — and the viewBox
+cropped the rest without a word.
+
+**SVG has no text metrics at render time.** That is the whole cause: in both
+cases a width that only exists after layout was guessed at beforehand, and both
+guesses were invisible to `tsc`, to the build, and to a 200 response.
+
+The `BarRows` half **had already shipped on four pages, in five places**, and
+nobody had a check that could see it:
+
+```
+  /learn/generation   "110,130 input tokens"  → 110,130 inpu      55.4u over
+  /learn/generation   "110,177 input tokens"  → 110,177 inpu      55.8u over
+  /learn/vectors      "100 % recall@32"                           21.3u over
+  /learn/attention    "3,854 passages"                            14.4u over
+  /learn/vectors      "1,536 numbers"                              7.6u over
+```
+
+`/learn/generation` is the sharp one: its three shorter rows printed their units
+in full and its two longest did not, so a chart cut mid-word looked like a
+deliberate choice. On the figure whose entire subject is the comparison between
+those five runs.
+
+**Both fixes are the same move — stop guessing the width.** `Path` draws the
+hops and lists their sources in HTML underneath, where the browser wraps them.
+`BarRows` computes its gutter from the longest string it will actually print,
+with a floor of 90 so every chart that was already fine is untouched. The
+estimate is 6.6 units per character and is deliberately generous: erring wide
+costs a little plot, erring narrow costs a digit.
+
+**And the check now exists**, which is the part worth keeping. `getBBox()` on
+every `<text>` in every `.learn-chart`, against its own SVG's viewBox, after
+layout — the real measurement rather than a character count, which is a proxy
+that is wrong in both directions. Run over all 23 lesson routes: **6 clipped
+labels before, 0 after.** A sixth, on `/learn/retrieval`, was a `Slope` note 4
+units over and was shortened.
+
+### And this is the sharpest version of `/learn/drift`'s argument
+
+Five of those six were on pages this session did not write. They had been
+shipping, and **no check in this repo could have caught them** — not by
+oversight, but because none of the instruments measures that quantity:
+
+- `tsc` passes. It is a geometry problem.
+- The route returns 200.
+- **The overflow probe from the earlier entries passes too**, and this is the
+  part worth being precise about. It looks for page-level horizontal scroll, and
+  for an element whose `scrollWidth` exceeds its `clientWidth` under
+  `overflow: hidden|clip`. A `<text>` cropped by its own SVG's viewBox is
+  neither of those things — it is not an overflowing element, it is an element
+  drawn outside a coordinate system, and the DOM reports nothing unusual about
+  it. So the blind spot is structural rather than an oversight in how the probe
+  was written.
+
+  Observed directly on `/learn/vectors`, which the geometry probe reported clean
+  at both widths in the sweep before any of this was fixed, and on which the
+  text probe then found two clipped labels. `/learn/generation` and
+  `/learn/attention` were only put through the geometry probe after the fix had
+  landed, so for those two the claim rests on the structural argument above and
+  not on a measurement taken in that order.
+
+The six incidents already on `/learn/drift` are all a number that went stale:
+something was written down, something changed, and the two disagreed. There was
+a wrong value sitting on a page for a reader to catch.
+
+**Here there was nothing to catch.** No number was wrong. Nothing contradicted
+anything. A label was a dozen characters shorter than its author wrote it and
+the page looked deliberate — `/learn/generation`'s shorter rows printed their
+units in full, which made the cropped ones read as a choice. The defect was
+invisible to every check *and* to the reader, and it stayed that way until
+somebody built an instrument that measured the right quantity. The instrument
+existed for about an hour before it found five shipped instances.
+
+*Give the number a producer* is the fix `/learn/drift` recommends. This is the
+case one step before it: some things have no producer and no claim, and the only
+way to find them is to decide what to measure.
+
+### Two more, from looking rather than from a check
+
+1. **Two chart notes sat closer to the wrong row than the right one**, and one
    summarised the whole chart while appearing to belong to a single bar — "123
    runs, 13.8%" under the `11 calls` row reads as *11 calls happened 123 times*.
    Both facts were already in the figure's own `sub`, so both notes came off.
-3. **A caption said "the same height"** about horizontal bars.
+2. **A caption said "the same height"** about horizontal bars.
 
 ### The promise on the index page was a count, and the count went stale
 
@@ -3926,7 +3998,7 @@ the page making the argument.
 `pnpm typecheck` 31/31 · `pnpm leak:check` PASS · `pnpm arch:check` current.
 Render sweep over 11 routes × 2 widths with every dialog opened: no page-level
 scroll, no clipped element, no lesson missing its accent, every dialog reaching
-its hue. The two exclusions are the ones `SITE.md` already documents — the
+its hue. Text-overflow sweep over all 23 lesson routes: no clipped label. The two exclusions are the ones `SITE.md` already documents — the
 Aurora wash and the landing `FlowMap`, which clip their own oversized drawings
 on purpose.
 

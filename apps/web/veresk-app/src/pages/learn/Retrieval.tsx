@@ -339,7 +339,7 @@ export function Retrieval() {
             rows={[
               { id: 'ret-007', from: 35, to: 1, note: 'the contaminated charge code — recall 0.00 → 1.00' },
               { id: 'ret-003', from: 5, to: 2, note: 'the exact identifier SR-EPS-0421' },
-              { id: 'ret-008', from: 1, to: 2, note: 'a real loss — the stale design note overtook the tests' },
+              { id: 'ret-008', from: 1, to: 2, note: 'a real loss — stale design note beat the tests' },
             ]}
           />
         </Figure>
