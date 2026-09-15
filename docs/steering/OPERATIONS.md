@@ -96,7 +96,7 @@ acceptance check rather than a demo.
 
 *Both are small. Both are blocking. Do them before anything else in this file.*
 
-### §0a · Steering has no `eval:diff` and no `eval:history`
+### §0a · Steering had no `eval:diff` and no `eval:history` — BUILT 2026-09-15
 
 **MEASURED — 2026-09-15**, `node -p` over the three engagements' package
 manifests:
@@ -118,7 +118,14 @@ This is the cheapest real win available in this repo, and it is a prerequisite
 for §1, §3 and §4, all of which are measured as a before/after between two
 baselines.
 
-**The build.** Create `apps/ai/steering/src/eval/diff/diff.ts` and
+**BUILT 2026-09-15.** `apps/ai/steering/src/eval/diff/{diff,history}.ts`, plus
+`steering:spend` — the by-surface and per-denominator figures §3 quotes are now
+a command rather than a transcription. Verified: `steering:eval-history` prints
+all four baselines, and `steering:eval-diff` reports the 21:22 → 22:23 move as
+`MOVED up 1 run — inside the noise band, not a result` rather than as an
+improvement, which is the behaviour the noise band exists for.
+
+**What the build was.** Create `apps/ai/steering/src/eval/diff/diff.ts` and
 `history.ts`, copying pharma's two files and changing three things: the results
 directory to `docs/steering/evals/results`, the severity import to
 `../severity/assessment-severity`, and the answer type to
@@ -727,21 +734,21 @@ win.
 surfaces, $14.35 repo-wide):
 
 ```
-  surface                   n       usd   cached%   avg s
-  steering:eval            91    1.6897     70.3%    68.0
-  steering:assess-all      15    0.2647     66.5%    55.9
-  steering:assess           9    0.1712     59.5%    91.4
-  steering:desk-summary     5    0.1019     25.2%    78.2
-  worked-example            1    0.0256     71.9%    76.8
-  steering:summarise        2    0.0206     41.0%    44.1
-  steering:index            1    0.0106      0.0%    85.5
-  TOTAL                   124    2.2843     66.0%
+  surface                     n        usd   cached   avg s
+  steering:eval              91    $1.6897    70.3%    68.0
+  steering:assess-all        15    $0.2647    66.5%    55.9
+  http                       19    $0.2088    60.6%    84.8
+  steering:assess             9    $0.1712    59.5%    91.4
+  steering:desk-summary       5    $0.1019    25.2%    78.2
+  steering:summarise          2    $0.0206    41.0%    44.1
+  steering:index              1    $0.0106     0.0%    85.5
+  TOTAL                     142    $2.4675
 ```
 
 **Three things fall out of that table, and the first one is the section's
 headline.**
 
-**1. The eval suite is 74% of steering's entire LLM spend** — $1.69 of $2.28.
+**1. The eval suite is 68.5% of steering's entire LLM spend** — $1.69 of $2.47.
 The expensive thing here is not serving customers, it is *measuring ourselves*.
 That reorders the work: the highest-value cost optimisation available today is
 making the eval suite cheaper to run, and §0b's fixtures are the first step of
@@ -814,12 +821,24 @@ watching the search budget against outcome; and `logs:sync` exists but no alert.
 Add `cost per accepted answer` to `pnpm steering:summarise --dry-run`, which
 already counts assessments by outcome and spends nothing.
 
-**MEASURED — `steering:assess-all`, 2026-09-15:** 15 runs, $0.2647, **median
-$0.0177** per requirement, 66.5% cached. NEXT.md's bid figures ($0.26 total,
-$0.018 median, 66% cached) are this surface.
+**MEASURED — `pnpm steering:spend`, 2026-09-15.** Computed over the newest run
+per requirement across every ANSWER surface (`steering:assess`,
+`steering:assess-all` and `http`, the web desk), with the eval surface excluded
+because an eval run is not an assessment anybody wanted:
 
-Now divide by outcomes instead of by calls. Across the bid, **1 of 24
-requirements came back with a price.** If a priced answer is the product, cost
+**23 requirements, $0.3637 in total, median $0.0151 each, 63.3% cached.**
+
+Two corrections to the figures this section first carried, both from computing
+them rather than transcribing them:
+
+- the first version counted only the two CLI surfaces and reported **15**
+  requirements. The web desk logs under `http`, and adding it brings the bid to
+  **23**. (`CR-K2-0114` reached the log on no surface at all — 23, not 24.)
+- NEXT.md's `$0.26 / $0.018 / 66%` is the `assess-all` surface alone, which is
+  correct for what it says and is not the whole bid.
+
+Now divide by outcomes instead of by calls. Across the bid, **1 of 23
+logged requirements came back with a price.** If a priced answer is the product, cost
 per accepted answer is roughly **$0.26 — about 24× the median cost per
 request.**
 
@@ -829,10 +848,10 @@ them is the sentence, not the filter. So the tool should print **both**, and
 name the assumption:
 
 ```
-  cost per request              $0.0177  (median, 24 runs)
-  cost per priced answer        $0.2647  (1 accepted of 24)
-  cost per actionable answer    $0.0110  (24 of 24, if a grounded
-                                          refusal counts as an answer)
+  cost per request              $0.0151   median of 23 runs
+  cost per priced answer        $0.3637   1 priced of 23   24.1x the median
+  cost per actionable           $0.0158   all 23, counting a grounded
+                                          refusal as an answer
 ```
 
 Three numbers, one denominator argument, and a spreadsheet that cannot quietly
@@ -912,7 +931,7 @@ discipline of this section, and it is why §1 comes first.
 > subtlety handled — cached tokens are a subset of input, not an addition, so
 > treating them as an addition makes a cache *hit* look more expensive, which is
 > wrong in the direction nobody audits. But the useful move was printing spend by
-> surface: 74% of it was the eval suite, not production. The second was changing
+> surface: 68.5% of it was the eval suite, not production. The second was changing
 > the denominator. Median cost per requirement was 1.8 cents and one of 24 came
 > back with a price, so cost per priced answer was 26 cents — about 24×. Nothing
 > about the per-call number was wrong; it was answering a question nobody asked.
@@ -1340,10 +1359,12 @@ pnpm steering:docs-check --heal
 
 In order, and the first three change nothing about the system:
 
-1. **§0a** — the two eval wrappers. Ten lines each, and four committed baselines
-   become readable.
-2. **§3 step 1** — cost per accepted answer, both denominators. Free, and it is
-   the number that reframes the engagement.
+1. ~~**§0a** — the two eval wrappers.~~ **DONE 2026-09-15.** All four committed
+   baselines are readable, and the first diff correctly refused to call a
+   one-run move an improvement.
+2. ~~**§3 step 1** — cost per accepted answer, every denominator.~~ **DONE
+   2026-09-15**, as `pnpm steering:spend`. It found two errors in this
+   document's own figures, which is the argument for making a number a command.
 3. **§2 step 2** — assert the trace shape. It is a live defect that already
    nearly produced a false accusation against the one correct answer in the bid.
 4. **§0b** — fixtures on `find_comparable_work` only. Unblocks everything else.
@@ -1396,6 +1417,6 @@ content.
 
 ---
 
-*Nothing in this file has been built. §0a is ten lines and would be the first
-thing. Every MEASURED claim carries the command that produced it — re-run it
-rather than trusting the date.*
+*§0a and §3 step 1 were built on 2026-09-15 and are marked so in place.
+Everything else here is still PROPOSED. Every MEASURED claim carries the command
+that produced it — re-run it rather than trusting the date.*

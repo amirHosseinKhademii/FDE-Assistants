@@ -20,20 +20,40 @@
  * lessons genuinely depend on lessons 2 and 3 and say so; its first depends on
  * nothing at all and is the one to read if only one gets read.
  *
- * ── AND WHY TRACK TWO HAS NO COLOUR ─────────────────────────────────────────
+ * ── HOW A LESSON GETS ITS COLOUR, AND THE VERSION THAT WAS WRONG ───────────
  *
- * Track one gives each lesson a hue because it has a sequence to encode — five
- * stages a question passes through. Track two is one customer, and there is no
- * comparable sequence for a hue to mean. Inventing one would be decoration
- * pretending to be information, which `docs/pharma/DESIGN.md` §3 spends a page
- * arguing against.
+ * FIRST ATTEMPT: five named hues, and any track longer than five got none at
+ * all — drawn in the foreground colour, on the argument that it had no sequence
+ * for a hue to encode. The argument was sound and the conclusion was not. Every
+ * track is a sequence; that is what a track IS. What ran out was not the
+ * meaning, it was the palette.
  *
- * It is also the only honest option left. The arc that remains once teal, green,
- * amber, rose and blue are reserved for severity is not wide enough for five
- * more distinguishable hues — the palette validator says so about the five that
- * already exist, and the run is recorded in `app.css`. So track two is drawn in
- * the foreground colour and its lessons are told apart by their numbers and
- * their titles, which is what was doing the work on track one anyway.
+ * And the result was the thing that got reported: a track that visibly did not
+ * belong to the same site as the one above it.
+ *
+ * SO THE HUE IS A POSITION WITHIN A TRACK, SAMPLED FROM ONE RAMP. Five stops,
+ * sky through orange, sampled at `(n - 1) / (total - 1)` — so a five-lesson
+ * track lands exactly on the five stops and a seven-lesson track gets seven
+ * steps of the same ramp. Every track looks like every other track, and a
+ * lesson's colour says how far through its own track it is.
+ *
+ * THE VALIDATOR'S FINDING STILL STANDS AND IS STILL RESPECTED. Run it and the
+ * five fail as a categorical palette:
+ *
+ *   node scripts/validate_palette.js "#38bdf8,#818cf8,#c084fc,#e879f9,#fb923c" \
+ *     --mode dark --surface "#0d0f15"
+ *   → FAIL  adjacent pair ΔE 6.8 (normal vision), against a floor of 15
+ *
+ * Seven steps are closer together than five, so a seven-lesson track fails it
+ * harder. That is fine and it is why the rule around the hue matters more than
+ * the hue: NO CHART ENCODES A SERIES WITH IT, and it never appears without its
+ * lesson number beside it. It is a ramp, read as "how far along", and a ramp is
+ * allowed to have neighbours that resemble each other — that is what makes it
+ * read as a ramp rather than as five categories.
+ *
+ * Tracks never interleave on one page, so two lessons in different tracks
+ * sharing a hue cannot be confused: they are never side by side, and each
+ * carries its own number under its own heading.
  */
 export type LessonSlug =
   // Track one — the machine.
@@ -42,7 +62,13 @@ export type LessonSlug =
   | 'generation'
   | 'loop'
   | 'evals'
-  // Track two — one engagement.
+  // Track two — what you build after it works.
+  | 'regressions'
+  | 'forensics'
+  | 'cost'
+  | 'caching'
+  | 'drift'
+  // Track three — one engagement.
   | 'guessing'
   | 'pipelines'
   | 'answer-key'
@@ -51,7 +77,7 @@ export type LessonSlug =
   | 'residency'
   | 'ceiling';
 
-export type TrackId = 'machine' | 'engagement';
+export type TrackId = 'machine' | 'operations' | 'engagement';
 
 export interface Track {
   id: TrackId;
@@ -65,6 +91,20 @@ export const TRACKS: Track[] = [
     title: 'The machine',
     blurb:
       'The parts every engagement is built from, in the order a question passes through them. Read straight down.',
+  },
+  {
+    /*
+     * SECOND, NOT LAST, AND THAT IS A DEPENDENCY ARGUMENT RATHER THAN A
+     * PREFERENCE. Four of these five need only the machine track: what a suite
+     * measures, what a request costs, what a cache matches on, what a number in
+     * a document is derived from. Only `forensics` leans on the engagement, and
+     * it says so. Filing them behind seven pages of one customer's findings
+     * would have put the general lesson behind the specific one.
+     */
+    id: 'operations',
+    title: 'What you build after it works',
+    blurb:
+      'Five things a system needs once it answers correctly and has to keep doing so: catching a model that moved under you, finding out why a failure failed, knowing what it costs, deciding whether to cache, and stopping your own documentation from lying. Two of the five are largely PROPOSED here, and every page says which parts are built and which are argued.',
   },
   {
     id: 'engagement',
@@ -154,6 +194,62 @@ export const LESSONS: Lesson[] = [
     source: 'docs/evals/README.md · docs/GUIDE.md §6',
     minutes: 8,
     needs: 'lesson 4',
+  },
+
+  {
+    slug: 'regressions',
+    track: 'operations',
+    n: 1,
+    short: 'Regressions',
+    title: 'The model moves underneath you',
+    lede: 'The model is not yours and does not hold still — so the unit of measurement is a rate over N runs, a one-run move is a coin flip and prints as MOVED, and the diff refuses outright to compare two runs whose setup differed.',
+    source: 'docs/steering/OPERATIONS.md §1 · packages/evals/src/diff.ts',
+    minutes: 9,
+    needs: 'lesson 5 of the machine',
+  },
+  {
+    slug: 'forensics',
+    track: 'operations',
+    n: 2,
+    short: 'Forensics',
+    title: 'Why it failed, and how many kinds of failure you have',
+    lede: 'Four causes look identical from outside — no answer — and need four different fixes, so forensics is a classification problem before it is a debugging one: one instance is an anecdote, a bucket count is a work plan.',
+    source: 'docs/steering/OPERATIONS.md §2 · NEXT.md §0',
+    minutes: 9,
+    needs: null,
+  },
+  {
+    slug: 'cost',
+    track: 'operations',
+    n: 3,
+    short: 'Cost',
+    title: 'What it costs, and the denominator nobody picks',
+    lede: 'Per-request cost was measured from day one; the two things that changed the picture were printing spend by surface — the eval suite turned out to be 74% of it — and dividing by accepted answers instead of by calls.',
+    source: 'docs/steering/OPERATIONS.md §3 · apps/ai/steering/src/telemetry/prices.ts',
+    minutes: 9,
+    needs: null,
+  },
+  {
+    slug: 'caching',
+    track: 'operations',
+    n: 4,
+    short: 'Caching',
+    title: 'Two caches, and only one of them can be wrong',
+    lede: 'The provider\u2019s prompt cache matches an exact prefix and cannot return a wrong answer; a semantic cache matches meaning and can — which is why the adversary set gets built before the cache, and why the honest recommendation here was not to build one.',
+    source: 'docs/steering/OPERATIONS.md §4',
+    minutes: 8,
+    needs: 'lesson 3 of this track',
+  },
+  {
+    slug: 'drift',
+    track: 'operations',
+    n: 5,
+    short: 'Drift',
+    title: 'Every number in a document can go stale',
+    lede: 'Only a claim with a machine producer can be checked — which is the whole design, because a checker that fires on opinions gets turned off and one that misses the numbers gets quoted.',
+    source: 'docs/steering/OPERATIONS.md §5',
+    minutes: 7,
+    needs: null,
   },
 
   {
@@ -247,14 +343,45 @@ export const lessonBySlug = (slug: LessonSlug): Lesson => {
 export const lessonsIn = (track: TrackId) => LESSONS.filter((l) => l.track === track);
 
 /**
- * The accent a lesson is drawn in.
+ * The ramp every track is coloured from. Five stops, sky → orange.
  *
- * Track one: one hue per lesson, declared in `app.css`, decoration only.
- * Track two: the foreground colour, because there is no sequence to encode.
- * See this file's header for the argument.
+ * DECORATION, AND THE COMMENT IN `app.css` CARRIES THE VALIDATOR RUN THAT SAYS
+ * SO. Nothing on these pages encodes a data series with it.
  */
-export const hueOf = (l: Lesson) =>
-  l.track === 'machine' ? `var(--color-learn-${l.n})` : 'var(--color-ui-fg)';
+const RAMP = ['#38bdf8', '#818cf8', '#c084fc', '#e879f9', '#fb923c'] as const;
+
+const hex = (c: string) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
+
+/**
+ * Sample the ramp at `t` in [0, 1].
+ *
+ * A PLAIN sRGB MIX, WHICH IS THE RIGHT AMOUNT OF EFFORT HERE. Interpolating in
+ * OKLab would give a more even-looking ramp, and nothing on these pages reads a
+ * hue as a magnitude — it is a position marker sitting next to the number it
+ * duplicates. A perceptually-uniform ramp for decoration is precision spent
+ * where no one can collect it.
+ */
+function sample(t: number): string {
+  const x = Math.min(0.9999, Math.max(0, t)) * (RAMP.length - 1);
+  const i = Math.floor(x);
+  const f = x - i;
+  const a = hex(RAMP[i]);
+  const b = hex(RAMP[i + 1] ?? RAMP[i]);
+  const mix = a.map((v, k) => Math.round(v + (b[k] - v) * f));
+  return `#${mix.map((v) => v.toString(16).padStart(2, '0')).join('')}`;
+}
+
+/**
+ * The accent a lesson is drawn in: how far through its own track it is.
+ *
+ * Every track samples the same ramp, so a five-lesson track lands on the five
+ * stops and a seven-lesson track gets seven steps of the same thing. See this
+ * file's header for why this replaced a version where one track had no colour.
+ */
+export const hueOf = (l: Lesson): string => {
+  const total = lessonsIn(l.track).length;
+  return total <= 1 ? RAMP[0] : sample((l.n - 1) / (total - 1));
+};
 
 /**
  * Previous and next.

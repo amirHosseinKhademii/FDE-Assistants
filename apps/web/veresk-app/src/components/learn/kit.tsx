@@ -241,6 +241,40 @@ export function RunIt({ items }: { items: Array<{ cmd: string; does: string; cos
   );
 }
 
+/* ── THE SHORT VERSION, SAID OUT LOUD ──────────────────────────────────────
+   A paragraph you could actually say to somebody, and the question they ask
+   next.
+
+   WHY IT IS A COMPONENT AND NOT JUST A QUOTE. A lesson that has been read
+   properly still leaves you unable to explain it in thirty seconds — the page
+   is organised for understanding, and understanding is not the same shape as an
+   explanation. This is the explanation, written to be read aloud: concrete
+   numbers, no jargon that has not been earned, and the ONE thing that makes it
+   sound like somebody who did the work rather than somebody who read about it.
+
+   `then` IS REQUIRED, and it is the part most of these were written for. Every
+   one of these paragraphs has an obvious follow-up question, and knowing the
+   follow-up is the difference between a rehearsed answer and an argument you
+   can stand in. A version of this component where `then` was optional would
+   have half of them missing it.
+   ────────────────────────────────────────────────────────────────────────── */
+export function SaidOutLoud({ children, then }: { children: ReactNode; then: ReactNode }) {
+  return (
+    <section className="said mt-12">
+      <p className="font-mono text-[0.6875rem] tracking-[0.08em] uppercase" style={{ color: 'var(--lesson)' }}>
+        the short version, said out loud
+      </p>
+      <blockquote className="said-quote">{children}</blockquote>
+      <p className="mt-4 max-w-[64ch] text-[0.875rem] leading-relaxed text-ui-dim">
+        <span className="font-mono text-[0.6875rem] tracking-[0.08em] text-ui-faint uppercase">
+          and then they ask —{' '}
+        </span>
+        {then}
+      </p>
+    </section>
+  );
+}
+
 /* ── WHAT THIS DOES NOT PROVE ──────────────────────────────────────────────
    Every substantive document in `docs/` ends with one of these, and the pages
    that teach from them do not get to drop it. It is UNCOLOURED and dashed: a

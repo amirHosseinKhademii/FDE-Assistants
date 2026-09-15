@@ -131,7 +131,12 @@
     "scanner:check": "pnpm --filter @fde/scanner check",
     "estate:check": "pnpm --filter @fde/estate check",
     "settle:check": "pnpm --filter @fde/agent check:settle",
-    "steering:ping": "pnpm --filter @vantis/steering ping"
+    "steering:ping": "pnpm --filter @vantis/steering ping",
+    "steering:spend": "pnpm --filter @vantis/steering spend",
+    "steering:eval-diff": "pnpm --filter @vantis/steering eval:diff",
+    "steering:eval-history": "pnpm --filter @vantis/steering eval:history",
+    "arch:graph": "node scripts/arch-graph.mjs",
+    "arch:check": "node scripts/arch-graph.mjs --check"
   },
   "devDependencies": {
     "turbo": "^2.10.12"

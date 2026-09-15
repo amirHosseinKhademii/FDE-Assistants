@@ -1,0 +1,14 @@
+import WebSocket from 'ws';
+const [,, url, out, height] = process.argv;
+const page = (await (await fetch('http://127.0.0.1:9222/json')).json()).find(t=>t.type==='page');
+const ws = new WebSocket(page.webSocketDebuggerUrl,{perMessageDeflate:false,maxPayload:268435456});
+let id=0; const w=new Map();
+ws.on('message',m=>{const j=JSON.parse(m.toString()); if(j.id&&w.has(j.id)){w.get(j.id)(j);w.delete(j.id);}});
+await new Promise(r=>ws.once('open',r));
+const send=(m,p={})=>new Promise(res=>{const i=++id;w.set(i,res);ws.send(JSON.stringify({id:i,method:m,params:p}));});
+await send('Page.enable'); await send('Runtime.enable');
+await send('Emulation.setDeviceMetricsOverride',{width:1440,height:Number(height||1600),deviceScaleFactor:1,mobile:false});
+await send('Page.navigate',{url}); await new Promise(r=>setTimeout(r,2600));
+const s = await send('Page.captureScreenshot',{format:'png'});
+(await import('node:fs')).writeFileSync(out, Buffer.from(s.result.data,'base64'));
+ws.close(); process.exit(0);

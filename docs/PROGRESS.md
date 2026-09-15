@@ -3582,3 +3582,36 @@ two numbers.
 them closed. Re-run driving every `.learn-open`: 20 opens across 12 routes at
 two widths, no clipping, the panel scrolls, and the hue reaches the portal on
 every one.
+
+### The lesson map read as a broken numbered list, and the fix was to draw the relationships
+
+Reported by Byron, and it is the clearest example in this section of a layout
+that only *places* things near each other and leaves the reader to infer the
+relationship — where they inferred the wrong one.
+
+It rendered as three stacked rows: cards 2, 3 and 4 in a line, lesson 1 hanging
+below in a half-width row of its own, then lesson 5 as a wide dashed bar. So a
+reader met a numbered diagram **that starts at 2**, with 1 and 5 apparently
+trailing after 4, and nothing on it saying why.
+
+Three changes, and only one of them is cosmetic:
+
+1. **The relationships are drawn.** A solid stem from Retrieval down to Vectors
+   — that join is real, retrieval genuinely is vectors underneath — and a dashed
+   bracket opening upward across all three stages for Evals. Dashed because
+   `DESIGN.md` §6 reserves a dashed span for a join that is not a step, and an
+   eval is not the fourth thing that happens to a question.
+2. **The sentence explaining the numbering comes before the drawing.** "Why does
+   this start at 2" is the first thing a reader asks and the diagram cannot
+   answer it by itself.
+3. **It is a grid with one shared column template**, so the stem lands under the
+   first card at every width — measured at a constant 20px offset from the
+   card's left edge at 1024, 1280 and 1440 — and the fractional columns mean it
+   cannot clip. The fixed 12rem cards it replaced are what ran past the edge at
+   1440px in the first place.
+
+**One separate bug fell out of the report.** The chip separator was `ml-2`, which
+is invisible to anything that copies the text — pasting the diagram gave
+`1. Vectorswhat retrieval is made of`, which is how it arrived. It is a character
+now. A page whose whole argument is that its figures are checkable should survive
+being quoted.

@@ -68,7 +68,10 @@
     "worked-example": "ts-node src/cli/worked-example.ts",
     "ping": "ts-node src/cli/llm-ping.ts",
     "retrieval-scorer:check": "ts-node src/eval/retrieval/retrieval-selftest.ts",
-    "retrieval:eval": "ts-node src/eval/retrieval/run-retrieval.ts"
+    "retrieval:eval": "ts-node src/eval/retrieval/run-retrieval.ts",
+    "spend": "ts-node src/cli/spend.ts",
+    "eval:diff": "ts-node src/eval/diff/diff.ts",
+    "eval:history": "ts-node src/eval/diff/history.ts"
   },
   "dependencies": {
     "@fde/agent": "workspace:*",

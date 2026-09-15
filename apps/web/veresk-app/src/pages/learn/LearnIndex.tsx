@@ -44,48 +44,67 @@ export function LearnIndex() {
         </p>
       </header>
 
-      {/* ── WHERE EACH LESSON SITS IN ONE QUESTION ──────────────────────────
-          A question enters and an answer leaves; the first track is the stages
-          it passes through. Lesson 1 is drawn UNDER lesson 2 because it is what
-          retrieval is made of rather than a stage of its own, and lesson 5 spans
-          the row because an eval measures the finished thing, not a part of it.
+      {/* ── WHERE EACH LESSON SITS ─────────────────────────────────────────
+          THE FIRST VERSION OF THIS WAS THREE STACKED ROWS AND IT READ AS A
+          BROKEN LIST. Cards 2, 3 and 4 sat in a row, lesson 1 hung underneath
+          in a half-width row of its own, and lesson 5 was a wide dashed bar
+          below that — so a reader met a numbered diagram that starts at 2, with
+          1 and 5 apparently trailing after 4. Nothing on it said why.
 
-          THE ENTRY AND EXIT ARE CAPTIONS, NOT CELLS IN THE ROW. They were flex
-          items alongside the three cards, and at 1440px the row came to about
-          55rem inside a column that is 52.5 — the last cell was cut mid-word,
-          from a build that succeeded, which is the horizontal cousin of the
-          clipped card backs `docs/SITE.md` documents. Taking the two labels out
-          removes 13rem and two gaps, so it cannot clip at any width a person
-          reads at. */}
+          The relationships are now DRAWN rather than implied: a stem from
+          Retrieval down to Vectors, and a bracket across all three for Evals.
+          And the sentence that explains the numbering comes BEFORE the drawing,
+          because "why does this start at 2" is the first thing a reader asks
+          and the diagram cannot answer it by itself.
+
+          IT IS A GRID, NOT A FLEX ROW WITH FIXED WIDTHS. The stem has to land
+          under the first card at every width, which means one column template
+          shared by all three rows. The previous version's fixed 12rem cards are
+          also what made it clip at 1440px. */}
       <section className="border-b border-ui-line py-10">
         <h2 className="font-mono text-sm tracking-[0.08em] text-ui-faint uppercase">where each one sits</h2>
 
-        <p className="mt-6 font-mono text-[0.6875rem] text-ui-faint">a question arrives ↓</p>
+        <p className="mt-4 max-w-[62ch] leading-relaxed text-ui-dim">
+          Only three of the five are stages a question actually passes through, which is why the row below
+          starts at <span className="font-mono text-ui-fg">2</span>. Lesson 1 is what retrieval is{' '}
+          <em className="not-italic text-ui-fg">made of</em>, so it sits underneath it. Lesson 5 measures the
+          finished thing, so it spans all three rather than following them.
+        </p>
 
-        <div className="mt-2 overflow-x-auto pb-2">
-          <div className="flex min-w-[37rem] items-stretch gap-2">
-            <Card n={2} />
-            <Arrow />
-            <Card n={3} />
-            <Arrow />
-            <Card n={4} />
-          </div>
+        <div className="mt-8 overflow-x-auto pb-2">
+          <div className="min-w-[30rem]">
+            <p className="learn-map-edge">a question arrives</p>
 
-          <div className="mt-2 flex min-w-[37rem] gap-2">
-            <div className="w-[12rem] shrink-0">
-              <Under n={1} note="what retrieval is made of" />
+            <div className="learn-map-grid mt-2">
+              <Card n={2} />
+              <Arrow />
+              <Card n={3} />
+              <Arrow />
+              <Card n={4} />
             </div>
-            <span className="grow" />
-          </div>
 
-          <div className="mt-3 min-w-[37rem]">
-            <Under n={5} note="measures the whole row, end to end" wide />
+            {/* The stem lands in column 1, under Retrieval, at every width —
+                which is the only thing the shared column template is for. */}
+            <div className="learn-map-grid">
+              <div className="col-start-1">
+                <span className="learn-map-stem" aria-hidden />
+                <Aside n={1} rel="what retrieval is made of" />
+              </div>
+            </div>
+
+            {/* A bracket, opening upward into the row it spans. Dashed, because
+                `DESIGN.md` reserves a dashed span for a join that is not a step
+                — an eval is not the fourth thing that happens to a question. */}
+            <div className="mt-5">
+              <span className="learn-map-brace" aria-hidden />
+              <Aside n={5} rel="measures all three, end to end" />
+            </div>
+
+            <p className="learn-map-edge mt-5">
+              an answer, with citations — and an escalation where the corpus does not settle it
+            </p>
           </div>
         </div>
-
-        <p className="mt-3 font-mono text-[0.6875rem] text-ui-faint">
-          ↓ an answer, with citations, and an escalation where the corpus does not settle it
-        </p>
       </section>
 
       {TRACKS.map((track) => (
@@ -159,7 +178,7 @@ function LessonCard({ lesson: l }: { lesson: Lesson }) {
 
 function Arrow() {
   return (
-    <span aria-hidden className="flex items-center text-ui-line-lit">
+    <span aria-hidden className="flex items-center justify-center text-ui-line-lit">
       →
     </span>
   );
@@ -171,7 +190,7 @@ function Card({ n }: { n: number }) {
   return (
     <Link
       to={`/learn/${l.slug}`}
-      className="w-[12rem] shrink-0 rounded-lg border px-3 py-2.5 transition-colors"
+      className="min-w-0 rounded-lg border px-3 py-2.5 transition-colors"
       style={{
         borderColor: `color-mix(in oklab, ${hueOf(l)} 35%, var(--color-ui-line))`,
         background: `color-mix(in oklab, ${hueOf(l)} 6%, transparent)`,
@@ -185,18 +204,27 @@ function Card({ n }: { n: number }) {
   );
 }
 
-function Under({ n, note, wide }: { n: number; note: string; wide?: boolean }) {
+/**
+ * A lesson that is NOT a stage — the thing a stage is made of, or the thing
+ * that measures all of them.
+ *
+ * THE SEPARATOR IS A CHARACTER, NOT A MARGIN. It was `ml-2`, which is invisible
+ * to anything that copies the text: pasting the diagram gave
+ * "1. Vectorswhat retrieval is made of". A page about being checkable should
+ * survive being quoted.
+ */
+function Aside({ n, rel }: { n: number; rel: string }) {
   const l = lessonsIn('machine')[n - 1];
   return (
     <Link
       to={`/learn/${l.slug}`}
-      className={`block rounded-lg border border-dashed px-3 py-2 ${wide ? 'w-full' : ''}`}
+      className="inline-flex flex-wrap items-baseline gap-x-2 rounded-lg border border-dashed px-3 py-2 transition-colors hover:border-ui-line-lit"
       style={{ borderColor: `color-mix(in oklab, ${hueOf(l)} 30%, var(--color-ui-line))` }}
     >
       <span className="font-mono text-[0.6875rem]" style={{ color: hueOf(l) }}>
         {n}. {l.short}
       </span>
-      <span className="ml-2 text-[0.6875rem] text-ui-faint">{note}</span>
+      <span className="text-[0.6875rem] text-ui-faint">— {rel}</span>
     </Link>
   );
 }
