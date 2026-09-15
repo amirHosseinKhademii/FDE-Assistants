@@ -310,11 +310,11 @@ stays a stable rectangle; the faces are `pointer-events: none`.
 the outer boundary only, so a card stayed open until the pointer left the entire
 map. Each node needs its own.
 
-**Measure back faces against their box.** Four of nine card kinds were
-overflowing by 2–16px and being clipped by `overflow: hidden` — the last line of
-an explanation simply gone, from a page that renders without a warning. The
-shape of the check is `back text scrollHeight + tag + rowGap + padding` against
-`getBoundingClientRect().height`. It only bites where a box has BOTH a fixed
+**Measure back faces against their box.** On steering's map, 7 of 13 cards —
+4 of its 7 card kinds — were overflowing by 2–16px and being clipped by
+`overflow: hidden`, the last line of an explanation simply gone from a page that
+renders without a warning. The shape of the check is `back text scrollHeight +
+tag + rowGap + padding` against `getBoundingClientRect().height`. It only bites where a box has BOTH a fixed
 height and `overflow: hidden`; `Journey`'s payload boxes have neither.
 
 ### The rule both of them taught, the expensive way
