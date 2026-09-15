@@ -41,7 +41,7 @@ import { AURORA } from '../lib/aurora';
 import { PHARMA, STEERING } from '../lib/links';
 import { BoxIcon } from '@fde/uikit';
 import { CaseGlyph, PackageGlyph } from '../components/flow/veresk-glyphs';
-import { hueOf, lessonsIn, TOTALS, TRACKS } from '../lib/learn/lessons';
+import { hueOf, lessonsIn, MAP, TOTALS, TRACKS } from '../lib/learn/lessons';
 
 /* ── The graph, as data ────────────────────────────────────────────────────
    Every edge below is a real dependency. Regenerate the list with:
@@ -470,9 +470,32 @@ function Learn() {
         ))}
       </div>
 
-      <p className="mt-8">
+      {/* THE MAP GETS ITS OWN ROW ON THE FIRM'S PAGE, above the two ways in.
+          It belongs to no track, and it is the thing somebody arriving cold
+          most often wants first: not how a retriever works, but where any of
+          this lives. It also shipped reachable only by typing the URL — see
+          `lib/learn/lessons.ts`. */}
+      <div className="mt-5">
+        <p className="font-mono text-[0.625rem] tracking-[0.1em] text-ui-faint uppercase">
+          and the repo itself
+        </p>
+        <Link
+          to={`/learn/${MAP.slug}`}
+          className="mt-2 inline-flex items-baseline gap-2 rounded-lg border border-ui-line bg-ui-surface px-3 py-2 transition-colors hover:border-ui-line-lit"
+        >
+          <span className="font-mono text-[0.6875rem] text-ui-accent" aria-hidden>
+            ▣
+          </span>
+          <span className="text-sm text-ui-dim">{MAP.short}</span>
+        </Link>
+      </div>
+
+      <p className="mt-8 flex flex-wrap gap-x-6 gap-y-2">
         <Link to="/learn" className="text-sm text-ui-accent transition-opacity hover:opacity-80">
           Start at lesson one &rarr;
+        </Link>
+        <Link to={`/learn/${MAP.slug}`} className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
+          Or see where it all lives &rarr;
         </Link>
       </p>
     </section>
