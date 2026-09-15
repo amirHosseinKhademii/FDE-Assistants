@@ -395,3 +395,46 @@ export function neighbours(slug: LessonSlug): { prev?: Lesson; next?: Lesson } {
   const i = LESSONS.findIndex((l) => l.slug === slug);
   return { prev: LESSONS[i - 1], next: LESSONS[i + 1] };
 }
+
+/**
+ * The architecture page, which belongs to no track.
+ *
+ * ── IT LIVES HERE BECAUSE IT SHIPPED ORPHANED ──────────────────────────────
+ *
+ * `/learn/architecture` was built, routed, rendered and reachable only by
+ * typing the URL. Nothing linked to it — not the rail, not the index, not the
+ * firm's page. The plan said it would get an entry above the tracks and the
+ * entry was never written, which is what happens when a link lives in whichever
+ * component someone remembers to edit.
+ *
+ * So it is a record, exported once, and every surface that lists it reads this.
+ * A page cannot be added to the section now without a place to put it.
+ */
+export const MAP = {
+  slug: 'architecture',
+  short: 'The repo map',
+  title: 'Follow one requirement through the repo',
+  blurb:
+    'Which package and which file does what, from the desk to a filed answer. A reference rather than a sequence — the dependency graph is generated from package.json; the walk is written by hand.',
+} as const;
+
+/**
+ * The totals every surface prints.
+ *
+ * ── DERIVED, BECAUSE THE HARDCODED VERSION WENT STALE IN A DAY ─────────────
+ *
+ * Three surfaces said "twelve lessons" and "two tracks" — the rail, the index
+ * and the firm's page — and stayed saying it after a third track of five landed.
+ * The reading estimate was low by the same five pages.
+ *
+ * A hardcoded count that went stale the moment the thing it counts changed,
+ * sitting in the navigation of a site whose last lesson is about exactly that.
+ * Nothing caught it: it was found by a person reading the page. Deriving it is
+ * the fix, and `/learn/drift` carries it as an incident.
+ */
+export const TOTALS = {
+  lessons: LESSONS.length,
+  tracks: TRACKS.length,
+  /** Rounded down to the half hour, and labelled as rough wherever it is shown. */
+  hours: Math.round((LESSONS.reduce((n, l) => n + l.minutes, 0) / 60) * 2) / 2,
+};

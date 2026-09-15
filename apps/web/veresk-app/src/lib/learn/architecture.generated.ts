@@ -253,7 +253,7 @@ export const PACKAGES: ArchPackage[] = [
     "glob": "apps/web/*",
     "kind": "surface",
     "layerNote": null,
-    "lines": 10087,
+    "lines": 10102,
     "deps": [
       "@fde/uikit",
       "@veresk/surface"

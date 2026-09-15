@@ -415,9 +415,15 @@ a.case-card:focus-visible {
    colour rule this repo argues hardest for: the absence of bad news does not
    get the opposite colour, so thirty passing runs do not turn the page green
    and the five that failed are the only thing the eye lands on. */
+/* A PASS IS GREY, NOT INVISIBLE. The first version filled with `--ui-raised`
+   on a `--ui-surface` panel — two steps of near-black about 6% apart — so the
+   grid read as empty and the `5/5` labels beside it were doing all the work.
+   "The absence of bad news does not get a colour" is not the same as "gets no
+   contrast": a reader has to be able to COUNT the passing runs to see that a
+   row is 5 of 5 rather than 3 of 3. */
 .run-cell {
-  fill: var(--color-ui-raised);
-  stroke: var(--color-ui-line);
+  fill: color-mix(in oklab, var(--color-ui-fg) 13%, var(--color-ui-surface));
+  stroke: var(--color-ui-line-lit);
 }
 
 .run-cell[data-pass='false'] {

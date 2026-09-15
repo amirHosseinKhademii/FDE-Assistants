@@ -3615,3 +3615,102 @@ is invisible to anything that copies the text — pasting the diagram gave
 `1. Vectorswhat retrieval is made of`, which is how it arrived. It is a character
 now. A page whose whole argument is that its figures are checkable should survive
 being quoted.
+
+---
+
+## 2026-09-15 (later still) — the five topics, a third track, and the repo map
+
+Byron's original ask, which neither session had written down: **LLM cost
+autopilot, semantic cache, catch model regressions, failure forensics,
+self-healing docs.** Those five were why he wanted learning pages at all, and
+the first pass shipped without them. His objections were that the topics were
+missing, the engagement pages had no code and no plain explanation, and the
+design did not match the machine pages. All three were right.
+
+### A third track, and the hue argument reversed
+
+`operations` — five lessons, one per topic, slotted **second** rather than last,
+because four of the five need only the machine track. Only `forensics` leans on
+the engagement, and it says so.
+
+**Track two having no colour was wrong and is fixed.** The palette validator's
+finding stands — five distinguishable hues is the ceiling in the arc severity
+leaves — but the conclusion drawn from it was not. A hue is now a **position
+within a track**: every track samples the same sky→orange ramp at
+`(n - 1) / (total - 1)`, so a five-lesson track lands on the five stops and a
+seven-lesson track gets seven steps of the same thing. Tracks never interleave
+on one page, so two lessons sharing a hue cannot be confused.
+
+### `SaidOutLoud`
+
+Each operations page ends with a paragraph you could say to somebody, and the
+question they ask next. `then` is required rather than optional, because every
+one of these has an obvious follow-up and knowing it is the difference between a
+rehearsed answer and an argument you can stand in.
+
+### Two figures were wrong on a page before anybody read it
+
+The cost lesson shipped with **74%** and a **$0.0177** median, both computed by
+hand from `logs/requests.jsonl`. Turning that table into `pnpm steering:spend`
+found a whole surface missing from the first — `http`, the web desk, $0.2088 over
+19 rows — and a wrong grouping in the second. The real figures are **68.5%**,
+**$2.4675**, **$0.0151** and **24.1×**.
+
+The page keeps the history rather than quietly carrying the better numbers, and
+`/learn/drift` carries it as a live incident. **A second one landed the same
+way:** `pnpm arch:graph` showed `docs/ARCHITECTURE.md` §1 stale by 5,227 lines in
+the surface layer — **7,911 of which is this learning track**. A document
+describing the repo became wrong because somebody added pages to the repo, and
+the pages were these ones, about drift.
+
+### `/learn/architecture` — and the half that is generated
+
+*"Follow one requirement through the repo."* Not a lesson in any track; a
+reference. **The graph is generated** — `scripts/arch-graph.mjs` reads every
+`package.json` and the workspace globs into `architecture.generated.ts`, behind
+`pnpm arch:graph`, checked by `pnpm arch:check`. **The walk is hand-written**,
+and the page says which half is which, because which file handles which stage is
+not derivable from a manifest.
+
+Two things the generator got wrong first, both caught by building it:
+
+1. **It counted itself.** The artifact lands inside a package it measures, so
+   writing it changed the number it reports and `--check` could never agree with
+   itself. `*.generated.ts` is excluded now, which is also the right answer
+   independently — the figure means "how much was written".
+2. **It inferred the layer from the directory**, which put `@veresk/surface`
+   under a heading reading *"knows nothing about any customer — a second
+   engagement uses it unchanged"*. That package's whole reason for existing is
+   the opposite. The layer is now the glob **plus two documented exceptions**,
+   with the disagreement rendered as a `layerNote` rather than silently
+   resolved.
+
+**And `arch:check` itself committed the failure `/learn/drift` is about.** It
+compared line counts, so any edit to any file turned it red — a checker that
+fires on every commit is a checker somebody turns off. It now guards the graph
+(packages, layers, edges) and ignores the counts. Both behaviours are proven:
+a planted edge change is caught, a planted line-count change is not.
+
+### The defect that made `HowItWorks` mark its own excerpts
+
+One walkthrough carried a **paraphrase** of `packages/guard/src/guard.ts` under
+the real path — invented identifiers, and it dropped the branch where missing
+configuration **allows** in development. The page taught *fail closed* while
+omitting the one path that fails open. Beside it, in the same component with the
+same `path=` prop, sat an excerpt that was verbatim to the line. A reader could
+not tell which they were getting.
+
+`HowItWorks` now takes `shape: 'verbatim' | 'assembled'`, defaulting to the
+strict value, rendered in the snippet header. An audit found **seven** of the
+existing walkthroughs carrying the same defect — one instance, seven
+occurrences. Same argument as `Figure`'s `kind`, one level down.
+
+The guard excerpt is the real file now, and the dev branch is the interesting
+part rather than the embarrassment: the dev server binds loopback, and the
+alternative — every developer setting a secret before the app starts — is how
+people end up committing one.
+
+### Checks
+
+`pnpm typecheck` 31/31 · `pnpm leak:check` PASS · `pnpm arch:check` current ·
+20 routes × 2 widths rendered with zero overflow, clipping or missing accents.

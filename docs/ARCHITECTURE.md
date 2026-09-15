@@ -56,17 +56,38 @@ appears in one.**
    and `leak:check` fails the build if one so much as says "policy".
 ```
 
-**Judgment is the big layer, and that is the finding, not an accident.** Measured
-today, in `src/` lines:
+**Judgment is the big layer, and that is the finding, not an accident.**
 
 ```
-  transport (10 @fde/* packages)          10,733
-  judgment  (3 engagements)               39,590   ← 3.7× the shared machinery
-  surface   (4 apps + uikit + surface)    24,073
+  transport (10 @fde/* packages)          11,560
+  judgment  (3 engagements)               41,103   ← 3.56× the shared machinery
+  surface   (4 apps + uikit + surface)    30,123
 ```
 
 If a "framework" ever grows larger than the judgment it serves, the split was
 drawn in the wrong place.
+
+**THESE THREE NUMBERS ARE GENERATED, AND THE PREVIOUS SET WAS NOT.** They are
+the sum of `lines` in
+[`architecture.generated.ts`](../apps/web/veresk-app/src/lib/learn/architecture.generated.ts),
+produced by `pnpm arch:graph` from every `package.json`; `pnpm arch:check` fails
+a build when the file and the manifests disagree. Regenerate rather than edit.
+
+The set they replaced — 10,733 / 39,590 / 24,073, and a 3.7× ratio — was hand
+counted, true when written, and wrong by 827, 1,513 and **6,050** lines by the
+time anyone looked. The surface figure drifted worst because the `/learn`
+section was added to `veresk-app` and nothing here knew. **A number in a
+document that describes a repo goes stale the moment somebody works on the
+repo**, which is the argument for this paragraph existing rather than for
+somebody being more careful. The layer *counts* — 10, 3, 6 — did not move, and
+the headline did not either: judgment is still over three times the shared
+machinery.
+
+Note on method, because the two available answers differ: a package's lines are
+summed per file, so a file not ending in a newline still contributes its last
+line. `cat **/*.ts | wc -l` reports one fewer per file — 92 against 94 for
+`@fde/foundry`, 567 against 571 for `@fde/bedrock`. §2's diagram below uses the
+older convention.
 
 ---
 
@@ -114,11 +135,25 @@ Three edges are worth reading twice:
 | `@fde/bedrock` ← steering **only** | the AWS adapter exists to test the claim that *"a customer on AWS writes a sibling of `@fde/foundry` and changes nothing else."* One consumer is honest — it has one job. |
 | `@fde/scanner` ← pharma **only** | new. The other two callers (`leak-check.mjs`, steering's guard) have not been converted yet — see §5. |
 
-One genuine asymmetry, flagged rather than smoothed: **`@fde/guard` is consumed
-by `@claims/insurance` but by pharma's and steering's *apps*.** Insurance pulls
-it to run its self-test; the other two use it where it belongs, guarding an HTTP
-route. Same package, two different reasons, and the shape of the graph does not
-say which is which.
+One genuine asymmetry, flagged rather than smoothed: **`@fde/guard` has four
+consumers, and insurance is two of them.**
+
+```
+  @claims/insurance        the package — pulls it to run its self-test
+  @claims/insurance-app    the app     — guarding an HTTP route
+  @meridian/pharma-app     the app
+  @vantis/steering-app     the app
+```
+
+Insurance consumes it *both* ways; the other two engagements only at the app,
+where it belongs. Same package, two different reasons, and the shape of the
+graph does not say which is which.
+
+*Corrected 2026-09-15. This paragraph previously read "consumed by
+`@claims/insurance` but by pharma's and steering's apps", which omitted
+`@claims/insurance-app` and so described a cleaner split than exists. Found by
+diffing this section against the generated graph — the asymmetry is real, it
+was just not the one written down.*
 
 ---
 

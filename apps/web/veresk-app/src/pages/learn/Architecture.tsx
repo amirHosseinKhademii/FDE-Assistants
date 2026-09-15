@@ -157,7 +157,7 @@ export function Architecture() {
 
           <Figure
             title="What Vantis Steering reaches, and what reaches back"
-            sub="Eight shared packages, and none of them knows what a steering rack is."
+            sub="Every package that depends on another, by how many it reaches. The bar is the point — which packages they are is in the four blocks above."
             source={
               <>
                 Generated {GENERATED_AT} by <span className="text-ui-dim">pnpm arch:graph</span>.{' '}
@@ -174,10 +174,31 @@ export function Architecture() {
                   label: p.name,
                   value: p.deps.length,
                   display: `${p.deps.length}`,
-                  note: p.deps.join(' · '),
+                  /*
+                   * NO DEPENDENCY LIST HERE, AND THAT IS THE SECOND FIX TO THIS
+                   * NOTE RATHER THAN A FIRST DRAFT.
+                   *
+                   * It was the bare list, which read as the next row's label —
+                   * same mono face, same x — so the chart appeared to have rows
+                   * with no bars. An arrow prefix fixed that and left the real
+                   * problem: nineteen rows each carrying up to eight package
+                   * names is a wall of small grey text, and the `Key` below
+                   * says to read the SHAPE rather than the rows.
+                   *
+                   * The four layer blocks above already name every package, so
+                   * the list was a third printing of the same thing. What the
+                   * chart is for is fan-out, and fan-out is the bar.
+                   */
+                  note: `${p.kind === 'judgement' ? 'an engagement' : p.kind === 'surface' ? 'an app' : 'shared'} · ${p.external} third-party`,
                 }))}
               labelWidth={210}
-              unit="workspace deps"
+              /*
+               * NO `unit`, DELIBERATELY. It was "workspace deps", which put
+               * about 104 units of text after a bar that already ends at 910 of
+               * 1000 — so the longest rows rendered as "8 workspace" with the
+               * rest cut off at the viewBox edge. The count alone is legible
+               * and the axis line below carries the unit.
+               */
               axis={`${PACKAGES.length} packages · ${edges} workspace edges in total`}
             />
           </Figure>

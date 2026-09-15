@@ -41,7 +41,7 @@ import { AURORA } from '../lib/aurora';
 import { PHARMA, STEERING } from '../lib/links';
 import { BoxIcon } from '@fde/uikit';
 import { CaseGlyph, PackageGlyph } from '../components/flow/veresk-glyphs';
-import { hueOf, lessonsIn, TRACKS } from '../lib/learn/lessons';
+import { hueOf, lessonsIn, TOTALS, TRACKS } from '../lib/learn/lessons';
 
 /* ── The graph, as data ────────────────────────────────────────────────────
    Every edge below is a real dependency. Regenerate the list with:
@@ -436,10 +436,11 @@ function Learn() {
         And here is how the machine actually works.
       </h2>
       <p className="mt-4 max-w-[60ch] leading-relaxed text-ui-dim">
-        Twelve lessons in two tracks. Five take apart the machinery every engagement above is built from;
-        seven follow one of them into a real customer's files, where most of the answers turned out not to be
-        there. Every figure is a number this repo measured, printed with the command that reprints it — and
-        the one drawing that is an illustration rather than a measurement says so.
+        {TOTALS.lessons} lessons in {TOTALS.tracks} tracks, plus a map of the repo itself. Five take apart
+        the machinery every engagement above is built from; five are what you build after it works; seven
+        follow all of it into a real customer's files, where most of the answers turned out not to be there.
+        Every figure is a number this repo measured, printed with the command that reprints it — and the one
+        drawing that is an illustration rather than a measurement says so.
       </p>
 
       {/* GROUPED, BECAUSE THE TWO TRACKS ARE NOT ONE RUN OF TWELVE. See

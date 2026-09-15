@@ -138,6 +138,11 @@ export function Drift() {
                 b: '74% and a $0.0177 median, both hand-computed from a log. Making the table a command found a whole surface missing from one and a wrong grouping in the other. 68.5% and $0.0151 are what the command prints — and the page says so rather than quietly carrying the better numbers.',
               },
               {
+                ref: 'the rail on this very page, until an hour ago',
+                t: 'The navigation said “twelve lessons, two tracks”. There are seventeen, in three.',
+                b: 'Three surfaces carried the hardcoded count — the sidebar, the section index and the firm\u2019s front page — and all three stayed at twelve after a whole track of five landed. A number that went stale the moment the thing it counts changed, in the navigation of the site whose last lesson is this one. Nothing caught it: a person read the page and asked why the count looked wrong. All three now derive from the list they describe.',
+              },
+              {
                 ref: 'docs/ARCHITECTURE.md §1, right now',
                 t: 'These very pages made the repo\u2019s own architecture document wrong.',
                 b: 'Its §1 table gives the surface layer as 24,073 lines. It is 29,300 — and 7,911 of the difference is the learning track you are reading. The document was true when written; writing a page about drift caused the drift. Its §2 also says @fde/guard has three consumers and the generated graph says four. Re-run pnpm arch:graph and see for yourself.',
@@ -161,8 +166,16 @@ export function Drift() {
         </Key>
 
         <P>
-          Both of those were caught the same way, and it is the way this lesson argues for: a number that had
-          a producer was compared against its producer.{' '}
+          <strong className="font-medium text-ui-fg">The fourth one is the one to sit with</strong>, because
+          it breaks the pattern: it was caught by a person looking at the page, not by any command. It had no
+          producer — somebody had typed “twelve” into three files — so there was nothing for a checker to
+          compare it against. That is what this lesson's first section is about: the fix was not to check the
+          number, it was to stop the number from being a number and make it a derivation.
+        </P>
+
+        <P>
+          The other two were caught the way this lesson argues for: a number that had a producer was compared
+          against its producer.{' '}
           <code className="font-mono text-ui-fg">pnpm steering:spend</code> caught the first,{' '}
           <code className="font-mono text-ui-fg">pnpm arch:graph</code> caught the second, and neither needed
           anybody to remember anything. The three historical incidents above were all caught by a person

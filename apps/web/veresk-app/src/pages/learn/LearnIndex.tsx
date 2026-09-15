@@ -17,14 +17,14 @@
  * not one numbered run of twelve.
  */
 import { Link } from '@tanstack/react-router';
-import { hueOf, lessonsIn, TRACKS, type Lesson } from '../../lib/learn/lessons';
+import { hueOf, lessonsIn, MAP, TOTALS, TRACKS, type Lesson } from '../../lib/learn/lessons';
 
 export function LearnIndex() {
   return (
     <div>
       <header className="border-b border-ui-line pb-10">
         <p className="font-mono text-[0.6875rem] tracking-[0.08em] text-ui-faint uppercase">
-          twelve lessons, two tracks · about an hour and a half
+          {TOTALS.lessons} lessons, {TOTALS.tracks} tracks · about {TOTALS.hours} hours
         </p>
 
         <h1 className="lift-in mt-4 max-w-[20ch] font-mono text-3xl leading-[1.1] font-semibold tracking-tighter text-ui-fg md:text-5xl">
@@ -33,8 +33,8 @@ export function LearnIndex() {
 
         <p className="lift-in mt-6 max-w-[58ch] text-lg leading-relaxed text-ui-dim" style={{ animationDelay: '120ms' }}>
           Five pages take the machinery apart — something that finds the right passage, a contract the
-          answer has to satisfy, a loop that calls tools, a suite that says whether any of it works. Seven
-          more point the same machinery at a real customer's files and report what happened.
+          answer has to satisfy, a loop that calls tools, a suite that says whether any of it works. Five
+          more are what you build after it works. Seven follow all of it into a real customer's files.
         </p>
 
         <p className="lift-in mt-5 max-w-[58ch] leading-relaxed text-ui-faint" style={{ animationDelay: '200ms' }}>
@@ -105,6 +105,32 @@ export function LearnIndex() {
             </p>
           </div>
         </div>
+      </section>
+
+      {/* THE MAP, ABOVE THE TRACKS. It belongs to none of them and is the thing
+          somebody arriving cold most often wants first: not how a retriever
+          works, but where any of this lives. */}
+      <section className="border-b border-ui-line py-10">
+        <Link
+          to={`/learn/${MAP.slug}`}
+          className="case-card group grid gap-x-5 gap-y-2 sm:grid-cols-[3rem_1fr]"
+          style={{ ['--lesson' as string]: 'var(--color-ui-accent)' }}
+        >
+          <span className="font-mono text-2xl leading-none text-ui-accent" aria-hidden>
+            ▣
+          </span>
+          <span>
+            <span className="block font-mono text-base font-medium text-ui-fg">{MAP.title}</span>
+            <span className="mt-2 block max-w-[62ch] text-[0.9375rem] leading-relaxed text-ui-dim">
+              {MAP.blurb}
+            </span>
+            <span className="mt-3 flex flex-wrap items-baseline gap-x-4 gap-y-1 font-mono text-[0.6875rem] text-ui-faint">
+              <span className="text-ui-dim">a reference, not a lesson</span>
+              <span>reads cold</span>
+              <span>generated from package.json by pnpm arch:graph</span>
+            </span>
+          </span>
+        </Link>
       </section>
 
       {TRACKS.map((track) => (
