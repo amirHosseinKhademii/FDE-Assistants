@@ -3714,3 +3714,91 @@ people end up committing one.
 
 `pnpm typecheck` 31/31 · `pnpm leak:check` PASS · `pnpm arch:check` current ·
 20 routes × 2 widths rendered with zero overflow, clipping or missing accents.
+
+### The architecture page shipped orphaned, and the counts beside it were stale
+
+Byron found both by reading the page, which is the honest note to end on: the
+render sweep, the typecheck and the overflow probe all passed on a page nothing
+linked to.
+
+**`/learn/architecture` was reachable only by typing the URL.** The plan said it
+would get an entry above the tracks; the entry was never written. The route
+worked, the page rendered, and no rail, index or landing page pointed at it.
+
+Fixed in three places, and the fix is that there is now only **one** place to
+change: `MAP` in `lib/learn/lessons.ts`, read by the rail (a pinned, unnumbered
+row above the tracks — it is a reference you want mid-lesson, and the rail is
+the only thing on screen then), by the section index above the tracks, and by
+the firm's page. A page cannot be added to this section now without a record to
+put it in.
+
+**And three surfaces said "twelve lessons, two tracks" after a third track of
+five landed.** The rail, the index and the firm's page each carried the number
+as a literal. The reading estimate was low by the same five pages.
+
+That is a hardcoded count going stale the moment the thing it counts changed,
+**in the navigation of the site whose last lesson is about exactly that** — and
+unlike the two incidents already on `/learn/drift`, no command caught it,
+because it had no producer. Somebody had typed "twelve" into three files. It is
+now `TOTALS`, derived from `LESSONS.length`, `TRACKS.length` and the sum of the
+per-lesson minutes.
+
+`Drift.tsx` carries it as a fourth incident and uses it to make the point the
+other three could not: the fix was not to *check* the number, it was to stop it
+being a number.
+
+### Three smaller fixes from the same pass
+
+- **The dependency chart's per-row lists went.** Nineteen rows each carrying up
+  to eight package names was a wall of small grey text, and the `Key` under it
+  says to read the shape rather than the rows. The four layer blocks above
+  already name every package, so the list was a third printing. Rows now carry
+  layer and third-party count; the bar carries the fan-out.
+- **A passing eval cell was invisible.** `--ui-raised` on `--ui-surface` is two
+  near-blacks about 6% apart, so the 3×5 grid read as empty. "The absence of bad
+  news does not get a colour" is not the same as "gets no contrast" — a reader
+  has to be able to count the passing runs.
+- **A verification method failed before the thing it verified did.** `grep -c
+  'NN lessons'` returned nothing against a page that was correct: React's SSR
+  markers split the number (`lessons · <!-- -->3<!-- --> tracks`). Ten minutes
+  went into hunting a stale build that did not exist. A red check is a
+  hypothesis — this repo's own rule, arrived at from the tooling side.
+
+### Final state
+
+- **17 lessons, 3 tracks, plus `/learn/architecture`.** Machine 5 · operations 5
+  · engagement 7. Every lesson carries at least one `HowItWorks`; excerpts are
+  marked `verbatim` or `assembled`.
+- `pnpm typecheck` 31/31 · `pnpm leak:check` PASS · `pnpm arch:check` current.
+- 20 routes × 2 widths: no page-level scroll, no clipped element, no lesson
+  missing its accent, no `/learn/*` page missing a link to the map.
+
+### A fifth drift incident, and it is the one that sharpens the lesson
+
+The cost lesson's **lede** went on asserting 74% after the body of the page had
+been corrected to 68.5% — on the index card and at the top of the page itself,
+so a reader met the wrong number as the finding and its correction four
+paragraphs later.
+
+**That number has a producer.** `pnpm steering:spend` prints it. The producer did
+not save the sentence, because nothing connected the two — the lede was written
+before the command existed and lives in a different file.
+
+> **A number with a producer that nothing checks is no better off than a number
+> without one. It only looks like it is.**
+
+Which is the sharpest thing on `/learn/drift` and it now closes that page's
+argument. "Give the number a producer" is the fix that page recommends, and this
+is the case proving it is necessary rather than sufficient: the producer has to
+be *wired to the claim*. Until it is, a documented figure with a command behind
+it is more dangerous than one without, because everybody involved believes it is
+covered.
+
+**The lede now says "two thirds" rather than 68.5%**, deliberately. A summary
+carrying a precise figure is a second place for that figure to go stale, and the
+body below has the exact one with the command beside it. Rounded summary,
+precise body, is the only arrangement where the two cannot disagree.
+
+Three instances of 74% survive on the site and all three are sentences *about*
+the correction. Asserted by reading every one in the rendered text rather than
+by grepping source.

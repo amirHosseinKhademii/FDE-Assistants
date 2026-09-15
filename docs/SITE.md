@@ -695,3 +695,68 @@ than as an editor, and inside the dialog it is worse because the code is the
 thing the reader opened the dialog for. **The token colours are untouched**: the
 whole point of using shiki is that those are VS Code's values, and adjusting
 them would make that claim false.
+
+---
+
+## `/learn` as it now stands — 17 lessons, 3 tracks, and a map
+
+*Grown from the five of 2026-09-15 in the same day. The entries above describe
+the first pass; this is the shape it settled into.*
+
+```
+  THE MACHINE (5)              what every engagement is built from
+    vectors · retrieval · the answer · the loop · evals
+
+  WHAT YOU BUILD AFTER IT WORKS (5)     the operational pillars
+    regressions · forensics · cost · caching · drift
+
+  ONE ENGAGEMENT, END TO END (7)        Vantis Steering's own material
+    guessing · pipelines · answer key · tools · attention · residency · ceiling
+
+  /learn/architecture          a REFERENCE, in no track
+```
+
+### The hue rule, corrected
+
+A lesson's accent is its **position within its track**: every track samples one
+sky→orange ramp at `(n - 1) / (total - 1)`. A five-lesson track lands on the five
+stops; a seven-lesson track gets seven steps of the same ramp.
+
+The first version gave a hue only to tracks of exactly five and drew the rest in
+the foreground colour, on the argument that they had no sequence to encode. The
+argument was wrong — every track is a sequence — and the result was a track that
+visibly did not belong to the same site. **The palette validator's finding still
+stands and still governs the rule around the hue:** no chart encodes a series
+with it, and it never appears without its lesson number.
+
+### Three components the section grew
+
+| | |
+|---|---|
+| `HowItWorks` | a press that opens the real code beside a plain reading. Fixed shape — *in plain words · the code · line by line · what went wrong here once*. Takes `shape: 'verbatim' \| 'assembled'`, default verbatim. |
+| `SaidOutLoud` | the paragraph you could say to somebody, plus the follow-up it provokes. `then` is required. |
+| `Snippet` | shiki, VS Code's own `dark-plus` grammars, synchronous. |
+
+### `MAP` and `TOTALS` exist because both failed as literals
+
+`/learn/architecture` shipped reachable only by typing the URL — routed,
+rendered, and linked from nowhere. And three surfaces said *"twelve lessons, two
+tracks"* after a third track of five landed.
+
+Both are single records in `lib/learn/lessons.ts` now, read by every surface that
+shows them. **The general rule this section keeps re-learning:** a fact
+duplicated across components is a fact that will disagree with itself, and the
+check that catches it is a person reading the page.
+
+### What guards what
+
+```bash
+pnpm arch:graph     # regenerate the package graph the architecture page draws
+pnpm arch:check     # fail if it disagrees with package.json — proven to catch planted drift
+pnpm leak:check     # no customer vocabulary in the shared layer
+pnpm typecheck      # 31/31
+```
+
+`arch:check` guards **the graph** — packages, layers, edges — and deliberately
+ignores line counts. Comparing those made it fire on every source edit, which is
+a checker somebody turns off, and `/learn/drift` is a page about that failure.

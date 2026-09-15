@@ -224,7 +224,20 @@ export const LESSONS: Lesson[] = [
     n: 3,
     short: 'Cost',
     title: 'What it costs, and the denominator nobody picks',
-    lede: 'Per-request cost was measured from day one; the two things that changed the picture were printing spend by surface — the eval suite turned out to be 74% of it — and dividing by accepted answers instead of by calls.',
+    /*
+     * "TWO THIRDS" AND NOT "68.5%", DELIBERATELY.
+     *
+     * This lede carried 74% — the figure the page below it was corrected away
+     * from — and went on saying it after the body had been fixed, on the index
+     * card and at the top of the page. A reader met the wrong number as the
+     * finding and the correction four paragraphs later.
+     *
+     * The fix is not a better number. A lede that carries a precise figure is a
+     * SECOND PLACE for that figure to go stale, and the page below has the exact
+     * one with the command that reprints it. So the summary rounds and the body
+     * is precise, which is the only arrangement where they cannot disagree.
+     */
+    lede: 'Per-request cost was measured from day one; the two things that changed the picture were printing spend by surface — two thirds of it turned out to be the eval suite, not production — and dividing by accepted answers instead of by calls.',
     source: 'docs/steering/OPERATIONS.md §3 · apps/ai/steering/src/telemetry/prices.ts',
     minutes: 9,
     needs: null,

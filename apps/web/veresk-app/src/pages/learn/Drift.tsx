@@ -173,6 +173,23 @@ export function Drift() {
           number, it was to stop the number from being a number and make it a derivation.
         </P>
 
+        <Key>
+          And a fifth, which is the sharpest of the lot: the cost lesson's own{' '}
+          <em className="not-italic">opening sentence</em> went on saying 74% after the page below it had been
+          corrected to 68.5%. That number <strong className="font-medium">does</strong> have a producer —{' '}
+          <code className="font-mono">pnpm steering:spend</code> prints it — and the producer did not save it,
+          because nothing connected the two. A number with a producer that nothing checks is no better off
+          than a number without one. It only looks like it is.
+        </Key>
+
+        <P>
+          Which sharpens the whole lesson. “Give the number a producer” is the fix this page recommends, and
+          it is necessary rather than sufficient: the producer has to be <em className="not-italic">wired to
+          the claim</em>. Until it is, a documented figure with a command behind it is still just a figure
+          somebody typed — and it is more dangerous than one without, because everybody involved believes it
+          is covered.
+        </P>
+
         <P>
           The other two were caught the way this lesson argues for: a number that had a producer was compared
           against its producer.{' '}
