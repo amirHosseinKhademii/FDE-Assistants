@@ -10,6 +10,7 @@
  * carries more safeguards than the other two put together.
  */
 import { LessonPage } from '../../components/learn/LessonPage';
+import { HowItWorks } from '../../components/learn/HowItWorks';
 import { Caveat, Figure, Glossary, Key, P, RunIt, Step, Term } from '../../components/learn/kit';
 import { BarRows } from '../../components/learn/charts/BarRows';
 import { Stages } from '../../components/learn/charts/Stages';
@@ -99,6 +100,36 @@ export function Pipelines() {
           known gap at 702 documents and 2,827 pieces. Both numbers are right about their own day.
         </Key>
       </Step>
+
+        <HowItWorks
+          title="Why the code chunker is steering's and not the shared package's"
+          path="apps/ai/steering/src/grounding/code-chunker.ts:1–30"
+          plain={[
+            '@fde/grounding has needed NO edit to take on a third domain, and this file deliberately keeps that true. Splitting C by function is generic; almost nothing else about this job is.',
+            'The signature shape it recognises is AUTOSAR-flavoured. The file banner convention — specifically a CALIBRATION PARAMETERS ASCII table — is this customer\u2019s house style. And which of those parameters a function actually uses is the link that makes the whole thing worth doing.',
+            'That is a domain descriptor\u2019s worth of knowledge, not a library\u2019s. When a second customer arrives with C, the roughly 30% that is genuinely generic is the part to lift — and two consumers will be the evidence for where the seam goes. One is not.',
+            'The brief was also wrong, and the file says so: it described comment blocks sitting ABOVE functions that a clean split would orphan. Measured across all 147 .c files, that is not what this corpus contains — and building to the brief would have produced a chunker that did nothing.',
+          ]}
+          lines={[
+            ' * ── WHY THIS IS IN `packages/steering` AND NOT IN `@fde/grounding` ───',
+            ' *',
+            ' * `@fde/grounding` has needed NO edit to take on a third domain, and this',
+            ' * file deliberately keeps that true. Splitting C by function is generic;',
+            ' * almost nothing else here is:',
+            ' *',
+            " *   · the signature shape it recognises is AUTOSAR-flavoured",
+            " *   · the file banner convention, and specifically the `CALIBRATION",
+            " *     PARAMETERS` ASCII table, is this customer's house style",
+            ' *   · which of those parameters a function actually uses is the link that',
+            ' *     makes the whole thing worth doing',
+          ]}
+          mark={[2, 3, 4]}
+          says={[
+            { at: 'has needed NO edit', is: 'The claim the shared/judgement split rests on. This file exists to keep it true rather than to be convenient.' },
+            { at: 'AUTOSAR-flavoured', is: 'One customer\u2019s convention. In the shared package it would be a rule everybody pays for and one customer uses.' },
+          ]}
+          trap="The task was described one way and the files were another. Measuring 147 real files before writing the splitter is what caught it — a chunker built to that brief would have run, produced output, and found nothing."
+        />
 
       <Step n={3} title="Silence is not “no”">
         <P>

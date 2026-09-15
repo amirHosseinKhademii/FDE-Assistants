@@ -17,6 +17,7 @@
  * goes stale silently.
  */
 import { LessonPage } from '../../components/learn/LessonPage';
+import { HowItWorks } from '../../components/learn/HowItWorks';
 import { Caveat, Data, Figure, Glossary, Key, P, RunIt, Step, Term } from '../../components/learn/kit';
 import { BarRows } from '../../components/learn/charts/BarRows';
 import { Funnel } from '../../components/learn/charts/Funnel';
@@ -206,6 +207,36 @@ export function Ceiling() {
           expensive place for a false negative is a tool whose output is an accusation.
         </P>
       </Step>
+
+        <HowItWorks
+          title="How the drop-one measurement was possible at all"
+          path="apps/ai/steering/src/cli/why-unpriced.ts:246–269"
+          shape="assembled"
+          plain={[
+            'For each refusal, the question is: which ONE field, dropped, would have taken this key over the floor of three?',
+            'The diagnostic does not guess. It asks the estate — counting how many past jobs match if each filter in turn is removed — using the same function the pricing tool already calls to build its own refusal.',
+            'That shared function is why this was an afternoon rather than a project. Nothing new had to be instrumented: the evidence was already being computed inside every refusal and thrown away.',
+            'And when every count still falls under the floor it says so in words rather than printing zeros, because "dropping any one field still leaves it under the floor" is a finding and a row of zeros is a table.',
+          ]}
+          lines={[
+            '/**',
+            ' * Which ONE field, dropped, would have taken this key over the floor?',
+            ' *',
+            ' * `countWithoutEachField` is what the tool itself prints inside its refusal,',
+            ' * so this asks the estate the same question the tool already asked.',
+            ' */',
+            'const counts = await countWithoutEachField(h, key);',
+            '',
+            '// …when no single field clears the floor:',
+            "//   'dropping any ONE field still leaves it under the floor — not a near miss'",
+          ]}
+          mark={[6, 9]}
+          says={[
+            { at: 'countWithoutEachField', is: 'Shared with the tool. Two implementations of "what would this filter have cost" would eventually disagree, and the disagreement would be invisible.' },
+            { at: 'not a near miss', is: 'A sentence, not a zero. Twelve of thirteen printed this, and that is what reversed the team\u2019s hypothesis.' },
+          ]}
+          trap="`walk-check` asserts that dropping `asil` on a safety-case question produces a specific result — so the diagnostic that reads these counts is itself covered by the hand-worked answer key. A forensics tool nobody checks is a forensics tool that quietly starts lying."
+        />
 
       <Step n={5} title="Check a status table's date before trusting it">
         <P>

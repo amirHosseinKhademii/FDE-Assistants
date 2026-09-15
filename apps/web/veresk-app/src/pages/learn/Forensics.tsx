@@ -11,7 +11,7 @@
  */
 import { LessonPage } from '../../components/learn/LessonPage';
 import { HowItWorks } from '../../components/learn/HowItWorks';
-import { Caveat, Data, Figure, Glossary, Key, P, RunIt, SaidOutLoud, Step, Term } from '../../components/learn/kit';
+import { Caveat, Code, Data, Figure, Glossary, Key, P, RunIt, SaidOutLoud, Step, Term } from '../../components/learn/kit';
 import { BarRows } from '../../components/learn/charts/BarRows';
 import { Stages } from '../../components/learn/charts/Stages';
 
@@ -75,6 +75,31 @@ export function Forensics() {
           <code className="font-mono text-ui-fg">toolCalls</code>,{' '}
           <code className="font-mono text-ui-fg">ms</code> and a cost on every line, and the assessment
           history carries the answer body and the trace.
+        </P>
+
+        <Code
+          path="packages/telemetry/src/request-log.ts"
+          note="one line per request, written at the time"
+          lines={[
+            'interface RequestRecord {',
+            '  inputTokens: number;',
+            '  cachedInputTokens?: number;   // optional — undefined is NOT 0',
+            '  outputTokens: number;',
+            '  ms: number;',
+            '  stoppedBecause: string;       // model_finished | max_turns | threw',
+            '  schemaRetries: number;',
+            "  /** 'ask' | 'eval' | whatever calls it. Keeps real traffic separable. */",
+            '  surface: string;',
+            '}',
+          ]}
+          mark={[5, 8]}
+        />
+
+        <P>
+          <code className="font-mono text-ui-fg">stoppedBecause</code> is the field that makes the first
+          bucket in the next section possible, and <code className="font-mono text-ui-fg">surface</code> is
+          what let the cost lesson separate the eval suite from real traffic. Neither was added for the
+          analysis that used it — both were there first, which is the only way that works.
         </P>
 
         <Key>
@@ -169,6 +194,7 @@ export function Forensics() {
 
         <HowItWorks
           title="How one column came to hold two structures"
+          shape="assembled"
           path="apps/ai/steering/src/cli/file-assessment.ts:79 · the desk route"
           lang="json"
           plain={[

@@ -13,6 +13,7 @@
  * says a default is NOT what everybody assumes it is.
  */
 import { LessonPage } from '../../components/learn/LessonPage';
+import { HowItWorks } from '../../components/learn/HowItWorks';
 import { Caveat, Figure, Glossary, Key, P, RunIt, Step, Term } from '../../components/learn/kit';
 import { BarRows } from '../../components/learn/charts/BarRows';
 
@@ -161,6 +162,34 @@ export function Residency() {
           ))}
         </div>
       </Step>
+
+        <HowItWorks
+          title="How “only 220 documents leave” is verified rather than asserted"
+          path="pnpm steering:derived-compliance-check"
+          lang="bash"
+          shape="assembled"
+          plain={[
+            'The check does not read the code that builds the requests. It captures the requests themselves and counts the bytes that actually left.',
+            'That distinction is the entire value of the table above. A source line setting `store: false` tells you what somebody intended; the outgoing bytes tell you what happened.',
+            'It is the same discipline as the compliance gate in the machine track, pointed at a different question — there it was "does a framework default leak", here it is "how much of the customer\u2019s estate crosses a boundary".',
+            'Four of the six claims on this page are verified this way. The other two are a vendor statement and a thing that still has to be arranged, and they sit on different rows for exactly that reason.',
+          ]}
+          lines={[
+            '$ pnpm steering:derived-compliance-check',
+            '',
+            '  220 documents sent, one per request',
+            '  5,664 captured bytes — read off the outgoing requests',
+            '  exactly one host, in our own tenant',
+            '  store:false present in the OUTGOING BYTES, not just in source',
+            '  Entra token — no static key, nothing beginning sk-',
+          ]}
+          mark={[3, 5]}
+          says={[
+            { at: '5,664 captured bytes', is: 'Counted from what was sent. A figure derived from the corpus size would be an estimate of the same thing and would not survive a question.' },
+            { at: 'in the OUTGOING BYTES', is: 'Not the source line that sets it. A library default can change under you between versions; the bytes cannot lie about what was sent.' },
+          ]}
+          trap="What it cannot check is the other half — what the provider does with the data after it arrives. That is a contract, not a measurement, and it is on its own row on this page because a reviewer will ask which one you mean."
+        />
 
       <Step n={4} title="And where a check stops being the answer">
         <P>

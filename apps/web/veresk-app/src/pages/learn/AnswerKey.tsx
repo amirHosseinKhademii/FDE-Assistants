@@ -11,6 +11,7 @@
  * are this page.
  */
 import { LessonPage } from '../../components/learn/LessonPage';
+import { HowItWorks } from '../../components/learn/HowItWorks';
 import { Caveat, Data, Figure, Glossary, Key, P, RunIt, Step, Term } from '../../components/learn/kit';
 import { BarRows } from '../../components/learn/charts/BarRows';
 
@@ -128,6 +129,31 @@ export function AnswerKey() {
           searching and leaves the judgement where it belongs.
         </Key>
       </Step>
+
+        <HowItWorks
+          title="Where the threshold actually lives"
+          shape="assembled"
+          path="apps/ai/steering/src/answer/derive.ts:264"
+          plain={[
+            'Three comparables is one constant, in one file, exported.',
+            'The hand-worked walk imports it. The pricing tool the model calls imports it. Neither has its own copy.',
+            'That is not tidiness. Two implementations of "three comparables" is how a refusal rule quietly becomes two different refusal rules — and the failure is silent, because both halves keep working and simply stop agreeing.',
+            'The same file exports median and mean, for the same reason: the sabotage test that swaps one for the other has to be swapping the thing the tool actually uses.',
+          ]}
+          lines={[
+            'export const MIN_COMPARABLES = 3;',
+            '',
+            '// imported by BOTH:',
+            '//   apps/ai/steering/src/answer/walk-check.ts    — the hand-worked key',
+            '//   apps/ai/steering/src/tools/functions/…       — the tool the model calls',
+          ]}
+          mark={[0]}
+          says={[
+            { at: 'MIN_COMPARABLES = 3', is: 'The floor. Below this the tool refuses and returns no number at all — not even zero.' },
+            { at: 'imported by BOTH', is: 'The key and the tool cannot drift apart, because there is nothing to drift.' },
+          ]}
+          trap="Three is a judgement, not a derived threshold — two is an anecdote, and nothing measured says three is where reliability begins. What makes it safe is that it is in one place and changing it moves both the tool and the test that checks the tool."
+        />
 
       <Step n={4} title="A suite of only-positive assertions cannot tell you it is passing for the wrong reason">
         <P>

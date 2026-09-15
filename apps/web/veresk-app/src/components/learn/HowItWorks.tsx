@@ -42,6 +42,30 @@ export interface Walkthrough {
   lines: string[];
   /** Defaults to TypeScript, which is what most of this repo is. */
   lang?: Lang;
+  /**
+   * WHETHER `lines` IS THE FILE, OR A READING OF IT — and this is a prop
+   * because shipping it as a convention failed.
+   *
+   * One walkthrough on the architecture page carried a PARAPHRASE of
+   * `packages/guard/src/guard.ts` under a real path: invented identifiers, a
+   * `deny()` that does not exist, and — the part that mattered — it dropped the
+   * branch where missing configuration ALLOWS in development. The page taught
+   * "fail closed" while omitting the one path that fails open, and a reader who
+   * opened the file would have found different code.
+   *
+   * Next to it, in the same component and with the same `path=` prop, sat an
+   * excerpt that was verbatim to the line. A reader could not tell which they
+   * were getting.
+   *
+   *   verbatim   copied from the file. Elisions marked `…`, nothing else changed.
+   *   assembled  composed for the page — console output, two files shown
+   *              together, or a shape written to make a structure visible.
+   *
+   * Defaults to `verbatim`, which is the strict value, so a walkthrough whose
+   * author forgot claims to be the file and is wrong in the direction somebody
+   * notices. Same argument as `Figure`'s `kind`, one level down.
+   */
+  shape?: 'verbatim' | 'assembled';
   /** Indices into `lines` the explanation is about. */
   mark?: number[];
   /** Each marked line, said again in English. */
@@ -124,8 +148,13 @@ export function HowItWorks(w: Walkthrough) {
               <h4 className="learn-walk-h">The code, as it is on disk</h4>
               <div className="snip-frame mt-3">
                 <div className="snip-head">
-                  <span className="snip-kind">code</span>
+                  <span className="snip-kind">{w.shape === 'assembled' ? 'assembled' : 'code'}</span>
                   <span className="snip-path">{w.path}</span>
+                  {w.shape === 'assembled' && (
+                    <span className="ml-auto" style={{ color: 'var(--color-ui-warn)' }}>
+                      composed for this page — not a copy of one file
+                    </span>
+                  )}
                 </div>
                 <Snippet lines={w.lines} lang={w.lang ?? 'typescript'} mark={w.mark} />
               </div>

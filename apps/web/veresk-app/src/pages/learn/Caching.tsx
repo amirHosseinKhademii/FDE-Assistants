@@ -16,7 +16,8 @@
  * one place the whole section's promise breaks.
  */
 import { LessonPage } from '../../components/learn/LessonPage';
-import { Caveat, Data, Figure, Glossary, Key, P, RunIt, SaidOutLoud, Step, Term } from '../../components/learn/kit';
+import { HowItWorks } from '../../components/learn/HowItWorks';
+import { Caveat, Code, Data, Figure, Glossary, Key, P, RunIt, SaidOutLoud, Step, Term } from '../../components/learn/kit';
 import { BarRows } from '../../components/learn/charts/BarRows';
 import { EITHER_OR, Matrix } from '../../components/learn/charts/Matrix';
 import { Stages } from '../../components/learn/charts/Stages';
@@ -105,6 +106,38 @@ export function Caching() {
           Two thirds of the input is already on the cheap meter, for free, with zero correctness risk. The
           remaining headroom is smaller than a cache-shaped hole looks.
         </Key>
+
+        <HowItWorks
+          title="How a prompt-cache hit is counted, and why it cannot be a guess"
+          path="packages/telemetry/src/request-log.ts:94–155"
+          plain={[
+            'The provider tells you how many input tokens it served from its cache. That number is a SUBSET of the input count, not an addition to it — so a hit makes a request cheaper, and treating it as an addition would make a hit look more expensive.',
+            'That is wrong in the direction nobody audits: cost going UP is never the surprise that prompts an investigation.',
+            'The field is optional, and `undefined` is not `0`. Zero means measured and nothing was cached. Undefined means this engine does not report it — so the cost stays a CEILING rather than becoming a guess.',
+            'And two facts must both hold before any discount is applied: the engine reported cached tokens, and the deployment has a confirmed cached rate. Either missing and it stays a ceiling. That is why the 66% on this page is a measurement rather than an estimate.',
+          ]}
+          lines={[
+            '// Two independent facts have to be true before a discount is applied, and',
+            '// either one missing means the figure stays a CEILING rather than becoming a',
+            '// guess.',
+            'const reported = r.cachedInputTokens;',
+            'const haveRate = typeof p.cachedInputPerM === \'number\';',
+            '',
+            '// CLAMPED, because a cached count exceeding the input count would make the',
+            '// uncached remainder negative and hand back a smaller bill the more absurd',
+            '// the reading got.',
+            'const cached =',
+            '  typeof reported === \'number\' && haveRate',
+            '    ? Math.max(0, Math.min(reported, r.inputTokens))',
+            '    : 0;',
+          ]}
+          mark={[3, 4, 11]}
+          says={[
+            { at: 'reported / haveRate', is: 'Two facts from two different places. A discount on half the evidence understates spend, and understating spend is the direction nobody audits.' },
+            { at: 'Math.min(reported, r.inputTokens)', is: 'Clamped. A provider reporting cached greater than input cannot hand back a smaller bill the more absurd the reading gets.' },
+          ]}
+          trap="This is also what makes the 25.2% outlier on the desk-summary path trustworthy enough to act on. A cache figure computed by guessing at the missing half would have shown that path as fine."
+        />
       </Step>
 
       <Step n={2} title="Why prefix order decides the hit rate">
@@ -214,6 +247,27 @@ export function Caching() {
             'Change the MODEL   → you are comparing two systems and calling it one.',
           ]}
           mark={[0]}
+        />
+
+        <Code
+          path="apps/ai/steering/src/telemetry/prices.ts:47–60"
+          note="why the cached rate is a separate field, and not a multiplier"
+          lines={[
+            'const PRICES: Record<string, Price> = {',
+            "  'text-embedding-3-small': {",
+            '    inputPerM: 0.02,',
+            '    outputPerM: 0,',
+            '  },',
+            "  'gpt-5-mini': {",
+            '    inputPerM: 0.25,',
+            '    // The `cchd` meter — a TENTH of fresh input. Azure caches automatically and',
+            '    // this rate was read off the bill, not off the published price list.',
+            '    cachedInputPerM: 0.025,',
+            '    outputPerM: 2.0,',
+            '  },',
+            '};',
+          ]}
+          mark={[9]}
         />
 
         <Key>

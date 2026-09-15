@@ -129,6 +129,28 @@ export function Architecture() {
                     </li>
                   ))}
                 </ul>
+
+                {/* WHERE THE DIRECTORY AND THE LAYER DISAGREE, SAY SO. Two
+                    packages live under `packages/` and belong to the surface,
+                    and the first version of this page inferred the layer from
+                    the directory — which put `@veresk/surface` under "a second
+                    engagement uses it unchanged", the exact opposite of why
+                    that package exists. */}
+                {inLayer.some((p) => p.layerNote) && (
+                  <dl className="mt-3 space-y-1.5 border-t border-ui-line pt-3">
+                    {inLayer
+                      .filter((p) => p.layerNote)
+                      .map((p) => (
+                        <div key={p.name} className="text-[0.75rem] leading-relaxed">
+                          <dt className="inline font-mono text-ui-dim">{p.name}</dt>
+                          <dd className="inline text-ui-faint">
+                            {' '}
+                            lives in <span className="font-mono">{p.glob}</span> — {p.layerNote}
+                          </dd>
+                        </div>
+                      ))}
+                  </dl>
+                )}
               </div>
             );
           })}
@@ -190,29 +212,49 @@ export function Architecture() {
           </p>
 
           <HowItWorks
-            title="How the write path is refused by default"
-            path="packages/guard/src/guard.ts"
+            title="How the write path refuses — and the one branch where it does not"
+            path="packages/guard/src/guard.ts:62–84"
             plain={[
-              'Every route that can cause a write or spend money is behind one guard, and the guard fails CLOSED: missing configuration denies rather than allows.',
-              'That is the opposite of the usual default. A guard that allows when it cannot find its key is a guard that switches itself off the first time an environment variable is missed.',
-              'It is asserted by its own self-test rather than by being read — `pnpm guard:check` walks every write path and requires each one to still deny.',
+              'Every route that can cause a write or spend money goes through one function. It returns a result object rather than throwing, so a caller cannot forget to handle the failure.',
+              'With a key configured, the comparison is constant-time — so a rejection does not leak how much of the credential was right.',
+              'With NO key configured in production it returns 503 and refuses to serve. That is the fail-closed half, and the reason text says so at the line rather than in a doc.',
+              'And with no key configured in DEVELOPMENT it allows. That is a real exception and worth understanding rather than hiding: the dev server binds loopback, so the thing being protected is not reachable from anywhere else — and the alternative, making every developer set a secret before the app will start, is how people end up committing one.',
             ]}
             lines={[
-              '// Fail CLOSED. A missing secret denies; it does not wave the request',
-              '// through. The failure mode of the other choice is silent and total.',
-              'if (!expected) return deny(\'guard not configured\');',
+              'export function authorize(input: GuardInput): GuardResult {',
+              "  const configured = (input.configuredKey ?? '').trim();",
               '',
-              'if (!provided || !timingSafeEqual(provided, expected)) {',
-              '  return deny(\'bad or missing credential\');',
+              '  if (!configured) {',
+              "    if (input.isDev) return { ok: true, reason: 'dev loopback' };",
+              '    return {',
+              '      ok: false,',
+              '      status: 503,',
+              '      reason:',
+              "        'API_KEY is not configured. Refusing to serve rather than accepting ' +",
+              "        'unauthenticated requests — set API_KEY, or run the dev server, which ' +",
+              "        'binds loopback.',",
+              '    };',
+              '  }',
+              '',
+              "  const presented = (input.presentedKey ?? '').trim();",
+              '  if (!presented) {',
+              "    return { ok: false, status: 401, reason: 'missing x-api-key header' };",
+              '  }',
+              '  if (!sameSecret(configured, presented)) {',
+              "    return { ok: false, status: 401, reason: 'x-api-key does not match' };",
+              '  }',
+              "  return { ok: true, reason: 'key matched' };",
               '}',
             ]}
-            mark={[2]}
+            mark={[4, 7, 19]}
             says={[
-              { at: 'if (!expected)', is: 'No configured secret means deny. The alternative — allow when unconfigured — is how a staging default reaches production.' },
-              { at: 'timingSafeEqual', is: 'Constant-time comparison, so the failure does not leak how much of the credential was right.' },
+              { at: "if (input.isDev) … 'dev loopback'", is: 'The exception. Unconfigured in development allows, because the dev server binds loopback — this is the one line a page teaching "fail closed" must not omit, and an earlier version of this walkthrough did.' },
+              { at: 'status: 503', is: 'Not 401. Unconfigured is a server fault, not a bad credential, and saying so is the difference between somebody fixing their environment and somebody hunting for the right key.' },
+              { at: 'sameSecret(configured, presented)', is: 'Constant-time comparison with a length check ahead of it, so a rejection does not leak how much of the credential was right.' },
             ]}
-            trap="`pnpm guard:check` exists because a guard nobody exercises is indistinguishable from no guard. It walks every write path and asserts each still denies — the same negative-control discipline as the leak checker."
+            trap="This walkthrough shipped as a PARAPHRASE, under this real path, with invented identifiers and the dev branch missing — so it taught fail-closed while omitting the one path that fails open. It was caught by somebody diffing the excerpt against the file. `HowItWorks` now marks an excerpt as verbatim or assembled for exactly that reason."
           />
+
         </Step>
 
         <Step n={3} title="The loop runs, and the model never touches anything">

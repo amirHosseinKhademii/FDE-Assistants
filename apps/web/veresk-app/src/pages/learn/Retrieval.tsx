@@ -72,6 +72,7 @@ export function Retrieval() {
 
         <HowItWorks
           title="How a chunk keeps track of where it came from"
+          shape="assembled"
           path="packages/grounding/src/chunker.ts"
           plain={[
             'A document is split on its headings first, because a heading is the author\u2019s own statement about where one idea ends. Only if a section is still too long is it windowed at about 1,200 characters.',

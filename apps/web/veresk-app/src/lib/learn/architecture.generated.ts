@@ -17,7 +17,13 @@ export interface ArchPackage {
   dir: string;
   /** Which workspace glob it came from — the layer it lives in. */
   glob: string;
+  /**
+   * The LAYER, which is the glob plus two documented exceptions — see
+   * `scripts/arch-graph.mjs`. Where it differs from `glob`, `layerNote` says why.
+   */
   kind: 'shared' | 'provider' | 'judgement' | 'surface';
+  /** Set only where the layer differs from the directory it lives in. */
+  layerNote: string | null;
   /** Lines of .ts/.tsx under src/. A weak measure; the page says so. */
   lines: number;
   /** Workspace dependencies only — the edges of the graph. */
@@ -34,6 +40,7 @@ export const PACKAGES: ArchPackage[] = [
     "dir": "apps/ai/insurance",
     "glob": "apps/ai/*",
     "kind": "judgement",
+    "layerNote": null,
     "lines": 2999,
     "deps": [
       "@fde/grounding",
@@ -51,6 +58,7 @@ export const PACKAGES: ArchPackage[] = [
     "dir": "apps/web/insurance-app",
     "glob": "apps/web/*",
     "kind": "surface",
+    "layerNote": null,
     "lines": 1161,
     "deps": [
       "@claims/insurance",
@@ -64,6 +72,7 @@ export const PACKAGES: ArchPackage[] = [
     "dir": "packages/agent",
     "glob": "packages/*",
     "kind": "shared",
+    "layerNote": null,
     "lines": 3508,
     "deps": [
       "@fde/foundry"
@@ -75,6 +84,7 @@ export const PACKAGES: ArchPackage[] = [
     "dir": "packages/providers/bedrock",
     "glob": "packages/providers/*",
     "kind": "provider",
+    "layerNote": null,
     "lines": 571,
     "deps": [],
     "external": 2
@@ -84,6 +94,7 @@ export const PACKAGES: ArchPackage[] = [
     "dir": "packages/estate",
     "glob": "packages/*",
     "kind": "shared",
+    "layerNote": null,
     "lines": 406,
     "deps": [],
     "external": 1
@@ -93,6 +104,7 @@ export const PACKAGES: ArchPackage[] = [
     "dir": "packages/evals",
     "glob": "packages/*",
     "kind": "shared",
+    "layerNote": null,
     "lines": 2084,
     "deps": [],
     "external": 7
@@ -102,6 +114,7 @@ export const PACKAGES: ArchPackage[] = [
     "dir": "packages/providers/foundry",
     "glob": "packages/providers/*",
     "kind": "provider",
+    "layerNote": null,
     "lines": 94,
     "deps": [],
     "external": 2
@@ -111,6 +124,7 @@ export const PACKAGES: ArchPackage[] = [
     "dir": "packages/grounding",
     "glob": "packages/*",
     "kind": "shared",
+    "layerNote": null,
     "lines": 3405,
     "deps": [],
     "external": 5
@@ -120,6 +134,7 @@ export const PACKAGES: ArchPackage[] = [
     "dir": "packages/guard",
     "glob": "packages/*",
     "kind": "shared",
+    "layerNote": null,
     "lines": 349,
     "deps": [],
     "external": 0
@@ -129,6 +144,7 @@ export const PACKAGES: ArchPackage[] = [
     "dir": "packages/scanner",
     "glob": "packages/*",
     "kind": "shared",
+    "layerNote": null,
     "lines": 299,
     "deps": [],
     "external": 0
@@ -138,6 +154,7 @@ export const PACKAGES: ArchPackage[] = [
     "dir": "packages/schema",
     "glob": "packages/*",
     "kind": "shared",
+    "layerNote": null,
     "lines": 304,
     "deps": [],
     "external": 1
@@ -147,6 +164,7 @@ export const PACKAGES: ArchPackage[] = [
     "dir": "packages/telemetry",
     "glob": "packages/*",
     "kind": "shared",
+    "layerNote": null,
     "lines": 540,
     "deps": [],
     "external": 1
@@ -155,7 +173,8 @@ export const PACKAGES: ArchPackage[] = [
     "name": "@fde/uikit",
     "dir": "packages/uikit",
     "glob": "packages/*",
-    "kind": "shared",
+    "kind": "surface",
+    "layerNote": "domain-neutral, so leak:check polices it — but nothing below the surface may depend on it.",
     "lines": 2115,
     "deps": [],
     "external": 0
@@ -165,6 +184,7 @@ export const PACKAGES: ArchPackage[] = [
     "dir": "apps/ai/pharma",
     "glob": "apps/ai/*",
     "kind": "judgement",
+    "layerNote": null,
     "lines": 16634,
     "deps": [
       "@fde/agent",
@@ -183,6 +203,7 @@ export const PACKAGES: ArchPackage[] = [
     "dir": "apps/web/pharma-app",
     "glob": "apps/web/*",
     "kind": "surface",
+    "layerNote": null,
     "lines": 8134,
     "deps": [
       "@fde/guard",
@@ -197,6 +218,7 @@ export const PACKAGES: ArchPackage[] = [
     "dir": "apps/ai/steering",
     "glob": "apps/ai/*",
     "kind": "judgement",
+    "layerNote": null,
     "lines": 21470,
     "deps": [
       "@fde/agent",
@@ -215,6 +237,7 @@ export const PACKAGES: ArchPackage[] = [
     "dir": "apps/web/steering-app",
     "glob": "apps/web/*",
     "kind": "surface",
+    "layerNote": null,
     "lines": 7655,
     "deps": [
       "@fde/guard",
@@ -229,7 +252,8 @@ export const PACKAGES: ArchPackage[] = [
     "dir": "apps/web/veresk-app",
     "glob": "apps/web/*",
     "kind": "surface",
-    "lines": 9279,
+    "layerNote": null,
+    "lines": 10087,
     "deps": [
       "@fde/uikit",
       "@veresk/surface"
@@ -240,7 +264,8 @@ export const PACKAGES: ArchPackage[] = [
     "name": "@veresk/surface",
     "dir": "packages/surface",
     "glob": "packages/*",
-    "kind": "shared",
+    "kind": "surface",
+    "layerNote": "this SITE's own shared parts. It knows there is a firm with several engagements, so it could never be lifted into a customer's repo.",
     "lines": 956,
     "deps": [
       "@fde/uikit"

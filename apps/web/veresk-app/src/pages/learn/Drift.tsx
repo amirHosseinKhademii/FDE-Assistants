@@ -10,9 +10,15 @@
  * surface missing from the first figure and a wrong grouping in the second. The
  * numbers moved to 68.5% and $0.0151 before anybody read the page.
  *
- * That is this lesson's entire argument, and it happened inside this section
- * while the section was being written. It is on the page for that reason and
- * not as a flourish.
+ * It happened twice. The second time, `pnpm arch:graph` — written for the
+ * architecture page an hour later — showed that `docs/ARCHITECTURE.md` §1 was
+ * stale by 5,227 lines in the surface layer, and that 7,911 of the difference
+ * is THIS LEARNING TRACK. A document describing the repo became wrong because
+ * somebody added pages to the repo, and the pages were these ones.
+ *
+ * Both are on the page for that reason and not as a flourish. They are also
+ * better evidence than the three historical incidents, because a reader can
+ * re-run the command that caught them.
  */
 import { LessonPage } from '../../components/learn/LessonPage';
 import { HowItWorks } from '../../components/learn/HowItWorks';
@@ -131,6 +137,11 @@ export function Drift() {
                 t: 'The cost lesson shipped with two wrong figures, three pages back.',
                 b: '74% and a $0.0177 median, both hand-computed from a log. Making the table a command found a whole surface missing from one and a wrong grouping in the other. 68.5% and $0.0151 are what the command prints — and the page says so rather than quietly carrying the better numbers.',
               },
+              {
+                ref: 'docs/ARCHITECTURE.md §1, right now',
+                t: 'These very pages made the repo\u2019s own architecture document wrong.',
+                b: 'Its §1 table gives the surface layer as 24,073 lines. It is 29,300 — and 7,911 of the difference is the learning track you are reading. The document was true when written; writing a page about drift caused the drift. Its §2 also says @fde/guard has three consumers and the generated graph says four. Re-run pnpm arch:graph and see for yourself.',
+              },
             ].map((x) => (
               <div key={x.ref} className="rounded-lg border border-ui-line bg-ui-surface px-4 py-3">
                 <p className="font-mono text-[0.6875rem]" style={{ color: 'var(--lesson)' }}>
@@ -144,10 +155,19 @@ export function Drift() {
         </Figure>
 
         <Key>
-          The fourth one happened inside this section while it was being written. That is not a flourish — it
-          is the strongest available evidence that the discipline this repo applies by hand, dating every
-          section and warning the reader, is a discipline a checker should be enforcing instead.
+          The last two happened <em className="not-italic">while this section was being written</em>, and the
+          fifth is the sharpest thing on this page: a document describing the repo became wrong because
+          somebody added pages to the repo — and the pages they added were these ones, about drift.
         </Key>
+
+        <P>
+          Both of those were caught the same way, and it is the way this lesson argues for: a number that had
+          a producer was compared against its producer.{' '}
+          <code className="font-mono text-ui-fg">pnpm steering:spend</code> caught the first,{' '}
+          <code className="font-mono text-ui-fg">pnpm arch:graph</code> caught the second, and neither needed
+          anybody to remember anything. The three historical incidents above were all caught by a person
+          noticing, while writing something else.
+        </P>
       </Step>
 
       <Step n={4} title="The pattern to copy, including its paranoia">
@@ -161,6 +181,7 @@ export function Drift() {
 
         <HowItWorks
           title="How a checker proves it can still fail"
+          shape="assembled"
           path="scripts/leak-check.mjs"
           lang="bash"
           plain={[

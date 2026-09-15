@@ -16,6 +16,7 @@
  * estimating costs.
  */
 import { LessonPage } from '../../components/learn/LessonPage';
+import { HowItWorks } from '../../components/learn/HowItWorks';
 import { Caveat, Figure, Glossary, Key, P, RunIt, Step, Term } from '../../components/learn/kit';
 import { BarRows } from '../../components/learn/charts/BarRows';
 import { EITHER_OR, Matrix } from '../../components/learn/charts/Matrix';
@@ -135,6 +136,33 @@ export function Attention() {
           and it is only visible in tokens.
         </Key>
       </Step>
+
+        <HowItWorks
+          title="How a contract makes a wrong total impossible rather than forbidden"
+          path="apps/ai/steering/src/schema/bid-summary-schema.ts:13–35"
+          plain={[
+            'The bid summary reads across every filed assessment and writes two paragraphs. It is not allowed to report a count, a total, or a finding.',
+            'That rule is not in the prompt. There is simply NO FIELD for any of them in the schema the model decodes against — no `finding`, no `total`, no `count`, no `eur`, anywhere in it.',
+            'A model that cannot represent a total cannot total a refusal into one. The mix, the money and the evidence counts are computed in code, from the filed rows, and printed beside the paragraphs.',
+            'Both rules could have been written into the prompt. A prompt is a request; a schema is a property. Same argument as the tools lesson, applied to the output instead of the input.',
+          ]}
+          lines={[
+            ' * There is no `finding`, no `total`, no `count` and no `eur` anywhere',
+            ' * below, and that is the rule rather than an omission. The mix, the money',
+            ' * and the evidence counts are computed in code from the filed rows.',
+            ' *',
+            ' * A model that cannot represent a total cannot total a refusal into one,',
+            ' * and a model that cannot name a finding cannot invent one.',
+            ' *',
+            ' * A summary is allowed to GROUP refusals; it is not allowed to COUNT them.',
+          ]}
+          mark={[0, 4, 7]}
+          says={[
+            { at: 'no `total`, no `count`', is: 'Absence as a control. The strictObject rejects unknown keys, so one cannot be smuggled in as an extra field either.' },
+            { at: 'allowed to GROUP … not to COUNT', is: 'The line between reading and arithmetic, drawn in the type rather than in an instruction.' },
+          ]}
+          trap="This is the cheapest version of a safety rule there is, and it only works on outputs whose shape you control. It says nothing about whether the two paragraphs are any good — which is what an eval suite is for, and that suite does not cover this path yet."
+        />
 
       <Step n={4} title="Which half is a model, and which half is arithmetic">
         <P>

@@ -61,6 +61,7 @@ export function Vectors() {
 
         <HowItWorks
           title="How a pile of passages becomes a pile of vectors"
+          shape="assembled"
           path="packages/grounding/src/embeddings.ts:74–92"
           plain={[
             'Embedding is a network call, and a corpus is thousands of passages. Sending them one at a time would be thousands of round trips; sending them all at once would be one request too large to accept.',
@@ -280,6 +281,7 @@ export function Vectors() {
 
         <HowItWorks
           title="How the benchmark avoids proving what it set out to prove"
+          shape="assembled"
           path="packages/grounding/src/index-bench.ts"
           plain={[
             'A benchmark is code, and it fails the same ways other code fails. This one was wrong four separate times before it was right, and every failure was in the measurement rather than in the thing measured.',

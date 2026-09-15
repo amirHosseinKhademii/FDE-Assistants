@@ -66,6 +66,7 @@ export function Evals() {
 
         <HowItWorks
           title="How the suite survives one case blowing up"
+          shape="assembled"
           path="packages/evals/src/suite.ts:84–100"
           plain={[
             'Every case runs `repeat` times, in order, serially. Serially on purpose \u2014 the model resource is shared and parallel runs would race the same rate limit, which measures the rate limit rather than the change.',

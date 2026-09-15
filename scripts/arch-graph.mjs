@@ -23,6 +23,18 @@
  *
  * `--check` exists so this can fail a build rather than only being regenerable,
  * which is the difference between a derived artifact and a convention.
+ *
+ * ── HOW A LINE IS COUNTED, BECAUSE TWO METHODS DISAGREE BY THE FILE COUNT ──
+ *
+ * Per file: `split('\n').length`. A file not ending in a newline still has a
+ * last line, and this counts it. `cat files | wc -l` does not, so it comes out
+ * exactly one short PER FILE — `@fde/foundry` is 94 here and 92 there, across
+ * two files; `@fde/bedrock` is 571 and 567, across four.
+ *
+ * Neither is wrong and this one is better, but a reader with `docs/
+ * ARCHITECTURE.md` open beside the page sees a contradiction. Written down here
+ * so the next person reconciling them has the answer in the file that produces
+ * the number rather than having to derive it.
  */
 import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
@@ -30,13 +42,34 @@ import { join, relative } from 'node:path';
 const ROOT = new URL('..', import.meta.url).pathname.replace(/\/$/, '');
 const OUT = join(ROOT, 'apps/web/veresk-app/src/lib/learn/architecture.generated.ts');
 
-/** The three globs from `pnpm-workspace.yaml`, and the split IS the point. */
+/** The globs from `pnpm-workspace.yaml`. The raw fact each package came from. */
 const GLOBS = [
   { dir: 'packages', label: 'packages/*', kind: 'shared' },
   { dir: 'packages/providers', label: 'packages/providers/*', kind: 'provider' },
   { dir: 'apps/ai', label: 'apps/ai/*', kind: 'judgement' },
   { dir: 'apps/web', label: 'apps/web/*', kind: 'surface' },
 ];
+
+/**
+ * ── WHERE THE GLOB AND THE LAYER DISAGREE, AND THEY DO TWICE ───────────────
+ *
+ * Deriving the layer purely from the directory is one line shorter and wrong,
+ * and it shipped: it put `@veresk/surface` under a heading reading *"knows
+ * nothing about any customer — a second engagement uses it unchanged"*, which
+ * is the exact opposite of that package's whole reason for existing. It knows
+ * there is a firm with several engagements and it could never be lifted out.
+ *
+ * `docs/ARCHITECTURE.md` §1 already puts both of these in the SURFACE layer and
+ * is right. So the exceptions are listed, with the reason, rather than inferred
+ * from a prefix — keying on `@fde/` makes a layering check WEAKER than the
+ * document it is checking, and it fails green.
+ */
+const LAYER_OVERRIDE = {
+  '@fde/uikit':
+    'domain-neutral, so leak:check polices it — but nothing below the surface may depend on it.',
+  '@veresk/surface':
+    'this SITE\'s own shared parts. It knows there is a firm with several engagements, so it could never be lifted into a customer\'s repo.',
+};
 
 const dirs = (p) => {
   try {
@@ -98,7 +131,10 @@ for (const g of GLOBS) {
       name: json.name,
       dir: relative(ROOT, dir),
       glob: g.label,
-      kind: g.kind,
+      // The glob is the fact; the layer is the fact plus two documented
+      // exceptions. Both are emitted, so a reader can see where they differ.
+      kind: json.name in LAYER_OVERRIDE ? 'surface' : g.kind,
+      layerNote: LAYER_OVERRIDE[json.name] ?? null,
       lines: countLines(dir),
       deps: Object.keys(json.dependencies ?? {}).filter((x) => x.startsWith('@fde/') || x.startsWith('@veresk/') || x.startsWith('@vantis/') || x.startsWith('@claims/') || x.startsWith('@meridian/')),
       external: Object.keys(json.dependencies ?? {}).filter((x) => !x.startsWith('@fde/') && !x.startsWith('@veresk/') && !x.startsWith('@vantis/') && !x.startsWith('@claims/') && !x.startsWith('@meridian/')).length,
@@ -126,7 +162,13 @@ export interface ArchPackage {
   dir: string;
   /** Which workspace glob it came from — the layer it lives in. */
   glob: string;
+  /**
+   * The LAYER, which is the glob plus two documented exceptions — see
+   * \`scripts/arch-graph.mjs\`. Where it differs from \`glob\`, \`layerNote\` says why.
+   */
   kind: 'shared' | 'provider' | 'judgement' | 'surface';
+  /** Set only where the layer differs from the directory it lives in. */
+  layerNote: string | null;
   /** Lines of .ts/.tsx under src/. A weak measure; the page says so. */
   lines: number;
   /** Workspace dependencies only — the edges of the graph. */

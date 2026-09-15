@@ -10,6 +10,7 @@
  * wrong.
  */
 import { LessonPage } from '../../components/learn/LessonPage';
+import { HowItWorks } from '../../components/learn/HowItWorks';
 import { Caveat, Figure, Glossary, Key, P, RunIt, Step, Term } from '../../components/learn/kit';
 import { BarRows } from '../../components/learn/charts/BarRows';
 import { EITHER_OR, Matrix } from '../../components/learn/charts/Matrix';
@@ -73,6 +74,37 @@ export function Tools() {
           property. The lesson on guessing is what a request is worth when the model has nothing to read.
         </Key>
       </Step>
+
+        <HowItWorks
+          title="What a refusal returns instead of a number"
+          path="apps/ai/steering/src/tools/functions/find-comparable-work.ts:83–101"
+          plain={[
+            'When there are fewer than three comparable jobs, every numeric field comes back null. Not zero — null. Zero is a price, and somebody will read past the sentence and use it.',
+            'But a bare refusal is not useful either, so it carries something a number could not: a count per field of what each filter is costing the match.',
+            'That is what lets a caller see whether the FILTER is wrong or the ESTATE is empty — which are different problems with different fixes, and look identical from outside.',
+            'It is also what made the drop-one measurement in the last lesson of this track possible. The diagnostic did not need new instrumentation; the tool had been printing the evidence inside its own refusals all along.',
+          ]}
+          lines={[
+            '/**',
+            ' * What each field is costing the match, when refusing. Counts, never prices.',
+            ' *',
+            ' * Present only on a refusal. Lets a caller see whether the FILTER or the',
+            ' * estate is the problem.',
+            ' */',
+            'perField?: Record<string, number>;',
+            '',
+            '/** False when `n < MIN_COMPARABLES`. When false there is no price. */',
+            'enough: boolean;',
+            'refusal: string | null;',
+            'medianHours: number | null;',
+          ]}
+          mark={[6, 11]}
+          says={[
+            { at: 'Counts, never prices', is: 'A refusal may carry evidence. It may not carry a figure that reads like an answer.' },
+            { at: 'medianHours: number | null', is: 'Null on a refusal, and so are mean, total and spread. Every numeric field, not just the headline.' },
+          ]}
+          trap="The whole of the forensics lesson in the operations track rests on `perField` existing. Nobody added it for that — it was there because a refusal with no evidence is one somebody argues with rather than acts on."
+        />
 
       <Step n={3} title="The other tool, and two failures that are exact opposites">
         <P>
