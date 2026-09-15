@@ -3374,3 +3374,211 @@ corpus roughly 10× this one, a database that stops being a round trip away
 recall spread that turns out to be an artefact of something fixable. The
 benchmark is the thing that answers it next time; the number in this entry will
 be stale before the argument is.
+
+---
+
+## 2026-09-15 — `/learn`, five lessons on the firm's page
+
+The three engagement pages each explain one customer's problem. Nothing on the
+site explained the machinery all three are built from, and the machinery is the
+part that transfers. `/learn` is five pages that do: vectors, retrieval, the
+answer contract, the loop and its engines, evals — in that order, because each
+assumes the one above it and none assumes the one below.
+
+**They are a reading of `docs/`, not a second source of truth.** Every page names
+the document it is a reading of and says that where the two disagree the document
+is right and the page is stale. That sentence is on every lesson, in the shell
+component, so a page cannot be written without it.
+
+### The rule the content is held to, and the one place it bends
+
+Every figure is a number this repo measured, printed with the command that
+reprints it. Exactly one drawing — the draggable vectors in lesson 1 — is an
+illustration, and `Figure` takes a `kind` prop rather than trusting prose to
+carry that distinction. It defaults to `measured`, so a figure whose author
+forgot claims to be measured and is wrong in the direction somebody notices.
+
+**Lesson 5 draws the newest baseline on disk rather than the published one, and
+says so on the figure.** `docs/evals/README.md` publishes 2026-09-05 — 7 cases,
+30/35, `cov-003` at 0/5 — and `CLAUDE.md` says not to re-derive it because it
+drifts with every run. It has drifted: there are eighteen baselines in
+`docs/evals/results/` and the newest is an 8-case suite at 39/40 with a different
+failing case. The page computes from the raw runs of
+`baseline-2026-09-11T15-55-29-682Z.json`, names the file, and points at
+`pnpm eval:history`.
+
+That failure is worth the space it gets. `cov-002` asks whether a rideshare
+driver is covered; no document in the corpus addresses carrying passengers for a
+fee. Run 1 **got the judgement right** — refused to answer from an adjacent
+exclusion, escalated to a named owner — and then cited
+`record:DET-2024-004473-ROR`, which does not exist. A dangerous-bucket failure
+from a run that did the hard part, caught by the cheapest check in the system.
+
+### Three bugs, none of which any check in this repo can see
+
+All three were found by building the thing and looking at it.
+
+1. **Tailwind tree-shook four of the five lesson hues out of the stylesheet.**
+   `@theme` emits only what it can see used, and these are read as
+   `` var(`--color-learn-${n}`) `` — assembled at runtime from a lesson's number.
+   Exactly one survived. Lessons 2–5 would have shipped with the custom property
+   resolving to nothing, from a build that succeeds. Same family as the `@source`
+   trap in `SITE.md`, and the same check: grep the built CSS. Declared in `:root`
+   now — nothing here is a Tailwind colour utility, so the theme layer bought
+   nothing and cost four hues.
+
+2. **A chart note ran out from under its label and the next row's bar was drawn
+   through it.** SVG has no text metrics at render time, so the only robust fix
+   is to stop putting two things on one line. Notes have their own row now.
+
+3. **The lesson map on `/learn` was clipped mid-word at 1440px** — the horizontal
+   cousin of the card-back overflow already documented. Fixed by taking the entry
+   and exit labels out of the row rather than by shrinking the cards, which would
+   have been correct at exactly one width.
+
+The probe for the third is in `SITE.md` and is worth running after any layout
+change: page-level horizontal scroll, plus any element whose `scrollWidth`
+exceeds its `clientWidth` under `overflow: hidden|clip`. Clean at 1440 and 1280
+on all seven routes.
+
+### The palette argument, settled by running the validator rather than by taste
+
+Five hues, one per lesson, sky → orange, and **they are not allowed to encode
+data**:
+
+```
+node scripts/validate_palette.js "#38bdf8,#818cf8,#c084fc,#e879f9,#fb923c" \
+  --mode dark --surface "#0d0f15"
+→ FAIL  worst adjacent pair ΔE 6.8 (normal vision), floor 15
+```
+
+Five hues confined to the arc left over once teal, green, amber and rose are
+reserved for severity cannot be told apart as a series. So every chart is one hue
+plus neutral grey with all values directly labelled, the hue never appears
+without its lesson number, and severity colour appears on exactly one page —
+lesson 5, where severity is the subject. A passing eval run is grey.
+
+### `HowItWorks`
+
+A press on any section that is really implemented by a file opens the real code
+beside a plain-English reading of it — `OriginDialog` from `@fde/uikit`, which
+already owns the three ways out, the scroll lock and the measured transform
+origin. The content shape is fixed: *in plain words*, *the code*, *line by line*,
+*what went wrong here once*. Ten of them, each quoting a real file with its line
+range, and almost every one has a scar to report — which is the honest finding,
+because a rule with no scar is usually a rule nobody has tested.
+
+The hue is read off the trigger at press time: the dialog portals to `<body>`, so
+it is not a descendant of the element that sets `--lesson` and every dialog would
+otherwise have come out lesson one's blue.
+
+### What this does not do
+
+- **Nothing from `docs/steering/` is in it.** These five are the generic
+  pipeline, read out of the repo-wide documents. One engagement's own material —
+  roughly 4,400 lines across 15 documents — is catalogued in
+  `docs/steering/LEARN-SOURCES.md` and is a separate decision about whether it
+  extends this track or forms a second one.
+- **No new dependency.** Every chart is hand-rolled SVG, like `FlowMap` and
+  `Journey` before it.
+- **No API route, no database, no model call**, so `apps/web/veresk-app` still
+  carries no `ssr.external` list. That absence remains the accurate statement
+  about this app even though "one page" no longer is.
+
+---
+
+## 2026-09-15 (later) — `/learn` grew a second track, and the code blocks became editors
+
+Two changes on top of the five lessons above.
+
+### Seven more lessons, from one engagement
+
+`docs/steering/LEARN-SOURCES.md` catalogued roughly 4,400 lines across fifteen
+documents — one engagement's own material, none of which was in the first five
+pages. Seven lessons came out of it: **guessing, three pipelines, the answer
+key, the tools, attention, what leaves the building, the ceiling.**
+
+**They are a second track rather than lessons 6–12**, and that was the one
+structural decision the catalogue deliberately left open. The first five are the
+machine and are true of all three engagements; these are one customer's files.
+Running them together as 1–12 would have claimed a single dependency chain that
+does not exist — `guessing` assumes nothing at all, is the strongest page in the
+section, and is labelled **reads cold** on its own card so a reader who starts
+there knows they have skipped nothing.
+
+**Track two has no per-lesson hue.** It has no sequence for one to encode, and
+the arc left over once severity has claimed teal, green, amber, rose and blue
+was not wide enough for five, let alone twelve. It is drawn in the foreground
+colour, which has the useful side effect of making the two tracks distinguish
+themselves without a legend.
+
+**Three things the material forced that the first five did not need:**
+
+- **A reference line on `BarRows`.** The field-accuracy chart has a dashed line
+  at 33% — the rate three-way guessing scores — and one bar landing on it *is*
+  the finding. Without the line the chart shows a low number; with it, it shows
+  chance.
+- **`Figure` gained `kind`.** `measured` | `illustration` | `proposed`, defaulting
+  to the strict one, so a figure whose author forgot claims to be measured and is
+  wrong in the direction somebody notices. Nothing rendered is `proposed` yet —
+  `docs/steering/OPERATIONS.md` is where that material lives and almost none of
+  it is built.
+- **A provenance warning written into a page's own header.** Five counts in that
+  corpus — 1,069 / 922 / 702 / 220 / 203 — are different scopes at three dates,
+  not contradictions. The `guessing` page uses the 203-document run throughout
+  and says how you can tell: 75 answered plus 128 refused is 203.
+
+### Code blocks are VS Code now
+
+`shiki`, with the editor's own `dark-plus` grammars and theme, running
+synchronously so there is no loading state and nothing for hydration to
+disagree about. Full account — the measured bundle cost, the two things that
+survived from the hand-rolled version, and why the background is lifted off the
+theme's own `#1e1e1e` — is in `docs/SITE.md`.
+
+It is this app's first runtime dependency. **85 KB gzipped, and the firm's door
+does not load it** — checked by reading what `/` actually preloads rather than
+assuming the chunk split went the way it looked like it would.
+
+### Checks
+
+`pnpm typecheck` 31/31, `pnpm leak:check` PASS, and the overflow probe from the
+entry above clean at 1440 and 1280 across all fourteen routes.
+
+### Six pages had only ever been typechecked, and a review pass found four defects in them
+
+Worth recording as a process finding rather than as four bugs: `vectors`,
+`retrieval`, the index and one dialog were screenshotted; the other six lessons
+had a green `tsc` and a 200 response and nothing else. Every one of the four was
+visible in the first seconds of looking at the page.
+
+1. **`Matrix` was reused twice without being re-labelled.** Built for engine ×
+   cloud, it hardcoded `engine` as the row header and printed `live` / `wired` /
+   `refuses` — so the search-arms grid said *"✕ refuses"* in `--ui-danger` for
+   *"an embedding cannot separate two identifiers"*, and the summary grid had
+   four rose cells where nothing was wrong. **Both pages had grown a footnote
+   telling the reader to read the glyphs as something other than what the cells
+   said**, which is the signal to change the labels rather than keep explaining
+   them. It now takes `marks` and `rowHeader`; `EITHER_OR` is the neutral set.
+2. **A refusal was drawn as a 2px bar.** `Math.max(2, x(v))` exists so a tiny
+   value is never invisible, and at `value: 0` it gave every refusal a visible
+   stub labelled "refused" — on the one page whose entire subject is that a
+   refusal carries no number anywhere. `value: null` now means *there is no
+   number* and draws nothing; `0` still draws the stub, because a measured zero
+   is a measurement.
+3. **A funnel repeated 220 and mixed units in one bar** — the third stage was
+   the second stage again, with 293,019 *hours* in the caption of a bar counting
+   *jobs*.
+4. **Two adjacent pages quoted one effect at two magnitudes** — 37% and 54% for
+   the mean-vs-median gap, from two different comparable sets, with nothing
+   saying so. Both now name their set, the way the `guessing` page already
+   named its 203-document run.
+
+Also labelled: `849 files` on the residency page is `1,069 − 220`, our
+arithmetic, in a figure otherwise sourced to a document that states the other
+two numbers.
+
+**The dialogs were unchecked too**, because the overflow probe ran with all of
+them closed. Re-run driving every `.learn-open`: 20 opens across 12 routes at
+two widths, no clipping, the panel scrolls, and the hue reaches the portal on
+every one.

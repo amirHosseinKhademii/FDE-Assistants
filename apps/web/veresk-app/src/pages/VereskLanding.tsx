@@ -33,6 +33,7 @@
  * count is nearer to "how much was written down" than to "how much was built".
  * It is shown because it is reproducible and the alternative was an adjective.
  */
+import { Link } from '@tanstack/react-router';
 import { FlowMap } from '@fde/uikit';
 import type { FlowEdge, FlowNode, FlowStage } from '@fde/uikit';
 import { Aurora } from '@veresk/surface';
@@ -40,6 +41,7 @@ import { AURORA } from '../lib/aurora';
 import { PHARMA, STEERING } from '../lib/links';
 import { BoxIcon } from '@fde/uikit';
 import { CaseGlyph, PackageGlyph } from '../components/flow/veresk-glyphs';
+import { hueOf, lessonsIn, TRACKS } from '../lib/learn/lessons';
 
 /* ── The graph, as data ────────────────────────────────────────────────────
    Every edge below is a real dependency. Regenerate the list with:
@@ -143,6 +145,13 @@ export function VereskLanding() {
           <BoxIcon />
         </span>
         <span className="font-medium tracking-tight">Veresk</span>
+        {/* A TYPED LINK, and the only one in this nav. `/learn` is served by
+            this application; the two engagements are separate deployments on
+            separate origins and have to be plain anchors. The difference is
+            invisible until one of them is deployed — see `lib/links.ts`. */}
+        <Link to="/learn" className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
+          Learn
+        </Link>
         {PHARMA && (
           <a href={PHARMA} className="text-sm text-ui-dim transition-colors hover:text-ui-fg sm:ml-auto">
             Meridian Pharma
@@ -188,6 +197,8 @@ export function VereskLanding() {
         <Engagements />
 
         <Method />
+
+        <Learn />
 
         <footer className="border-t border-ui-line py-10 text-sm text-ui-faint">
           Veresk — a practice portfolio. Every customer, estate and document behind these pages is
@@ -400,5 +411,69 @@ function Figure({ n, label }: { n: string; label: string }) {
       <span className="font-mono text-2xl font-medium tracking-tight text-ui-fg">{n}</span>
       <span className="text-sm text-ui-dim">{label}</span>
     </span>
+  );
+}
+
+/**
+ * The way into the lessons.
+ *
+ * WHY IT IS ON THE FIRM'S PAGE AND NOT INSIDE AN ENGAGEMENT. Everything under
+ * `/learn` is true of all three customers — what an embedding is, how two
+ * search arms are fused, what a suite measures. Putting it inside Meridian
+ * Pharma's surface would make one customer's page carry the other two's
+ * teaching; putting it here says the correct thing, which is that this is how
+ * the practice works rather than how one product does.
+ *
+ * IT IS LAST ON THE PAGE ON PURPOSE. Somebody deciding whether to buy this work
+ * should meet the engagements and the method before the explainer; a reader who
+ * wants the explainer first has the nav. The order is an argument, the same way
+ * it is on every other page on this site.
+ */
+function Learn() {
+  return (
+    <section className="border-t border-ui-line py-16">
+      <h2 className="max-w-[32ch] font-mono text-2xl leading-snug font-medium tracking-tight text-ui-fg md:text-3xl">
+        And here is how the machine actually works.
+      </h2>
+      <p className="mt-4 max-w-[60ch] leading-relaxed text-ui-dim">
+        Twelve lessons in two tracks. Five take apart the machinery every engagement above is built from;
+        seven follow one of them into a real customer's files, where most of the answers turned out not to be
+        there. Every figure is a number this repo measured, printed with the command that reprints it — and
+        the one drawing that is an illustration rather than a measurement says so.
+      </p>
+
+      {/* GROUPED, BECAUSE THE TWO TRACKS ARE NOT ONE RUN OF TWELVE. See
+          `lib/learn/lessons.ts`: the second track's first lesson assumes nothing
+          at all, and a single 1–12 strip would claim a dependency chain that
+          does not exist. */}
+      <div className="mt-8 space-y-5">
+        {TRACKS.map((track) => (
+          <div key={track.id}>
+            <p className="font-mono text-[0.625rem] tracking-[0.1em] text-ui-faint uppercase">{track.title}</p>
+            <ol className="mt-2 flex flex-wrap gap-2">
+              {lessonsIn(track.id).map((l) => (
+                <li key={l.slug}>
+                  <Link
+                    to={`/learn/${l.slug}`}
+                    className="flex items-baseline gap-2 rounded-lg border border-ui-line bg-ui-surface px-3 py-2 transition-colors hover:border-ui-line-lit"
+                  >
+                    <span className="font-mono text-[0.6875rem]" style={{ color: hueOf(l) }}>
+                      {l.n}
+                    </span>
+                    <span className="text-sm text-ui-dim">{l.short}</span>
+                  </Link>
+                </li>
+              ))}
+            </ol>
+          </div>
+        ))}
+      </div>
+
+      <p className="mt-8">
+        <Link to="/learn" className="text-sm text-ui-accent transition-opacity hover:opacity-80">
+          Start at lesson one &rarr;
+        </Link>
+      </p>
+    </section>
   );
 }

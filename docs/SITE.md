@@ -16,7 +16,8 @@ committed; this is the account of WHY, which the code cannot carry on its own.*
 ```
 apps/insurance-app   @claims/insurance-app   Meridian Mutual. Port 3000, pnpm dev.
                                              Untouched by this work.
-apps/veresk-app      @veresk/app             The firm's door at `/`, and Meridian
+apps/veresk-app      @veresk/app             The firm's door at `/`, `/learn` (twelve
+                                             lessons in two tracks, 2026-09-15), and Meridian
                                              Pharma's pages: `/pharma`, `/desk`,
                                              `/supplier`, `/data-flow`.
                                              Port 3300, `pnpm veresk:dev`.
@@ -502,3 +503,195 @@ tiles; it assumes the reader knows what a charge code is. `plainly.ts` is the
 same tables explained from scratch, for whoever that engineer forwards the link
 to. **They are two different pieces of writing for two different readers**, and
 a single string that tried to serve both would serve neither. Keep them apart.
+
+
+---
+
+## `/learn` — twelve lessons in two tracks, added 2026-09-15
+
+*Twelve pages under `apps/web/veresk-app/src/pages/learn/`, a layout route for
+the rail, and app-local components. Nothing went into `@veresk/surface` or
+`@fde/uikit`: there is one caller, and this repo's rule is extraction on a
+**measured second** one.*
+
+### Two tracks, and why not one run of twelve
+
+The first five are the MACHINE — true of all three engagements, naming a
+customer only as an example. The next seven are ONE ENGAGEMENT, read out of the
+~4,400 lines in `docs/steering/` catalogued by `docs/steering/LEARN-SOURCES.md`.
+
+Folding them into one numbered run would have broken what the first five are
+built on: that the order is the argument and each lesson assumes the one above.
+Track two does not assume track one that way. Three of its lessons depend on
+lessons 2 and 3 and say so on the page; its first depends on nothing at all, is
+the strongest page in the section, and is labelled **reads cold** so a reader
+who starts there knows they have skipped nothing.
+
+**Track two has no per-lesson hue**, and that is the same palette argument
+resolved the other way: it has no sequence for a hue to encode, and the arc left
+over once severity has claimed teal, green, amber, rose and blue is not wide
+enough for seven more anyway. It is drawn in the foreground colour, which also
+makes the two tracks tell themselves apart at a glance.
+
+### It did not need the externals list, and that is the accurate statement
+
+`vite.config.ts` opens by saying this app serves one page, calls no model, opens
+no database and has no API route — and that *"if a route here ever needs one of
+those, the externals list comes with it"*. It now serves seven pages and still
+needs none of it: every figure is baked into the bundle at build time from a
+document already in `docs/`. The day a lesson wants a live retrieval demo is the
+day that list arrives, deliberately and in a commit that says so.
+
+### The one rule the content is held to
+
+**Every figure is a number the repo measured, printed with the command that
+reprints it.** Exactly one drawing is an illustration — the draggable vectors in
+lesson 1 — and `Figure` takes a `kind` prop rather than trusting prose to carry
+the distinction, defaulting to the strict value so a figure whose author forgot
+claims to be measured and is wrong in the direction somebody notices.
+
+**Lesson 5 draws the newest baseline on disk rather than the published one.**
+`docs/evals/README.md` publishes 2026-09-05 (7 cases, 30/35) and `CLAUDE.md`
+says not to re-derive it because it drifts. It has drifted — there are eighteen
+baselines in `docs/evals/results/` and the newest is a different suite. So the
+page computes from `baseline-2026-09-11T15-55-29-682Z.json`, names the file, and
+says the README quotes an earlier run. Quoting a number the page cannot
+reproduce from anything it can see is the failure *"counted, never quoted"*
+exists to prevent.
+
+### Three bugs, and all three were invisible to every check this repo has
+
+**1. Tailwind tree-shook four of the five lesson hues out of the build.**
+`@theme` variables are emitted only where Tailwind can *see* them used. These are
+read as `` var(`--color-learn-${n}`) `` — built at runtime from a lesson's number
+— so exactly one survived, the one `.lesson` names literally, and lessons 2–5
+rendered with the custom property resolving to nothing. No error, no warning, a
+successful build. **Same family as the `@source` trap above, and the check is the
+same: read the output.**
+
+```bash
+grep -o -- '--color-learn-[0-9]:[^;]*' apps/web/veresk-app/dist/client/assets/*.css
+```
+
+They are declared in `:root` now. Nothing here is used as a Tailwind colour
+utility, so the theme layer bought nothing and cost four hues.
+
+**2. A chart note was drawn under its label and ran out under the plot.** SVG has
+no text metrics at render time, so "Part IV > 4.4 Rental Reimbursement" at a
+150-unit label width ran into the next row and that row's bar was drawn straight
+through it. Notes have their own line now. **Found by screenshotting the page,
+which is the only check that can see it.**
+
+**3. The lesson map on `/learn` was clipped at 1440px**, cut mid-word — the
+horizontal cousin of the card-back overflow above. The row came to ~55rem in a
+column that is 52.5. Shrinking the cards would have fixed it at exactly one
+width; taking the entry and exit labels out of the row removed 13rem and two
+gaps, so it cannot clip at any width a person reads at.
+
+The probe that catches all three of that shape — page-level horizontal scroll,
+and any element clipping its own content — is worth keeping:
+
+```js
+// at each width, on each route
+document.documentElement.scrollWidth > innerWidth + 1            // page scrolls sideways
+[...document.querySelectorAll('*')].filter((el) => {
+  const o = getComputedStyle(el).overflowX;
+  return ['hidden', 'clip'].includes(o) && el.scrollWidth > el.clientWidth + 1;
+})                                                                // element clips its own content
+```
+
+Run clean at 1440 and 1280 on all seven routes, once the Aurora wash (which
+clips its own oversized gradients on purpose) and the landing `FlowMap` (already
+documented above) are set aside.
+
+### The palette, and why no chart encodes a series with it
+
+Five hues, one per lesson, sky → orange. **They are decoration and the validator
+says they cannot be anything else:**
+
+```bash
+node scripts/validate_palette.js "#38bdf8,#818cf8,#c084fc,#e879f9,#fb923c" \
+  --mode dark --surface "#0d0f15"
+# FAIL — worst adjacent pair ΔE 6.8 (normal vision), against a floor of 15
+```
+
+Five hues confined to the arc left over once teal, green, amber and rose are
+reserved for severity cannot be told apart as a series. So a chart gets one hue
+plus neutral grey with every value directly labelled, the hue never appears
+without its lesson number beside it, and severity colour appears on exactly one
+page — lesson 5, where severity *is* the subject and is labelled as such.
+
+**A pass is grey.** Thirty passing runs do not turn the page green; the five
+failures are the only coloured thing on the grid.
+
+### `HowItWorks` — the press that opens the real code
+
+`OriginDialog` from `@fde/uikit`, which already has the three ways out, the
+scroll lock and the measured transform origin. The content shape is fixed —
+*in plain words*, *the code*, *line by line*, *what went wrong here once* — so no
+walkthrough can become "here is some code, work it out".
+
+**The hue is read off the trigger at press time, and it has to be.** The dialog
+portals to `<body>` (deliberately — an ancestor with a transform would otherwise
+become the containing block for its `fixed` overlay, which this repo has already
+measured), so the panel is not a descendant of the element that sets `--lesson`
+and inheritance cannot reach it. Every dialog on every lesson would have come out
+lesson one's sky blue. A CSS fix would also have been written against the wrong
+class name: the panel is `.ui-dialog`.
+
+### `Snippet` — VS Code's own colours, and the one dependency this app has
+
+Code on these pages is highlighted by **`shiki`**, running VS Code's own
+TextMate grammars and its `dark-plus` theme. Not an imitation: the same grammars
+and the same theme file the editor ships, so a reader who lives in that editor
+reads a snippet without re-learning it.
+
+**It runs synchronously**, which is the whole reason the shape works.
+`createHighlighterCoreSync` with the JavaScript regex engine has no WASM to
+await, so there is no loading state on a static page and nothing for SSR and
+hydration to disagree about. Four grammars and one theme are named individually
+rather than pulled from the bundle carrying every language shiki supports —
+that list is the cost control, so adding a language is a decision somebody makes
+rather than a default.
+
+**Measured cost, because it is the app's first runtime dependency:**
+
+| | raw | gzip |
+|---|---|---|
+| the shared learn chunk (shiki + 4 grammars + theme + the charts) | 419 KB | **85 KB** |
+| React and the router, for comparison | 344 KB | 107 KB |
+
+**The firm's door does not load it.** Checked rather than assumed — `/` preloads
+four chunks and none of them is the highlighter; it appears only under
+`/learn/*`:
+
+```bash
+curl -s localhost:3399/ | grep -o 'assets/[A-Za-z.-]*-[A-Za-z0-9_-]*\.js' | sort -u
+```
+
+If that ever stops being true, the alternative already exists and is this repo's
+usual shape: pre-tokenise at build time into a `*.generated.ts` behind a
+`pnpm learn:snippets` command, since every snippet on these pages is a static
+literal.
+
+**Two things survived from the hand-rolled version and both are load-bearing:**
+
+- **`mark`.** Syntax colour says what a token *is*; only the page knows which
+  line its own paragraph is about. It is drawn as a tinted row plus a gutter
+  rule, **under** the tokens, so it can never change what a token looks like.
+- **No line numbers unless a real first line is given.** The gutter rendered
+  empty at first, which looked like a gutter that had failed to load; numbering
+  from 1 would have been worse. Almost every snippet is an excerpt whose header
+  names a real range, so `1, 2, 3` beside `classification.ts:196–285` is a small
+  lie in the one component whose entire job is being checkable. The code being
+  quoted there says it better: *provenance that is approximately right is the
+  kind of wrong that survives review, because it looks exactly like provenance
+  that is right.*
+
+**The background is lifted off the theme's own `#1e1e1e`**, to `#1e2024` on the
+page and `#262a30` inside the dialog. Against a `#0d0f15` surface the original
+has no visible edge — it reads as a patch of slightly different darkness rather
+than as an editor, and inside the dialog it is worse because the code is the
+thing the reader opened the dialog for. **The token colours are untouched**: the
+whole point of using shiki is that those are VS Code's values, and adjusting
+them would make that claim false.

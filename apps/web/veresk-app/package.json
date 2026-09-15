@@ -10,12 +10,13 @@
   },
   "dependencies": {
     "@fde/uikit": "workspace:*",
-    "@veresk/surface": "workspace:*",
     "@tanstack/react-query": "^5.102.8",
     "@tanstack/react-router": "^1.170.35",
     "@tanstack/react-start": "^1.168.52",
+    "@veresk/surface": "workspace:*",
     "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react-dom": "^19.3.0",
+    "shiki": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",

@@ -149,3 +149,515 @@ a.case-card:focus-visible {
 .ui-flow-card[data-kind='package'] { width: 15rem; height: 5.25rem; }
 
 
+
+/* ══════════════════════════════════════════════════════════════════════════
+   THE LEARNING SECTION — `/learn`
+
+   WHY THIS APP AND NOT AN ENGAGEMENT'S. Every page under `/learn` teaches
+   something that is true of all three engagements: what an embedding is, how
+   two search arms are fused, what the answer contract forces, how a suite is
+   read. None of it belongs to Meridian Pharma or Vantis Steering, and putting
+   it on either page would make one customer's surface carry the other's
+   teaching. The firm's door is the only place that is about the practice.
+
+   THIS APP NOW SERVES MORE THAN ONE PAGE, and `vite.config.ts` says in its
+   header that it serves one. That header is still accurate about the thing it
+   is actually claiming — there is no API route, no database, no model call, and
+   therefore still no `ssr.external` list. Every figure below is baked into the
+   bundle at build time from a document already in `docs/`. The day a lesson
+   wants a live retrieval demo is the day the externals list comes with it.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── THE FIVE HUES, AND THEY MEAN NOTHING ──────────────────────────────────
+   One per lesson, in reading order, running sky → orange so the eye reads a
+   ROUTE through five lessons rather than five categories. The same device as
+   the six hop hues above, and the same warning: where one appears, it is
+   position in a sequence and never severity.
+
+   THEY ARE DECORATION, AND THEY ARE NOT ALLOWED TO ENCODE DATA. Run this and
+   it fails, which is the useful fact:
+
+     node scripts/validate_palette.js "#38bdf8,#818cf8,#c084fc,#e879f9,#fb923c" \
+       --mode dark --surface "#0d0f15"
+     → FAIL  adjacent pair ΔE 6.8 (normal vision), below the 15 floor
+
+   Five hues confined to the arc that is LEFT once teal, green, amber and rose
+   are reserved for severity cannot be told apart as a series. So no chart on
+   these pages encodes a series with them: a chart gets one hue plus neutral
+   grey, with every value directly labelled. The lesson hue only ever appears
+   where a number, a name or a title is sitting right next to it.
+
+   NOTHING HERE IS GREEN OR TEAL. `--ui-accent` stays what the rest of the site
+   made it — action, and things you can press — and `--ui-ok` is not borrowed
+   for "this lesson is finished", because nobody is being told a page passed.
+   ────────────────────────────────────────────────────────────────────────── */
+/* `:root` AND NOT `@theme`, AND THIS IS THE SECOND TIME THIS FILE HAS BEEN
+   BITTEN BY TAILWIND EMITTING NOTHING FROM A SUCCESSFUL BUILD.
+
+   `@theme` variables are TREE-SHAKEN: Tailwind emits only the ones it can see
+   being used. These are read as `var(--color-learn-${n})`, built at runtime in
+   `lib/learn/lessons.ts` from a lesson's number — a string Tailwind cannot see
+   and has no way to see. Declared in `@theme`, exactly ONE of the five survived
+   the build (the one `.lesson` below names literally), and lessons 2–5 rendered
+   with `var(--color-learn-2)` resolving to nothing. No error, no warning, and a
+   build that succeeds. Verified by grepping the built stylesheet:
+
+     grep -o -- '--color-learn-[0-9]:[^;]*' dist/client/assets/*.css
+
+   `:root` emits them verbatim. Nothing here is used as a Tailwind colour
+   utility — there is no `bg-learn-3` anywhere — so the theme layer bought
+   nothing and cost four hues. Same shape as the `@source` trap above: the
+   check is to look at the output, because no typecheck and no build failure
+   can see it. */
+:root {
+  --color-learn-1: #38bdf8; /* 1 · vectors    */
+  --color-learn-2: #818cf8; /* 2 · retrieval  */
+  --color-learn-3: #c084fc; /* 3 · generation */
+  --color-learn-4: #e879f9; /* 4 · the loop   */
+  --color-learn-5: #fb923c; /* 5 · evals      */
+}
+
+/* Each lesson page sets `--lesson` once, on its outermost element, and every
+   rule below reads it. That is what lets one stylesheet dress five pages: the
+   alternative is five near-identical blocks that drift the first time one of
+   them gets a fix. */
+.lesson {
+  --lesson: var(--color-learn-1);
+}
+
+/* ── THE RAIL ───────────────────────────────────────────────────────────────
+   Where you are in five, visible without scrolling back. It is a LIST OF LINKS
+   and not a progress bar: nothing here is completed or incomplete, because the
+   site has no idea what anybody read. A progress bar would be inventing state.
+   ────────────────────────────────────────────────────────────────────────── */
+.learn-rail-item {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr;
+  gap: 0.625rem;
+  align-items: baseline;
+  padding: 0.5rem 0.625rem;
+  border-radius: 0.5rem;
+  border-left: 2px solid transparent;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.learn-rail-item:hover {
+  background: var(--color-ui-raised);
+}
+
+/* The current lesson takes its own hue on the rail, and it is the one place on
+   the page where the hue appears without a number beside it — so the number is
+   put beside it. */
+.learn-rail-item[aria-current='page'] {
+  background: color-mix(in oklab, var(--rail-hue) 9%, transparent);
+  border-left-color: var(--rail-hue);
+}
+
+.learn-rail-n {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  color: var(--color-ui-faint);
+}
+
+.learn-rail-item[aria-current='page'] .learn-rail-n {
+  color: var(--rail-hue);
+}
+
+/* ── A NUMBERED STEP ────────────────────────────────────────────────────────
+   A lesson is a SEQUENCE — §2 does not make sense before §1 — so the numeral is
+   information, exactly as `DESIGN.md` §6 requires of a numbered node. Do not
+   reuse this for a set of unordered points.
+   ────────────────────────────────────────────────────────────────────────── */
+.learn-step {
+  position: relative;
+  padding-left: 3rem;
+}
+
+.learn-step-n {
+  position: absolute;
+  left: 0;
+  top: 0.125rem;
+  display: flex;
+  height: 1.75rem;
+  width: 1.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in oklab, var(--lesson) 35%, var(--color-ui-line));
+  background: color-mix(in oklab, var(--lesson) 10%, var(--color-ui-surface));
+  color: var(--lesson);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+/* The thread down the left of a lesson, joining the steps. Stops short of the
+   last numeral rather than running past it — a line that continues past the
+   final step promises a sixth. */
+.learn-step:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 0.875rem;
+  top: 2.125rem;
+  bottom: -2.5rem;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--lesson) 30%, transparent),
+    var(--color-ui-line) 40%,
+    transparent
+  );
+}
+
+/* ── A FIGURE ───────────────────────────────────────────────────────────────
+   Every chart is wrapped in one of these, and the wrapper is what makes the
+   SOURCE LINE structural rather than optional. A figure on these pages carries
+   where its numbers came from and the command that reprints them, because the
+   whole repo works that way and a teaching page is the last place to stop.
+   ────────────────────────────────────────────────────────────────────────── */
+.learn-fig {
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.75rem;
+  background: var(--color-ui-surface);
+  overflow: hidden;
+}
+
+.learn-fig-head {
+  padding: 1rem 1.125rem 0.875rem;
+  border-bottom: 1px solid var(--color-ui-line);
+}
+
+.learn-fig-body {
+  padding: 1.125rem;
+}
+
+.learn-fig-source {
+  padding: 0.75rem 1.125rem;
+  border-top: 1px dashed var(--color-ui-line);
+  background: color-mix(in oklab, var(--color-ui-bg) 55%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1.6;
+  color: var(--color-ui-faint);
+}
+
+/* The code and data blocks used to be styled here, with one grey for every
+   token and a `<mark>` on the line being discussed. They are `shiki` now, with
+   VS Code's own `dark-plus` grammars — see the `.snip` rules at the foot of this
+   file. The `<mark>` survived the change as `.snip-line[data-mark]`, because it
+   is the one thing a grammar cannot know: which line the paragraph above is
+   about. */
+
+/* ── THE HONEST BOX ─────────────────────────────────────────────────────────
+   "What this does not prove." DASHED AND UNCOLOURED on purpose. Amber would
+   read as a warning, and a caveat is not a finding — the page is not reporting
+   that something is wrong, it is saying what a number does not cover. The
+   repo's own rule from `DESIGN.md`: bad news gets a colour, and the absence of
+   a claim does not get one.
+   ────────────────────────────────────────────────────────────────────────── */
+.learn-caveat {
+  border: 1px dashed var(--color-ui-line-lit);
+  border-radius: 0.75rem;
+  background: color-mix(in oklab, var(--color-ui-surface) 60%, transparent);
+  padding: 1.125rem 1.25rem;
+}
+
+/* ── A TERM BEING DEFINED ───────────────────────────────────────────────────
+   Dotted underline, hue-coloured, and it carries its definition in `title` as
+   well as in the glossary — a word a reader does not know is the one thing on
+   a teaching page that must never require scrolling to resolve.
+   ────────────────────────────────────────────────────────────────────────── */
+.learn-term {
+  color: var(--color-ui-fg);
+  border-bottom: 1px dotted color-mix(in oklab, var(--lesson) 60%, var(--color-ui-line-lit));
+  cursor: help;
+  font-style: normal;
+}
+
+/* ── CHART INTERNALS ────────────────────────────────────────────────────────
+   Hand-rolled SVG, like every other drawing in this repo. The rules that apply
+   to all of them live here so a new chart cannot quietly pick its own.
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* Axes and gridlines are RECESSIVE. If a gridline competes with a bar, the
+   chart is drawing attention to the ruler. */
+.learn-chart .grid {
+  stroke: var(--color-ui-line);
+  stroke-width: 1;
+}
+
+.learn-chart .axis {
+  stroke: var(--color-ui-line-lit);
+  stroke-width: 1;
+}
+
+.learn-chart text {
+  font-family: var(--font-mono);
+  fill: var(--color-ui-faint);
+}
+
+/* A bar is a rounded end anchored to the baseline, never a floating pill. */
+.learn-chart .bar {
+  fill: var(--lesson);
+}
+
+.learn-chart .bar-muted {
+  fill: var(--color-ui-line-lit);
+}
+
+.learn-chart .bar:hover,
+.learn-chart .bar-muted:hover {
+  filter: brightness(1.25);
+}
+
+/* The 7 × 5 run grid. A pass is GREY and a failure is coloured, which is the
+   colour rule this repo argues hardest for: the absence of bad news does not
+   get the opposite colour, so thirty passing runs do not turn the page green
+   and the five that failed are the only thing the eye lands on. */
+.run-cell {
+  fill: var(--color-ui-raised);
+  stroke: var(--color-ui-line);
+}
+
+.run-cell[data-pass='false'] {
+  fill: color-mix(in oklab, var(--color-ui-danger) 55%, var(--color-ui-bg));
+  stroke: var(--color-ui-danger);
+}
+
+/* ── THE VECTOR LAB ─────────────────────────────────────────────────────────
+   The one thing on these pages a reader can move. It is a drawing of an idea
+   and not a measurement, and the figure says so where the source line usually
+   goes.
+   ────────────────────────────────────────────────────────────────────────── */
+.veclab-handle {
+  cursor: grab;
+}
+
+.veclab-handle:active {
+  cursor: grabbing;
+}
+
+.veclab svg {
+  touch-action: none;
+}
+
+/* ── “HOW THIS WORKS” ───────────────────────────────────────────────────────
+   The press that opens the real code beside a plain reading of it.
+
+   IT HAS TO LOOK PRESSABLE WITHOUT LOOKING LIKE THE PAGE'S MAIN ACTION. A
+   lesson's job is to be read straight through; this is an offer, taken by the
+   reader who wants the proof. So it is a full-width bar rather than a button —
+   quiet at rest, and unmistakably interactive under the cursor, where it takes
+   the LESSON's hue rather than `--ui-accent`. Accent is the site's colour for
+   the live machinery on an engagement page, and nothing here is live.
+   ────────────────────────────────────────────────────────────────────────── */
+.learn-open {
+  display: grid;
+  grid-template-columns: 2.25rem 1fr auto;
+  align-items: center;
+  gap: 0.875rem;
+  width: 100%;
+  margin: 1.25rem 0;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.75rem;
+  background: var(--color-ui-surface);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 180ms ease, background-color 180ms ease, transform 180ms ease;
+}
+
+.learn-open:hover {
+  border-color: color-mix(in oklab, var(--lesson) 45%, var(--color-ui-line));
+  background: color-mix(in oklab, var(--lesson) 6%, var(--color-ui-surface));
+  transform: translateY(-1px);
+}
+
+.learn-open:focus-visible {
+  outline: 2px solid var(--lesson);
+  outline-offset: 3px;
+}
+
+.learn-open-mark {
+  display: flex;
+  height: 2.25rem;
+  width: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  border: 1px solid color-mix(in oklab, var(--lesson) 30%, var(--color-ui-line));
+  background: color-mix(in oklab, var(--lesson) 10%, transparent);
+  color: var(--lesson);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+}
+
+.learn-open-text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.1875rem;
+}
+
+.learn-open-title {
+  font-size: 0.875rem;
+  color: var(--color-ui-fg);
+}
+
+/* The path is the promise: whatever is behind this press is a file you can
+   open, and it is named before you press it. */
+.learn-open-path {
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-ui-faint);
+}
+
+.learn-open-go {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ui-faint);
+}
+
+.learn-open:hover .learn-open-go {
+  color: var(--lesson);
+}
+
+/* ── INSIDE THE DIALOG ──────────────────────────────────────────────────────
+   `OriginDialog` supplies the panel, the three ways out and the scroll lock.
+   Everything below is only the reading rhythm of what goes in it.
+
+   THE PANEL IS SCROLLED, NOT SHRUNK. A walkthrough is four sections and one of
+   them is code; compressing it to fit a viewport would set the code at a size
+   nobody can read, which deletes the reason for the press.
+   ────────────────────────────────────────────────────────────────────────── */
+.learn-walk {
+  max-width: 62rem;
+}
+
+.learn-walk-h {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ui-faint);
+}
+
+/* THE DIALOG'S HUE IS NOT SET HERE, and the first attempt at this rule is worth
+   recording. `OriginDialog` portals to <body>, so the panel is not a descendant
+   of the `.lesson` element that declares `--lesson` and no selector in this file
+   can reach it by inheritance. The hue is read off the trigger at press time
+   instead — see `components/learn/HowItWorks.tsx`. A CSS fix here would also
+   have been written against the wrong class name: the panel is `.ui-dialog`. */
+
+/* ── A CODE SNIPPET ─────────────────────────────────────────────────────────
+   Coloured by `shiki` with VS Code's own `dark-plus` grammars and theme, so a
+   reader who lives in that editor reads it without re-learning it. Token
+   colours come from the theme and are set inline per token — nothing below
+   touches them, because the moment this file starts adjusting them the claim
+   "these are VS Code's colours" stops being true.
+
+   WHAT THIS FILE DOES OWN is the frame: the background, the gutter, and the row
+   the prose above is pointing at.
+   ────────────────────────────────────────────────────────────────────────── */
+:root {
+  /* Lifted from Dark+'s own #1e1e1e. Against a #0d0f15 surface the original is
+     close enough that the block has no visible edge — it reads as a patch of
+     slightly different darkness rather than as an editor. */
+  --snip-bg: #1e2024;
+  --snip-mark: rgba(255, 255, 255, 0.055);
+}
+
+.snip {
+  overflow-x: auto;
+  background: var(--snip-bg);
+}
+
+.snip pre {
+  margin: 0;
+  padding: 0.75rem 0;
+  font-family: var(--font-mono);
+  font-size: 0.78125rem;
+  line-height: 1.75;
+  tab-size: 2;
+}
+
+.snip code {
+  display: block;
+  min-width: max-content;
+}
+
+.snip-line {
+  display: flex;
+  gap: 1rem;
+  padding: 0 1rem;
+}
+
+/* THE MARKED ROW. Syntax colour says what a token IS; only the page knows which
+   line its own paragraph is about. Drawn as a tinted row plus a rule in the
+   gutter — UNDER the tokens, never over them, so it cannot change what a token
+   looks like. Untinted rows keep the editor background exactly. */
+.snip-line[data-mark] {
+  background: var(--snip-mark);
+  box-shadow: inset 2px 0 0 var(--lesson, #9cdcfe);
+}
+
+.snip-n {
+  flex: none;
+  text-align: right;
+  color: #6e7681; /* VS Code's own editorLineNumber.foreground */
+  user-select: none;
+}
+
+.snip-code {
+  white-space: pre;
+}
+
+/* ── THE EDITOR CHROME ──────────────────────────────────────────────────────
+   A header that names the file, because a snippet with no path is a snippet
+   somebody has to take on trust. `kind` distinguishes the two things that look
+   alike and are not: code from a source file, and data out of the corpus or a
+   recorded run.
+   ────────────────────────────────────────────────────────────────────────── */
+.snip-frame {
+  margin: 1.5rem 0;
+  overflow: hidden;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.75rem;
+}
+
+.snip-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 0.875rem;
+  padding: 0.5rem 0.875rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--color-ui-line) 70%, var(--snip-bg));
+  background: color-mix(in oklab, var(--snip-bg) 82%, #000);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--color-ui-faint);
+}
+
+.snip-kind {
+  color: var(--lesson);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.snip-path {
+  color: #cccccc; /* VS Code's tab foreground — this is a file name */
+}
+
+/* INSIDE THE DIALOG, LIFT IT FURTHER. The panel is darker than the page and the
+   code is the thing the reader opened the dialog to see, so it gets the most
+   separation of anywhere on the site. */
+.learn-walk {
+  --snip-bg: #262a30;
+  --snip-mark: rgba(255, 255, 255, 0.075);
+}

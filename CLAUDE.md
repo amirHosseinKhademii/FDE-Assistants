@@ -143,10 +143,25 @@ packages/
                                 line; see its `src/index.ts`.
 apps/insurance-app/     @claims/insurance-app      TanStack Start (Vite, React 19): the page and
                                 the /api/ask streaming route. Port 3000.
-apps/veresk-app/        @veresk/app                TanStack Start. THE FIRM'S DOOR, and nothing
-                                else — one page. The three engagement cards
-                                are links to other ORIGINS, baked in at build
-                                time by the pipeline. Port 3300,
+apps/web/veresk-app/    @veresk/app                TanStack Start. The firm's door at `/`, whose
+                                three engagement cards are links to other
+                                ORIGINS, baked in at build time by the
+                                pipeline — plus `/learn`, TWELVE lessons in
+                                two tracks: five on the shared machinery
+                                (vectors, retrieval, the answer contract, the
+                                loop and its engines, evals) and seven on one
+                                engagement end to end, read out of
+                                `docs/steering/` (guessing, three pipelines,
+                                the answer key, the tools, attention, what
+                                leaves the building, the ceiling). "The firm's
+                                door and nothing else — one page" was the
+                                accurate statement until 2026-09-15 and no
+                                longer is.
+                                It still has NO api route, no database and no
+                                model call, so `vite.config.ts` still carries
+                                no `ssr.external` list: every figure under
+                                `/learn` is baked in at build time from a
+                                document in `docs/`. Port 3300,
                                 `pnpm veresk:dev`.
 apps/pharma-app/        @meridian/pharma-app       TanStack Start. Meridian Pharma's whole
                                 surface: `/` the landing, `/desk`,

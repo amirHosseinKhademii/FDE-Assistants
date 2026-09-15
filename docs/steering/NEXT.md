@@ -191,6 +191,8 @@ under *Unfinished* below rather than quietly absent from this table.
 | [`NEXT.md`](NEXT.md) | **start here when resuming** |
 | [`SORTING.md`](SORTING.md) | the engineering record, links to all of the above |
 | [`UI-COPY.md`](UI-COPY.md) | customer-facing copy, drop-in |
+| [`OPERATIONS.md`](OPERATIONS.md) | cost autopilot, semantic cache, catching model regressions, failure forensics, self-healing docs — explained, then planned. **None of it built.** Its §2 is §0's diagnostic generalised, and its §0a is ten lines nobody has written: steering has no `eval:diff` while insurance and pharma both do. |
+| [`LEARN-SOURCES.md`](LEARN-SOURCES.md) | which document in this folder teaches what, for the `/learn` pages — the measured figure and the dependency edges per topic. A catalogue, not a lesson plan; the track structure stays with whoever owns `lessons.ts`. |
 
 **`CONCEPTS.md`'s pillar table was stale and was refreshed 2026-09-14** — it had
 read *"tool loop: loop does not exist"*, *"answer shape: not started"*,

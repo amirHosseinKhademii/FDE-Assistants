@@ -10,33 +10,204 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LearnRouteImport } from './routes/learn'
+import { Route as LearnIndexRouteImport } from './routes/learn.index'
+import { Route as LearnAnswerKeyRouteImport } from './routes/learn.answer-key'
+import { Route as LearnAttentionRouteImport } from './routes/learn.attention'
+import { Route as LearnCeilingRouteImport } from './routes/learn.ceiling'
+import { Route as LearnEvalsRouteImport } from './routes/learn.evals'
+import { Route as LearnGenerationRouteImport } from './routes/learn.generation'
+import { Route as LearnGuessingRouteImport } from './routes/learn.guessing'
+import { Route as LearnLoopRouteImport } from './routes/learn.loop'
+import { Route as LearnPipelinesRouteImport } from './routes/learn.pipelines'
+import { Route as LearnResidencyRouteImport } from './routes/learn.residency'
+import { Route as LearnRetrievalRouteImport } from './routes/learn.retrieval'
+import { Route as LearnToolsRouteImport } from './routes/learn.tools'
+import { Route as LearnVectorsRouteImport } from './routes/learn.vectors'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LearnRoute = LearnRouteImport.update({
+  id: '/learn',
+  path: '/learn',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnIndexRoute = LearnIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LearnRoute,
+} as any)
+const LearnAnswerKeyRoute = LearnAnswerKeyRouteImport.update({
+  id: '/answer-key',
+  path: '/answer-key',
+  getParentRoute: () => LearnRoute,
+} as any)
+const LearnAttentionRoute = LearnAttentionRouteImport.update({
+  id: '/attention',
+  path: '/attention',
+  getParentRoute: () => LearnRoute,
+} as any)
+const LearnCeilingRoute = LearnCeilingRouteImport.update({
+  id: '/ceiling',
+  path: '/ceiling',
+  getParentRoute: () => LearnRoute,
+} as any)
+const LearnEvalsRoute = LearnEvalsRouteImport.update({
+  id: '/evals',
+  path: '/evals',
+  getParentRoute: () => LearnRoute,
+} as any)
+const LearnGenerationRoute = LearnGenerationRouteImport.update({
+  id: '/generation',
+  path: '/generation',
+  getParentRoute: () => LearnRoute,
+} as any)
+const LearnGuessingRoute = LearnGuessingRouteImport.update({
+  id: '/guessing',
+  path: '/guessing',
+  getParentRoute: () => LearnRoute,
+} as any)
+const LearnLoopRoute = LearnLoopRouteImport.update({
+  id: '/loop',
+  path: '/loop',
+  getParentRoute: () => LearnRoute,
+} as any)
+const LearnPipelinesRoute = LearnPipelinesRouteImport.update({
+  id: '/pipelines',
+  path: '/pipelines',
+  getParentRoute: () => LearnRoute,
+} as any)
+const LearnResidencyRoute = LearnResidencyRouteImport.update({
+  id: '/residency',
+  path: '/residency',
+  getParentRoute: () => LearnRoute,
+} as any)
+const LearnRetrievalRoute = LearnRetrievalRouteImport.update({
+  id: '/retrieval',
+  path: '/retrieval',
+  getParentRoute: () => LearnRoute,
+} as any)
+const LearnToolsRoute = LearnToolsRouteImport.update({
+  id: '/tools',
+  path: '/tools',
+  getParentRoute: () => LearnRoute,
+} as any)
+const LearnVectorsRoute = LearnVectorsRouteImport.update({
+  id: '/vectors',
+  path: '/vectors',
+  getParentRoute: () => LearnRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/learn': typeof LearnRouteWithChildren
+  '/learn/answer-key': typeof LearnAnswerKeyRoute
+  '/learn/attention': typeof LearnAttentionRoute
+  '/learn/ceiling': typeof LearnCeilingRoute
+  '/learn/evals': typeof LearnEvalsRoute
+  '/learn/generation': typeof LearnGenerationRoute
+  '/learn/guessing': typeof LearnGuessingRoute
+  '/learn/loop': typeof LearnLoopRoute
+  '/learn/pipelines': typeof LearnPipelinesRoute
+  '/learn/residency': typeof LearnResidencyRoute
+  '/learn/retrieval': typeof LearnRetrievalRoute
+  '/learn/tools': typeof LearnToolsRoute
+  '/learn/vectors': typeof LearnVectorsRoute
+  '/learn/': typeof LearnIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/learn/answer-key': typeof LearnAnswerKeyRoute
+  '/learn/attention': typeof LearnAttentionRoute
+  '/learn/ceiling': typeof LearnCeilingRoute
+  '/learn/evals': typeof LearnEvalsRoute
+  '/learn/generation': typeof LearnGenerationRoute
+  '/learn/guessing': typeof LearnGuessingRoute
+  '/learn/loop': typeof LearnLoopRoute
+  '/learn/pipelines': typeof LearnPipelinesRoute
+  '/learn/residency': typeof LearnResidencyRoute
+  '/learn/retrieval': typeof LearnRetrievalRoute
+  '/learn/tools': typeof LearnToolsRoute
+  '/learn/vectors': typeof LearnVectorsRoute
+  '/learn': typeof LearnIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/learn': typeof LearnRouteWithChildren
+  '/learn/answer-key': typeof LearnAnswerKeyRoute
+  '/learn/attention': typeof LearnAttentionRoute
+  '/learn/ceiling': typeof LearnCeilingRoute
+  '/learn/evals': typeof LearnEvalsRoute
+  '/learn/generation': typeof LearnGenerationRoute
+  '/learn/guessing': typeof LearnGuessingRoute
+  '/learn/loop': typeof LearnLoopRoute
+  '/learn/pipelines': typeof LearnPipelinesRoute
+  '/learn/residency': typeof LearnResidencyRoute
+  '/learn/retrieval': typeof LearnRetrievalRoute
+  '/learn/tools': typeof LearnToolsRoute
+  '/learn/vectors': typeof LearnVectorsRoute
+  '/learn/': typeof LearnIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/learn'
+    | '/learn/answer-key'
+    | '/learn/attention'
+    | '/learn/ceiling'
+    | '/learn/evals'
+    | '/learn/generation'
+    | '/learn/guessing'
+    | '/learn/loop'
+    | '/learn/pipelines'
+    | '/learn/residency'
+    | '/learn/retrieval'
+    | '/learn/tools'
+    | '/learn/vectors'
+    | '/learn/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/learn/answer-key'
+    | '/learn/attention'
+    | '/learn/ceiling'
+    | '/learn/evals'
+    | '/learn/generation'
+    | '/learn/guessing'
+    | '/learn/loop'
+    | '/learn/pipelines'
+    | '/learn/residency'
+    | '/learn/retrieval'
+    | '/learn/tools'
+    | '/learn/vectors'
+    | '/learn'
+  id:
+    | '__root__'
+    | '/'
+    | '/learn'
+    | '/learn/answer-key'
+    | '/learn/attention'
+    | '/learn/ceiling'
+    | '/learn/evals'
+    | '/learn/generation'
+    | '/learn/guessing'
+    | '/learn/loop'
+    | '/learn/pipelines'
+    | '/learn/residency'
+    | '/learn/retrieval'
+    | '/learn/tools'
+    | '/learn/vectors'
+    | '/learn/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LearnRoute: typeof LearnRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +219,144 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/learn': {
+      id: '/learn'
+      path: '/learn'
+      fullPath: '/learn'
+      preLoaderRoute: typeof LearnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn/': {
+      id: '/learn/'
+      path: '/'
+      fullPath: '/learn/'
+      preLoaderRoute: typeof LearnIndexRouteImport
+      parentRoute: typeof LearnRoute
+    }
+    '/learn/answer-key': {
+      id: '/learn/answer-key'
+      path: '/answer-key'
+      fullPath: '/learn/answer-key'
+      preLoaderRoute: typeof LearnAnswerKeyRouteImport
+      parentRoute: typeof LearnRoute
+    }
+    '/learn/attention': {
+      id: '/learn/attention'
+      path: '/attention'
+      fullPath: '/learn/attention'
+      preLoaderRoute: typeof LearnAttentionRouteImport
+      parentRoute: typeof LearnRoute
+    }
+    '/learn/ceiling': {
+      id: '/learn/ceiling'
+      path: '/ceiling'
+      fullPath: '/learn/ceiling'
+      preLoaderRoute: typeof LearnCeilingRouteImport
+      parentRoute: typeof LearnRoute
+    }
+    '/learn/evals': {
+      id: '/learn/evals'
+      path: '/evals'
+      fullPath: '/learn/evals'
+      preLoaderRoute: typeof LearnEvalsRouteImport
+      parentRoute: typeof LearnRoute
+    }
+    '/learn/generation': {
+      id: '/learn/generation'
+      path: '/generation'
+      fullPath: '/learn/generation'
+      preLoaderRoute: typeof LearnGenerationRouteImport
+      parentRoute: typeof LearnRoute
+    }
+    '/learn/guessing': {
+      id: '/learn/guessing'
+      path: '/guessing'
+      fullPath: '/learn/guessing'
+      preLoaderRoute: typeof LearnGuessingRouteImport
+      parentRoute: typeof LearnRoute
+    }
+    '/learn/loop': {
+      id: '/learn/loop'
+      path: '/loop'
+      fullPath: '/learn/loop'
+      preLoaderRoute: typeof LearnLoopRouteImport
+      parentRoute: typeof LearnRoute
+    }
+    '/learn/pipelines': {
+      id: '/learn/pipelines'
+      path: '/pipelines'
+      fullPath: '/learn/pipelines'
+      preLoaderRoute: typeof LearnPipelinesRouteImport
+      parentRoute: typeof LearnRoute
+    }
+    '/learn/residency': {
+      id: '/learn/residency'
+      path: '/residency'
+      fullPath: '/learn/residency'
+      preLoaderRoute: typeof LearnResidencyRouteImport
+      parentRoute: typeof LearnRoute
+    }
+    '/learn/retrieval': {
+      id: '/learn/retrieval'
+      path: '/retrieval'
+      fullPath: '/learn/retrieval'
+      preLoaderRoute: typeof LearnRetrievalRouteImport
+      parentRoute: typeof LearnRoute
+    }
+    '/learn/tools': {
+      id: '/learn/tools'
+      path: '/tools'
+      fullPath: '/learn/tools'
+      preLoaderRoute: typeof LearnToolsRouteImport
+      parentRoute: typeof LearnRoute
+    }
+    '/learn/vectors': {
+      id: '/learn/vectors'
+      path: '/vectors'
+      fullPath: '/learn/vectors'
+      preLoaderRoute: typeof LearnVectorsRouteImport
+      parentRoute: typeof LearnRoute
+    }
   }
 }
 
+interface LearnRouteChildren {
+  LearnAnswerKeyRoute: typeof LearnAnswerKeyRoute
+  LearnAttentionRoute: typeof LearnAttentionRoute
+  LearnCeilingRoute: typeof LearnCeilingRoute
+  LearnEvalsRoute: typeof LearnEvalsRoute
+  LearnGenerationRoute: typeof LearnGenerationRoute
+  LearnGuessingRoute: typeof LearnGuessingRoute
+  LearnLoopRoute: typeof LearnLoopRoute
+  LearnPipelinesRoute: typeof LearnPipelinesRoute
+  LearnResidencyRoute: typeof LearnResidencyRoute
+  LearnRetrievalRoute: typeof LearnRetrievalRoute
+  LearnToolsRoute: typeof LearnToolsRoute
+  LearnVectorsRoute: typeof LearnVectorsRoute
+  LearnIndexRoute: typeof LearnIndexRoute
+}
+
+const LearnRouteChildren: LearnRouteChildren = {
+  LearnAnswerKeyRoute: LearnAnswerKeyRoute,
+  LearnAttentionRoute: LearnAttentionRoute,
+  LearnCeilingRoute: LearnCeilingRoute,
+  LearnEvalsRoute: LearnEvalsRoute,
+  LearnGenerationRoute: LearnGenerationRoute,
+  LearnGuessingRoute: LearnGuessingRoute,
+  LearnLoopRoute: LearnLoopRoute,
+  LearnPipelinesRoute: LearnPipelinesRoute,
+  LearnResidencyRoute: LearnResidencyRoute,
+  LearnRetrievalRoute: LearnRetrievalRoute,
+  LearnToolsRoute: LearnToolsRoute,
+  LearnVectorsRoute: LearnVectorsRoute,
+  LearnIndexRoute: LearnIndexRoute,
+}
+
+const LearnRouteWithChildren = LearnRoute._addFileChildren(LearnRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LearnRoute: LearnRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

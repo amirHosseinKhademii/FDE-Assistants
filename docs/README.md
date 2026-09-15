@@ -82,7 +82,14 @@ an engineering version. That pairing is deliberate, not duplication.
 
 Also: [`FROM-PHARMA.md`](steering/FROM-PHARMA.md) what transferred and what did
 not · [`DATA-RESIDENCY.md`](steering/DATA-RESIDENCY.md) what leaves the building
-· [`UI-COPY.md`](steering/UI-COPY.md) copy to be lifted into the page.
+· [`UI-COPY.md`](steering/UI-COPY.md) copy to be lifted into the page ·
+[`OPERATIONS.md`](steering/OPERATIONS.md) **the five operational capabilities —
+cost autopilot, semantic cache, catching model regressions, failure forensics,
+self-healing docs.** Teaching document and build plan in one; every claim is
+marked MEASURED or PROPOSED, and none of it is built yet ·
+[`LEARN-SOURCES.md`](steering/LEARN-SOURCES.md) **what in this folder teaches
+what** — a source catalogue for the `/learn` pages, with the measured figure and
+the dependency edges for each topic. Deliberately not a lesson plan.
 
 ## Research and reference
 
