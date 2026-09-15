@@ -78,6 +78,19 @@ export function Term({ def, children }: { def: string; children: ReactNode }) {
    a figure that could ship without saying where its numbers came from
    eventually does.
    ────────────────────────────────────────────────────────────────────────── */
+/**
+ * What each non-default `kind` says of itself.
+ *
+ * A LOOKUP RATHER THAN A NESTED TERNARY, because the third kind is what turned
+ * the old two-way ternary into something you had to read twice to find out what
+ * the else-branch covered.
+ */
+const KIND_BADGE: Record<'cited' | 'illustration' | 'proposed', string> = {
+  cited: 'measured elsewhere — not by this repo',
+  illustration: 'a drawing, not a measurement',
+  proposed: 'proposed — these numbers are not a result',
+};
+
 export function Figure({
   title,
   sub,
@@ -93,7 +106,10 @@ export function Figure({
    * WHAT KIND OF FIGURE THIS IS, AND IT IS A PROP RATHER THAN A SENTENCE IN
    * `source` ON PURPOSE.
    *
-   *   measured      every number in it came off a run, and `source` says which.
+   *   measured      every number in it came off a run IN THIS REPO, and
+   *                 `source` says which command reprints it.
+   *   cited         a real measurement, made by somebody else. `source` carries
+   *                 the author, the paper, the URL and the date fetched.
    *   illustration  a drawing of an idea. Nothing in it was measured.
    *   proposed      the shape of a decision not yet taken. The numbers are
    *                 made up to show what the trade looks like, and are not a
@@ -103,8 +119,29 @@ export function Figure({
    * is in a hurry. As a prop, the marker renders itself and the default is the
    * strict one — so a figure whose author forgot claims to be measured, is
    * read as measured, and is wrong in the direction somebody will notice.
+   *
+   * ── WHY `cited` HAD TO EXIST, AND WHY IT IS NOT ONE OF THE OTHER THREE ────
+   *
+   * The retrieval-patterns track teaches four patterns this repo has NOT built.
+   * Their numbers are real — ViDoRe nDCG, Self-CRAG on PopQA, GraphRAG win
+   * rates — they were simply measured by other people, on other corpora.
+   *
+   * `illustration` says "nothing in it was measured" and `proposed` says "these
+   * numbers are not a result". Both are false about a published benchmark, and
+   * a page that used either would be underselling a real finding. Leaving them
+   * as `measured` is worse than both, and it is the reason this exists: that is
+   * the DEFAULT, it renders no badge at all, and on this site an unbadged
+   * figure reads as a number somebody here printed. Two pages of this track
+   * have no repo run behind them whatsoever, and that is the honest thing for
+   * them to say out loud.
+   *
+   * ALL THREE NON-DEFAULT KINDS TAKE THE SAME AMBER MARKER. `--ui-warn` is the
+   * site's "a human decision is owed", and in every one of these cases the
+   * decision is the same one: how far you may carry this number. Giving `cited`
+   * its own colour would have implied the three differ in severity. They differ
+   * in PROVENANCE, which is what the words say.
    */
-  kind?: 'measured' | 'illustration' | 'proposed';
+  kind?: 'measured' | 'cited' | 'illustration' | 'proposed';
   children: ReactNode;
 }) {
   return (
@@ -117,11 +154,11 @@ export function Figure({
       <div className="learn-fig-source">
         {kind !== 'measured' && (
           /* `--ui-warn` is the site's "a human decision is owed", and reading a
-             drawing as a measurement is exactly the decision being warned
-             about. Measured figures get no badge at all — a badge on the
-             ordinary case is a badge nobody reads. */
+             drawing — or somebody else's benchmark — as a measurement made here
+             is exactly the decision being warned about. Measured figures get no
+             badge at all: a badge on the ordinary case is a badge nobody reads. */
           <p className="mb-2 font-mono text-[0.6875rem] tracking-[0.08em] uppercase" style={{ color: 'var(--color-ui-warn)' }}>
-            {kind === 'illustration' ? 'a drawing, not a measurement' : 'proposed — these numbers are not a result'}
+            {KIND_BADGE[kind]}
           </p>
         )}
         {source}

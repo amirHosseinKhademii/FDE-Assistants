@@ -1,24 +1,32 @@
 /**
- * The lessons, in two tracks.
+ * The lessons, in tracks. `TRACKS` and `LESSONS` below are the only count.
  *
- * ── WHY TWO TRACKS AND NOT TWELVE LESSONS ───────────────────────────────────
+ * ── WHY TRACKS AND NOT ONE NUMBERED RUN ────────────────────────────────────
  *
- * The first five explain the MACHINE — what an embedding is, how two search arms
+ * `machine` explains the MACHINE — what an embedding is, how two search arms
  * are fused, what the answer contract forces, what a suite measures. Every word
  * of it is true of all three engagements, and none of it names a customer except
- * as an example.
+ * as an example. It is a real sequence: each lesson assumes the one above.
  *
- * The next seven are ONE ENGAGEMENT: a bid response for a steering-systems
+ * `engagement` is ONE ENGAGEMENT: a bid response for a steering-systems
  * supplier, with its real corpus, its real refusals and its live open problem.
- * They teach a different kind of thing — not how the machinery works but what
+ * It teaches a different kind of thing — not how the machinery works but what
  * happens when you point it at somebody's actual files and most of the answers
  * turn out not to be in them.
  *
- * Folding them into one numbered run would have broken the claim the first five
- * are built on: that the order is the argument and each lesson assumes the one
- * above it. Track two does not assume track one in that way. Three of its
- * lessons genuinely depend on lessons 2 and 3 and say so; its first depends on
- * nothing at all and is the one to read if only one gets read.
+ * Folding those into one numbered run would have broken the claim the machine
+ * track is built on: that the order is the argument and each lesson assumes the
+ * one above it. The engagement track does not assume the machine track in that
+ * way. Three of its lessons genuinely depend on machine lessons 2 and 3 and say
+ * so; its first depends on nothing at all and is the one to read if only one
+ * gets read.
+ *
+ * `operations` and `patterns` were added later and each carries its own
+ * argument for where it sits, on its own record below. THE HEADING THIS
+ * PARAGRAPH REPLACED SAID "WHY TWO TRACKS AND NOT TWELVE LESSONS" and went on
+ * saying it through two more tracks — which is the fourth incident on
+ * `/learn/drift`, committed in the file that incident is about. A comment
+ * carrying a count is a count nothing checks.
  *
  * ── HOW A LESSON GETS ITS COLOUR, AND THE VERSION THAT WAS WRONG ───────────
  *
@@ -37,12 +45,21 @@
  * steps of the same ramp. Every track looks like every other track, and a
  * lesson's colour says how far through its own track it is.
  *
- * THE VALIDATOR'S FINDING STILL STANDS AND IS STILL RESPECTED. Run it and the
- * five fail as a categorical palette:
+ * THE VALIDATOR'S FINDING STILL STANDS AND IS STILL RESPECTED. Measured against
+ * the five stops on a #0d0f15 surface in dark mode, they fail as a CATEGORICAL
+ * palette:
  *
- *   node scripts/validate_palette.js "#38bdf8,#818cf8,#c084fc,#e879f9,#fb923c" \
- *     --mode dark --surface "#0d0f15"
- *   → FAIL  adjacent pair ΔE 6.8 (normal vision), against a floor of 15
+ *   FAIL  worst adjacent pair ΔE 6.8 (normal vision), against a floor of 15
+ *
+ * ── AND THAT IS A RECORDED FINDING, NOT A COMMAND YOU CAN RUN ──────────────
+ *
+ * This comment used to print `node scripts/validate_palette.js …` as though it
+ * were reproducible. IT IS NOT IN THIS REPO — `scripts/` holds `arch-graph.mjs`,
+ * `dep-graph.mjs` and `leak-check.mjs`, and nothing else. The ΔE number is real
+ * and was measured; the producer left, and the citation stayed, which is a
+ * worse position than having no producer at all because everybody reading it
+ * believes the claim is checkable. See `/learn/drift`, whose whole argument
+ * this is. Restoring the script is the fix; until then the wording is honest.
  *
  * Seven steps are closer together than five, so a seven-lesson track fails it
  * harder. That is fine and it is why the rule around the hue matters more than
@@ -68,7 +85,13 @@ export type LessonSlug =
   | 'cost'
   | 'caching'
   | 'drift'
-  // Track three — one engagement.
+  // Track three — five ways to retrieve. Only two of them are built here.
+  | 'hybrid'
+  | 'corrective'
+  | 'agentic'
+  | 'graph'
+  | 'multimodal'
+  // Track four — one engagement.
   | 'guessing'
   | 'pipelines'
   | 'answer-key'
@@ -77,7 +100,7 @@ export type LessonSlug =
   | 'residency'
   | 'ceiling';
 
-export type TrackId = 'machine' | 'operations' | 'engagement';
+export type TrackId = 'machine' | 'operations' | 'patterns' | 'engagement';
 
 export interface Track {
   id: TrackId;
@@ -105,6 +128,35 @@ export const TRACKS: Track[] = [
     title: 'What you build after it works',
     blurb:
       'Five things a system needs once it answers correctly and has to keep doing so: catching a model that moved under you, finding out why a failure failed, knowing what it costs, deciding whether to cache, and stopping your own documentation from lying. Two of the five are largely PROPOSED here, and every page says which parts are built and which are argued.',
+  },
+  {
+    /*
+     * THIRD, AND THE ARGUMENT IS THE ONE `operations` ALREADY MADE.
+     *
+     * These five are general — four of them are patterns this repo has NOT
+     * built, read out of the papers that did. The engagement track is one
+     * customer's files. Filing the general behind the specific is the mistake
+     * the track above was moved to avoid, and it would be the same mistake
+     * twice to append these after seven pages of somebody's bid response.
+     *
+     * ── A READING ORDER, NOT A DEPENDENCY CHAIN, AND THE `needs` LINES SAY SO ──
+     *
+     * Every other track is a sequence where each lesson assumes the one above.
+     * This one is not, and pretending otherwise would repeat the error this
+     * file's header describes. All five assume machine lesson 2 — that is the
+     * real prerequisite and it is SHARED rather than sequential. Only
+     * `corrective` depends on a sibling, because it reuses hybrid's
+     * over-fetch-then-gate shape and leans on its `ret-008` finding.
+     *
+     * So the order is an argument about what to read first, not about what you
+     * are able to read: built-and-measured first, least-built last, which also
+     * happens to run from "fix your retrieval" to "your input was never text".
+     * Three of the five can be entered directly and their cards say so.
+     */
+    id: 'patterns',
+    title: 'Five ways to retrieve',
+    blurb:
+      'The state of the art around the pipeline in track one: two searches instead of one, grading what came back before the model may use it, letting the model search again, building a map first, and giving up on text altogether. Two are built here and measured; three are read out of the papers, and every figure taken from one is badged as somebody else’s measurement rather than ours.',
   },
   {
     id: 'engagement',
@@ -263,6 +315,62 @@ export const LESSONS: Lesson[] = [
     source: 'docs/steering/OPERATIONS.md §5',
     minutes: 7,
     needs: null,
+  },
+
+  {
+    slug: 'hybrid',
+    track: 'patterns',
+    n: 1,
+    short: 'Hybrid',
+    title: 'Two searches, because one is reliably wrong about different things',
+    lede: 'Meaning-search is worst at exactly the rare words that matter most and word-search is worst at paraphrase, so you run both — and you cannot add the scores, because one is a bounded distance and the other is an unbounded rank.',
+    source: 'docs/rag/HYBRID.md',
+    minutes: 11,
+    needs: 'lesson 2 of the machine',
+  },
+  {
+    slug: 'corrective',
+    track: 'patterns',
+    n: 2,
+    short: 'Corrective',
+    title: 'Grading what came back, before the model is allowed to use it',
+    lede: 'A passage can rank first and still be the wrong answer — the superseded bulletin outscores its own replacement here — so over-fetch, then drop on facts rather than on scores, because a threshold is a number somebody has to tune and a fact is not.',
+    source: 'docs/rag/CORRECTIVE.md',
+    minutes: 11,
+    needs: 'lesson 1 of this track',
+  },
+  {
+    slug: 'agentic',
+    track: 'patterns',
+    n: 3,
+    short: 'Agentic',
+    title: 'Retrieval becomes a tool the model may call, and may call again',
+    lede: 'Search stops being a step before the model and becomes something it decides to do — which makes the tool description the prompt, makes cost a distribution rather than a number, and makes the turn cap an outcome you report instead of a truncation you hide.',
+    source: 'docs/rag/AGENTIC.md',
+    minutes: 11,
+    needs: 'lesson 2 of the machine',
+  },
+  {
+    slug: 'graph',
+    track: 'patterns',
+    n: 4,
+    short: 'Graph',
+    title: 'Building a map first, because some questions have no passage',
+    lede: '“Which components are exposed to the part that failed” is an answer no single passage contains — it is a path across three documents — and paying an LLM call per chunk at index time is how you buy the ability to walk one.',
+    source: 'docs/rag/GRAPH.md',
+    minutes: 11,
+    needs: 'lesson 2 of the machine',
+  },
+  {
+    slug: 'multimodal',
+    track: 'patterns',
+    n: 5,
+    short: 'Multimodal',
+    title: 'The page is not the text on the page',
+    lede: 'Everything above assumes the meaning survived being turned into text, and in a table, a chart or a scan it did not — so either a model describes the page before it knows the question, or you stop transcribing and match the picture directly.',
+    source: 'docs/rag/MULTIMODAL.md',
+    minutes: 11,
+    needs: 'lesson 2 of the machine',
   },
 
   {

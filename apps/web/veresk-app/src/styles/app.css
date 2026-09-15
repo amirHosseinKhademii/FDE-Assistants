@@ -174,12 +174,15 @@ a.case-card:focus-visible {
    the six hop hues above, and the same warning: where one appears, it is
    position in a sequence and never severity.
 
-   THEY ARE DECORATION, AND THEY ARE NOT ALLOWED TO ENCODE DATA. Run this and
-   it fails, which is the useful fact:
+   THEY ARE DECORATION, AND THEY ARE NOT ALLOWED TO ENCODE DATA. Measured as a
+   categorical palette on this surface, they fail, which is the useful fact:
 
-     node scripts/validate_palette.js "#38bdf8,#818cf8,#c084fc,#e879f9,#fb923c" \
-       --mode dark --surface "#0d0f15"
-     → FAIL  adjacent pair ΔE 6.8 (normal vision), below the 15 floor
+     FAIL  worst adjacent pair ΔE 6.8 (normal vision), below the 15 floor
+
+   That is a RECORDED measurement and not a command: the validator that printed
+   it is not in this repo. This comment used to quote a `node scripts/…` line
+   for it, which read as reproducible and was not. See the same correction in
+   `lib/learn/lessons.ts`.
 
    Five hues confined to the arc that is LEFT once teal, green, amber and rose
    are reserved for severity cannot be told apart as a series. So no chart on

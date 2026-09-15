@@ -141,29 +141,45 @@ packages/
                                 also the one package allowed Tailwind utility
                                 classes, which costs each consumer an `@source`
                                 line; see its `src/index.ts`.
-apps/insurance-app/     @claims/insurance-app      TanStack Start (Vite, React 19): the page and
+apps/web/insurance-app/ @claims/insurance-app      TanStack Start (Vite, React 19): the page and
                                 the /api/ask streaming route. Port 3000.
 apps/web/veresk-app/    @veresk/app                TanStack Start. The firm's door at `/`, whose
                                 three engagement cards are links to other
                                 ORIGINS, baked in at build time by the
-                                pipeline — plus `/learn`, TWELVE lessons in
-                                two tracks: five on the shared machinery
-                                (vectors, retrieval, the answer contract, the
-                                loop and its engines, evals) and seven on one
-                                engagement end to end, read out of
+                                pipeline — plus `/learn`: four tracks and a
+                                map. The machine (vectors, retrieval, the
+                                answer contract, the loop and its engines,
+                                evals); what you build after it works
+                                (regressions, forensics, cost, caching,
+                                drift — two of the five are largely PROPOSED,
+                                and each page says which parts are built and
+                                which are argued); five ways to retrieve, read
+                                out of `docs/rag/` (hybrid, corrective,
+                                agentic, graph, multimodal — only the first
+                                two are built here, and every figure taken
+                                from someone else's paper is badged `cited`);
+                                and one engagement end to end, read out of
                                 `docs/steering/` (guessing, three pipelines,
                                 the answer key, the tools, attention, what
-                                leaves the building, the ceiling). "The firm's
-                                door and nothing else — one page" was the
-                                accurate statement until 2026-09-15 and no
-                                longer is.
+                                leaves the building, the ceiling). Plus
+                                `/learn/architecture`, a reference belonging
+                                to no track. HOW MANY
+                                LESSONS IS DELIBERATELY NOT WRITTEN HERE —
+                                `TOTALS` in
+                                `apps/web/veresk-app/src/lib/learn/lessons.ts`
+                                derives every count, and the literal this
+                                sentence replaced ("twelve lessons in two
+                                tracks") went stale the day a third track
+                                landed. "The firm's door and nothing else —
+                                one page" was the accurate statement until
+                                2026-09-15 and no longer is.
                                 It still has NO api route, no database and no
                                 model call, so `vite.config.ts` still carries
                                 no `ssr.external` list: every figure under
                                 `/learn` is baked in at build time from a
                                 document in `docs/`. Port 3300,
                                 `pnpm veresk:dev`.
-apps/pharma-app/        @meridian/pharma-app       TanStack Start. Meridian Pharma's whole
+apps/web/pharma-app/    @meridian/pharma-app       TanStack Start. Meridian Pharma's whole
                                 surface: `/` the landing, `/desk`,
                                 `/supplier`, `/data-flow` and the `/api/*`
                                 routes. Split out of `veresk-app` on
@@ -171,7 +187,7 @@ apps/pharma-app/        @meridian/pharma-app       TanStack Start. Meridian Phar
                                 always this surface's, they were just living
                                 in an app that also served the firm's page.
                                 Port 3301, `pnpm pharma:dev`.
-apps/steering-app/      @vantis/steering-app       TanStack Start. Vantis Steering's whole
+apps/web/steering-app/  @vantis/steering-app       TanStack Start. Vantis Steering's whole
                                 surface: `/` the landing, `/data-flow` where
                                 the data goes, and `/desk` — one customer
                                 requirement in, one assessed answer out, over

@@ -76,7 +76,8 @@ export function LessonNav() {
       ))}
 
       <p className="mt-6 max-w-[16rem] px-2.5 text-[0.6875rem] leading-relaxed text-ui-faint">
-        Every figure is a number this repo measured, with the command that reprints it underneath.
+        Every figure either is a number this repo measured, with the command that reprints it
+        underneath, or says on its face that it is not one.
       </p>
     </nav>
   );

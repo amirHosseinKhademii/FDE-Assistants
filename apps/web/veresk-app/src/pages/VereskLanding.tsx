@@ -436,16 +436,30 @@ function Learn() {
         And here is how the machine actually works.
       </h2>
       <p className="mt-4 max-w-[60ch] leading-relaxed text-ui-dim">
-        {TOTALS.lessons} lessons in {TOTALS.tracks} tracks, plus a map of the repo itself. Five take apart
-        the machinery every engagement above is built from; five are what you build after it works; seven
-        follow all of it into a real customer's files, where most of the answers turned out not to be there.
-        Every figure is a number this repo measured, printed with the command that reprints it — and the one
-        drawing that is an illustration rather than a measurement says so.
+        {TOTALS.lessons} lessons in {TOTALS.tracks} tracks, plus a map of the repo itself. They run from the
+        machinery every engagement above is built from, through what you build once it works and the
+        retrieval patterns around it, into a real customer's files where most of the answers turned out not
+        to be there. Every figure is a number this repo measured, printed with the command that reprints it
+        — and any figure that is a drawing, a proposal, or somebody else's benchmark says so on its face.
       </p>
 
-      {/* GROUPED, BECAUSE THE TWO TRACKS ARE NOT ONE RUN OF TWELVE. See
-          `lib/learn/lessons.ts`: the second track's first lesson assumes nothing
-          at all, and a single 1–12 strip would claim a dependency chain that
+      {/* DERIVED, NOT WRITTEN OUT. The sentence above used to enumerate the
+          tracks — "five … five … seven" — and a fourth track of five landed
+          while it went on saying so. That is the same defect `TOTALS` was
+          introduced to kill, one level up: a count in prose is still a count.
+          Nothing here can disagree with `TRACKS`. */}
+      <p className="mt-3 max-w-[60ch] font-mono text-[0.8125rem] leading-relaxed text-ui-faint">
+        {TRACKS.map((t, i) => (
+          <span key={t.id}>
+            {i > 0 && <span className="text-ui-line"> · </span>}
+            {t.title} ({lessonsIn(t.id).length})
+          </span>
+        ))}
+      </p>
+
+      {/* GROUPED, BECAUSE THE TRACKS ARE NOT ONE NUMBERED RUN. See
+          `lib/learn/lessons.ts`: two of them open with a lesson that assumes
+          nothing at all, and one flat strip would claim a dependency chain that
           does not exist. */}
       <div className="mt-8 space-y-5">
         {TRACKS.map((track) => (

@@ -14,21 +14,29 @@ committed; this is the account of WHY, which the code cannot carry on its own.*
 ## What exists now
 
 ```
-apps/insurance-app   @claims/insurance-app   Meridian Mutual. Port 3000, pnpm dev.
-                                             Untouched by this work.
-apps/veresk-app      @veresk/app             The firm's door at `/`, `/learn` (twelve
-                                             lessons in two tracks, 2026-09-15), and Meridian
-                                             Pharma's pages: `/pharma`, `/desk`,
-                                             `/supplier`, `/data-flow`.
-                                             Port 3300, `pnpm veresk:dev`.
-apps/steering-app    @vantis/steering-app    Vantis Steering, at `/` of its own
-                                             deployment. Port 3400,
-                                             `pnpm steering:dev`.
+apps/web/insurance-app  @claims/insurance-app   Meridian Mutual. Port 3000, pnpm dev.
+                                                Untouched by this work.
+apps/web/veresk-app     @veresk/app             The firm's door at `/`, and `/learn` —
+                                                three tracks and a map, added 2026-09-15.
+                                                HOW MANY LESSONS IS NOT WRITTEN HERE:
+                                                `TOTALS` in `src/lib/learn/lessons.ts`
+                                                derives it, after the literal that used
+                                                to sit on this line went stale.
+                                                Port 3300, `pnpm veresk:dev`.
+apps/web/pharma-app     @meridian/pharma-app    Meridian Pharma: `/`, `/desk`,
+                                                `/supplier`, `/data-flow`, `/api/*`.
+                                                Its own app — the pages this block
+                                                once listed under veresk-app moved
+                                                here with it.
+                                                Port 3301, `pnpm pharma:dev`.
+apps/web/steering-app   @vantis/steering-app    Vantis Steering, at `/` of its own
+                                                deployment. Port 3400,
+                                                `pnpm steering:dev`.
 
-packages/uikit       @fde/uikit              Liftable into a customer's repo.
-                                             Controls, severity, motion, tokens.
-packages/surface     @veresk/surface         THIS SITE's shared parts. Not
-                                             liftable, and not meant to be.
+packages/uikit          @fde/uikit              Liftable into a customer's repo.
+                                                Controls, severity, motion, tokens.
+packages/surface        @veresk/surface         THIS SITE's shared parts. Not
+                                                liftable, and not meant to be.
 ```
 
 **Each engagement is its own deployment, which is why they are separate apps
@@ -509,6 +517,12 @@ a single string that tried to serve both would serve neither. Keep them apart.
 
 ## `/learn` — twelve lessons in two tracks, added 2026-09-15
 
+> **Superseded, and kept on purpose.** This is the first pass as it shipped.
+> The shape it settled into — three tracks and a map — is *"`/learn` as it now
+> stands"* further down, and every count in this entry is historical the moment
+> you read it. The forward pointer is here because the correction was 190 lines
+> away and a reader arriving at this heading had no way to know.
+
 *Twelve pages under `apps/web/veresk-app/src/pages/learn/`, a layout route for
 the rail, and app-local components. Nothing went into `@veresk/surface` or
 `@fde/uikit`: there is one caller, and this repo's rule is extraction on a
@@ -698,10 +712,12 @@ them would make that claim false.
 
 ---
 
-## `/learn` as it now stands — 17 lessons, 3 tracks, and a map
+## `/learn` as it now stands — 22 lessons, 4 tracks, and a map
 
-*Grown from the five of 2026-09-15 in the same day. The entries above describe
-the first pass; this is the shape it settled into.*
+*Grown from the five of 2026-09-15 across that one day. The entries above
+describe the passes it went through; this is the shape it settled into. The
+counts in this heading are the only ones written by hand anywhere on the
+subject — every surface reads `TOTALS`.*
 
 ```
   THE MACHINE (5)              what every engagement is built from
@@ -710,11 +726,63 @@ the first pass; this is the shape it settled into.*
   WHAT YOU BUILD AFTER IT WORKS (5)     the operational pillars
     regressions · forensics · cost · caching · drift
 
+  FIVE WAYS TO RETRIEVE (5)             the state of the art around track one
+    hybrid · corrective · agentic · graph · multimodal
+
   ONE ENGAGEMENT, END TO END (7)        Vantis Steering's own material
     guessing · pipelines · answer key · tools · attention · residency · ceiling
 
   /learn/architecture          a REFERENCE, in no track
 ```
+
+### The patterns track, and the two rules it forced
+
+It sits **third, not last**, on the argument `operations` already made: four of
+its five are patterns this repo has NOT built, which makes them general, and the
+engagement track is one customer's files. The general does not go behind the
+specific.
+
+It is a **reading order rather than a dependency chain** — every other track is
+a sequence where each lesson assumes the one above, and this one is not. All
+five assume machine lesson 2; only `corrective` assumes a sibling. Saying so in
+`needs:` rather than smoothing it over is the same call `guessing` and
+`forensics` already carry.
+
+**`Figure` gained `kind="cited"`** — a real measurement made by somebody else.
+`illustration` ("nothing in it was measured") and `proposed` ("these numbers are
+not a result") are both false about a published benchmark, and leaving such a
+figure `measured` is worse than either, because that is the default and renders
+no badge at all. Two pages in this track have no repo run behind them; the badge
+is how they say so. All three non-default kinds share the amber marker: they
+differ in provenance, not in severity.
+
+**`Path`** is the one new chart — a fixed-layout chain of nodes for a two-hop
+question, with each hop's source file listed in HTML beneath the drawing. Not
+force-directed, because the claim is the path and not the topology. The sources
+were SVG text under their own arrows in the first version and collided with the
+node boxes; see `PROGRESS.md` for why that is the same bug `BarRows` already
+taught this repo.
+
+### The provenance promise is a rule now, not a count
+
+This page and the rail both used to say *"exactly one drawing is an illustration
+rather than a measurement"*. That was true for twelve lessons and false the
+moment a track arrived carrying process drawings and other people's benchmarks.
+It reads:
+
+> a figure either is a number this repo measured, with the command that reprints
+> it, or it says on its face that it is not one
+
+A promise phrased as a count goes stale when the thing it counts grows. Phrased
+as a rule it cannot, and `Figure`'s strict default enforces it.
+
+### `scripts/validate_palette.js` is not in this repo
+
+The ΔE 6.8 finding below is real and still governs the hue rule. The command
+that produced it was quoted in `lib/learn/lessons.ts` and in `styles/app.css` as
+though it were reproducible, and `scripts/` contains only `arch-graph.mjs`,
+`dep-graph.mjs` and `leak-check.mjs`. Both comments now say the number is
+recorded rather than runnable. Restoring the script is the real fix.
 
 ### The hue rule, corrected
 

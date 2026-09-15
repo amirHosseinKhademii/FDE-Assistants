@@ -105,7 +105,41 @@ export function BarRows({
   const barH = hasBefore ? 9 : 11;
   const noteGap = hasNote ? 15 : 0;
   const rowH = (hasBefore ? 46 : 32) + noteGap;
-  const plotW = 1000 - labelWidth - 90;
+
+  /*
+   * ── THE GUTTER THE VALUE LABEL IS WRITTEN INTO, AND WHY IT IS COMPUTED ────
+   *
+   * It was a flat 90, and that is a guess about how wide the longest label
+   * would be. The label is drawn AFTER the bar, and the longest bar always ends
+   * at `1000 - gutter` — so every chart got the same ~82 usable units no matter
+   * what it actually had to print, and anything longer was clipped by the
+   * viewBox. Silently: SVG crops at its own edge and says nothing.
+   *
+   * It had shipped on four pages. `/learn/generation` printed `110,130 inpu`
+   * and `110,177 inpu`, cut mid-word, on the figure whose entire subject is the
+   * comparison between those five runs — while its three shorter rows showed
+   * their units in full, so the chart looked deliberate rather than broken.
+   * `/learn/vectors` lost `100 % recall@32`, `/learn/attention` lost
+   * `3,854 passages`, and the fifth was 4 units of a slope note.
+   *
+   * NO `getBBox` IS AVAILABLE HERE. This is the same wall as the note collision
+   * above: there are no text metrics at render time, so the width has to be
+   * ESTIMATED. 6.6 units per character at `fontSize={11.5}` is measured from
+   * this stack's own mono figures and is deliberately a slight over-estimate —
+   * erring wide costs a little plot and erring narrow costs a character of the
+   * number, which is the failure this replaced.
+   *
+   * The floor of 90 keeps every existing chart that was already fine looking
+   * exactly as it did.
+   */
+  const longestLabel = Math.max(
+    ...rows.map((r) => {
+      const shown = `${r.display ?? r.value ?? ''}${r.value === null || !unit ? '' : ` ${unit}`}`;
+      return shown.length;
+    }),
+  );
+  const gutter = Math.max(90, Math.round(longestLabel * 6.6) + 18);
+  const plotW = 1000 - labelWidth - gutter;
   const x = (v: number) => (v / top) * plotW;
 
   return (

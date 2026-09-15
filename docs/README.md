@@ -28,6 +28,7 @@ they cover one question from a file on disk to a validated answer.
 |---|---|
 | [`RETRIEVAL.md`](RETRIEVAL.md) | **R** — parse, chunk, embed, index, retrieve, fuse. Ends with a from-scratch appendix on vector databases and vector search. |
 | [`AUGMENTED-GENERATION.md`](AUGMENTED-GENERATION.md) | **A and G** — what is assembled into the context window, and what the answer contract forces back out. |
+| [`rag/`](rag/) | **Five patterns for when the pipeline above is not enough** — hybrid, corrective, agentic, graph, multimodal. One file each, plus [`README.md`](rag/README.md). Two are built here and measured; three are read out of other people's papers and say so, because every claim carries MEASURED HERE / CITED / PROPOSED. |
 | [`ENGINES.md`](ENGINES.md) | The two switches: `LOOP=sdk\|mastra\|langgraph` and `LLM_PROVIDER=azure\|bedrock`, and the engine × cloud matrix. |
 | [`BEDROCK.md`](BEDROCK.md) | The AWS estate, the translation nobody else writes, and the quota defect blocking it. |
 

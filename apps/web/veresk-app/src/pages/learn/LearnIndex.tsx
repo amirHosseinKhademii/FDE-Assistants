@@ -6,11 +6,17 @@
  * any of those words mean.
  *
  * THE PAGE'S ONE PROMISE, AND IT IS THE ONLY REASON THIS IS WORTH BUILDING:
- * every figure in the lessons is a number this repo measured, printed with the
- * command that reprints it. Exactly one drawing is an illustration — the
- * draggable vectors in the first lesson — and it is labelled as one where the
- * others carry their source. A teaching page that mixed the two would teach the
- * wrong lesson first.
+ * a figure either is a number this repo measured, printed with the command that
+ * reprints it, or it says on its own face that it is not one. A teaching page
+ * that mixed the two would teach the wrong lesson first.
+ *
+ * THAT SENTENCE USED TO READ "EXACTLY ONE DRAWING IS AN ILLUSTRATION" and named
+ * the draggable vectors in lesson 1. It was true for twelve lessons and then a
+ * track arrived whose subject is four patterns this repo has not built — pages
+ * carrying process drawings and other people's benchmarks by the figure. A
+ * promise phrased as a COUNT went stale the moment the thing it counted grew;
+ * phrased as a RULE it cannot. `Figure`'s `kind` prop is what enforces it, and
+ * the default is the strict one.
  *
  * TWO TRACKS, AND THE SPLIT IS THE ARGUMENT. The first is the machine; the
  * second is one customer's files. See `lib/learn/lessons.ts` for why they are
@@ -31,16 +37,22 @@ export function LearnIndex() {
           How the machine actually works.
         </h1>
 
+        {/* NOT AN ENUMERATION ANY MORE. This sentence used to count the tracks
+            out — "five … five … seven" — and went on saying it after a fourth
+            track landed. The tracks name themselves below, each with its own
+            blurb and its own count, so saying it twice only created somewhere
+            for the two to disagree. */}
         <p className="lift-in mt-6 max-w-[58ch] text-lg leading-relaxed text-ui-dim" style={{ animationDelay: '120ms' }}>
-          Five pages take the machinery apart — something that finds the right passage, a contract the
-          answer has to satisfy, a loop that calls tools, a suite that says whether any of it works. Five
-          more are what you build after it works. Seven follow all of it into a real customer's files.
+          It starts with the machinery taken apart — something that finds the right passage, a contract the
+          answer has to satisfy, a loop that calls tools, a suite that says whether any of it works — and
+          goes on through what you build once it works, the retrieval patterns around it, and one real
+          customer's files. Each track below says what it assumes and what it is for.
         </p>
 
         <p className="lift-in mt-5 max-w-[58ch] leading-relaxed text-ui-faint" style={{ animationDelay: '200ms' }}>
-          Every figure is a number this repo measured, with the command that reprints it underneath.
-          Exactly one drawing is an illustration rather than a measurement, and it says so in the place the
-          others put their source.
+          Every figure either is a number this repo measured, with the command that reprints it
+          underneath, or says on its face that it is not one — a drawing, a proposal, or a real measurement
+          somebody else made.
         </p>
       </header>
 

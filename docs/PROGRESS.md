@@ -3802,3 +3802,132 @@ precise body, is the only arrangement where the two cannot disagree.
 Three instances of 74% survive on the site and all three are sentences *about*
 the correction. Asserted by reading every one in the rendered text rather than
 by grepping source.
+
+---
+
+## 2026-09-15 (later still) — a fourth track: five ways to retrieve
+
+Written from `docs/rag/`, five documents produced in parallel by another
+session: `HYBRID.md`, `CORRECTIVE.md`, `AGENTIC.md`, `GRAPH.md`,
+`MULTIMODAL.md`. Each ends with a `## Figure data for the UI` section naming the
+chart component it wants, which is why this landed in one pass rather than three.
+
+**Five lessons, and the track sits THIRD rather than last.** The argument is the
+one `operations` already made and is on the record in `lessons.ts`: these five
+are general — four of them are patterns this repo has not built — and the
+engagement track is one customer's files. Filing the general behind the specific
+is the mistake that track was moved to avoid.
+
+**It is a reading order, not a dependency chain, and the `needs:` lines say so.**
+All five assume machine lesson 2; only `corrective` depends on a sibling. Three
+read cold relative to the track and their cards say it, the way `guessing` and
+`forensics` already do.
+
+### `Figure` gained a fourth kind, and the track could not be honest without it
+
+`measured | illustration | proposed` had no slot for *a real measurement, made
+by somebody else*. ViDoRe nDCG, Self-CRAG on PopQA, GraphRAG win rates — real
+numbers, other people's corpora. `illustration` says "nothing in it was
+measured" and `proposed` says "these numbers are not a result"; both are false
+about a published benchmark, and both undersell it.
+
+Leaving them `measured` is worse than either, and is the reason `cited` exists:
+that is the DEFAULT, it renders no badge, and on this site an unbadged figure
+reads as a number somebody here printed. Two of these five pages have no repo
+run behind them at all, and saying so out loud is the honest thing for them.
+
+All three non-default kinds take the same amber marker. They differ in
+provenance, not in severity, and the words carry that.
+
+### One new chart, and it was wrong the first time in the documented way
+
+`Path` — a fixed-layout chain for the two-hop question in `GRAPH.md` §4.
+Deliberately not force-directed: the claim is the path, not the topology, and a
+figure whose positions come from a simulation draws differently on every reload.
+
+The first version put each hop's source file in an SVG `<text>` under its own
+arrow. `requirements/PRG-KST-K2/…` is far wider than the ~90px gap between two
+boxes, so it ran under the node rectangles and lost its leading characters.
+**SVG has no text metrics at render time** — this repo has met that exact wall
+once before, on `BarRows`, and the fix is the same: stop putting two things on
+one line. The hops are drawn; their sources are an HTML list underneath, where
+the browser can wrap them.
+
+Found by screenshotting the page. The typecheck passed.
+
+### Three more defects the render sweep found, none visible to a check
+
+1. **A value label ran off the plot.** `BarRows` draws its number at
+   `labelWidth + barWidth + 8`, and the longest bar reaches `1000 - 90` — so a
+   14-character label on the MAX row has about 82px, and `2/110 = 0.0182`
+   rendered as `2/110 = 0.01`. On the one figure whose entire point is that the
+   two numbers are nearly equal and the ORDERING is the finding. Fixed with
+   headroom in `max`, which keeps the arithmetic on the chart.
+2. **Two notes sat closer to the wrong row than the right one**, and one
+   summarised the whole chart while appearing to belong to a single bar — "123
+   runs, 13.8%" under the `11 calls` row reads as *11 calls happened 123 times*.
+   Both facts were already in the figure's own `sub`, so both notes came off.
+3. **A caption said "the same height"** about horizontal bars.
+
+### The promise on the index page was a count, and the count went stale
+
+`/learn` said *"exactly one drawing is an illustration rather than a
+measurement"*, naming the draggable vectors in lesson 1. True for twelve
+lessons. This track arrived with process drawings and other people's benchmarks
+by the figure, and the sentence became false — in the same paragraph that makes
+the site's central promise about provenance.
+
+Rephrased as a rule rather than a count: **a figure either is a number this repo
+measured, with the command that reprints it, or it says on its face that it is
+not one.** A promise phrased as a count goes stale when the thing it counts
+grows; phrased as a rule it cannot, and `Figure`'s `kind` enforces it with the
+strict default. The rail carried the same sentence and got the same fix.
+
+**And the landing page and the index both enumerated the tracks in prose** —
+"five … five … seven" — after a fourth track of five had landed. `TOTALS` fixed
+the counts in the navigation last session; this is the same defect one level
+out, because a count in a sentence is still a count. The landing page now
+renders the track names and their sizes from `TRACKS`; the index stopped
+enumerating at all, since the tracks name themselves directly below it.
+
+That is the sixth drift incident, in the section whose last lesson is about
+drift, found the same way as the other five — by a person reading the page.
+
+### Two corrections from the other session, and one re-run here
+
+The distribution figure said **894 runs**; the producer in `AGENTIC.md` §2 had
+been tightened to exclude an embeddings row and prints **893**, with the
+`0 calls` bucket at 45 rather than 46. Re-run here before changing the page —
+893, 45, 123 at six or more calls, 13.8%. Every other number held.
+
+A draft of the hybrid page **redrew the reranker slope chart `/learn/retrieval`
+already owns**, with a fourth case added: one measurement, two charts, with
+different numbers for the same cases. Precisely what `/learn/drift` argues
+against. Removed — the page points at lesson 2 and keeps only what is its own.
+
+And the tool-description excerpt was marked `verbatim` while carrying reflowed
+lines. Rebuilt from the file. That is the `HowItWorks` audit's exact defect,
+committed again in the session after the audit.
+
+### `scripts/validate_palette.js` does not exist
+
+`lessons.ts` and `app.css` both quoted it as a runnable producer for the ΔE 6.8
+finding. `scripts/` holds `arch-graph.mjs`, `dep-graph.mjs` and
+`leak-check.mjs`, and nothing else. The measurement is real and is kept; the
+command is gone and both comments now say so.
+
+**A number with a producer that nothing checks is no better off than a number
+without one** is the sharpest line on `/learn/drift`. This is a step worse: a
+producer that does not exist, cited in two files, inside the package that draws
+the page making the argument.
+
+### Checks
+
+`pnpm typecheck` 31/31 · `pnpm leak:check` PASS · `pnpm arch:check` current.
+Render sweep over 11 routes × 2 widths with every dialog opened: no page-level
+scroll, no clipped element, no lesson missing its accent, every dialog reaching
+its hue. The two exclusions are the ones `SITE.md` already documents — the
+Aurora wash and the landing `FlowMap`, which clip their own oversized drawings
+on purpose.
+
+**22 lessons, 4 tracks**, plus `/learn/architecture`.
