@@ -18,17 +18,22 @@ import { Route as LearnArchitectureRouteImport } from './routes/learn.architectu
 import { Route as LearnAttentionRouteImport } from './routes/learn.attention'
 import { Route as LearnCachingRouteImport } from './routes/learn.caching'
 import { Route as LearnCeilingRouteImport } from './routes/learn.ceiling'
+import { Route as LearnContextRouteImport } from './routes/learn.context'
 import { Route as LearnCorrectiveRouteImport } from './routes/learn.corrective'
 import { Route as LearnCostRouteImport } from './routes/learn.cost'
+import { Route as LearnCredentialsRouteImport } from './routes/learn.credentials'
 import { Route as LearnDriftRouteImport } from './routes/learn.drift'
 import { Route as LearnEvalsRouteImport } from './routes/learn.evals'
+import { Route as LearnFinetuningRouteImport } from './routes/learn.finetuning'
 import { Route as LearnForensicsRouteImport } from './routes/learn.forensics'
 import { Route as LearnGenerationRouteImport } from './routes/learn.generation'
 import { Route as LearnGraphRouteImport } from './routes/learn.graph'
 import { Route as LearnGuessingRouteImport } from './routes/learn.guessing'
 import { Route as LearnHybridRouteImport } from './routes/learn.hybrid'
+import { Route as LearnInjectionRouteImport } from './routes/learn.injection'
 import { Route as LearnLoopRouteImport } from './routes/learn.loop'
 import { Route as LearnMultimodalRouteImport } from './routes/learn.multimodal'
+import { Route as LearnOrchestrationRouteImport } from './routes/learn.orchestration'
 import { Route as LearnPipelinesRouteImport } from './routes/learn.pipelines'
 import { Route as LearnRegressionsRouteImport } from './routes/learn.regressions'
 import { Route as LearnResidencyRouteImport } from './routes/learn.residency'
@@ -81,6 +86,11 @@ const LearnCeilingRoute = LearnCeilingRouteImport.update({
   path: '/ceiling',
   getParentRoute: () => LearnRoute,
 } as any)
+const LearnContextRoute = LearnContextRouteImport.update({
+  id: '/context',
+  path: '/context',
+  getParentRoute: () => LearnRoute,
+} as any)
 const LearnCorrectiveRoute = LearnCorrectiveRouteImport.update({
   id: '/corrective',
   path: '/corrective',
@@ -91,6 +101,11 @@ const LearnCostRoute = LearnCostRouteImport.update({
   path: '/cost',
   getParentRoute: () => LearnRoute,
 } as any)
+const LearnCredentialsRoute = LearnCredentialsRouteImport.update({
+  id: '/credentials',
+  path: '/credentials',
+  getParentRoute: () => LearnRoute,
+} as any)
 const LearnDriftRoute = LearnDriftRouteImport.update({
   id: '/drift',
   path: '/drift',
@@ -99,6 +114,11 @@ const LearnDriftRoute = LearnDriftRouteImport.update({
 const LearnEvalsRoute = LearnEvalsRouteImport.update({
   id: '/evals',
   path: '/evals',
+  getParentRoute: () => LearnRoute,
+} as any)
+const LearnFinetuningRoute = LearnFinetuningRouteImport.update({
+  id: '/finetuning',
+  path: '/finetuning',
   getParentRoute: () => LearnRoute,
 } as any)
 const LearnForensicsRoute = LearnForensicsRouteImport.update({
@@ -126,6 +146,11 @@ const LearnHybridRoute = LearnHybridRouteImport.update({
   path: '/hybrid',
   getParentRoute: () => LearnRoute,
 } as any)
+const LearnInjectionRoute = LearnInjectionRouteImport.update({
+  id: '/injection',
+  path: '/injection',
+  getParentRoute: () => LearnRoute,
+} as any)
 const LearnLoopRoute = LearnLoopRouteImport.update({
   id: '/loop',
   path: '/loop',
@@ -134,6 +159,11 @@ const LearnLoopRoute = LearnLoopRouteImport.update({
 const LearnMultimodalRoute = LearnMultimodalRouteImport.update({
   id: '/multimodal',
   path: '/multimodal',
+  getParentRoute: () => LearnRoute,
+} as any)
+const LearnOrchestrationRoute = LearnOrchestrationRouteImport.update({
+  id: '/orchestration',
+  path: '/orchestration',
   getParentRoute: () => LearnRoute,
 } as any)
 const LearnPipelinesRoute = LearnPipelinesRouteImport.update({
@@ -176,17 +206,22 @@ export interface FileRoutesByFullPath {
   '/learn/attention': typeof LearnAttentionRoute
   '/learn/caching': typeof LearnCachingRoute
   '/learn/ceiling': typeof LearnCeilingRoute
+  '/learn/context': typeof LearnContextRoute
   '/learn/corrective': typeof LearnCorrectiveRoute
   '/learn/cost': typeof LearnCostRoute
+  '/learn/credentials': typeof LearnCredentialsRoute
   '/learn/drift': typeof LearnDriftRoute
   '/learn/evals': typeof LearnEvalsRoute
+  '/learn/finetuning': typeof LearnFinetuningRoute
   '/learn/forensics': typeof LearnForensicsRoute
   '/learn/generation': typeof LearnGenerationRoute
   '/learn/graph': typeof LearnGraphRoute
   '/learn/guessing': typeof LearnGuessingRoute
   '/learn/hybrid': typeof LearnHybridRoute
+  '/learn/injection': typeof LearnInjectionRoute
   '/learn/loop': typeof LearnLoopRoute
   '/learn/multimodal': typeof LearnMultimodalRoute
+  '/learn/orchestration': typeof LearnOrchestrationRoute
   '/learn/pipelines': typeof LearnPipelinesRoute
   '/learn/regressions': typeof LearnRegressionsRoute
   '/learn/residency': typeof LearnResidencyRoute
@@ -203,17 +238,22 @@ export interface FileRoutesByTo {
   '/learn/attention': typeof LearnAttentionRoute
   '/learn/caching': typeof LearnCachingRoute
   '/learn/ceiling': typeof LearnCeilingRoute
+  '/learn/context': typeof LearnContextRoute
   '/learn/corrective': typeof LearnCorrectiveRoute
   '/learn/cost': typeof LearnCostRoute
+  '/learn/credentials': typeof LearnCredentialsRoute
   '/learn/drift': typeof LearnDriftRoute
   '/learn/evals': typeof LearnEvalsRoute
+  '/learn/finetuning': typeof LearnFinetuningRoute
   '/learn/forensics': typeof LearnForensicsRoute
   '/learn/generation': typeof LearnGenerationRoute
   '/learn/graph': typeof LearnGraphRoute
   '/learn/guessing': typeof LearnGuessingRoute
   '/learn/hybrid': typeof LearnHybridRoute
+  '/learn/injection': typeof LearnInjectionRoute
   '/learn/loop': typeof LearnLoopRoute
   '/learn/multimodal': typeof LearnMultimodalRoute
+  '/learn/orchestration': typeof LearnOrchestrationRoute
   '/learn/pipelines': typeof LearnPipelinesRoute
   '/learn/regressions': typeof LearnRegressionsRoute
   '/learn/residency': typeof LearnResidencyRoute
@@ -232,17 +272,22 @@ export interface FileRoutesById {
   '/learn/attention': typeof LearnAttentionRoute
   '/learn/caching': typeof LearnCachingRoute
   '/learn/ceiling': typeof LearnCeilingRoute
+  '/learn/context': typeof LearnContextRoute
   '/learn/corrective': typeof LearnCorrectiveRoute
   '/learn/cost': typeof LearnCostRoute
+  '/learn/credentials': typeof LearnCredentialsRoute
   '/learn/drift': typeof LearnDriftRoute
   '/learn/evals': typeof LearnEvalsRoute
+  '/learn/finetuning': typeof LearnFinetuningRoute
   '/learn/forensics': typeof LearnForensicsRoute
   '/learn/generation': typeof LearnGenerationRoute
   '/learn/graph': typeof LearnGraphRoute
   '/learn/guessing': typeof LearnGuessingRoute
   '/learn/hybrid': typeof LearnHybridRoute
+  '/learn/injection': typeof LearnInjectionRoute
   '/learn/loop': typeof LearnLoopRoute
   '/learn/multimodal': typeof LearnMultimodalRoute
+  '/learn/orchestration': typeof LearnOrchestrationRoute
   '/learn/pipelines': typeof LearnPipelinesRoute
   '/learn/regressions': typeof LearnRegressionsRoute
   '/learn/residency': typeof LearnResidencyRoute
@@ -262,17 +307,22 @@ export interface FileRouteTypes {
     | '/learn/attention'
     | '/learn/caching'
     | '/learn/ceiling'
+    | '/learn/context'
     | '/learn/corrective'
     | '/learn/cost'
+    | '/learn/credentials'
     | '/learn/drift'
     | '/learn/evals'
+    | '/learn/finetuning'
     | '/learn/forensics'
     | '/learn/generation'
     | '/learn/graph'
     | '/learn/guessing'
     | '/learn/hybrid'
+    | '/learn/injection'
     | '/learn/loop'
     | '/learn/multimodal'
+    | '/learn/orchestration'
     | '/learn/pipelines'
     | '/learn/regressions'
     | '/learn/residency'
@@ -289,17 +339,22 @@ export interface FileRouteTypes {
     | '/learn/attention'
     | '/learn/caching'
     | '/learn/ceiling'
+    | '/learn/context'
     | '/learn/corrective'
     | '/learn/cost'
+    | '/learn/credentials'
     | '/learn/drift'
     | '/learn/evals'
+    | '/learn/finetuning'
     | '/learn/forensics'
     | '/learn/generation'
     | '/learn/graph'
     | '/learn/guessing'
     | '/learn/hybrid'
+    | '/learn/injection'
     | '/learn/loop'
     | '/learn/multimodal'
+    | '/learn/orchestration'
     | '/learn/pipelines'
     | '/learn/regressions'
     | '/learn/residency'
@@ -317,17 +372,22 @@ export interface FileRouteTypes {
     | '/learn/attention'
     | '/learn/caching'
     | '/learn/ceiling'
+    | '/learn/context'
     | '/learn/corrective'
     | '/learn/cost'
+    | '/learn/credentials'
     | '/learn/drift'
     | '/learn/evals'
+    | '/learn/finetuning'
     | '/learn/forensics'
     | '/learn/generation'
     | '/learn/graph'
     | '/learn/guessing'
     | '/learn/hybrid'
+    | '/learn/injection'
     | '/learn/loop'
     | '/learn/multimodal'
+    | '/learn/orchestration'
     | '/learn/pipelines'
     | '/learn/regressions'
     | '/learn/residency'
@@ -407,6 +467,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LearnCeilingRouteImport
       parentRoute: typeof LearnRoute
     }
+    '/learn/context': {
+      id: '/learn/context'
+      path: '/context'
+      fullPath: '/learn/context'
+      preLoaderRoute: typeof LearnContextRouteImport
+      parentRoute: typeof LearnRoute
+    }
     '/learn/corrective': {
       id: '/learn/corrective'
       path: '/corrective'
@@ -421,6 +488,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LearnCostRouteImport
       parentRoute: typeof LearnRoute
     }
+    '/learn/credentials': {
+      id: '/learn/credentials'
+      path: '/credentials'
+      fullPath: '/learn/credentials'
+      preLoaderRoute: typeof LearnCredentialsRouteImport
+      parentRoute: typeof LearnRoute
+    }
     '/learn/drift': {
       id: '/learn/drift'
       path: '/drift'
@@ -433,6 +507,13 @@ declare module '@tanstack/react-router' {
       path: '/evals'
       fullPath: '/learn/evals'
       preLoaderRoute: typeof LearnEvalsRouteImport
+      parentRoute: typeof LearnRoute
+    }
+    '/learn/finetuning': {
+      id: '/learn/finetuning'
+      path: '/finetuning'
+      fullPath: '/learn/finetuning'
+      preLoaderRoute: typeof LearnFinetuningRouteImport
       parentRoute: typeof LearnRoute
     }
     '/learn/forensics': {
@@ -470,6 +551,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LearnHybridRouteImport
       parentRoute: typeof LearnRoute
     }
+    '/learn/injection': {
+      id: '/learn/injection'
+      path: '/injection'
+      fullPath: '/learn/injection'
+      preLoaderRoute: typeof LearnInjectionRouteImport
+      parentRoute: typeof LearnRoute
+    }
     '/learn/loop': {
       id: '/learn/loop'
       path: '/loop'
@@ -482,6 +570,13 @@ declare module '@tanstack/react-router' {
       path: '/multimodal'
       fullPath: '/learn/multimodal'
       preLoaderRoute: typeof LearnMultimodalRouteImport
+      parentRoute: typeof LearnRoute
+    }
+    '/learn/orchestration': {
+      id: '/learn/orchestration'
+      path: '/orchestration'
+      fullPath: '/learn/orchestration'
+      preLoaderRoute: typeof LearnOrchestrationRouteImport
       parentRoute: typeof LearnRoute
     }
     '/learn/pipelines': {
@@ -536,17 +631,22 @@ interface LearnRouteChildren {
   LearnAttentionRoute: typeof LearnAttentionRoute
   LearnCachingRoute: typeof LearnCachingRoute
   LearnCeilingRoute: typeof LearnCeilingRoute
+  LearnContextRoute: typeof LearnContextRoute
   LearnCorrectiveRoute: typeof LearnCorrectiveRoute
   LearnCostRoute: typeof LearnCostRoute
+  LearnCredentialsRoute: typeof LearnCredentialsRoute
   LearnDriftRoute: typeof LearnDriftRoute
   LearnEvalsRoute: typeof LearnEvalsRoute
+  LearnFinetuningRoute: typeof LearnFinetuningRoute
   LearnForensicsRoute: typeof LearnForensicsRoute
   LearnGenerationRoute: typeof LearnGenerationRoute
   LearnGraphRoute: typeof LearnGraphRoute
   LearnGuessingRoute: typeof LearnGuessingRoute
   LearnHybridRoute: typeof LearnHybridRoute
+  LearnInjectionRoute: typeof LearnInjectionRoute
   LearnLoopRoute: typeof LearnLoopRoute
   LearnMultimodalRoute: typeof LearnMultimodalRoute
+  LearnOrchestrationRoute: typeof LearnOrchestrationRoute
   LearnPipelinesRoute: typeof LearnPipelinesRoute
   LearnRegressionsRoute: typeof LearnRegressionsRoute
   LearnResidencyRoute: typeof LearnResidencyRoute
@@ -563,17 +663,22 @@ const LearnRouteChildren: LearnRouteChildren = {
   LearnAttentionRoute: LearnAttentionRoute,
   LearnCachingRoute: LearnCachingRoute,
   LearnCeilingRoute: LearnCeilingRoute,
+  LearnContextRoute: LearnContextRoute,
   LearnCorrectiveRoute: LearnCorrectiveRoute,
   LearnCostRoute: LearnCostRoute,
+  LearnCredentialsRoute: LearnCredentialsRoute,
   LearnDriftRoute: LearnDriftRoute,
   LearnEvalsRoute: LearnEvalsRoute,
+  LearnFinetuningRoute: LearnFinetuningRoute,
   LearnForensicsRoute: LearnForensicsRoute,
   LearnGenerationRoute: LearnGenerationRoute,
   LearnGraphRoute: LearnGraphRoute,
   LearnGuessingRoute: LearnGuessingRoute,
   LearnHybridRoute: LearnHybridRoute,
+  LearnInjectionRoute: LearnInjectionRoute,
   LearnLoopRoute: LearnLoopRoute,
   LearnMultimodalRoute: LearnMultimodalRoute,
+  LearnOrchestrationRoute: LearnOrchestrationRoute,
   LearnPipelinesRoute: LearnPipelinesRoute,
   LearnRegressionsRoute: LearnRegressionsRoute,
   LearnResidencyRoute: LearnResidencyRoute,

@@ -239,13 +239,164 @@ export function Agentic() {
             marks={EITHER_OR}
             columns={['built here']}
             rows={[
-              { name: 'single-agent router', cells: [{ state: 'live', detail: 'both engagements' }] },
-              { name: 'multi-hop / decompose', cells: [{ state: 'wired', detail: 'emergent — 10 searches on the rideshare question' }] },
-              { name: 'self-reflection', cells: [{ state: 'wired', detail: 'a contract, not learned tokens' }] },
-              { name: 'corrective', cells: [{ state: 'wired', detail: 'gates, not a graded evaluator — see lesson 2' }] },
-              { name: 'adaptive', cells: [{ state: 'refuses', detail: 'every question takes the same path' }] },
-              { name: 'multi-agent', cells: [{ state: 'wired', detail: 'fan-out plus a summariser — two roles, not a conversation' }] },
-              { name: 'hierarchical', cells: [{ state: 'refuses', detail: 'not attempted' }] },
+              {
+                name: 'single-agent router',
+                cells: [{ state: 'live', detail: 'both engagements' }],
+                explain: {
+                  what: [
+                    'One model, one loop, several tools, and the model decides which tool to call next.',
+                    'It is the simplest agentic shape and it is what both engagements here actually are. Everything below this row is a way of adding structure on top of it.',
+                  ],
+                  example: {
+                    caption: 'the whole shape, in one line of pseudocode',
+                    shape: 'assembled',
+                    lang: 'typescript',
+                    lines: [
+                      'while (!answered && turn < 12) { const r = await model(history); ',
+                      '  if (r.toolCall) history.push(await registry.run(r.toolCall));',
+                      '  else answered = true; }',
+                    ],
+                  },
+                  why: 'Running, in both engagements, and it is what lesson 1 of this page draws.',
+                },
+              },
+              {
+                name: 'multi-hop / decompose',
+                cells: [{ state: 'wired', detail: 'emergent — 10 searches on the rideshare question' }],
+                explain: {
+                  what: [
+                    'Breaking a question into sub-questions and answering them one at a time, using each answer to shape the next search.',
+                    'In a designed system there is an explicit planner that produces the sub-questions. Here there is not — the model simply keeps searching, and the decomposition emerges from the loop.',
+                    'That is why this row is "partly": the behaviour is real and observed, and nothing in the code arranges for it.',
+                  ],
+                  example: {
+                    caption: 'ten searches on one question, from a traced run',
+                    shape: 'assembled',
+                    lang: 'text',
+                    lines: [
+                      'search_policy "rideshare"        → nothing',
+                      'search_policy "livery"           → the exclusion',
+                      'search_policy "for hire"         → …',
+                      'search_policy "transportation network company"',
+                      '  …the model generated the vocabulary of the corpus from the question',
+                    ],
+                  },
+                  why: 'Emergent rather than engineered, which also means nothing guarantees it happens on the next question.',
+                },
+              },
+              {
+                name: 'self-reflection',
+                cells: [{ state: 'wired', detail: 'a contract, not learned tokens' }],
+                explain: {
+                  what: [
+                    'The system checking its own output before returning it, and doing something about the result.',
+                    'The published version of this trains the model to emit special critique tokens it learned during fine-tuning. This repo does it with a schema instead — the answer has to satisfy a contract, and failing it costs a retry with the reason attached.',
+                    'The difference matters: a learned critique is a behaviour the model may or may not exhibit, and a validator is a function that runs every time.',
+                  ],
+                  example: {
+                    caption: 'reflection as a contract rather than as a behaviour',
+                    shape: 'assembled',
+                    lang: 'typescript',
+                    lines: [
+                      '// not "please check your work" — a validator the model cannot talk past',
+                      'const parsed = CoverageAnswerSchema.safeParse(out);',
+                      'if (!parsed.success) retryWith(schemaErrors(parsed));',
+                      'if (coherenceErrors(parsed.data).length) retryWith(coherenceErrors(...));',
+                    ],
+                  },
+                  why: 'Partly. The outcome is similar and the mechanism is not — and the mechanism is the part that survives a model change.',
+                },
+              },
+              {
+                name: 'corrective',
+                cells: [{ state: 'wired', detail: 'gates, not a graded evaluator — see lesson 2' }],
+                explain: {
+                  what: [
+                    'Grading what retrieval returned before the model is allowed to use it, and branching on the grade.',
+                    'The shape is here; the grader is not. This repo drops rows on facts — jurisdiction, document type, whether the document has been retired — rather than on a score from a model.',
+                    'Lesson 2 of this track is the whole argument, including the measured reason a score would not have worked: the superseded bulletin outscores its own replacement.',
+                  ],
+                  example: {
+                    caption: 'the correction that is actually here',
+                    shape: 'assembled',
+                    lang: 'typescript',
+                    lines: [
+                      '// over-fetch, then drop on FACTS — no grader, no threshold',
+                      'hybridSearch(store, query, want * 6, filter)',
+                      '  .filter(byJurisdiction)   // a hard gate: no score makes Texas reach Illinois',
+                      '  .filter(notRetired)       // "unknown" passes; only explicit retirement excludes',
+                      '  .slice(0, want);',
+                    ],
+                  },
+                  why: 'Partly, and deliberately so. The full pattern is lesson 2 of the patterns track.',
+                },
+              },
+              {
+                name: 'adaptive',
+                cells: [{ state: 'refuses', detail: 'every question takes the same path' }],
+                explain: {
+                  what: [
+                    'Choosing the route per question — a cheap lookup for an easy one, the full loop for a hard one, no retrieval at all when the model already knows.',
+                    'Nothing here does this. Every question enters the same loop with the same tools and the same cap, whether it is a one-line lookup or the hardest case in the suite.',
+                    'It is the most obvious cost saving available and it is not built, which is worth saying plainly on a page about cost.',
+                  ],
+                  example: {
+                    caption: 'what is not here',
+                    shape: 'assembled',
+                    lang: 'typescript',
+                    lines: [
+                      '// NOT BUILT. A router that picks the route before spending anything:',
+                      "//   classify(q) → 'lookup'  → get_policyholder, 1 turn",
+                      "//                 'simple'  → one search, no loop",
+                      "//                 'hard'    → the full agentic loop",
+                    ],
+                  },
+                  why: 'No. And the 893-run distribution on this page is the argument for building it: the mode is 2 tool calls and the tail runs to 11.',
+                },
+              },
+              {
+                name: 'multi-agent',
+                cells: [{ state: 'wired', detail: 'fan-out plus a summariser — two roles, not a conversation' }],
+                explain: {
+                  what: [
+                    'More than one agent involved in producing an answer.',
+                    'There are two roles here — a worker that judges one item and an assembler that reads all the finished judgements — and they never talk to each other. The workers do not see each other’s output and the assembler cannot change what they decided.',
+                    'That is a pipeline of two roles rather than a conversation between agents, which is why the row says "partly".',
+                  ],
+                  example: {
+                    caption: 'two roles, one direction',
+                    shape: 'assembled',
+                    lang: 'bash',
+                    lines: [
+                      'pnpm steering:assess-all --run   # N workers, each isolated',
+                      'pnpm steering:summarise          # one assembler, reads all N',
+                      '#   no message ever travels the other way',
+                    ],
+                  },
+                  why: 'Partly. Lesson 4 of the beyond track has the measurement, and the surprise: a 24-turn fan-out is cheaper in total than a 12-turn single loop.',
+                },
+              },
+              {
+                name: 'hierarchical',
+                cells: [{ state: 'refuses', detail: 'not attempted' }],
+                explain: {
+                  what: [
+                    'Agents that supervise other agents, more than one level deep — a manager that spawns managers.',
+                    'Not attempted here in any form, and not obviously wanted: every extra level adds a place for a brief to lose the fact that mattered.',
+                  ],
+                  example: {
+                    caption: 'the depth that does not exist here',
+                    shape: 'assembled',
+                    lang: 'text',
+                    lines: [
+                      'orchestrator',
+                      '  └─ team lead          ← this level does not exist',
+                      '       └─ worker',
+                    ],
+                  },
+                  why: 'No, and recorded as a deliberate absence rather than an oversight.',
+                },
+              },
             ]}
             footnote="Nothing in this grid is a fault, so nothing in it takes a severity colour. “No” means this repo does not do that, not that something is broken."
           />

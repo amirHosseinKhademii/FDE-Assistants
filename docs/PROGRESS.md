@@ -4003,3 +4003,144 @@ Aurora wash and the landing `FlowMap`, which clip their own oversized drawings
 on purpose.
 
 **22 lessons, 4 tracks**, plus `/learn/architecture`.
+
+---
+
+## 2026-09-15 (last) — a fifth track: five things that are not retrieval
+
+Written from `docs/beyond-retrieval/`, five documents produced in parallel by the
+session that wrote the RAG folder. Byron named four topics — context
+engineering, prompt injection / credentials, multi-agent orchestration, LoRA
+fine-tuning — and the second became two documents, because untrusted *content*
+and untrusted *access* have different anchors and different defences.
+
+**The track sits FOURTH, and for once the placement is forced from both sides.**
+Below `patterns`, because all five assume its `agentic` lesson — retrieval as a
+tool the model may call is the thing they are "beyond". Above `engagement`, by
+the rule the two tracks before it already used: these are general and one
+customer's files are not. The other two placements were arguments; this one has
+a single slot it can occupy.
+
+It is a **ladder of commitment** rather than a dependency chain — what you put in
+the window, what somebody else puts in it, who may put anything in it, how many
+windows there are, changing the model instead. Each rung costs more and undoes
+less. Only `credentials` needs a sibling, and it needs `injection` because the
+two are legs of the same trifecta.
+
+### Matrix rows carry an explanation and an example now
+
+**Byron's change, and it is the right one.** A cell saying `— not built` beside a
+detail saying `no external memory anywhere` is complete for a reader who already
+knows what structured note-taking IS. For a reader who does not, it is a verdict
+on a term they cannot picture — which is the one thing a teaching page must not
+leave lying around. The grid is a summary, and a summary is only readable by
+somebody who could have written it.
+
+So a row takes an optional `explain`: what the thing is in plain words, a
+concrete instance, and why this row got the verdict it did. It opens in
+`OriginDialog`, the same component `HowItWorks` uses, with the hue read off the
+pressed row for the reason that component documents at length.
+
+**`shape` on the example has NO DEFAULT, deliberately.** `HowItWorks` defaults to
+`verbatim` and an audit later found seven walkthroughs carrying a paraphrase
+under a real path. Most examples here are illustrative by nature — you cannot
+quote the file implementing a technique you did not build — so a default in
+either direction would be wrong about most callers. The caller says which it is
+every time, or it does not compile.
+
+Applied to the four grids whose row names are shorthand a reader may not have:
+the long-horizon techniques, the seven failure points, the agentic taxonomy, and
+pharma's trifecta legs. **Not** applied to the graph and multimodal decision
+tables, whose rows are already plain questions — *"what does form X pay"* needs
+no gloss, and adding one would have been affordance without content.
+
+### `Trifecta`, and one prop that is the whole reason it exists
+
+A small dedicated drawing for the lethal trifecta: three overlapping conditions
+with the failure at the centre. Not `Path`, because `Path` draws a chain and
+implies an ordering; nothing here leads anywhere, and the point is that removing
+ANY ONE of the three removes the failure.
+
+`present: false` draws a set dashed, which is this site's existing convention for
+a join that does not exist. The caption reads *"this repo is missing the third
+leg in every engagement, deliberately"*, and a drawing that rendered all three
+alike would have made that sentence do work the picture contradicts.
+
+### Python, which is a bundle decision and was measured before it was written down
+
+`Snippet` carried four grammars. `/learn/finetuning` quotes `peft` and
+`transformers`, which are Python; a TypeScript LoRA example would teach a
+fiction, and an unhighlighted block inside a frame claiming VS Code's own
+colours is worse than either.
+
+No new dependency — the package was already installed. The cost, read off the
+file rather than estimated:
+
+```
+  @shikijs/langs/dist/python.mjs     77,130 bytes raw · 9,407 gzipped
+  the shared learn chunk, after      497,501 raw · 94,951 gzipped  (was ~85 KB)
+```
+
+**And the comment recording that cost was wrong for about a minute.** It was
+written with "27 KB raw, 8 KB gzipped" in it before anything had been measured,
+then corrected against the actual file. Worth recording because it is the exact
+failure mode this section keeps documenting, committed while documenting it —
+and it happened **twice**: the checks line at the foot of this entry was first
+written as `typecheck 36/36`, a number nothing produced, against a run that says
+31. Both were caught by running the thing rather than by reading the sentence,
+which is the only method that has ever worked on this class of error.
+
+The firm's door still does not carry any of it — checked against the built
+output rather than assumed: `/` serves four chunks and none of them is the learn
+chunk, while `/learn/finetuning` pulls it.
+
+### What the render sweep found
+
+The geometry probe was extended to open `.matrix-open` as well as `.learn-open`,
+because a sweep that does not open the new dialog is the same miss the earlier
+entries already record. 8 dialogs on `/learn/credentials`, 8 on `/learn/agentic`
+after the explanations landed, all reaching their hue.
+
+**The text probe earned its place again**, on a component it had not previously
+caught: `Funnel` draws its `op` label right-anchored in a gutter of about 86
+units, with no wrapping, so `days, GPUs, labelled data` ran 79 units off the LEFT
+edge and was cropped. Same root cause as the `BarRows` clip and the `Path`
+collision — a width that only exists after layout, guessed at beforehand — now
+in its third component. The detail moved to `why`, which has the full width.
+
+**And the budget was then measured rather than guessed, because a guess was
+about to be written into a brief.** The first statement of it was "keep `op`
+under about 12 characters", which is a rule of thumb, and the other session
+immediately encoded it as a constraint and shortened four strings in its own
+source data to satisfy it. So it got measured with `getBBox` instead:
+
+```
+  "gate + top-k"              12 chars   79.1 wide   6.9 clearance
+  "the work list"             13 chars   85.7 wide   0.3 clearance   ← the cliff
+  "days, GPUs, labelled data" 25 chars               79 units CROPPED
+```
+
+86 units at about 6.6 per character: the ceiling is ~13 and the safe budget is
+12. **`the work list` was passing** — it is 0.3 units inside the edge, which the
+probe correctly reports as clean and which is not a margin. Shortened, and the
+numbers now live in `Funnel`'s own prop doc rather than in a document the
+component cannot see.
+
+Which is the third time in two sessions that a fix in a component would have
+been undone by the data feeding it. The other session named it, and the name is
+right: a constraint that lives in one place and is violated in another is the
+same shape as the retry sentence written out three times in `settle.ts` — the
+subject of `/learn/context` §3, written hours before either of us walked into
+it. `BarRows` escaped this by computing its gutter from its content. `Funnel`
+cannot, because its gutter is also what positions every bar, so the constraint
+stays a constraint and the only defence is that it is now written where the
+caller will see it.
+
+### Checks
+
+`pnpm typecheck` 31/31 · `pnpm leak:check` PASS · `pnpm arch:check` current ·
+`pnpm build` clean. Geometry sweep over the new routes × 2 widths with every
+dialog opened: clean. Text sweep over the new routes: clean after the `Funnel`
+fix.
+
+**27 lessons, 5 tracks**, plus `/learn/architecture`.

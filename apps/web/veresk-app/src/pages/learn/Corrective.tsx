@@ -292,13 +292,155 @@ export function Corrective() {
             marks={EITHER_OR}
             columns={['corrective RAG']}
             rows={[
-              { name: 'FP1 missing content', cells: [{ state: 'live', detail: 'its best case — the only mechanism that detects it' }] },
-              { name: 'FP2 missed top-ranked', cells: [{ state: 'wired', detail: 'bounded by the pool' }] },
-              { name: 'FP3 not in context', cells: [{ state: 'live', detail: 'decompose-then-recompose' }] },
-              { name: 'FP4 not extracted', cells: [{ state: 'refuses', detail: 'a generation problem' }] },
-              { name: 'FP5 wrong format', cells: [{ state: 'refuses', detail: 'the answer contract’s job' }] },
-              { name: 'FP6 wrong specificity', cells: [{ state: 'refuses', detail: 'not a retrieval correction' }] },
-              { name: 'FP7 incomplete', cells: [{ state: 'refuses', detail: 'not a retrieval correction' }] },
+              {
+                name: 'FP1 missing content',
+                cells: [{ state: 'live', detail: 'its best case — the only mechanism that detects it' }],
+                explain: {
+                  what: [
+                    'The answer is not in the corpus at all. Nobody ever wrote the document that would answer this question.',
+                    'Retrieval cannot tell you this. It returns its top-k regardless, and those passages look exactly like passages that do contain an answer.',
+                    'A grader is the only mechanism in the whole pattern that can detect it, because it is the only step that asks "does this actually answer the question?" rather than "is this similar to the question?".',
+                  ],
+                  example: {
+                    caption: 'the rideshare question, which no document in the corpus addresses',
+                    shape: 'assembled',
+                    lang: 'text',
+                    lines: [
+                      'q: am I covered if I drive for a rideshare company?',
+                      '',
+                      'top-1  PP 00 01 09 18 §B — Vehicle Use exclusions   (similarity 0.71)',
+                      '        …topically excellent, and it does not contain the answer,',
+                      '        because the answer is in none of the 30 documents.',
+                    ],
+                  },
+                  why: 'Its best case. And the reason this repo answers it with reading comprehension instead: the passage above would survive any threshold you set, because it scores well.',
+                },
+              },
+              {
+                name: 'FP2 missed top-ranked',
+                cells: [{ state: 'wired', detail: 'bounded by the pool' }],
+                explain: {
+                  what: [
+                    'The answer IS in the corpus, and the retriever ranked it below the cut. It was fetched into the wider pool but never shown to the model.',
+                    'A grader helps here only within the pool it is handed. If the passage never made the pool at all, nothing downstream can grade it.',
+                    'That is the same ceiling a reranker has, for the same reason — both reorder, neither retrieves.',
+                  ],
+                  example: {
+                    caption: 'the ceiling the runner prints on ret-005',
+                    shape: 'verbatim',
+                    lang: 'text',
+                    lines: [
+                      'ceiling: only 50% of the expected labels were in the top-50 pool at all',
+                      '         — a reranker cannot fix that',
+                    ],
+                  },
+                  why: 'Partial, and the boundary is exact: everything in the pool can be recovered, nothing outside it can.',
+                },
+              },
+              {
+                name: 'FP3 not in context',
+                cells: [{ state: 'live', detail: 'decompose-then-recompose' }],
+                explain: {
+                  what: [
+                    'The right passage was retrieved, and the part of it that matters got lost among everything else in the same chunk.',
+                    'A chunk is sized by the chunker’s convenience, not by the answer. Most of a retrieved chunk is usually not the answer, and every irrelevant sentence is one the generator has to ignore.',
+                    'This is what knowledge refinement fixes: cut each document into strips, score each strip, recompose the survivors in their original order. A document that is 80% irrelevant contributes its 20%.',
+                  ],
+                  example: {
+                    caption: 'decompose → filter → recompose',
+                    shape: 'assembled',
+                    lang: 'text',
+                    lines: [
+                      'chunk (1 of 6)   812 tokens, of which ~90 answer the question',
+                      '  strip 1  −0.7  boilerplate header          dropped',
+                      '  strip 2  +0.8  the rental reimbursement    kept',
+                      '  strip 3  −0.6  unrelated endorsement       dropped',
+                      '→ recomposed: 1 strip, in its original order',
+                    ],
+                  },
+                  why: 'The threshold in the paper is −0.5 on the same evaluator that graded the document. One model, two granularities.',
+                },
+              },
+              {
+                name: 'FP4 not extracted',
+                cells: [{ state: 'refuses', detail: 'a generation problem' }],
+                explain: {
+                  what: [
+                    'The answer was right there in the context and the model did not pull it out.',
+                    'Nothing about correcting retrieval touches this. The retrieval worked; the reading did not.',
+                    'It is addressed by the prompt, by the answer contract, or by a better model — the machine track’s territory, not this pattern’s.',
+                  ],
+                  example: {
+                    caption: 'what the failure looks like',
+                    shape: 'assembled',
+                    lang: 'text',
+                    lines: [
+                      'context  …the limit for rental reimbursement is $900 per occurrence…',
+                      'answer   "the policy does not appear to state a rental limit"',
+                    ],
+                  },
+                  why: 'Outside this pattern’s reach by definition. A grader that approved the context was right to approve it.',
+                },
+              },
+              {
+                name: 'FP5 wrong format',
+                cells: [{ state: 'refuses', detail: 'the answer contract’s job' }],
+                explain: {
+                  what: [
+                    'The content is right and the shape is wrong — prose where a list was asked for, a missing field, a number as a sentence.',
+                    'This is exactly what the answer contract exists for, and it is enforced by a validator rather than by asking.',
+                  ],
+                  example: {
+                    caption: 'where this is actually caught',
+                    shape: 'assembled',
+                    lang: 'bash',
+                    lines: ['pnpm schema:check   # shape, then coherence — neither is persuadable'],
+                  },
+                  why: 'Not a retrieval correction. Lesson 3 of the machine track is the one that covers it.',
+                },
+              },
+              {
+                name: 'FP6 wrong specificity',
+                cells: [{ state: 'refuses', detail: 'not a retrieval correction' }],
+                explain: {
+                  what: [
+                    'The answer is at the wrong level of detail — a general summary where a specific clause was wanted, or the reverse.',
+                    'Correcting what was retrieved does not help: the passages were fine, and the answer written from them was pitched wrong.',
+                  ],
+                  example: {
+                    caption: 'the mismatch',
+                    shape: 'assembled',
+                    lang: 'text',
+                    lines: [
+                      'q       what is the rental limit on this form?',
+                      'answer  "rental reimbursement is subject to the limits in the schedule"',
+                      '        — true, general, and not what was asked',
+                    ],
+                  },
+                  why: 'A generation problem wearing a retrieval problem’s clothes.',
+                },
+              },
+              {
+                name: 'FP7 incomplete',
+                cells: [{ state: 'refuses', detail: 'not a retrieval correction' }],
+                explain: {
+                  what: [
+                    'Everything said is correct, and something that should have been said is missing.',
+                    'It is the hardest of the seven to detect, because nothing in the output is wrong — there is no error to find, only an absence.',
+                    'A grader scoring retrieved passages cannot see it: the passages it approved may well have contained the missing part.',
+                  ],
+                  example: {
+                    caption: 'the shape of an incomplete answer',
+                    shape: 'assembled',
+                    lang: 'text',
+                    lines: [
+                      'answer   the rental limit is $900 per occurrence',
+                      'missing  …and the 30-day cap in the same section',
+                    ],
+                  },
+                  why: 'Outside the pattern. It is also the failure this repo attacks from a different direction entirely — by splitting claims into verified and unverified arrays, so an assertion made without support is visible.',
+                },
+              },
             ]}
             footnote="Nothing in this grid is a fault, so nothing in it takes a severity colour — “no” means this pattern does not address that failure, not that something is broken."
           />

@@ -712,7 +712,7 @@ them would make that claim false.
 
 ---
 
-## `/learn` as it now stands — 22 lessons, 4 tracks, and a map
+## `/learn` as it now stands — 27 lessons, 5 tracks, and a map
 
 *Grown from the five of 2026-09-15 across that one day. The entries above
 describe the passes it went through; this is the shape it settled into. The
@@ -729,11 +729,60 @@ subject — every surface reads `TOTALS`.*
   FIVE WAYS TO RETRIEVE (5)             the state of the art around track one
     hybrid · corrective · agentic · graph · multimodal
 
+  FIVE THINGS THAT ARE NOT RETRIEVAL (5)   what is left once the passage is found
+    context · injection · credentials · orchestration · fine-tuning
+
   ONE ENGAGEMENT, END TO END (7)        Vantis Steering's own material
     guessing · pipelines · answer key · tools · attention · residency · ceiling
 
   /learn/architecture          a REFERENCE, in no track
 ```
+
+### The beyond track, and the two things it added to the kit
+
+Its placement is the only one in the section that is forced from both sides:
+below `patterns` because all five assume its `agentic` lesson, above
+`engagement` by the general-before-specific rule the two tracks before it used.
+It is a **ladder of commitment** rather than a dependency chain — each rung costs
+more and undoes less than the one before.
+
+**`Matrix` rows take an `explain`**, which was Byron's call and is the right one.
+A cell reading `— not built` next to `no external memory anywhere` is complete
+only for a reader who already knows what the row NAMES; for anybody else it is a
+verdict on a term they cannot picture. A row now opens into what the thing is in
+plain words, a concrete example, and why it got that verdict — in `OriginDialog`,
+the component `HowItWorks` already uses, with the hue read off the pressed row.
+
+`shape` on those examples has **no default at all**. `HowItWorks` defaults to
+`verbatim` and an audit later found seven paraphrases under real paths; most
+examples in a grid are illustrative by nature, so a default in either direction
+would be wrong about most callers. The caller states it or it does not compile.
+
+It is on the four grids whose rows are shorthand — the long-horizon techniques,
+the seven failure points, the agentic taxonomy, pharma's trifecta legs — and
+deliberately **not** on the graph and multimodal decision tables, whose rows are
+already plain questions.
+
+**`Trifecta`** is the one new drawing: three overlapping conditions, failure at
+the centre, and a `present: false` that draws a set dashed because this repo is
+missing the third leg on purpose.
+
+### Python is in the bundle now, and it is one page's decision
+
+`Snippet` carried four grammars and now carries five. `/learn/finetuning` quotes
+`peft` and `transformers`; a TypeScript LoRA example would be a fiction. No new
+dependency — the package was already installed — and the cost was read off the
+file rather than estimated:
+
+```
+  @shikijs/langs/dist/python.mjs   77,130 raw · 9,407 gzipped
+  the shared learn chunk           497,501 raw · 94,951 gzipped   (was ~85 KB)
+```
+
+**The firm's door still does not load any of it**, checked against the built
+output rather than assumed — `/` serves four chunks and none is the learn chunk,
+while `/learn/finetuning` pulls it. That is the same check the shiki entry above
+made, re-run because the chunk changed.
 
 ### The patterns track, and the two rules it forced
 

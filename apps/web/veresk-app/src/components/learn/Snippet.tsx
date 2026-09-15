@@ -34,10 +34,29 @@ import darkPlus from '@shikijs/themes/dark-plus';
 import typescript from '@shikijs/langs/typescript';
 import sql from '@shikijs/langs/sql';
 import bash from '@shikijs/langs/bash';
+/*
+ * PYTHON, ADDED FOR ONE PAGE, AND THAT IS A DECISION RATHER THAN A DEFAULT.
+ *
+ * `/learn/finetuning` quotes `peft` and `transformers`. Those libraries are
+ * Python; a TypeScript LoRA example would be a fiction, and an unhighlighted
+ * block inside a frame that says "VS Code's own colours" is worse than either.
+ *
+ * The cost is one grammar in the shared learn chunk — no new dependency, the
+ * package was already installed for the other four. Measured at the point of
+ * adding, by reading the file rather than by estimating it:
+ *
+ *   node_modules/@shikijs/langs/dist/python.mjs   77,130 bytes raw
+ *                                                  9,407 bytes gzipped
+ *
+ * against a learn chunk that was 85 KB gzipped before it. That is the largest
+ * single grammar here and it buys one page; if a second language is ever wanted
+ * for one page, this is the comment to argue with.
+ */
+import python from '@shikijs/langs/python';
 import json from '@shikijs/langs/json';
 
 /** What the snippets on these pages are actually written in. */
-export type Lang = 'typescript' | 'sql' | 'bash' | 'json' | 'text';
+export type Lang = 'typescript' | 'sql' | 'bash' | 'json' | 'python' | 'text';
 
 /**
  * ONE HIGHLIGHTER FOR THE WHOLE APP, built once at module scope.
@@ -49,7 +68,7 @@ export type Lang = 'typescript' | 'sql' | 'bash' | 'json' | 'text';
  */
 const highlighter: HighlighterCore = createHighlighterCoreSync({
   themes: [darkPlus],
-  langs: [typescript, sql, bash, json],
+  langs: [typescript, sql, bash, json, python],
   engine: createJavaScriptRegexEngine(),
 });
 

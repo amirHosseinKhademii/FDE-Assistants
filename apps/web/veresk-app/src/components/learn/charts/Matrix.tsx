@@ -21,7 +21,55 @@
  *
  * EVERY CELL CARRIES A GLYPH AND A WORD, so the state never rests on colour.
  */
+import { useState } from 'react';
+import { OriginDialog, originOf, type Origin } from '@fde/uikit';
+import { Snippet, type Lang } from '../Snippet';
+
 export type State = 'live' | 'wired' | 'refuses';
+
+/**
+ * The long version of a row, opened by pressing it.
+ *
+ * ── WHY A ROW NEEDED ONE ───────────────────────────────────────────────────
+ *
+ * A cell says `— not built` and a detail string says `no external memory
+ * anywhere`, and between them a reader who already knows what structured
+ * note-taking IS has everything they need. A reader who does not has a verdict
+ * on a term they cannot picture, which is the one thing a teaching page must
+ * not leave lying around. The grid is a summary, and a summary is only readable
+ * by somebody who could have written it.
+ *
+ * So the row keeps its one line and the press carries the rest: what the thing
+ * is in plain words, a concrete instance of it, and why this row got the
+ * verdict it did.
+ *
+ * ── `shape` HAS NO DEFAULT, DELIBERATELY ───────────────────────────────────
+ *
+ * `HowItWorks` defaults to `verbatim` and an audit later found seven
+ * walkthroughs carrying a paraphrase under a real path. Most examples here are
+ * illustrative by nature — you cannot quote the file that implements a
+ * technique you did not build — so a default in either direction would be wrong
+ * about most callers. There is no default: the caller says which it is, every
+ * time, or it does not compile.
+ */
+export interface RowExplain {
+  /** Plain English, no jargon that has not been earned. Two to four sentences. */
+  what: string[];
+  /**
+   * A concrete instance — the thing itself rather than a description of it.
+   *
+   * `caption` says what is being shown and where it is from. `shape` is
+   * required; see the note above.
+   */
+  example: {
+    caption: string;
+    lines: string[];
+    lang?: Lang;
+    shape: 'verbatim' | 'assembled';
+  };
+  /** Why this row got the verdict the grid gives it. */
+  why?: string;
+}
 
 export interface Mark {
   glyph: string;
@@ -73,13 +121,24 @@ export function Matrix({
   rowHeader = 'engine',
 }: {
   columns: string[];
-  rows: Array<{ name: string; sub?: string; cells: Array<{ state: State; detail: string }> }>;
+  rows: Array<{ name: string; sub?: string; cells: Array<{ state: State; detail: string }>; explain?: RowExplain }>;
   footnote?: string;
   /** What the three states are called and coloured. See `CAPABILITY` and `EITHER_OR`. */
   marks?: Record<State, Mark>;
   /** What the first column holds. It said `engine` on every caller, including the two that had no engines in it. */
   rowHeader?: string;
 }) {
+  const [open, setOpen] = useState<{ from: Origin; row: string } | null>(null);
+  /*
+   * THE HUE IS READ OFF THE PRESSED ROW, for the reason `HowItWorks` documents
+   * at length: `OriginDialog` portals to `<body>`, so the panel is not a
+   * descendant of the `article.lesson` that sets `--lesson` and inheritance
+   * cannot reach it. Every dialog on every lesson would come out track-position
+   * one's blue.
+   */
+  const [hue, setHue] = useState('var(--color-learn-1)');
+  const current = rows.find((r) => r.name === open?.row);
+
   return (
     <div>
       <div className="overflow-x-auto">
@@ -103,7 +162,27 @@ export function Matrix({
             {rows.map((r) => (
               <tr key={r.name} className="border-t border-ui-line align-top">
                 <th scope="row" className="py-3 pr-6 font-normal">
-                  <span className="font-mono text-[0.875rem] text-ui-fg">{r.name}</span>
+                  {r.explain ? (
+                    <button
+                      type="button"
+                      className="matrix-open"
+                      aria-haspopup="dialog"
+                      onClick={(e) => {
+                        setHue(getComputedStyle(e.currentTarget).getPropertyValue('--lesson').trim() || hue);
+                        setOpen({ from: originOf(e.currentTarget), row: r.name });
+                      }}
+                    >
+                      <span className="font-mono text-[0.875rem]">{r.name}</span>
+                      {/* The affordance has to be visible without colour or hover,
+                          because a row that is pressable and does not look it is a
+                          row nobody presses. */}
+                      <span className="matrix-open-mark" aria-hidden>
+                        ?
+                      </span>
+                    </button>
+                  ) : (
+                    <span className="font-mono text-[0.875rem] text-ui-fg">{r.name}</span>
+                  )}
                   {r.sub && <span className="mt-0.5 block text-[0.75rem] text-ui-faint">{r.sub}</span>}
                 </th>
                 {r.cells.map((cell, i) => {
@@ -136,6 +215,66 @@ export function Matrix({
         </table>
       </div>
       {footnote && <p className="mt-4 max-w-[62ch] text-[0.8125rem] leading-relaxed text-ui-dim">{footnote}</p>}
+
+      {open && current?.explain && (
+        <OriginDialog
+          from={open.from}
+          label={current.name}
+          header={
+            <div style={{ ['--lesson' as string]: hue }}>
+              <p
+                className="font-mono text-[0.6875rem] tracking-[0.08em] uppercase"
+                style={{ color: 'var(--lesson)' }}
+              >
+                {rowHeader}
+              </p>
+              <p className="mt-1.5 font-mono text-base leading-snug font-medium text-ui-fg">{current.name}</p>
+            </div>
+          }
+          onClose={() => setOpen(null)}
+        >
+          <div className="learn-walk" style={{ ['--lesson' as string]: hue }}>
+            <section>
+              <h4 className="learn-walk-h">In plain words</h4>
+              <ol className="mt-3 space-y-2.5">
+                {current.explain.what.map((line, i) => (
+                  <li key={i} className="grid grid-cols-[1.25rem_1fr] gap-3">
+                    <span className="font-mono text-[0.6875rem] leading-6" style={{ color: 'var(--lesson)' }}>
+                      {i + 1}
+                    </span>
+                    <span className="max-w-[58ch] text-[0.9375rem] leading-relaxed text-ui-dim">{line}</span>
+                  </li>
+                ))}
+              </ol>
+            </section>
+
+            <section className="mt-7">
+              <h4 className="learn-walk-h">For example</h4>
+              <div className="snip-frame mt-3">
+                <div className="snip-head">
+                  <span className="snip-kind">
+                    {current.explain.example.shape === 'assembled' ? 'assembled' : 'code'}
+                  </span>
+                  <span className="snip-path">{current.explain.example.caption}</span>
+                  {current.explain.example.shape === 'assembled' && (
+                    <span className="ml-auto">written for this page, not quoted from a file</span>
+                  )}
+                </div>
+                <Snippet lines={current.explain.example.lines} lang={current.explain.example.lang} />
+              </div>
+            </section>
+
+            {current.explain.why && (
+              <section className="mt-7">
+                <h4 className="learn-walk-h">Why this row says what it says</h4>
+                <p className="mt-3 max-w-[58ch] text-[0.9375rem] leading-relaxed text-ui-dim">
+                  {current.explain.why}
+                </p>
+              </section>
+            )}
+          </div>
+        </OriginDialog>
+      )}
     </div>
   );
 }

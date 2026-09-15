@@ -14,6 +14,26 @@ export function Funnel({
   stages,
   note,
 }: {
+  /**
+   * `op` HAS A HARD WIDTH BUDGET AND IT IS THE LAST ONE IN THESE COMPONENTS.
+   *
+   * It is drawn right-anchored at `left - 10`, so it grows LEFTWARD from x=86
+   * with nothing to wrap against and no room to grow into. Past that it crosses
+   * x=0 and the viewBox crops it — off the LEFT edge, which is the direction
+   * nobody thinks to check.
+   *
+   * MEASURED, not estimated: at `fontSize={11}` this stack renders about 6.6
+   * units per character, so the ceiling is ~13 characters and the safe budget
+   * is 12.
+   *
+   *   "gate + top-k"              12 chars   79.1 wide   6.9 clearance
+   *   "the work list"             13 chars   85.7 wide   0.3 clearance  ← the cliff
+   *   "days, GPUs, labelled data" 25 chars              79 units CROPPED
+   *
+   * `BarRows` computes its gutter from its content; this one cannot, because
+   * the gutter is also what positions every bar. So the constraint stays a
+   * constraint — put the detail in `why`, which has the full width.
+   */
   stages: Array<{ n: number; label: string; op?: string; why?: string }>;
   note?: string;
 }) {

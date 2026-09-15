@@ -91,7 +91,13 @@ export type LessonSlug =
   | 'agentic'
   | 'graph'
   | 'multimodal'
-  // Track four — one engagement.
+  // Track four — what is left once the passage has been found.
+  | 'context'
+  | 'injection'
+  | 'credentials'
+  | 'orchestration'
+  | 'finetuning'
+  // Track five — one engagement.
   | 'guessing'
   | 'pipelines'
   | 'answer-key'
@@ -100,7 +106,7 @@ export type LessonSlug =
   | 'residency'
   | 'ceiling';
 
-export type TrackId = 'machine' | 'operations' | 'patterns' | 'engagement';
+export type TrackId = 'machine' | 'operations' | 'patterns' | 'beyond' | 'engagement';
 
 export interface Track {
   id: TrackId;
@@ -157,6 +163,33 @@ export const TRACKS: Track[] = [
     title: 'Five ways to retrieve',
     blurb:
       'The state of the art around the pipeline in track one: two searches instead of one, grading what came back before the model may use it, letting the model search again, building a map first, and giving up on text altogether. Two are built here and measured; three are read out of the papers, and every figure taken from one is badged as somebody else’s measurement rather than ours.',
+  },
+  {
+    /*
+     * FOURTH, AND THE PLACEMENT IS FORCED FROM BOTH SIDES FOR ONCE.
+     *
+     * Below `patterns`, because all five of these assume its `agentic` lesson —
+     * retrieval as a tool the model may call is the thing they are "beyond".
+     * Above `engagement`, by the rule the two tracks before it already used:
+     * these are general and one customer's files are not.
+     *
+     * So unlike `operations` and `patterns`, whose positions were arguments,
+     * this one has only one slot it can occupy.
+     *
+     * ── ALSO NOT A DEPENDENCY CHAIN, AND FOR A DIFFERENT REASON ──────────────
+     *
+     * `patterns` is a set of alternatives; this is a LADDER OF COMMITMENT —
+     * what you put in the window, what somebody else puts in it, who may put
+     * anything in it, how many windows there are, and changing the model
+     * instead. Each rung costs more and undoes less than the one before, which
+     * is a real ordering and still not a prerequisite chain: only
+     * `credentials` needs a sibling, and it needs `injection` because the two
+     * are legs of the same trifecta.
+     */
+    id: 'beyond',
+    title: 'Five things that are not retrieval',
+    blurb:
+      'What is left once the right passage has been found: what else is in the window and how unevenly it is read, what happens when somebody else writes some of it, who is allowed to call any of this, how many agents are doing it, and the one case where you change the model instead of the words. Four are running here and measured; the fifth is read out of other people’s papers and says so.',
   },
   {
     id: 'engagement',
@@ -371,6 +404,62 @@ export const LESSONS: Lesson[] = [
     source: 'docs/rag/MULTIMODAL.md',
     minutes: 11,
     needs: 'lesson 2 of the machine',
+  },
+
+  {
+    slug: 'context',
+    track: 'beyond',
+    n: 1,
+    short: 'Context',
+    title: 'The window is a budget, and it is spent unevenly',
+    lede: 'A bigger context window is not a proportionally better one — position decides how well a passage is read, every model tested degraded as the input grew, and the thing filling your window is not the prompt but the history you re-send every turn.',
+    source: 'docs/beyond-retrieval/CONTEXT.md',
+    minutes: 10,
+    needs: 'lesson 3 of the patterns track',
+  },
+  {
+    slug: 'injection',
+    track: 'beyond',
+    n: 2,
+    short: 'Injection',
+    title: 'The model cannot tell your instructions from its input',
+    lede: 'Instructions and data share one channel by construction, so there is no parameterised prompt — and the only defence that survives a model upgrade is making the dangerous outcome impossible to express rather than asking the model not to be fooled.',
+    source: 'docs/beyond-retrieval/INJECTION.md',
+    minutes: 11,
+    needs: 'lesson 3 of the machine',
+  },
+  {
+    slug: 'credentials',
+    track: 'beyond',
+    n: 3,
+    short: 'Boundaries',
+    title: 'A missing value must reduce access, never grant it',
+    lede: 'Four boundaries, each with a convenient implementation that fails open — the API-key check everybody writes, the network property enforced in the wrong layer, the tracing default that ships data outward, and the catch block that hands a caller your database hostname.',
+    source: 'docs/beyond-retrieval/CREDENTIALS.md',
+    minutes: 10,
+    needs: 'lesson 2 of this track',
+  },
+  {
+    slug: 'orchestration',
+    track: 'beyond',
+    n: 4,
+    short: 'Many agents',
+    title: 'One loop is not always the shape',
+    lede: 'Two labs published opposite advice about multi-agent systems and converged ten months later on one rule — writes stay single-threaded — which this repo’s fan-out had already enforced with a schema; and the measured surprise is that twice the turns cost a quarter of the tokens.',
+    source: 'docs/beyond-retrieval/ORCHESTRATION.md',
+    minutes: 11,
+    needs: 'lesson 3 of the patterns track',
+  },
+  {
+    slug: 'finetuning',
+    track: 'beyond',
+    n: 5,
+    short: 'Fine-tuning',
+    title: 'Changing the model instead of the prompt',
+    lede: 'LoRA freezes the model and trains 0.06% of it alongside the frozen weights, which is why it forgets less and also why it learns less — and the measurement that would justify one here says the problem is document shape, not subject matter.',
+    source: 'docs/beyond-retrieval/FINETUNING.md',
+    minutes: 11,
+    needs: null,
   },
 
   {

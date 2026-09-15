@@ -760,3 +760,60 @@ a.case-card:focus-visible {
   font-weight: 500;
   letter-spacing: -0.01em;
 }
+
+/* ── A MATRIX ROW THAT OPENS ───────────────────────────────────────────────
+   The row name becomes a press when it has a long version behind it.
+
+   DELIBERATELY NOT `.learn-open`. That one is a full-width card announcing
+   itself between two paragraphs, which is right when the walkthrough is the
+   point of the section. Here the grid is the point and the press is a way in,
+   so it has to sit inside a table cell without turning every row into a button
+   the eye has to process before it can read the table.
+
+   THE MARK IS A CHARACTER, NOT A COLOUR OR A HOVER. A row that is pressable
+   and does not look it is a row nobody presses, and hover does not exist on a
+   touch screen — so the affordance is a glyph that is always rendered. It is
+   also the reason the mark carries a border rather than a fill: filled, it read
+   as a status glyph belonging to the grid's own vocabulary. */
+.matrix-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-ui-fg);
+  text-align: left;
+  cursor: pointer;
+  transition: color 160ms ease;
+}
+
+.matrix-open:hover {
+  color: var(--lesson);
+}
+
+.matrix-open:focus-visible {
+  outline: 2px solid var(--lesson);
+  outline-offset: 3px;
+  border-radius: 0.25rem;
+}
+
+.matrix-open-mark {
+  display: inline-flex;
+  height: 1.125rem;
+  width: 1.125rem;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in oklab, var(--lesson) 45%, transparent);
+  border-radius: 999px;
+  color: var(--lesson);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  line-height: 1;
+  transition: background-color 160ms ease;
+}
+
+.matrix-open:hover .matrix-open-mark {
+  background: color-mix(in oklab, var(--lesson) 14%, transparent);
+}

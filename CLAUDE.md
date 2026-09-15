@@ -146,7 +146,7 @@ apps/web/insurance-app/ @claims/insurance-app      TanStack Start (Vite, React 1
 apps/web/veresk-app/    @veresk/app                TanStack Start. The firm's door at `/`, whose
                                 three engagement cards are links to other
                                 ORIGINS, baked in at build time by the
-                                pipeline — plus `/learn`: four tracks and a
+                                pipeline — plus `/learn`: five tracks and a
                                 map. The machine (vectors, retrieval, the
                                 answer contract, the loop and its engines,
                                 evals); what you build after it works
@@ -158,7 +158,12 @@ apps/web/veresk-app/    @veresk/app                TanStack Start. The firm's do
                                 agentic, graph, multimodal — only the first
                                 two are built here, and every figure taken
                                 from someone else's paper is badged `cited`);
-                                and one engagement end to end, read out of
+                                five things that are not retrieval, read out
+                                of `docs/beyond-retrieval/` (context, injection,
+                                credentials, orchestration, fine-tuning — a
+                                ladder of commitment, and only the first two
+                                rungs are built here); and one engagement end to
+                                end, read out of
                                 `docs/steering/` (guessing, three pipelines,
                                 the answer key, the tools, attention, what
                                 leaves the building, the ceiling). Plus
