@@ -32,6 +32,7 @@ they cover one question from a file on disk to a validated answer.
 | [`beyond-retrieval/`](beyond-retrieval/) | **Five things that are NOT retrieval** — context engineering, prompt injection, credentials and the trust boundary, multi-agent orchestration, LoRA fine-tuning. One file each, plus [`README.md`](beyond-retrieval/README.md). Starts where `rag/` stops: four are built here and measured, the fifth is cited. |
 | [`ENGINES.md`](ENGINES.md) | The two switches: `LOOP=sdk\|mastra\|langgraph` and `LLM_PROVIDER=azure\|bedrock`, and the engine × cloud matrix. |
 | [`BEDROCK.md`](BEDROCK.md) | The AWS estate, the translation nobody else writes, and the quota defect blocking it. |
+| [`FREE.md`](FREE.md) | **Running the whole thing for nothing** — after the Azure estate was torn down. The local model, local embeddings, Neon's free tier, and the three things that fail silently on the way. |
 
 ## How the repo is put together
 

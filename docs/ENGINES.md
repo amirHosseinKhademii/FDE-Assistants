@@ -24,7 +24,8 @@ they are not symmetric.
 
 ```
 LOOP=sdk|mastra|langgraph          which engine drives the loop   (default: sdk)
-LLM_PROVIDER=azure|bedrock         which cloud serves the model   (default: azure)
+LLM_PROVIDER=azure|bedrock|local   which cloud serves the model   (default: azure)
+                                   — `local` is no cloud at all; see docs/FREE.md
 ```
 
 ---
@@ -88,6 +89,78 @@ engine, the contract in `core/loop.types.ts` would not be one.
 | **Structured output** | folded into the same call (`outputType`) | folded in (`structuredOutput`) | **a SEPARATE extra model call** after the loop ends |
 | **Azure auth** | `setDefaultOpenAIClient` | custom `fetch` sets the bearer | custom `fetch` sets the bearer |
 | **Can reach Bedrock** | **no** — see §4 | yes | yes |
+| **Can reach a LOCAL model** | **no** — and the reason is the row above, not a credential: Ollama and llama.cpp serve `/chat/completions` and do not implement `/responses` | yes | yes |
+
+### The local seam has a second trap, and it is not a credential
+
+**MEASURED 2026-09-16**, Ollama 0.34.1 / `qwen2.5:7b`, three requests differing
+only in what was on the wire:
+
+| sent | `finish_reason` | tool calls | what came back |
+|---|---|---|---|
+| tools, no `response_format` | `tool_calls` | `search_policy({"query":"rental car reimbursement AUT-4471 per day"})` | — |
+| `response_format`, no tools | `stop` | none | an answer object, invented |
+| **both — what the loop sends** | `stop` | **none** | `"To determine the daily rental car reimbursement for AUT-4471, I need to search the policy corpus…"` |
+
+The third row is the finding. The model is *saying it needs to search* while the
+grammar forces it to emit an answer object instead. llama.cpp constrains
+generation token by token to the schema, and a tool call is not a string that
+schema can produce — so the call is never emitted, and **nothing errors**.
+
+What it cost before it was found: `turns=1 toolCalls=0`, and a schema-VALID
+answer citing `policy:CA 00 02 10 15#2.2.1` — a form never retrieved, quoting a
+sentence nobody wrote. Every gate green, the answer fabricated. On Azure the same
+code path called at least one tool in 139 of 146 logged mastra runs, 98 of them
+two or three — so seven Azure runs answered toolless too, and the comparison is
+139/146 against 0/1 rather than anything cleaner. It is still the server rather
+than the loop or the model; the distribution is just the honest form of saying
+so.
+
+The fix is Mastra's own second pass — `structuredOutput: { schema, model }`
+generates with tools and no grammar, then shapes the result in one more call.
+`mastra/loop.ts`'s `structuringPass()` applies it **only** when
+`LLM_PROVIDER=local`: Azure serves tools and a strict schema in one request, and
+a second pass there would move every number in a committed baseline to fix a
+problem that exists somewhere else.
+
+After: `turns=3 toolCalls=2`, and citations carrying the corpus's own words out
+of a form that really exists — 14.1s, $0.00.
+
+**THE FIX RESTORES RETRIEVAL. IT DOES NOT MAKE THE ANSWER RIGHT, and the
+difference matters.** That question is eval case `cov-008`, whose key is $50/day
+for 21 days out of `PP 03 24 06 24`, the endorsement attached to AUT-4471. The
+local run cited `PP 00 01 06 24` — the BASE form, $40/day for 30 days — and
+escalated. `cov-008`'s own note describes that failure shape exactly: *"two tool
+calls, the attached endorsement never searched."* An escalation is not evidence
+of care when the thing escalated over is a document the model never looked for.
+
+What is measured, then, is narrower than it first reads: the second pass turns
+zero tool calls into two and fabricated citations into real ones. Whether a 7B
+model then reasons correctly across a base form and its endorsement is a
+separate question, and on this case it did not.
+
+### LangGraph was never affected, and the reason is the thing this file called a cost
+
+`langgraph/loop.ts`'s header records an "honest asymmetry": `createReactAgent`'s
+`responseFormat` *"will make a separate call to the LLM to generate the
+structured response after the agent loop is finished"* — an extra model call on
+every structured run, written down as an engine difference worth surfacing
+rather than papering over.
+
+On a local server that asymmetry is not a cost. It is the fix, already present.
+The loop runs with tools and no grammar because the grammar is not applied until
+the loop is over. **Measured the same day, same question, same model:
+`LOOP=langgraph LLM_PROVIDER=local` → `turns=5 toolCalls=3`, with no change to
+any LangGraph file.**
+
+So the ranking inverts depending on where the model is. On Azure, folding
+structuring into the same call is one fewer round trip and Mastra is the cheaper
+engine. Against llama.cpp, folding them is what silently disarms the tools, and
+the engine that "wastes" a call is the only one of the three that worked
+untouched. `structuringPass()` is Mastra being taught to do what LangGraph
+already did.
+
+
 
 Three of those cost real money or real debugging:
 

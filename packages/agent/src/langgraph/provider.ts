@@ -12,7 +12,7 @@
  */
 import { getBearerTokenProvider, DefaultAzureCredential } from '@azure/identity';
 import { FOUNDRY_SCOPE, env } from '@fde/foundry';
-import { DEFAULT_BEDROCK_MODEL } from '../core/loop.types';
+import { DEFAULT_BEDROCK_MODEL, DEFAULT_LOCAL_BASE_URL, DEFAULT_LOCAL_MODEL } from '../core/loop.types';
 
 // require(), not import: `@langchain/openai`'s root export has no CJS
 // condition, so it reaches us through Node 22's require(esm). Used uniformly
@@ -111,6 +111,35 @@ export function buildBedrockChatModel(
  * offline — `env.openaiEndpoint()` goes through `required()` and throws when
  * unset. Both branches call the same builder either way.
  */
+/**
+ * A model served from this machine — the LangChain spelling of
+ * `mastra/provider.ts`'s `buildLocalProvider`.
+ *
+ * WRITTEN OUT RATHER THAN SHARED, for the reason the two Bedrock builders are:
+ * `sdk/`, `mastra/` and `langgraph/` may not import each other, and a shared
+ * helper living inside one of them would make a LangGraph user load Mastra's
+ * Azure credential. Six lines duplicated is the cost of that rule, and
+ * `provider-switch-selftest.ts` is what stops the two drifting — it asserts
+ * both engines answer `local` the same way.
+ *
+ * NO CUSTOM `fetch`, WHICH IS THE ONLY REAL DIFFERENCE FROM THE AZURE BUILDER
+ * ABOVE. There is no bearer to attach: nothing authenticates, because nothing
+ * is remote.
+ */
+export function buildLocalChatModel(
+  overrides: { baseURL?: string; fetch?: typeof fetch } = {},
+): any {
+  return new ChatOpenAI({
+    model: process.env.LOCAL_MODEL ?? DEFAULT_LOCAL_MODEL,
+    apiKey: 'local',
+    configuration: {
+      baseURL:
+        overrides.baseURL ?? process.env.LOCAL_OPENAI_BASE_URL ?? DEFAULT_LOCAL_BASE_URL,
+      ...(overrides.fetch ? { fetch: overrides.fetch } : {}),
+    },
+  });
+}
+
 export function selectChatModel(
   model: string,
   overrides: { baseURL?: string; token?: () => Promise<string>; fetch?: typeof fetch } = {},
@@ -118,8 +147,11 @@ export function selectChatModel(
   const raw = process.env.LLM_PROVIDER?.trim().toLowerCase();
   if (!raw || raw === 'azure') return buildFoundryChatModel(model, overrides);
   if (raw === 'bedrock') return buildBedrockChatModel();
+  // The model id changes with the provider here too: `model` is an Azure
+  // deployment name and is deliberately NOT passed through.
+  if (raw === 'local') return buildLocalChatModel({ baseURL: overrides.baseURL, fetch: overrides.fetch });
   throw new Error(
-    `LLM_PROVIDER="${process.env.LLM_PROVIDER}" is not a provider. Use "azure" or "bedrock", ` +
-      'or unset it for azure. Refusing to guess.',
+    `LLM_PROVIDER="${process.env.LLM_PROVIDER}" is not a provider. Use "azure", "bedrock" ` +
+      'or "local", or unset it for azure. Refusing to guess.',
   );
 }

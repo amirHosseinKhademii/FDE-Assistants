@@ -39,7 +39,7 @@
  */
 import { Client } from 'pg';
 import type { EmbeddingsInterface } from '@langchain/core/embeddings';
-import { survivesDisconnect } from './pg-resilience';
+import { survivesDisconnect, PG_OPTIONS } from './pg-resilience';
 
 export interface IndexBenchmarkOptions {
   /** Must name the database the chunk table lives in. */
@@ -156,7 +156,7 @@ export async function benchmarkVectorIndex(opts: IndexBenchmarkOptions): Promise
   const efSweep = opts.efSearch ?? [40, 64, 128];
   const say = opts.onProgress ?? (() => {});
 
-  const client = survivesDisconnect(new Client({ connectionString: opts.connectionString }), {
+  const client = survivesDisconnect(new Client({ connectionString: opts.connectionString, ...PG_OPTIONS }), {
     label: 'index-bench',
   });
   const notices: string[] = [];

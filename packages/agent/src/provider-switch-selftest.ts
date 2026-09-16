@@ -65,9 +65,10 @@
  *   pnpm provider:check
  */
 import { selectModel } from './mastra/provider';
+import { structuringPassForTest } from './mastra/loop';
 import { selectChatModel } from './langgraph/provider';
 import { configureSdk } from './sdk/provider';
-import { DEFAULT_BEDROCK_MODEL } from './core/loop.types';
+import { DEFAULT_BEDROCK_MODEL, DEFAULT_LOCAL_MODEL, loggedModelName } from './core/loop.types';
 
 let failed = 0;
 
@@ -212,7 +213,127 @@ export function runProviderSwitchCheck(): number {
     `modelId = ${pinned.modelId} — so a profile from the Support case needs no code change`,
   );
 
-  console.log('\nREFUSAL — an unknown value must not quietly become azure');
+  console.log('\nLOCAL — a model on this machine, through an OpenAI-compatible endpoint');
+
+  const loc = route({ LLM_PROVIDER: 'local', BEDROCK_MODEL: undefined, LOCAL_MODEL: undefined });
+  check(
+    loc.provider.startsWith('local'),
+    'local routes to the local provider, not to azure',
+    `LLM_PROVIDER=local → ${loc.provider}`,
+  );
+  check(
+    loc.modelId !== 'gpt-5-mini',
+    'the model id CHANGES with the provider — an Ollama tag, not the Azure deployment name',
+    loc.modelId === 'gpt-5-mini'
+      ? 'it carried gpt-5-mini to Ollama, which fails with "model not found" and reads like a missing pull'
+      : `modelId = ${loc.modelId}`,
+  );
+
+  const locPinned = route({ LLM_PROVIDER: 'local', LOCAL_MODEL: 'qwen3:14b', BEDROCK_MODEL: undefined });
+  check(
+    locPinned.modelId === 'qwen3:14b',
+    'LOCAL_MODEL overrides the default, so swapping models needs no code change',
+    `modelId = ${locPinned.modelId}`,
+  );
+
+  const lgLoc = routeLangGraph({ LLM_PROVIDER: 'local', BEDROCK_MODEL: undefined, LOCAL_MODEL: undefined });
+  check(
+    lgLoc.modelId === loc.modelId,
+    'BOTH engines answer `local` with the SAME model id',
+    `mastra ${loc.modelId} vs langgraph ${lgLoc.modelId} — if these drift, LLM_PROVIDER is two switches sharing a name`,
+  );
+
+  // THE AGENTS SDK MUST REFUSE, and for a reason unrelated to credentials:
+  // `setOpenAIAPI('responses')` puts it on the Responses API, which Ollama does
+  // not serve. A quiet acceptance here would fail at the transport with an
+  // error that reads like a broken install.
+  const sdkLocal = threw({ LLM_PROVIDER: 'local' }, (e) =>
+    withEnv(e, () => configureSdk({} as never)),
+  );
+  check(
+    sdkLocal !== undefined,
+    'the agents-sdk engine REFUSES local — it speaks the Responses API',
+    sdkLocal
+      ? 'refused, naming mastra and langgraph as the engines that serve it'
+      : 'it accepted local, and would fail at the transport looking like a broken install',
+  );
+  check(
+    !!sdkLocal && sdkLocal.message.includes('local'),
+    'and the refusal names local as a mastra/langgraph option',
+    sdkLocal ? `"${sdkLocal.message}"` : 'no error to read',
+  );
+
+  console.log('\nTHE COST LOG — a free run must not be priced against a cloud meter');
+{
+  // FOUND IN REAL TELEMETRY, NOT IMAGINED. Three lines in `logs/requests.jsonl`
+  // dated 2026-09-16 record a loop that ran entirely on this machine as
+  // `"model": "gpt-5-mini"` and `"costUsd": 0.002448`, with a costNote citing a
+  // meter "confirmed against the actual bill" — on a subscription that had
+  // already been torn down. Every field true of the CONFIG, none of them true
+  // of the run. `@fde/telemetry` was never wrong: it priced exactly the model
+  // it was handed.
+  withEnv({ LLM_PROVIDER: 'local', LOCAL_MODEL: undefined }, () => {
+    const labelled = loggedModelName('gpt-5-mini');
+    check(
+      labelled === `local/${DEFAULT_LOCAL_MODEL}`,
+      'a local run is NOT logged under the azure deployment name',
+      labelled,
+    );
+    check(
+      labelled.startsWith('local/'),
+      'the `local/` prefix is what @fde/telemetry keys the zero off',
+      'price() short-circuits on the prefix, so a tag nobody priced still logs a defensible 0',
+    );
+  });
+
+  withEnv({ LLM_PROVIDER: 'local', LOCAL_MODEL: 'llama3.1:70b' }, () => {
+    check(
+      loggedModelName('gpt-5-mini') === 'local/llama3.1:70b',
+      'a tag nobody has ever priced still carries the prefix',
+      loggedModelName('gpt-5-mini'),
+    );
+  });
+
+  withEnv({ LLM_PROVIDER: undefined, LOCAL_MODEL: undefined }, () => {
+    check(
+      loggedModelName('gpt-5-mini') === 'gpt-5-mini',
+      'and AZURE still logs the azure deployment name — this changed ONE path',
+      loggedModelName('gpt-5-mini'),
+    );
+  });
+}
+
+console.log('\nTHE STRUCTURING PASS — a local-only workaround must stay local-only');
+{
+  // `mastra/loop.ts`'s `structuringPass()` adds a SECOND model call so a local
+  // server's grammar stops suppressing tool calls. On Azure that second call
+  // would be pure cost and would move every number in a committed baseline —
+  // 146 logged mastra runs and the 2026-09-05 scorecard — to fix a problem that
+  // does not exist there. The empty object IS the guard, so it is asserted.
+  withEnv({ LLM_PROVIDER: undefined }, () => {
+    check(
+      Object.keys(structuringPassForTest('gpt-5-mini')).length === 0,
+      'azure gets NO second pass — the committed baseline stays comparable',
+      'structuringPass() returns {} when LLM_PROVIDER is unset',
+    );
+  });
+  withEnv({ LLM_PROVIDER: 'bedrock' }, () => {
+    check(
+      Object.keys(structuringPassForTest('gpt-5-mini')).length === 0,
+      'and bedrock gets none either — this is not "everything that is not azure"',
+      'structuringPass() returns {} for bedrock',
+    );
+  });
+  withEnv({ LLM_PROVIDER: 'local', LOCAL_MODEL: undefined }, () => {
+    check(
+      'model' in structuringPassForTest('gpt-5-mini'),
+      'local DOES get one — without it the tools are silently off',
+      'measured: toolCalls 0 → 2 on qwen2.5:7b, see docs/ENGINES.md',
+    );
+  });
+}
+
+console.log('\nREFUSAL — an unknown value must not quietly become azure');
 
   const typo = threw({ LLM_PROVIDER: 'bedrok', BEDROCK_MODEL: undefined });
   check(
@@ -223,8 +344,11 @@ export function runProviderSwitchCheck(): number {
       : 'LLM_PROVIDER=bedrok ran happily — on Azure, silently, which is the whole failure',
   );
   check(
-    !!typo && typo.message.includes('azure') && typo.message.includes('bedrock'),
-    'and the message names both valid values',
+    !!typo &&
+      typo.message.includes('azure') &&
+      typo.message.includes('bedrock') &&
+      typo.message.includes('local'),
+    'and the message names ALL THREE valid values',
     typo ? `"${typo.message}"` : 'no error to read',
   );
 

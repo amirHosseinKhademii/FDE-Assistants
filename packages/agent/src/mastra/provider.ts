@@ -19,7 +19,11 @@
  */
 import { getBearerTokenProvider, DefaultAzureCredential } from '@azure/identity';
 import { FOUNDRY_SCOPE, env } from '@fde/foundry';
-import { DEFAULT_BEDROCK_MODEL } from '../core/loop.types';
+import {
+  DEFAULT_BEDROCK_MODEL,
+  DEFAULT_LOCAL_BASE_URL,
+  DEFAULT_LOCAL_MODEL,
+} from '../core/loop.types';
 
 // require(), not import: `@ai-sdk/openai-compatible` is ESM-only and reaches us
 // through Node 22's require(esm). See chunker.ts for the same problem solved
@@ -99,6 +103,52 @@ function bedrockProvider(): any {
   return bedrock;
 }
 
+/**
+ * A model served from this machine, through an OpenAI-compatible endpoint.
+ *
+ * THE SAME BUILDER AS AZURE, WITHOUT THE CREDENTIAL — which is the whole point
+ * of `@ai-sdk/openai-compatible` and the reason this branch is five lines
+ * rather than a port. Ollama and llama.cpp both serve `/v1/chat/completions`,
+ * so nothing is translated.
+ *
+ * `supportsStructuredOutputs: true` IS LOAD-BEARING HERE FOR THE SAME REASON AS
+ * AZURE. Without it the AI SDK sends `response_format: { type: 'json_object' }`
+ * — some JSON, not this shape — and Pillar 3 degrades from a strict schema to
+ * best-effort JSON with no error anywhere. VERIFIED rather than assumed:
+ * `qwen3:8b` AND `qwen2.5:7b` through Ollama 0.34.1 each honoured a strict `json_schema` with
+ * `additionalProperties: false`, returned exactly the required keys, respected
+ * a nullable field, and held an `n === 5` bound on the negative control.
+ *
+ * NO API KEY, AND THAT IS NOT A SHORTCUT. The `apiKey` below is a placeholder
+ * the SDK requires as a string; nothing authenticates it and nothing leaves the
+ * machine. `@fde/foundry`'s argument — a static key in a config file can shelve
+ * an engagement — is satisfied here by there being no remote party at all.
+ *
+ * BINDS LOOPBACK BY DEFAULT. `127.0.0.1`, not `0.0.0.0`: the same rule
+ * `packages/guard/src/guard.ts` states, which is that "loopback only" is a
+ * property of the LISTENER and not of a check in application code.
+ */
+// Re-exported, not redeclared: both engines and the self-test read the same two
+// strings from `core/loop.types.ts`. See that file for why the default is
+// qwen2.5 and not qwen3.
+export { DEFAULT_LOCAL_BASE_URL, DEFAULT_LOCAL_MODEL };
+
+export function buildLocalProvider(overrides: { baseURL?: string; fetch?: typeof fetch } = {}): any {
+  return createOpenAICompatible({
+    name: 'local',
+    baseURL: overrides.baseURL ?? process.env.LOCAL_OPENAI_BASE_URL ?? DEFAULT_LOCAL_BASE_URL,
+    supportsStructuredOutputs: true,
+    apiKey: 'local',
+    ...(overrides.fetch ? { fetch: overrides.fetch } : {}),
+  });
+}
+
+let local: any;
+function localProvider(): any {
+  if (!local) local = buildLocalProvider();
+  return local;
+}
+
 
 /** What a self-test may inject so the Azure branch needs no env and no credential. */
 export type FoundryOverrides = {
@@ -140,6 +190,16 @@ export function selectModel(model: string, overrides: FoundryOverrides = {}): an
     const p = Object.keys(overrides).length ? buildFoundryProvider(overrides) : foundryProvider();
     return p.languageModel(model);
   }
+  if (raw === 'local') {
+    // THE MODEL ID IS NOT A DEPLOYMENT NAME HERE EITHER. `gpt-5-mini` means
+    // nothing to Ollama; it wants a tag it has pulled. Passing the Azure
+    // deployment name through would fail with "model not found", which reads
+    // like a missing pull and is really a missing override.
+    const p = Object.keys(overrides).length
+      ? buildLocalProvider({ baseURL: overrides.baseURL, fetch: overrides.fetch })
+      : localProvider();
+    return p.languageModel(process.env.LOCAL_MODEL ?? DEFAULT_LOCAL_MODEL);
+  }
   if (raw === 'bedrock') {
     // NO OVERRIDES NEEDED HERE. The Bedrock provider constructs with no
     // credentials at all — AWS's chain resolves lazily, at call time — so a
@@ -149,7 +209,7 @@ export function selectModel(model: string, overrides: FoundryOverrides = {}): an
     return bedrockProvider().languageModel(process.env.BEDROCK_MODEL ?? DEFAULT_BEDROCK_MODEL);
   }
   throw new Error(
-    `LLM_PROVIDER="${process.env.LLM_PROVIDER}" is not a provider. Use "azure" or "bedrock", ` +
-      'or unset it for azure. Refusing to guess.',
+    `LLM_PROVIDER="${process.env.LLM_PROVIDER}" is not a provider. Use "azure", "bedrock" ` +
+      'or "local", or unset it for azure. Refusing to guess.',
   );
 }

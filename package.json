@@ -127,6 +127,7 @@
     "steering:derived-fetch-check": "pnpm --filter @vantis/steering derived:fetch-check",
     "steering:worked-example": "pnpm --filter @vantis/steering worked-example",
     "bedrock:check": "pnpm --filter @fde/bedrock check",
+    "local:check": "node scripts/local-llm-check.mjs",
     "provider:check": "pnpm --filter @fde/agent check",
     "scanner:check": "pnpm --filter @fde/scanner check",
     "estate:check": "pnpm --filter @fde/estate check",

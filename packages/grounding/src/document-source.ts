@@ -25,7 +25,7 @@ import { createHash } from 'node:crypto';
 import { relative } from 'node:path';
 import { loadDirectory, sha, type Document as LoaderDocument } from './loader';
 import type { DocumentDomain, DocumentFields } from './domain.types';
-import { survivesDisconnect } from './pg-resilience';
+import { survivesDisconnect, PG_OPTIONS } from './pg-resilience';
 
 /**
  * Lifecycle status. `unknown` is a real value, not a placeholder.
@@ -189,7 +189,7 @@ export function dbDocumentSource(opts: { connectionString: string }): DocumentSo
     async list(): Promise<SourceDocument[]> {
       // Required lazily so a files-only path never opens a driver.
       const { Client } = require('pg') as typeof import('pg');
-      const client = survivesDisconnect(new Client({ connectionString: opts.connectionString }), {
+      const client = survivesDisconnect(new Client({ connectionString: opts.connectionString, ...PG_OPTIONS }), {
         label: 'document-source',
       });
       await client.connect();

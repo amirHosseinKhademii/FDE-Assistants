@@ -50,6 +50,14 @@ import { setDefaultOpenAIClient, setOpenAIAPI, setTracingDisabled } from '@opena
  * `chat.completions.create` path (`@vantis/steering`'s `llm/provider.ts`) still
  * reaches Bedrock through `@fde/bedrock`, because that caller hands over a
  * request rather than a client.
+ *
+ * `LLM_PROVIDER=local` IS REFUSED HERE FOR A SECOND, SHARPER REASON, and it is
+ * not the one above. `setOpenAIAPI('responses')` below puts this engine on the
+ * RESPONSES API. Ollama and llama.cpp serve `/v1/chat/completions` and do not
+ * implement `/v1/responses` — so pointing this engine at a local server fails
+ * at the transport, not at the model, with an error that reads like a broken
+ * install. `LOOP=mastra` and `LOOP=langgraph` build their own model objects
+ * against chat-completions and serve `local` today.
  */
 function refuseUnreachableProvider(): void {
   const raw = process.env.LLM_PROVIDER?.trim().toLowerCase();
@@ -57,8 +65,8 @@ function refuseUnreachableProvider(): void {
   throw new Error(
     `LLM_PROVIDER="${process.env.LLM_PROVIDER}" cannot be served by the agents-sdk engine, ` +
       'which reaches Azure only — it takes an OpenAI client object, and @fde/bedrock is not ' +
-      'wired to it yet. Use LOOP=mastra or LOOP=langgraph for bedrock, or unset LLM_PROVIDER ' +
-      'for azure. Refusing to run on a cloud you did not ask for.',
+      'wired to it yet. Use LOOP=mastra or LOOP=langgraph for bedrock or local, or unset ' +
+      'LLM_PROVIDER for azure. Refusing to run on a cloud you did not ask for.',
   );
 }
 

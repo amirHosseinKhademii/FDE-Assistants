@@ -20,7 +20,7 @@ import type OpenAI from 'openai';
 import { env, openaiClient } from './foundry/client';
 import { openEmbeddings } from './grounding/embeddings.factory';
 import { openStore } from '@fde/grounding';
-import { ToolRegistry } from '@fde/agent';
+import { ToolRegistry, loggedModelName } from '@fde/agent';
 import { getPolicyholderTool } from './tools/get-policyholder.tool';
 import { searchPolicyTool } from './tools/search-policy.tool';
 import { searchGuidanceTool } from './tools/search-guidance.tool';
@@ -211,7 +211,11 @@ export async function askCoverage(opts: AskOptions): Promise<AskResult> {
     logRequest({
       subject: policyId ?? null,
       question: opts.question,
-      model: env.chatDeployment(),
+      // NOT `env.chatDeployment()` on its own — that is the AZURE deployment
+      // name, and under `LLM_PROVIDER=local` it logged a local run as
+      // `gpt-5-mini` at $0.0024 against a meter on a torn-down subscription.
+      // Same shape as `grounding/cli.ts`'s embeddings label, one layer up.
+      model: loggedModelName(env.chatDeployment()),
       engine,
       turns: result.turns.length,
       toolCalls,

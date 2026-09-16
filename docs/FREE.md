@@ -1,0 +1,260 @@
+# Running the whole thing for nothing
+
+*Written 2026-09-16, the day the Azure resource group was deleted. Every figure
+here was measured on this machine on that day; none of it is quoted from a
+vendor page.*
+
+The engagement was built on Azure AI Foundry and it was costing real money. This
+is what replaced each paid piece, what the replacement actually does, and — more
+usefully — the three things that went wrong on the way, because each of them
+fails silently. §7 is what it costs in accuracy, which is a lot.
+
+---
+
+## 1 · The scorecard
+
+| what it was | what it is now | free? |
+|---|---|---|
+| chat model — Foundry `gpt-5-mini` | Ollama 0.34.1, `qwen2.5:7b`, on the local RTX 3090 | **yes** |
+| embeddings — `text-embedding-3-small`, 1536 dims | `EMBEDDINGS=local`, bge-small, 384 dims | **yes** |
+| Postgres + pgvector | Neon serverless free tier | **yes**, with a trap — §5 |
+| traces / dashboard | Langfuse, self-hosted (`infra/docker-compose.langfuse.yml`) | **yes**, already was |
+| deployment — Azure Container Apps | nothing. `pnpm dev` on ports 3000/3300/3301/3400 | **the one real gap** — §6 |
+
+`.github/workflows/deploy.yml` still targets a resource group that no longer
+exists. For learning, the four apps run locally and cost nothing; that is the
+honest answer, not a workaround to be built.
+
+---
+
+## 2 · The machine
+
+```
+GPU    NVIDIA RTX 3090, 24 GB    23.3 GiB free to the runner
+CPU    Intel i7-11700KF, 8c/16t
+RAM    31 GB
+disk   39 GB free after the reclaim in §3
+```
+
+`qwen2.5:7b` loads at **6.6 GB, 100% on GPU**, default context 32768. That
+leaves roughly 16 GB spare — a 14B model fits comfortably, and a quantised 32B
+would fit with the context reduced. Nothing here is close to the hardware's
+limit; the constraint turned out to be model *behaviour*, not memory.
+
+---
+
+## 3 · The disk reclaim, and the command not to run
+
+`docker system df` advertised **58.44 GB of images and 10.07 GB of volumes as
+reclaimable**. The obvious command is `docker system prune -a --volumes`, and on
+this machine it would have destroyed:
+
+- **`sam3d:cu121`, 48.4 GB** — the deliberately Docker-isolated SAM-3D
+  environment for the PhD work. Its own `CLAUDE.md` says it is isolated
+  *because* its pinned torch stack collides with the shared venv. Rebuilding it
+  is a day.
+- **`cvat_cvat_data` and siblings, ~9.5 GB** — objective-3 annotation data.
+- **`e0fd588…`** — the `claims-pgvector` volume, i.e. *this repo's ingested
+  index*. It read as reclaimable for one reason only: the container was
+  **stopped**.
+
+That last one is the whole lesson. **"Reclaimable" means "not attached to a
+running container." It does not mean "safe."** Anything you stopped last week
+is, by that definition, garbage.
+
+What was actually reclaimed — build cache and dangling images only, nothing
+named, nothing attached:
+
+```bash
+docker builder prune -f      # 13.05 GB
+docker image prune -f        #   805 MB
+```
+
+**25 GB → 39 GB free.** The 58 GB the tool offered was never the number.
+
+---
+
+## 4 · Wiring the app to the local model
+
+```bash
+ollama serve                              # binds 127.0.0.1:11434
+ollama pull qwen2.5:7b
+pnpm local:check                          # the gate — see below
+
+LOOP=mastra LLM_PROVIDER=local EMBEDDINGS=local \
+  pnpm --filter @claims/insurance ingest  # rebuild the index at 384 dims
+LOOP=mastra LLM_PROVIDER=local EMBEDDINGS=local \
+  pnpm --filter @claims/insurance ask "…"
+```
+
+Four things about that are not obvious.
+
+**`LOOP=sdk` will refuse, and should.** The default engine calls
+`setOpenAIAPI('responses')`. Ollama and llama.cpp serve `/v1/chat/completions`
+and do not implement `/v1/responses`, so pointing the default engine at a local
+server fails at the *transport* with an error that reads like a broken install.
+It refuses by name instead. `LOOP=mastra` and `LOOP=langgraph` build their own
+model objects and both serve `local`.
+
+**`pnpm local:check` exists because the thing most likely to break is the answer
+contract, not the connection.** It asserts a strict `json_schema` with
+`additionalProperties: false` comes back with exactly the required keys, that a
+nullable field is respected, that a tool call carries the right extracted
+argument — and it has a **negative control**: an integer bounded to exactly 5 on
+a question about nothing numeric. Without that control, every green tick would
+only mean the model felt like complying. Both `qwen2.5:7b` and `qwen3:8b` pass.
+
+**`qwen3:8b` passes every check and is still the wrong choice.** It has a
+*thinking* capability, and it thinks before every tool call. `DEFAULT_MAX_TURNS`
+is 12. One question ran past 300 seconds without finishing. A model that passes
+every gate and is too slow to use is not a default.
+
+**Local embeddings write to a different table, and that is deliberate.**
+bge-small is 384 dimensions; `text-embedding-3-small` is 1536. They are not
+comparable and one cannot be queried with the other. `PGVectorStore` creates an
+*unconstrained* `vector` column, so mixing them does not fail at write time — it
+fails at query time, later, somewhere else. So
+`apps/ai/insurance/src/config/domain.ts` sends local embeddings to
+`policy_chunks_local`, and the 1536-dim table is left untouched. Measured:
+**79 documents, 555 chunks**, and switching `EMBEDDINGS` means re-ingesting, not
+re-querying.
+
+---
+
+## 5 · The three silent failures
+
+### 5a · A strict schema turns the tools off
+
+The big one, and it produced a *correct-looking wrong answer* with every gate
+green. Full measurement and the fix in [`ENGINES.md`](ENGINES.md); the short
+version is that llama.cpp constrains generation token by token to the response
+schema, a tool call is not a string that schema can produce, and so the model
+never emits one. It answered from nothing and cited a form it had never
+retrieved.
+
+`turns=1 toolCalls=0` is the signature. On Azure the same code path called at
+least one tool in **139 of 146** logged mastra runs, 98 of them two or three —
+so seven Azure runs answered with no tool either, and the contrast is 139/146
+against 0/1, not something cleaner than that.
+
+### 5b · The cost log priced a free run against a deleted subscription
+
+`logs/requests.jsonl` recorded local runs as:
+
+```json
+"model": "gpt-5-mini",  "costUsd": 0.002448,
+"costNote": "… meters confirmed against the actual bill …"
+```
+
+Every field true of the *config*, none of them true of the *run* — and the bill
+it cites was on a subscription that no longer existed. `@fde/telemetry` was
+never wrong; it priced exactly the model it was handed, and the app handed it
+`env.chatDeployment()` regardless of provider.
+
+Fixed in two places: `loggedModelName()` labels the run `local/<tag>`, and
+`price()` short-circuits on that prefix to a **measured zero** — the one cost in
+the table that carries no uncertainty, since there is no provider, no meter and
+no invoice. Power and hardware are real and deliberately not modelled: pricing a
+GPU-second would put a made-up number in the one column whose entire purpose is
+that it has none. Now reads `local/qwen2.5:7b`, `costUsd: 0`.
+
+### 5c · Neon drops an idle connection and `pg` waits forever
+
+Neon's free tier autosuspends. A local run is slow enough to cross that window
+between tool calls, and when it does the pooler drops the connection without the
+client noticing. The process then sits in `ep_poll` on a dead socket to `:5432`
+**indefinitely** — one run was still holding it after ten minutes with the model
+long finished.
+
+Diagnosis, if it happens again: `ss -tnp | grep <pid>` shows one ESTABLISHED
+socket to port 5432 and the process at ~2% CPU. Neon itself answers in ~1 second
+when probed directly, so "the database is down" is the wrong conclusion and
+costs an hour.
+
+**Fixed, and the fix is below the application layer** — `PG_OPTIONS` in
+`packages/grounding/src/pg-resilience.ts`, applied to every connection this
+package opens:
+
+```ts
+keepAlive: true,                    // let the kernel probe an idle peer
+keepAliveInitialDelayMillis: 10_000,
+connectionTimeoutMillis: 30_000,
+query_timeout: 120_000,
+```
+
+`survivesDisconnect` was already there and was not enough: it listens for an
+`'error'` event, and the whole problem is that a silently half-closed socket
+never emits one. Keepalive probes make the kernel discover the peer is gone,
+which finally produces the error the handler had been waiting for. The timeouts
+are the backstop and are deliberately loose — they exist to turn *forever* into
+*an error*, not to police latency, because a tight bound would fail honest
+queries against a cold serverless database and teach everyone to raise it.
+
+Two related nuisances worth knowing:
+
+- A clean run can still end with an unhandled `Connection terminated
+  unexpectedly` stack trace from `pg` as the pool tears down. Noise, printed
+  after the answer.
+- `timeout 600 pnpm …` kills **pnpm**, not the `ts-node` child, which survives
+  and keeps holding the socket. Put the timeout on the node process.
+
+---
+
+## 6 · What is genuinely not free
+
+Deployment. Everything above runs on hardware already owned; a public URL does
+not. For learning there is nothing to solve — `pnpm dev`, `pnpm veresk:dev`,
+`pnpm pharma:dev`, `pnpm steering:dev` serve all four apps locally.
+
+Neon's free tier is generous but bounded: roughly 100 compute-hours per project
+per month, 0.5 GB storage, up to 100 projects. This corpus is 555 chunks and
+nowhere near any of those.
+
+---
+
+## 7 · What this cost in accuracy
+
+Nothing above says the local setup is as *good*, only that it is free and that
+it works. It is measurably not as good. The worked case is in
+[`ENGINES.md`](ENGINES.md): eval `cov-008` expects $50/day for 21 days out of
+the endorsement `PP 03 24 06 24`; `qwen2.5:7b` retrieved the base form instead
+and escalated. The retrieval is real, the citations are real, the reasoning
+across a form and its endorsement is not there yet.
+
+The whole suite says the same thing louder. **`pnpm eval:smoke`, local,
+`qwen2.5:7b`, 2026-09-16 — a smoke test and NOT a scorecard number**, in this
+repo's own words, because it is one run per case:
+
+```
+runs passed                : 1/8          (azure baseline: 30/35, 5 runs each)
+cases green                : 1/8          cov-004 only
+false answers (dangerous)  : 3 of 8       cov-003 cov-005 cov-008
+no answer (infra/budget)   : 4 of 8       2 schema_invalid, 2 threw
+over-caution (annoying)    : 0 of 8
+tokens                     : 416,887 in / 15,047 out
+p95 latency                : 116.5s
+```
+
+Three things in there are worth more than the headline:
+
+- **The failures are the dangerous kind.** Zero over-caution, three false
+  answers. A model that refuses too often is irritating; one that answers
+  confidently from the wrong form is the failure this engagement exists to
+  catch, and locally it is the *majority* of the failures.
+- **`cov-001` made 126 tool calls across 8 turns and still failed the schema.**
+  The grammar fix removed the floor on tool use and revealed no ceiling: the
+  model searches, re-searches, and never converges on an answer the contract
+  accepts. Tool-calling and *knowing when to stop* are separate abilities.
+- **Two of eight threw `Cannot connect to API: Headers Timeout Error`** at 0.0s
+  against the local server — not a wrong answer, an infrastructure failure. A
+  single Ollama instance under a serial eval is still a queue.
+
+416k input tokens for 8 questions is the other quiet cost: every turn re-sends
+the whole conversation, and a 12-turn cap with no prompt caching multiplies it.
+On Azure that is a bill; here it is only latency, which is exactly why it was
+never noticed.
+
+Treat local as the free path for *learning the machinery* — the loop, the tools,
+the contract, the engines, the telemetry — and not as a replacement for the
+measured scorecard. `eval:diff` already enforces that distinction: it refuses to
+compare two runs made with different models, which is exactly right here.

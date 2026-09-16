@@ -41,7 +41,7 @@ import type { PGVectorStore } from '@langchain/pgvector';
 type StoreFilter = Parameters<PGVectorStore['similaritySearchWithScore']>[2];
 import { Client } from 'pg';
 import { connectionString, DEFAULT_CHUNK_TABLE } from './store';
-import { survivesDisconnect } from './pg-resilience';
+import { survivesDisconnect, PG_OPTIONS } from './pg-resilience';
 
 /** Standard RRF constant. Dampens the top of each list so neither arm dominates. */
 const RRF_K = 60;
@@ -75,7 +75,7 @@ export async function ensureFullTextIndex(
 ): Promise<void> {
   const table = opts.tableName ?? DEFAULT_CHUNK_TABLE;
   const client = survivesDisconnect(
-    new Client({ connectionString: opts.connectionString ?? connectionString() }),
+    new Client({ connectionString: opts.connectionString ?? connectionString(), ...PG_OPTIONS }),
     { label: 'hybrid-search' },
   );
   await client.connect();
@@ -141,7 +141,7 @@ async function keywordSearch(
   // its two halves against TWO DIFFERENT DATABASES and fused the results
   // without complaint. Nothing would have looked wrong.
   const client = survivesDisconnect(
-    new Client({ connectionString: connString ?? connectionString() }),
+    new Client({ connectionString: connString ?? connectionString(), ...PG_OPTIONS }),
     { label: 'hybrid-search' },
   );
   await client.connect();

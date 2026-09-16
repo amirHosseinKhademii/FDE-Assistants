@@ -42,6 +42,56 @@ import { turnsFrom, sumToolCalls } from './turns';
 // is ESM-only and reaches us through Node 22's require(esm).
 const { Agent } = require('@mastra/core/agent');
 
+/**
+ * ON A LOCAL SERVER, A STRICT `json_schema` SILENTLY TURNS THE TOOLS OFF.
+ *
+ * MEASURED 2026-09-16 against Ollama 0.34.1 / qwen2.5:7b, three requests that
+ * differ only in what was sent:
+ *
+ *   tools, no response_format   → finish_reason=tool_calls,
+ *                                 search_policy({"query":"rental car …"})
+ *   response_format, no tools   → an answer object, invented
+ *   BOTH — what this loop sends → tool_calls NONE, and the content reads
+ *                                 "To determine the daily rental car
+ *                                  reimbursement for AUT-4471, I need to
+ *                                  search the policy corpus…"
+ *
+ * Read that third line again: the model is SAYING it needs to search while the
+ * grammar forces it to emit an answer object instead. llama.cpp constrains
+ * generation token by token to the schema, and a tool call is not a string the
+ * schema can produce — so the call can never be emitted. Nothing errors.
+ *
+ * WHAT IT COSTS IF LEFT ALONE: `turns=1 toolCalls=0` and a schema-VALID answer
+ * citing `policy:CA 00 02 10 15#2.2.1`, a form that was never retrieved and a
+ * quote nobody wrote. Every gate green, the answer fabricated. On Azure the
+ * same code calls 2–3 tools across 3–4 turns in 146 logged runs, so this is the
+ * server, not the loop and not the model.
+ *
+ * THE FIX IS MASTRA'S OWN SECOND PASS. Give `structuredOutput` a `model` and it
+ * runs a separate structuring agent: the main loop generates with tools and NO
+ * grammar, then one more call shapes the result. Two calls instead of one,
+ * which is why it is not the default.
+ *
+ * SCOPED TO `local` DELIBERATELY. Azure serves tools and a strict schema in the
+ * same request — that is the path with a committed eval baseline behind it, and
+ * a second pass there would change every measured number to fix a problem that
+ * only exists somewhere else.
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- exported for the
+// guard assertion in `provider-switch-selftest.ts`, which pins the AZURE branch
+// to `{}` so the committed baseline stays comparable.
+export function structuringPass(model: string): { model?: any } {
+  const raw = process.env.LLM_PROVIDER?.trim().toLowerCase();
+  return raw === 'local' ? { model: selectModel(model) } : {};
+}
+
+/**
+ * The same function under a name that says what it is for. `provider-switch-
+ * selftest.ts` asserts the AZURE branch returns `{}` — the guard that keeps the
+ * committed baseline comparable — and an unexported one could not be reached.
+ */
+export const structuringPassForTest = structuringPass;
+
 export async function runLoopMastra<T = unknown>(
   _client: OpenAI, // accepted for signature parity; Mastra builds its own provider
   model: string,
@@ -72,7 +122,9 @@ export async function runLoopMastra<T = unknown>(
     try {
       res = await agent.generate(input, {
         maxSteps: maxTurns,
-        ...(opts.responseFormat ? { structuredOutput: { schema: opts.responseFormat } } : {}),
+        ...(opts.responseFormat
+          ? { structuredOutput: { schema: opts.responseFormat, ...structuringPass(model) } }
+          : {}),
       });
     } catch (e: any) {
       // A turn-cap stop must look the same on both engines, because the eval

@@ -49,6 +49,52 @@ export const DEFAULT_MAX_TURNS = 12;
  */
 export const DEFAULT_BEDROCK_MODEL = 'eu.anthropic.claude-haiku-4-5-20251001-v1:0';
 
+/**
+ * The local tag both chat engines fall back to, and the ONE place it is written.
+ *
+ * `qwen2.5:7b` RATHER THAN `qwen3:8b`, and the reason is measured rather than
+ * preferred. Both pass `pnpm local:check` — strict `json_schema`, exact keys, a
+ * nullable field respected, the `n === 5` negative control held, a tool call
+ * with the right argument extracted. Then qwen3 has a THINKING phase, which it
+ * runs before every tool call; `DEFAULT_MAX_TURNS` above turns that into
+ * minutes per question. A model that passes every check and is too slow to use
+ * is not the default.
+ *
+ * MUST MATCH `.env.example`. A default that disagrees with the file people copy
+ * means the check passes against one model while the app runs another — the
+ * failure `docs/beyond-retrieval/CONTEXT.md` §4 is about, and the reason this
+ * is a shared constant and not two string literals in two engine folders.
+ */
+export const DEFAULT_LOCAL_MODEL = 'qwen2.5:7b';
+
+/** Loopback, not `0.0.0.0`: "local only" is a property of the LISTENER. */
+export const DEFAULT_LOCAL_BASE_URL = 'http://127.0.0.1:11434/v1';
+
+/**
+ * What the cost log should call the model that actually answered.
+ *
+ * WHY THIS EXISTS: the app logs `env.chatDeployment()` — the AZURE deployment
+ * name — and the price table is keyed on it. Run the loop against Ollama and
+ * three things were logged that are all false: the model was `gpt-5-mini`, the
+ * cost was `$0.002448`, and the note cited a meter confirmed against an Azure
+ * bill. MEASURED, not hypothesised: `logs/requests.jsonl` carries exactly those
+ * lines from 2026-09-16, priced against a subscription that no longer exists.
+ *
+ * A wrong cost is worse than a missing one here for the same reason `price()`
+ * refuses to invent a figure: this number is the one that ends up in a business
+ * case, and it was overstating a free run.
+ *
+ * The `local/` prefix is load-bearing — `@fde/telemetry`'s `price()` keys the
+ * zero off it, so a tag nobody has priced still logs a defensible number rather
+ * than falling through to "no verified pricing".
+ */
+export function loggedModelName(configured: string): string {
+  const raw = process.env.LLM_PROVIDER?.trim().toLowerCase();
+  if (raw === 'local') return `local/${process.env.LOCAL_MODEL ?? DEFAULT_LOCAL_MODEL}`;
+  if (raw === 'bedrock') return process.env.BEDROCK_MODEL ?? DEFAULT_BEDROCK_MODEL;
+  return configured;
+}
+
 export interface LoopOptions {
   /** System prompt, sent as the first input item. */
   system?: string;

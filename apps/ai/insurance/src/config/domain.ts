@@ -13,6 +13,7 @@
  * `DOMAIN:`. Run `grep -rn "DOMAIN:" src/` for the full seam list.
  */
 import { resolve } from 'node:path';
+import { embeddingsChoice } from '@fde/grounding';
 
 import { DOCS_ROOT } from './paths';
 
@@ -23,8 +24,30 @@ export const DOMAIN = {
   /** Records that get LOOKED UP by exact id, and are deliberately NOT indexed. */
   recordsDir: process.env.RECORDS_DIR ?? resolve(DOCS_ROOT, 'examples/policyholders'),
 
-  /** The pgvector table holding the corpus chunks. */
-  vectorTable: 'policy_chunks',
+  /**
+   * The pgvector table holding the corpus chunks.
+   *
+   * ── THE NAME FOLLOWS THE EMBEDDING PROVIDER, AND IT HAS TO ────────────────
+   *
+   * `embeddings.factory.ts` already states the constraint: hosted gives 1,536
+   * numbers per passage and local gives 384, *"the two are NOT comparable.
+   * Switching means re-ingesting the whole corpus."* What it could not do is
+   * stop you ingesting the second one on top of the first.
+   *
+   * LangChain's `PGVectorStore` creates the column as an UNCONSTRAINED `vector`
+   * — no `(1536)` — so Postgres accepts a 384-dim row into a 1,536-dim table
+   * without complaint. Nothing fails at write time. It fails later, at query
+   * time, with `different vector dimensions 384 and 1536` on whichever rows
+   * happen to be scanned — so a corpus half-ingested under each provider is a
+   * table that answers some questions and errors on others, and the error names
+   * neither the ingest that did it nor the variable that caused it.
+   *
+   * One suffix removes the whole failure: the two indexes cannot occupy the
+   * same table, so switching `EMBEDDINGS` can only ever mean "re-ingest", never
+   * "silently mix". Hosted keeps the bare name because that is what is already
+   * on disk and in every earlier run's telemetry.
+   */
+  vectorTable: embeddingsChoice() === 'local' ? 'policy_chunks_local' : 'policy_chunks',
 
   /**
    * The id a caller uses to fetch one record. Anchored on purpose: a loose

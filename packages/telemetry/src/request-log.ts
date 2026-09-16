@@ -121,6 +121,28 @@ type Costed = RequestRecord & {
 };
 
 function price(r: RequestRecord): Pick<Costed, 'costUsd' | 'costNote' | 'basis'> {
+  // ── A MODEL SERVED FROM THIS MACHINE BILLS NOTHING, AND THAT IS A ZERO ────
+  //
+  // The one case where `costUsd: 0` is a MEASUREMENT rather than a guess: there
+  // is no provider, no meter and no invoice. Everything else in this function
+  // exists to avoid inventing a number; this branch exists because refusing to
+  // state the known one is its own kind of wrong — a `null` here would read as
+  // "nobody checked" when the answer is "there is nothing to check".
+  //
+  // KEYED ON THE PREFIX, NOT THE TAG, because the tag is whatever was pulled.
+  // A per-tag price table would have to grow an entry every time somebody tried
+  // a different local model, and a miss would fall through to "no verified
+  // pricing" — the caveat-bearing branch below, which would then be attached to
+  // the one cost in the whole table that carries no uncertainty at all.
+  //
+  // WHAT THIS DELIBERATELY DOES NOT MODEL: electricity, and the hardware. Both
+  // are real and neither is a per-token figure — pricing a 350W GPU-second into
+  // `costUsd` would put a made-up number in the column whose entire purpose is
+  // that it has none.
+  if (r.model.startsWith('local/')) {
+    const note = 'served from this machine — no provider, no meter, no bill';
+    return { costUsd: 0, costNote: `${note}; power and hardware are real and not modelled`, basis: note };
+  }
   const PRICING = CONFIG?.prices ?? {};
   const p = PRICING[r.model];
   if (!p) {

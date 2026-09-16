@@ -44,6 +44,9 @@ export {
   type LoopResult,
   type TurnRecord,
   type ValidationResult,
+  loggedModelName,
+  DEFAULT_LOCAL_MODEL,
+  DEFAULT_LOCAL_BASE_URL,
 } from './core/loop.types';
 
 export { cachedInputTokensOf } from './core/usage';

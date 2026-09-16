@@ -27,7 +27,7 @@
  */
 import { PGVectorStore } from '@langchain/pgvector';
 import type { EmbeddingsInterface } from '@langchain/core/embeddings';
-import { survivesDisconnect } from './pg-resilience';
+import { survivesDisconnect, PG_OPTIONS } from './pg-resilience';
 
 /**
  * Connection string. Local Docker by default so the repo is runnable with no
@@ -95,7 +95,13 @@ export async function openStore(
   opts: { connectionString?: string; tableName?: string } = {},
 ): Promise<PGVectorStore> {
   const store = await PGVectorStore.initialize(embeddings, {
-    postgresConnectionOptions: { connectionString: opts.connectionString ?? connectionString() },
+    postgresConnectionOptions: {
+      connectionString: opts.connectionString ?? connectionString(),
+      // See PG_OPTIONS: without keepalive a suspended Neon compute hangs the
+      // process in ep_poll rather than erroring. The vector store holds the
+      // longest-lived connection here, so it is the most exposed.
+      ...PG_OPTIONS,
+    },
     tableName: opts.tableName ?? DEFAULT_CHUNK_TABLE,
     columns: {
       idColumnName: 'id',
