@@ -31,6 +31,15 @@
  *   pnpm local:check
  *   LOCAL_MODEL=qwen3:8b pnpm local:check
  */
+// READS `.env`, AND THAT IS NOT BOILERPLATE. This started as a standalone spike
+// driven by inline variables, so it read `process.env` and nothing else. The
+// moment `LLM_PROVIDER=hosted` moved into `.env` — where the APP reads it — the
+// check silently kept testing the OLD endpoint and failed with ECONNREFUSED
+// against an Ollama that had been deleted. A check that disagrees with the file
+// the app is configured from is the two-media drift in
+// docs/beyond-retrieval/CONTEXT.md §4, and it wastes the run it was meant to save.
+import 'dotenv/config';
+
 // ── WHICH ENDPOINT ────────────────────────────────────────────────────────
 //
 // TWO PROVIDERS, ONE CHECK, because the question is a property of the SERVER
@@ -72,15 +81,51 @@ const assert = (name, pass, detail = '') => {
   if (!pass) failed++;
 };
 
-async function post(path, body) {
-  const r = await fetch(`${BASE}${path}`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', authorization: `Bearer ${KEY}` },
-    body: JSON.stringify(body),
-  });
-  const text = await r.text();
-  let json; try { json = JSON.parse(text); } catch { json = null; }
-  return { status: r.status, json, text };
+/**
+ * A TRANSIENT 503 IS NOT A MISSING CAPABILITY, and reporting them the same way
+ * is how a check lies.
+ *
+ * MEASURED 2026-09-16: the first run against Gemini's free tier returned
+ * `503 "This model is currently experiencing high demand"` for sections 2-4,
+ * and the output read `FAIL server accepted tools` — which says Gemini cannot
+ * call tools. It can. The endpoint was busy. Acting on that reading would have
+ * sent us back to local inference over a queue that cleared in a minute.
+ *
+ * So retries are part of the INSTRUMENT, not a convenience: 429 and 5xx are the
+ * shapes of "ask again", and anything else is an answer. `retriesUsed` is
+ * reported at the end, because a check that passed only on the fourth attempt
+ * is telling you something real about a free tier even when it is green.
+ */
+const TRANSIENT = new Set([408, 429, 500, 502, 503, 504]);
+let retriesUsed = 0;
+
+async function post(path, body, attempts = 4) {
+  let last;
+  for (let i = 0; i < attempts; i++) {
+    let r;
+    try {
+      r = await fetch(`${BASE}${path}`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', authorization: `Bearer ${KEY}` },
+        body: JSON.stringify(body),
+      });
+    } catch (e) {
+      // A refused connection is not transient in any useful sense — the server
+      // is not there — so it is returned rather than retried three more times.
+      return { status: 0, json: null, text: `fetch failed: ${String(e?.cause?.code ?? e?.message ?? e)}`, transient: false };
+    }
+    const text = await r.text();
+    let json; try { json = JSON.parse(text); } catch { json = null; }
+    last = { status: r.status, json, text, transient: TRANSIENT.has(r.status) };
+    if (!last.transient) return last;
+    if (i < attempts - 1) {
+      retriesUsed++;
+      // 2s, 4s, 8s. Long enough for a free-tier spike, short enough that a
+      // genuinely dead endpoint still fails this run rather than the next one.
+      await new Promise((res) => setTimeout(res, 2000 * 2 ** i));
+    }
+  }
+  return last;
 }
 
 // ── 1 · a shape close to CoverageAnswerSchema: nested, required, additionalProperties:false
@@ -258,5 +303,18 @@ if (both.status === 200) {
   );
 }
 
+if (retriesUsed > 0) {
+  console.log(
+    `\n  note: ${retriesUsed} retry/retries were needed (429/5xx). On a free tier that is ` +
+      'capacity, not capability \u2014 but it is also what your eval run will hit.',
+  );
+}
 console.log(`\n${failed === 0 ? '\x1b[32mALL CHECKS PASSED\x1b[0m' : `\x1b[31m${failed} CHECK(S) FAILED\x1b[0m`}\n`);
+if (failed > 0) {
+  console.log(
+    '  A red here is a hypothesis, not a verdict \u2014 see CLAUDE.md. If the detail above\n' +
+      '  says 429/503, the endpoint was BUSY and this says nothing about what it supports.\n' +
+      '  Re-run before concluding anything.\n',
+  );
+}
 process.exit(failed === 0 ? 0 : 1);

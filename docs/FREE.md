@@ -296,24 +296,75 @@ free tier is free under a quota nobody here is measuring, on a service that
 bills the moment you cross it; `costUsd: null` with a stated reason is the
 honest entry.
 
-### Verify the endpoint before trusting it
+### MEASURED 2026-09-16 — it works, and the model you pick is not the obvious one
 
-`pnpm compat:check` §4 sends tools and a strict schema **in the same request** —
-the exact probe that found the llama.cpp trap in §5a. That interaction is a
-property of the server, so it has to be re-measured per server. **Not yet run
-against Gemini here**, which is why this section says "verify" and not "works".
+`pnpm compat:check` against Gemini, **all four sections green**, including §4:
 
-### What to watch
+```
+1 strict json_schema      ok   exactly the required keys, nullable honoured
+2 negative control        ok   n === 5 held — the schema is ENFORCED, not advisory
+3 tool calling            ok   get_policyholder({"policy_id":"AUT-4471"})
+4 tools + schema TOGETHER ok   TOOLS SURVIVE — called search_policy
+```
 
-- **Rate limits.** One eval pass is 7 cases × 5 runs × ~3–4 turns ≈ 140
-  requests. Comfortable against a daily cap; a per-minute cap is the risk. The
-  runner is serial by design, which helps. Google no longer publishes free-tier
-  numbers in its docs — they are per-account in the AI Studio dashboard.
-- **Your prompts leave the machine**, and free tiers commonly train on them.
-  Fine here, because `docs/examples/` is fabricated. Not fine at a real
-  engagement, which is the whole of `docs/beyond-retrieval/CREDENTIALS.md`.
-- **`eval:diff` will refuse** to compare a hosted run against the Azure
-  baseline. That is correct — it would measure the model swap, not the code.
+**§4 is the headline: Gemini does not have the llama.cpp defect.** Tools and a
+strict grammar coexist in one request, so `hosted` correctly needs no
+`structuringPass()` — the assertion in `provider-switch-selftest.ts` that said so
+on reasoning now has a measurement behind it.
+
+**And the answer is right.** Eval case `cov-008`, the one local fabricated:
+
+```
+$50 per day, for a maximum of 21 days per occurrence.     ← the answer key
+form: PP 03 24 06 24                                      ← the endorsement
+conflict: PP 00 01 06 24 says $40/30  vs  PP 03 24 06 24 says $50/21
+          resolved by: record:AUT-4471
+turns=4  toolCalls=3  wall=8.8s
+```
+
+It found the base form, found the endorsement, noticed they disagree, and
+resolved it from the policyholder record rather than picking a side. That is the
+whole contract working, for nothing.
+
+### ON A FREE TIER, AVAILABILITY BEATS CAPABILITY — and it is not close
+
+The first run failed five checks with `503 "This model is currently experiencing
+high demand"`, and the output read `FAIL server accepted tools`, which says
+Gemini cannot call tools. **It can.** The endpoint was busy. Acting on that
+reading would have sent us back to local inference over a queue that cleared in
+a minute — exactly the "a red check is a hypothesis, not a verdict" rule in
+`CLAUDE.md`, met in the wild.
+
+So `post()` in the check now retries 429/5xx with backoff, reports how many
+retries it needed, and prints a warning after any failure telling you to re-run
+before concluding anything. The retry count is part of the reading: a check that
+passed on the fourth attempt is telling you something true about a free tier
+even when it is green.
+
+Probing seven models with one tools-plus-schema request each:
+
+| model | result |
+|---|---|
+| `gemini-3.5-flash-lite` | **200, 731 ms**, tools YES — and correct on `cov-008` |
+| `gemini-3.5-flash` | 200, 12.0 s, tools YES — but 503'd inside the app loop |
+| `gemini-flash-latest` | 200, 16.0 s, tools YES |
+| `gemini-3.6` / `3.7` / `3.8-flash` | **503** — the newest are the most congested |
+| `gemini-2.5-flash`, `-lite` | **404** — retired |
+
+The newest model is the one you cannot have, and a `-lite` variant answered
+sixteen times faster *and* got the hard case right. Pick for availability first.
+
+`gemini-2.5-flash` returning 404 is also why `HOSTED_MODEL` has no default in
+`core/loop.types.ts`: a hosted model id is a product name that gets retired, and
+a baked-in one becomes a 404 on a date nobody chose. That happened on the first
+day of use.
+
+### KNOWN GAP: the app does not retry, the check does
+
+`gemini-3.5-flash` passes `compat:check` and then failed the real loop with a
+503 the AI SDK itself labelled `isRetryable: true`. The check earned its retries;
+`mastra/loop.ts` has none. On a free tier that is the difference between a run
+and a stack trace — **open, see §10.**
 
 ---
 
@@ -345,3 +396,53 @@ LLM_PROVIDER=local LOOP=mastra pnpm --filter @claims/insurance ask "…"
 The grammar finding still applies — it is a property of llama.cpp, not of the
 card — so `LOOP=mastra` still needs `structuringPass()` and `LOOP=langgraph`
 still works untouched. Better hardware does not change §5a.
+
+---
+
+## 10 · Where to pick this up
+
+**Working right now**, no further setup — `.env` carries `LLM_PROVIDER=hosted`,
+`HOSTED_MODEL=gemini-3.5-flash-lite`, `EMBEDDINGS=local`:
+
+```bash
+pnpm compat:check                                   # 4/4 green
+LOOP=mastra pnpm --filter @claims/insurance ask "…" # correct on cov-008, 8.8s, $0
+```
+
+**The next measurement, and it is the one that matters:**
+
+```bash
+pnpm eval:smoke      # a smoke test, NOT a scorecard — one run per case
+```
+
+Three numbers to compare, and only the first is a real scorecard:
+
+| | runs passed | note |
+|---|---|---|
+| Azure `gpt-5-mini` | **30/35** | 5 runs each, the committed baseline |
+| local `qwen2.5:7b` | **1/8** | smoke, §7 — 3 of 8 were confident wrong answers |
+| hosted Gemini | **not yet run** | ← do this |
+
+`eval:diff` will refuse to compare hosted against the Azure baseline. That is
+correct: it would measure the model swap, not the code.
+
+**Open items, in the order they will bite:**
+
+1. **No retry in the loop** (§8). `gemini-3.5-flash` 503'd mid-run on an error
+   the AI SDK marked retryable. An eval pass is ~140 requests against a free
+   tier; without backoff, one spike ends the run. `mastra/loop.ts`'s
+   `agent.generate` takes the AI SDK's `maxRetries` — the fix is small and
+   should be scoped to `hosted`, the way `structuringPass()` is scoped to
+   `local`, so the Azure baseline stays comparable.
+2. **Rate limits are unmeasured here.** Google no longer publishes free-tier
+   numbers; they are per-account at
+   <https://aistudio.google.com/rate-limit>. The eval runner is serial by
+   design, which helps against a per-minute cap.
+3. **`docs/evals/results/last-run.json` currently holds the 1/8 LOCAL smoke
+   result.** It is transient by design, but do not mistake it for a scorecard.
+4. **`pnpm eval:history` still reads the committed Azure baselines** — free,
+   disk only, and the honest reference point for any of this.
+
+**The one-line summary:** local inference was measured and rejected (1/8); a free
+hosted tier on the same seam gets the hard case right in 8.8s for $0, and the
+only real engineering left is retrying a busy endpoint.
