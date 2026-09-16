@@ -26,6 +26,8 @@
  * So: the app supplies `embed`, which does the authenticated call and returns
  * whatever the provider gave back. Everything above is handled here, once.
  */
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { Embeddings, type EmbeddingsParams } from '@langchain/core/embeddings';
 
 /** What a provider must return: a vector, and the position it belongs at. */
@@ -131,14 +133,38 @@ export class LocalEmbeddings extends Embeddings {
       // slim image may legitimately not have it. Fail with a sentence that says
       // what to do, not a module-not-found stack trace.
       let pipeline: any;
+      let hfEnv: any;
       try {
-        ({ pipeline } = require('@huggingface/transformers'));
+        ({ pipeline, env: hfEnv } = require('@huggingface/transformers'));
       } catch {
         throw new Error(
           'LocalEmbeddings needs @huggingface/transformers, which is an optional ' +
             'dependency and is not installed. Either install it, or use a hosted ' +
             'provider via BatchedEmbeddings.',
         );
+      }
+      // WHERE THE MODEL IS CACHED, AND WHY IT IS NOT LEFT AS THE DEFAULT.
+      //
+      // `@huggingface/transformers` caches into `node_modules/.../.cache` — a
+      // path inside the dependency tree. That is fine on a laptop and fails on
+      // every container that ships a read-only or non-root `node_modules`:
+      //
+      //   EACCES: permission denied, mkdir '/app/node_modules/@huggingface/transformers/.cache'
+      //
+      // MEASURED 2026-09-16 on the deployed `steering-app`, where it broke every
+      // request as soon as `EMBEDDINGS=local` was switched on. It is NOT fixable
+      // from the environment: `HF_HOME` and `TRANSFORMERS_CACHE` are Python
+      // conventions and this library reads neither — setting them changed
+      // nothing, which is the kind of fix that looks applied and is not.
+      //
+      // `LOCAL_EMBEDDING_CACHE` overrides; the default is the OS temp directory,
+      // which is writable in every container this repo deploys to. The cost of
+      // a temp path is re-downloading ~130MB after the filesystem is wiped,
+      // which is a cold-start cost and not a failure.
+      if (hfEnv) {
+        const dir = process.env.LOCAL_EMBEDDING_CACHE ?? join(tmpdir(), 'fde-embeddings');
+        hfEnv.cacheDir = dir;
+        if (hfEnv.backends?.onnx?.wasm) hfEnv.backends.onnx.wasm.wasmPaths = undefined;
       }
       this.extractor = pipeline('feature-extraction', this.model);
     }
