@@ -7,7 +7,7 @@ live over there, because they are all the pharma surface's.
 | Piece | Value |
 |---|---|
 | App | `veresk` — created 2026-09-13, alongside `pharma-app` rather than instead of it |
-| URL | https://veresk.yellowsmoke-eeb8b48f.swedencentral.azurecontainerapps.io |
+| URL | https://veresk.lemonsky-6acd5222.swedencentral.azurecontainerapps.io |
 | Image | `docker.io/amir2575/veresk` |
 | Secrets | **none** |
 | Identity | system-assigned, and it does not need to be — see below |

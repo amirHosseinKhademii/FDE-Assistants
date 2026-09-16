@@ -4151,3 +4151,107 @@ dialog opened: clean. Text sweep over the new routes: clean after the `Funnel`
 fix.
 
 **27 lessons, 5 tracks**, plus `/learn/architecture`.
+
+---
+
+## 2026-09-16 — the Azure side was torn down, and putting it back found four bugs
+
+Byron deleted the Azure resources and asked whether Container Apps could be free.
+Rebuilding produced a runbook that did not exist — [`infra/RESTORE.md`](../infra/RESTORE.md)
+— and four defects that only a rebuild could surface, because every one of them
+is invisible while the thing is already running.
+
+### It is free, and that was verified rather than argued
+
+Four resources in the subscription and nothing else: a Consumption environment
+with `appLogsConfiguration.destination: null`, and three apps at `minReplicas 0`,
+`maxReplicas 1`, 0.5 vCPU, 1 GiB. Scaled to zero there are no usage charges, and
+the monthly grant — 180,000 vCPU-seconds, 360,000 GiB-seconds, 2M requests per
+subscription — is about 100 active hours at that size, shared.
+
+**The databases were never an Azure cost.** `PHARMA_DATABASE_URL` and
+`STEERING_DATABASE_URL` point at Neon, which `az group delete` cannot reach. The
+only paid dependency was Foundry, and `LLM_PROVIDER=hosted` — committed the same
+day by the session working on providers — replaces it with a free tier.
+
+What could not be verified: the consumption API returned twenty rows, all
+`Microsoft.CognitiveServices` from before the teardown, every cost field null. So
+the claim rests on the configuration, which was queried, and not on a zero on an
+invoice, which was not readable.
+
+### Only one of three deploy jobs could create its own app
+
+`steering-deploy` had a create-or-update branch, added when `az containerapp
+update` exited 3 with *"The containerapp does not exist"*. `pharma-deploy` and
+`veresk-deploy` never got it. That is invisible while the apps exist and total
+after a teardown, when **every** app is missing — the first run created one app
+out of three and the pipeline could not rebuild the estate it deploys.
+
+The fix is the same shape in all three now. Worth naming the class: a fix applied
+where a bug was observed rather than where the bug lives, in a file with three
+copies of the same logic. Nothing in this repo could have caught it — the
+condition only exists when the target does not.
+
+### A smoke test that passed without looking
+
+The veresk job asserts the firm's page carries both engagement URLs. Under a
+partial deploy those are the empty string, and the check was
+`grep -q "$pharma" /tmp/page.html` — **`grep -q ""` matches every line and exits
+0**. So the assertion did not relax when an engagement was skipped, it passed
+without looking, on the one page whose entire reason for deploying last is that
+its links get verified.
+
+It now asserts only the URLs that exist and prints which it checked, so a green
+tick says what was proven rather than that nothing was.
+
+### The role assignment dies with the resource group
+
+The service principal, its four federated credentials and the app registration
+all survived the teardown — they live in Entra, not the subscription. CI still
+could not log in, because the Contributor grant had been scoped to a resource
+group that no longer existed. **Recreating the group with the same name does not
+restore it**: same name, new resource id, no assignment.
+
+That is the single command between a working pipeline and a red one, and nothing
+about the failure points at it.
+
+### Two failures that look identical from outside, again
+
+`/api/*` returning **503** means `API_KEY` is unset on the app; **401** means the
+guard is configured and refusing. The workflow's smoke test already said which it
+got, in those words, because the two had been confused once before.
+
+Then the steering desk confused them a third way. `BidDesk.tsx` probes
+`/api/requirements` and does `setKeyState(status === 503 ? 'unconfigured' :
+'needed')` — so *any* 503 renders **"This deployment has no key configured"**,
+including the 503 raised when `STEERING_DATABASE_URL` is unset. The key was
+correct; the database was not configured; the page blamed the key. Confirmed
+against the live server rather than the page:
+
+```
+  no key   -> 401     the guard is configured and working
+  with key -> 503     the database is not
+```
+
+It is also latched at first probe and never re-read, so a page opened before the
+key was set keeps saying so afterwards. Both are recorded in `RESTORE.md` §4 and
+neither is fixed — `steering-app` was being actively edited by another session
+at the time, and a UI fix landing in the middle of a provider refactor is how you
+get a merge nobody can read.
+
+### And the URLs went stale in one command
+
+A Container Apps FQDN is `<app>.<environment defaultDomain>`, and the domain is
+randomly assigned. The rebuild moved everything from `yellowsmoke-eeb8b48f` to
+`lemonsky-6acd5222` — six documented addresses across four files, wrong the
+moment the environment came back.
+
+`deploy.yml` had argued, months earlier, that renaming the environment was not
+worth it *because* it would mean a new random domain and every public URL
+changing. The argument was right and has now been tested; the comment records
+that rather than just carrying the new string.
+
+**The pipeline itself was never wrong.** It resolves every FQDN from Azure after
+deploying, so nothing it builds can carry a dead link. Only the prose went stale,
+and only a person could notice — which is the sixth instance of that pattern in
+this log and the first one caused by an infrastructure action rather than an edit.

@@ -188,6 +188,17 @@ from.
 
 ---
 
+## The runbooks
+
+| | |
+|---|---|
+| [`RESTORE.md`](RESTORE.md) | **rebuilding the Azure side from an empty subscription.** What a teardown takes and what it cannot, the order that matters, and the five traps that actually fired on 2026-09-16. Read this one first if nothing is deployed. |
+| [`veresk/DEPLOY.md`](veresk/DEPLOY.md) | the firm's door — one page, no secrets |
+| [`pharma/DEPLOY.md`](pharma/DEPLOY.md) | the substantial one: secrets, identity, the free-tier arithmetic |
+| [`steering/DEPLOY.md`](steering/DEPLOY.md) | the bid desk |
+
+---
+
 ## Deployment targets
 
 | Option | Where data sits | Notes |

@@ -148,13 +148,20 @@ env:
   # `cae-pharma` was named when pharma was the only thing deployed. It reads
   # wrong now — but it is invisible where it would matter: a Container Apps FQDN
   # is `<app>.<defaultDomain>`, and the domain here is the Azure-assigned
-  # `yellowsmoke-eeb8b48f.swedencentral.azurecontainerapps.io`. The environment's
+  # `lemonsky-6acd5222.swedencentral.azurecontainerapps.io`. The environment's
   # NAME appears in no URL a reader ever sees.
   #
   # Renaming it is not a rename either: it is recreating the environment, moving
-  # both apps into the new one, and being issued a NEW random domain — so both
-  # public URLs change again, for a string only this file and the portal show.
+  # every app into the new one, and being issued a NEW random domain — so every
+  # public URL changes again, for a string only this file and the portal show.
   # The apps were worth renaming because their names are in the URL. This is not.
+  #
+  # THAT ARGUMENT WAS TESTED ON 2026-09-16 AND HELD. The subscription was torn
+  # down and rebuilt; the environment kept its name and was issued
+  # `lemonsky-6acd5222` in place of `yellowsmoke-eeb8b48f`, and six documented
+  # URLs across four files went stale in one command. The domain is not ours to
+  # keep, so anything that writes it down is a thing that will be wrong after
+  # the next rebuild. `infra/RESTORE.md` is the runbook, and it lists them.
   ENVIRONMENT: cae-pharma
   # The two engagements. Both are built and deployed BEFORE the host, because
   # the host links to both and the links are baked in at build time.

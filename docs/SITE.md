@@ -424,8 +424,8 @@ Three bugs came out of that and all three are now closed in the pipeline:
 
 | | |
 |---|---|
-| `veresk` | https://veresk.yellowsmoke-eeb8b48f.swedencentral.azurecontainerapps.io |
-| `steering-app` | https://steering-app.yellowsmoke-eeb8b48f.swedencentral.azurecontainerapps.io |
+| `veresk` | https://veresk.lemonsky-6acd5222.swedencentral.azurecontainerapps.io |
+| `steering-app` | https://steering-app.lemonsky-6acd5222.swedencentral.azurecontainerapps.io |
 
 `veresk` was `pharma-app` until 2026-09-13. Azure has no rename for a container
 app, so it was a recreate — and `FOUNDRY_OPENAI_ENDPOINT` carries an

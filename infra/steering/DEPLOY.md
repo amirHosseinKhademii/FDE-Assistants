@@ -43,7 +43,7 @@ image, and the tag is a pure function of the commit:
 
 ```bash
 docker build -f infra/steering/Dockerfile \
-  --build-arg VITE_VERESK_URL=https://pharma-app.yellowsmoke-eeb8b48f.swedencentral.azurecontainerapps.io \
+  --build-arg VITE_VERESK_URL=https://pharma-app.lemonsky-6acd5222.swedencentral.azurecontainerapps.io \
   -t docker.io/amir2575/vantis-steering:sha-$(git rev-parse HEAD) .
 
 docker push docker.io/amir2575/vantis-steering:sha-$(git rev-parse HEAD)
@@ -84,7 +84,7 @@ Then confirm the URL both workflows assume:
 ```bash
 az containerapp show -n steering-app -g rg-claims-fde \
   --query "properties.configuration.ingress.fqdn" -o tsv
-# expected: steering-app.yellowsmoke-eeb8b48f.swedencentral.azurecontainerapps.io
+# expected: steering-app.lemonsky-6acd5222.swedencentral.azurecontainerapps.io
 ```
 
 **If that FQDN differs, two files are wrong** and will link to nothing:

@@ -52,7 +52,7 @@ the trap in that is written up in the steering DEPLOY.md.
 | Region | `swedencentral` — same as Foundry. Neon is Frankfurt. The whole path stays in the EU. |
 | Environment | `cae-pharma`, **Consumption-only** |
 | App | `pharma-app` — renamed from `pharma-app` on 2026-09-13. Azure has no rename for a container app, so this was a recreate: same image, same two secrets, same environment, a fresh system-assigned identity granted the same Foundry role, verified end to end, and only then pointed at by the pipeline. The FQDN changed with it. |
-| URL | https://pharma-app.yellowsmoke-eeb8b48f.swedencentral.azurecontainerapps.io |
+| URL | https://pharma-app.lemonsky-6acd5222.swedencentral.azurecontainerapps.io |
 | Image | `docker.io/amir2575/veresk` — was `meridian-pharma`; the repo name follows the app, the old one is left in place rather than deleted |
 | Identity | system-assigned, `<identity-principal-id>`, holding `Cognitive Services OpenAI User` on `<foundry-resource>`. The old app's was `<old-identity-principal-id>`; a recreate gets a new principal, so the role assignment has to be made again — forgetting it gives a page that loads and fails on the first question. |
 | Databases | unchanged — the same Neon project the laptop uses |
