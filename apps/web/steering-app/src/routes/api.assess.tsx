@@ -95,7 +95,27 @@ export const Route = createFileRoute('/api/assess')({
         const body: any = await request.json().catch(() => ({}));
         const ref = String(body?.ref ?? '').trim().toUpperCase();
         const typed = String(body?.text ?? '').trim();
-        const loop = String(body?.loop ?? 'sdk');
+        // ENV BEFORE THE HARDCODED DEFAULT, and the omission made `LOOP`
+        // unreachable on this route.
+        //
+        // `loopChoice(flag)` gives an explicit flag precedence over
+        // `process.env.LOOP` — correct, so one CLI run can be steered by hand.
+        // But this line always passed a flag: the desk's client sends
+        // `loop: req.loop`, which is `undefined` unless somebody picked one, so
+        // `?? 'sdk'` fired on every request and `LOOP=mastra` was ignored on the
+        // deployed app and on a dev server alike.
+        //
+        // It surfaced as a refusal from the engine rather than as a wrong
+        // setting: the sdk engine reaches Azure only, so with
+        // `LLM_PROVIDER=hosted` every assessment threw "cannot be served by the
+        // agents-sdk engine" while `/api/summary` — which takes no loop from the
+        // request — worked on the same container with the same variables.
+        //
+        // Resolved to a STRING rather than passed through as `undefined`,
+        // because it is also written into the filed history record below, and a
+        // record that omits the engine cannot be compared against one that names
+        // it.
+        const loop = String(body?.loop ?? process.env.LOOP ?? 'sdk');
 
         // RAW EVENTS, not rendered lines. What happened is a fact and belongs
         // in the row; the sentences explaining it are presentation and get

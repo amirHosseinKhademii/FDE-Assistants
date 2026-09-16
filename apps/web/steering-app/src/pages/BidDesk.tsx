@@ -32,7 +32,7 @@
  * finding, because they are the output this exercise exists to produce.
  */
 import { useCallback, useMemo, useState } from 'react';
-import { BoxIcon, Mono } from '@fde/uikit';
+import { BoxIcon, ChipIcon, Field, Mono, SearchIcon, Select } from '@fde/uikit';
 import { Aurora, type AuroraTone } from '@veresk/surface';
 import { useAssess, type Requirement, type TraceStep } from '../hooks/use-assess';
 import { useHistory, type HistoryRow } from '../hooks/use-history';
@@ -79,6 +79,22 @@ type KeyState = 'none' | 'needed' | 'unconfigured';
 
 export function BidDesk() {
   const [apiKey, setApiKey] = useState(() => load('apiKey', ''));
+  /*
+   * WHICH ENGINE RUNS THE ASSESSMENT, and it defaults to `mastra` rather than
+   * to the repo-wide `sdk`.
+   *
+   * The three are not interchangeable against every provider: the agents-sdk
+   * engine drives the Responses API and reaches Azure only, so on
+   * `LLM_PROVIDER=hosted` or `local` it REFUSES rather than falling back —
+   * "refusing to run on a cloud you did not ask for". Defaulting this control
+   * to `sdk` would put a refusal behind the primary button on every deployment
+   * that is not Azure, which is most of them now.
+   *
+   * Persisted like the key, because an engine is a thing you are comparing and
+   * re-picking it on every reload would make the comparison tedious enough to
+   * stop doing.
+   */
+  const [loop, setLoop] = useState(() => load('loop', 'mastra'));
   const [keyState, setKeyState] = useState<KeyState>('none');
 
   const onRefused = useCallback((status: number) => {
@@ -88,6 +104,11 @@ export function BidDesk() {
   const onApiKey = (v: string) => {
     setApiKey(v);
     save('apiKey', v);
+  };
+
+  const onLoop = (v: string) => {
+    setLoop(v);
+    save('loop', v);
   };
 
   const { items, error: listError, loading } = useRequirements(apiKey, onRefused);
@@ -176,11 +197,13 @@ export function BidDesk() {
             error={listError}
             onPick={pick}
             apiKey={apiKey}
+            loop={loop}
+            onLoop={onLoop}
             onApiKey={onApiKey}
             keyState={keyState}
             onRun={() => {
               setShown(null);
-              run.start(ref ? { ref } : { text }, { apiKey: apiKey || undefined });
+              run.start(ref ? { ref } : { text }, { apiKey: apiKey || undefined, loop });
             }}
             busy={busy}
             onCancel={run.cancel}
@@ -262,7 +285,7 @@ const SUGGESTION =
 
 function Ask({
   text, onText, pickedRef, items, loading, error, onPick, onRun, busy, onCancel,
-  apiKey, onApiKey, keyState,
+  apiKey, onApiKey, keyState, loop, onLoop,
 }: {
   text: string;
   onText: (v: string) => void;
@@ -277,6 +300,8 @@ function Ask({
   apiKey: string;
   onApiKey: (v: string) => void;
   keyState: KeyState;
+  loop: string;
+  onLoop: (v: string) => void;
 }) {
   return (
     <div className="x-ask mt-8">
@@ -307,7 +332,25 @@ function Ask({
           )
         )}
 
-        {error ? (
+        {/* THE TWO SELECTS SIT TOGETHER, in one group, so the row's
+            `space-between` pushes the pair to the right as a unit rather than
+            spreading three children across the width.
+
+            IT REUSES `x-ask-or` AND `x-ask-select` RATHER THAN `Field`/`Select`
+            FROM THE KIT. The first attempt used the kit controls, which stack a
+            label ABOVE the input — so the engine select sat a row lower than the
+            requirement select beside it and the two never lined up. Two controls
+            doing the same job on one line have to be the same control. */}
+        <div className="x-ask-controls">
+          <Field label="Engine">
+            <Select value={loop} onChange={onLoop} disabled={busy} icon={<ChipIcon />}>
+              <option value="sdk">Agents SDK</option>
+              <option value="mastra">Mastra</option>
+              <option value="langgraph">LangGraph</option>
+            </Select>
+          </Field>
+
+          {error ? (
           // NOT AN EMPTY DROPDOWN. "Could not reach the customer's ALM system"
           // and "this programme has no requirements" are different facts and the
           // page must not turn the first into the second.
@@ -321,13 +364,12 @@ function Ask({
             </p>
           ) : null
         ) : (
-          <label className="x-ask-or">
-            <span>or take one from the K2 specification</span>
-            <select
-              className="x-ask-select"
+          <Field label="or take one from the K2 specification">
+            <Select
               value={pickedRef ?? ''}
+              onChange={(v) => v && onPick(v)}
               disabled={loading || busy}
-              onChange={(e) => e.target.value && onPick(e.target.value)}
+              icon={<SearchIcon />}
             >
               <option value="">{loading ? 'reading it…' : `${items?.length ?? 0} requirements`}</option>
               {items?.map((r) => (
@@ -335,9 +377,10 @@ function Ask({
                   {r.ref} — {r.title}
                 </option>
               ))}
-            </select>
-          </label>
-        )}
+            </Select>
+          </Field>
+          )}
+        </div>
       </div>
 
       {/* Only for the refusal a key can fix — see `KeyState`. */}

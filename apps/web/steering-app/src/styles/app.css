@@ -1536,6 +1536,21 @@ body {
    line it wrapped onto. `min-width: 0` on both is the load-bearing part — a
    flex item defaults to `min-width: auto`, so without it neither will shrink
    below the widest option and the overflow simply moves up a level. */
+/* THE TWO SELECTS, AS ONE UNIT.
+   `.x-ask-from` is `space-between`, so a third child would spread the row and
+   leave the engine select somewhere between the two things it belongs beside.
+   Grouping them keeps the pair together at the right at every width, and
+   `flex-wrap` lets the engine drop under the requirement select rather than
+   squeezing both. */
+.x-ask-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
 .x-ask-or {
   display: flex;
   flex-wrap: wrap;

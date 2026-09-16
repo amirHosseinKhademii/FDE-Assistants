@@ -13,11 +13,21 @@ export function Select({
   value,
   onChange,
   icon,
+  disabled = false,
   children,
 }: {
   value: string;
   onChange: (v: string) => void;
   icon?: ReactNode;
+  /**
+   * OPTIONAL AND DEFAULTING TO FALSE, so every existing caller is unchanged.
+   *
+   * Added for a list that is populated over the network: while it is loading,
+   * and while the run it feeds is in flight, the choice must not move under the
+   * person who made it. A control that accepts a change it will not honour is
+   * worse than one that is visibly unavailable.
+   */
+  disabled?: boolean;
   children: ReactNode;
 }) {
   return (
@@ -25,6 +35,7 @@ export function Select({
       {icon && <span className="ui-icon left-3">{icon}</span>}
       <select
         value={value}
+        disabled={disabled}
         onChange={(e) => onChange(e.target.value)}
         className={`ui-control ${icon ? 'ui-control--icon' : ''}`}
       >
