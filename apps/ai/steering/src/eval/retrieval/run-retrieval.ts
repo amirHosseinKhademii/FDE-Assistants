@@ -109,6 +109,29 @@ const rank = (hits: Scored[]): (string | null)[] =>
  * separate occasions here where a red check was the check's fault; this is the
  * cheapest of them to rule out, so it is ruled out before any money is spent.
  */
+/**
+ * The dimension of the vectors ALREADY IN the index, or null when it is empty.
+ *
+ * `vector_dims` on one row is enough: `ingestDocuments` empties the table before
+ * refilling it, so a table cannot hold two models' output unless something went
+ * wrong \u2014 and if it did, this returns the first and the comparison below still
+ * refuses. Reading the column type would not work: pgvector's `vector` is
+ * declared without a dimension here, which is exactly why the mismatch is a
+ * query-time error rather than a write-time one.
+ */
+async function indexDimensions(): Promise<number | null> {
+  const client = new Client({ connectionString: derivedUrl() });
+  await client.connect();
+  try {
+    const { rows } = await client.query(
+      `select vector_dims(vector) d from ${CHUNK_TABLE} limit 1`,
+    );
+    return rows.length ? Number(rows[0].d) : null;
+  } finally {
+    await client.end();
+  }
+}
+
 async function labelsInIndex(): Promise<Set<string>> {
   const client = new Client({ connectionString: derivedUrl() });
   await client.connect();
@@ -167,11 +190,37 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  if (embeddingsChoice() === 'local') {
+  // ── DOES THE QUERY EMBEDDER MATCH THE INDEX? MEASURED, NOT ASSUMED ──────
+  //
+  // This used to read `if (embeddingsChoice() === 'local') refuse`, on the
+  // assumption that the index is always Foundry-built. That was true until
+  // 2026-09-16, when the Azure embedding deployment was deleted and the index
+  // was rebuilt at 384 dimensions with bge-small — after which the guard
+  // refused the ONLY configuration that could work, and said the reason was
+  // "a Foundry-built index" that no longer existed.
+  //
+  // The real invariant was never "EMBEDDINGS must be foundry". It is that the
+  // model embedding the QUESTION must be the one that embedded the passages:
+  // a 384-vector and a 1536-vector are not comparable in either direction, and
+  // pgvector's column is unconstrained so the mismatch surfaces at query time
+  // rather than at write time. Both numbers are knowable here, so ask.
+  const indexDims = await indexDimensions();
+  const queryDims = (await openEmbeddings().embedQuery('dimension probe')).length;
+  if (indexDims !== null && indexDims !== queryDims) {
     console.log(
-      '\n\x1b[31mEMBEDDINGS=local against a Foundry-built index measures nothing.\x1b[0m\n' +
-        'The two models have different dimensions and are not comparable. Re-index\n' +
-        'or unset EMBEDDINGS.\n',
+      `\n\x1b[31mThe query embedder does not match the index.\x1b[0m\n` +
+        `  index  ${indexDims} dimensions, in ${CHUNK_TABLE}\n` +
+        `  query  ${queryDims} dimensions, from EMBEDDINGS=${embeddingsChoice()}\n\n` +
+        'These are not comparable, and a score from them would measure the\n' +
+        'mismatch rather than the retrieval. Re-index with this embedder, or\n' +
+        'switch EMBEDDINGS to the one that built the index.\n',
+    );
+    process.exit(1);
+  }
+  if (indexDims === null) {
+    console.log(
+      `\n\x1b[31m${CHUNK_TABLE} is empty.\x1b[0m There is nothing to retrieve from \u2014 run the ` +
+        'indexer first.\n',
     );
     process.exit(1);
   }

@@ -605,6 +605,55 @@ place. The shim sends the prompt on **stdin**, which also sidesteps `ARG_MAX`.
 
 ---
 
+## 8c · Local embeddings match the paid ones — measured, and it settles the question
+
+The open question was whether to move embeddings to Gemini
+(`gemini-embedding-001`, which works at `dimensions: 1536` and would fit the
+existing column). The answer is **no**, and it is a measurement rather than a
+preference.
+
+`pnpm steering:retrieval-eval`, 8 cases over 922 documents and 3,854 passages:
+
+| arm | cases | **recall@k** | MRR |
+|---|---|---|---|
+| Azure `text-embedding-3-small`, 1536 dims, paid | — | **0.813** | — |
+| **local `bge-small`, 384 dims, free** | **6/8** | **0.813** | 0.677 |
+
+**Identical recall.** The 1536-dim baseline is the one recorded in
+`docs/steering/NEXT.md` §0b, so this is like-for-like on the same suite.
+
+Four times the dimensions and a per-token bill bought **nothing measurable
+here**. And local is not merely as good on this number — it is instant, offline,
+and unlimited, where a hosted embedder puts a network round-trip and a quota
+slice on **every search, forever**, not just at ingest. Three of eight insurance
+eval runs were already dying of 429s on chat alone.
+
+**The honest caveat is the one the tool prints itself:** *"Eight cases cannot say
+a retriever is good — they can say it got worse, which is the job."* This says
+local did not regress. It does not say either model is good.
+
+### The guard that refused this measurement was itself the finding
+
+`run-retrieval.ts` used to open with `if (embeddingsChoice() === 'local') refuse`,
+explaining that *"EMBEDDINGS=local against a Foundry-built index measures
+nothing."* True when written. After the index was rebuilt at 384 dims it refused
+**the only configuration that could work**, citing a Foundry-built index that no
+longer existed.
+
+The real invariant was never "EMBEDDINGS must be foundry" — it is that the model
+embedding the QUESTION must be the one that embedded the passages. Both numbers
+are knowable at runtime, so the guard now asks:
+
+```
+index  384 dimensions, in document_chunks
+query  384 dimensions, from EMBEDDINGS=local
+```
+
+and refuses only on a genuine mismatch, naming both. A guard that encodes
+yesterday's estate will eventually forbid today's.
+
+---
+
 ## 9 · A remote GPU — MEASURED 2026-09-16, and it does not rescue local
 
 `ABE-PC` at `10.242.84.140`: **RTX 4090 (24564 MiB), i9-13900KF 32 threads,
