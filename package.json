@@ -1,7 +1,7 @@
 {
   "name": "claims-assistant",
   "private": true,
-  "description": "FDE practice #2 — Turborepo workspace. See README.md.",
+  "description": "FDE practice #2 \u2014 Turborepo workspace. See README.md.",
   "license": "UNLICENSED",
   "packageManager": "pnpm@9.15.9",
   "scripts": {
@@ -142,5 +142,12 @@
   },
   "devDependencies": {
     "turbo": "^2.10.12"
+  },
+  "pnpm": {
+    "overrides": {
+      "@tanstack/react-router": "1.170.35",
+      "@tanstack/react-start": "1.168.52",
+      "@tanstack/router-core": "1.171.29"
+    }
   }
 }

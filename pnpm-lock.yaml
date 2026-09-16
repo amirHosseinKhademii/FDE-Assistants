@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  '@tanstack/react-router': 1.170.35
+  '@tanstack/react-start': 1.168.52
+  '@tanstack/router-core': 1.171.29
+
 importers:
 
   .:
@@ -253,10 +258,10 @@ importers:
         specifier: ^5.102.8
         version: 5.102.8(react@19.3.0)
       '@tanstack/react-router':
-        specifier: ^1.170.35
+        specifier: 1.170.35
         version: 1.170.35(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tanstack/react-start':
-        specifier: ^1.168.52
+        specifier: 1.168.52
         version: 1.168.52(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(rolldown@1.2.8)(vite@8.3.0(@types/node@20.19.43)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))(webpack@5.97.1)
       react:
         specifier: ^19.3.0
@@ -302,10 +307,10 @@ importers:
         specifier: ^5.102.8
         version: 5.102.8(react@19.3.0)
       '@tanstack/react-router':
-        specifier: ^1.170.35
+        specifier: 1.170.35
         version: 1.170.35(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tanstack/react-start':
-        specifier: ^1.168.52
+        specifier: 1.168.52
         version: 1.168.52(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(rolldown@1.2.8)(vite@8.3.0(@types/node@20.19.43)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))(webpack@5.97.1)
       '@veresk/surface':
         specifier: workspace:*
@@ -357,10 +362,10 @@ importers:
         specifier: ^5.102.8
         version: 5.102.8(react@19.3.0)
       '@tanstack/react-router':
-        specifier: ^1.170.35
+        specifier: 1.170.35
         version: 1.170.35(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tanstack/react-start':
-        specifier: ^1.168.52
+        specifier: 1.168.52
         version: 1.168.52(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(rolldown@1.2.8)(vite@8.3.0(@types/node@20.19.43)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))(webpack@5.97.1)
       '@vantis/steering':
         specifier: workspace:*
@@ -412,10 +417,10 @@ importers:
         specifier: ^5.102.8
         version: 5.102.8(react@19.3.0)
       '@tanstack/react-router':
-        specifier: ^1.170.35
+        specifier: 1.170.35
         version: 1.170.35(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tanstack/react-start':
-        specifier: ^1.168.52
+        specifier: 1.168.52
         version: 1.168.52(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(rolldown@1.2.8)(vite@8.3.0(@types/node@20.19.43)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))(webpack@5.97.1)
       '@veresk/surface':
         specifier: workspace:*
@@ -674,7 +679,7 @@ importers:
         version: 19.3.0(react@19.3.0)
     devDependencies:
       '@tanstack/react-router':
-        specifier: ^1.170.35
+        specifier: 1.170.35
         version: 1.170.35(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@types/react':
         specifier: ^19.3.0
@@ -2034,7 +2039,7 @@ packages:
     engines: {node: '>=20.19'}
     peerDependencies:
       '@rsbuild/core': '>=1.0.2 || ^2.0.0'
-      '@tanstack/react-router': ^1.170.34
+      '@tanstack/react-router': 1.170.35
       vite: '>=5.0.0 || >=6.0.0 || >=7.0.0 || >=8.0.0'
       vite-plugin-solid: ^2.11.10 || ^3.0.0-0
       webpack: '>=5.92.0'
