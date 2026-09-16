@@ -455,31 +455,43 @@ pnpm compat:check                                   # 4/4 green
 LOOP=mastra pnpm --filter @claims/insurance ask "…" # correct on cov-008, 8.8s, $0
 ```
 
-**The next measurement, and it is the one that matters:**
+**MEASURED 2026-09-16** — `pnpm eval:smoke` on `gemini-3.5-flash-lite`. A smoke
+test and NOT a scorecard, in this repo's own words, because it is one run per
+case:
 
-```bash
-pnpm eval:smoke      # a smoke test, NOT a scorecard — one run per case
-```
+| | cases green | **false answers** | over-caution | failures were |
+|---|---|---|---|---|
+| Azure `gpt-5-mini` | **6/7** (30/35 runs, 5 each) | — | — | the committed baseline |
+| local `qwen2.5:7b` | **1/8** | **3** | 0 | **judgment** |
+| hosted Gemini | **5/8** | **0** | 0 | **quota only** |
 
-Three numbers to compare, and only the first is a real scorecard:
+**Read the third column, not the first.** All three Gemini failures were
+`Too Many Requests` — every case that actually ran came back correct. Nothing
+was wrong; three never executed. The local 7B, by contrast, failed by answering
+confidently from documents it had not read, which is the failure this engagement
+exists to catch.
 
-| | runs passed | note |
-|---|---|---|
-| Azure `gpt-5-mini` | **30/35** | 5 runs each, the committed baseline |
-| local `qwen2.5:7b` | **1/8** | smoke, §7 — 3 of 8 were confident wrong answers |
-| hosted Gemini | **not yet run** | ← do this |
+`p95` 14.3s, 54,671 input tokens across 8 runs, $0.
 
-`eval:diff` will refuse to compare hosted against the Azure baseline. That is
-correct: it would measure the model swap, not the code.
+So the model's judgment is sound and **the free tier's per-minute quota is the
+binding constraint.** `retryingFetch` backs off to 15s, which clears a spike and
+does not clear a per-minute quota; pacing the runner, or waiting out a longer
+`Retry-After`, is the real fix.
+
+`eval:diff` will refuse to compare this against the Azure baseline. That is
+correct — it would measure the model swap, not the code.
 
 **Open items, in the order they will bite:**
 
-1. **No retry in the loop** (§8). `gemini-3.5-flash` 503'd mid-run on an error
-   the AI SDK marked retryable. An eval pass is ~140 requests against a free
-   tier; without backoff, one spike ends the run. `mastra/loop.ts`'s
-   `agent.generate` takes the AI SDK's `maxRetries` — the fix is small and
-   should be scoped to `hosted`, the way `structuringPass()` is scoped to
-   `local`, so the Azure baseline stays comparable.
+1. **DONE, but not enough.** `retryingFetch` in `mastra/provider.ts` now retries
+   429/5xx with backoff, asserted by call count. It clears spikes. It does NOT
+   clear a per-minute quota — three of eight eval runs still died of
+   `Too Many Requests`. The remaining fix is to pace the runner or honour a
+   long `Retry-After`, not a bigger retry count.
+   **`LOOP=mastra` IS REQUIRED ALONGSIDE `LLM_PROVIDER=hosted`.** Omitting it
+   fails all eight cases at 0.0s with an identical refusal, because `LOOP`
+   defaults to `sdk`, which drives the Responses API. It reads like a broken
+   install and is a missing variable.
 2. **Rate limits are unmeasured here.** Google no longer publishes free-tier
    numbers; they are per-account at
    <https://aistudio.google.com/rate-limit>. The eval runner is serial by

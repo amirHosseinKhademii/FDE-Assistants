@@ -1,5 +1,5 @@
 {
-  "at": "2026-09-16T15:26:49.108Z",
+  "at": "2026-09-16T21:00:07.894Z",
   "repeat": 1,
   "reports": [
     {
@@ -10,285 +10,18 @@
           "run": 1,
           "toolFailed": false,
           "missingFixture": false,
-          "ms": 116497,
-          "turns": 8,
-          "inputTokens": 69505,
-          "outputTokens": 9688,
-          "toolCalls": 126,
+          "ms": 6658,
+          "turns": 4,
+          "inputTokens": 14687,
+          "outputTokens": 585,
+          "toolCalls": 3,
           "toolNames": [
             "get_policyholder",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_guidance",
-            "search_guidance",
-            "search_guidance",
-            "search_guidance",
-            "search_guidance",
-            "get_policyholder",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
-            "search_policy",
             "search_policy",
             "search_policy"
           ],
-          "stoppedBecause": "schema_invalid",
-          "passed": false,
-          "checks": [
-            {
-              "name": "calls_record_first",
-              "pass": false,
-              "detail": "no valid answer (schema_invalid)"
-            },
-            {
-              "name": "cites_form:PP 03 24 06 24",
-              "pass": false,
-              "detail": "no valid answer (schema_invalid)"
-            },
-            {
-              "name": "answer_contains:50",
-              "pass": false,
-              "detail": "no valid answer (schema_invalid)"
-            },
-            {
-              "name": "answer_contains:21",
-              "pass": false,
-              "detail": "no valid answer (schema_invalid)"
-            },
-            {
-              "name": "citations_resolve",
-              "pass": false,
-              "detail": "no valid answer (schema_invalid)"
-            }
-          ],
-          "error": "not valid JSON: Unexpected token 'B', \"Based on t\"... is not valid JSON | not valid JSON: Unexpected token 'S', \"Since the \"... is not valid JSON"
-        }
-      ],
-      "passed": 0,
-      "total": 1,
-      "flakyChecks": [
-        {
-          "name": "calls_record_first",
-          "failed": 1
-        },
-        {
-          "name": "cites_form:PP 03 24 06 24",
-          "failed": 1
-        },
-        {
-          "name": "answer_contains:50",
-          "failed": 1
-        },
-        {
-          "name": "answer_contains:21",
-          "failed": 1
-        },
-        {
-          "name": "citations_resolve",
-          "failed": 1
-        }
-      ]
-    },
-    {
-      "id": "cov-002",
-      "runs": [
-        {
-          "id": "cov-002",
-          "run": 1,
-          "toolFailed": false,
-          "missingFixture": false,
-          "ms": 29341,
-          "turns": 16,
-          "inputTokens": 81989,
-          "outputTokens": 1283,
-          "toolCalls": 12,
-          "toolNames": [
-            "get_policyholder",
-            "search_policy",
-            "search_guidance",
-            "search_policy",
-            "search_guidance",
-            "search_policy",
-            "search_guidance",
-            "get_policyholder",
-            "search_policy",
-            "search_guidance",
-            "search_policy",
-            "search_guidance"
-          ],
-          "stoppedBecause": "schema_invalid",
-          "passed": false,
-          "checks": [
-            {
-              "name": "calls_record_first",
-              "pass": false,
-              "detail": "no valid answer (schema_invalid)"
-            },
-            {
-              "name": "escalates",
-              "pass": false,
-              "detail": "no valid answer (schema_invalid)"
-            },
-            {
-              "name": "citations_resolve",
-              "pass": false,
-              "detail": "no valid answer (schema_invalid)"
-            }
-          ],
-          "error": "not valid JSON: Unexpected token 'T', \"There is n\"... is not valid JSON | internally inconsistent: conflict \"Exclusion applicability to rideshare use\" lists fewer than two positions"
-        }
-      ],
-      "passed": 0,
-      "total": 1,
-      "flakyChecks": [
-        {
-          "name": "calls_record_first",
-          "failed": 1
-        },
-        {
-          "name": "escalates",
-          "failed": 1
-        },
-        {
-          "name": "citations_resolve",
-          "failed": 1
-        }
-      ]
-    },
-    {
-      "id": "cov-003",
-      "runs": [
-        {
-          "id": "cov-003",
-          "run": 1,
-          "toolFailed": false,
-          "missingFixture": false,
-          "ms": 16613,
-          "turns": 10,
-          "inputTokens": 44744,
-          "outputTokens": 886,
-          "toolCalls": 6,
-          "toolNames": [
-            "get_policyholder",
-            "search_policy",
-            "search_guidance",
-            "get_policyholder",
-            "search_policy",
-            "search_guidance"
-          ],
           "stoppedBecause": "model_finished",
-          "passed": false,
+          "passed": true,
           "checks": [
             {
               "name": "calls_record_first",
@@ -296,19 +29,167 @@
               "detail": "called get_policyholder first"
             },
             {
-              "name": "cites_record:AUT-4472",
+              "name": "cites_form:PP 03 24 06 24",
               "pass": true,
-              "detail": "cited record AUT-4472"
+              "detail": "cited PP 03 24 06 24"
             },
             {
-              "name": "has_answer",
-              "pass": false,
-              "detail": "answer is null or empty"
+              "name": "answer_contains:50",
+              "pass": true,
+              "detail": "answer contains \"50\""
             },
             {
-              "name": "does_not_escalate",
-              "pass": false,
-              "detail": "escalated when it should have answered"
+              "name": "answer_contains:21",
+              "pass": true,
+              "detail": "answer contains \"21\""
+            },
+            {
+              "name": "citations_resolve",
+              "pass": true,
+              "detail": "all 2 citation source(s) resolve to real documents"
+            }
+          ],
+          "answer": {
+            "answer": "$50 per day, for a maximum of 21 days per occurrence.",
+            "policy_id": "AUT-4471",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "record:AUT-4471",
+                "claim": "Endorsement PP 03 24 06 24 is attached to policy AUT-4471",
+                "detail": "- PP 03 24 06 24"
+              },
+              {
+                "source": "policy:PP 03 24 06 24#Transportation Expenses > Daily Amount and Maximum",
+                "claim": "Rental reimbursement is $50 per day for a maximum of 21 days per occurrence under the attached endorsement",
+                "detail": "We will pay **$50 per day, for a maximum of 21 days** per occurrence, for reasonable expenses you incur for a rental vehicle while your covered auto is withdrawn from use because of a loss covered under Part IV."
+              }
+            ],
+            "unverified_claims": [],
+            "conflicts": [
+              {
+                "topic": "Rental reimbursement daily amount and maximum days",
+                "positions": [
+                  {
+                    "source": "policy:PP 00 01 06 24#PP 00 01 06 24 — Personal Auto Policy > Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                    "says": "$40 per day, for a maximum of 30 days per occurrence."
+                  },
+                  {
+                    "source": "policy:PP 03 24 06 24#Transportation Expenses > Daily Amount and Maximum",
+                    "says": "$50 per day, for a maximum of 21 days per occurrence."
+                  }
+                ],
+                "resolved_by": "record:AUT-4471"
+              }
+            ],
+            "escalate": null
+          }
+        }
+      ],
+      "passed": 1,
+      "total": 1,
+      "flakyChecks": []
+    },
+    {
+      "id": "cov-002",
+      "runs": [
+        {
+          "id": "cov-002",
+          "run": 1,
+          "passed": false,
+          "missingFixture": false,
+          "ms": 0,
+          "turns": 0,
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "toolCalls": 0,
+          "stoppedBecause": "threw",
+          "checks": [],
+          "error": "Too Many Requests"
+        }
+      ],
+      "passed": 0,
+      "total": 1,
+      "flakyChecks": []
+    },
+    {
+      "id": "cov-003",
+      "runs": [
+        {
+          "id": "cov-003",
+          "run": 1,
+          "passed": false,
+          "missingFixture": false,
+          "ms": 0,
+          "turns": 0,
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "toolCalls": 0,
+          "stoppedBecause": "threw",
+          "checks": [],
+          "error": "Too Many Requests"
+        }
+      ],
+      "passed": 0,
+      "total": 1,
+      "flakyChecks": []
+    },
+    {
+      "id": "cov-004",
+      "runs": [
+        {
+          "id": "cov-004",
+          "run": 1,
+          "passed": false,
+          "missingFixture": false,
+          "ms": 0,
+          "turns": 0,
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "toolCalls": 0,
+          "stoppedBecause": "threw",
+          "checks": [],
+          "error": "Too Many Requests"
+        }
+      ],
+      "passed": 0,
+      "total": 1,
+      "flakyChecks": []
+    },
+    {
+      "id": "cov-005",
+      "runs": [
+        {
+          "id": "cov-005",
+          "run": 1,
+          "toolFailed": false,
+          "missingFixture": false,
+          "ms": 14265,
+          "turns": 3,
+          "inputTokens": 9919,
+          "outputTokens": 313,
+          "toolCalls": 2,
+          "toolNames": [
+            "get_policyholder",
+            "search_policy"
+          ],
+          "stoppedBecause": "model_finished",
+          "passed": true,
+          "checks": [
+            {
+              "name": "calls_record_first",
+              "pass": true,
+              "detail": "called get_policyholder first"
+            },
+            {
+              "name": "cites_form:PP 01 50 06 24",
+              "pass": true,
+              "detail": "cited PP 01 50 06 24"
+            },
+            {
+              "name": "answer_contains:30,000",
+              "pass": true,
+              "detail": "answer contains \"30,000\""
             },
             {
               "name": "citations_resolve",
@@ -317,69 +198,41 @@
             }
           ],
           "answer": {
-            "answer": null,
-            "policy_id": "AUT-4472",
-            "policy_form": "PA-2023-01",
+            "answer": "The bodily injury liability limit is $30,000 per person and $60,000 per occurrence, with no deductible.",
+            "policy_id": "AUT-4476",
+            "policy_form": "PP 01 50 06 24",
             "citations": [
               {
-                "source": "record:AUT-4472",
-                "claim": "Rental Reimbursement coverage is not selected for this policy.",
-                "detail": "Record for policyholder AUT-4472 shows Rental Reimbursement is not selected for their PA-2023-01 policy."
+                "source": "policy:pp-01-50-06-24.md#PP 01 50 06 24 — Personal Auto Policy: Texas Amendatory Endorsement > Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
+                "claim": "Bodily Injury Liability limit is $30,000 / $60,000 with no deductible",
+                "detail": "| Bodily Injury Liability | $30,000 / $60,000 | None |"
               }
             ],
             "unverified_claims": [],
-            "conflicts": [
-              {
-                "topic": "Daily limit and duration of rental reimbursement",
-                "positions": [
-                  {
-                    "source": "determination-2024-004471-cpl",
-                    "says": "The per-day amount and maximum that govern rental reimbursement are established by the PP 03 24 06 24 endorsement, which amends PP 00 01 06 24."
-                  },
-                  {
-                    "source": "record:AUT-4472",
-                    "says": "Rental Reimbursement coverage is not selected for this policy."
-                  }
-                ],
-                "resolved_by": null
-              }
-            ],
-            "escalate": {
-              "reason": "The policy does not include Rental Reimbursement coverage, making the daily limit and duration of coverage indeterminate. A human must decide.",
-              "suggested_owner": "claims desk supervisor"
-            }
+            "conflicts": [],
+            "escalate": null
           }
         }
       ],
-      "passed": 0,
+      "passed": 1,
       "total": 1,
-      "flakyChecks": [
-        {
-          "name": "has_answer",
-          "failed": 1
-        },
-        {
-          "name": "does_not_escalate",
-          "failed": 1
-        }
-      ]
+      "flakyChecks": []
     },
     {
-      "id": "cov-004",
+      "id": "cov-006",
       "runs": [
         {
-          "id": "cov-004",
+          "id": "cov-006",
           "run": 1,
           "toolFailed": false,
           "missingFixture": false,
-          "ms": 11297,
+          "ms": 2065,
           "turns": 2,
-          "inputTokens": 9210,
-          "outputTokens": 645,
-          "toolCalls": 2,
+          "inputTokens": 5669,
+          "outputTokens": 122,
+          "toolCalls": 1,
           "toolNames": [
-            "get_policyholder",
-            "search_policy"
+            "get_policyholder"
           ],
           "stoppedBecause": "model_finished",
           "passed": true,
@@ -395,46 +248,20 @@
               "detail": "escalated to claims desk supervisor"
             },
             {
-              "name": "flags_conflict",
+              "name": "answer_lacks:1,000",
               "pass": true,
-              "detail": "flagged 1 conflict(s): Rental Reimbursement daily limit and duration"
-            },
-            {
-              "name": "citations_resolve",
-              "pass": true,
-              "detail": "all 1 citation source(s) resolve to real documents"
+              "detail": "answer does not contain \"1,000\""
             }
           ],
           "answer": {
-            "answer": "$40 per day for a maximum of 30 days",
-            "policy_id": "AUT-4482",
-            "policy_form": "PA-2023-01-FL",
-            "citations": [
-              {
-                "source": "policy:pp-01-79-06-24.md#PP 01 79 06 24 — Personal Auto Policy: New York Amendatory Endorsement > Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
-                "claim": "Rental Reimbursement",
-                "detail": "The following limits replace those shown in PP 00 01 06 24 for risks in\nNew York.\n\n| Coverage | Limit | Deductible |\n| --- | --- | --- |\n| Rental Reimbursement | $40 per day, 30 days max | None |"
-              }
-            ],
+            "answer": null,
+            "policy_id": "AUT-9999",
+            "policy_form": null,
+            "citations": [],
             "unverified_claims": [],
-            "conflicts": [
-              {
-                "topic": "Rental Reimbursement daily limit and duration",
-                "positions": [
-                  {
-                    "source": "policy:pp-00-01-06-24.md#PP 00 01 06 24 — Personal Auto Policy > Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
-                    "says": "Under form PP 00 03 06 24 we will pay **$25 per day, for a maximum of\n15 days** per occurrence."
-                  },
-                  {
-                    "source": "policy:pp-01-20-06-24.md#PP 01 20 06 24 — Personal Auto Policy: Florida Amendatory Endorsement > Part IV — Physical Damage Coverage > 4.3 Schedule of Limits and Deductibles",
-                    "says": "The following limits replace those shown in PP 00 01 06 24 for risks in\nFlorida.\n\n| Coverage | Limit | Deductible |\n| --- | --- | --- |\n| Rental Reimbursement | $40 per day, 30 days max | None |"
-                  }
-                ],
-                "resolved_by": null
-              }
-            ],
+            "conflicts": [],
             "escalate": {
-              "reason": "Two conflicting positions on the rental reimbursement daily limit and duration.",
+              "reason": "No policyholder record exists for AUT-9999.",
               "suggested_owner": "claims desk supervisor"
             }
           }
@@ -445,38 +272,24 @@
       "flakyChecks": []
     },
     {
-      "id": "cov-005",
+      "id": "cov-007",
       "runs": [
         {
-          "id": "cov-005",
+          "id": "cov-007",
           "run": 1,
           "toolFailed": false,
           "missingFixture": false,
-          "ms": 31415,
-          "turns": 21,
-          "inputTokens": 121283,
-          "outputTokens": 1207,
-          "toolCalls": 16,
+          "ms": 3798,
+          "turns": 3,
+          "inputTokens": 9963,
+          "outputTokens": 294,
+          "toolCalls": 2,
           "toolNames": [
             "get_policyholder",
-            "search_policy",
-            "search_guidance",
-            "search_policy",
-            "search_guidance",
-            "search_policy",
-            "search_guidance",
-            "get_policyholder",
-            "search_policy",
-            "search_guidance",
-            "search_guidance",
-            "search_policy",
-            "search_guidance",
-            "search_guidance",
-            "search_policy",
-            "search_guidance"
+            "search_policy"
           ],
           "stoppedBecause": "model_finished",
-          "passed": false,
+          "passed": true,
           "checks": [
             {
               "name": "calls_record_first",
@@ -484,89 +297,49 @@
               "detail": "called get_policyholder first"
             },
             {
-              "name": "cites_form:PP 01 50 06 24",
-              "pass": false,
-              "detail": "did not cite PP 01 50 06 24; cited forms: [none]"
+              "name": "cites_form:PP 00 01 06 24",
+              "pass": true,
+              "detail": "cited PP 00 01 06 24"
             },
             {
-              "name": "answer_contains:30,000",
-              "pass": false,
-              "detail": "answer does not contain \"30,000\": \"\""
+              "name": "answer_contains:40",
+              "pass": true,
+              "detail": "answer contains \"40\""
+            },
+            {
+              "name": "answer_contains:30",
+              "pass": true,
+              "detail": "answer contains \"30\""
+            },
+            {
+              "name": "does_not_escalate",
+              "pass": true,
+              "detail": "answered without escalating"
             },
             {
               "name": "citations_resolve",
               "pass": true,
-              "detail": "all 0 citation source(s) resolve to real documents"
+              "detail": "all 1 citation source(s) resolve to real documents"
             }
           ],
           "answer": {
-            "answer": null,
-            "policy_id": "AUT-4476",
-            "policy_form": "PA-2023-01-TX",
-            "citations": [],
+            "answer": "$40 per day, for a maximum of 30 days per occurrence.",
+            "policy_id": "AUT-4473",
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "policy:pp-00-01-06-24.md#PP 00 01 06 24 — Personal Auto Policy > Part IV — Physical Damage Coverage > 4.4 Rental Reimbursement",
+                "claim": "Rental reimbursement pays $40 per day for a maximum of 30 days per occurrence.",
+                "detail": "Under form PP 00 01 06 24 we will pay **$40 per day, for a maximum of 30 days** per occurrence."
+              }
+            ],
             "unverified_claims": [],
             "conflicts": [],
-            "escalate": {
-              "reason": "No document addresses the specific bodily injury liability limit for AUT-4476.",
-              "suggested_owner": "claims desk supervisor"
-            }
+            "escalate": null
           }
         }
       ],
-      "passed": 0,
-      "total": 1,
-      "flakyChecks": [
-        {
-          "name": "cites_form:PP 01 50 06 24",
-          "failed": 1
-        },
-        {
-          "name": "answer_contains:30,000",
-          "failed": 1
-        }
-      ]
-    },
-    {
-      "id": "cov-006",
-      "runs": [
-        {
-          "id": "cov-006",
-          "run": 1,
-          "passed": false,
-          "missingFixture": false,
-          "ms": 0,
-          "turns": 0,
-          "inputTokens": 0,
-          "outputTokens": 0,
-          "toolCalls": 0,
-          "stoppedBecause": "threw",
-          "checks": [],
-          "error": "model runner has unexpectedly stopped, this may be due to resource limitations or an internal error, check ollama server logs for details"
-        }
-      ],
-      "passed": 0,
-      "total": 1,
-      "flakyChecks": []
-    },
-    {
-      "id": "cov-007",
-      "runs": [
-        {
-          "id": "cov-007",
-          "run": 1,
-          "passed": false,
-          "missingFixture": false,
-          "ms": 0,
-          "turns": 0,
-          "inputTokens": 0,
-          "outputTokens": 0,
-          "toolCalls": 0,
-          "stoppedBecause": "threw",
-          "checks": [],
-          "error": "Cannot connect to API: Headers Timeout Error"
-        }
-      ],
-      "passed": 0,
+      "passed": 1,
       "total": 1,
       "flakyChecks": []
     },
@@ -578,23 +351,18 @@
           "run": 1,
           "toolFailed": false,
           "missingFixture": false,
-          "ms": 23456,
-          "turns": 18,
-          "inputTokens": 90156,
-          "outputTokens": 1338,
-          "toolCalls": 8,
+          "ms": 6326,
+          "turns": 4,
+          "inputTokens": 14433,
+          "outputTokens": 567,
+          "toolCalls": 3,
           "toolNames": [
             "get_policyholder",
             "search_policy",
-            "search_guidance",
-            "get_policyholder",
-            "search_policy",
-            "search_guidance",
-            "search_policy",
-            "search_guidance"
+            "search_policy"
           ],
           "stoppedBecause": "model_finished",
-          "passed": false,
+          "passed": true,
           "checks": [
             {
               "name": "calls_record_first",
@@ -603,58 +371,68 @@
             },
             {
               "name": "cites_form:PP 03 24 06 24",
-              "pass": false,
-              "detail": "did not cite PP 03 24 06 24; cited forms: [none]"
+              "pass": true,
+              "detail": "cited PP 03 24 06 24"
             },
             {
               "name": "answer_contains:50",
-              "pass": false,
-              "detail": "answer does not contain \"50\": \"\""
+              "pass": true,
+              "detail": "answer contains \"50\""
             },
             {
               "name": "answer_contains:21",
-              "pass": false,
-              "detail": "answer does not contain \"21\": \"\""
+              "pass": true,
+              "detail": "answer contains \"21\""
             },
             {
               "name": "citations_resolve",
               "pass": true,
-              "detail": "all 0 citation source(s) resolve to real documents"
+              "detail": "all 2 citation source(s) resolve to real documents"
             }
           ],
           "answer": {
-            "answer": null,
+            "answer": "$50 per day, for a maximum of 21 days per occurrence.",
             "policy_id": "AUT-4471",
-            "policy_form": "PA-2023-01",
-            "citations": [],
+            "policy_form": "PP 00 01 06 24",
+            "citations": [
+              {
+                "source": "policy:PP 03 24 06 24#Daily Amount and Maximum",
+                "claim": "Rental reimbursement limit of $50 per day for a maximum of 21 days per occurrence under endorsement PP 03 24 06 24",
+                "detail": "We will pay $50 per day, for a maximum of 21 days per occurrence, for reasonable expenses you incur for a rental vehicle while your covered auto is withdrawn from use because of a loss covered under Part IV."
+              },
+              {
+                "source": "record:AUT-4471",
+                "claim": "Endorsement PP 03 24 06 24 is attached to policy AUT-4471",
+                "detail": "- PP 03 24 06 24"
+              }
+            ],
             "unverified_claims": [],
-            "conflicts": [],
-            "escalate": {
-              "reason": "The documents do not address the specific benefit amount for Rental Reimbursement per day.",
-              "suggested_owner": "claims desk supervisor"
-            }
+            "conflicts": [
+              {
+                "topic": "Rental reimbursement daily rate and maximum days",
+                "positions": [
+                  {
+                    "source": "policy:PP 00 01 06 24#4.4 Rental Reimbursement",
+                    "says": "$40 per day, for a maximum of 30 days per occurrence."
+                  },
+                  {
+                    "source": "policy:PP 03 24 06 24#Daily Amount and Maximum",
+                    "says": "$50 per day, for a maximum of 21 days per occurrence."
+                  }
+                ],
+                "resolved_by": "record:AUT-4471"
+              }
+            ],
+            "escalate": null
           }
         }
       ],
-      "passed": 0,
+      "passed": 1,
       "total": 1,
-      "flakyChecks": [
-        {
-          "name": "cites_form:PP 03 24 06 24",
-          "failed": 1
-        },
-        {
-          "name": "answer_contains:50",
-          "failed": 1
-        },
-        {
-          "name": "answer_contains:21",
-          "failed": 1
-        }
-      ]
+      "flakyChecks": []
     }
   ],
   "model": "gpt-5-mini",
   "engine": "mastra",
-  "fixtures": "replay"
+  "fixtures": "off"
 }
