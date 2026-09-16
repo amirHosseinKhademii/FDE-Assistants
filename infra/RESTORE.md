@@ -90,11 +90,50 @@ for app in steering-app pharma-app; do
 done
 ```
 
-Then the rest, per app: `STEERING_DATABASE_URL` / `PHARMA_DATABASE_URL` from
-Neon, and the model provider — `LLM_PROVIDER=hosted` with `HOSTED_API_KEY`,
-`HOSTED_MODEL` and `HOSTED_BASE_URL`. **`LOOP` matters here**: the default `sdk`
-engine drives the Responses API and refuses non-Azure providers, so a hosted
-provider also needs `LOOP=mastra` or `LOOP=langgraph`. See `.env.example`.
+Then the databases, per app: `STEERING_DATABASE_URL` / `PHARMA_DATABASE_URL`
+from Neon. Those are genuinely just configuration and they work.
+
+> ### The model is NOT configuration, and this section used to say it was
+>
+> An earlier version of this file listed `LLM_PROVIDER=hosted` with
+> `HOSTED_API_KEY`, `HOSTED_MODEL` and `HOSTED_BASE_URL` alongside the database
+> URLs, as though setting them would give the deployed apps a working model. It
+> will not, for `steering-app` and `pharma-app`, and the reason is in the code
+> rather than in the environment. Corrected 2026-09-16, measured rather than
+> assumed:
+>
+> **They bypass the provider switch.** `assess-requirement.ts:83`,
+> `summarise-bid.ts:77`, `explain-assessment.ts:66` and pharma's
+> `release-agent.ts:127` all call `openaiClient()` — the `@fde/foundry` Azure
+> client — directly, and pass `env.chatDeployment()` as the model, which is
+> `gpt-5-mini` and means nothing to any other provider.
+> `apps/ai/steering/src/llm/provider.ts` does hold a switch, it knows only
+> `azure|bedrock`, and its one importer is `cli/llm-ping.ts`. It is not on the
+> answer path.
+>
+> **Insurance is the exception and it is an accident of the engine.** The
+> Mastra loop ignores the client it is handed and builds its own provider, so
+> `LLM_PROVIDER=hosted` reaches it. Steering and pharma use theirs directly.
+> That single difference is why a "hosted works" result measured against
+> insurance says nothing about the two apps that are deployed.
+>
+> **And the embeddings cannot be switched either.** Both default to `foundry`
+> with `EMBEDDINGS` unset. Setting `EMBEDDINGS=local` would not help:
+> `apps/ai/steering/src/grounding/chunks.ts:22` is
+> `export const CHUNK_TABLE = 'document_chunks'` — a plain constant with no
+> `_local` variant, unlike insurance's
+> `embeddingsChoice() === 'local' ? 'policy_chunks_local' : 'policy_chunks'`.
+> 384-dimension vectors would be written into a table holding 3,854 rows at
+> 1536, and it would fail at query time rather than at write time.
+>
+> So a deployed `steering-app` or `pharma-app` that answers a question needs a
+> provider-aware chat client and model name in two engagements, a table-name
+> guard, and a re-ingest of 3,854 chunks. **That is a code change and a data
+> migration, not configuration**, and nothing in this runbook will produce it.
+
+**`LOOP` still matters** wherever a non-Azure provider *is* reachable: the
+default `sdk` engine drives the Responses API and refuses both `local` and
+`hosted`, so those need `LOOP=mastra` or `LOOP=langgraph`. See `.env.example`.
 
 Reading a secret back, without putting it in your shell history:
 

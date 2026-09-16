@@ -33,6 +33,15 @@ export interface RunSuiteOptions<C extends EvalCase, A> {
   /** How many times to run each case. One is a smoke test, not a measurement. */
   repeat: number;
   /**
+   * Milliseconds to wait between runs, so a per-minute quota is not the thing
+   * being measured.
+   *
+   * ZERO BY DEFAULT, and that is deliberate: every committed baseline in this
+   * repo was produced with no pacing, and adding some silently would change
+   * what `p95 latency` means in a diff against them. The caller opts in.
+   */
+  paceMs?: number;
+  /**
    * Run ONE case once. Everything model-shaped lives in here — the loop, the
    * tools, the prompt. The harness only sees what comes back.
    */
@@ -83,8 +92,24 @@ export async function runSuite<C extends EvalCase, A>(
 ): Promise<Array<CaseReport<A>>> {
   const outcomes: Array<CaseOutcome<A>> = [];
 
+  // WALL-CLOCK PACING, NOT A RETRY. `retryingFetch` in `@fde/agent` backs off
+  // when a request is REJECTED; this stops the requests being made too fast in
+  // the first place. They solve different halves of the same free tier:
+  // measured 2026-09-16, three of eight Gemini runs died of `Too Many Requests`
+  // WITH retries already in place, because a 15s backoff clears a demand spike
+  // and does not clear a per-minute quota.
+  //
+  // Counted from the END of the previous run, so a slow question already pays
+  // part of the interval and the suite never sleeps longer than the quota needs.
+  const pace = Math.max(0, opts.paceMs ?? 0);
+  let lastFinished = 0;
+
   for (const c of opts.cases) {
     for (let run = 1; run <= opts.repeat; run++) {
+      if (pace > 0 && lastFinished > 0) {
+        const owed = pace - (Date.now() - lastFinished);
+        if (owed > 0) await new Promise((r) => setTimeout(r, owed));
+      }
       opts.onStart?.(c, run, opts.repeat);
 
       // A THROW IS AN OUTCOME, not a crash. If one case blows up — a network
@@ -97,6 +122,9 @@ export async function runSuite<C extends EvalCase, A>(
       try {
         outcome = await opts.runCase(c, run);
       } catch (e) {
+        // NOTE: `lastFinished` is set after this try/catch, not inside it. A run
+        // that threw still consumed a request as far as the quota is concerned —
+        // a 429 IS the quota talking — so it must still pay the interval.
         outcome = {
           id: c.id,
           run,
@@ -113,6 +141,7 @@ export async function runSuite<C extends EvalCase, A>(
         };
       }
 
+      lastFinished = Date.now();
       outcomes.push(outcome);
       opts.onResult?.(c, outcome);
     }

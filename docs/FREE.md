@@ -21,9 +21,9 @@ replacements were tried. **Only one of them works.**
 | `compat:check` §1–3 | — | pass | pass | **pass** |
 | `compat:check` §4 (tools+schema) | — | **FAIL** | **FAIL** | **pass** |
 | `cov-008` (the hard case) | correct | fabricated | **wrong** | **correct** |
-| `eval:smoke` cases green | **6/7** (30/35 runs) | **1/8** | not run | **5/8** |
-| **false answers (dangerous)** | — | **3** | — | **0** |
-| failures were… | — | **judgment** | **judgment** | **quota** |
+| `eval:smoke` cases green | **6/7** (30/35 runs) | **1/8** | not run | **6/8** (paced) |
+| **false answers (dangerous)** | — | **3** | — | **2** |
+| failures were… | — | **judgment** | **judgment** | **judgment, once pacing removed the quota noise — §10** |
 | latency | — | 14 s | 80 s | **8.8 s** |
 | cost | $$ | $0 | $0 | **$0** |
 
@@ -517,30 +517,36 @@ pnpm compat:check                                   # 4/4 green
 LOOP=mastra pnpm --filter @claims/insurance ask "…" # correct on cov-008, 8.8s, $0
 ```
 
-**MEASURED 2026-09-16** — `pnpm eval:smoke` on `gemini-3.5-flash-lite`. A smoke
-test and NOT a scorecard, in this repo's own words, because it is one run per
-case:
+**MEASURED 2026-09-16** — `pnpm eval:smoke` on `gemini-3.5-flash-lite`. Run
+TWICE, because the first run's headline was wrong in an instructive way:
 
-| | cases green | **false answers** | over-caution | failures were |
-|---|---|---|---|---|
-| Azure `gpt-5-mini` | **6/7** (30/35 runs, 5 each) | — | — | the committed baseline |
-| local `qwen2.5:7b` | **1/8** | **3** | 0 | **judgment** |
-| hosted Gemini | **5/8** | **0** | 0 | **quota only** |
+| | cases green | **false answers** | over-caution | no answer (infra) | p95 |
+|---|---|---|---|---|---|
+| Azure `gpt-5-mini` (7 cases × 5) | **6/7** | — | — | — | — |
+| local `qwen2.5:7b` | **1/8** | **3** | 0 | 4 | 116.5s |
+| Gemini, unpaced | 5/8 | **0** | 0 | **3** | 14.3s |
+| **Gemini, paced 6s** | **6/8** | **2** | 0 | **0** | 37.8s |
 
-**Read the third column, not the first.** All three Gemini failures were
-`Too Many Requests` — every case that actually ran came back correct. Nothing
-was wrong; three never executed. The local 7B, by contrast, failed by answering
-confidently from documents it had not read, which is the failure this engagement
-exists to catch.
+**PACING DID NOT IMPROVE THE MODEL. IT REVEALED IT.** The unpaced run's "zero
+false answers" was not a quality result — three cases died of
+`Too Many Requests` before they could be wrong. Remove the quota failures and
+two of those three turn out to be genuine judgment failures: `cov-002` and
+`cov-007` answer confidently and incorrectly.
 
-`p95` 14.3s, 54,671 input tokens across 8 runs, $0.
+That correction matters more than the score. An infrastructure failure and a
+wrong answer land in different buckets on this scorecard for exactly this
+reason, and a bucket that is empty because the run never happened is not the
+same as a bucket that is empty. **It is the same mistake in miniature that
+`CLAUDE.md` warns about: a red check is a hypothesis, and so is a green one.**
 
-So the model's judgment is sound and **the free tier's per-minute quota is the
-binding constraint.** `retryingFetch` backs off to 15s, which clears a spike and
-does not clear a per-minute quota; pacing the runner, or waiting out a longer
-`Retry-After`, is the real fix.
+What pacing actually bought: **`no answer (infra)` went 3 → 0.** Every case now
+runs. That is what the change was for, and it worked.
 
-`eval:diff` will refuse to compare this against the Azure baseline. That is
+So the honest standing is **6/8 against Azure's 6/7**, with two real wrong
+answers rather than none — close, not equal, and measured on a smoke test that
+this repo's own rules say must not be quoted as a pass rate.
+
+`eval:diff` will refuse to compare either against the Azure baseline. That is
 correct — it would measure the model swap, not the code.
 
 **Open items, in the order they will bite:**

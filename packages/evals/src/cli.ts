@@ -97,9 +97,35 @@ export async function runEvalCli<C extends EvalCase, A>(
     console.log('    quote the resulting number as a pass rate.\n');
   }
 
+  // WHY THE DEFAULT IS PROVIDER-DEPENDENT, and why it is not zero everywhere.
+  //
+  // MEASURED 2026-09-16: `pnpm eval:smoke` on a Gemini free tier lost three of
+  // eight runs to `Too Many Requests` — with `retryingFetch` already backing
+  // off. Retries answer a REJECTED request; they cannot stop the requests being
+  // made too fast, and a 15s backoff does not clear a per-minute quota.
+  //
+  // ZERO FOR AZURE AND BEDROCK, deliberately. Those are paid capacity, and every
+  // committed baseline in `docs/evals/results/` was produced with no pacing —
+  // adding some would change what `p95 latency` means in a diff against them,
+  // which is the one number `eval:diff` is not allowed to move silently.
+  //
+  // `EVAL_PACE_MS` overrides either way, because the right interval depends on a
+  // quota this code cannot see. 6s ≈ 10 requests/minute, comfortably under the
+  // free tiers observed, and the interval is measured from the END of the last
+  // run so a slow question already pays part of it.
+  const hosted = process.env.LLM_PROVIDER?.trim().toLowerCase() === 'hosted';
+  const paceMs = Number(process.env.EVAL_PACE_MS ?? (hosted ? 6000 : 0));
+  if (paceMs > 0) {
+    console.log(
+      `  pacing: ${paceMs}ms between runs — a free tier's per-minute quota is not\n` +
+        '    the thing this suite is trying to measure. EVAL_PACE_MS overrides.\n',
+    );
+  }
+
   const reports = await runSuite<C, A>({
     cases,
     repeat,
+    paceMs,
     runCase: (c, n) =>
       opts.wrapRun ? opts.wrapRun(c, n, () => opts.runCase(c, n)) : opts.runCase(c, n),
     onStart: (c, n, of) => process.stdout.write(`  ${c.id} run ${n}/${of} … `),
