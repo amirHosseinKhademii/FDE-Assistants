@@ -400,11 +400,76 @@ control itself, applied to the check rather than to the model.
 
 Gemini passes 3/3, so enforcement there looks like a property of the endpoint.
 
-**The remedy is to pin a model rather than a router.** Quota, for the row it
-belongs in: OpenRouter's own docs give **20 req/min and 50 req/day** under $10
+**The remedy is to pin a model rather than a router — and the candidate list must
+come from the API, not from prose.**
+
+`GET https://openrouter.ai/api/v1/models` is public, needs no key and costs no
+quota. On 2026-09-16 it returned **444 models, 24 at zero price, and exactly
+SIX** advertising both `structured_outputs` and `tools`:
+
+```
+dots-studio/dots-3-note-preview:free    ctx=512000
+liquid/lfm-2.5-2.6b:free                ctx=65536
+nex-agi/nex-n2.5-mini:free              ctx=262144
+nex-agi/nex-n2.5-pro:free               ctx=262144
+nvidia/nemotron-3-super-120b-a12b:free  ctx=262144
+openrouter/free                         ctx=200000
+```
+
+`qwen/qwen3-coder:free`, `deepseek/deepseek-v4-flash:free` and
+`z-ai/glm-4.5-air:free` are **not on that list**. All three came from blog posts,
+and `qwen3-coder:free` answered
+`404 "This model is unavailable for free. The paid version is available now"` —
+a **fourth** retirement, observed mid-test. **Derive the candidate list from the
+provider's live API; a model list read out of prose is already wrong.**
+
+### What the pinned models actually did
+
+| model | §1 strict | §2 unanimity | §3 tools | §4 both |
+|---|---|---|---|---|
+| `openrouter/free` | **FAIL** — markdown prose | **1/3** | ok | ok |
+| `nvidia/nemotron-3-super-120b-a12b:free` | **FAIL** — empty body | — | ok | **FAIL** |
+| `qwen/qwen3-coder:free` | **404** — withdrawn | — | — | — |
+| **`nex-agi/nex-n2.5-pro:free`** | **ok** — exact keys, `escalate: null` honoured | **5/5** | **ok** | **FAIL** |
+
+**`nex-n2.5-pro` fails only §4, so `LOOP=langgraph` rescues it.** The loop needs
+§3 and the separate structuring call needs §1; both pass independently, and
+LangGraph never puts a grammar and tools in the same request. Nemotron failed
+§1 **as well**, so nothing rescues it — a clean demonstration that "§4 only" and
+"§1 and §4" are different verdicts, not degrees of the same one.
+
+Nemotron's §4 was the textbook failure, identical in shape to llama.cpp's:
+`"AUT-4471 is eligible for $50 per day in rental car reimbursement."` with no
+tool call. An answer from nothing, citing a form it never read.
+
+**The honest framing is not "Gemini wins."** `nex-n2.5-pro`'s **5/5** beats
+Gemini's 3/3 on the unanimity probe, and its §1 returned the contract's real
+shape rather than merely valid JSON. It is: **Gemini passes all four and works on
+any engine; `nex-n2.5-pro` passes three and requires `LOOP=langgraph`.**
+
+Quota, for either: OpenRouter's own docs give **20 req/min and 50 req/day** under $10
 lifetime credits, rising to 1,000/day after — third-party pages saying 200/day
-are not the docs. At roughly seven requests per assessment that is about seven
-assessments a day, which disqualifies it on **quota**, not on capability.
+are not the docs. **One `eval:smoke` pass is about 8 runs at ~3 turns, so 50/day
+is roughly ONE AND A HALF suite runs per day.** `compat:check` itself costs ~4
+requests at `COMPAT_REPEAT=1`, ~6 at 3, ~10 at 5. That disqualifies the free tier
+for measurement work on **quota**, not on capability — which is a different and
+more fixable objection than Gemini's saturation.
+
+### What `compat:check` learned from being wrong three times
+
+The check is the instrument, and every one of these was found by it producing a
+green or a misleading result rather than by reading the code:
+
+| it reported | the truth | the fix |
+|---|---|---|
+| `ok` on a single §2 probe | enforcement can be **per request**, so one pass proves nothing about a router | §2 repeats and requires unanimity — `COMPAT_REPEAT`, default 3 |
+| hung forever on §4 | `fetch` has **no default timeout**; an endpoint that accepts a connection and never answers stalls the run | `AbortSignal.timeout`, default 120s — `COMPAT_TIMEOUT_MS`. Named `TimeoutError`, retried, never again silent |
+| *"Enforcement is PER-REQUEST"* under three identical 404s | a **withdrawn model id**, which is not a schema finding at all | `diagnose()` separates a uniform hard status from a mixed result, and says to check the provider's live model list |
+
+**Retries handle errors. Nothing handled silence** — the backoff tops out at
+2+4+8 = 14s and only fires on a *response*, so it could neither explain nor
+rescue a hang. And a diagnosis that fires on the wrong cause teaches the wrong
+lesson: 0/3 from an absent model is not non-determinism.
 
 ### ON A FREE TIER, AVAILABILITY BEATS CAPABILITY — and it is not close
 
@@ -592,108 +657,34 @@ correct — it would measure the model swap, not the code.
 
 **Open items, in the order they will bite:**
 
-1. **DONE, but not enough.** `retryingFetch` in `mastra/provider.ts` now retries
-   429/5xx with backoff, asserted by call count. It clears spikes. It does NOT
-   clear a per-minute quota — three of eight eval runs still died of
-   `Too Many Requests`. The remaining fix is to pace the runner or honour a
-   long `Retry-After`, not a bigger retry count.
-   **`LOOP=mastra` IS REQUIRED ALONGSIDE `LLM_PROVIDER=hosted`.** Omitting it
-   fails all eight cases at 0.0s with an identical refusal, because `LOOP`
-   defaults to `sdk`, which drives the Responses API. It reads like a broken
-   install and is a missing variable.
-2. **Rate limits are unmeasured here.** Google no longer publishes free-tier
-   numbers; they are per-account at
-   <https://aistudio.google.com/rate-limit>. The eval runner is serial by
-   design, which helps against a per-minute cap.
-3. **`docs/evals/results/last-run.json` currently holds the 1/8 LOCAL smoke
-   result.** It is transient by design, but do not mistake it for a scorecard.
-4. **`pnpm eval:history` still reads the committed Azure baselines** — free,
-   disk only, and the honest reference point for any of this.
+1. **The two deployed apps cannot call any model, and it is not configuration.**
+   `pharma-app` and `steering-app` have the right env vars now — `LOOP=mastra`,
+   `LLM_PROVIDER=hosted`, `HOSTED_MODEL=gemini-3.5-flash-lite` — and still fail,
+   because their loops call `openaiClient()` from `@fde/foundry` **directly**
+   (`assess-requirement.ts:83`, `summarise-bid.ts:77`,
+   `explain-assessment.ts:66`, `release-agent.ts:127`) and pass
+   `env.chatDeployment()` as the model. Insurance works on hosted only because
+   the Mastra loop ignores the client it is handed. **See §11.** Unstarted; it is
+   a code change in two engagements plus a re-ingest of 3,854 chunks.
+2. **Quota, not capability, is the binding constraint on every free tier
+   measured.** Gemini: three of eight eval runs lost to 429 before pacing.
+   OpenRouter: 50/day ≈ 1.5 suite runs. Pacing (`EVAL_PACE_MS`, 6s on hosted)
+   fixed the first; nothing fixes the second except paying.
+3. **`docs/evals/results/last-run.json` holds the latest smoke result**, which
+   changes every run and is not a scorecard. `pnpm eval:history` reads the
+   committed Azure baselines and is the honest reference point.
+4. **A second Gemini key is wired** — local uses it, the deployed apps keep the
+   original. **Caveat: Gemini free-tier quota is per PROJECT, not per key.** If
+   both were created in the same AI Studio project they still share one limit.
 
-**The one-line summary:** local inference was measured and rejected (1/8); a free
-hosted tier on the same seam gets the hard case right in 8.8s for $0, and the
-only real engineering left is retrying a busy endpoint.
+**The one-line summary:** local inference was measured on two GPUs and rejected
+on judgment, not speed; a free hosted tier answers correctly for $0 and its only
+real limit is quota; and the two deployed apps need code before any of that
+reaches them.
 
----
-
-## 11 · The deployed apps — what they still need
-
-**Checked against the live estate on 2026-09-16** with `az containerapp show`,
-not read off a workflow file:
-
-| app | `LLM_PROVIDER` | `LOOP` | `HOSTED_MODEL` |
-|---|---|---|---|
-| `pharma-app` | `hosted` | **UNSET** | `gemini-3.8-flash` |
-| `steering-app` | `hosted` | **UNSET** | `gemini-3.8-flash` |
-| `veresk` | — | — | — (correct: no API route, no model call) |
-
-Both rows are broken, for two independent reasons, and **neither is a code
-problem** — the images are fine.
-
-### `LOOP` unset is the one that fails instantly
-
-`LOOP` defaults to `sdk`, which drives the **Responses API**. Gemini serves
-`/chat/completions`, like every other OpenAI-compatible provider, so the sdk
-engine *refuses* `hosted` by design rather than failing at the transport. The
-apps will serve pages perfectly and fail the moment anyone asks a question.
-
-This is not hypothetical: omitting `LOOP` locally failed all eight eval cases at
-**0.0s** with eight identical refusals. It reads like a broken install and is a
-missing variable. `.env.example` now says so where the `hosted` block is.
-
-### `gemini-3.8-flash` is the wrong model to have picked
-
-Measured the same day: `3.8`, `3.7` and `3.6-flash` all returned
-`503 "This model is currently experiencing high demand"` — `3.8` survived eight
-retries and still failed. `gemini-2.5-flash` returns **404**, retired.
-`gemini-3.5-flash-lite` answered in 731 ms throughout and is what `.env` uses.
-
-**On a free tier the newest model is the one you cannot have**, and availability
-moves minute to minute. That volatility is exactly why `HOSTED_MODEL` has no
-default in `core/loop.types.ts`: a hosted model id is a product name that gets
-retired, and a baked-in one becomes a 404 on a date nobody chose. It did, on day
-one.
-
-### The fix
-
-```bash
-for app in pharma-app steering-app; do
-  az containerapp update -n "$app" -g rg-claims-fde \
-    --set-env-vars LOOP=mastra HOSTED_MODEL=gemini-3.5-flash-lite
-done
-```
-
-**NOT APPLIED AS OF THIS WRITING** — it is an outward-facing change to a live
-estate that a second session also manages.
-
-### One key, one quota, and it is already the binding constraint
-
-Both deployed apps and local development share a single `HOSTED_API_KEY`, so
-they share one rate limit. Three of eight eval runs died of `Too Many Requests`
-with **one** user and **nothing** deployed. Two live apps make that worse.
-
-For learning, fine — expect occasional 429s. Before showing it to anyone, issue
-a second key for the deployed apps so local work cannot starve a demo.
-
----
-
-## 12 · What was cleaned up
-
-Local inference was measured, rejected, and removed rather than left lying
-around:
-
-- **This machine:** Ollama binary, `~/.ollama`, both models, the SSH tunnel — all
-  deleted. Port 11434 closed. Disk 24 GB → **38 GB free**.
-- **`ABE-PC` (10.242.84.140):** `qwen2.5:32b` deleted (19 GB), the
-  `OLLAMA_CONTEXT_LENGTH` systemd override removed and the service restarted
-  clean, temp scripts removed, **the SSH key removed and absence verified**.
-- **Left deliberately:** Ollama there is still upgraded from **0.1.39 → 0.34.1**.
-  Reverting is riskier than leaving it, the pre-existing `llama3` and
-  `nomic-embed-text` models still work, and 0.1.39 predates tool-calling support
-  entirely. **Check `ollama --version` before concluding a model cannot call
-  tools.**
-
-The code seam stays. `LLM_PROVIDER=local` still works against any
-OpenAI-compatible server and is still asserted by `pnpm provider:check` — what
-was removed is 13 GB of weights, not the capability. §9b is how to bring a remote
-box back if one is ever worth it.
+**The most transferable lesson has nothing to do with models.** Four times in one
+day a green result was covering something that had not happened — a `maxRetries`
+the framework ignored, an assertion that never ran, a schema "enforced" on one
+request out of three, and a pass rate of 5/8 with "zero wrong answers" that was
+really three questions never asked. Every one was found by making the instrument
+report *how* it knew, not just *what* it concluded.

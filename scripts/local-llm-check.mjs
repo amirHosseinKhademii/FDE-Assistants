@@ -104,12 +104,32 @@ async function post(path, body, attempts = 4) {
   for (let i = 0; i < attempts; i++) {
     let r;
     try {
+      // A TIMEOUT, BECAUSE NOTHING ELSE HANDLES SILENCE.
+      //
+      // `fetch` has no default timeout. An endpoint that accepts the connection
+      // and then never answers hangs this script FOREVER — observed 2026-09-16
+      // on a free OpenRouter model, where §4 sat indefinitely and had to be
+      // interrupted by hand. Retries cannot explain or rescue it: the backoff
+      // below tops out at 2+4+8 = 14s and only fires on a RESPONSE.
+      //
+      // Retries handle errors. Nothing handled silence, and a hang is
+      // indistinguishable from a slow free endpoint until you give it a
+      // deadline. 120s is generous for a cold free-tier model and still finite.
       r = await fetch(`${BASE}${path}`, {
         method: 'POST',
         headers: { 'content-type': 'application/json', authorization: `Bearer ${KEY}` },
         body: JSON.stringify(body),
+        signal: AbortSignal.timeout(Number(process.env.COMPAT_TIMEOUT_MS ?? 120_000)),
       });
     } catch (e) {
+      const kind = String(e?.name ?? '');
+      if (kind === 'TimeoutError' || kind === 'AbortError') {
+        // TRANSIENT, so it is retried — a free endpoint under load genuinely
+        // does stall — but it is named, so a hang never again reads as a hang.
+        last = { status: 0, json: null, text: `no response within the deadline (${kind})`, transient: true };
+        if (i < attempts - 1) { retriesUsed++; await new Promise((res) => setTimeout(res, 1000 * 2 ** i)); continue; }
+        return last;
+      }
       // A refused connection is not transient in any useful sense — the server
       // is not there — so it is returned rather than retried three more times.
       return { status: 0, json: null, text: `fetch failed: ${String(e?.cause?.code ?? e?.message ?? e)}`, transient: false };
@@ -211,6 +231,33 @@ console.log('\n── 2 · negative control: does it REJECT an impossible shape?
 // answer to comply. `COMPAT_REPEAT` tunes it: the cost is N requests against a
 // quota, and the default of 3 is the smallest number that can catch a coin
 // flip. One pass proves nothing about a router.
+
+/** Why the control failed, in the terms the reader should act on. */
+function diagnose(results) {
+  const hard = results.map((c) => /^HTTP (\d+)$/.exec(c.why)?.[1]).filter(Boolean);
+  if (hard.length === results.length && new Set(hard).size === 1) {
+    const code = hard[0];
+    const what =
+      code === '404'
+        ? 'that model id does not exist here — free model ids get WITHDRAWN, so\n        check the provider\'s live model list rather than a blog post'
+        : code === '401' || code === '403'
+          ? 'the key is rejected — this says nothing about the model'
+          : 'the endpoint refused every attempt identically';
+    return `Every attempt returned HTTP ${code}: ${what}.\n        This is NOT a schema-enforcement finding.`;
+  }
+  if (results.some((c) => c.ok)) {
+    return (
+      'Enforcement is PER-REQUEST here, which is worse than a flat no: a schema\n' +
+      '        honoured sometimes passes a suite and breaks in production. Pin a\n' +
+      '        specific model instead of a router, or use a provider that guarantees it.'
+    );
+  }
+  return (
+    'The schema was accepted and then not honoured on any attempt — advisory,\n' +
+    '        not enforced. Pillar 3 cannot be built on this endpoint.'
+  );
+}
+
 const REPEAT = Math.max(1, Number(process.env.COMPAT_REPEAT ?? 3));
 const control = [];
 for (let i = 0; i < REPEAT; i++) {
@@ -234,11 +281,13 @@ assert(
   passes === REPEAT,
   passes === REPEAT
     ? `${passes}/${REPEAT} complied — enforcement looks like a property of the endpoint`
-    : `ONLY ${passes}/${REPEAT} complied: ${control.map((c) => c.why).join(' | ')}\n` +
-      '        Enforcement is PER-REQUEST here, which is worse than a flat no: a\n' +
-      '        schema honoured sometimes passes a suite and breaks in production.\n' +
-      '        Pin a specific model instead of a router, or use a provider that\n' +
-      '        guarantees it.',
+    : `ONLY ${passes}/${REPEAT} complied: ${control.map((c) => c.why).join(' | ')}\n        ` +
+      // THE DIAGNOSIS MUST MATCH THE CAUSE. Three identical 404s used to print
+      // "enforcement is PER-REQUEST here", which is not what a withdrawn model
+      // id means and teaches exactly the wrong lesson on a stale config. A
+      // uniform hard status is an ANSWER about the endpoint; a MIXED result is
+      // the non-determinism this section exists to catch.
+      diagnose(control),
 );
 
 // ── 3 · tool calling
