@@ -346,7 +346,7 @@ export const LESSONS: Lesson[] = [
     title: 'Every number in a document can go stale',
     lede: 'Only a claim with a machine producer can be checked — which is the whole design, because a checker that fires on opinions gets turned off and one that misses the numbers gets quoted.',
     source: 'docs/steering/OPERATIONS.md §5',
-    minutes: 7,
+    minutes: 8,
     needs: null,
   },
 

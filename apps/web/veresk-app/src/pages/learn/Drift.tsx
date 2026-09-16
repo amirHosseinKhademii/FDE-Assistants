@@ -266,6 +266,48 @@ export function Drift() {
         </P>
       </Step>
 
+      <Step n={6} title="And the thing that goes stale is not always a number">
+        <P>
+          Every incident above is a figure that drifted: a percentage, a count, a lesson total. The fix each
+          time was to find the command that produces the number and wire the claim to it. That advice has a
+          precondition nobody states — <strong className="font-medium text-ui-fg">the claim has to be a
+          number in the first place.</strong>
+        </P>
+        <P>
+          This section produced one that is not. A chart component here reserves a fixed strip for the label
+          it writes beside each bar, which puts a hard ceiling on how long that label may be — measured at
+          about twelve characters. The strings that have to satisfy that ceiling are not in the component.
+          They live in fenced <code className="font-mono text-ui-fg">jsonc</code> blocks inside markdown
+          files under <code className="font-mono text-ui-fg">docs/</code>, written by somebody reading a
+          different file entirely.
+        </P>
+
+        <Key>
+          No tool in this repo can see both at once.{' '}
+          <code className="font-mono text-[0.9em]">leak:check</code> greps source,{' '}
+          <code className="font-mono text-[0.9em]">arch:check</code> reads manifests, and neither looks
+          inside a code fence in a markdown file. The constraint is enforced in one medium and satisfied in
+          another, so there is no producer that could check it — not because nobody wrote one, but because
+          the two halves are not the same kind of artefact.
+        </Key>
+
+        <P>
+          And the fix was <em>not</em> a checker. Something that parsed
+          <code className="font-mono text-ui-fg"> jsonc</code> out of prose would be a guess about a format
+          that will drift — the same mistake one level up. It was to put the measured number in{' '}
+          <strong className="font-medium text-ui-fg">both</strong> media and say so in each: in the
+          component’s own prop documentation, where the person writing a call will meet it, and in the brief,
+          where the person writing figure data will. Neither audience reads the other’s file.
+        </P>
+
+        <Key>
+          A constraint enforced in one medium and satisfied in another has no producer that can check it. The
+          duplication is the fix rather than the smell — which is the one case on this page where writing the
+          same fact twice is the correct answer, and it took a stale constraint rather than a stale number to
+          find it.
+        </Key>
+      </Step>
+
       <SaidOutLoud
         then={
           <>

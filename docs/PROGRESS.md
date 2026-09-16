@@ -4126,6 +4126,13 @@ probe correctly reports as clean and which is not a margin. Shortened, and the
 numbers now live in `Funnel`'s own prop doc rather than in a document the
 component cannot see.
 
+`/learn/drift` carries it as a sixth step, and it is the first thing on that
+page that is not a number. Its five incidents are all figures that went stale,
+and the fix each time was to wire the claim to the command that produces it —
+advice with an unstated precondition: **the claim has to be a number.** A width
+budget is not, which is why it had no producer and why the duplication is the
+fix rather than the smell.
+
 Which is the third time in two sessions that a fix in a component would have
 been undone by the data feeding it. The other session named it, and the name is
 right: a constraint that lives in one place and is violated in another is the
