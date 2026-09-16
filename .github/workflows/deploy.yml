@@ -66,8 +66,41 @@
 # PRINTS and match a credential to it byte for byte.
 name: deploy
 
+# ── WHAT THIS COSTS, WHICH IS WHY `scope` EXISTS ───────────────────────────
+#
+# All three apps run inside the Container Apps monthly free grant: a Consumption
+# environment with `--min-replicas 0` bills NOTHING while idle, and the grant
+# (180,000 vCPU-seconds, 360,000 GiB-seconds, 2M requests per subscription per
+# month) covers roughly 100 active hours at 0.5 vCPU / 1 GiB. Three apps share
+# that, and a portfolio site is active for seconds at a time.
+#
+# The two databases are NOT in Azure. `PHARMA_DATABASE_URL` and
+# `STEERING_DATABASE_URL` point at Neon, which has its own free tier and which
+# an `az group delete` cannot touch — so tearing this subscription down does not
+# take the data with it.
+#
+# So `scope: veresk-only` is not the cheap option, it is the INDEPENDENT one.
+# `veresk` has no database, no model call and no API route — every figure under
+# `/learn` is baked into the image at build time — so it deploys and passes its
+# own smoke test with nothing else configured anywhere. Use it when you want the
+# firm's door back up without waiting on the other two.
+#
+# `inputs.scope` IS EMPTY ON A PUSH, so every gate below reads
+# `(inputs.scope || 'all')` and a push behaves exactly as it always has.
+#
+# WHAT `all` STILL NEEDS, and the run reports it rather than guessing: a freshly
+# CREATED app has no environment variables, so its guard refuses with 503 and
+# the smoke test fails saying exactly that. That is the fail-closed guard
+# working, not a broken deploy — set the config on the app and re-run.
+
 on:
   workflow_dispatch:
+    inputs:
+      scope:
+        description: 'which apps to deploy'
+        type: choice
+        default: all
+        options: [all, veresk-only]
   push:
     branches: [master]
     # Path-filtered on purpose. A README edit should not rebuild three images.
@@ -158,6 +191,7 @@ jobs:
   # ── 1 ── the remote app's image ─────────────────────────────────────────
   steering-build:
     name: 1a · build steering image
+    if: ${{ (inputs.scope || 'all') == 'all' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -220,6 +254,7 @@ jobs:
   steering-deploy:
     name: 2a · deploy steering
     needs: steering-build
+    if: ${{ (inputs.scope || 'all') == 'all' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     outputs:
@@ -374,6 +409,7 @@ jobs:
   # ── 1b ── the other engagement's image, in parallel with steering ────────
   pharma-build:
     name: 1b · build pharma image
+    if: ${{ (inputs.scope || 'all') == 'all' }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -408,6 +444,7 @@ jobs:
   pharma-deploy:
     name: 2b · deploy pharma
     needs: pharma-build
+    if: ${{ (inputs.scope || 'all') == 'all' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     outputs:
@@ -430,9 +467,38 @@ jobs:
       - name: Point the app at the new image
         run: |
           image="${PHARMA_REPO}:sha-${GITHUB_SHA}"
+          APP="$PHARMA_APP"
           echo "deploying $image"
           echo "IMAGE=$image" >> "$GITHUB_ENV"
-          az containerapp update -n "$PHARMA_APP" -g "$RG" --image "$image" --output none
+
+          # CREATE OR UPDATE, for the reason `steering-deploy` already carries:
+          # `update` alone exits 3 with "The containerapp does not exist" the
+          # first time an app is deployed — and after a teardown that is EVERY
+          # app. The create branch lived in one of the three deploy jobs and the
+          # other two inherited none of it, so neither could rebuild its own app.
+          #
+          # Ask the RESOURCE GROUP, not the app: `show` exits non-zero both when
+          # the app is missing and when the caller may not read it, and those
+          # need opposite responses. Stderr goes to a file so the extension
+          # warning `az` prints on every call cannot land inside `names`.
+          if ! names=$(az containerapp list -g "$RG" --query "[].name" -o tsv 2>/tmp/az-err); then
+            echo "::error::cannot list container apps in $RG — the deploy identity needs Contributor on the RESOURCE GROUP. Azure said: $(cat /tmp/az-err)"
+            exit 1
+          fi
+
+          if printf '%s\n' "$names" | grep -qx "$APP"; then
+            echo "updating $APP -> $image"
+            az containerapp update -n "$APP" -g "$RG" --image "$image" --output none
+          else
+            echo "creating $APP -> $image"
+            az containerapp create \
+              --name "$APP" --resource-group "$RG" --environment "$ENVIRONMENT" \
+              --image "$image" \
+              --target-port 8080 --ingress external \
+              --cpu 0.5 --memory 1.0Gi \
+              --min-replicas 0 --max-replicas 1 \
+              --output none
+          fi
 
       - name: Wait for the revision
         run: |
@@ -497,6 +563,11 @@ jobs:
   veresk-build:
     name: 3 · build veresk image
     needs: [steering-deploy, pharma-deploy]
+    # SKIPPED IS NOT FAILED, AND THIS JOB HAS TO TELL THEM APART. Without an
+    # `if`, a skipped dependency skips this job too — so `veresk-only` would
+    # deploy nothing at all. `!cancelled()` and not `always()`, because
+    # `always()` would also build after somebody pressed cancel.
+    if: ${{ !cancelled() && needs.steering-deploy.result != 'failure' && needs.pharma-deploy.result != 'failure' }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -537,6 +608,9 @@ jobs:
   veresk-deploy:
     name: 4 · deploy veresk
     needs: [veresk-build, steering-deploy, pharma-deploy]
+    # Same rule as the build, with one difference: the BUILD must have
+    # succeeded. A skipped build means there is no image to deploy.
+    if: ${{ !cancelled() && needs.veresk-build.result == 'success' && needs.steering-deploy.result != 'failure' && needs.pharma-deploy.result != 'failure' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -554,9 +628,38 @@ jobs:
       - name: Point the app at the new image
         run: |
           image="${VERESK_REPO}:sha-${GITHUB_SHA}"
+          APP="$VERESK_APP"
           echo "deploying $image"
           echo "IMAGE=$image" >> "$GITHUB_ENV"
-          az containerapp update -n "$VERESK_APP" -g "$RG" --image "$image" --output none
+
+          # CREATE OR UPDATE, for the reason `steering-deploy` already carries:
+          # `update` alone exits 3 with "The containerapp does not exist" the
+          # first time an app is deployed — and after a teardown that is EVERY
+          # app. The create branch lived in one of the three deploy jobs and the
+          # other two inherited none of it, so neither could rebuild its own app.
+          #
+          # Ask the RESOURCE GROUP, not the app: `show` exits non-zero both when
+          # the app is missing and when the caller may not read it, and those
+          # need opposite responses. Stderr goes to a file so the extension
+          # warning `az` prints on every call cannot land inside `names`.
+          if ! names=$(az containerapp list -g "$RG" --query "[].name" -o tsv 2>/tmp/az-err); then
+            echo "::error::cannot list container apps in $RG — the deploy identity needs Contributor on the RESOURCE GROUP. Azure said: $(cat /tmp/az-err)"
+            exit 1
+          fi
+
+          if printf '%s\n' "$names" | grep -qx "$APP"; then
+            echo "updating $APP -> $image"
+            az containerapp update -n "$APP" -g "$RG" --image "$image" --output none
+          else
+            echo "creating $APP -> $image"
+            az containerapp create \
+              --name "$APP" --resource-group "$RG" --environment "$ENVIRONMENT" \
+              --image "$image" \
+              --target-port 8080 --ingress external \
+              --cpu 0.5 --memory 1.0Gi \
+              --min-replicas 0 --max-replicas 1 \
+              --output none
+          fi
 
       - name: Wait for the revision
         run: |
@@ -608,22 +711,49 @@ jobs:
           pharma="${{ needs.pharma-deploy.outputs.url }}"
           steering="${{ needs.steering-deploy.outputs.url }}"
 
+          # ── AN ABSENT URL IS NOT A URL TO LOOK FOR ─────────────────────────
+          #
+          # Under `veresk-only` both of these are the empty string, and the
+          # check they used to feed was `grep -q "$pharma"`. **`grep -q ""`
+          # matches every line and exits 0**, so the assertion did not relax
+          # when an engagement was skipped — it PASSED WITHOUT LOOKING, on the
+          # page whose entire reason for being deployed last is that its links
+          # get verified. A check that cannot fail is the one failure mode this
+          # repo will not ship on purpose.
+          #
+          # So each URL is asserted only when it exists, and the run prints
+          # which ones it actually checked rather than leaving that to be
+          # inferred from a green tick.
+          want=
+          [ -n "$pharma" ] && want="$want $pharma"
+          [ -n "$steering" ] && want="$want $steering"
+          if [ -z "$want" ]; then
+            echo "veresk-only: no engagement URLs to assert — checking 200 and no-localhost only"
+          else
+            echo "asserting the firm's page carries:$want"
+          fi
+
           ok=
           for i in $(seq 1 12); do
             code=$(curl -s --max-time 180 -o /tmp/page.html -w '%{http_code}' "$url/")
             echo "attempt $i — GET / -> $code"
-            if [ "$code" = "200" ] \
-              && grep -q "$pharma" /tmp/page.html \
-              && grep -q "$steering" /tmp/page.html; then
-              ok=yes
-              break
+            if [ "$code" = "200" ]; then
+              missing=
+              for u in $want; do
+                grep -q "$u" /tmp/page.html || missing="$missing $u"
+              done
+              if [ -z "$missing" ]; then
+                ok=yes
+                break
+              fi
+              echo "  200, still missing:$missing"
             fi
             sleep 10
           done
 
           [ "$ok" = "yes" ] || {
-            echo "::error::after 2 minutes the firm's page still does not carry both engagement URLs"
-            echo "::error::expected $pharma and $steering"
+            echo "::error::after 2 minutes the firm's page is not serving 200 with the URLs it was built against"
+            echo "::error::expected:${want:- (none — veresk-only)}"
             exit 1
           }
 
@@ -636,7 +766,7 @@ jobs:
             echo "| | |"
             echo "|---|---|"
             echo "| veresk — the firm's door | <$url> |"
-            echo "| pharma — Meridian Pharma | <$pharma> |"
-            echo "| steering — Vantis Steering | <$steering> |"
+            echo "| pharma — Meridian Pharma | ${pharma:+<$pharma>}${pharma:-not deployed — run with scope: all} |"
+            echo "| steering — Vantis Steering | ${steering:+<$steering>}${steering:-not deployed — run with scope: all} |"
             echo "| image tag | \`sha-${GITHUB_SHA}\` |"
           } >> "$GITHUB_STEP_SUMMARY"
