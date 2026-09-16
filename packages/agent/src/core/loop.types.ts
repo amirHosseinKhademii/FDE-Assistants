@@ -162,8 +162,47 @@ export function hostedModel(): string {
  * zero off it, so a tag nobody has priced still logs a defensible number rather
  * than falling through to "no verified pricing".
  */
+/**
+ * Is `FOUNDRY_OPENAI_ENDPOINT` actually pointing at Azure?
+ *
+ * IT IS NOT ALWAYS, AND THE LOG MUST NOTICE. `LLM_PROVIDER` unset means "azure"
+ * everywhere in this repo — but the Azure branch builds its client from an
+ * ENDPOINT, and redirecting that endpoint is how a caller points the whole
+ * engagement somewhere else without touching the provider switch at all:
+ *
+ *   FOUNDRY_OPENAI_ENDPOINT=http://127.0.0.1:11435/v1 pnpm steering:eval
+ *
+ * MEASURED 2026-09-16: that ran the steering suite entirely through
+ * `scripts/claude-code-shim.mjs`, and the eval header printed
+ * `model: gpt-5-mini` for fifteen assessments Claude answered. A baseline that
+ * names the wrong model is worse than no baseline — the same defect the
+ * `local/` prefix was added to fix, arriving by a route that prefix cannot see.
+ *
+ * ANY NON-AZURE HOST COUNTS, not just loopback. A colleague's vLLM, a tunnel, a
+ * proxy — all of them mean the answer did not come from the deployment the name
+ * refers to, and that is the only fact the log needs to carry.
+ */
+function endpointIsAzure(): boolean {
+  const raw = process.env.FOUNDRY_OPENAI_ENDPOINT?.trim();
+  if (!raw) return true; // unset: nothing has been redirected
+  try {
+    return /(^|\.)azure\.com$/i.test(new URL(raw).hostname);
+  } catch {
+    return true; // unparseable is somebody else's error to report, not ours
+  }
+}
+
 export function loggedModelName(configured: string): string {
   const raw = process.env.LLM_PROVIDER?.trim().toLowerCase();
+  if ((!raw || raw === 'azure') && !endpointIsAzure()) {
+    // `model@host`, because BOTH halves matter: the deployment name is what the
+    // caller asked for and the host is what answered. `price()` has no entry for
+    // this shape, so it logs `costUsd: null` with a stated reason — which is the
+    // truth, since nothing here knows what sits behind a redirected endpoint.
+    let host = 'redirected';
+    try { host = new URL(process.env.FOUNDRY_OPENAI_ENDPOINT ?? '').host; } catch { /* keep the fallback */ }
+    return `${configured}@${host}`;
+  }
   if (raw === 'local') return `local/${process.env.LOCAL_MODEL ?? DEFAULT_LOCAL_MODEL}`;
   // `hosted/`, and NOT the `local/` prefix that prices at zero. A free tier is
   // free *under a quota you are not measuring*, on a metered service that bills

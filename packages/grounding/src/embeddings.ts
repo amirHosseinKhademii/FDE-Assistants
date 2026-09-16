@@ -153,9 +153,43 @@ export class LocalEmbeddings extends Embeddings {
     return out.tolist() as number[][];
   }
 
+  /**
+   * BATCHED, BECAUSE ONNX BUILDS ONE TENSOR FOR WHATEVER YOU HAND IT.
+   *
+   * `run()` passes the array straight to the extractor, which pads every text to
+   * the model's 512-token window and allocates a single `[n, 512]` tensor plus
+   * the attention matrices over it. That is linear in `n` at best and the
+   * attention term is worse, so the failure is not gradual — it is fine, fine,
+   * fine, then a hard allocation error.
+   *
+   * MEASURED 2026-09-16: insurance's 555 passages embedded without complaint;
+   * steering's 2,827 asked for a single buffer of **35,571,892,224 bytes** —
+   * 35.5 GB — and ONNX aborted inside `FusedMatMul`. The corpus that worked was
+   * simply under the cliff.
+   *
+   * WORSE THAN A CRASH: `ingestDocuments` DELETES the table before it embeds
+   * (`ingest.ts:135`), so the failure landed after the old index was already
+   * gone. An ingest that cannot finish must not be able to take the index with
+   * it, and batching is what stops the common case from doing so.
+   *
+   * 64 is deliberately conservative — about 1/44th of the tensor that failed,
+   * and small enough to survive a laptop. `LOCAL_EMBEDDING_BATCH` raises it when
+   * the machine can take it; the ceiling is memory, not correctness.
+   */
   async embedDocuments(texts: string[]): Promise<number[][]> {
-    return this.run(texts);
+    const size = Math.max(1, Number(process.env.LOCAL_EMBEDDING_BATCH ?? 64));
+    if (texts.length <= size) return this.run(texts);
+
+    const out: number[][] = [];
+    for (let i = 0; i < texts.length; i += size) {
+      out.push(...(await this.run(texts.slice(i, i + size))));
+      this.onBatch?.(Math.min(i + size, texts.length), texts.length);
+    }
+    return out;
   }
+
+  /** Optional progress hook — a 3,000-passage corpus is otherwise silent for minutes. */
+  onBatch?: (done: number, total: number) => void;
 
   async embedQuery(text: string): Promise<number[]> {
     return (await this.run([this.queryPrefix + text]))[0];

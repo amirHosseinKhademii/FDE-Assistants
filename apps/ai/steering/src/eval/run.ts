@@ -18,7 +18,7 @@
 import { resolve } from 'node:path';
 import { runEvalCli, type EvalCase } from '@fde/evals';
 import { env } from '@fde/foundry';
-import { loopChoice, engineLabel } from '@fde/agent';
+import { loopChoice, engineLabel, loggedModelName } from '@fde/agent';
 import { REPO_ROOT } from '../config/connections';
 import { assessRequirement, closeAssessmentContext } from '../agent/loop/assess-requirement';
 import { CHECKS } from './checks/assessment-checks';
@@ -157,7 +157,7 @@ async function main(): Promise<void> {
       return outcome;
     },
     setup: {
-      model: env.chatDeployment(),
+      model: loggedModelName(env.chatDeployment()),
       engine: engineLabel(choice),
       // Nothing is fixtured here yet. Recorded rather than omitted: a baseline
       // that does not say how it was produced cannot be compared to another.

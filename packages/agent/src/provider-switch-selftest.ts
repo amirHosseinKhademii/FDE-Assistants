@@ -426,6 +426,36 @@ console.log('\nTHE STRUCTURING PASS — a local-only workaround must stay local-
   });
 }
 
+console.log('\nA REDIRECTED ENDPOINT — azure by switch is not azure in fact');
+{
+  // MEASURED 2026-09-16: `FOUNDRY_OPENAI_ENDPOINT=http://127.0.0.1:11435/v1`
+  // ran the whole steering suite through a Claude Code shim while the eval
+  // header printed `model: gpt-5-mini`. LLM_PROVIDER was never set, so the
+  // `local/` prefix could not see it — the redirect happens one layer down, in
+  // the endpoint the azure branch builds its client from.
+  withEnv({ LLM_PROVIDER: undefined, FOUNDRY_OPENAI_ENDPOINT: 'http://127.0.0.1:11435/v1' }, () => {
+    check(
+      loggedModelName('gpt-5-mini') === 'gpt-5-mini@127.0.0.1:11435',
+      'a redirected endpoint is named in the log, not hidden behind the deployment name',
+      loggedModelName('gpt-5-mini'),
+    );
+  });
+  withEnv({ LLM_PROVIDER: undefined, FOUNDRY_OPENAI_ENDPOINT: 'https://example.openai.azure.com/openai/v1' }, () => {
+    check(
+      loggedModelName('gpt-5-mini') === 'gpt-5-mini',
+      'and a REAL azure endpoint still logs the plain deployment name',
+      loggedModelName('gpt-5-mini'),
+    );
+  });
+  withEnv({ LLM_PROVIDER: undefined, FOUNDRY_OPENAI_ENDPOINT: undefined }, () => {
+    check(
+      loggedModelName('gpt-5-mini') === 'gpt-5-mini',
+      'an unset endpoint is not a redirect — nothing has been pointed anywhere',
+      loggedModelName('gpt-5-mini'),
+    );
+  });
+}
+
 console.log('\nTHE RETRY — and it must be somewhere that PROVABLY runs');
 {
   // THIS ASSERTION EXISTS BECAUSE THE FIRST VERSION OF IT PASSED ON DEAD CODE.

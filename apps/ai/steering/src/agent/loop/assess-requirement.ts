@@ -30,8 +30,7 @@ import type OpenAI from 'openai';
 import { env, openaiClient } from '@fde/foundry';
 import {
   ToolRegistry, runLoop, loopChoice, engineLabel, cachedInputTokensOf,
-  type LoopChoice, type TurnRecord, type LoopEvent,
-} from '@fde/agent';
+  type LoopChoice, type TurnRecord, type LoopEvent, loggedModelName } from '@fde/agent';
 import { openStore } from '@fde/grounding';
 import { logRequest } from '@fde/telemetry';
 import '../../telemetry/prices';
@@ -369,7 +368,7 @@ function logAssessment(
   logRequest({
     subject: opts.requirementRef,
     question: `assess ${opts.requirementRef}`,
-    model: env.chatDeployment(),
+    model: loggedModelName(env.chatDeployment()),
     engine: engineLabel(choice),
     turns: result.turns.length,
     toolCalls: result.turns.reduce((a, t) => a + (t.toolCalls?.length ?? 0), 0),
