@@ -65,7 +65,18 @@ export const Route = createFileRoute('/api/ask')({
 
         const body: any = await request.json().catch(() => ({}));
         const question = String(body?.question ?? '').trim();
-        const loop = String(body?.loop ?? 'sdk');
+        // `body?.loop ?? 'sdk'` IGNORED `LOOP` ENTIRELY, and it looked like an
+        // engine bug rather than a setting. `loopChoice(flag)` gives an explicit
+        // flag precedence over `process.env.LOOP` — correct, so one run can be
+        // steered by hand. But the desk's client always sends `loop: req.loop`,
+        // which is `undefined` unless somebody picked one, so the `?? 'sdk'`
+        // fired on every request.
+        //
+        // Under `LLM_PROVIDER=hosted` that throws "cannot be served by the
+        // agents-sdk engine" — the refusal working correctly, on a cloud choice
+        // nobody made. Same fix as `steering-app/routes/api.assess.tsx`, which
+        // found it first; these two routes had it too.
+        const loop = String(body?.loop ?? process.env.LOOP ?? 'sdk');
 
         // RAW EVENTS, not rendered lines. What happened is a fact and belongs in
         // the row; the sentences explaining it are presentation and get reworded
