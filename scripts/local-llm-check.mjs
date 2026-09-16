@@ -247,9 +247,13 @@ function diagnose(results) {
   }
   if (results.some((c) => c.ok)) {
     return (
-      'Enforcement is PER-REQUEST here, which is worse than a flat no: a schema\n' +
-      '        honoured sometimes passes a suite and breaks in production. Pin a\n' +
-      '        specific model instead of a router, or use a provider that guarantees it.'
+      'MIXED — enforcement is PER-REQUEST here, which is worse than a flat no: a\n' +
+      '        schema honoured sometimes passes a suite and breaks in production.\n' +
+      '        Two known causes. (a) A ROUTER picking a different backend per\n' +
+      '        request — pin a specific model. (b) A schema that is PROMPTED rather\n' +
+      '        than enforced by a grammar, which is every text-in/text-out endpoint\n' +
+      '        behind a shim — there is no fix, only knowing it. Either way the\n' +
+      '        endpoint cannot carry Pillar 3 on its own.'
     );
   }
   return (

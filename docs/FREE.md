@@ -58,6 +58,7 @@ optional** — §11.
 | embeddings — `text-embedding-3-small`, 1536 dims | `EMBEDDINGS=local`, bge-small, 384 dims | **yes** |
 | Postgres + pgvector | Neon serverless free tier | **yes**, with a trap — §5 |
 | traces / dashboard | Langfuse, self-hosted (`infra/docker-compose.langfuse.yml`) | **yes**, already was |
+| chat model, LOCAL DEV ONLY | `scripts/claude-code-shim.mjs` — the Claude Code subscription behind an OpenAI endpoint | **yes**, 3 of 4 checks — §8b |
 | deployment — Azure Container Apps | **rebuilt and free** — Consumption profile, `minReplicas 0` | **yes** — `infra/RESTORE.md`, and §11 for the two env vars it still needs |
 
 Deployment was the one real gap when this was written on the morning of
@@ -533,6 +534,74 @@ green check is not proof.
 spike and does *not* clear a per-minute quota: three of eight eval runs still
 died of `Too Many Requests`. Pacing the runner is the remaining fix, not a
 bigger number.
+
+---
+
+## 8b · Using the Claude Code subscription for local dev — it works, with one real limit
+
+**The question:** can the Claude you are already talking to in the terminal drive
+the app, so local development needs no key and no per-token bill?
+
+**Yes, for local development.** `scripts/claude-code-shim.mjs` is an
+OpenAI-compatible endpoint in front of `claude -p`. Nothing in the repo changes,
+because `LLM_PROVIDER=local` already takes a base URL — which is the whole point
+of that seam being a URL rather than a hardcoded Ollama.
+
+```bash
+node scripts/claude-code-shim.mjs &
+LLM_PROVIDER=local LOCAL_OPENAI_BASE_URL=http://127.0.0.1:11435/v1 \
+  LOCAL_MODEL=claude-code LOOP=mastra pnpm compat:check
+```
+
+### MEASURED 2026-09-16 — 3 of 4, and the failure is the interesting one
+
+| | result |
+|---|---|
+| §1 strict structured output | **ok** — exact keys, citations shape, `escalate` honoured |
+| §2 negative control (×3) | **FAIL — 2/3.** One attempt returned *"not JSON at all"* |
+| §3 tool calling | **ok** — `get_policyholder({"policy_id":"AUT-4471"})` |
+| §4 tools AND strict schema | **ok** — tools survive |
+
+**§2 is the whole story: the schema is PROMPTED, not ENFORCED.** There is no
+grammar behind a CLI. The schema is pasted into the prompt and a very capable
+model is asked to comply — so it complies almost always, and "almost" is exactly
+what Pillar 3 exists to eliminate. Two runs out of three is not a worse model
+than Gemini's three out of three; it is a *weaker guarantee*, which is a
+different axis.
+
+**The repeat caught it on first use.** §2 was only made to repeat an hour earlier,
+after the `openrouter/free` finding — and it immediately found the same class of
+defect in a shim written by the same session that added the check. A single probe
+would have said `ok` and this section would have claimed the contract held.
+
+### What it is good for, and what it is not
+
+**Good:** driving the loop against a strong model while you work, with no key, no
+per-token bill, and correct tool calling. §3 and §4 both pass, so the agentic
+half is genuinely exercised.
+
+**Not good:** anything whose conclusion depends on the schema *holding*. Do not
+quote an `eval` number produced through this shim — a run that passes may have
+passed because the model chose to, and the scorecard cannot tell you which.
+
+**Never deploy it.** It binds loopback, it fronts a CLI logged in as you, and a
+subscription is not an application backend. §11's apps need `hosted`.
+
+### Two things it costs that a provider does not
+
+- **Claude Code's own system prompt, per call** — around 20k cache-creation
+  tokens on a cold request. It bills against the subscription rather than a
+  card, but an eval pass is ~24 calls and you feel every one.
+- **Its own tools are disabled** (`--disallowed-tools`). Without that you get an
+  agent loop nested inside an agent loop: it would read your files instead of
+  calling the `search_policy` you handed it, and every turn count in the
+  telemetry would describe the wrong loop.
+
+**One trap worth writing down.** `--disallowed-tools` is VARIADIC, so a trailing
+prompt argument is swallowed as one more tool name and the CLI exits 1 with
+*"Input must be provided either through stdin or as a prompt argument"* — an
+error that reads like the prompt is missing when it is really in the wrong
+place. The shim sends the prompt on **stdin**, which also sidesteps `ARG_MAX`.
 
 ---
 
