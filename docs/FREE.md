@@ -11,6 +11,44 @@ fails silently. §7 is what it costs in accuracy, which is a lot.
 
 ---
 
+## 0 · The whole day in one table
+
+Azure Foundry was deleted on 2026-09-16 because it cost money. Three
+replacements were tried. **Only one of them works.**
+
+| | Azure `gpt-5-mini` | local `qwen2.5:7b` RTX 3090 | local `qwen2.5:32b` RTX 4090 | **hosted Gemini flash-lite** |
+|---|---|---|---|---|
+| `compat:check` §1–3 | — | pass | pass | **pass** |
+| `compat:check` §4 (tools+schema) | — | **FAIL** | **FAIL** | **pass** |
+| `cov-008` (the hard case) | correct | fabricated | **wrong** | **correct** |
+| `eval:smoke` cases green | **6/7** (30/35 runs) | **1/8** | not run | **5/8** |
+| **false answers (dangerous)** | — | **3** | — | **0** |
+| failures were… | — | **judgment** | **judgment** | **quota** |
+| latency | — | 14 s | 80 s | **8.8 s** |
+| cost | $$ | $0 | $0 | **$0** |
+
+**The conclusion is the "failures were" row, not the pass rate.** The 7B failed
+by answering confidently out of documents it had never read — the exact failure
+this engagement exists to catch. Gemini failed only by not getting a turn: every
+case that ran came back correct.
+
+**Bigger hardware did not help.** A 32B on a 4090 fails §4 identically to a 7B on
+a 3090, because the defect is in llama.cpp and not in the model — §9.
+
+### What to run
+
+```bash
+pnpm compat:check                                     # verify the endpoint
+LOOP=mastra pnpm --filter @claims/insurance ask "…"   # ask something
+pnpm eval:smoke                                       # the suite
+```
+
+`.env` carries `LOOP=mastra`, `LLM_PROVIDER=hosted`,
+`HOSTED_MODEL=gemini-3.5-flash-lite`, `EMBEDDINGS=local`. **`LOOP` is not
+optional** — §11.
+
+---
+
 ## 1 · The scorecard
 
 | what it was | what it is now | free? |
@@ -20,11 +58,12 @@ fails silently. §7 is what it costs in accuracy, which is a lot.
 | embeddings — `text-embedding-3-small`, 1536 dims | `EMBEDDINGS=local`, bge-small, 384 dims | **yes** |
 | Postgres + pgvector | Neon serverless free tier | **yes**, with a trap — §5 |
 | traces / dashboard | Langfuse, self-hosted (`infra/docker-compose.langfuse.yml`) | **yes**, already was |
-| deployment — Azure Container Apps | nothing. `pnpm dev` on ports 3000/3300/3301/3400 | **the one real gap** — §6 |
+| deployment — Azure Container Apps | **rebuilt and free** — Consumption profile, `minReplicas 0` | **yes** — `infra/RESTORE.md`, and §11 for the two env vars it still needs |
 
-`.github/workflows/deploy.yml` still targets a resource group that no longer
-exists. For learning, the four apps run locally and cost nothing; that is the
-honest answer, not a workaround to be built.
+Deployment was the one real gap when this was written on the morning of
+2026-09-16. It closed that afternoon: the estate was rebuilt scaled-to-zero on
+the Container Apps free grant — see `infra/RESTORE.md` — so the honest answer is
+now "free, with two environment variables missing", not "run it locally".
 
 ---
 
@@ -122,7 +161,7 @@ re-querying.
 
 ---
 
-## 5 · The three silent failures
+## 5 · The silent failures — three during the local work, more later
 
 ### 5a · A strict schema turns the tools off
 
@@ -359,12 +398,35 @@ sixteen times faster *and* got the hard case right. Pick for availability first.
 a baked-in one becomes a 404 on a date nobody chose. That happened on the first
 day of use.
 
-### KNOWN GAP: the app does not retry, the check does
+### The retry — CLOSED, and the first attempt at it was dead code
 
-`gemini-3.5-flash` passes `compat:check` and then failed the real loop with a
-503 the AI SDK itself labelled `isRetryable: true`. The check earned its retries;
-`mastra/loop.ts` has none. On a free tier that is the difference between a run
-and a stack trace — **open, see §10.**
+`gemini-3.5-flash` passed `compat:check` and then failed the real loop with a
+503 the AI SDK itself labelled `isRetryable: true`. The check had earned its
+retries; the loop had none.
+
+**The first fix did nothing, and that is the more useful half of the story.**
+`maxRetries` was passed to `agent.generate(…)`. It typechecked. A self-test
+asserted the number. Every gate went green. Mastra never read it —
+`ModelConfigModelSettings` is literally
+`Omit<MastraModelSettings, 'maxRetries' | 'headers'>`, so the option is
+*explicitly excluded*.
+
+It now lives in the provider's own `fetch` (`retryingFetch` in
+`mastra/provider.ts`), which cannot be ignored, and the assertion no longer asks
+what a config object *says* — **it counts calls**: a 503 retried until it
+clears, a 401 not retried once.
+
+**And the replacement assertion then did not run either.** It was a floating
+promise, and `process.exit()` fired before it resolved: the section header
+printed with nothing under it and the suite reported PASS. The self-test is now
+`async`. Twice in one afternoon a green check covered an assertion that never
+ran — which is the sharpest possible illustration of this repo's own rule that a
+green check is not proof.
+
+**Necessary, not sufficient.** Retries back off to 15s, which clears a demand
+spike and does *not* clear a per-minute quota: three of eight eval runs still
+died of `Too Many Requests`. Pacing the runner is the remaining fix, not a
+bigger number.
 
 ---
 
@@ -504,3 +566,87 @@ correct — it would measure the model swap, not the code.
 **The one-line summary:** local inference was measured and rejected (1/8); a free
 hosted tier on the same seam gets the hard case right in 8.8s for $0, and the
 only real engineering left is retrying a busy endpoint.
+
+---
+
+## 11 · The deployed apps — what they still need
+
+**Checked against the live estate on 2026-09-16** with `az containerapp show`,
+not read off a workflow file:
+
+| app | `LLM_PROVIDER` | `LOOP` | `HOSTED_MODEL` |
+|---|---|---|---|
+| `pharma-app` | `hosted` | **UNSET** | `gemini-3.8-flash` |
+| `steering-app` | `hosted` | **UNSET** | `gemini-3.8-flash` |
+| `veresk` | — | — | — (correct: no API route, no model call) |
+
+Both rows are broken, for two independent reasons, and **neither is a code
+problem** — the images are fine.
+
+### `LOOP` unset is the one that fails instantly
+
+`LOOP` defaults to `sdk`, which drives the **Responses API**. Gemini serves
+`/chat/completions`, like every other OpenAI-compatible provider, so the sdk
+engine *refuses* `hosted` by design rather than failing at the transport. The
+apps will serve pages perfectly and fail the moment anyone asks a question.
+
+This is not hypothetical: omitting `LOOP` locally failed all eight eval cases at
+**0.0s** with eight identical refusals. It reads like a broken install and is a
+missing variable. `.env.example` now says so where the `hosted` block is.
+
+### `gemini-3.8-flash` is the wrong model to have picked
+
+Measured the same day: `3.8`, `3.7` and `3.6-flash` all returned
+`503 "This model is currently experiencing high demand"` — `3.8` survived eight
+retries and still failed. `gemini-2.5-flash` returns **404**, retired.
+`gemini-3.5-flash-lite` answered in 731 ms throughout and is what `.env` uses.
+
+**On a free tier the newest model is the one you cannot have**, and availability
+moves minute to minute. That volatility is exactly why `HOSTED_MODEL` has no
+default in `core/loop.types.ts`: a hosted model id is a product name that gets
+retired, and a baked-in one becomes a 404 on a date nobody chose. It did, on day
+one.
+
+### The fix
+
+```bash
+for app in pharma-app steering-app; do
+  az containerapp update -n "$app" -g rg-claims-fde \
+    --set-env-vars LOOP=mastra HOSTED_MODEL=gemini-3.5-flash-lite
+done
+```
+
+**NOT APPLIED AS OF THIS WRITING** — it is an outward-facing change to a live
+estate that a second session also manages.
+
+### One key, one quota, and it is already the binding constraint
+
+Both deployed apps and local development share a single `HOSTED_API_KEY`, so
+they share one rate limit. Three of eight eval runs died of `Too Many Requests`
+with **one** user and **nothing** deployed. Two live apps make that worse.
+
+For learning, fine — expect occasional 429s. Before showing it to anyone, issue
+a second key for the deployed apps so local work cannot starve a demo.
+
+---
+
+## 12 · What was cleaned up
+
+Local inference was measured, rejected, and removed rather than left lying
+around:
+
+- **This machine:** Ollama binary, `~/.ollama`, both models, the SSH tunnel — all
+  deleted. Port 11434 closed. Disk 24 GB → **38 GB free**.
+- **`ABE-PC` (10.242.84.140):** `qwen2.5:32b` deleted (19 GB), the
+  `OLLAMA_CONTEXT_LENGTH` systemd override removed and the service restarted
+  clean, temp scripts removed, **the SSH key removed and absence verified**.
+- **Left deliberately:** Ollama there is still upgraded from **0.1.39 → 0.34.1**.
+  Reverting is riskier than leaving it, the pre-existing `llama3` and
+  `nomic-embed-text` models still work, and 0.1.39 predates tool-calling support
+  entirely. **Check `ollama --version` before concluding a model cannot call
+  tools.**
+
+The code seam stays. `LLM_PROVIDER=local` still works against any
+OpenAI-compatible server and is still asserted by `pnpm provider:check` — what
+was removed is 13 GB of weights, not the capability. §9b is how to bring a remote
+box back if one is ever worth it.

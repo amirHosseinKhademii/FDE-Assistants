@@ -184,10 +184,17 @@ record.
 | 5 | Cost & latency telemetry | **partial** | — | printed per run, not persisted |
 | 6 | Credentials & security | **partial** | `DefaultAzureCredential` | no keys; no API guard yet |
 | 7 | Escalation | **works, thinly measured** | schema field | 3 escalation cases pass |
-| 8 | Deployment | **not started** | — | — |
+| 8 | Deployment | **live, free, two env vars short** | Azure Container Apps, scaled to zero | [`infra/RESTORE.md`](../infra/RESTORE.md); [`FREE.md`](FREE.md) §11 |
 
 Pillars 1 and 2 were rebuilt on frameworks on 2026-09-06 — **see §10**, which is
 the current state of this project and the place to start when coming back.
+
+**2026-09-16 — the provider moved off Azure.** The Foundry deployment was deleted
+for cost. Local inference was tried, measured and rejected; a free hosted tier
+replaced it. Every number is in [`FREE.md`](FREE.md) §0, and the
+`LLM_PROVIDER` switch now has four values. Two of the three deployed apps are
+missing `LOOP=mastra` and will refuse every model call until it is set —
+`FREE.md` §11.
 
 ---
 
