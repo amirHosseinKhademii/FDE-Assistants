@@ -368,7 +368,53 @@ and a stack trace — **open, see §10.**
 
 ---
 
-## 9 · A remote GPU, later
+## 9 · A remote GPU — MEASURED 2026-09-16, and it does not rescue local
+
+`ABE-PC` at `10.242.84.140`: **RTX 4090 (24564 MiB), i9-13900KF 32 threads,
+62 GB RAM, 489 GB free.** Better than the 3090 box in every way that was
+supposed to matter. It did not change the answer.
+
+| | qwen2.5:7b, RTX 3090 | qwen2.5:32b, RTX 4090 | gemini-3.5-flash-lite |
+|---|---|---|---|
+| `compat:check` §1–3 | pass | pass | pass |
+| **`compat:check` §4** | **FAIL** | **FAIL** | **pass** |
+| `cov-008` | wrong (fabricated) | **wrong** ($40/30, base form) | **correct** ($50/21) |
+| wall | 14.1 s | **80.4 s** | **8.8 s** |
+| cost | $0 | $0 | $0 |
+
+**The 32B fails §4 exactly as the 7B does.** That is the finding: the grammar
+trap is a property of **llama.cpp, not of model size**, which is what justifies
+`structuringPass()` being scoped to `local` for every model rather than to small
+ones. A model 4.5× larger on better hardware still answered `cov-008` out of the
+base form without searching the attached endorsement — the documented failure
+shape — nine times slower than the free hosted model that gets it right.
+
+**A 4090 is still 24 GB.** At 32768 context the 32B needed **28 GB** and ran
+**17%/83% CPU/GPU**, matching §7's arithmetic exactly. Dropping
+`OLLAMA_CONTEXT_LENGTH` to 16384 brings it back onto the card. What the remote
+box genuinely fixed was disk (489 GB free, versus a 98%-full root) and
+contention — not capacity, and not accuracy.
+
+**It was running Ollama 0.1.39**, two years old and predating tool-calling
+support entirely. Nothing here could have worked until it was upgraded to
+0.34.1. Check `ollama --version` before concluding a model cannot call tools.
+
+### It is LAN-only, and that decides where it can be used
+
+`10.242.84.0/24` is RFC1918. Port 11434 refused from outside because Ollama
+binds loopback — **leave it that way.** Ollama has no authentication of any
+kind; an open port is an open model server. Reach it with a tunnel, which also
+means the default base URL keeps working unchanged:
+
+```bash
+ssh -N -L 11434:localhost:11434 zahra@10.242.84.140
+LLM_PROVIDER=local LOCAL_MODEL=qwen2.5:32b pnpm compat:check
+```
+
+Because it is not publicly routable, **the deployed apps can never reach it.**
+Local is a development path; anything deployed needs `LLM_PROVIDER=hosted`.
+
+## 9b · The original guidance, still current
 
 A second machine with a 4090 helps more than the spec suggests, and not because
 the card is faster. It is still ~24 GB, so a 32B at full 32k context is still
