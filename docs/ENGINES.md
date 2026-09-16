@@ -94,6 +94,58 @@ engine, the contract in `core/loop.types.ts` would not be one.
 | **Can reach a HOSTED compatible endpoint** | **no** — same reason as the row below: Gemini, Groq and the rest all serve `/chat/completions`, which is what "OpenAI-compatible" means in practice | yes | yes |
 | **Can reach a LOCAL model** | **no** — and the reason is the row above, not a credential: Ollama and llama.cpp serve `/chat/completions` and do not implement `/responses` | yes | yes |
 
+### ONLY ONE OF THREE ENGINES REACHES GEMINI, AND FOR THREE DIFFERENT REASONS
+
+MEASURED 2026-09-16 against `gemini-3.5-flash-lite`, the same question on all
+three:
+
+| engine | result | why |
+|---|---|---|
+| `sdk` | **refuses** | drives the **Responses API**; Gemini serves `/chat/completions`, like every other OpenAI-compatible provider |
+| `langgraph` | **400 from Gemini** | drops a provider-specific field between turns — see below |
+| **`mastra`** | **works** | builds its model against chat-completions and carries the whole message back |
+
+**The `sdk` refusal is deliberate and correct.** `setOpenAIAPI('responses')` puts
+it on an API only OpenAI and Azure implement. It refuses by name rather than
+failing at the transport — §4.
+
+**The LangGraph failure is new and is NOT a configuration problem:**
+
+```
+400 Function call is missing a thought_signature in functionCall parts.
+This is required for tools to work correctly … function call
+`default_api:get_policyholder`, position 2.
+```
+
+Gemini attaches a `thought_signature` to every function call it emits and
+requires it **echoed back** on the following turn. LangChain's `ChatOpenAI`
+rebuilds the assistant message from the fields it knows about, so the signature
+is dropped between turns and the second request is rejected. It is a
+round-tripping bug in the adapter, not a missing feature in Gemini, and nothing
+in `.env` can work around it.
+
+**So the honest statement is narrower than "three interchangeable engines":**
+they are interchangeable *on Azure*. Against a third-party OpenAI-compatible
+endpoint, one is locked out by its HTTP surface and one by message fidelity.
+That is the kind of thing only a swap reveals, which is the whole argument for
+having built three.
+
+**`LOOP=mastra` is required for `hosted`, and for `local`.** Both other engines
+are recorded here as open work:
+
+- **`sdk`** — would need `@fde/bedrock`-style translation, or the SDK to accept a
+  chat-completions client. Large.
+- **`langgraph`** — would need the assistant message round-tripped verbatim,
+  including provider-specific fields. Smaller, and probably an
+  `additionalKwargs` passthrough.
+
+**Also open: choosing the provider from the UI.** Each desk already has an
+`Engine` picker (`sdk` / `mastra` / `langgraph`) but no provider picker, so
+`LLM_PROVIDER` is a deploy-time variable only. Given the matrix above, the two
+controls are not independent — a provider picker has to disable the engines that
+cannot serve the chosen provider, or it will offer combinations that are
+guaranteed to fail.
+
 ### The local seam has a second trap, and it is not a credential
 
 **MEASURED 2026-09-16**, Ollama 0.34.1 / `qwen2.5:7b`, three requests differing

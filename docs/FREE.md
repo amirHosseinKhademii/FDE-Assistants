@@ -775,6 +775,14 @@ correct — it would measure the model swap, not the code.
 
 **Open items, in the order they will bite:**
 
+0. **Only `LOOP=mastra` reaches Gemini, and the other two fail differently.**
+   `sdk` refuses by design (Responses API). `langgraph` gets a **400** from
+   Gemini — *"Function call is missing a thought_signature"* — because
+   LangChain's `ChatOpenAI` does not round-trip that provider-specific field
+   between turns. Neither is fixable from configuration; both are written up in
+   `ENGINES.md`. **Every desk's `Engine` picker can therefore offer two settings
+   that cannot work**, which is what to fix alongside adding a provider picker.
+
 1. **The two deployed apps cannot call any model, and it is not configuration.**
    `pharma-app` and `steering-app` have the right env vars now — `LOOP=mastra`,
    `LLM_PROVIDER=hosted`, `HOSTED_MODEL=gemini-3.5-flash-lite` — and still fail,
