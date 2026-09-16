@@ -160,6 +160,10 @@ export function buildHostedChatModel(
   return new ChatOpenAI({
     model: hostedModel(),
     apiKey: overrides.apiKey ?? hostedApiKey(),
+    // A REAL option on this client, unlike Mastra's — see the long note on
+    // `retryingFetch` in `mastra/provider.ts` for why that distinction cost a
+    // green self-test before it was noticed.
+    maxRetries: 4,
     configuration: {
       baseURL: overrides.baseURL ?? process.env.HOSTED_BASE_URL ?? DEFAULT_HOSTED_BASE_URL,
       ...(overrides.fetch ? { fetch: overrides.fetch } : {}),

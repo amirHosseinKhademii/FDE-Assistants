@@ -64,7 +64,7 @@
  *
  *   pnpm provider:check
  */
-import { selectModel } from './mastra/provider';
+import { selectModel, retryingFetch } from './mastra/provider';
 // Exported from the loop solely so this file can pin the AZURE branch to `{}`,
 // the guard that keeps the committed eval baseline comparable.
 import { structuringPass } from './mastra/loop';
@@ -164,7 +164,12 @@ function control(): void {
   );
 }
 
-export function runProviderSwitchCheck(): number {
+// ASYNC BECAUSE ONE ASSERTION IS, and a synchronous runner silently skipped it:
+// `process.exit()` fired before the promise resolved, the section header printed
+// with nothing under it, and the suite reported PASS. That is the second time in
+// one afternoon a green check covered an assertion that never ran — see the
+// `retryingFetch` note in `mastra/provider.ts` for the first.
+export async function runProviderSwitchCheck(): Promise<number> {
   console.log('\nProvider switch — LLM_PROVIDER routing, on both engines that can reach AWS\n');
   console.log('ROUTING — where each environment actually sends the loop');
 
@@ -421,6 +426,36 @@ console.log('\nTHE STRUCTURING PASS — a local-only workaround must stay local-
   });
 }
 
+console.log('\nTHE RETRY — and it must be somewhere that PROVABLY runs');
+{
+  // THIS ASSERTION EXISTS BECAUSE THE FIRST VERSION OF IT PASSED ON DEAD CODE.
+  // `maxRetries` was handed to `agent.generate(…)`; it typechecked, this file
+  // asserted the number, every gate went green, and Mastra never read it —
+  // `ModelConfigModelSettings` is `Omit<MastraModelSettings, 'maxRetries' | …>`.
+  // So this no longer asks what a config object SAYS. It counts calls.
+  let calls = 0;
+  const flaky = (async () => {
+    calls++;
+    return { status: calls < 3 ? 503 : 200, headers: { get: () => null } } as any;
+  }) as unknown as typeof fetch;
+
+  const res: any = await retryingFetch(flaky, 4)('https://example.invalid/v1/chat' as any, {} as any);
+  check(calls === 3, 'a 503 is retried until it clears — measured by CALL COUNT', `fetch called ${calls}×`);
+  check(res.status === 200, 'and the caller gets the successful response, not the 503', `status ${res.status}`);
+
+  let permanent = 0;
+  const dead = (async () => {
+    permanent++;
+    return { status: 401, headers: { get: () => null } } as any;
+  }) as unknown as typeof fetch;
+  await retryingFetch(dead, 4)('https://example.invalid/x' as any, {} as any);
+  check(
+    permanent === 1,
+    'a 401 is NOT retried — a bad key is an answer, not a queue',
+    `fetch called ${permanent}×`,
+  );
+}
+
 console.log('\nREFUSAL — an unknown value must not quietly become azure');
 
   const typo = threw({ LLM_PROVIDER: 'bedrok', BEDROCK_MODEL: undefined });
@@ -543,4 +578,8 @@ console.log('\nREFUSAL — an unknown value must not quietly become azure');
   return failed;
 }
 
-if (require.main === module) process.exit(runProviderSwitchCheck() === 0 ? 0 : 1);
+if (require.main === module) {
+  // `.then`, not a bare call: an un-awaited async runner exits 0 before a single
+  // assertion has run, which is precisely the bug this file now tests for.
+  void runProviderSwitchCheck().then((f) => process.exit(f === 0 ? 0 : 1));
+}

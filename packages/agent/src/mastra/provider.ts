@@ -167,6 +167,53 @@ function localProvider(): any {
  * decides it, because the tools-plus-grammar interaction that broke llama.cpp
  * is a property of the SERVER and has to be re-tested per server.
  */
+/**
+ * Ask a busy endpoint again — IN THE `fetch`, because that is the only layer
+ * here that provably runs.
+ *
+ * THE FIRST ATTEMPT AT THIS WAS DEAD CODE, and the lesson is worth more than
+ * the feature. `maxRetries` was passed to `agent.generate(…)`, it typechecked,
+ * a self-test asserted the number, and every gate went green. Mastra never read
+ * it: `AgentExecutionOptionsBase` carries `maxSteps` and not `maxRetries`, and
+ * `ModelConfigModelSettings` is literally
+ * `Omit<MastraModelSettings, 'maxRetries' | 'headers'>` — the option is
+ * EXPLICITLY excluded. A green check on an ignored option is the exact failure
+ * `compliance-selftest.ts` records from its own history.
+ *
+ * A `fetch` cannot be ignored. Everything the provider sends goes through it.
+ *
+ * WHY IT IS NEEDED: measured 2026-09-16, `gemini-3.5-flash` passed every
+ * section of `pnpm compat:check` and then killed a real run with
+ * `503 "This model is currently experiencing high demand"` — on an error the AI
+ * SDK had already labelled `isRetryable: true`. One eval pass is ~140 requests
+ * against a free tier; without backoff a single spike ends the run and reads as
+ * a regression in the scorecard rather than as the capacity event it is.
+ *
+ * AND IT IS NOT A CURE. Re-running that model WITH retries still died: sustained
+ * saturation is not a spike, and the answer there is a different model
+ * (`gemini-3.5-flash-lite` answered in 731ms throughout). Retries buy you the
+ * spikes, nothing more.
+ */
+const TRANSIENT_STATUS = new Set([408, 429, 500, 502, 503, 504]);
+
+export function retryingFetch(inner: typeof fetch, attempts = 4): typeof fetch {
+  return (async (url: any, init: any = {}) => {
+    let last: any;
+    for (let i = 0; i < attempts; i++) {
+      last = await inner(url, init);
+      if (!TRANSIENT_STATUS.has(last.status)) return last;
+      if (i < attempts - 1) {
+        // Honour Retry-After when the server bothers to send one; it knows
+        // better than an exponent does.
+        const hinted = Number(last.headers?.get?.('retry-after'));
+        const waitMs = Number.isFinite(hinted) && hinted > 0 ? hinted * 1000 : 1000 * 2 ** i;
+        await new Promise((r) => setTimeout(r, Math.min(waitMs, 15_000)));
+      }
+    }
+    return last;
+  }) as typeof fetch;
+}
+
 export function buildHostedProvider(
   overrides: { baseURL?: string; apiKey?: string; fetch?: typeof fetch } = {},
 ): any {
@@ -175,7 +222,7 @@ export function buildHostedProvider(
     baseURL: overrides.baseURL ?? process.env.HOSTED_BASE_URL ?? DEFAULT_HOSTED_BASE_URL,
     supportsStructuredOutputs: true,
     apiKey: overrides.apiKey ?? hostedApiKey(),
-    ...(overrides.fetch ? { fetch: overrides.fetch } : {}),
+    fetch: retryingFetch(overrides.fetch ?? fetch),
   });
 }
 
