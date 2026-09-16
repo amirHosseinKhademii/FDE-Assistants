@@ -38,9 +38,17 @@ export function embeddingsChoice(): EmbeddingsChoice {
 export const embeddingUsage = { promptTokens: 0 };
 
 /** The provider named by `EMBEDDINGS`. Defaults to Foundry. */
+/** True when `EMBEDDINGS=local`, in which case no hosted client is needed at all. */
+function embeddingsChoiceIsLocal(): boolean {
+  return (process.env.EMBEDDINGS ?? 'hosted').trim().toLowerCase() === 'local';
+}
+
 export function openEmbeddings(client?: OpenAI): EmbeddingsInterface {
   return chooseEmbeddings({
-    client: client ?? openaiClient(),
+    // LAZY, and for the same reason as `chatClient`'s thunk: under
+    // EMBEDDINGS=local this client is never touched, and building it eagerly
+    // threw on a container that had no Azure endpoint and needed none.
+    client: client ?? (embeddingsChoiceIsLocal() ? (undefined as never) : openaiClient()),
     deployment: env.embeddingDeployment(),
     onUsage: (tokens: number) => {
       embeddingUsage.promptTokens += tokens;

@@ -30,7 +30,7 @@ import type OpenAI from 'openai';
 import { env, openaiClient } from '@fde/foundry';
 import {
   ToolRegistry, runLoop, loopChoice, engineLabel, cachedInputTokensOf,
-  type LoopChoice, type TurnRecord, type LoopEvent, loggedModelName } from '@fde/agent';
+  type LoopChoice, type TurnRecord, type LoopEvent, loggedModelName, chatClient, chatModelName } from '@fde/agent';
 import { openStore } from '@fde/grounding';
 import { logRequest } from '@fde/telemetry';
 import '../../telemetry/prices';
@@ -79,7 +79,10 @@ export function assessmentContext(): Promise<AssessmentContext> {
        * property of THIS workload's shape, not of the deployment. The SDK
        * honours `Retry-After` on 429 and backs off exponentially otherwise.
        */
-      const client = openaiClient().withOptions({ maxRetries: 6 });
+      // `chatClient` takes the azure builder as a THUNK: on a non-azure provider it
+      // is never called, so an absent FOUNDRY_OPENAI_ENDPOINT costs nothing. This
+      // line used to throw on a container configured entirely for Gemini.
+      const client = chatClient(() => openaiClient()).withOptions({ maxRetries: 6 });
       const handle = openDerived();
       const store = await openStore(openEmbeddings(client), {
         // Named explicitly. The default resolves to a different engagement's
@@ -268,7 +271,7 @@ export async function assessRequirement(opts: AssessOptions): Promise<AssessResu
   const result = await runLoop<RequirementAssessment>(
     choice,
     ctx.client,
-    env.chatDeployment(),
+    chatModelName(env.chatDeployment()),
     registry,
     userPrompt(opts.requirementRef, opts.text, seed, opts.programme, notes),
     {

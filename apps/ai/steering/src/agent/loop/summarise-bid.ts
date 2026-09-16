@@ -25,7 +25,7 @@
  * things sharing a surface label cannot be compared afterwards.
  */
 import { env, openaiClient } from '@fde/foundry';
-import { ToolRegistry, runLoop, loopChoice, engineLabel, cachedInputTokensOf, type LoopChoice, type TurnRecord } from '@fde/agent';
+import { ToolRegistry, runLoop, loopChoice, engineLabel, cachedInputTokensOf, type LoopChoice, type TurnRecord, chatClient, chatModelName } from '@fde/agent';
 import { logRequest } from '@fde/telemetry';
 import '../../telemetry/prices';
 import type { FiledAssessment } from '../../answer/filed-assessments';
@@ -74,13 +74,13 @@ const MAX_TURNS = 3;
 export async function summariseBid(opts: SummariseOptions): Promise<SummariseResult> {
   const started = Date.now();
   const choice: LoopChoice = loopChoice(opts.loop);
-  const client = openaiClient();
+  const client = chatClient(() => openaiClient());
   const lines = toLines(opts.filed);
 
   const result = await runLoop<BidSummary>(
     choice,
     client,
-    env.chatDeployment(),
+    chatModelName(env.chatDeployment()),
     new ToolRegistry([]),
     userPrompt(opts.rollUp, lines),
     {
@@ -126,7 +126,7 @@ function logSummary(
   logRequest({
     subject: `${opts.filed.length} assessment(s)`,
     question: 'summarise the bid',
-    model: env.chatDeployment(),
+    model: chatModelName(env.chatDeployment()),
     engine: engineLabel(choice),
     turns: result.turns.length,
     toolCalls: 0,

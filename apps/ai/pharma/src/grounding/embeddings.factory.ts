@@ -62,6 +62,11 @@ export function foundryEmbeddings(client?: OpenAI): EmbeddingsInterface {
 }
 
 /** The provider named by `EMBEDDINGS`. Defaults to Foundry. */
+/** True when `EMBEDDINGS=local`, in which case no hosted client is needed at all. */
+function embeddingsChoiceIsLocal(): boolean {
+  return (process.env.EMBEDDINGS ?? 'hosted').trim().toLowerCase() === 'local';
+}
+
 export function openEmbeddings(client?: OpenAI): EmbeddingsInterface {
   return chooseEmbeddings(options(client));
 }

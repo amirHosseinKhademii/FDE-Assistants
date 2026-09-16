@@ -1,3 +1,4 @@
+import { chatClient, chatModelName } from '@fde/agent';
 /**
  * Argue about one lot — the one entry point every surface uses.
  *
@@ -108,7 +109,7 @@ export async function debateTopLot(
   const result = await debateLot({
     lot,
     supplier,
-    client: openaiClient(),
+    client: chatClient(() => openaiClient()),
     loop: opts.loop,
     onStage: opts.onStage,
   });
@@ -118,7 +119,7 @@ export async function debateTopLot(
   // rate can be wrong, and a cost figure that is quietly wrong is worse than no
   // cost figure at all.
   const { costUsd, basis: costBasis } = priceDetail(
-    env.chatDeployment(),
+    chatModelName(env.chatDeployment()),
     result.inputTokens,
     result.outputTokens,
     result.cachedInputTokens,

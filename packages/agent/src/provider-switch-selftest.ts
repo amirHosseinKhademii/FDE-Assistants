@@ -65,6 +65,7 @@
  *   pnpm provider:check
  */
 import { selectModel, retryingFetch } from './mastra/provider';
+import { chatClient, chatModelName } from './core/chat-client';
 // Exported from the loop solely so this file can pin the AZURE branch to `{}`,
 // the guard that keeps the committed eval baseline comparable.
 import { structuringPass } from './mastra/loop';
@@ -422,6 +423,71 @@ console.log('\nTHE STRUCTURING PASS — a local-only workaround must stay local-
       'model' in structuringPass('gpt-5-mini'),
       'local DOES get one — without it the tools are silently off',
       'measured: toolCalls 0 → 2 on qwen2.5:7b, see docs/ENGINES.md',
+    );
+  });
+}
+
+console.log('\nTHE RAW CLIENT — do not build what you are not going to use');
+{
+  // MEASURED 2026-09-16: the deployed steering-app failed EVERY request with
+  // "FOUNDRY_OPENAI_ENDPOINT is unset or still a placeholder", on a container
+  // configured entirely for Gemini. Nothing was going to call Azure. The client
+  // was built eagerly, threw before any model call, and runLoopMastra would
+  // have discarded it anyway.
+  //
+  // It did not reproduce locally because `.env` still carries the variable
+  // pointing at the deleted deployment, so the client BUILDS fine — nothing
+  // validates reachability. The thunk is the fix, and this counts calls.
+  let azureBuilt = 0;
+  const azure = () => {
+    azureBuilt++;
+    return {} as never;
+  };
+
+  withEnv({ LLM_PROVIDER: 'hosted', HOSTED_API_KEY: 'k', HOSTED_MODEL: 'gemini-3.5-flash-lite' }, () => {
+    azureBuilt = 0;
+    const c: any = chatClient(azure);
+    check(azureBuilt === 0, 'hosted NEVER builds the azure client', `azure builder called ${azureBuilt}×`);
+    check(
+      String(c?.baseURL ?? '').includes('generativelanguage'),
+      'and the client it returns points at the hosted endpoint',
+      String(c?.baseURL),
+    );
+    check(
+      chatModelName('gpt-5-mini') === 'gemini-3.5-flash-lite',
+      'with ITS model id, not the azure deployment name',
+      chatModelName('gpt-5-mini'),
+    );
+  });
+
+  withEnv({ LLM_PROVIDER: 'local', LOCAL_MODEL: undefined }, () => {
+    azureBuilt = 0;
+    chatClient(azure);
+    check(azureBuilt === 0, 'local never builds it either', `azure builder called ${azureBuilt}×`);
+  });
+
+  withEnv({ LLM_PROVIDER: undefined }, () => {
+    azureBuilt = 0;
+    chatClient(azure);
+    check(
+      azureBuilt === 1,
+      'AZURE STILL BUILDS EXACTLY THE CLIENT IT ALWAYS DID — this is additive',
+      `azure builder called ${azureBuilt}×`,
+    );
+    check(
+      chatModelName('gpt-5-mini') === 'gpt-5-mini',
+      'and keeps the deployment name, so Foundry can be re-attached with no code change',
+      chatModelName('gpt-5-mini'),
+    );
+  });
+
+  withEnv({ LLM_PROVIDER: 'bedrock' }, () => {
+    let msg = '';
+    try { chatClient(azure); } catch (e: any) { msg = String(e?.message ?? e); }
+    check(
+      /bedrock/.test(msg) && /request rather than/.test(msg),
+      'bedrock REFUSES as a raw client rather than falling back to azure',
+      msg.slice(0, 110),
     );
   });
 }

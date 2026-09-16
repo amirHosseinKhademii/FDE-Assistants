@@ -75,6 +75,7 @@ export {
 } from './core/fixtures';
 
 export { runLoopSdk } from './sdk/loop';
+export { chatClient, chatModelName } from './core/chat-client';
 export { configureSdk } from './sdk/provider';
 export { toSdkTools } from './sdk/tools';
 export { runLoopMastra } from './mastra/loop';

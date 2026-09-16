@@ -36,7 +36,7 @@ const wrap = (s: string, indent = 8): string => wrapAt(s, indent, 88);
 import { assessSupplierImpact } from '../tools/functions/assess-supplier-impact';
 import { openaiClient } from '@fde/foundry';
 import { debateLot, isContested, rebuttalValue, type DebateResult } from '../agent/loop/lot-debate';
-import { ToolRegistry } from '@fde/agent';
+import { ToolRegistry, chatClient, chatModelName } from '@fde/agent';
 import { openStore } from '@fde/grounding';
 import { searchProceduresTool } from '../agent/tool/search-procedures.tool';
 import { openEmbeddings } from '../grounding/embeddings.factory';
@@ -110,7 +110,7 @@ function show(d: DebateResult): void {
   }
 
   const { costUsd, basis } = priceDetail(
-    env.chatDeployment(), d.inputTokens, d.outputTokens, d.cachedInputTokens,
+    chatModelName(env.chatDeployment()), d.inputTokens, d.outputTokens, d.cachedInputTokens,
   );
   console.log(
     `\n${DIM}    ${d.calls} model calls  ${d.inputTokens}in/${d.outputTokens}out  ` +
@@ -165,7 +165,7 @@ async function main(): Promise<void> {
       return;
     }
 
-    const client = openaiClient();
+    const client = chatClient(() => openaiClient());
 
     // ONLY the adjudicator gets this. See the note on `speak`'s `registry`
     // parameter: the advocates argue over the brief they were handed, and two

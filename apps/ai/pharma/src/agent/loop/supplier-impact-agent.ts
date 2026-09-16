@@ -40,8 +40,7 @@ import {
   cachedInputTokensOf,
   type LoopChoice,
   type LoopEvent,
-  type TurnRecord,
-} from '@fde/agent';
+  type TurnRecord, chatClient, chatModelName } from '@fde/agent';
 import { openStore } from '@fde/grounding';
 import { openHandle, type DbHandle } from '../../tools/utils/handle';
 import { openEmbeddings } from '../../grounding/embeddings.factory';
@@ -116,7 +115,7 @@ export function supplierImpactContext(): Promise<SupplierImpactContext> {
   if (!shared) {
     shared = (async () => {
       const handle = openHandle();
-      const client = openaiClient();
+      const client = chatClient(() => openaiClient());
       // Passing the connection string explicitly is not optional — see
       // `release-agent.ts`'s identical comment: the default is the global
       // DATABASE_URL, which in this repo is the INSURANCE project.
@@ -178,7 +177,7 @@ export async function askSupplierImpact(opts: AskSupplierImpactOptions): Promise
   const result = await runLoop<SupplierImpactAnswer>(
     choice,
     client,
-    env.chatDeployment(),
+    chatModelName(env.chatDeployment()),
     opts.registry ?? sharedRegistry,
     opts.question,
     {
@@ -231,7 +230,7 @@ export async function askSupplierImpact(opts: AskSupplierImpactOptions): Promise
     logRequest({
       subject: supplierIdInQuestion(opts.question),
       question: opts.question,
-      model: env.chatDeployment(),
+      model: chatModelName(env.chatDeployment()),
       engine: engineLabel(choice),
       turns: result.turns.length,
       toolCalls,
@@ -246,7 +245,7 @@ export async function askSupplierImpact(opts: AskSupplierImpactOptions): Promise
   }
 
   const { costUsd, basis: costBasis } = priceDetail(
-    env.chatDeployment(), inputTokens, outputTokens, cachedInputTokens,
+    chatModelName(env.chatDeployment()), inputTokens, outputTokens, cachedInputTokens,
   );
 
   return {

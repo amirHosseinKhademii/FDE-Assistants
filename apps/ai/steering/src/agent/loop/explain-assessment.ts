@@ -24,8 +24,7 @@
 import { env, openaiClient } from '@fde/foundry';
 import {
   ToolRegistry, runLoop, loopChoice, engineLabel, cachedInputTokensOf,
-  type LoopChoice, type TurnRecord,
-} from '@fde/agent';
+  type LoopChoice, type TurnRecord, chatClient, chatModelName } from '@fde/agent';
 import { logRequest } from '@fde/telemetry';
 import '../../telemetry/prices';
 import type { RequirementAssessment } from '../../schema/assessment-schema';
@@ -63,8 +62,8 @@ export async function explainAssessment(opts: ExplainOptions): Promise<ExplainRe
 
   const result = await runLoop<Explanation>(
     choice,
-    openaiClient(),
-    env.chatDeployment(),
+    chatClient(() => openaiClient()),
+    chatModelName(env.chatDeployment()),
     new ToolRegistry([]),
     userPrompt(opts.assessment),
     {
@@ -87,7 +86,7 @@ export async function explainAssessment(opts: ExplainOptions): Promise<ExplainRe
   logRequest({
     subject: opts.assessment.requirement_ref,
     question: `explain ${opts.assessment.requirement_ref}`,
-    model: env.chatDeployment(),
+    model: chatModelName(env.chatDeployment()),
     engine: engineLabel(choice),
     turns: result.turns.length,
     toolCalls: 0,

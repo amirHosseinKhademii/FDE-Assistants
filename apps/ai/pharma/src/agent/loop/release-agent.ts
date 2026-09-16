@@ -26,8 +26,7 @@ import {
   cachedInputTokensOf,
   type LoopChoice,
   type LoopEvent,
-  type TurnRecord,
-} from '@fde/agent';
+  type TurnRecord, chatClient, chatModelName } from '@fde/agent';
 import { openStore } from '@fde/grounding';
 import { openHandle, type DbHandle } from '../../tools/utils/handle';
 import { openEmbeddings } from '../../grounding/embeddings.factory';
@@ -124,7 +123,7 @@ export function releaseContext(): Promise<ReleaseContext> {
   if (!shared) {
     shared = (async () => {
       const handle = openHandle();
-      const client = openaiClient();
+      const client = chatClient(() => openaiClient());
       // The index lives in `mrd_kb`, which is deliberately outside the six
       // systems of record — see `config/connections.ts`. Passing the URL
       // explicitly is not optional: the default would be the global
@@ -198,7 +197,7 @@ export async function askRelease(opts: AskOptions): Promise<AskResult> {
   const result = await runLoop<ReleaseAnswer>(
     choice,
     client,
-    env.chatDeployment(),
+    chatModelName(env.chatDeployment()),
     opts.registry ?? sharedRegistry,
     opts.question,
     {
@@ -264,7 +263,7 @@ export async function askRelease(opts: AskOptions): Promise<AskResult> {
     logRequest({
       subject: lotIdInQuestion(opts.question),
       question: opts.question,
-      model: env.chatDeployment(),
+      model: chatModelName(env.chatDeployment()),
       engine: engineLabel(choice),
       turns: result.turns.length,
       toolCalls,
@@ -279,7 +278,7 @@ export async function askRelease(opts: AskOptions): Promise<AskResult> {
   }
 
   const { costUsd, basis: costBasis } = priceDetail(
-    env.chatDeployment(), inputTokens, outputTokens, cachedInputTokens,
+    chatModelName(env.chatDeployment()), inputTokens, outputTokens, cachedInputTokens,
   );
 
   return {

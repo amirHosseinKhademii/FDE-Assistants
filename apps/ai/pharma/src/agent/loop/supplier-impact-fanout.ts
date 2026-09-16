@@ -52,7 +52,7 @@
  */
 import type OpenAI from 'openai';
 import { openaiClient, env } from '@fde/foundry';
-import { runFanout, loopChoice, engineLabel, type LoopChoice } from '@fde/agent';
+import { runFanout, loopChoice, engineLabel, type LoopChoice, chatClient, chatModelName } from '@fde/agent';
 import { createAnswerValidator } from '@fde/schema';
 import { logRequest, priceDetail } from '@fde/telemetry';
 import { z } from 'zod';
@@ -288,7 +288,7 @@ export function buildAnswer(
 export async function askSupplierImpactFanout(opts: FanoutOptions): Promise<FanoutResult> {
   const started = Date.now();
   const choice: LoopChoice = loopChoice(opts.loop);
-  const client = opts.client ?? openaiClient();
+  const client = opts.client ?? chatClient(() => openaiClient());
   const handle = opts.handle ?? openHandle();
   const problems: string[] = [];
 
@@ -420,7 +420,7 @@ export async function askSupplierImpactFanout(opts: FanoutOptions): Promise<Fano
   const out = await runFanout<AffectedLotAssessment, SupplierImpactRow, AssemblyAnswer>(
     choice,
     client,
-    env.chatDeployment(),
+    chatModelName(env.chatDeployment()),
     {
       items: lotsToDo,
       notAttempted: notAssessed,
@@ -457,7 +457,7 @@ export async function askSupplierImpactFanout(opts: FanoutOptions): Promise<Fano
 
   const rows = rankRows(out.values, dossier.affected);
   const { costUsd, basis: costBasis } = priceDetail(
-    env.chatDeployment(), out.inputTokens, out.outputTokens, out.cachedInputTokens,
+    chatModelName(env.chatDeployment()), out.inputTokens, out.outputTokens, out.cachedInputTokens,
   );
 
   const lots: AssessOneLotResult[] = out.items.map((i) => ({
@@ -492,7 +492,7 @@ export async function askSupplierImpactFanout(opts: FanoutOptions): Promise<Fano
     logRequest({
       subject: opts.supplierId,
       question: `supplier impact (fan-out) for ${opts.supplierId}`,
-      model: env.chatDeployment(),
+      model: chatModelName(env.chatDeployment()),
       engine: `${engineLabel(choice)}+fanout`,
       turns: out.calls,
       toolCalls: 0,
