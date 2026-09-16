@@ -47,6 +47,10 @@ export {
   loggedModelName,
   DEFAULT_LOCAL_MODEL,
   DEFAULT_LOCAL_BASE_URL,
+  DEFAULT_HOSTED_BASE_URL,
+  HOSTED_MODEL_ENV,
+  hostedApiKey,
+  hostedModel,
 } from './core/loop.types';
 
 export { cachedInputTokensOf } from './core/usage';
@@ -74,7 +78,12 @@ export { runLoopSdk } from './sdk/loop';
 export { configureSdk } from './sdk/provider';
 export { toSdkTools } from './sdk/tools';
 export { runLoopMastra } from './mastra/loop';
-export { buildFoundryProvider, buildBedrockProvider, selectModel } from './mastra/provider';
+export {
+  buildFoundryProvider,
+  buildBedrockProvider,
+  buildHostedProvider,
+  selectModel,
+} from './mastra/provider';
 export { toMastraTools } from './mastra/tools';
 // The two package-level self-tests. Named `*-selftest.ts` like every other one
 // in this repo — `provider-switch.ts` read like a module you could import for

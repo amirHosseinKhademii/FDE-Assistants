@@ -21,8 +21,11 @@ import { getBearerTokenProvider, DefaultAzureCredential } from '@azure/identity'
 import { FOUNDRY_SCOPE, env } from '@fde/foundry';
 import {
   DEFAULT_BEDROCK_MODEL,
+  DEFAULT_HOSTED_BASE_URL,
   DEFAULT_LOCAL_BASE_URL,
   DEFAULT_LOCAL_MODEL,
+  hostedApiKey,
+  hostedModel,
 } from '../core/loop.types';
 
 // require(), not import: `@ai-sdk/openai-compatible` is ESM-only and reaches us
@@ -149,6 +152,39 @@ function localProvider(): any {
   return local;
 }
 
+/**
+ * Someone else's GPU, over the same OpenAI-compatible protocol.
+ *
+ * IDENTICAL TO `buildLocalProvider` EXCEPT FOR THE KEY, which is the point
+ * worth keeping: the difference between "free on my machine" and "free on
+ * somebody's quota" is one credential and a network boundary, not an
+ * architecture. See `core/loop.types.ts` for why this is a separate
+ * `LLM_PROVIDER` value rather than a base-URL override on `local`.
+ *
+ * `supportsStructuredOutputs: true` FOR THE SAME REASON AS THE OTHER TWO —
+ * without it the AI SDK degrades Pillar 3 to `json_object` silently. NOT YET
+ * MEASURED against this endpoint: `pnpm compat:check` §4 is the probe that
+ * decides it, because the tools-plus-grammar interaction that broke llama.cpp
+ * is a property of the SERVER and has to be re-tested per server.
+ */
+export function buildHostedProvider(
+  overrides: { baseURL?: string; apiKey?: string; fetch?: typeof fetch } = {},
+): any {
+  return createOpenAICompatible({
+    name: 'hosted',
+    baseURL: overrides.baseURL ?? process.env.HOSTED_BASE_URL ?? DEFAULT_HOSTED_BASE_URL,
+    supportsStructuredOutputs: true,
+    apiKey: overrides.apiKey ?? hostedApiKey(),
+    ...(overrides.fetch ? { fetch: overrides.fetch } : {}),
+  });
+}
+
+let hosted: any;
+function hostedProvider(): any {
+  if (!hosted) hosted = buildHostedProvider();
+  return hosted;
+}
+
 
 /** What a self-test may inject so the Azure branch needs no env and no credential. */
 export type FoundryOverrides = {
@@ -200,6 +236,20 @@ export function selectModel(model: string, overrides: FoundryOverrides = {}): an
       : localProvider();
     return p.languageModel(process.env.LOCAL_MODEL ?? DEFAULT_LOCAL_MODEL);
   }
+  if (raw === 'hosted') {
+    // The model id changes with the provider here too, and this one has NO
+    // default — see `HOSTED_MODEL_ENV`.
+    // NO `apiKey` IN THE OVERRIDE PATH, and that is not an oversight. Passing a
+    // fake key here would make a self-test drive a construction production
+    // never runs — the trap `buildFoundryProvider`'s docstring names — and it
+    // would skip `hostedApiKey()`, which is the guard the test exists to prove.
+    // It cost one FAIL to find: the key assertion passed silently because the
+    // throw could not be reached from the test path.
+    const p = Object.keys(overrides).length
+      ? buildHostedProvider({ baseURL: overrides.baseURL, fetch: overrides.fetch })
+      : hostedProvider();
+    return p.languageModel(hostedModel());
+  }
   if (raw === 'bedrock') {
     // NO OVERRIDES NEEDED HERE. The Bedrock provider constructs with no
     // credentials at all — AWS's chain resolves lazily, at call time — so a
@@ -209,7 +259,7 @@ export function selectModel(model: string, overrides: FoundryOverrides = {}): an
     return bedrockProvider().languageModel(process.env.BEDROCK_MODEL ?? DEFAULT_BEDROCK_MODEL);
   }
   throw new Error(
-    `LLM_PROVIDER="${process.env.LLM_PROVIDER}" is not a provider. Use "azure", "bedrock" ` +
-      'or "local", or unset it for azure. Refusing to guess.',
+    `LLM_PROVIDER="${process.env.LLM_PROVIDER}" is not a provider. Use "azure", "bedrock", ` +
+      '"local" or "hosted", or unset it for azure. Refusing to guess.',
   );
 }

@@ -137,7 +137,8 @@
     "steering:eval-diff": "pnpm --filter @vantis/steering eval:diff",
     "steering:eval-history": "pnpm --filter @vantis/steering eval:history",
     "arch:graph": "node scripts/arch-graph.mjs",
-    "arch:check": "node scripts/arch-graph.mjs --check"
+    "arch:check": "node scripts/arch-graph.mjs --check",
+    "compat:check": "node scripts/local-llm-check.mjs"
   },
   "devDependencies": {
     "turbo": "^2.10.12"

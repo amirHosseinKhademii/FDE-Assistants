@@ -65,7 +65,9 @@
  *   pnpm provider:check
  */
 import { selectModel } from './mastra/provider';
-import { structuringPassForTest } from './mastra/loop';
+// Exported from the loop solely so this file can pin the AZURE branch to `{}`,
+// the guard that keeps the committed eval baseline comparable.
+import { structuringPass } from './mastra/loop';
 import { selectChatModel } from './langgraph/provider';
 import { configureSdk } from './sdk/provider';
 import { DEFAULT_BEDROCK_MODEL, DEFAULT_LOCAL_MODEL, loggedModelName } from './core/loop.types';
@@ -303,6 +305,92 @@ export function runProviderSwitchCheck(): number {
   });
 }
 
+console.log('\nHOSTED — someone else\'s GPU, and a DIFFERENT trust boundary from local');
+{
+  // `local` and `hosted` share a builder and differ in the only thing that
+  // matters: a credential and a network hop. They are two values rather than a
+  // base-URL override BECAUSE `LLM_PROVIDER=local` must never be able to mean
+  // "Google" — see `core/loop.types.ts`.
+  withEnv(
+    { LLM_PROVIDER: 'hosted', HOSTED_API_KEY: 'test-key-not-a-credential', HOSTED_MODEL: 'gemini-3.8-flash' },
+    () => {
+      const m = selectModel('gpt-5-mini', FAKE);
+      check(
+        String(m?.modelId ?? m?.model) === 'gemini-3.8-flash',
+        'hosted routes to the hosted provider with ITS model id, not the azure deployment',
+        `modelId = ${m?.modelId ?? m?.model}`,
+      );
+      const lg = selectChatModel('gpt-5-mini', FAKE);
+      check(
+        String(lg?.model ?? lg?.modelName) === String(m?.modelId ?? m?.model),
+        'BOTH engines answer `hosted` with the same model id',
+        `mastra ${m?.modelId ?? m?.model} vs langgraph ${lg?.model ?? lg?.modelName}`,
+      );
+      // THE ACCOUNTING BOUNDARY. `local/` prices at a measured zero because
+      // there is no meter. A free TIER is free under a quota nobody here is
+      // measuring, on a service that bills the moment you cross it — so it must
+      // NOT inherit that zero.
+      const labelled = loggedModelName('gpt-5-mini');
+      check(
+        labelled === 'hosted/gemini-3.8-flash' && !labelled.startsWith('local/'),
+        'a hosted run is NOT labelled `local/`, so it cannot inherit the measured zero',
+        labelled,
+      );
+      check(
+        Object.keys(structuringPass('gpt-5-mini')).length === 0,
+        'and hosted gets NO structuring pass — that fix is for llama.cpp grammars',
+        'a real OpenAI-compatible server serves tools and a schema in one request',
+      );
+    },
+  );
+
+  // THE TWO REFUSALS. Both exist because the failing alternative is a 401 or a
+  // 404 from a third party, which reads like a broken account and is not.
+  withEnv({ LLM_PROVIDER: 'hosted', HOSTED_API_KEY: undefined, HOSTED_MODEL: 'gemini-3.8-flash' }, () => {
+    let msg = '';
+    try {
+      selectModel('gpt-5-mini', FAKE);
+    } catch (e: any) {
+      msg = String(e?.message ?? e);
+    }
+    check(
+      /HOSTED_API_KEY/.test(msg) && /third party/i.test(msg),
+      'a missing key throws BY NAME and says the prompts leave the machine',
+      msg.slice(0, 120),
+    );
+  });
+
+  withEnv({ LLM_PROVIDER: 'hosted', HOSTED_API_KEY: 'test-key', HOSTED_MODEL: undefined }, () => {
+    let msg = '';
+    try {
+      selectModel('gpt-5-mini', FAKE);
+    } catch (e: any) {
+      msg = String(e?.message ?? e);
+    }
+    check(
+      /HOSTED_MODEL/.test(msg),
+      'and a missing model id throws by name — there is deliberately no default',
+      msg.slice(0, 120),
+    );
+  });
+
+  withEnv({ LLM_PROVIDER: 'hosted', HOSTED_API_KEY: 'k', HOSTED_MODEL: 'm' }, () => {
+    let refused = false;
+    let msg = '';
+    try {
+      configureSdk({} as never);
+    } catch (e: any) {
+      refused = true;
+      msg = String(e?.message ?? e);
+    }
+    check(
+      refused && /hosted/.test(msg),
+      'the agents-sdk engine REFUSES hosted too — Gemini serves /chat/completions, not /responses',
+      msg.slice(0, 130),
+    );
+  });
+}
+
 console.log('\nTHE STRUCTURING PASS — a local-only workaround must stay local-only');
 {
   // `mastra/loop.ts`'s `structuringPass()` adds a SECOND model call so a local
@@ -312,21 +400,21 @@ console.log('\nTHE STRUCTURING PASS — a local-only workaround must stay local-
   // does not exist there. The empty object IS the guard, so it is asserted.
   withEnv({ LLM_PROVIDER: undefined }, () => {
     check(
-      Object.keys(structuringPassForTest('gpt-5-mini')).length === 0,
+      Object.keys(structuringPass('gpt-5-mini')).length === 0,
       'azure gets NO second pass — the committed baseline stays comparable',
       'structuringPass() returns {} when LLM_PROVIDER is unset',
     );
   });
   withEnv({ LLM_PROVIDER: 'bedrock' }, () => {
     check(
-      Object.keys(structuringPassForTest('gpt-5-mini')).length === 0,
+      Object.keys(structuringPass('gpt-5-mini')).length === 0,
       'and bedrock gets none either — this is not "everything that is not azure"',
       'structuringPass() returns {} for bedrock',
     );
   });
   withEnv({ LLM_PROVIDER: 'local', LOCAL_MODEL: undefined }, () => {
     check(
-      'model' in structuringPassForTest('gpt-5-mini'),
+      'model' in structuringPass('gpt-5-mini'),
       'local DOES get one — without it the tools are silently off',
       'measured: toolCalls 0 → 2 on qwen2.5:7b, see docs/ENGINES.md',
     );

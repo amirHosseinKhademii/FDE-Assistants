@@ -12,7 +12,14 @@
  */
 import { getBearerTokenProvider, DefaultAzureCredential } from '@azure/identity';
 import { FOUNDRY_SCOPE, env } from '@fde/foundry';
-import { DEFAULT_BEDROCK_MODEL, DEFAULT_LOCAL_BASE_URL, DEFAULT_LOCAL_MODEL } from '../core/loop.types';
+import {
+  DEFAULT_BEDROCK_MODEL,
+  DEFAULT_HOSTED_BASE_URL,
+  DEFAULT_LOCAL_BASE_URL,
+  DEFAULT_LOCAL_MODEL,
+  hostedApiKey,
+  hostedModel,
+} from '../core/loop.types';
 
 // require(), not import: `@langchain/openai`'s root export has no CJS
 // condition, so it reaches us through Node 22's require(esm). Used uniformly
@@ -140,6 +147,26 @@ export function buildLocalChatModel(
   });
 }
 
+/**
+ * The LangChain spelling of `mastra/provider.ts`'s `buildHostedProvider`.
+ *
+ * Written out rather than shared for the reason the local and bedrock builders
+ * are: the three engine folders may not import each other. `provider-switch-
+ * selftest.ts` is what stops them drifting.
+ */
+export function buildHostedChatModel(
+  overrides: { baseURL?: string; apiKey?: string; fetch?: typeof fetch } = {},
+): any {
+  return new ChatOpenAI({
+    model: hostedModel(),
+    apiKey: overrides.apiKey ?? hostedApiKey(),
+    configuration: {
+      baseURL: overrides.baseURL ?? process.env.HOSTED_BASE_URL ?? DEFAULT_HOSTED_BASE_URL,
+      ...(overrides.fetch ? { fetch: overrides.fetch } : {}),
+    },
+  });
+}
+
 export function selectChatModel(
   model: string,
   overrides: { baseURL?: string; token?: () => Promise<string>; fetch?: typeof fetch } = {},
@@ -147,6 +174,7 @@ export function selectChatModel(
   const raw = process.env.LLM_PROVIDER?.trim().toLowerCase();
   if (!raw || raw === 'azure') return buildFoundryChatModel(model, overrides);
   if (raw === 'bedrock') return buildBedrockChatModel();
+  if (raw === 'hosted') return buildHostedChatModel(overrides);
   // The model id changes with the provider here too: `model` is an Azure
   // deployment name and is deliberately NOT passed through.
   if (raw === 'local') return buildLocalChatModel({ baseURL: overrides.baseURL, fetch: overrides.fetch });

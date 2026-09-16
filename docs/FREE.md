@@ -15,7 +15,8 @@ fails silently. §7 is what it costs in accuracy, which is a lot.
 
 | what it was | what it is now | free? |
 |---|---|---|
-| chat model — Foundry `gpt-5-mini` | Ollama 0.34.1, `qwen2.5:7b`, on the local RTX 3090 | **yes** |
+| chat model — Foundry `gpt-5-mini` | **`LLM_PROVIDER=hosted`** — a free tier on someone else's GPU (Gemini by default) | **yes**, and §8 is why this beats local |
+| — the same, on your own hardware | `LLM_PROVIDER=local` — Ollama, `qwen2.5:7b`, RTX 3090 | yes, but see §7 |
 | embeddings — `text-embedding-3-small`, 1536 dims | `EMBEDDINGS=local`, bge-small, 384 dims | **yes** |
 | Postgres + pgvector | Neon serverless free tier | **yes**, with a trap — §5 |
 | traces / dashboard | Langfuse, self-hosted (`infra/docker-compose.langfuse.yml`) | **yes**, already was |
@@ -258,3 +259,89 @@ Treat local as the free path for *learning the machinery* — the loop, the tool
 the contract, the engines, the telemetry — and not as a replacement for the
 measured scorecard. `eval:diff` already enforces that distinction: it refuses to
 compare two runs made with different models, which is exactly right here.
+
+---
+
+## 8 · The better free path: someone else's GPU
+
+§7 is the case against local inference on this hardware. The case *for* a free
+hosted tier is that it changes the one variable that mattered — the model — and
+changes nothing else.
+
+The seam already existed before Gemini was considered. `buildLocalProvider` is
+`createOpenAICompatible` with a base URL; the only thing tying it to Ollama was
+the placeholder key. So:
+
+```bash
+# https://aistudio.google.com/apikey — no card
+export HOSTED_API_KEY=...
+export HOSTED_MODEL=gemini-3.8-flash
+
+LLM_PROVIDER=hosted pnpm compat:check            # verify BEFORE trusting it
+LOOP=mastra LLM_PROVIDER=hosted EMBEDDINGS=local \
+  pnpm --filter @claims/insurance ask "…"
+```
+
+Embeddings stay local and free — bge-small is small enough to be irrelevant, and
+it is the chat model that was failing, not retrieval.
+
+### Why it is a fourth `LLM_PROVIDER` value and not a base-URL override
+
+Because `local` means something load-bearing: loopback, no credential, nothing
+leaves the machine. Pointing that value at Google would make the name lie, and
+the trust boundary is the thing this repo teaches. Four values, and
+`provider:check` pins the difference — including that a `hosted` run is labelled
+`hosted/…` and therefore CANNOT inherit the measured `$0` that `local/` gets. A
+free tier is free under a quota nobody here is measuring, on a service that
+bills the moment you cross it; `costUsd: null` with a stated reason is the
+honest entry.
+
+### Verify the endpoint before trusting it
+
+`pnpm compat:check` §4 sends tools and a strict schema **in the same request** —
+the exact probe that found the llama.cpp trap in §5a. That interaction is a
+property of the server, so it has to be re-measured per server. **Not yet run
+against Gemini here**, which is why this section says "verify" and not "works".
+
+### What to watch
+
+- **Rate limits.** One eval pass is 7 cases × 5 runs × ~3–4 turns ≈ 140
+  requests. Comfortable against a daily cap; a per-minute cap is the risk. The
+  runner is serial by design, which helps. Google no longer publishes free-tier
+  numbers in its docs — they are per-account in the AI Studio dashboard.
+- **Your prompts leave the machine**, and free tiers commonly train on them.
+  Fine here, because `docs/examples/` is fabricated. Not fine at a real
+  engagement, which is the whole of `docs/beyond-retrieval/CREDENTIALS.md`.
+- **`eval:diff` will refuse** to compare a hosted run against the Azure
+  baseline. That is correct — it would measure the model swap, not the code.
+
+---
+
+## 9 · A remote GPU, later
+
+A second machine with a 4090 helps more than the spec suggests, and not because
+the card is faster. It is still ~24 GB, so a 32B at full 32k context is still
+out of reach (§7's arithmetic is unchanged). What it fixes is the two things
+that actually hurt here: model weights had nowhere to live on a 98%-full root
+partition shared with a PhD estate, and one Ollama instance under a serial eval
+was a queue — two of eight runs died of `Headers Timeout Error` from contention.
+
+Wiring is one variable, no code change:
+
+```bash
+# on the remote box — it binds 127.0.0.1 by default, so the port will not answer
+OLLAMA_HOST=0.0.0.0:11434 ollama serve
+```
+
+**Do not expose 11434 to the internet.** Ollama has no authentication of any
+kind; an open port is an open model server. Use a tunnel, which also means the
+default base URL keeps working unchanged:
+
+```bash
+ssh -N -L 11434:localhost:11434 user@remote-box
+LLM_PROVIDER=local LOOP=mastra pnpm --filter @claims/insurance ask "…"
+```
+
+The grammar finding still applies — it is a property of llama.cpp, not of the
+card — so `LOOP=mastra` still needs `structuringPass()` and `LOOP=langgraph`
+still works untouched. Better hardware does not change §5a.

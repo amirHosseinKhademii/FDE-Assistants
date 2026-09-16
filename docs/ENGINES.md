@@ -24,8 +24,10 @@ they are not symmetric.
 
 ```
 LOOP=sdk|mastra|langgraph          which engine drives the loop   (default: sdk)
-LLM_PROVIDER=azure|bedrock|local   which cloud serves the model   (default: azure)
-                                   — `local` is no cloud at all; see docs/FREE.md
+LLM_PROVIDER=azure|bedrock|local|hosted    which cloud serves the model  (azure)
+      local   no cloud at all — loopback, no credential, nothing leaves
+      hosted  a THIRD PARTY on an OpenAI-compatible endpoint, with a key
+                                   — see docs/FREE.md
 ```
 
 ---
@@ -89,6 +91,7 @@ engine, the contract in `core/loop.types.ts` would not be one.
 | **Structured output** | folded into the same call (`outputType`) | folded in (`structuredOutput`) | **a SEPARATE extra model call** after the loop ends |
 | **Azure auth** | `setDefaultOpenAIClient` | custom `fetch` sets the bearer | custom `fetch` sets the bearer |
 | **Can reach Bedrock** | **no** — see §4 | yes | yes |
+| **Can reach a HOSTED compatible endpoint** | **no** — same reason as the row below: Gemini, Groq and the rest all serve `/chat/completions`, which is what "OpenAI-compatible" means in practice | yes | yes |
 | **Can reach a LOCAL model** | **no** — and the reason is the row above, not a credential: Ollama and llama.cpp serve `/chat/completions` and do not implement `/responses` | yes | yes |
 
 ### The local seam has a second trap, and it is not a credential

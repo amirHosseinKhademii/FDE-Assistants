@@ -71,6 +71,80 @@ export const DEFAULT_LOCAL_MODEL = 'qwen2.5:7b';
 export const DEFAULT_LOCAL_BASE_URL = 'http://127.0.0.1:11434/v1';
 
 /**
+ * A THIRD-PARTY OpenAI-compatible endpoint — and it is a SEPARATE value from
+ * `local` on purpose, not a tidier spelling of it.
+ *
+ * The two share a builder. They do not share a trust boundary, and that is the
+ * whole reason the switch has four values rather than three:
+ *
+ *   local    loopback, no credential, nothing leaves the machine
+ *   hosted   someone else's GPU, a real API key, and YOUR PROMPTS LEAVE
+ *
+ * Collapsing them would make `LLM_PROVIDER=local` able to mean "Google", which
+ * is precisely the class of quiet untruth `sdk/provider.ts` throws to prevent
+ * and `docs/steering/DATA-RESIDENCY.md` exists to answer. A variable whose
+ * value no longer describes where the data went is worse than no variable.
+ *
+ * FREE TIERS TRAIN ON YOUR DATA unless you have checked otherwise. Harmless
+ * here — `docs/examples/` is fabricated, see `docs/pharma/CORPUS.md` for the
+ * same warning on the other engagement — and disqualifying at a real
+ * engagement. `docs/beyond-retrieval/CREDENTIALS.md` is the longer argument.
+ *
+ * The default points at Gemini because its free tier serves the trifecta this
+ * repo's contract needs on one endpoint: `/chat/completions`, tool calling, and
+ * a strict `json_schema`. Any other compatible provider works by setting
+ * `HOSTED_BASE_URL` — Groq, OpenRouter, Together, a colleague's vLLM.
+ */
+export const DEFAULT_HOSTED_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/openai';
+
+/**
+ * No default model, DELIBERATELY — unlike `local`, which has one.
+ *
+ * A local tag is a file you pulled: wrong means "not found", instantly. A
+ * hosted model id is a product name on somebody's roadmap, and they get
+ * retired. Baking one in means this constant silently becomes a 404 on a date
+ * nobody chose, in a repo whose whole argument is that measurements must say
+ * when they were taken. `HOSTED_MODEL` is required and unset throws by name.
+ */
+export const HOSTED_MODEL_ENV = 'HOSTED_MODEL';
+
+/**
+ * The key, and the refusal when it is missing.
+ *
+ * THROWS RATHER THAN SENDING A PLACEHOLDER. `buildLocalProvider` passes the
+ * literal string `'local'` as its key because nothing authenticates it; doing
+ * the same here would produce a 401 from a third party, which reads like a
+ * broken account rather than an unset variable. Same reasoning as
+ * `selectModel`'s throw: a refusal costs a run, a misleading error costs an
+ * afternoon.
+ */
+export function hostedApiKey(): string {
+  const key = process.env.HOSTED_API_KEY?.trim();
+  if (!key) {
+    throw new Error(
+      'LLM_PROVIDER="hosted" needs HOSTED_API_KEY. This provider reaches a THIRD PARTY — ' +
+        'unlike "local", it carries a credential and your prompts leave this machine. ' +
+        'Set HOSTED_API_KEY and HOSTED_MODEL, or use LLM_PROVIDER=local. Refusing to send ' +
+        'a placeholder key that would fail as a 401 and read like a broken account.',
+    );
+  }
+  return key;
+}
+
+/** The model id, required for the reason `HOSTED_MODEL_ENV` explains. */
+export function hostedModel(): string {
+  const m = process.env[HOSTED_MODEL_ENV]?.trim();
+  if (!m) {
+    throw new Error(
+      `LLM_PROVIDER="hosted" needs ${HOSTED_MODEL_ENV} (e.g. "gemini-3.8-flash"). ` +
+        'There is deliberately no default: a hosted model id is a product name that gets ' +
+        'retired, and a baked-in one becomes a 404 on a date nobody chose.',
+    );
+  }
+  return m;
+}
+
+/**
  * What the cost log should call the model that actually answered.
  *
  * WHY THIS EXISTS: the app logs `env.chatDeployment()` — the AZURE deployment
@@ -91,6 +165,11 @@ export const DEFAULT_LOCAL_BASE_URL = 'http://127.0.0.1:11434/v1';
 export function loggedModelName(configured: string): string {
   const raw = process.env.LLM_PROVIDER?.trim().toLowerCase();
   if (raw === 'local') return `local/${process.env.LOCAL_MODEL ?? DEFAULT_LOCAL_MODEL}`;
+  // `hosted/`, and NOT the `local/` prefix that prices at zero. A free tier is
+  // free *under a quota you are not measuring*, on a metered service that bills
+  // the moment you cross it. `price()` has no entry for this prefix, so it logs
+  // `costUsd: null` with a stated reason — "nobody checked", which is true.
+  if (raw === 'hosted') return `hosted/${process.env[HOSTED_MODEL_ENV] ?? 'unset'}`;
   if (raw === 'bedrock') return process.env.BEDROCK_MODEL ?? DEFAULT_BEDROCK_MODEL;
   return configured;
 }

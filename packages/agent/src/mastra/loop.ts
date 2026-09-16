@@ -85,13 +85,6 @@ export function structuringPass(model: string): { model?: any } {
   return raw === 'local' ? { model: selectModel(model) } : {};
 }
 
-/**
- * The same function under a name that says what it is for. `provider-switch-
- * selftest.ts` asserts the AZURE branch returns `{}` — the guard that keeps the
- * committed baseline comparable — and an unexported one could not be reached.
- */
-export const structuringPassForTest = structuringPass;
-
 export async function runLoopMastra<T = unknown>(
   _client: OpenAI, // accepted for signature parity; Mastra builds its own provider
   model: string,

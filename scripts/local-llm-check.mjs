@@ -31,8 +31,37 @@
  *   pnpm local:check
  *   LOCAL_MODEL=qwen3:8b pnpm local:check
  */
-const BASE = process.env.LOCAL_OPENAI_BASE_URL ?? 'http://127.0.0.1:11434/v1';
-const MODEL = process.env.LOCAL_MODEL ?? 'qwen2.5:7b';
+// ── WHICH ENDPOINT ────────────────────────────────────────────────────────
+//
+// TWO PROVIDERS, ONE CHECK, because the question is a property of the SERVER
+// and not of who owns it: does this endpoint honour a strict schema, and does
+// it still call tools while doing so?
+//
+//   pnpm compat:check                          → local Ollama (the default)
+//   LLM_PROVIDER=hosted pnpm compat:check      → whatever HOSTED_BASE_URL is
+//
+// The key is a placeholder for `local` because nothing authenticates it, and a
+// real credential for `hosted` because something does. That difference is the
+// entire distinction between the two `LLM_PROVIDER` values.
+const HOSTED = (process.env.LLM_PROVIDER ?? '').trim().toLowerCase() === 'hosted';
+const BASE = HOSTED
+  ? (process.env.HOSTED_BASE_URL ?? 'https://generativelanguage.googleapis.com/v1beta/openai')
+  : (process.env.LOCAL_OPENAI_BASE_URL ?? 'http://127.0.0.1:11434/v1');
+const MODEL = HOSTED
+  ? process.env.HOSTED_MODEL
+  : (process.env.LOCAL_MODEL ?? 'qwen2.5:7b');
+const KEY = HOSTED ? process.env.HOSTED_API_KEY : 'local';
+
+if (HOSTED && (!MODEL || !KEY)) {
+  console.error(
+    'LLM_PROVIDER=hosted needs HOSTED_MODEL and HOSTED_API_KEY.\n' +
+      'This endpoint is a THIRD PARTY: it carries a credential and your prompts leave\n' +
+      'this machine. Get a key from https://aistudio.google.com/apikey for Gemini.',
+  );
+  process.exit(2);
+}
+console.log(`\nendpoint: ${BASE}\nmodel   : ${MODEL}\n` +
+  (HOSTED ? 'NOTE: a THIRD PARTY. Prompts leave this machine, and free tiers commonly train on them.\n' : ''));
 
 const ok = (s) => `\x1b[32m  ok  \x1b[0m ${s}`;
 const no = (s) => `\x1b[31m FAIL \x1b[0m ${s}`;
@@ -46,7 +75,7 @@ const assert = (name, pass, detail = '') => {
 async function post(path, body) {
   const r = await fetch(`${BASE}${path}`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json', authorization: 'Bearer local' },
+    headers: { 'content-type': 'application/json', authorization: `Bearer ${KEY}` },
     body: JSON.stringify(body),
   });
   const text = await r.text();
@@ -158,6 +187,75 @@ if (call) {
   let args = null; try { args = JSON.parse(call.function?.arguments ?? '{}'); } catch {}
   assert('argument extracted from the question', args?.policy_id === 'AUT-4471',
     `got: ${JSON.stringify(args)}`);
+}
+
+
+// ── 4 · THE ONE THAT ACTUALLY BIT US ──────────────────────────
+//
+// Sections 1-3 test a strict schema and tool calling SEPARATELY. The loop sends
+// them TOGETHER, and on 2026-09-16 that combination silently disarmed the tools
+// on Ollama: llama.cpp constrains generation token by token to the response
+// schema, a tool call is not a string that schema can produce, so the model
+// never emitted one. Nothing errored. The answer was schema-valid and cited a
+// form that does not exist.
+//
+// That is a property of the SERVER, so it must be re-measured per server —
+// which is why this is a section here and not a sentence in a doc. A pass means
+// the endpoint needs no workaround; a fail means it needs the second pass that
+// `mastra/loop.ts`'s `structuringPass()` applies to `local` only.
+console.log('\n── 4 · tools AND a strict schema, in the SAME request ─────────');
+
+const both = await post('/chat/completions', {
+  model: MODEL,
+  messages: [
+    { role: 'system', content: 'You answer ONLY from search_policy results. Never answer from memory. Always call search_policy first.' },
+    { role: 'user', content: 'how much rental car reimbursement does AUT-4471 get per day?' },
+  ],
+  tools: [{
+    type: 'function',
+    function: {
+      name: 'search_policy',
+      description: 'Search the policy corpus. You MUST call this before answering.',
+      parameters: {
+        type: 'object',
+        properties: { query: { type: 'string' } },
+        required: ['query'],
+        additionalProperties: false,
+      },
+    },
+  }],
+  response_format: {
+    type: 'json_schema',
+    json_schema: {
+      name: 'answer',
+      strict: true,
+      schema: {
+        type: 'object',
+        properties: { answer: { type: 'string' }, citations: { type: 'array', items: { type: 'string' } } },
+        required: ['answer', 'citations'],
+        additionalProperties: false,
+      },
+    },
+  },
+  stream: false,
+});
+
+assert('server accepted tools AND response_format together', both.status === 200,
+  both.status !== 200 ? `HTTP ${both.status}: ${both.text.slice(0, 220)}` : '');
+
+if (both.status === 200) {
+  const m = both.json?.choices?.[0]?.message ?? {};
+  const calls = m.tool_calls ?? [];
+  assert(
+    'TOOLS SURVIVE A STRICT SCHEMA — the model can still ask for a tool',
+    calls.length > 0,
+    calls.length > 0
+      ? `called ${calls.map((t) => t.function?.name).join(', ')}`
+      : 'NO TOOL CALL — this endpoint suppresses tools under a grammar. The loop ' +
+        'will answer from nothing and cite documents it never read. Use LOOP=mastra ' +
+        '(structuringPass covers `local`) or LOOP=langgraph, which structures in a ' +
+        `separate call and is unaffected. content: ${String(m.content ?? '').slice(0, 90)}`,
+  );
 }
 
 console.log(`\n${failed === 0 ? '\x1b[32mALL CHECKS PASSED\x1b[0m' : `\x1b[31m${failed} CHECK(S) FAILED\x1b[0m`}\n`);
