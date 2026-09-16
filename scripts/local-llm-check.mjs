@@ -192,23 +192,54 @@ if (parsed) {
 
 // ── 2 · the NEGATIVE CONTROL. A check that has only ever passed cannot fail.
 console.log('\n── 2 · negative control: does it REJECT an impossible shape? ───');
-const bogus = await post('/chat/completions', {
-  model: MODEL,
-  messages: [{ role: 'user', content: 'Say hello.' }],
-  response_format: { type: 'json_schema',
-    json_schema: { name: 'bogus', strict: true,
-      schema: { type: 'object',
-                properties: { n: { type: 'integer', minimum: 5, maximum: 5 } },
-                required: ['n'], additionalProperties: false } } },
-  stream: false,
-});
-if (bogus.status === 200) {
+
+// REPEATED, BECAUSE ENFORCEMENT CAN BE PER-REQUEST AND NOT PER-ENDPOINT.
+//
+// MEASURED 2026-09-16 on OpenRouter's `openrouter/free`: section 1 accepted a
+// strict `json_schema` and returned MARKDOWN PROSE, while this section's
+// constraint WAS honoured — same base URL, same model string, one run. The
+// router selects a free model per request, and OpenRouter documents schema
+// enforcement as a property of the ENDPOINT it routes to, not of the model
+// name you asked for. Some backends treat a schema as a strong hint.
+//
+// A single probe cannot see that. Had section 1 happened to land on an
+// enforcing backend, this whole check would have gone green for an endpoint
+// that breaks Pillar 3 on an unpredictable fraction of production requests —
+// which is worse than a flat refusal, because a flat refusal is visible.
+//
+// So this asks the same impossible question several times and requires EVERY
+// answer to comply. `COMPAT_REPEAT` tunes it: the cost is N requests against a
+// quota, and the default of 3 is the smallest number that can catch a coin
+// flip. One pass proves nothing about a router.
+const REPEAT = Math.max(1, Number(process.env.COMPAT_REPEAT ?? 3));
+const control = [];
+for (let i = 0; i < REPEAT; i++) {
+  const bogus = await post('/chat/completions', {
+    model: MODEL,
+    messages: [{ role: 'user', content: 'Say hello.' }],
+    response_format: { type: 'json_schema',
+      json_schema: { name: 'bogus', strict: true,
+        schema: { type: 'object',
+                  properties: { n: { type: 'integer', minimum: 5, maximum: 5 } },
+                  required: ['n'], additionalProperties: false } } },
+    stream: false,
+  });
+  if (bogus.status !== 200) { control.push({ ok: false, why: `HTTP ${bogus.status}` }); continue; }
   let b = null; try { b = JSON.parse(bogus.json?.choices?.[0]?.message?.content ?? ''); } catch {}
-  assert('constrained field respected (n === 5)', b?.n === 5,
-    `got: ${JSON.stringify(b)} — if this is not 5, the constraint is advisory, not enforced`);
-} else {
-  assert('negative control ran', false, `HTTP ${bogus.status}`);
+  control.push({ ok: b?.n === 5, why: b === null ? 'not JSON at all' : JSON.stringify(b) });
 }
+const passes = control.filter((c) => c.ok).length;
+assert(
+  `constrained field respected (n === 5) on ALL ${REPEAT} attempts`,
+  passes === REPEAT,
+  passes === REPEAT
+    ? `${passes}/${REPEAT} complied — enforcement looks like a property of the endpoint`
+    : `ONLY ${passes}/${REPEAT} complied: ${control.map((c) => c.why).join(' | ')}\n` +
+      '        Enforcement is PER-REQUEST here, which is worse than a flat no: a\n' +
+      '        schema honoured sometimes passes a suite and breaks in production.\n' +
+      '        Pin a specific model instead of a router, or use a provider that\n' +
+      '        guarantees it.',
+);
 
 // ── 3 · tool calling
 console.log('\n── 3 · tool calling ───────────────────────────────────────────');

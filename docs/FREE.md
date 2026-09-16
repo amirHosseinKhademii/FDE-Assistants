@@ -365,6 +365,47 @@ It found the base form, found the endorsement, noticed they disagree, and
 resolved it from the policyholder record rather than picking a side. That is the
 whole contract working, for nothing.
 
+### A ROUTER IS NOT A PROVIDER — measured on OpenRouter, 2026-09-16
+
+OpenRouter's `openrouter/free` looks like the answer to the volatility below: one
+key, OpenAI-compatible, and it picks among free models per request, filtering for
+the capabilities the request needs. It is not the answer, and **the way it fails
+is more useful than a flat refusal would have been.**
+
+```
+§1 strict structured output   ACCEPTED json_schema(strict) … then returned MARKDOWN PROSE
+§2 negative control           ok — constrained field respected (n === 5)
+§3 tool calling               ok — correct name, correct argument
+§4 tools AND strict schema    ok — tools survive
+```
+
+**§1 and §2 disagree inside a single run.** One request had its schema enforced
+and another was handed prose — same base URL, same model string, seconds apart.
+That is the router behaving as documented: it selects a free model per request,
+and OpenRouter states schema enforcement is a property of **the endpoint it
+routes to, not of the model you named**. Some backends treat a schema as a
+strong hint.
+
+**Non-determinism is worse than incapacity**, because incapacity is visible. A
+schema honoured on most requests passes a suite and breaks on an unpredictable
+fraction of production traffic — which is exactly the guarantee Pillar 3 exists
+to make.
+
+**It also indicted this repo's own instrument.** `compat:check` probed each
+section once. Had §1 happened to land on an enforcing backend, the whole check
+would have gone green for an endpoint that breaks the answer contract at random.
+So §2 now runs **three times and requires unanimity** — `COMPAT_REPEAT` tunes it.
+One pass proves nothing about a router; it is the same rule as the negative
+control itself, applied to the check rather than to the model.
+
+Gemini passes 3/3, so enforcement there looks like a property of the endpoint.
+
+**The remedy is to pin a model rather than a router.** Quota, for the row it
+belongs in: OpenRouter's own docs give **20 req/min and 50 req/day** under $10
+lifetime credits, rising to 1,000/day after — third-party pages saying 200/day
+are not the docs. At roughly seven requests per assessment that is about seven
+assessments a day, which disqualifies it on **quota**, not on capability.
+
 ### ON A FREE TIER, AVAILABILITY BEATS CAPABILITY — and it is not close
 
 The first run failed five checks with `503 "This model is currently experiencing
