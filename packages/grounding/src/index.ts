@@ -78,6 +78,8 @@ export {
   type ApproximateSample,
 } from './index-bench';
 
+export { fuseByRank } from './hybrid';
+
 export {
   rerankHits,
   rerankerChoice,

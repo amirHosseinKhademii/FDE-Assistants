@@ -16,7 +16,8 @@
     "search": "ts-node src/cli/search.ts",
     "measure": "ts-node src/cli/measure.ts",
     "recall": "ts-node src/cli/recall.ts",
-    "recalls-for": "ts-node src/cli/recalls-for.ts"
+    "recalls-for": "ts-node src/cli/recalls-for.ts",
+    "complaints": "ts-node src/cli/complaints.ts"
   },
   "dependencies": {
     "dotenv": "^16.4.5",

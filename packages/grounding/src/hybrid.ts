@@ -207,6 +207,23 @@ export async function hybridSearch(
 
   const [dense, sparse] = await Promise.all([densePromise, sparsePromise]);
 
+  return { hits: fuseByRank(dense.map(([doc]) => doc), sparse.docs, k), fullText: sparse.ok };
+}
+
+/**
+ * Reciprocal rank fusion over two ranked lists.
+ *
+ * EXPORTED SO THERE IS EXACTLY ONE IMPLEMENTATION OF THIS ARITHMETIC. A caller
+ * that has to run the two arms itself — because it needs a filter neither arm's
+ * own filter language can express — would otherwise write its own copy, and two
+ * copies of a scoring rule drift without anything failing. `hybridSearch` above
+ * calls this; nothing here knows what a document is about.
+ *
+ * Both lists are assumed ALREADY RANKED, best first. Position is the only thing
+ * read from them: the scores that got them there are on incomparable scales,
+ * which is the reason this function exists at all.
+ */
+export function fuseByRank(dense: LCDocument[], sparse: LCDocument[], k: number): Scored[] {
   const fused = new Map<string, Scored>();
   const add = (doc: LCDocument, rank: number, arm: 'dense' | 'sparse') => {
     const key = keyOf(doc);
@@ -217,12 +234,11 @@ export async function hybridSearch(
     fused.set(key, prev);
   };
 
-  dense.forEach(([doc], i) => add(doc, i + 1, 'dense'));
-  sparse.docs.forEach((doc, i) => add(doc, i + 1, 'sparse'));
+  dense.forEach((doc, i) => add(doc, i + 1, 'dense'));
+  sparse.forEach((doc, i) => add(doc, i + 1, 'sparse'));
 
   const ranked = [...fused.values()].sort((a, b) => b.score - a.score).slice(0, k);
   const best = ranked[0]?.score ?? 1;
   for (const r of ranked) r.score = Number((r.score / best).toFixed(3));
-
-  return { hits: ranked, fullText: sparse.ok };
+  return ranked;
 }
