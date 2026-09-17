@@ -193,6 +193,9 @@ importers:
       '@fde/agent':
         specifier: workspace:*
         version: link:../../../packages/agent
+      '@fde/foundry':
+        specifier: workspace:*
+        version: link:../../../packages/providers/foundry
       '@fde/grounding':
         specifier: workspace:*
         version: link:../../../packages/grounding

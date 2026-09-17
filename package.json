@@ -154,7 +154,8 @@
     "safety:citing": "pnpm --filter @calder/safety citing",
     "safety:measure-tools": "pnpm --filter @calder/safety measure-tools",
     "safety:schema": "pnpm --filter @calder/safety schema",
-    "safety:tools": "pnpm --filter @calder/safety tools"
+    "safety:tools": "pnpm --filter @calder/safety tools",
+    "safety:ask": "pnpm --filter @calder/safety ask"
   },
   "devDependencies": {
     "turbo": "^2.10.12"

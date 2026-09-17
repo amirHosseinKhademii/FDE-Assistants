@@ -22,7 +22,8 @@
     "citing": "ts-node src/cli/citing.ts",
     "measure-tools": "ts-node src/cli/measure-tools.ts",
     "schema": "ts-node src/schema/schema-selftest.ts",
-    "tools": "ts-node src/cli/tools.ts"
+    "tools": "ts-node src/cli/tools.ts",
+    "ask": "ts-node src/cli/ask.ts"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
@@ -31,7 +32,8 @@
     "@langchain/core": "^0.3.18",
     "zod": "^4.5.4",
     "@fde/schema": "workspace:*",
-    "@fde/agent": "workspace:*"
+    "@fde/agent": "workspace:*",
+    "@fde/foundry": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.7.5",
