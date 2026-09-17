@@ -196,12 +196,6 @@ export function Stage4() {
             </div>
           ))}
         </div>
-        <Key>
-          That is not a correction to be embarrassed about. It is the plan being
-          changed by evidence, which is the only reason to measure before
-          building — and it is why this stage is worth a page before it is worth
-          any code.
-        </Key>
       </Chapter>
 
       <Chapter
