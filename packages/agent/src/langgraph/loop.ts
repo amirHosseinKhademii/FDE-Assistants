@@ -100,7 +100,9 @@ export async function runLoopLangGraph<T = unknown>(
     // sdk/loop.ts and mastra/loop.ts both record.
     turns = [...turns, ...turnsFrom(allMessages, dispatched, turns.length, toolsAccountedFor)];
     toolsAccountedFor = dispatched.length;
-    for (const t of turns) opts.onTurn?.(t);
+    // AWAITED. See LoopOptions.onTurn: a callback whose promise is dropped cannot
+    // throttle, and cannot be trusted to have persisted anything either.
+    for (const t of turns) await opts.onTurn?.(t);
 
     const lastAi = [...allMessages].reverse().find((m) => m instanceof AIMessage);
     const text = result.structuredResponse

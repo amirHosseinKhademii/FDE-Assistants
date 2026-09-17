@@ -132,7 +132,9 @@ export async function runLoopMastra<T = unknown>(
     // describe only the retry, so assigning would erase the first attempt's
     // tool calls from the audit trail. loop-sdk.ts records the same trap.
     turns = [...turns, ...turnsFrom(res.steps ?? [], dispatched.slice(sumToolCalls(turns)))];
-    for (const t of turns) opts.onTurn?.(t);
+    // AWAITED. See LoopOptions.onTurn: a callback whose promise is dropped cannot
+    // throttle, and cannot be trusted to have persisted anything either.
+    for (const t of turns) await opts.onTurn?.(t);
 
     const text =
       typeof res.text === 'string' && res.text

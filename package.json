@@ -156,7 +156,8 @@
     "safety:schema": "pnpm --filter @calder/safety schema",
     "safety:tools": "pnpm --filter @calder/safety tools",
     "safety:ask": "pnpm --filter @calder/safety ask",
-    "safety:round-trip": "pnpm --filter @calder/safety round-trip"
+    "safety:round-trip": "pnpm --filter @calder/safety round-trip",
+    "safety:run-all": "pnpm --filter @calder/safety run-all"
   },
   "devDependencies": {
     "turbo": "^2.10.12"

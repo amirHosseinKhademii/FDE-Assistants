@@ -173,7 +173,9 @@ export async function runLoopSdk<T = unknown>(
         ? result.finalOutput
         : JSON.stringify(result.finalOutput ?? '');
 
-    for (const t of turns) opts.onTurn?.(t);
+    // AWAITED. See LoopOptions.onTurn: a callback whose promise is dropped cannot
+    // throttle, and cannot be trusted to have persisted anything either.
+    for (const t of turns) await opts.onTurn?.(t);
 
     // The gate decides finished-or-retry. What it CANNOT decide is the next
     // line: `outputType` enforces SHAPE, and coherence — an unresolved conflict

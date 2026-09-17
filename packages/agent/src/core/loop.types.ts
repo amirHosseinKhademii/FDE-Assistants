@@ -219,8 +219,23 @@ export interface LoopOptions {
   /** Hard stop. Without it, a model that keeps re-searching runs forever.
    *  Defaults to DEFAULT_MAX_TURNS — override only to test the cap itself. */
   maxTurns?: number;
-  /** Called after each completed model round-trip. Feeds telemetry. */
-  onTurn?: (turn: TurnRecord) => void;
+  /**
+   * Called after each completed model round-trip. Feeds telemetry.
+   *
+   * MAY RETURN A PROMISE, AND IT IS AWAITED. It used to be `=> void` and the
+   * three engines called it without awaiting, so an async callback became a
+   * floating promise: it ran, and nothing waited for it.
+   *
+   * That is invisible for a logger and fatal for a THROTTLE. Stage 6.6 of the
+   * safety engagement used this to pace requests against a free tier allowing
+   * fifteen a minute; the sleep resolved after the next request had already
+   * gone out, and the run hit the quota anyway while appearing to be paced.
+   *
+   * A callback whose promise is dropped also cannot be trusted to have finished
+   * writing anything — which matters the moment telemetry is more than a
+   * console line.
+   */
+  onTurn?: (turn: TurnRecord) => void | Promise<void>;
   /**
    * Fired as things happen, for a live trace.
    *
