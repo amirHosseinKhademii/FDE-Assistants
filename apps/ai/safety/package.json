@@ -19,7 +19,8 @@
     "recalls-for": "ts-node src/cli/recalls-for.ts",
     "complaints": "ts-node src/cli/complaints.ts",
     "count": "ts-node src/cli/count.ts",
-    "citing": "ts-node src/cli/citing.ts"
+    "citing": "ts-node src/cli/citing.ts",
+    "measure-tools": "ts-node src/cli/measure-tools.ts"
   },
   "dependencies": {
     "dotenv": "^16.4.5",

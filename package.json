@@ -151,7 +151,8 @@
     "safety:recalls-for": "pnpm --filter @calder/safety recalls-for",
     "safety:complaints": "pnpm --filter @calder/safety complaints",
     "safety:count": "pnpm --filter @calder/safety count",
-    "safety:citing": "pnpm --filter @calder/safety citing"
+    "safety:citing": "pnpm --filter @calder/safety citing",
+    "safety:measure-tools": "pnpm --filter @calder/safety measure-tools"
   },
   "devDependencies": {
     "turbo": "^2.10.12"
