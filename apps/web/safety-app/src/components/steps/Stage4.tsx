@@ -198,11 +198,11 @@ export function Stage4() {
         <p className="cal-result-foot">
           Two of the three moved. The third was already right, and being right
           here means returning <em>nothing</em> — so it is listed rather than
-          quietly dropped. And the number is reached by{' '}
-          <span className="text-ui-dim">two of the five tools</span>:{' '}
-          <Mono>find_recalls</Mono> and <Mono>search_complaints</Mono>. The other
-          three answer questions the answer key does not score this way — a
-          lookup, a count, and a list of citing complaints are not recall@6.
+          quietly dropped. The number is reached by{' '}
+          <span className="text-ui-dim">two of the five tools</span>, and one of
+          the three left out was left out because calling it would have{' '}
+          <span className="text-ui-dim">lowered the score</span> — which is a
+          limit of the measurement rather than of the tool.
         </p>
       </div>
 

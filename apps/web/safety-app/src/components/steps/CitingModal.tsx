@@ -21,9 +21,13 @@
  *
  * ── AND THE WARNING IT CARRIED FORWARD STILL STANDS ───────────────────────
  *
- * 4.5 has run: recall@6 went 0.40 to 1.00. This tool is NOT part of that
- * number — the measurement calls `find_recalls` and `search_complaints` only —
- * so the panel must not borrow credit for it.
+ * 4.5 has run: recall@6 went 0.40 to 1.00, and this tool is NOT part of that
+ * number. NOT BECAUSE IT DOES NOT HELP — because calling it would have LOWERED
+ * the score. VERIFIED: none of the seven is the one complaint REC-001 names, and
+ * six slots are all there are, so seven results by reference push the named
+ * target out. The metric rewards retrieving what the key NAMED, and the key
+ * names one supporting complaint rather than every complaint a good answer
+ * would cite.
  *
  * The warning is the other half. Any score over this corpus is partly a measure
  * of how good NHTSA's own data entry is, not only of how good the filters are,
@@ -234,20 +238,45 @@ function CitingPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
         </section>
 
         <section>
-          <H>And the warning it carried into the re-measurement</H>
+          <H>The measurement would punish calling this tool</H>
+          <P>
+            4.5 re-ran the answer key through the tools and recall@6 went from
+            0.40 to 1.00. This tool was not called.
+          </P>
+          <Data
+            path="why it was left out"
+            mark={[2]}
+            lines={[
+              'the complaint that question names        11353867',
+              'the seven that name the campaign         not among them',
+              'slots available                          6, and one holds the recall',
+            ]}
+          />
+          <Key>
+            So adding seven complaints found by reference would push the named
+            one out, and the score would fall. The tool that finds the best
+            evidence would cost you the number.
+          </Key>
+          <Why>
+            That is a limit of recall@6, not of the tool. The measure rewards
+            retrieving what the answer key <em>named</em>, and the key names one
+            supporting complaint rather than every complaint a good answer would
+            cite. Scoring the answer instead of the retrieval is a later stage,
+            and this is the reason it has to exist.
+          </Why>
+        </section>
+
+        <section>
+          <H>And the warning it carried forward still stands</H>
           <Key>
             Any score over this corpus is partly a measure of how good NHTSA's
             own data entry is — not only of how good the filters are.
           </Key>
           <Why>
-            4.5 has since run and recall@6 went 0.40 to 1.00.{' '}
-            <span className="text-ui-fg">
-              This tool is not part of that number
-            </span>{' '}
-            — the measurement calls the recall finder and the complaint search
-            only — so nothing here is evidence for it. The warning is what
-            travels: the row above is one complaint the filters cannot reach
-            through no fault of the filters.
+            The F-250 SD row is the proof that those are different things: one
+            complaint the filters cannot reach, through no fault of the filters.
+            It was written here before the number arrived, which is the only time
+            such a thing is worth writing.
           </Why>
         </section>
 
