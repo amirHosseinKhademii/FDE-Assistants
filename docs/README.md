@@ -94,6 +94,14 @@ marked MEASURED or PROPOSED, and none of it is built yet ·
 what** — a source catalogue for the `/learn` pages, with the measured figure and
 the dependency edges for each topic. Deliberately not a lesson plan.
 
+### recalls — the fourth engagement, PLANNED ONLY
+
+[`recalls/PLAN.md`](recalls/PLAN.md) — **nothing is built.** Point the existing
+machinery at NHTSA's public vehicle-safety record: a corpus nobody wrote for us,
+with a real unplanted contradiction (51 of 55 sliding-door complaints filed AFTER
+the recall that was meant to fix them) and two endpoints of the same agency using
+different date formats. §9 lists the decisions needed before step 1.
+
 ## Research and reference
 
 | | |
