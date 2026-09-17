@@ -21,3 +21,6 @@ export const DOCUMENTS_JSON = resolve(CORPUS_DIR, 'documents.json');
 
 /** Stage 3.2's output. Still plain JSON — stage 3.4 is the first database. */
 export const PASSAGES_JSON = resolve(CORPUS_DIR, 'passages.json');
+
+/** Stage 3.3's output: passages with their 384 numbers. ~108 MB of vectors. */
+export const VECTORS_JSON = resolve(CORPUS_DIR, 'vectors.json');

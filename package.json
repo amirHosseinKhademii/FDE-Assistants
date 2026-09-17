@@ -142,7 +142,8 @@
     "arch:check": "node scripts/arch-graph.mjs --check",
     "compat:check": "node scripts/local-llm-check.mjs",
     "safety:parse": "pnpm --filter @calder/safety parse",
-    "safety:chunk": "pnpm --filter @calder/safety chunk"
+    "safety:chunk": "pnpm --filter @calder/safety chunk",
+    "safety:embed": "pnpm --filter @calder/safety embed"
   },
   "devDependencies": {
     "turbo": "^2.10.12"
