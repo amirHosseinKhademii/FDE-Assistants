@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DataFlowRouteImport } from './routes/data-flow'
+import { Route as StepsRouteImport } from './routes/steps'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,40 @@ const DataFlowRoute = DataFlowRouteImport.update({
   path: '/data-flow',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StepsRoute = StepsRouteImport.update({
+  id: '/steps',
+  path: '/steps',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/data-flow': typeof DataFlowRoute
+  '/steps': typeof StepsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/data-flow': typeof DataFlowRoute
+  '/steps': typeof StepsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/data-flow': typeof DataFlowRoute
+  '/steps': typeof StepsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/data-flow'
+  fullPaths: '/' | '/data-flow' | '/steps'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/data-flow'
-  id: '__root__' | '/' | '/data-flow'
+  to: '/' | '/data-flow' | '/steps'
+  id: '__root__' | '/' | '/data-flow' | '/steps'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DataFlowRoute: typeof DataFlowRoute
+  StepsRoute: typeof StepsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DataFlowRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/steps': {
+      id: '/steps'
+      path: '/steps'
+      fullPath: '/steps'
+      preLoaderRoute: typeof StepsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DataFlowRoute: DataFlowRoute,
+  StepsRoute: StepsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

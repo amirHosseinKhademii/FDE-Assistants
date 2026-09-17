@@ -227,6 +227,23 @@ const makeModel = new Set();
 const components = new Set();
 const influencedBy = {};
 
+/**
+ * HOW LONG A PASSAGE WOULD BE, per source.
+ *
+ * It decides whether a source is chunked at all, so it is measured rather than
+ * described as "thousands". For complaints the passage is the narrative; for
+ * recalls it is the three prose blocks a campaign files; for investigations it
+ * is the summary. Counted once per unit of meaning, like everything else.
+ */
+const lengths = { complaints: [0, 0, 0], recalls: [0, 0, 0], investigations: [0, 0, 0] };
+const note = (key, n) => {
+  lengths[key][0] += n;
+  lengths[key][1] += 1;
+  /* THE MAXIMUM DECIDES WHETHER TO CHUNK, not the mean. A source whose mean is
+     700 and whose longest is 40,000 still needs a chunker for the tail. */
+  if (n > lengths[key][2]) lengths[key][2] = n;
+};
+
 function tallyComplaint(c, first) {
   /* COMPONENTS ARE A PROPERTY OF THE ROW, NOT OF THE FILING — the fan-out IS
      the component list, so this one is counted on every row. Everything below
@@ -243,12 +260,16 @@ function tallyComplaint(c, first) {
      of digits and punctuation is not shouting, it is just short. */
   if (/[A-Za-z]/.test(narrative) && narrative === narrative.toUpperCase()) cmplFacts.allCaps += 1;
   if (narrative.length < 40) cmplFacts.short += 1;
+  note('complaints', narrative.length);
   makes.add(c[3]);
   makeModel.add(`${c[3]}|${c[4]}`);
 }
 
 function tallyRecall(c, first) {
   if (!first) return;
+  /* Fields 20, 21 and 22 — the defect, what it could do, and what the dealer
+     will fit. Together they are what a campaign actually says. */
+  note('recalls', (c[19] ?? '').length + (c[20] ?? '').length + (c[21] ?? '').length);
   const by = c[13] || '(blank)';
   influencedBy[by] = (influencedBy[by] ?? 0) + 1;
 }
@@ -256,7 +277,15 @@ function tallyRecall(c, first) {
 const SOURCES = [
   { db: 'complaints', file: 'CMPL_SLICE.tsv', fields: CMPL, unit: 1, label: 'FLAT_CMPL', tally: tallyComplaint },
   { db: 'recalls', file: 'RCL_SLICE.tsv', fields: RCL, unit: 1, label: 'FLAT_RCL_POST_2010', tally: tallyRecall },
-  { db: 'investigations', file: 'INV_SLICE.tsv', fields: INV, unit: 0, label: 'FLAT_INV' },
+  {
+    db: 'investigations',
+    file: 'INV_SLICE.tsv',
+    fields: INV,
+    unit: 0,
+    label: 'FLAT_INV',
+    /* Field 11 is SUMMARY — what NHTSA wrote down about the enquiry. */
+    tally: (c, first) => first && note('investigations', (c[10] ?? '').length),
+  },
 ];
 
 const measured = [];
@@ -407,6 +436,31 @@ export const DISTINCT = ${JSON.stringify({ makes: makes.size, makeModel: makeMod
  * whether the manufacturer volunteered or was pushed into it.
  */
 export const INFLUENCED_BY: Record<string, number> = ${JSON.stringify(influencedBy, null, 2)};
+
+/**
+ * MEAN PASSAGE LENGTH IN CHARACTERS, per source, per unit of meaning.
+ *
+ * This is the number that decides whether a source is chunked. A complaint is
+ * already about the size a chunker aims for; a recall campaign and an
+ * investigation are not.
+ */
+export const MEAN_CHARS = ${JSON.stringify(
+    Object.fromEntries(
+      Object.entries(lengths).map(([k, [sum, n]]) => [k, n ? Math.round(sum / n) : 0]),
+    ),
+    null,
+    2,
+  )} as const;
+
+/**
+ * THE LONGEST PASSAGE IN EACH SOURCE, which is the number a chunking decision
+ * actually turns on. A mean of 700 says nothing if the tail runs to 40,000.
+ */
+export const MAX_CHARS = ${JSON.stringify(
+    Object.fromEntries(Object.entries(lengths).map(([k, v]) => [k, v[2]])),
+    null,
+    2,
+  )} as const;
 `,
   'utf8',
 );

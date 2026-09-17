@@ -97,9 +97,13 @@ function Header() {
       </span>
 
       <Link
-        to="/data-flow"
+        to="/steps"
         className="text-sm text-ui-dim transition-colors hover:text-ui-fg sm:ml-auto"
       >
+        How it would work
+      </Link>
+
+      <Link to="/data-flow" className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
         Where the data goes
       </Link>
 
@@ -397,6 +401,12 @@ function Onward() {
           className="font-mono text-sm text-cal-1 transition-colors hover:text-ui-fg"
         >
           Where the data goes →
+        </Link>
+        <Link
+          to="/steps"
+          className="font-mono text-sm text-cal-2 transition-colors hover:text-ui-fg"
+        >
+          How it would work, in seven stages →
         </Link>
         <span className="font-mono text-sm text-ui-faint">
           The desk is not built yet — the answer contract is written after the

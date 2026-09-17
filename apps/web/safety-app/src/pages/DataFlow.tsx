@@ -39,6 +39,9 @@ export function DataFlow() {
           Calder Safety
         </Link>
         <span className="text-sm text-ui-faint sm:ml-auto">Where the data goes</span>
+        <Link to="/steps" className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
+          How it would work
+        </Link>
         {VERESK ? (
           <a href={VERESK} className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
             Veresk

@@ -686,3 +686,26 @@ export const INFLUENCED_BY: Record<string, number> = {
   "ODI": 107,
   "OVSC": 26
 };
+
+/**
+ * MEAN PASSAGE LENGTH IN CHARACTERS, per source, per unit of meaning.
+ *
+ * This is the number that decides whether a source is chunked. A complaint is
+ * already about the size a chunker aims for; a recall campaign and an
+ * investigation are not.
+ */
+export const MEAN_CHARS = {
+  "complaints": 596,
+  "recalls": 696,
+  "investigations": 2505
+} as const;
+
+/**
+ * THE LONGEST PASSAGE IN EACH SOURCE, which is the number a chunking decision
+ * actually turns on. A mean of 700 says nothing if the tail runs to 40,000.
+ */
+export const MAX_CHARS = {
+  "complaints": 2048,
+  "recalls": 1608,
+  "investigations": 5796
+} as const;
