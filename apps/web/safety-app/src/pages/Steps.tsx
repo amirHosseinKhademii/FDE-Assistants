@@ -37,27 +37,14 @@ import { Link } from '@tanstack/react-router';
 import { Aurora } from '@veresk/surface';
 import { Code, Data } from '@veresk/surface';
 import { BeforeAfter, Because, Figure, Raw, Stage } from '../components/steps/kit';
+import { ChunkerModal } from '../components/steps/ChunkerModal';
 import { ParserModal } from '../components/steps/ParserModal';
 import { AURORA } from '../lib/aurora';
-import { MAX_CHARS, MEAN_CHARS, ROWS, UNITS } from '../lib/estate.generated';
+import { ROWS, UNITS } from '../lib/estate.generated';
 import { VERESK } from '../lib/links';
 
 /** The complaint this page follows, start to finish. */
 const SPINE = '11353867';
-
-/**
- * WHETHER EACH SOURCE IS CUT INTO PIECES, and the measurement it turns on.
- *
- * The lengths come from `estate.generated.ts`; only the verdict is written
- * here, because it is a judgement and the numbers are not. The recall row is
- * the one that changed: the plan said "thousands, chunk them", and the file
- * says the longest campaign in the slice is under 1,700 characters.
- */
-const LENGTHS = [
-  { key: 'complaints', what: 'complaint', cut: false, verdict: 'no — one complaint, one passage' },
-  { key: 'recalls', what: 'recall campaign', cut: false, verdict: 'no — shorter than we thought' },
-  { key: 'investigations', what: 'investigation', cut: true, verdict: 'yes — and only these' },
-] as const;
 
 /**
  * Reciprocal Rank Fusion, as the page describes it.
@@ -286,59 +273,64 @@ function Parse() {
 }
 
 function Chunk() {
+  const untouched = UNITS.complaints + UNITS.recalls;
+  const inTotal = untouched + UNITS.investigations;
+
   return (
     <Stage
       n="3.2"
-      verb="CHUNK — and why complaints are not"
+      verb="CHUNK — the stage that mostly declines to run"
       when="once, offline"
-      plain="Search returns pieces, not whole files. Long documents get cut into pieces of roughly 500–1,000 characters. The question is how big a piece should be — and here the answer is that a complaint is already one."
+      plain="Search returns pieces, not whole files, so a long document has to be cut up. The chunker's job is to decide where — and its real job on this corpus is to decide where not to."
     >
-      <Figure caption="if we cut at 400 characters" from="worked" source="docs/safety/INGESTION.md §3.2">
-        <Raw>{`piece 1  "THE GEAR WILL NOT GO INTO PARK AND ALLOW ME TO START.
-          ALSO, THE DISPLAY INDICATES I AM IN THE WRONG GEAR…"
-
-piece 2  "…DISPLAY SHOWS NEUTRAL BUT TRUCK IS IN DRIVE,
-          DISPLAY SHOWS REVERSE BUT THE…"`}</Raw>
-      </Figure>
-
-      <Because>
-        Piece 2 has lost the word <span className="text-ui-fg">PARK</span>. A
-        question about “will not go into park” now half-matches a fragment that
-        no longer says it — and the citation points at “piece 2 of complaint{' '}
-        {SPINE}”, which is not a thing a person can look up at nhtsa.gov. The
-        rule: a passage should be the smallest unit that still makes sense on its
-        own, and for a complaint that is the whole complaint.
-      </Because>
-
-      <Figure caption="passage length, by source" source="pnpm safety:estate">
+      <Figure caption="what went in, and what came out" source="@fde/grounding, over the real stage 3.1 output">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[36rem] border-collapse text-[0.8125rem]">
+          <table className="w-full min-w-[34rem] border-collapse text-[0.8125rem]">
             <thead>
               <tr className="font-mono text-[0.625rem] tracking-[0.08em] text-ui-faint uppercase">
                 <th className="pb-2 text-left font-normal">source</th>
-                <th className="pb-2 text-right font-normal">mean</th>
-                <th className="pb-2 text-right font-normal">longest</th>
-                <th className="pb-2 pl-6 text-left font-normal">chunked?</th>
+                <th className="pb-2 text-right font-normal">in</th>
+                <th className="pb-2 text-right font-normal">out</th>
+                <th className="pb-2 pl-6 text-left font-normal">what happened</th>
               </tr>
             </thead>
             <tbody>
-              {LENGTHS.map((r) => (
-                <tr key={r.what} className="border-t border-ui-line">
-                  <td className="py-2.5 font-mono text-ui-fg">{r.what}</td>
+              {[
+                { source: 'complaints', n: UNITS.complaints, out: UNITS.complaints, cut: false },
+                { source: 'recalls', n: UNITS.recalls, out: UNITS.recalls, cut: false },
+                { source: 'investigations', n: UNITS.investigations, out: 222, cut: true },
+              ].map((r) => (
+                <tr key={r.source} className="border-t border-ui-line">
+                  <td className="py-2.5 font-mono text-ui-fg">{r.source}</td>
                   <td className="py-2.5 text-right font-mono text-ui-dim">
-                    {MEAN_CHARS[r.key].toLocaleString('en-GB')}
+                    {r.n.toLocaleString('en-GB')}
                   </td>
-                  <td className="py-2.5 text-right font-mono text-ui-dim">
-                    {MAX_CHARS[r.key].toLocaleString('en-GB')}
+                  <td
+                    className="py-2.5 text-right font-mono"
+                    style={{ color: r.cut ? 'var(--color-cal-2)' : 'var(--color-ui-dim)' }}
+                  >
+                    {r.out.toLocaleString('en-GB')}
                   </td>
                   <td
                     className="py-2.5 pl-6 font-mono"
-                    style={{ color: r.cut ? 'var(--color-cal-2)' : 'var(--color-cal-1)' }}
+                    style={{ color: r.cut ? 'var(--color-cal-2)' : 'var(--color-ui-faint)' }}
                   >
-                    {r.verdict}
+                    {r.cut ? 'cut' : 'untouched'}
                   </td>
                 </tr>
               ))}
+              <tr className="border-t border-ui-line">
+                <td className="py-2.5 font-mono text-ui-faint">total</td>
+                <td className="py-2.5 text-right font-mono text-ui-fg">
+                  {inTotal.toLocaleString('en-GB')}
+                </td>
+                <td className="py-2.5 text-right font-mono text-ui-fg">
+                  {(untouched + 222).toLocaleString('en-GB')}
+                </td>
+                <td className="py-2.5 pl-6 font-mono text-ui-faint">
+                  +{222 - UNITS.investigations} passages, from {UNITS.investigations} documents
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -346,15 +338,15 @@ piece 2  "…DISPLAY SHOWS NEUTRAL BUT TRUCK IS IN DRIVE,
 
       <Because>
         <span className="text-ui-fg">
-          The measurement moved one of these after the plan was written.
+          {((untouched / inTotal) * 100).toFixed(1)}% of the corpus passes through
+          untouched.
         </span>{' '}
-        <Mono>docs/safety/INGESTION.md</Mono> §3.2 puts recall campaigns at
-        “thousands of characters — chunk them”. Counted per campaign over the
-        three prose blocks a manufacturer files, the mean is{' '}
-        {MEAN_CHARS.recalls} and the longest in the whole slice is{' '}
-        {MAX_CHARS.recalls.toLocaleString('en-GB')} — shorter than the longest
-        complaint. Only investigations need a chunker, and there are{' '}
-        {UNITS.investigations} of them.
+        That is the stage, and the reason is not that complaints are short — one
+        in nine runs past the 1,200-character default and is left alone anyway. A
+        complaint is one person's account of one incident, and cutting it splits
+        the symptom from the circumstance: the second piece of{' '}
+        <Mono>{SPINE}</Mono> loses the word PARK, and “piece 2 of complaint{' '}
+        {SPINE}” is not a thing anybody can look up. An ODI number is.
       </Because>
 
       <Because>
@@ -362,10 +354,7 @@ piece 2  "…DISPLAY SHOWS NEUTRAL BUT TRUCK IS IN DRIVE,
         <Mono>docs/RETRIEVAL.md</Mono> calls the chunker “the highest-leverage
         file in the path”, and on a corpus of long documents it is — where you
         cut decides what can be found. Here it touches{' '}
-        {UNITS.investigations} documents out of{' '}
-        {TOTAL_DOCS.toLocaleString('en-GB')}, and leaves{' '}
-        {(100 - (UNITS.investigations / TOTAL_DOCS) * 100).toFixed(1)}% of the
-        corpus alone.
+        {UNITS.investigations} documents out of {inTotal.toLocaleString('en-GB')}.
       </Because>
 
       <Because>
@@ -377,6 +366,16 @@ piece 2  "…DISPLAY SHOWS NEUTRAL BUT TRUCK IS IN DRIVE,
         , and a pipeline tuned by fiddling with chunk sizes would be tuning the
         one stage that has almost nothing to do.
       </Because>
+
+      <Because>
+        And nothing new was written to get here.{' '}
+        <Mono>chunkDocument</Mono> is <Mono>@fde/grounding</Mono>'s, used by two
+        other engagements unchanged — which is the claim{' '}
+        <Mono>docs/TEMPLATE.md</Mono> makes, tested for the first time against a
+        corpus nobody wrote for us, passing quietly.
+      </Because>
+
+      <ChunkerModal />
     </Stage>
   );
 }
