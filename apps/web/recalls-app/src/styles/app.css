@@ -1,0 +1,157 @@
+@import 'tailwindcss';
+
+/**
+ * Three layers, in the order they may override each other.
+ *
+ *   @fde/uikit        the controls, the severity palette, the motion rules and
+ *                     the `--ui-*` tokens every component reads. Liftable into
+ *                     a customer's own repository, and therefore knows nothing
+ *                     about estates, firms or engagements.
+ *   @veresk/surface   this site's own shared parts: the wash behind a hero, the
+ *                     hero entrance, the estate section, the numbered step.
+ *   this file         what only Calder Safety's pages draw — three colours and
+ *                     two typefaces.
+ */
+@import '@fde/uikit/styles.css';
+
+/**
+ * THE `@source` LINE IS LOAD-BEARING, and it is copied deliberately rather than
+ * derived. Tailwind v4 does not look inside `node_modules`, and
+ * `@veresk/surface` is symlinked there like every workspace package. Without
+ * this, its components render with every utility class missing — from a build
+ * that SUCCEEDS, which is the worst failure shape available.
+ *
+ * FIVE LEVELS. It counts to the repo root from `apps/web/<app>/src/styles/`.
+ * The other apps carried a four-level version from when they lived at
+ * `apps/<app>/`, which resolved to a directory that does not exist — and
+ * Tailwind does not error on a `@source` that matches nothing. It scans no
+ * files, emits no classes, and the build succeeds. Count the levels rather than
+ * trusting this line.
+ */
+@import '@veresk/surface/styles.css';
+@source '../../../../../packages/surface/src';
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+}
+
+html {
+  background: var(--color-ui-bg);
+  color: var(--color-ui-fg);
+  -webkit-font-smoothing: antialiased;
+  color-scheme: dark;
+}
+
+body {
+  /* Two soft pools, so a flat near-black does not read as "unstyled". They do
+     not move, so there is nothing for the reduced-motion rule to suppress.
+     Indigo and steel rather than pharma's teal or steering's green — same
+     treatment, this customer's colours. */
+  background-image:
+    radial-gradient(60rem 30rem at 12% -10%, rgba(129, 140, 248, 0.07), transparent 60%),
+    radial-gradient(52rem 26rem at 96% 2%, rgba(100, 116, 139, 0.06), transparent 60%);
+  background-repeat: no-repeat;
+}
+
+/* ── CALDER SAFETY'S THREE SOURCES ──────────────────────────────────────────
+   A THIRD ESTATE NEEDS A THIRD PALETTE, not a third use of somebody else's.
+   Pharma's six hop hues mean "which of Meridian Pharma's systems of record did
+   this come from"; Vantis' four mean "which stage of a bid". If this estate
+   borrowed either, a reader moving between engagements would see one colour
+   mean two different things and correctly conclude it means nothing.
+
+   THE SPECTRUM IS GENUINELY CROWDED NOW, and that is worth saying rather than
+   pretending a fourth clean gap exists. Pharma runs teal → cyan → blue → violet
+   → pink → amber. Vantis runs green → lime → orange → red-orange. Severity has
+   rose, amber, blue, green and teal reserved and never on loan. What is left is
+   the indigo-to-steel band, so that is what this takes.
+
+   SO THE DIFFERENCE HERE IS SHAPE, NOT POSITION. Pharma's palette is a spread
+   across the whole spectrum and Vantis' is a warm run; this is a deliberately
+   NARROW cool ramp, because three sources do not need six hues and a tight
+   range reads as one estate rather than as a rainbow. Two engagements can sit
+   in adjacent hues if their palettes have different shapes.
+
+   THEY ARE THREE SOURCES, NOT A RANKING. The order is how a question moves
+   through the record: what a person reported, what the manufacturer said about
+   it, and what the regulator went on to ask.
+
+   THEY LIVE IN THIS FILE AND NOT IN THE SHARED PACKAGE, which is the point of
+   the split: the moment two customers' palettes sit in one stylesheet somebody
+   uses the wrong one and nothing catches it.
+
+   ONE HONEST OVERLAP. `--color-cal-1` is the indigo the firm's own `/learn`
+   ramp samples at position two. That ramp is on a DIFFERENT deployment, means
+   "how far through a track you are", and never appears beside an estate colour
+   — but it is the closest thing to a collision in the repo and is recorded here
+   rather than discovered later.
+   ────────────────────────────────────────────────────────────────────────── */
+@theme {
+  /* complaints — what a person wrote, in their own words */
+  --color-cal-1: #818cf8;
+  /* recalls — what the manufacturer filed about it */
+  --color-cal-2: #a5b4fc;
+  /* investigations — what the regulator asked next. Out of scope for v1
+     (PLAN.md §9.4) and drawn dim wherever it appears, so the page shows a
+     source we have NOT ingested as visibly absent rather than silently
+     missing. */
+  --color-cal-3: #64748b;
+}
+
+/* What the shared package draws in this customer's colours: the headline's
+   gradient, and the bar that says a navigation is in flight. Both are defined
+   in `@veresk/surface` against these names, with a neutral fallback, so a page
+   that forgets them is plain rather than wearing another customer's palette. */
+:root {
+  --title-1: #818cf8;
+  --title-2: #a5b4fc;
+  --title-3: #94a3b8;
+  --title-4: #64748b;
+  --ui-progress: linear-gradient(
+    90deg,
+    var(--color-cal-1), var(--color-cal-2), var(--color-cal-3)
+  );
+}
+
+/* ── THE RECORD ROW ─────────────────────────────────────────────────────────
+   The one thing this deployment draws that the others do not, and it exists
+   because this estate is the first one made of real filings.
+
+   A row is a single public record — a complaint or a recall — and it carries
+   its own identifier, because on this engagement the identifier is the point.
+   `ODI 11762525` is a thing a reader can look up themselves at nhtsa.gov, which
+   is not true of any citation on the other three deployments, where the corpus
+   was written by us.
+   ────────────────────────────────────────────────────────────────────────── */
+.cal-record {
+  display: grid;
+  gap: 0.375rem;
+  border-left: 2px solid var(--source, var(--color-ui-line));
+  padding: 0.625rem 0 0.625rem 0.875rem;
+}
+
+.cal-record-id {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--source, var(--color-ui-faint));
+}
+
+.cal-record-body {
+  max-width: 62ch;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--color-ui-dim);
+}
+
+/* A narrative quoted as filed. 13% of them are in ALL CAPS and this does not
+   correct that — the shouting is a property of the corpus and normalising it
+   would be the page editing the evidence. */
+.cal-verbatim {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--color-ui-dim);
+}

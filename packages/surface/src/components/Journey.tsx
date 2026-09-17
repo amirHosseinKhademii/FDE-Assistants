@@ -21,6 +21,25 @@ export type Where = 'browser' | 'yours' | 'crosses' | 'back';
 export interface Hop {
   where: Where;
   title: string;
+  /**
+   * WHAT THE BADGE SAYS, WHEN THE DEFAULT WOULD BE A LIE.
+   *
+   * `crosses` renders "crosses to the model" and `back` renders "from the
+   * model", which is true of every hop on the pharma and steering walks —
+   * there, the only boundary a request crosses is the one to a model provider.
+   *
+   * IT IS NOT TRUE EVERYWHERE. Calder Safety's first turn crosses to a US
+   * government API to fetch public filings, before any model exists in the
+   * story and carrying nothing outbound but a make, a model and a year.
+   * Labelling that "crosses to the model" would state something false on the
+   * one page whose entire subject is where data goes — and the reader most
+   * likely to be reading it is the one least able to catch it.
+   *
+   * OPTIONAL, so every existing hop is unchanged. The `where` still decides the
+   * colour, the icon and the rail position, because those encode *whether it
+   * left your network* rather than *who received it*.
+   */
+  label?: string;
   /** The literal thing that moved, as close to the wire as is readable. */
   payload?: string;
   /**
@@ -277,7 +296,7 @@ export function Journey({ turns }: { turns: Turn[] }) {
                         <span
                           className={`rounded-full border border-current px-2 py-px font-mono text-[0.625rem] ${w.tone}`}
                         >
-                          {w.label}
+                          {hop.label ?? w.label}
                         </span>
                         {hop.ms && <Mono className="text-[0.6875rem] text-ui-faint">{hop.ms}</Mono>}
                       </p>
