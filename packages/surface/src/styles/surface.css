@@ -39,7 +39,28 @@
   to   { opacity: 1; transform: none; filter: none; }
 }
 
-.lift-in { animation: lift-in 780ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+/* ── AN ENTRANCE IS AN ENHANCEMENT, AND THE RESTING STATE IS VISIBLE ────────
+   Every animation below used to carry `both`, which applies the FROM frame
+   before the animation starts. That is what makes a staggered entrance work:
+   an element with a 90ms delay has to be invisible during those 90ms.
+
+   IT ALSO MEANS THE PAGE IS BLANK IF THE ANIMATION NEVER RUNS. Measured, not
+   guessed: with playback frozen, 7 of the 8 `lift-in` sections on Calder's
+   landing sit at opacity 0 — the whole body of the page, everything except the
+   nav bar, which carries no entrance. A browser that throttles animations in a
+   background or hidden frame, a webview that never ticks them, a user whose
+   system asks for reduced motion — all three get a page with a header and
+   nothing under it, from a build that succeeded and a server returning 200.
+
+   So the animation is now behind `prefers-reduced-motion: no-preference`. With
+   no animation the element takes its natural state, which is visible. That also
+   fixes a real accessibility bug on the way past: the reduced-motion block
+   below only ever silenced `.estate-land`, so somebody who had asked the OS for
+   less motion still got every entrance on every page.
+   ────────────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  .lift-in { animation: lift-in 780ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+}
 
 /* The headline is set in the engagement's own spectrum, and the gradient moves
    slowly across it so the title and the colour below it read as one system.
@@ -105,11 +126,14 @@
   to   { opacity: 1; transform: none; filter: blur(0); }
 }
 
-.estate-land { animation: estate-land 400ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-
-@media (prefers-reduced-motion: reduce) {
-  .estate-land { animation: none !important; }
+@media (prefers-reduced-motion: no-preference) {
+  .estate-land { animation: estate-land 400ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 }
+
+/* The `reduce` override that used to live here is gone, and deliberately: it
+   silenced exactly one class while every other entrance kept running. The
+   `no-preference` gates above are the same intent stated so that a new
+   animation cannot be added and quietly skip it. */
 
 /* Something in the estate that is not a database. Shaped like a tile so the row
    reads as one set, and visibly inert — dashed, no lift, no pointer — because
