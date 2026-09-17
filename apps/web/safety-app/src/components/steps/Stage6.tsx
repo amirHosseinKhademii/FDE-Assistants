@@ -218,22 +218,31 @@ export function Stage6() {
         sub="Three turns. A turn is one message to the model, so three turns means three messages. Everything shown here is from a real run."
       >
         <Journey turns={LOOP_TURNS} />
-        <Key>
-          Turn 2 sends out one number. Turn 3 sends out five people's accounts
-          of fatal crashes. Those are very different things to hand to somebody
-          else, so they are not drawn the same.
-        </Key>
-        <Why>
-          We will not tell you the complaints never reach the model. They do —
-          that is how the question gets answered, and anyone reviewing this
-          would find out in their first question. So instead we say which five
-          went, and what was in them.
-        </Why>
-      </Chapter>
 
-      <div className="mt-2">
-        <LoopModal />
-      </div>
+        {/* CLOSES THE WALK, so it is full width rather than two narrow boxes
+            floating at a third left edge. The walk's own text is indented by
+            its rail; a conclusion that shared neither that indent nor the
+            button's width left four different left edges in one section. */}
+        <div className="cal-after">
+          <p className="cal-after-a">
+            Turn 2 sends out one number. Turn 3 sends out five people's accounts
+            of fatal crashes. Those are very different things to hand to
+            somebody else, so they are not drawn the same.
+          </p>
+          <p className="cal-after-b">
+            We will not tell you the complaints never reach the model. They do —
+            that is how the question gets answered, and anyone reviewing this
+            would find out in their first question. So instead we say which five
+            went, and what was in them.
+          </p>
+        </div>
+
+        {/* INSIDE the chapter, so it shares the body's indent. Outside it, the
+            panel started 38px to the left of everything above it. */}
+        <div className="mt-4">
+          <LoopModal />
+        </div>
+      </Chapter>
 
       {/* THE GAP. Drawn empty on purpose: the number has nowhere to arrive
           except beside the ceiling it will be compared against. */}

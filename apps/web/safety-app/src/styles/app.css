@@ -1067,3 +1067,50 @@ body {
   line-height: 1.55;
   color: var(--color-ui-fg);
 }
+
+/* ── WHAT CLOSES THE WALK ───────────────────────────────────────────────────
+   The walkthrough indents its own text past a rail, so a conclusion using the
+   ordinary key/why widths sat at a third left edge with the panel below it at a
+   fourth. Four left edges in one section is what "the design is off" looks
+   like.
+
+   So the closing block spans the full content width, sits under a rule, and
+   lines its right edge up with the panel beneath it. Two statements, equal
+   weight, side by side once there is room. */
+.cal-after {
+  display: grid;
+  gap: 0.875rem;
+  margin-top: 1.75rem;
+  border-top: 1px solid color-mix(in oklab, var(--color-cal-1) 14%, var(--color-ui-line));
+  padding-top: 1.5rem;
+}
+
+@media (min-width: 62rem) {
+  .cal-after {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+}
+
+.cal-after-a,
+.cal-after-b {
+  border-radius: 0.625rem;
+  padding: 1rem 1.125rem;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+}
+
+/* The measurement. Filled, because it is a statement about what happened. */
+.cal-after-a {
+  border: 1px solid color-mix(in oklab, var(--color-cal-1) 34%, var(--color-ui-line));
+  background: color-mix(in oklab, var(--color-cal-1) 8%, var(--color-ui-surface));
+  color: var(--color-ui-fg);
+}
+
+/* The admission. Outlined in the second tone, because it is a different KIND of
+   claim — what the page refuses to say, rather than what it measured. */
+.cal-after-b {
+  border: 1px solid color-mix(in oklab, var(--color-cal-2) 30%, var(--color-ui-line));
+  background: color-mix(in oklab, var(--color-cal-2) 4%, var(--color-ui-surface));
+  color: var(--color-ui-dim);
+}
