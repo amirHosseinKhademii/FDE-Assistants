@@ -41,6 +41,7 @@ import { ChunkerModal } from '../components/steps/ChunkerModal';
 import { EmbedModal } from '../components/steps/EmbedModal';
 import { IndexModal } from '../components/steps/IndexModal';
 import { FuseModal, SearchModal } from '../components/steps/SearchModal';
+import { RerankModal } from '../components/steps/RerankModal';
 import { Done, NotBuilt, StepTabs } from '../components/steps/Tabs';
 import type { StepTab } from '../components/steps/Tabs';
 import { ParserModal } from '../components/steps/ParserModal';
@@ -348,6 +349,7 @@ function Grounding() {
         <Index />
         <Retrieve />
         <Fuse />
+        <Rerank />
         <Measure />
       </div>
       <NotYet />
@@ -404,6 +406,7 @@ function Shape() {
   const each = [
     ['3.5', 'retrieve', 'two arms, in parallel'],
     ['3.6', 'fuse', 'one ranked list'],
+    ['3.6b', 'rerank', 'read the top 50 properly'],
     ['3.7', 'measure', 'did we find the right one?'],
   ];
 
@@ -1064,9 +1067,88 @@ REC-001   "is the F-150 park problem fixed?"
         distinction decides the number. The answer key names things a person can
         look up — <Mono>ODI {SPINE}</Mono>, campaign <Mono>20V197000</Mono> —
         while the index holds passages, and one investigation can be{' '}
-        <Mono>RQ24011#0</Mono> and <Mono>RQ24011#1</Mono>. Hits are deduplicated
-        by document before anything is counted, or the same finding scores twice
-        and the measurement rewards the chunker for splitting.
+        <Mono>RQ24011#0</Mono> and <Mono>RQ24011#1</Mono>. Left alone, one
+        document could occupy two of the six slots and identical retrieval would
+        score differently depending on how the chunker happened to cut. So hits
+        are deduplicated by document before anything is counted.
+      </Because>
+
+      <Figure caption="two numbers, one variable" from="pending" source="apps/ai/safety/src/cli/measure.ts">
+        <Raw>{`pnpm safety:measure                 3.7a  hybrid alone      the baseline
+RERANK=local pnpm safety:measure    3.7b  the same, reranked`}</Raw>
+      </Figure>
+
+      <Because>
+        Same questions, same corpus,{' '}
+        <span className="text-ui-fg">same code path</span> — search reads{' '}
+        <Mono>RERANK</Mono> from the environment rather than taking a flag,
+        precisely so the harness cannot call something different and report it as
+        a different pipeline. Turn the reranker on from the start and you learn
+        one number, which cannot answer whether it helped or whether the chunking
+        was simply fine.
+      </Because>
+
+      <Figure caption="three cases, and each is a different shape of question" from="worked" source="docs/safety/WALKTHROUGH.md · n=3">
+        <div className="grid gap-4">
+          {[
+            {
+              id: 'REC-001',
+              q: 'We run 2020 F-150s. Is the transmission park problem a known defect, and is the fix holding?',
+              needs: 'campaign 20V197000 and ODI 11353867, both in the top 6 · scored out of 2',
+              why: 'Either alone gives a wrong answer. The campaign alone says “fixed”; the complaint alone says “unknown defect”.',
+            },
+            {
+              id: 'REC-004',
+              q: 'Are there any complaints involving a death on the 2019–2020 Tesla Model 3?',
+              needs: 'as many of the 5 death complaints as 6 slots allow · scored out of 5',
+              why: 'A plain recall question with a known set of right answers, and more of them than there are slots.',
+            },
+            {
+              id: 'REC-005',
+              q: 'Is there a recall for the forward-collision braking on the 2019–2020 Honda Odyssey?',
+              needs: 'at least one Odyssey forward-collision complaint, and no recall mis-cited',
+              why: 'THE NEGATIVE CASE. No campaign covers it — verified, zero. So there is no document to find, and scoring it 0 would punish retrieval for being right while scoring it 1 would reward it for nothing.',
+              negative: true,
+            },
+          ].map((c) => (
+            <div
+              key={c.id}
+              className="rounded-lg border border-ui-line bg-ui-surface p-4"
+              style={c.negative ? { borderColor: 'color-mix(in oklab, var(--color-cal-2) 40%, var(--color-ui-line))' } : undefined}
+            >
+              <p
+                className="font-mono text-[0.6875rem] tracking-[0.06em] uppercase"
+                style={{ color: c.negative ? 'var(--color-cal-2)' : 'var(--color-cal-1)' }}
+              >
+                {c.id}
+              </p>
+              <p className="mt-2 max-w-[62ch] text-[0.875rem] leading-relaxed text-ui-fg/90">
+                “{c.q}”
+              </p>
+              <p className="mt-2.5 font-mono text-[0.6875rem] text-ui-faint">{c.needs}</p>
+              <p className="mt-2.5 max-w-[62ch] text-[0.8125rem] leading-relaxed text-ui-dim">
+                {c.why}
+              </p>
+            </div>
+          ))}
+        </div>
+      </Figure>
+
+      <Because>
+        What retrieval owes the model on the negative case is{' '}
+        <span className="text-ui-fg">the evidence for the absence</span> — the
+        400 complaints showing owners reporting the problem with no campaign
+        behind it. That is what lets an answer say “no recall covers this, and
+        here is why it is still worth your time”. The run also reports any recall
+        document that came back, because citing a loosely-related campaign is
+        exactly how this question gets answered wrongly.
+      </Because>
+
+      <Because>
+        <span className="text-ui-fg">n = 3.</span> Three cases, each worth a
+        third — enough to tell “works” from “does not”, and nowhere near enough
+        to rank two chunking strategies against each other. It is said here
+        because a number printed without its denominator gets quoted without it.
       </Because>
 
       <Figure caption="a number from elsewhere" from="target" source="Vantis Steering, docs/steering/evals/RETRIEVAL.md">
@@ -1104,34 +1186,79 @@ REC-001   "is the F-150 park problem fixed?"
  * forgotten rather than sequenced.
  */
 /**
- * What grounding itself is still missing.
+ * Why the reranker is a second number rather than a default.
  *
- * THIS LIST USED TO BE THE WHOLE BUILD'S and it was in the wrong place. Three
- * of its four rows — the contract, the loop, the evals — are entire parts of
- * the build and are tabs of their own now. What is left is the one that belongs
- * to grounding: the reranker, which is a stage 3 decision and not a later part.
+ * THIS SECTION USED TO SAY IT WAS MISSING and it is built now — but built and
+ * ON are different things, and the difference is the whole argument. It is
+ * optional, off unless `RERANK=local` is set, and stage 3.7 reports the
+ * pipeline with and without it. A reranker turned on from the start gives you
+ * one number, which cannot answer whether it helped.
  */
 function NotYet() {
   return (
     <section className="lift-in mt-20 border-t border-ui-line pt-10">
       <h2 className="font-mono text-lg leading-snug font-medium tracking-tight text-ui-fg md:text-xl">
-        One thing grounding is still missing, on purpose
+        The reranker is built and off
       </h2>
-      <div className="mt-6 flex flex-wrap items-baseline gap-x-5 gap-y-1">
-        <span className="w-44 shrink-0 font-mono text-sm text-ui-fg">no reranker</span>
-        <span className="max-w-[54ch] text-[0.8125rem] leading-relaxed text-ui-dim">
-          3.6b, and it stays out until 3.7 has a number. Measure the plain
-          pipeline first or you cannot say what the reranker bought — and on the
-          sibling engagement it bought 0.813 → 0.938, which is exactly the size
-          of gain that is worth knowing rather than assuming.
-        </span>
-      </div>
-      <p className="mt-7 max-w-[64ch] leading-relaxed text-ui-dim">
+      <p className="mt-4 max-w-[64ch] leading-relaxed text-ui-dim">
+        <Mono>RERANK=local</Mono> is the only thing that changes between the two
+        numbers stage 3.7 reports. Measure the plain pipeline first or you
+        cannot say what the reranker bought — and on the sibling engagement it
+        bought 0.813 → 0.938, which is exactly the size of gain worth knowing
+        rather than assuming.
+      </p>
+      <p className="mt-4 max-w-[64ch] leading-relaxed text-ui-dim">
         The other three things this page used to list here — the answer
         contract, the loop and the evals — are not missing from grounding. They
         are the rest of the build, and they have tabs of their own above.
       </p>
     </section>
+  );
+}
+
+/**
+ * 3.6b — the optional second pass.
+ *
+ * IT SITS BETWEEN FUSE AND MEASURE because that is where it runs, and because
+ * the thing it is for only makes sense after a reader has seen two lists being
+ * interleaved: a reordering step is worth having when the order is the problem,
+ * and worth nothing when it is not.
+ */
+function Rerank() {
+  return (
+    <Stage
+      n="3.6b"
+      verb="RERANK — reading, instead of remembering"
+      when="every question"
+      plain="Everything so far compares two summaries made separately: the passage was turned into numbers long before the question existed. A reranker reads the question and one passage together and says how well one answers the other — much better judgement, far too slow to run on everything."
+    >
+      <Figure caption="so it runs on 50, not on 73,442" from="pending" source="off unless RERANK=local">
+        <Raw>{`cheap search finds 50 candidates     fast, indexed, a bit blunt
+the reranker reads all 50 properly   slow, no index, sharp
+keep the best 6                      what the model sees`}</Raw>
+      </Figure>
+
+      <Because>
+        50 and not 6, deliberately. The whole value is promoting something the
+        first pass ranked <span className="text-ui-fg">below the cut</span> —
+        rerank only what you would have shown anyway and you have measured
+        nothing.
+      </Because>
+
+      <Because>
+        <span className="text-ui-fg">
+          And a reranker cannot find anything. It can only reorder what it was
+          handed.
+        </span>{' '}
+        If the right passage is not among those 50, no amount of re-reading puts
+        it in the top 6 — which makes it a diagnostic as much as a fix. If it
+        helps, the problem was “found it, ranked it badly”. If it does not, the
+        problem was “never found it”, and the answer is better chunking or a
+        wider pool rather than a smarter scorer.
+      </Because>
+
+      <RerankModal />
+    </Stage>
   );
 }
 
