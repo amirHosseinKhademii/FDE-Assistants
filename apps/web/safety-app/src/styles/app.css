@@ -1834,26 +1834,40 @@ body {
   padding: 1.125rem 1.25rem;
 }
 
-/* Which loop answers. Sits under the box because it qualifies the asking rather
-   than being part of it. */
-.cal-ask-engine {
-  margin-top: 1.125rem;
-  border-top: 1px solid color-mix(in oklab, var(--color-ui-line) 70%, transparent);
-  padding-top: 1rem;
+/* Which loop answers. One quiet row, because it qualifies the asking rather
+   than being part of it — the first version stacked a label over a full-width
+   select and became the loudest thing in the box. */
+.cal-engine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.625rem;
+  margin-top: 0.875rem;
 }
 
-.cal-ask-engine-note {
-  margin-top: 0.5rem;
-  max-width: 62ch;
-  font-size: 0.8125rem;
-  line-height: 1.6;
-  color: var(--color-ui-dim);
-}
-
-.cal-ask-engine-why {
-  margin-top: 0.625rem;
-  max-width: 64ch;
-  font-size: 0.75rem;
-  line-height: 1.65;
+.cal-engine-l {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--color-ui-faint);
+}
+
+.cal-engine-s {
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.5rem;
+  background: var(--color-ui-bg);
+  padding: 0.375rem 0.625rem;
+  font-size: 0.8125rem;
+  color: var(--color-ui-dim);
+  transition: border-color 0.15s;
+}
+
+.cal-engine-s:hover:not(:disabled) {
+  border-color: color-mix(in oklab, var(--color-cal-1) 45%, var(--color-ui-line));
+  color: var(--color-ui-fg);
+}
+
+.cal-engine-s:disabled {
+  opacity: 0.45;
 }

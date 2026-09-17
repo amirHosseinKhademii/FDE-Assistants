@@ -38,7 +38,7 @@
  * they were looking at a fixed fact.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Field, Mono, Select } from '@fde/uikit';
+import { Mono } from '@fde/uikit';
 import { Link } from '@tanstack/react-router';
 import { Aurora } from '@veresk/surface';
 import { AURORA } from '../lib/aurora';
@@ -110,7 +110,15 @@ interface EngineOption {
   id: string;
   label: string;
   usable: boolean;
+  /** A few words for the row. "default", "needs Azure or OpenAI". */
   note: string;
+  /**
+   * The longer why. NOT RENDERED — it is documentation, and three registers
+   * stacked on one select is what made this control unreadable the first time.
+   * Kept in the type because the endpoint sends it and a reader of this file
+   * should know it exists rather than wonder what was dropped.
+   */
+  detail?: string;
 }
 
 interface ToolCall {
@@ -311,31 +319,28 @@ export function Desk() {
             </button>
           </div>
 
-          {engines.length > 0 && (
-            <div className="cal-ask-engine">
-              <Field label="Engine">
-                <Select value={picked} onChange={setPicked} disabled={running}>
-                  {engines.map((e) => (
-                    <option key={e.id} value={e.id} disabled={!e.usable}>
-                      {e.label}
-                      {e.usable ? '' : ' — cannot serve this provider'}
-                    </option>
-                  ))}
-                </Select>
-              </Field>
-              <p className="cal-ask-engine-note">
-                {engines.find((e) => e.id === picked)?.note}
-              </p>
-              <p className="cal-ask-engine-why">
-                Not a preference. Ask the same question on either and you get the
-                same answer through two entirely different libraries — and
-                getting the second one there took two repairs to faults no
-                setting could reach, one of which was invisible until the other
-                was fixed.{' '}
-                <span className="text-ui-dim">
-                  A dropdown that changes nothing visible is the demonstration.
-                </span>
-              </p>
+          {/* COMPACT AND INLINE. A stacked label over a full-width select made
+              this the loudest thing in the box, and it is a qualifier on the
+              asking rather than part of it. The hint rides in the option text —
+              one register, not three. */}
+          {engines.length > 1 && (
+            <div className="cal-engine">
+              <label htmlFor="engine" className="cal-engine-l">
+                answered by
+              </label>
+              <select
+                id="engine"
+                className="cal-engine-s"
+                value={picked}
+                onChange={(e) => setPicked(e.target.value)}
+                disabled={running}
+              >
+                {engines.map((e) => (
+                  <option key={e.id} value={e.id} disabled={!e.usable}>
+                    {e.label} — {e.note}
+                  </option>
+                ))}
+              </select>
             </div>
           )}
 
