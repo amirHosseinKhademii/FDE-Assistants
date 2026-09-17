@@ -11,6 +11,22 @@ import { useState } from 'react';
 import appCss from '../styles/app.css?url';
 import { RouteProgress } from '@veresk/surface';
 
+/**
+ * THE ENTRANCE ANIMATIONS' SAFETY NET — see `packages/surface/src/styles/surface.css`.
+ *
+ * Every entrance carries `animation-fill-mode: both`, which applies the FIRST
+ * frame before the animation starts. That is what makes a stagger work and it
+ * means the element is invisible forever if the animation never runs — a hidden
+ * or throttled frame, an embedded webview, a remote desktop with compositing
+ * off. Measured on the sibling deployment: 7 of 8 sections at opacity 0, from a
+ * server returning 200.
+ *
+ * A TIMER, NOT AN `animationend` LISTENER, because the failure being guarded
+ * against is the one where `animationend` never fires. If the entrance ran, this
+ * fires afterwards and changes nothing.
+ */
+const MOTION_SETTLE = `setTimeout(function(){document.documentElement.setAttribute('data-motion','settled')},1400)`;
+
 export const Route = createRootRoute({
   head: () => ({
     meta: [
@@ -44,6 +60,7 @@ function RootLayout() {
     <html lang="en">
       <head>
         <HeadContent />
+        <script dangerouslySetInnerHTML={{ __html: MOTION_SETTLE }} />
       </head>
       <body>
         <QueryClientProvider client={queryClient}>

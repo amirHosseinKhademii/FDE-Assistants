@@ -1179,3 +1179,18 @@
     column-count: 1;
   }
 }
+
+
+/* The same guard the surface package documents at length: if an entrance never
+   runs, its FROM frame leaves the element invisible forever. `data-motion` is
+   set by a timer, not by `animationend`, because the case being guarded against
+   is exactly the one where `animationend` never fires. */
+html[data-motion='settled'] .ui-rise,
+html[data-motion='settled'] .ui-stagger > *,
+html[data-motion='settled'] .ui-note-in,
+html[data-motion='settled'] .ui-count-in {
+  animation: none;
+  opacity: 1;
+  transform: none;
+  filter: none;
+}

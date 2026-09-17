@@ -135,6 +135,32 @@
    `no-preference` gates above are the same intent stated so that a new
    animation cannot be added and quietly skip it. */
 
+/* ── AND THE CASE THE MEDIA QUERY CANNOT REACH ──────────────────────────────
+   A browser that reports `no-preference` and then does not run the animation
+   anyway. A frame that is throttled because it is hidden, an embedded webview,
+   a remote desktop with compositing off — the gate above matches, the entrance
+   is applied, its FROM frame hides the element, and nothing ever advances it.
+   Measured: with playback frozen, 7 of the 8 `lift-in` sections on Calder's
+   landing stay at opacity 0.
+
+   So the reveal cannot depend on the animation running. `data-motion="settled"`
+   is set by a timer in the document head, longer than the longest entrance —
+   see `MOTION_SETTLE` in each app's root. If the entrance ran, this changes
+   nothing, because the element is already where the animation left it. If it
+   never ran, the page appears instead of staying blank.
+
+   IT IS A TIMER AND NOT AN `animationend` LISTENER, which is the whole point:
+   the failure being guarded against is the one where `animationend` never
+   fires. A guard that waits for the thing that is broken is not a guard.
+   ────────────────────────────────────────────────────────────────────────── */
+html[data-motion='settled'] .lift-in,
+html[data-motion='settled'] .estate-land {
+  animation: none;
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
 /* Something in the estate that is not a database. Shaped like a tile so the row
    reads as one set, and visibly inert — dashed, no lift, no pointer — because
    there is nothing tabular behind it to open. A card that looked pressable and
