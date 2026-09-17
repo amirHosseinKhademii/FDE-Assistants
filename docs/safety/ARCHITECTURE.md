@@ -144,7 +144,7 @@ the one above it is verifiable**.
 | 3.7 | measure | recall@6 against `WALKTHROUGH.md`, twice |
 | 4 | tools | five tools, then recall@6 re-measured THROUGH them — [`STAGE4.md`](STAGE4.md) |
 | 5 | contract | the schema, and coherence rejecting an unescalated conflict — [`STAGE5.md`](STAGE5.md) |
-| 6 | loop | `LOOP=mastra`, `LLM_PROVIDER=hosted` |
+| 6 | loop | `LOOP=mastra`, `LLM_PROVIDER=hosted` — planned in [`STAGE6.md`](STAGE6.md), not built |
 | 7 | evals | severity buckets separating wrong answers from quota failures |
 | 8 | page | a fourth surface, once there is something measured to show |
 
