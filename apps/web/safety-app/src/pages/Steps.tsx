@@ -43,6 +43,7 @@ import { IndexModal } from '../components/steps/IndexModal';
 import { FuseModal, SearchModal } from '../components/steps/SearchModal';
 import { MeasureModal } from '../components/steps/MeasureModal';
 import { RerankModal } from '../components/steps/RerankModal';
+import { Stage4 } from '../components/steps/Stage4';
 import { Done, NotBuilt, StepTabs } from '../components/steps/Tabs';
 import type { StepTab } from '../components/steps/Tabs';
 import { ParserModal } from '../components/steps/ParserModal';
@@ -217,55 +218,11 @@ const TABS: StepTab[] = [
   },
   {
     id: 'contract',
-    label: 'The contract',
+    label: 'Tools + contract',
     stage: '4',
-    status: 'not written',
+    status: 'specified',
     built: false,
-    content: (
-      <NotBuilt
-        title="What an answer is allowed to be"
-        waits={[
-          'DONE — the answer key exists, written by hand from the raw files before anything was built that could grade itself.',
-          'DONE — retrieval is measured. recall@6 is 0.40, and its verdict is that the next thing to build is a tool the model can call with structured arguments rather than a bigger pile of text to search.',
-          'The refusal has to be decided: concluding that a remedy failed is a regulatory judgement, and the field that carries “these two records disagree” is what stops a model reaching it.',
-        ]}
-        what={
-          <>
-            <p>
-              A schema every answer must satisfy — the finding, the ODI numbers
-              and campaign numbers it rests on, the claims it could not support,
-              the records that contradict each other, and who has to decide.
-              Shape is checked first, then coherence: an answer naming a conflict
-              and escalating to nobody is structurally valid and still wrong.
-            </p>
-            <p className="mt-3.5">
-              On the three engagements before this one it is the field
-              descriptions that do most of the work — they are prompt
-              engineering, not documentation, which is why their own check fails
-              if a field loses one.
-            </p>
-            <p className="mt-3.5">
-              <span className="text-ui-fg">
-                And stage 3.7 said what has to come with it.
-              </span>{' '}
-              Retrieval alone tops out at 0.40 because the questions are filters
-              wearing the clothes of questions — so the tools the contract is
-              filled in by have to take <Mono>make</Mono>, <Mono>model</Mono>,{' '}
-              <Mono>year</Mono> and <Mono>deaths</Mono> as arguments rather than
-              as words.
-            </p>
-          </>
-        }
-        already={
-          <>
-            <Mono>@fde/schema</Mono> — parse, shape-check, then coherence rules —
-            unchanged, as it was for the other three. What has to be written here
-            is the judgement: which fields this domain needs, and which
-            combinations of them are incoherent for a corpus of public filings.
-          </>
-        }
-      />
-    ),
+    content: <Stage4 />,
   },
   {
     id: 'loop',
@@ -391,8 +348,8 @@ function Head() {
         full — one complaint, <Mono>ODI {SPINE}</Mono>, a 2020 Ford F-150 whose
         gear display disagreed with its gearbox, followed from a tab-separated
         line in a 1.5 GB file to the passage that answers a question about it.
-        The first two are done and said briefly; the last three are written down
-        and argued with, and not written.
+        The first two are done and said briefly. The fourth is specified in full
+        and not built; the last two are argued with and not written.
       </p>
     </section>
   );
@@ -1371,26 +1328,26 @@ function Patterns() {
     },
     {
       name: 'corrective',
-      status: 'shape built',
-      here: `Now measurable. With ${UNITS.complaints.toLocaleString('en-GB')} noisy narratives the top six are often all junk — rare at insurance's 555 chunks.`,
+      status: 'narrower here',
+      here: 'Worth building and small, and its meaning here is not the textbook one. The generic version — grade the results, re-retrieve if poor — would have judged REC-001’s results junk and fetched the same junk again, because the query was never the problem. Here every correction is a FILTER correction: an empty recall list means widen the component before concluding none exists; a count of zero means the filter is wrong, not the corpus.',
       live: true,
     },
     {
       name: 'agentic',
-      status: 'built, measured',
-      here: 'Stage 5 — the model choosing to search again.',
-      live: false,
+      status: 'stages 4 and 5',
+      here: 'Not an extra to schedule for later. A model choosing between five tools and calling one after another IS agentic retrieval — so it is not a pattern this engagement might adopt, it is what stages 4 and 5 are.',
+      live: true,
     },
     {
       name: 'graph',
-      status: 'not built · 42 edges found',
-      here: 'The one claim on this table that stopped being an opinion. Investigations carry a CAMPNO field — “the recall campaign initiated as a result of the investigation” — and 42 of the 114 fill it in. DP22005 → 22V063000 is an edge already in the file, with nothing to infer.',
+      status: 'measured · one hop',
+      here: 'Real, and shallower than the documented version. The investigation → recall link resolves 14 times. The edge that works is owners typing a campaign number into their own complaint: 5,361 complaints name one, 563 resolve to a recall we hold. One hop is a lookup — no graph store, no node embeddings, one more tool.',
       live: true,
     },
     {
       name: 'multimodal',
-      status: 'not built',
-      here: 'Recall documents are PDFs. Later, if ever.',
+      status: 'not applicable',
+      here: 'There are no images in this slice. The earlier note here said recall documents are PDFs; the corpus is flat files, so it was wrong and is gone.',
       live: false,
     },
   ];
@@ -1402,8 +1359,8 @@ function Patterns() {
       </h2>
       <p className="mt-3 max-w-[64ch] leading-relaxed text-ui-dim">
         The patterns are the same five the firm teaches. What changes on real
-        data is which of them stop being an argument — and one of them stopped
-        while this page was being written.
+        data is which of them stop being an argument — and after stage 3.7,
+        three of the five have measured answers rather than opinions.
       </p>
 
       <ul className="mt-7 grid gap-4">
