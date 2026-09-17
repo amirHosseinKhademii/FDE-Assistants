@@ -11,11 +11,14 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "parse": "ts-node src/cli/parse.ts",
     "chunk": "ts-node src/cli/chunk.ts",
-    "embed": "ts-node src/cli/embed.ts"
+    "embed": "ts-node src/cli/embed.ts",
+    "index": "ts-node src/cli/index-cli.ts"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
-    "@fde/grounding": "workspace:*"
+    "@fde/grounding": "workspace:*",
+    "pg": "^8.13.1",
+    "@langchain/core": "^0.3.18"
   },
   "devDependencies": {
     "@types/node": "^22.7.5",

@@ -39,6 +39,8 @@ import { Code, Data } from '@veresk/surface';
 import { BeforeAfter, Because, Figure, Raw, Stage } from '../components/steps/kit';
 import { ChunkerModal } from '../components/steps/ChunkerModal';
 import { EmbedModal } from '../components/steps/EmbedModal';
+import { IndexModal } from '../components/steps/IndexModal';
+import { Lessons } from '../components/steps/Lessons';
 import { ParserModal } from '../components/steps/ParserModal';
 import { AURORA } from '../lib/aurora';
 import { ROWS, UNITS } from '../lib/estate.generated';
@@ -96,6 +98,7 @@ export function Steps() {
           <Measure />
         </div>
 
+        <Lessons />
         <NotYet />
         <Patterns />
         <Onward />
@@ -529,6 +532,21 @@ function Index() {
         both there because they fail at different things. Everything stage 3.5
         does is asking them both and stage 3.6 is deciding who was right.
       </Because>
+
+      <Because>
+        <span className="text-ui-fg">
+          This is the first stage that leaves this machine
+        </span>
+        , which makes it the first that can fail for reasons unrelated to our
+        code. 73,442 rows is about 140 MB at the 2,002 bytes a row measured on
+        the sibling engagement — 27% of Neon's free tier, checked rather than
+        assumed. And the whole stage turns on one method call:{' '}
+        <Mono>addVectors</Mono> inserts what stage 3.3 made, while{' '}
+        <Mono>addDocuments</Mono> would recompute all of it — 36.6 minutes, with
+        no error, nothing that looks wrong, and the same row count either way.
+      </Because>
+
+      <IndexModal />
     </Stage>
   );
 }

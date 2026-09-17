@@ -41,11 +41,11 @@ export const PACKAGES: ArchPackage[] = [
     "glob": "apps/ai/*",
     "kind": "judgement",
     "layerNote": null,
-    "lines": 946,
+    "lines": 1495,
     "deps": [
       "@fde/grounding"
     ],
-    "external": 1
+    "external": 3
   },
   {
     "name": "@calder/safety-app",
@@ -53,7 +53,7 @@ export const PACKAGES: ArchPackage[] = [
     "glob": "apps/web/*",
     "kind": "surface",
     "layerNote": null,
-    "lines": 3393,
+    "lines": 4536,
     "deps": [
       "@fde/uikit",
       "@veresk/surface"
@@ -150,7 +150,7 @@ export const PACKAGES: ArchPackage[] = [
     "glob": "packages/*",
     "kind": "shared",
     "layerNote": null,
-    "lines": 3519,
+    "lines": 3552,
     "deps": [],
     "external": 5
   },
