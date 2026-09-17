@@ -43,8 +43,8 @@ import { VERESK } from '../lib/links';
  * THE ONE-VEHICLE FIGURES, AND THEY STAY ONE VEHICLE ON PURPOSE.
  *
  * Measured against the live API on 2026-09-16/17 and recorded in
- * `docs/recalls/PLAN.md` §3–§4. They are not the estate — the estate is
- * measured by `pnpm recalls:estate` and read out of `estate.generated.ts`
+ * `docs/safety/PLAN.md` §3–§4. They are not the estate — the estate is
+ * measured by `pnpm safety:estate` and read out of `estate.generated.ts`
  * everywhere else on this page. These describe the 2019 Honda Odyssey, because
  * that is the vehicle whose two records contradict each other, and a
  * contradiction is proved by naming the records rather than by a total.
@@ -52,7 +52,7 @@ import { VERESK } from '../lib/links';
  * WHAT USED TO BE HERE AND IS NOT ANY MORE: `allCaps`, `components`, `withVin`
  * and the narrative length range. Those were one vehicle's numbers standing in
  * for the estate's while the slice was undecided. The slice is decided —
- * `docs/recalls/CORPUS.md` §1 — so they come from the file now.
+ * `docs/safety/CORPUS.md` §1 — so they come from the file now.
  */
 const ODYSSEY = {
   vehicle: '2019 Honda Odyssey',
@@ -207,7 +207,7 @@ function Contradiction() {
  * structured column is rarer than it sounds and it is the reason this corpus is
  * worth the trouble.
  *
- * COUNTED PER CAMPAIGN, WHICH IS NOT WHAT THE ROWS SAY. `docs/recalls/CORPUS.md`
+ * COUNTED PER CAMPAIGN, WHICH IS NOT WHAT THE ROWS SAY. `docs/safety/CORPUS.md`
  * §4 reports 1,407 ODI-initiated recalls; that is rows, and one campaign covers
  * every make, model and year it applies to. 107 campaigns is the same fact
  * counted once each. The larger number is not wrong, it is just not campaigns —
@@ -300,7 +300,7 @@ function Documented() {
  * surface the fatal ones? It also sets the register of the whole deployment.
  *
  * COUNTED PER COMPLAINT. The component fan-out means the row count reports the
- * same death up to five times; `pnpm recalls:estate` counts each filing once.
+ * same death up to five times; `pnpm safety:estate` counts each filing once.
  * The two fatality figures are different questions with different answers —
  * {deaths} filings mention a death and {fatalities} people died — and both are
  * printed, because rounding them into one number is how a page ends up quoting

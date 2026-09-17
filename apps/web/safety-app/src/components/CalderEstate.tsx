@@ -21,7 +21,7 @@
  *
  * So the figures print both, records first. The gap is not a footnote about
  * data hygiene: which of the two a count means is the first modelling decision
- * this engagement has to take, and it is still open (`docs/recalls/CORPUS.md`
+ * this engagement has to take, and it is still open (`docs/safety/CORPUS.md`
  * §7, question 2).
  *
  * ── INVESTIGATIONS SITS BEHIND THE RULE ────────────────────────────────────
@@ -35,7 +35,14 @@
 import { Mono } from '@fde/uikit';
 import { EstateExplorer, PagesGlyph } from '@veresk/surface';
 import type { EstateFace } from '@veresk/surface';
-import { ESTATE, MEASURED_AT, MEASURED_BY, TOTAL_ROWS, TOTAL_UNITS } from '../lib/estate.generated';
+import {
+  ESTATE,
+  MEASURED_AT,
+  MEASURED_BY,
+  TOTAL_ROWS,
+  TOTAL_UNITS,
+  UNITS,
+} from '../lib/estate.generated';
 import { NOTES } from '../lib/estate-notes';
 
 /** Files, not databases — so pages, not cylinders. */
@@ -49,13 +56,15 @@ const figure = () => <PagesGlyph />;
 const FACES: EstateFace[] = [
   {
     db: 'complaints',
-    name: 'complaints',
+    /* The subtitle is the FILE, because that is what this estate is made of and
+       because "complaints / complaints" is what naming it twice looks like. */
+    name: 'FLAT_CMPL.zip',
     asks: 'what did a person say happened to their car?',
     hue: 'var(--color-cal-1)',
   },
   {
     db: 'recalls',
-    name: 'recalls',
+    name: 'FLAT_RCL_POST_2010.zip',
     asks: 'what did the manufacturer admit, and what will they fit?',
     hue: 'var(--color-cal-2)',
   },
@@ -64,7 +73,7 @@ const FACES: EstateFace[] = [
 /** Surveyed, not ingested. No hue, because it is not one of the two we read. */
 const ASIDE: EstateFace = {
   db: 'investigations',
-  name: 'investigations',
+  name: 'FLAT_INV.zip',
   asks: 'what did the regulator go and ask about?',
 };
 
@@ -87,6 +96,9 @@ export function CalderEstate() {
       aside={ASIDE}
       notes={NOTES}
       figure={figure}
+      /* Records, not tables. Every file has exactly one table, so the default
+         would print "1 table" three times and say nothing. */
+      meta={(face) => `${UNITS[face.db as keyof typeof UNITS].toLocaleString('en-GB')} records`}
       samplesNote="One table per file · every column the dictionary names, with a real value — except where the value is a person's own words, locates them, or names a dealer"
       heading="Nobody wrote this corpus for us."
       intro={

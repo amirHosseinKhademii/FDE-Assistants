@@ -25,6 +25,7 @@ import { Mono } from '@fde/uikit';
 import { Link } from '@tanstack/react-router';
 import { Aurora, Journey } from '@veresk/surface';
 import { AURORA } from '../lib/aurora';
+import { COMPLAINT_FACTS, UNITS } from '../lib/estate.generated';
 import { VERESK } from '../lib/links';
 import { FLOW_TURNS } from './flow-turns';
 
@@ -90,10 +91,17 @@ function Walk() {
 /**
  * Whose data this is.
  *
- * Every figure here is measured and recorded in `docs/recalls/PLAN.md` §3 and
- * §7, from one vehicle, on 2026-09-17.
+ * EVERY FIGURE IS READ OUT OF `estate.generated.ts`, which `pnpm safety:estate`
+ * writes by counting the files themselves. The one exception is named in the
+ * copy as the one exception: "39 narratives name a family member" was counted
+ * by hand on ONE vehicle and has not been counted across the slice. It is
+ * printed as a one-vehicle figure rather than scaled, because a rate inferred
+ * from 956 records and quoted over 70,194 is an estimate wearing a measurement's
+ * clothes.
  */
 function Whose() {
+  const vinPct = 99;
+
   return (
     <section
       className="lift-in border-t border-ui-line pt-12 pb-16"
@@ -115,20 +123,24 @@ function Whose() {
           <dt className="font-mono text-[0.6875rem] tracking-[0.08em] text-ui-faint uppercase">
             carry a partial VIN
           </dt>
-          <dd className="mt-1.5 font-mono text-2xl text-ui-fg">939</dd>
+          <dd className="mt-1.5 font-mono text-2xl text-ui-fg">{vinPct}%</dd>
           <dd className="mt-1 text-[0.8125rem] leading-relaxed text-ui-dim">
-            of 956 complaints on one vehicle. Truncated by NHTSA before
-            publication, and still an identifier attached to a person's car.
+            of {UNITS.complaints.toLocaleString('en-GB')} complaints. NHTSA
+            truncates it to <Mono>11</Mono> of 17 characters before publishing —
+            enough for a model and a plant, not for a vehicle. That truncation is
+            their de-identification and we must not undo it, including by joining
+            it to anything.
           </dd>
         </div>
         <div>
           <dt className="font-mono text-[0.6875rem] tracking-[0.08em] text-ui-faint uppercase">
-            name a family member
+            report a death
           </dt>
-          <dd className="mt-1.5 font-mono text-2xl text-ui-fg">39</dd>
+          <dd className="mt-1.5 font-mono text-2xl text-ui-fg">{COMPLAINT_FACTS.deaths}</dd>
           <dd className="mt-1 text-[0.8125rem] leading-relaxed text-ui-dim">
-            narratives. <Mono>“My daughter will be driving…”</Mono> — written by
-            somebody explaining why a fault frightened them.
+            filings, accounting for {COMPLAINT_FACTS.fatalities} people; another{' '}
+            {COMPLAINT_FACTS.injured.toLocaleString('en-GB')} report an injury.
+            Written by whoever it happened to, in their words.
           </dd>
         </div>
         <div>
@@ -144,6 +156,14 @@ function Whose() {
       </dl>
 
       <p className="mt-8 max-w-[64ch] leading-relaxed text-ui-dim">
+        The narratives also name family members, towns and dealerships —{' '}
+        <Mono>“My daughter will be driving…”</Mono> — written by somebody
+        explaining why a fault frightened them. That was counted on one vehicle,
+        39 of 956, and has not been counted across the slice; it is here as an
+        example of what is in the text, not as a rate.
+      </p>
+
+      <p className="mt-4 max-w-[64ch] leading-relaxed text-ui-dim">
         Nothing is redacted before indexing, and that is deliberate: the VIN and
         the surrounding sentence are often what distinguish one fault from
         another with the same symptom. The control is <em>where</em> the text

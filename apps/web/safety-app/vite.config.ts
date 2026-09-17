@@ -4,11 +4,11 @@
  * NO `ssr.external` LIST, and that is a claim about this app rather than a
  * shortcut. Nothing here opens a database, calls a model or serves an API
  * route: the landing page and `/data-flow` are both static readings of
- * `docs/recalls/PLAN.md`, baked in at build time.
+ * `docs/safety/PLAN.md`, baked in at build time.
  *
  * The desk is not built yet, deliberately — the answer contract does not exist
  * until an answer key has been written by hand from the raw NHTSA files. When
- * that page lands it will need `@calder/recalls` and the agent engines
+ * that page lands it will need `@calder/safety` and the agent engines
  * externalised, and the list arrives in the same commit that needs it. Copying
  * pharma's list across now would hide that this app currently has nothing
  * behind it.

@@ -1,9 +1,10 @@
 {
-  "name": "@calder/recalls-app",
+  "name": "@calder/safety-app",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite dev --port 3500",
+    "estate": "node scripts/estate.mjs",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "start": "node dist/server/server.js"

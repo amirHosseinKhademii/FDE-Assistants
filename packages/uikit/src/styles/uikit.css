@@ -1151,3 +1151,23 @@
   .ui-run-label > span > svg { width: 1rem; height: 1rem; }
   .ui-run-value { font-size: 0.875rem; }
 }
+
+/* A LONG FIELD LIST, WHEN IT HAS THE WHOLE PANEL.
+   Fifty-one columns in one stack is a scroll with nothing at the end of it.
+   Two CSS columns halve that, and `break-inside` keeps a row from being split
+   across the gap — a name on one side and its value on the other would be
+   worse than the scroll. Opt-in: nothing gets this unless it asks. */
+.ui-data--wide {
+  column-count: 2;
+  column-gap: 2rem;
+}
+
+.ui-data--wide .ui-datum {
+  break-inside: avoid;
+}
+
+@media (max-width: 52rem) {
+  .ui-data--wide {
+    column-count: 1;
+  }
+}

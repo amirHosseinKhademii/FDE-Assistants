@@ -155,6 +155,12 @@ export interface EstateExplorerProps {
    */
   samplesNote?: ReactNode;
   /**
+   * What the tile says under the question, when a table count is not the
+   * useful number. Defaults to "N tables", which is right for an estate of
+   * databases and says nothing about an estate of files with one table each.
+   */
+  meta?: (face: EstateFace, system: EstateLike) => string;
+  /**
    * Whether a system's sample values may be shown. Pharma withholds `mrd_kb`'s,
    * because its rows are questions real people typed; steering withholds
    * nothing. It is a per-customer judgement, so it is a prop.
@@ -196,7 +202,14 @@ export function EstateExplorer(props: EstateExplorerProps) {
 
       <div className="ui-tiles">
         {faces.map((face) => (
-          <SystemTile key={face.db} face={face} system={byDb.get(face.db)!} figure={figure} onOpen={open} />
+          <SystemTile
+            key={face.db}
+            face={face}
+            system={byDb.get(face.db)!}
+            figure={figure}
+            meta={props.meta}
+            onOpen={open}
+          />
         ))}
 
         {/* THE RULE IS THE STATEMENT. Left of it: the customer's systems of
@@ -205,7 +218,13 @@ export function EstateExplorer(props: EstateExplorerProps) {
         {(aside || asideCard) && <span aria-hidden className="ui-tiles-divider" />}
 
         {aside && (
-          <SystemTile face={aside} system={byDb.get(aside.db)!} figure={figure} onOpen={open} />
+          <SystemTile
+            face={aside}
+            system={byDb.get(aside.db)!}
+            figure={figure}
+            meta={props.meta}
+            onOpen={open}
+          />
         )}
         {asideCard}
       </div>
@@ -279,11 +298,13 @@ function SystemTile({
   face,
   system,
   figure,
+  meta,
   onOpen,
 }: {
   face: EstateFace;
   system: EstateLike;
   figure: (face: EstateFace) => ReactNode;
+  meta?: (face: EstateFace, system: EstateLike) => string;
   onOpen: (face: EstateFace, element: HTMLElement) => void;
 }) {
   return (
@@ -293,7 +314,7 @@ function SystemTile({
       title={face.db}
       subtitle={face.name}
       detail={face.asks}
-      meta={`${system.tables.length} tables`}
+      meta={meta?.(face, system) ?? `${system.tables.length} table${system.tables.length === 1 ? '' : 's'}`}
       onOpen={(element) => onOpen(face, element)}
     />
   );
@@ -355,7 +376,8 @@ function EstateDialog({
           </div>
           <p className="ui-dialog-figs">
             <span>
-              <span className="font-mono text-ui-fg">{system.tables.length}</span> tables
+              <span className="font-mono text-ui-fg">{system.tables.length}</span>{' '}
+              {system.tables.length === 1 ? 'table' : 'tables'}
             </span>
             <span>
               <span className="font-mono text-ui-fg">{rows.toLocaleString('en-GB')}</span> rows
@@ -370,7 +392,16 @@ function EstateDialog({
             ? 'Largest tables first · every column as deployed, with one real value from each'
             : 'Largest tables first · values are not shown — these rows are questions people asked')}
       </p>
-      <ul className="grid gap-3 lg:grid-cols-2 xl:grid-cols-3">
+      <ul
+        className={
+          /* ONE TABLE TAKES THE WHOLE PANEL. The three-up grid is right for an
+             estate of many small tables and wrong for an estate of one file
+             with fifty-one columns: a third of the width makes a column of
+             fifty-one rows that the reader has to scroll past to reach
+             nothing. Full width lets `.ui-data--wide` lay them out in two. */
+          tables.length === 1 ? 'grid gap-3' : 'grid gap-3 lg:grid-cols-2 xl:grid-cols-3'
+        }
+      >
         {tables.map((table, i) => (
           <TableCard
             key={table.name}
@@ -378,6 +409,7 @@ function EstateDialog({
             table={table}
             progress={progress}
             index={i}
+            wide={tables.length === 1}
           />
         ))}
       </ul>
@@ -390,11 +422,14 @@ function TableCard({
   table,
   progress,
   index,
+  wide,
 }: {
   note: string;
   table: EstateTable;
   progress: number;
   index: number;
+  /** The card has the whole panel, so the field list may run in two columns. */
+  wide?: boolean;
 }) {
   return (
     <DetailCard
@@ -414,6 +449,7 @@ function TableCard({
           IS what a reader needs. The kind word is only the fallback for columns
           with nothing to show: empty tables, and everything in `mrd_kb`. */}
       <FieldList
+        className={wide ? 'ui-data--wide' : undefined}
         fields={table.columns.map((column) => ({
           name: column.name,
           value: column.sample,

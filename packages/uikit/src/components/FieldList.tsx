@@ -38,13 +38,16 @@ export interface FieldRow {
 export function FieldList({
   fields,
   fallback,
+  className,
 }: {
   fields: FieldRow[];
   /** What to show for a row with no value. Given the row's kind. */
   fallback?: (kind: FieldKind) => string;
+  /** `ui-data--wide` runs a long list in columns. Nothing else is expected. */
+  className?: string;
 }) {
   return (
-    <ul className="ui-data">
+    <ul className={className ? `ui-data ${className}` : 'ui-data'}>
       {fields.map((field) => (
         <li key={field.name} className={`ui-datum ui-datum--${field.kind}`}>
           <span className="ui-datum-name">{field.name}</span>
