@@ -65,17 +65,32 @@ COPY . .
 # `import.meta.env.VITE_*` is INLINED BY VITE AT BUILD TIME. Setting these on
 # the container does nothing whatsoever; they have to be present for the build.
 #
-# THIS IS THE IMAGE THAT LINKS OUT, so both engagement URLs arrive here. Leaving
-# either blank is SAFE rather than broken: `src/lib/links.ts` scopes its dev
+# THIS IS THE IMAGE THAT LINKS OUT, so EVERY engagement URL arrives here.
+# Leaving one blank is SAFE rather than broken: `src/lib/links.ts` scopes its dev
 # fallback to `import.meta.env.DEV`, so an unset value renders that engagement
 # as visibly not-a-link instead of pointing at a port on the reader's machine.
 # That exact bug shipped once, and a hard-coded URL for an app that did not yet
 # exist put a 404 on the live site a few hours later. The pipeline now resolves
-# both from Azure AFTER deploying them — see .github/workflows/deploy.yml.
+# each from Azure AFTER deploying it — see .github/workflows/deploy.yml.
+#
+# ── AND AN UNDECLARED BUILD ARG IS DROPPED IN SILENCE ───────────────────────
+#
+# A fourth engagement was added, `deploy.yml` passed `VITE_SAFETY_URL`, and this
+# file did not declare it. Docker discards a `--build-arg` with no matching
+# `ARG` WITHOUT WARNING, so Vite saw nothing, `links.ts` correctly rendered the
+# safety card as not-a-link, and the firm's page served a healthy 200 with one
+# engagement missing from it. The deploy smoke test caught it — twelve attempts,
+# all 200, all "still missing" — which is the only reason it was not silent all
+# the way to a reader.
+#
+# THE LIST HERE AND THE LIST IN deploy.yml ARE ONE LIST IN TWO FILES, and
+# nothing enforces that. Adding an engagement means editing both.
 ARG VITE_PHARMA_URL=""
 ARG VITE_STEERING_URL=""
+ARG VITE_SAFETY_URL=""
 ENV VITE_PHARMA_URL=$VITE_PHARMA_URL \
-    VITE_STEERING_URL=$VITE_STEERING_URL
+    VITE_STEERING_URL=$VITE_STEERING_URL \
+    VITE_SAFETY_URL=$VITE_SAFETY_URL
 
 RUN pnpm exec turbo run build --filter=@veresk/app...
 
