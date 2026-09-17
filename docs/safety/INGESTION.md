@@ -653,8 +653,66 @@ number, not a scorecard.
 | [**hybrid**](../rag/HYBRID.md) | built, measured | **the core.** Campaign numbers and fault codes are exactly what dense search misses |
 | [**corrective**](../rag/CORRECTIVE.md) | shape built | **now measurable.** With 70,194 noisy narratives the top 6 are often *all* junk — rare at insurance's 555 chunks |
 | [**agentic**](../rag/AGENTIC.md) | built, measured | stage 5 — the model choosing to search again |
-| [**graph**](../rag/GRAPH.md) | not built | **genuinely real here**: complaint → component → recall → manufacturer |
-| [**multimodal**](../rag/MULTIMODAL.md) | not built | recall documents are PDFs — later, if ever |
+| [**graph**](../rag/GRAPH.md) | not built | real, but **shallow** — measured below |
+| [**multimodal**](../rag/MULTIMODAL.md) | not built | no images in this slice. Not applicable |
+
+### Which of them are actually worth building, now that 3.7 has measured
+
+**Agentic is not an extra — it IS stage 4 and 5.** A model choosing between
+`get_recall`, `find_recalls`, `search_complaints` and `count_complaints`, and
+calling one after another, is what agentic retrieval means. Nothing further
+needs inventing; see [`STAGE4.md`](STAGE4.md).
+
+**Corrective has a specific job here, and 3.7 showed what it is.** The generic
+version — grade the results, re-retrieve if they are poor — would have correctly
+judged REC-001's results as junk and then fetched the same junk again, because
+the query was never the problem. What corrective means on this corpus is
+narrower and more useful:
+
+```
+find_recalls(...) returned []         → widen the component filter before
+                                        concluding no recall exists
+count_complaints(...) returned 0      → the filter is wrong, not the corpus
+search inside a filter returned junk  → the filter was too narrow; say so
+                                        rather than answering from junk
+```
+
+Every one of those is a **filter correction**, not a query rewrite. Worth
+building, and small.
+
+### The graph, measured rather than asserted
+
+The earlier claim here was "complaint → component → recall → manufacturer,
+genuinely real". Half right. The edges were counted:
+
+```
+investigations                                    114
+  ...carrying a campaign number                    42
+  ...whose campaign resolves to a recall we hold   14     ← 12% of investigations
+
+complaints naming a campaign id in their text   5,361
+  distinct campaigns named                        689
+  ...resolving to a recall we hold                563     ← a real edge
+
+complaints naming REC-001's campaign directly       7
+```
+
+**The valuable edge is the one nobody planned.** The investigation → recall link
+is the documented one and it resolves only 14 times. The useful link is
+**owners typing a campaign number into their complaint narrative** — 563
+campaigns reachable that way, and for REC-001 it produces the 7 complaints that
+are the strongest possible evidence on whether a fix is holding.
+
+> **But that traversal is one hop, and one hop is a lookup.** `complaints
+> citing 20V197000` is a string match we can already express. It does not need a
+> graph store, node embeddings or community detection — it needs **one more
+> tool**, and it should be built as one rather than as a retrieval layer.
+
+So: a fifth tool for stage 4, `complaints_citing(campaign)`, and no graph
+infrastructure. If the corpus later gains multi-hop questions — *this
+investigation led to that recall, which was superseded by another* — revisit it
+with the same instinct: **measure whether the hops resolve before building the
+machinery to walk them.**
 
 ---
 

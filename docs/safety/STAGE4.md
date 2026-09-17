@@ -83,9 +83,11 @@ dangerous failure available here.
 
 ---
 
-## 3 · The four tools
+## 3 · The five tools
 
-Not two. The count came from §2, and the fourth came from the negative case.
+Not two. The count came from §2, the fourth from the negative case, and the
+fifth from measuring the corpus for a graph and finding a different one than
+expected.
 
 ### 3.1 · `get_recall(campaign_number)` — exact, and it must not search
 
@@ -184,6 +186,33 @@ file — the no-parser check that guardrail 3 requires.
 
 ---
 
+### 3.5 · `complaints_citing(campaign_number)` — the edge owners built by hand
+
+```
+complaints_citing("20V197000")  → 7 complaints whose narrative names it
+```
+
+**Measured before being proposed.** 5,361 complaints name a campaign id in their
+free text; 689 distinct campaigns, of which **563 resolve to a recall we hold**.
+
+This is the graph everyone expects to find in this corpus — and it is not the
+documented link. The investigation→recall field resolves only **14 times out of
+114**. The edge that works is the one owners typed themselves.
+
+For REC-001 — *"is the fix holding?"* — those 7 complaints are the strongest
+evidence available, because the person filing them had the campaign in front of
+them. That is a different claim from "a complaint about the same component",
+which is the trap the whole case is built around.
+
+*Done when:* returns 7 for `20V197000`, verified against `grep` on the raw file.
+
+> **And it stays a tool, not a graph layer.** One hop is a lookup. See
+> [`INGESTION.md`](INGESTION.md) — the traversal needs no graph store, no node
+> embeddings and no community detection, and building those would be ceremony
+> around a string match.
+
+---
+
 ## 4 · The answer contract
 
 A Zod `strictObject`, the same pattern as
@@ -263,6 +292,7 @@ model seems bad".
 | 4.2 | `find_recalls` | `[]` for the Odyssey case; `20V197000` for the F-150 PRNDL case |
 | 4.3 | `search_complaints` with filters | `11353867` in the top 6, where it was outside the top 50 |
 | 4.4 | `count_complaints` | numbers match `awk` over the raw file |
+| 4.4b | `complaints_citing` | returns 7 for `20V197000`, verified by `grep` |
 | 4.5 | re-run 3.7 **through the tools** | recall@6 rises from 0.40, and we can say by how much and why |
 | 4.6 | the schema | `pnpm safety:schema:check` — every field has a `.describe()` |
 | 4.7 | the coherence rules | each of the six rejects a hand-written bad answer, and accepts a good one |
