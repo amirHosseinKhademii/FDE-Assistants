@@ -13,7 +13,8 @@
     "chunk": "ts-node src/cli/chunk.ts",
     "embed": "ts-node src/cli/embed.ts",
     "index": "ts-node src/cli/index-cli.ts",
-    "search": "ts-node src/cli/search.ts"
+    "search": "ts-node src/cli/search.ts",
+    "measure": "ts-node src/cli/measure.ts"
   },
   "dependencies": {
     "dotenv": "^16.4.5",

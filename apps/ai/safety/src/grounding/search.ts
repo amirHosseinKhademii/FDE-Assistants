@@ -23,7 +23,15 @@
  * dense arm returns passages that look like they contain campaign numbers. The
  * keyword arm returns that campaign.
  */
-import { hybridSearch, openStore, LocalEmbeddings, type Scored } from '@fde/grounding';
+import {
+  hybridSearch,
+  openStore,
+  rerankHits,
+  rerankerChoice,
+  DEFAULT_POOL,
+  LocalEmbeddings,
+  type Scored,
+} from '@fde/grounding';
 import type { PGVectorStore } from '@langchain/pgvector';
 
 export const TABLE = 'document_chunks';
@@ -40,6 +48,10 @@ export interface SearchHit {
   sparseRank?: number;
   /** Fused score, normalised so the best is 1. NOT a similarity. */
   score: number;
+  /** The cross-encoder's raw logit, when 3.6b ran. Uncalibrated; higher is better. */
+  rerankScore?: number;
+  /** Where the fused ranking had put this, before the reranker moved it. */
+  fromRank?: number;
   text: string;
   meta: Record<string, unknown>;
 }
@@ -48,6 +60,10 @@ export interface SearchResult {
   hits: SearchHit[];
   /** False when the keyword arm could not run. Never silently dense-only. */
   fullText: boolean;
+  /** Whether 3.6b ran. Reported, never assumed — the two are different numbers. */
+  reranked: boolean;
+  /** How many candidates the cross-encoder re-scored. 0 when it did not run. */
+  pool: number;
   ms: number;
 }
 
@@ -78,19 +94,40 @@ export async function search(
   k: number = DEFAULT_K,
 ): Promise<SearchResult> {
   const started = Date.now();
-  const { hits, fullText } = await hybridSearch(store, query, k, undefined, {
+
+  // 3.6b IS A DECISION MADE BY THE ENVIRONMENT, NOT BY THIS CALL SITE.
+  // `RERANK=local` turns it on; anything else leaves it off. Reading it here
+  // rather than taking a parameter is what lets 3.7 run the SAME code twice
+  // with one variable changed — a harness that passed a flag would be measuring
+  // a different call path, not a different pipeline.
+  const wantRerank = rerankerChoice() === 'local';
+
+  // FETCH THE POOL, NOT k. A reranker can only reorder what it was handed, so
+  // asking for 6 and re-scoring 6 measures nothing: the same six are shown
+  // either way. 50 is the pool because the whole value is promoting something
+  // fusion put BELOW the cut.
+  const depth = wantRerank ? DEFAULT_POOL : k;
+
+  const { hits, fullText } = await hybridSearch(store, query, depth, undefined, {
     tableName: TABLE,
     connectionString,
   });
 
+  if (!wantRerank) {
+    return { hits: hits.map(toHit), fullText, reranked: false, pool: 0, ms: Date.now() - started };
+  }
+
+  const rescored = await rerankHits(query, hits, { pool: DEFAULT_POOL });
   return {
-    hits: hits.map(toHit),
+    hits: rescored.slice(0, k).map(toHit),
     fullText,
+    reranked: true,
+    pool: Math.min(hits.length, DEFAULT_POOL),
     ms: Date.now() - started,
   };
 }
 
-function toHit(s: Scored): SearchHit {
+function toHit(s: Scored & { rerankScore?: number; fromRank?: number }): SearchHit {
   const meta = (s.doc.metadata ?? {}) as Record<string, unknown>;
   return {
     id: String(meta.id ?? ''),
@@ -98,6 +135,8 @@ function toHit(s: Scored): SearchHit {
     denseRank: s.denseRank,
     sparseRank: s.sparseRank,
     score: s.score,
+    rerankScore: s.rerankScore,
+    fromRank: s.fromRank,
     text: s.doc.pageContent,
     meta,
   };

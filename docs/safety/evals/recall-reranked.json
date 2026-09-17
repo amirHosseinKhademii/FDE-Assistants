@@ -1,0 +1,92 @@
+{
+  "mode": "3.7b · reranked",
+  "reranked": true,
+  "k": 6,
+  "overall": 0.4,
+  "cases": [
+    {
+      "id": "REC-001",
+      "question": "We run 2020 F-150s. Is the transmission park problem a known defect, and is the fix holding?",
+      "expects": "campaign 20V197000 and ODI 11353867, both in the top 6",
+      "recall": 0,
+      "found": [],
+      "missing": [
+        "20V197000",
+        "11353867"
+      ],
+      "returned": [
+        "11698034",
+        "11760026",
+        "11614685",
+        "11635454",
+        "11751538",
+        "11596491"
+      ],
+      "positions": {},
+      "recallDocsReturned": [],
+      "ms": 4630,
+      "reranked": true,
+      "movedFrom": {}
+    },
+    {
+      "id": "REC-004",
+      "question": "Are there any complaints involving a death on the 2019-2020 Tesla Model 3?",
+      "expects": "as many of the 5 death complaints as 6 slots allow",
+      "recall": 0.2,
+      "found": [
+        "11364724"
+      ],
+      "missing": [
+        "11302656",
+        "11473666",
+        "11524321",
+        "11533202"
+      ],
+      "returned": [
+        "11364724",
+        "11680195",
+        "11622793",
+        "11756690",
+        "11364728",
+        "11340532"
+      ],
+      "positions": {
+        "11364724": 1
+      },
+      "recallDocsReturned": [],
+      "ms": 2703,
+      "reranked": true,
+      "movedFrom": {
+        "11364724": 3
+      }
+    },
+    {
+      "id": "REC-005",
+      "question": "Is there a recall for the forward-collision braking on the 2019-2020 Honda Odyssey?",
+      "expects": "at least one Odyssey forward-collision complaint, and no recall mis-cited",
+      "recall": 1,
+      "found": [
+        "11672124"
+      ],
+      "missing": [],
+      "returned": [
+        "11672124",
+        "11570553",
+        "11658454",
+        "11656990",
+        "11758197",
+        "11748885"
+      ],
+      "positions": {
+        "11672124": 1
+      },
+      "recallDocsReturned": [],
+      "ms": 2694,
+      "reranked": true,
+      "movedFrom": {
+        "11672124": 36
+      }
+    }
+  ],
+  "recordedAt": "2026-09-17T12:36:59.759Z"
+}

@@ -1,0 +1,88 @@
+{
+  "mode": "3.7a · hybrid alone",
+  "reranked": false,
+  "k": 6,
+  "overall": 0.4,
+  "cases": [
+    {
+      "id": "REC-001",
+      "question": "We run 2020 F-150s. Is the transmission park problem a known defect, and is the fix holding?",
+      "expects": "campaign 20V197000 and ODI 11353867, both in the top 6",
+      "recall": 0,
+      "found": [],
+      "missing": [
+        "20V197000",
+        "11353867"
+      ],
+      "returned": [
+        "11751538",
+        "11759789",
+        "11596491",
+        "11626377",
+        "11463916",
+        "11763492"
+      ],
+      "positions": {},
+      "recallDocsReturned": [],
+      "ms": 5799,
+      "reranked": false,
+      "movedFrom": {}
+    },
+    {
+      "id": "REC-004",
+      "question": "Are there any complaints involving a death on the 2019-2020 Tesla Model 3?",
+      "expects": "as many of the 5 death complaints as 6 slots allow",
+      "recall": 0.2,
+      "found": [
+        "11364724"
+      ],
+      "missing": [
+        "11302656",
+        "11473666",
+        "11524321",
+        "11533202"
+      ],
+      "returned": [
+        "11680195",
+        "11485510",
+        "DP19005",
+        "11413662",
+        "11364724",
+        "11750088"
+      ],
+      "positions": {
+        "11364724": 5
+      },
+      "recallDocsReturned": [],
+      "ms": 1442,
+      "reranked": false,
+      "movedFrom": {}
+    },
+    {
+      "id": "REC-005",
+      "question": "Is there a recall for the forward-collision braking on the 2019-2020 Honda Odyssey?",
+      "expects": "at least one Odyssey forward-collision complaint, and no recall mis-cited",
+      "recall": 1,
+      "found": [
+        "11761879"
+      ],
+      "missing": [],
+      "returned": [
+        "11761879",
+        "11570553",
+        "11748885",
+        "11623465",
+        "11758197",
+        "11458001"
+      ],
+      "positions": {
+        "11761879": 1
+      },
+      "recallDocsReturned": [],
+      "ms": 1507,
+      "reranked": false,
+      "movedFrom": {}
+    }
+  ],
+  "recordedAt": "2026-09-17T12:36:29.425Z"
+}
