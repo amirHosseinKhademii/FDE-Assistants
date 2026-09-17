@@ -25,7 +25,8 @@ import { ToolRegistry, chatClient, chatModelName, runLoop, loopChoice, engineLab
 import { openaiClient } from '@fde/foundry';
 import { SAFETY_TOOLS } from '../agent/tools';
 import { SAFETY_SYSTEM_PROMPT } from '../agent/prompt';
-import { SafetyAnswerSchema, validateSafetyAnswer, type SafetyAnswer } from '../schema/safety-answer';
+import { SafetyAnswerSchema, type SafetyAnswer } from '../schema/safety-answer';
+import { recordingTools, validatorFor, evidenceFrom, type CallRecord } from '../agent/answer';
 
 const GREEN = '\x1b[32m';
 const RED = '\x1b[31m';
@@ -58,20 +59,23 @@ async function ask(question: string) {
   console.log(`\n  ${DIM}engine ${engineLabel(choice)} · model ${model}${OFF}`);
   console.log(`  ${DIM}"${question}"${OFF}\n`);
 
-  const registry = new ToolRegistry(SAFETY_TOOLS);
+  // RECORDED, so rule 6 can be checked against what the tools returned rather
+  // than against what the answer claims — see agent/answer.ts.
+  const { tools, calls } = recordingTools(SAFETY_TOOLS);
+  const registry = new ToolRegistry(tools);
   const started = Date.now();
 
   const result = await runLoop<SafetyAnswer>(choice, client(), model, registry, question, {
     system: SAFETY_SYSTEM_PROMPT,
     responseFormat: SafetyAnswerSchema,
-    validate: validateSafetyAnswer,
+    validate: validatorFor(calls),
     agentName: 'calder-safety',
     onEvent: (e: any) => {
       if (e.type === 'tool_call') console.log(`  ${DIM}→ ${e.name}(${JSON.stringify(e.args)})${OFF}`);
     },
   });
 
-  return { result, ms: Date.now() - started, model, choice };
+  return { result, ms: Date.now() - started, model, choice, calls };
 }
 
 async function main(): Promise<number> {
@@ -139,12 +143,41 @@ async function main(): Promise<number> {
   );
 
   if (a) printAnswer(a);
+
+  // ── 6.3 · THE NEGATIVE CASE, where rule 6 is the only thing watching ─────
+  //
+  // REC-002 above cannot exercise rule 6: a campaign was found, so citing one
+  // is correct. REC-005 is the case where citing ANY campaign is wrong, and
+  // until now nothing enforced that at answer time.
+  console.log(`\n  ${DIM}6.3 · REC-005, where rule 6 applies${OFF}`);
+  const neg = await ask('Is there a recall for the forward-collision braking on the 2019-2020 Honda Odyssey?');
+  const negCalls: CallRecord[] = neg.calls;
+  const ev = evidenceFrom(negCalls);
+  const na = neg.result.structured;
+
+  check(
+    negCalls.some((c) => c.name === 'find_recalls'),
+    'REC-005 · the recall search ran',
+    negCalls.map((c) => c.name).join(', ') || 'no tools called',
+  );
+  check(
+    ev.recallSearchWasEmpty,
+    'REC-005 · and it came back empty, which is the answer',
+    `recallSearchWasEmpty=${ev.recallSearchWasEmpty}`,
+  );
+  check(
+    !!na && na.campaigns.length === 0,
+    'REC-005 · no campaign is cited — rule 6 is now enforced at answer time',
+    na ? `campaigns: [${na.campaigns.join(', ')}]` : `no structured answer: ${neg.result.schemaErrors.join(' | ')}`,
+  );
+  if (na) printAnswer(na);
+
   console.log(`  ${DIM}${result.turns.length} turn(s), ${(ms / 1000).toFixed(1)}s, model ${model}`);
   console.log(`  a single green run is a smoke test, not a scorecard — repeats are stage 7${OFF}`);
 
   console.log(
     failed === 0
-      ? `\n  ask: ${GREEN}PASS${OFF} — stage 6.3 may begin\n`
+      ? `\n  ask: ${GREEN}PASS${OFF} — stages 6.2 and 6.3 green; 6.4 may begin\n`
       : `\n  ask: ${RED}FAIL${OFF} — ${failed} check(s).\n`,
   );
   return failed;
