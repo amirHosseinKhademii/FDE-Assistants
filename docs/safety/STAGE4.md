@@ -335,13 +335,63 @@ Everything here came from somewhere measured:
 
 ---
 
-## 9 · The open question, to be decided before 4.1
+## 9 · The component filter — decided, 2026-09-17, before building it
 
-**How does a component filter match?** `FORWARD COLLISION AVOIDANCE: ADAPTIVE
-CRUISE CONTROL` and `FORWARD COLLISION AVOIDANCE: WARNINGS` are different
-components on the same vehicle, and REC-005 needs both. Exact match is too
-narrow; substring risks matching things nobody meant.
+NHTSA's components are a tree written with colons:
 
-The measurement used `like '%FORWARD COLLISION%'` and produced the right 400.
-That is evidence, not a decision — **write down which rule we chose and why,
-before building the filter, so the eval cannot be quietly tuned to it.**
+```
+POWER TRAIN
+POWER TRAIN:AUTOMATIC TRANSMISSION
+POWER TRAIN:AUTOMATIC TRANSMISSION:GEAR POSITION INDICATION (PRNDL)
+FORWARD COLLISION AVOIDANCE: WARNINGS
+FORWARD COLLISION AVOIDANCE: ADAPTIVE CRUISE CONTROL
+```
+
+**The rule is PREFIX MATCH ON THAT HIERARCHY**, and nothing looser:
+
+```
+value = filter                    an exact component
+value starts with filter + ':'    that component and everything under it
+value starts with filter + ': '   the same, because NHTSA uses both spacings
+```
+
+So `FORWARD COLLISION AVOIDANCE` matches both its children, and
+`POWER TRAIN:AUTOMATIC TRANSMISSION` matches the PRNDL branch without dragging
+in all of `POWER TRAIN`. **The caller chooses how specific to be**, which is
+what the answer key needs: REC-005 wants the whole forward-collision subtree,
+REC-001 wants one branch of the transmission.
+
+Substring matching was rejected: `BRAKE` would catch `PARKING BRAKE` and
+`BRAKE HOSE` whether or not anyone meant it, and a caller could not express
+"only the top level". Exact matching was rejected because the model would have
+to know every sub-component string in advance.
+
+### Verified against the key before being written down
+
+```
+Odyssey + prefix "FORWARD COLLISION AVOIDANCE"   →  400   key says 400 ✓
+F-150 + prefix "POWER TRAIN"                     →  1,077  (1,057 of them
+                                                    filed after 2020-04-27)
+recalls + prefix "POWER TRAIN:AUTOMATIC TRANSMISSION"
+                                                 →  the PRNDL branch, and not
+                                                    the bare POWER TRAIN rows
+```
+
+### And one rule that comes with it, for `count_complaints`
+
+Filtering on components means **unnesting an array**, and a complaint can carry
+several: **21,747 of 70,194 have more than one.** Unnested, one complaint
+becomes several rows.
+
+The first run of the check above returned **675** for the Odyssey — the number
+this key already had to have corrected out of it, arrived at by a completely
+different route. `count(*)` over the unnested rows is a row count again.
+
+> **Any count that filters on component MUST be `count(distinct id)`.** This is
+> the third appearance of the same trap in this engagement — 1,407 recalls that
+> were 107 campaigns, 12 death complaints that were 5, and now 675 that are
+> 400 — and it is the first time it is structural rather than a mistake: the
+> unnest creates the duplicates itself.
+>
+> `count_complaints` is the tool whose entire output is a number. It gets this
+> rule in its own test.
