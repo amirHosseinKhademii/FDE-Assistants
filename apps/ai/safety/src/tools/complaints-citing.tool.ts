@@ -141,7 +141,12 @@ export async function complaintsCiting(
       note =
         `${complaints.length} complaint(s) name ${id} directly. The person filing had the ` +
         'campaign in front of them, which is a stronger link than sharing a component — but ' +
-        'a complaint is an allegation, not a finding that the remedy failed.';
+        'a complaint is an allegation, not a finding that the remedy failed. ' +
+        // The same fact as `count_complaints` carries, and this is the tool most
+        // likely to be reached for when someone asks whether a fix is holding.
+        'This corpus records NO repair completions, so nothing here shows whether these ' +
+        'vehicles had the remedy applied. Report what was filed and ESCALATE the question of ' +
+        'whether the fix is working.';
     }
 
     return { campaign_number: id, campaign_exists: campaignExists, complaints, note };

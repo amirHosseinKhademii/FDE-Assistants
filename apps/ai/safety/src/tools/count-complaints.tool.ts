@@ -146,6 +146,39 @@ export async function countComplaints(
       ? `complaints: ${parts.join(', ')}`
       : 'complaints: every complaint in the corpus';
 
+    // ── THE FACT, PUT WHERE IT IS READ ────────────────────────────────────
+    //
+    // MEASURED: REC-001's key requires an escalation, because "is the fix
+    // holding" cannot be answered from a corpus that records no repair
+    // completions. Across seven runs — four in stage 6, three in the first
+    // baseline — the model escalated ZERO times, while the prompt said almost
+    // verbatim that completion is not recorded here.
+    //
+    // STAGE7.md §7 set the rule before the number existed: fails 3 of 3 means
+    // change the MECHANISM, not the wording. A prompt is read once at the
+    // start; a tool result is read at the moment the number is being used, and
+    // this is the moment the inference gets made.
+    //
+    // It is the same move that worked three times today — `find_recalls`
+    // returning what IS recalled when it finds nothing, and the tools writing
+    // their own captions after a model mislabelled one. PUT THE FACT WHERE THE
+    // MODEL READS IT.
+    //
+    // ONLY WHEN `filed_after` IS SET, because "how many since X" is the shape
+    // that invites "so did the fix work". REC-008 also filters on a date and
+    // does not need to escalate — the note is harmless there, since its answer
+    // makes no claim about a remedy.
+    //
+    // AND THIS IS A NUDGE, NOT A GUARANTEE. Nothing here can force an
+    // escalation, and a contract rule cannot tell REC-001's question from
+    // REC-008's. Whether it works is the next baseline's to say.
+    const afterRecall = filter.filed_after
+      ? ' NOTE: this corpus records complaints and campaigns, NOT repair completions. ' +
+        'A complaint filed after a recall does not establish that the vehicle had the remedy ' +
+        'applied, so this count cannot show whether a fix is working. If the question asks ' +
+        'whether a fix is holding, say what was filed and ESCALATE the effectiveness question.'
+      : '';
+
     if (!matching) {
       return {
         count,
@@ -154,7 +187,8 @@ export async function countComplaints(
         note:
           `${count.toLocaleString('en-GB')} complaints match the filter. This counts the ` +
           'COMPONENT, not the defect — narrow it with `matching` before calling it a defect count.' +
-          scope,
+          scope +
+          afterRecall,
       };
     }
 
