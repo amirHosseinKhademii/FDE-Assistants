@@ -24,6 +24,7 @@
  */
 import { Mono } from '@fde/uikit';
 import { Data } from '@veresk/surface';
+import { FindRecallsModal } from './FindRecallsModal';
 import { GetRecallModal } from './GetRecallModal';
 
 /**
@@ -54,10 +55,11 @@ const TOOLS: readonly {
   {
     n: '4.2',
     sig: 'find_recalls({ make, model, year, component? })',
-    rule: 'may return nothing',
+    rule: 'may return nothing, and says so with evidence',
     from: 'planned',
-    what: 'Every campaign covering that vehicle and component. Often an empty list.',
-    why: 'THE EMPTY LIST IS THE POINT. Search always returns something — there is no score cutoff, by design — so today “no recall exists” is a judgement made by reading six loosely-related results and deciding none of them count.',
+    built: true,
+    what: 'Every campaign covering that vehicle and component — often an empty list, and when it is empty it also returns the components on that vehicle that DO have campaigns.',
+    why: 'Search can never say no: it always hands back something that looks close enough and leaves you guessing whether it counts. This can say no, because a recall lists the car and the part it covers. And “no” arrives with proof that it was looked for.',
   },
   {
     n: '4.3',
@@ -115,7 +117,7 @@ const RULES = [
 
 const STEPS: readonly (readonly [string, string, string] | readonly [string, string, string, 'done'])[] = [
   ['4.1', 'get_recall', 'returns 20V197000 exactly; a bad number returns nothing, not a near miss', 'done'],
-  ['4.2', 'find_recalls', '[] for the Odyssey case; 20V197000 for the F-150 PRNDL one'],
+  ['4.2', 'find_recalls', 'zero for the Odyssey case, with 16 other components named; 20V197000 for the F-150', 'done'],
   ['4.3', 'search_complaints', '11353867 in the top 6, where it was outside the top 50 unfiltered'],
   ['4.4', 'count_complaints', 'the numbers match awk over the raw file'],
   ['4.4b', 'complaints_citing', 'returns 7 for 20V197000, verified by grep'],
@@ -134,7 +136,7 @@ export function Stage4() {
           Where the machine is allowed to answer
         </h2>
         <span className="rounded-full border border-cal-1/40 px-2.5 py-0.5 font-mono text-[0.625rem] tracking-[0.06em] text-cal-1 uppercase">
-          building · 1 of 5 tools
+          building · 2 of 5 tools
         </span>
       </div>
 
@@ -224,7 +226,8 @@ export function Stage4() {
                     {t.what}
                   </p>
                   <Why>{t.why}</Why>
-                  {t.built && <GetRecallModal />}
+                  {t.n === '4.1' && <GetRecallModal />}
+                  {t.n === '4.2' && <FindRecallsModal />}
                 </div>
               </li>
             );
