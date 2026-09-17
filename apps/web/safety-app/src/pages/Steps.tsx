@@ -538,12 +538,30 @@ function Index() {
           This is the first stage that leaves this machine
         </span>
         , which makes it the first that can fail for reasons unrelated to our
-        code. 73,442 rows is about 140 MB at the 2,002 bytes a row measured on
-        the sibling engagement — 27% of Neon's free tier, checked rather than
-        assumed. And the whole stage turns on one method call:{' '}
+        code. And the whole stage turns on one method call:{' '}
         <Mono>addVectors</Mono> inserts what stage 3.3 made, while{' '}
         <Mono>addDocuments</Mono> would recompute all of it — 36.6 minutes, with
         no error, nothing that looks wrong, and the same row count either way.
+      </Because>
+
+      <Because>
+        It ran in 1.1 minutes, and{' '}
+        <span className="text-ui-fg">
+          the storage came in at more than twice what was predicted
+        </span>{' '}
+        — 295 MB rather than 140, which is 58% of the free tier rather than 27%.
+        The estimate extrapolated 2,002 bytes a row from the sibling engagement,
+        and that measurement predates the full-text column.{' '}
+        <Mono>content_ts</Mono> and its index are 69 MB, a quarter of the table.
+      </Because>
+
+      <Because>
+        Which corrects something this page has implied twice.{' '}
+        <Mono>vector</Mono> and <Mono>content_ts</Mono> being two indexes over
+        the same words is true, and it left the impression that the second is
+        free.{' '}
+        <span className="text-ui-fg">The keyword arm has a price</span>, and this
+        is the first corpus here big enough to show it.
       </Because>
 
       <IndexModal />

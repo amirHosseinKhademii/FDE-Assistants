@@ -31,10 +31,31 @@ import { Code, Data } from '@veresk/surface';
 
 const PASSAGES = 73442;
 const MB_ON_DISK = 641;
-const MB_IN_DB = 140;
 const NEON_FREE_MB = 512;
-/** Measured on the sibling engagement: 3,854 chunks occupy 7,536 kB. */
-const BYTES_PER_ROW = 2002;
+
+/**
+ * PREDICTED AND ACTUAL, and the gap is the finding.
+ *
+ * 2,002 bytes a row was extrapolated from the sibling engagement, and that
+ * measurement predates the full-text column. The real table is more than twice
+ * the prediction because `content_ts` and its GIN index were never counted —
+ * 69 MB, a quarter of the table, and the price of the keyword arm.
+ */
+const STORAGE = {
+  predictedBytesPerRow: 2002,
+  actualBytesPerRow: 4100,
+  predictedMb: 140,
+  actualMb: 295,
+} as const;
+
+/** The real table, broken down. `heap 112 MB · indexes 20 MB` of a 287 MB total. */
+const BREAKDOWN = [
+  { what: 'vector', mb: 108, note: '384 × 4 bytes = 1,536/row, exactly as expected' },
+  { what: 'content', mb: 44, note: 'the passages themselves' },
+  { what: 'metadata', mb: 31, note: 'make, year, severity — what filtering reads' },
+  { what: 'content_ts', mb: 52, note: 'NOT COUNTED in the estimate' },
+  { what: 'fts GIN index', mb: 17, note: 'nor this' },
+] as const;
 
 const KEYS = ['line', 'table', 'stream', 'outside', 'checks'] as const;
 type Key = (typeof KEYS)[number];
@@ -250,19 +271,57 @@ function IndexPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             nothing to do with our code.
           </P>
           <Data
-            path="storage — measured on the sibling engagement, not estimated"
-            mark={[2]}
+            path="storage — predicted, then measured"
+            note="the prediction was 2.1x out"
+            mark={[4]}
             lines={[
-              `3,854 chunks occupy 7,536 kB        =  ${BYTES_PER_ROW.toLocaleString('en-GB')} bytes/row`,
-              `${PASSAGES.toLocaleString('en-GB')} rows                        ≈  ~${MB_IN_DB} MB`,
-              `Neon free tier                      =  ${NEON_FREE_MB} MB   → ${Math.round((MB_IN_DB / NEON_FREE_MB) * 100)}% of it`,
+              `                       predicted        actual`,
+              `per row            ${String(STORAGE.predictedBytesPerRow).padStart(6)} bytes   ~${String(STORAGE.actualBytesPerRow).padStart(5)} bytes`,
+              `total              ${String(STORAGE.predictedMb).padStart(6)} MB      ${String(STORAGE.actualMb).padStart(6)} MB`,
+              `% of the free tier ${String(Math.round((STORAGE.predictedMb / NEON_FREE_MB) * 100)).padStart(6)}%       ${String(Math.round((STORAGE.actualMb / NEON_FREE_MB) * 100)).padStart(6)}%`,
+              `                                    ← more than half of it, now`,
             ]}
           />
+          <P>
+            The prediction came from the sibling engagement's 2,002 bytes a row,
+            and{' '}
+            <span className="text-ui-fg">
+              that measurement predates the full-text column
+            </span>
+            . The real table says where it went:
+          </P>
+          <Data
+            path="the table, broken down"
+            note="287 MB · heap 112 · indexes 20"
+            mark={[3, 4]}
+            lines={BREAKDOWN.map(
+              (b) => `${b.what.padEnd(16)}${String(b.mb).padStart(4)} MB   ${b.note}`,
+            )}
+          />
           <Aside>
-            Comfortable, and checked rather than assumed — which is the only
-            reason it is on the page. A storage figure nobody measured is the
-            kind of number that is fine until the run that is not.
+            <span className="text-ui-fg">
+              The keyword arm costs 69 MB — a quarter of the table.
+            </span>{' '}
+            This panel has been saying that <Mono>vector</Mono> and{' '}
+            <Mono>content_ts</Mono> are two indexes over the same words, which is
+            true, and leaving the impression that the second one is free, which
+            is not. The hybrid design has a price and this is the first corpus
+            here big enough to see it.
           </Aside>
+          <Aside>
+            <span className="text-ui-fg">And there is no vector index.</span>{' '}
+            The table carries <Mono>document_chunks_pkey</Mono> and the full-text
+            GIN index and nothing else — <Mono>openStore</Mono> creates neither
+            HNSW nor IVFFlat, so the meaning arm is a sequential scan over{' '}
+            {PASSAGES.toLocaleString('en-GB')} rows. Workable at this size and
+            worth knowing before stage 3.5's numbers land: if the dense arm is
+            slow, that is why, and it is a property of the store rather than of
+            the corpus. Adding one costs storage that is now 58% spent, so the
+            right order is to measure 3.5 without it and let the number decide —
+            the same argument as the reranker being a delta rather than a
+            default.
+          </Aside>
+
           <P>
             Two hazards come with the connection and both are already guarded.
             Neon suspends an idle connection, and a pooler that stops answering
@@ -276,15 +335,16 @@ function IndexPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
 
         <Sect k="checks" title="The checks, and the one with history" refs={sections} active={active}>
           <Code
-            path="what stage 3.4 asserts"
+            path="pnpm safety:index — all four green"
             lang="text"
             mark={[2, 5]}
+            note="it has run — 1.1 minutes, 147 batches"
             lines={[
-              `${PASSAGES.toLocaleString('en-GB')} rows in document_chunks`,
+              `${PASSAGES.toLocaleString('en-GB')} rows in document_chunks, in 1.1 min`,
               '',
               'ok  the row count matches the file, counted with wc -l and not by the loader',
-              'ok  ODI 11353867 is in the table and its text is intact',
-              'ok  content_ts is populated — the keyword arm has something to search',
+              'ok  ODI 11353867 is in the table, 615 characters intact',
+              'ok  content_ts is populated on every row',
               'ok  one dimension group: 384. Not two.',
             ]}
           />

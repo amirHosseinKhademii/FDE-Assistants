@@ -1,27 +1,33 @@
 /**
- * Four bugs from one week, and they are two lessons rather than four.
+ * Five bugs from one week, and they are two lessons rather than five.
  *
  * ── WHY THIS IS A SECTION AND NOT A FOOTNOTE ───────────────────────────────
  *
  * A page describing a pipeline that went smoothly is a page describing a demo.
- * None of these four is interesting alone — each is a small fact about a
- * library, a locale, a default — and together they are the thing this
- * engagement was built to find: what happens when machinery that works on a
- * corpus we wrote meets one nobody wrote for us.
+ * None of these is interesting alone — each is a small fact about a library, a
+ * locale, a default — and together they are the thing this engagement was built
+ * to find: what happens when machinery that works on a corpus we wrote meets
+ * one nobody wrote for us.
  *
  * ── THEY ARE NOT ALL THE SAME LESSON, AND SAYING SO IS THE POINT ───────────
  *
  * Three are "the tool and the thing it measures were configured differently".
- * The fourth is not, and forcing it in would be the tidier and worse choice: it
- * is an estimate whose input was wrong, and its lesson is about the SIZE of the
- * error rather than about configuration. A page that collapsed four findings
- * into one slogan would be doing the thing this whole site argues against.
+ * Two are not, and forcing them in would be the tidier and worse choice — they
+ * are ESTIMATES, and they even failed differently from each other: one had a
+ * wrong input, the other had a right input that had aged out from under it. A
+ * page that collapsed five findings into one slogan would be doing the thing
+ * this whole site argues against.
  *
  * ── EVERY ROW IS A REAL FAILURE WITH A REAL COST ───────────────────────────
  *
  * Nothing here is illustrative. Each one has a commit behind it, and three of
- * the four passed a check before anybody noticed — which is why they are worth
+ * the five passed a check before anybody noticed — which is why they are worth
  * a reader's time and a tidier list would not be.
+ *
+ * THE COUNT IN THE HEADING IS TYPED IN TWO PLACES AND WILL GO STALE. It is a
+ * count of things that happened rather than of anything in this file, so it
+ * cannot be derived; when a sixth arrives, the `<h2>`, the sentence under it
+ * and this comment all need it.
  */
 import { Mono } from '@fde/uikit';
 import { Data } from '@veresk/surface';
@@ -102,14 +108,14 @@ export function Lessons() {
   return (
     <section className="lift-in mt-16 border-t border-ui-line pt-10">
       <h2 className="font-mono text-lg leading-snug font-medium tracking-tight text-ui-fg md:text-xl">
-        Four things that went wrong, and three of them are the same thing
+        Five things that went wrong, and three of them are the same thing
       </h2>
       <p className="mt-3 max-w-[64ch] leading-relaxed text-ui-dim">
         None of these is interesting alone. Together they are what this
         engagement was built to find: not whether the machinery works, but where
         it bends when the data is not ours.{' '}
         <span className="text-ui-fg">
-          Three of the four passed a check before anybody noticed.
+          Three of the five passed a check before anybody noticed.
         </span>
       </p>
 
@@ -155,13 +161,13 @@ export function Lessons() {
         , so running it in the wrong environment proved the wrong thing.
       </p>
 
-      {/* ── THE FOURTH, AND IT IS NOT THE SAME LESSON ──────────────────────
-          Folding it in would be tidier and would be wrong. It is not a
-          configuration difference; it is an estimate whose input was wrong, and
-          what makes it worth reading is the SIZE of the error rather than its
-          cause. */}
+      {/* ── AND TWO THAT ARE NOT THAT AT ALL ───────────────────────────────
+          Both are estimates rather than configurations, and they failed in
+          different ways: one had a wrong input, the other had a right input
+          that had aged. Filing them under the trio's heading would have been
+          tidier and would have taught the wrong thing. */}
       <h3 className="mt-14 font-mono text-[0.6875rem] tracking-[0.08em] text-cal-2 uppercase">
-        and one that is not that at all
+        and two that are not that at all — both estimates
       </h3>
 
       <div className="mt-5 border-t border-ui-line pt-4">
@@ -219,6 +225,62 @@ export function Lessons() {
 
         <p className="mt-2.5 font-mono text-[0.6875rem] text-ui-faint">
           cost · 37.9 minutes, and the only real time lost
+        </p>
+      </div>
+
+      <div className="mt-8 border-t border-ui-line pt-4">
+        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+          <span className="font-mono text-[0.6875rem] tracking-[0.06em] text-ui-faint uppercase">
+            the index step
+          </span>
+          <span className="font-mono text-[0.9375rem] text-ui-fg">
+            an extrapolation from a measurement that had aged
+          </span>
+        </div>
+        <p className="mt-1 font-mono text-[0.75rem] text-cal-2">
+          the input was right when it was taken, and the schema moved
+        </p>
+
+        <p className="mt-3 max-w-[66ch] text-[0.875rem] leading-relaxed text-ui-dim">
+          Storage was predicted at 140 MB from the sibling engagement's 2,002
+          bytes a row — measured, not guessed, which is why it was trusted. The
+          real table is 295 MB, because that figure{' '}
+          <span className="text-ui-fg">predates the full-text column</span>.{' '}
+          <Mono>content_ts</Mono> and its GIN index are 69 MB, a quarter of the
+          table, and nobody had counted them because at 3,854 rows they did not
+          exist.
+        </p>
+
+        <Data
+          path="predicted against actual"
+          mark={[3]}
+          lines={[
+            '                       predicted        actual',
+            'per row              2,002 bytes    ~4,100 bytes',
+            'total                   140 MB          295 MB',
+            '% of the free tier         27%             58%',
+          ]}
+        />
+
+        <p className="mt-3.5 max-w-[66ch] text-[0.875rem] leading-relaxed text-ui-dim">
+          This is the second extrapolation from the sibling engagement in a week.
+          The other one — 47 minutes projected against 36.6 actual — missed in
+          the safe direction.{' '}
+          <span className="text-ui-fg">This one did not</span>, and there is no
+          rule that says which way they go. An extrapolation is a measurement
+          plus an assumption that nothing else changed, and the assumption is the
+          part nobody writes down.
+        </p>
+
+        <p className="mt-3.5 max-w-[66ch] text-[0.875rem] leading-relaxed text-ui-dim">
+          It also corrects something this site had implied: that the two indexes
+          over the same words cost nothing extra.{' '}
+          <span className="text-ui-fg">The keyword arm has a price</span> — 24%
+          of the table — and it took the first corpus big enough to show it.
+        </p>
+
+        <p className="mt-2.5 font-mono text-[0.6875rem] text-ui-faint">
+          cost · no time, and half the free tier
         </p>
       </div>
     </section>
