@@ -83,7 +83,7 @@ const CASES: ValidatorCase[] = [
   },
   {
     name: 'not JSON at all',
-    expect: 'could not be parsed',
+    expect: 'not valid JSON',
     body: 'I am unable to answer that question.',
     why: 'a model refusing in prose must be caught and retried, not crash the caller',
   },
@@ -146,12 +146,14 @@ const CASES: ValidatorCase[] = [
     expect: 'accept',
     body: clone({
       answer:
-        'Recall 20V197000 covers 2020 Ford F-150 vehicles, notified 2020-04-27. 1,057 power-train ' +
-        'complaints have been filed since, of which 89 match the recalled symptom.',
+        'Recall 20V197000 covers 2020 Ford F-150 and Ranger vehicles with 10-speed automatic ' +
+        'transmissions, notified 2020-04-27. 1,057 power-train complaints have been filed since, ' +
+        'of which 89 match the recalled symptom.',
     }),
     why:
-      'rule 4 must not fire on model years, dates, campaign ids or ODI numbers, or it will be ' +
-      'switched off within a week and stop catching the case it exists for',
+      'rule 4 must not fire on model years, dates, campaign ids, ODI numbers, or NAMES THAT ' +
+      'CONTAIN DIGITS — F-150 and 10-speed both did, because a hyphen is a word boundary. ' +
+      'Left unfixed the rule fires on correct answers and gets switched off within a week.',
   },
 ];
 

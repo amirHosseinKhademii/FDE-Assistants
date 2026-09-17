@@ -60,7 +60,12 @@ const Conflict = z
   .strictObject({
     topic: z.string().describe('What the documents disagree about, in a few words.'),
     positions: z
-      .array(z.strictObject({ source: z.string(), says: z.string() }))
+      .array(
+        z.strictObject({
+          source: z.string().describe('The document taking this position, named as a citation source.'),
+          says: z.string().describe('What that document states, in its own terms.'),
+        }),
+      )
       .describe('At least two, each naming its document. One position is not a conflict.'),
     resolved_by: z
       .string()
@@ -124,11 +129,28 @@ export type SafetyAnswer = z.infer<typeof SafetyAnswerSchema>;
  *   dates          2020-04-27        parts of it would read as counts
  *   0 and 1        "no complaints", "one owner" — too common to be useful,
  *                  and `find_recalls` returning nothing is rule 6's job
+ *
+ *   VEHICLE NAMES  F-150, Model 3    THE ONE THAT ACTUALLY BIT.
+ *   10-speed                         `\b` treats a hyphen as a word boundary, so
+ *                                    "F-150" yields 150 and the rule fired on a
+ *                                    correct answer. Caught by the control case
+ *                                    — which is the entire reason a suite gets
+ *                                    one. Every other case still passed.
  */
 export function countLikeNumbers(prose: string): number[] {
-  const withoutDates = prose.replace(/\d{4}-\d{2}-\d{2}/g, ' ');
-  const withoutIds = withoutDates.replace(/\b\d{2}[VETS]\d{6}\b/gi, ' ').replace(/\b\d{8,}\b/g, ' ');
-  const found = withoutIds.match(/\b\d{1,3}(?:,\d{3})*\b/g) ?? [];
+  const cleaned = prose
+    // dates first: their parts would otherwise read as counts
+    .replace(/\d{4}-\d{2}-\d{2}/g, ' ')
+    // campaign ids and ODI numbers
+    .replace(/\b\d{2}[VETS]\d{6}\b/gi, ' ')
+    .replace(/\b\d{8,}\b/g, ' ')
+    // VEHICLE AND PART DESIGNATORS, which are names that happen to contain digits
+    .replace(/\b[A-Za-z]+-\d+\b/g, ' ') // F-150, F-250, DMC-12
+    .replace(/\b\d+-[A-Za-z]+\b/g, ' ') // 10-speed
+    .replace(/\bmodel\s+\d+\b/gi, ' ') // Model 3, Model Y is safe already
+    .replace(/\bmach-?e?\s*\d*\b/gi, ' ');
+
+  const found = cleaned.match(/\b\d{1,3}(?:,\d{3})*\b/g) ?? [];
   return [
     ...new Set(
       found

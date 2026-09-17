@@ -152,7 +152,8 @@
     "safety:complaints": "pnpm --filter @calder/safety complaints",
     "safety:count": "pnpm --filter @calder/safety count",
     "safety:citing": "pnpm --filter @calder/safety citing",
-    "safety:measure-tools": "pnpm --filter @calder/safety measure-tools"
+    "safety:measure-tools": "pnpm --filter @calder/safety measure-tools",
+    "safety:schema": "pnpm --filter @calder/safety schema"
   },
   "devDependencies": {
     "turbo": "^2.10.12"
