@@ -20,6 +20,7 @@ import {
   hostedApiKey,
   hostedModel,
 } from '../core/loop.types';
+import { hostedRoundTripFetch } from './hosted-round-trip';
 
 // require(), not import: `@langchain/openai`'s root export has no CJS
 // condition, so it reaches us through Node 22's require(esm). Used uniformly
@@ -166,7 +167,16 @@ export function buildHostedChatModel(
     maxRetries: 4,
     configuration: {
       baseURL: overrides.baseURL ?? process.env.HOSTED_BASE_URL ?? DEFAULT_HOSTED_BASE_URL,
-      ...(overrides.fetch ? { fetch: overrides.fetch } : {}),
+      // WITHOUT THIS WRAPPER THIS ENGINE CANNOT USE TOOLS ON GEMINI AT ALL.
+      // LangChain parses a tool call down to `{ id, name, args }` and drops the
+      // `extra_content` Gemini requires echoed back, so the SECOND request of
+      // every tool-using conversation is rejected with a 400. Measured, and the
+      // reason this engine was recorded as hosted-incompatible until now. There is
+      // a SECOND repair in the same wrapper — see `hosted-round-trip.ts`.
+      //
+      // It wraps whatever fetch the caller supplied rather than replacing it,
+      // so a test that injects its own still sees its own calls.
+      fetch: hostedRoundTripFetch(overrides.fetch),
     },
   });
 }

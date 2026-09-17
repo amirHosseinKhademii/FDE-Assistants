@@ -23,7 +23,8 @@
     "measure-tools": "ts-node src/cli/measure-tools.ts",
     "schema": "ts-node src/schema/schema-selftest.ts",
     "tools": "ts-node src/cli/tools.ts",
-    "ask": "ts-node src/cli/ask.ts"
+    "ask": "ts-node src/cli/ask.ts",
+    "round-trip": "ts-node src/cli/round-trip.ts"
   },
   "dependencies": {
     "dotenv": "^16.4.5",

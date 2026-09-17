@@ -106,3 +106,4 @@ export {
 } from './sdk/compliance-sdk';
 export { runMastraComplianceCheck } from './mastra/compliance-mastra';
 export { runLangGraphComplianceCheck } from './langgraph/compliance-langgraph';
+export { runRoundTripCheck } from './langgraph/round-trip-selftest';

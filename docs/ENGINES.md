@@ -102,42 +102,93 @@ three:
 | engine | result | why |
 |---|---|---|
 | `sdk` | **refuses** | drives the **Responses API**; Gemini serves `/chat/completions`, like every other OpenAI-compatible provider |
-| `langgraph` | **400 from Gemini** | drops a provider-specific field between turns — see below |
+| `langgraph` | **works, since 2026-09-17** | needed two wire-level repairs — see below |
 | **`mastra`** | **works** | builds its model against chat-completions and carries the whole message back |
 
 **The `sdk` refusal is deliberate and correct.** `setOpenAIAPI('responses')` puts
 it on an API only OpenAI and Azure implement. It refuses by name rather than
 failing at the transport — §4.
 
-**The LangGraph failure is new and is NOT a configuration problem:**
+**LangGraph reached Gemini on 2026-09-17, and it took TWO repairs, not one.**
+This section used to record a single cause. The second was unreachable until the
+first was fixed, which is why nobody had seen it.
+
+**Repair 1 — the signature.**
 
 ```
 400 Function call is missing a thought_signature in functionCall parts.
 This is required for tools to work correctly … function call
-`default_api:get_policyholder`, position 2.
+`default_api:get_recall`, position 2.
 ```
 
 Gemini attaches a `thought_signature` to every function call it emits and
-requires it **echoed back** on the following turn. LangChain's `ChatOpenAI`
-rebuilds the assistant message from the fields it knows about, so the signature
-is dropped between turns and the second request is rejected. It is a
-round-tripping bug in the adapter, not a missing feature in Gemini, and nothing
-in `.env` can work around it.
+requires it **echoed back** on the following turn. Over the OpenAI-compatible
+surface it arrives nested inside the tool call:
 
-**So the honest statement is narrower than "three interchangeable engines":**
-they are interchangeable *on Azure*. Against a third-party OpenAI-compatible
-endpoint, one is locked out by its HTTP surface and one by message fidelity.
-That is the kind of thing only a swap reveals, which is the whole argument for
-having built three.
+```json
+"tool_calls": [{
+  "id": "call_38953",
+  "function": { "name": "get_recall", "arguments": "{…}" },
+  "extra_content": { "google": { "thought_signature": "El4KXAERTTIPPl1…" } }
+}]
+```
 
-**`LOOP=mastra` is required for `hosted`, and for `local`.** Both other engines
-are recorded here as open work:
+LangChain's `ChatOpenAI` parses a tool call into `{ id, name, args }` — the
+three fields the OpenAI spec defines — so `extra_content` is dropped on the way
+in and cannot be present on the way out.
+
+This section previously guessed the fix would be "probably an `additionalKwargs`
+passthrough". It is one level lower: **the message object never carries the
+field at all**, so the repair has to happen on the wire.
+
+**Repair 2 — the trailing model turn.**
+
+With the signature carried, the conversation gets one request further:
+
+```
+400 Requests ending with a model turn are not supported.
+```
+
+The offending request is LangGraph's **structured-output call** — the separate
+round trip `createReactAgent` makes when `responseFormat` is set. Logged:
+
+```
+roles: user > assistant > tool > assistant
+response_format: true · tools: 0
+```
+
+It replays the conversation, which ends with the model's own prose, and asks for
+it back as JSON. Every other provider accepts that; Gemini requires the last
+turn to be the caller's.
+
+**Both live in `packages/agent/src/langgraph/hosted-round-trip.ts`**, wrapped
+around the client's `fetch` — the only place both halves of a round trip are
+visible. `pnpm safety:round-trip` asserts them against a fake fetch, with a
+control for each: a request that already ends with a caller turn is sent
+unchanged, and on any other provider the body passes through byte-for-byte.
+
+**The two repairs are not equivalent, and the file says so.** Repair 1 puts back
+something the provider itself sent. Repair 2 **adds a message the caller did not
+write** (`"Continue."`), which is a different kind of act — it is gated on
+`LLM_PROVIDER=hosted` rather than on message shape, because a trailing assistant
+message is legal everywhere else.
+
+**So the honest statement is still narrower than "three interchangeable
+engines":** two of three reach Gemini, and the second one only after two
+wire-level repairs to faults that no configuration could reach. The remaining
+one is locked out by its HTTP surface.
+
+That is the whole argument for having built three. A single-engine stack would
+have called both of these faults "Gemini does not support tools properly" and
+been wrong twice.
+
+**`hosted` now has TWO engines: `mastra` and `langgraph`.** `local` has only
+been exercised on `mastra`. `sdk` remains open work:
 
 - **`sdk`** — would need `@fde/bedrock`-style translation, or the SDK to accept a
   chat-completions client. Large.
-- **`langgraph`** — would need the assistant message round-tripped verbatim,
-  including provider-specific fields. Smaller, and probably an
-  `additionalKwargs` passthrough.
+- **`langgraph` on `local`** — untested. The repairs above are gated on
+  `hosted`, so a local server needing either would fail the same way Gemini did.
 
 **Also open: choosing the provider from the UI.** Each desk already has an
 `Engine` picker (`sdk` / `mastra` / `langgraph`) but no provider picker, so
