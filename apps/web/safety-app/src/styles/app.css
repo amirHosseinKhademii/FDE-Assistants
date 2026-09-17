@@ -1793,3 +1793,15 @@ body {
   line-height: 1.7;
   color: var(--color-ui-dim);
 }
+
+/* ── THE ASK MAP ────────────────────────────────────────────────────────────
+   `FlowMap` styles nothing by `kind` — what kinds exist is this product's
+   vocabulary, so the widths live with the map that declares them.
+
+   The tool cards are the widest because that column is the argument: five ways
+   of asking, four of which did not exist until retrieval was measured. */
+.ui-flow-card[data-kind='you']    { width: 10.5rem; height: 6rem; }
+.ui-flow-card[data-kind='model']  { width: 12.5rem; height: 6.5rem; }
+.ui-flow-card[data-kind='loop']   { width: 13.5rem; height: 6.5rem; }
+.ui-flow-card[data-kind='tool']   { width: 14.5rem; height: 6.75rem; }
+.ui-flow-card[data-kind='store']  { width: 13rem;   height: 6.5rem; }
