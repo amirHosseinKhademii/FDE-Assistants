@@ -72,6 +72,15 @@ export interface RecallResult {
   remedy: string | null;
   /** What a citation should name. */
   source: string;
+  /**
+   * What `units_affected` is, in words, for a `counts` entry.
+   *
+   * Same reason `count_complaints` carries one: a run captioned this number
+   * "units_affected", which is a field name rather than a sentence. The tool
+   * knows what its own number means; the model should not have to invent a
+   * description of it.
+   */
+  describes: string;
 }
 
 export interface RecallMiss {
@@ -169,6 +178,7 @@ export async function getRecall(
       consequence: section(content, 'CONSEQUENCE'),
       remedy: section(content, 'REMEDY'),
       source: `NHTSA recall campaign ${id}`,
+      describes: `vehicles covered by recall ${id}`,
     };
   } finally {
     await client.end();

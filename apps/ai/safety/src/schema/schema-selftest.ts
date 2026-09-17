@@ -200,10 +200,10 @@ for (const l of contract.lines) console.log(l);
 const cites = (errs: string[]) => errs.some((e) => /cites campaign/.test(e));
 
 const citesAnyway = { ...structuredClone(GOOD), campaigns: ['20V438000'] };
-const rule6Rejects = cites(evidenceErrors(citesAnyway, { recallSearchWasEmpty: true }));
+const rule6Rejects = cites(evidenceErrors(citesAnyway, { recallSearchWasEmpty: true, toolCalls: 2, describedCounts: [] }));
 const rule6Accepts =
-  !cites(evidenceErrors(citesAnyway, { recallSearchWasEmpty: false })) &&
-  !cites(evidenceErrors({ ...structuredClone(GOOD), campaigns: [] }, { recallSearchWasEmpty: true }));
+  !cites(evidenceErrors(citesAnyway, { recallSearchWasEmpty: false, toolCalls: 2, describedCounts: [] })) &&
+  !cites(evidenceErrors({ ...structuredClone(GOOD), campaigns: [] }, { recallSearchWasEmpty: true, toolCalls: 2, describedCounts: [] }));
 
 console.log(
   `\n  ${rule6Rejects ? 'ok  ' : 'FAIL'}  rule 6 · a campaign cited after find_recalls returned nothing\n` +
@@ -219,7 +219,7 @@ console.log(
 // search rather than asserting an absence with no record of how you know.
 const assertsWithoutRecord = { ...structuredClone(GOOD), campaigns: [], searches_that_found_nothing: [] };
 const records = (errs: string[]) => errs.some((e) => /searches_that_found_nothing is empty/.test(e));
-const rule7Rejects = records(evidenceErrors(assertsWithoutRecord, { recallSearchWasEmpty: true }));
+const rule7Rejects = records(evidenceErrors(assertsWithoutRecord, { recallSearchWasEmpty: true, toolCalls: 2, describedCounts: [] }));
 const rule7Accepts =
   !records(
     evidenceErrors(
@@ -230,9 +230,9 @@ const rule7Accepts =
           { tool: 'find_recalls', arguments: { make: 'HONDA' }, what_it_means: 'none' },
         ],
       },
-      { recallSearchWasEmpty: true },
+      { recallSearchWasEmpty: true, toolCalls: 2, describedCounts: [] },
     ),
-  ) && !records(evidenceErrors(assertsWithoutRecord, { recallSearchWasEmpty: false }));
+  ) && !records(evidenceErrors(assertsWithoutRecord, { recallSearchWasEmpty: false, toolCalls: 2, describedCounts: [] }));
 
 console.log(
   `\n  ${rule7Rejects ? 'ok  ' : 'FAIL'}  rule 7 · an absence asserted with no record of the search that established it\n` +
@@ -242,6 +242,75 @@ console.log(
 console.log(
   `  ${rule7Accepts ? 'ok  ' : 'FAIL'}  control: rule 7 stays quiet when the search IS recorded, and when nothing was empty\n` +
     '        an absence with its query attached is properly evidenced, not a gap',
+);
+
+// RULE 8 — escalating without looking. The failure every other rule pushes a
+// model toward: cite your sources, name the tool behind each number, never
+// conclude a remedy failed — and answering nothing satisfies all of them.
+const refused = { ...structuredClone(GOOD), answer: null };
+const rule8Rejects = evidenceErrors(refused, { recallSearchWasEmpty: false, toolCalls: 0, describedCounts: [] }).some((e) =>
+  /without calling a single tool/.test(e),
+);
+const rule8Accepts =
+  !evidenceErrors(refused, { recallSearchWasEmpty: false, toolCalls: 3, describedCounts: [] }).some((e) =>
+    /without calling a single tool/.test(e),
+  ) &&
+  !evidenceErrors({ ...structuredClone(GOOD), escalate: null }, { recallSearchWasEmpty: false, toolCalls: 0, describedCounts: [] }).some(
+    (e) => /without calling a single tool/.test(e),
+  );
+
+console.log(
+  `\n  ${rule8Rejects ? 'ok  ' : 'FAIL'}  rule 8 · escalating or declining without calling a single tool\n` +
+    '        a real run met REC-001 with zero tool calls and an escalation saying the question ' +
+    'was underspecified — safe, and useless',
+);
+console.log(
+  `  ${rule8Accepts ? 'ok  ' : 'FAIL'}  control: rule 8 stays quiet when tools ran, and when nothing was escalated\n` +
+    '        escalating AFTER looking is the behaviour REC-006 requires, not a fault',
+);
+
+// RULE 9 — a number's caption must be the tool's own words.
+const EV = (over: Partial<import('./safety-answer').Evidence> = {}) => ({
+  recallSearchWasEmpty: false,
+  toolCalls: 3,
+  describedCounts: ['complaints: 2020, FORD, F-150, component POWER TRAIN:AUTOMATIC TRANSMISSION'],
+  ...over,
+});
+const mislabels = (errs: string[]) => errs.some((e) => /is not what any tool said it counted/.test(e));
+
+const paraphrased = {
+  ...structuredClone(GOOD),
+  counts: [
+    { label: 'F-150 power-train complaints after the recall', value: 6, from: 'count_complaints', filter: {} },
+  ],
+};
+const verbatim = {
+  ...structuredClone(GOOD),
+  counts: [
+    {
+      label: 'complaints: 2020, FORD, F-150, component POWER TRAIN:AUTOMATIC TRANSMISSION',
+      value: 6,
+      from: 'count_complaints',
+      filter: {},
+    },
+  ],
+};
+const rule9Rejects = mislabels(evidenceErrors(paraphrased, EV()));
+const rule9Accepts =
+  !mislabels(evidenceErrors(verbatim, EV())) &&
+  // Inert when no tool produced a description — otherwise every answer whose
+  // numbers came from get_recall would be rejected for failing to match a list
+  // that was never populated.
+  !mislabels(evidenceErrors(paraphrased, EV({ describedCounts: [] })));
+
+console.log(
+  `\n  ${rule9Rejects ? 'ok  ' : 'FAIL'}  rule 9 · a number captioned in the model's words rather than the tool's\n` +
+    '        a real run counted POWER TRAIN:AUTOMATIC TRANSMISSION and captioned it "power-train ' +
+    'complaints" — 6 reading as 351',
+);
+console.log(
+  `  ${rule9Accepts ? 'ok  ' : 'FAIL'}  control: rule 9 accepts the tool's own wording, and is inert when there is none\n` +
+    '        a rule that fired when no tool described anything would reject every get_recall number',
 );
 
 // The description walk, last, so a regression is reported beside the table
@@ -259,7 +328,17 @@ console.log(
 
 console.log('');
 process.exit(
-  contract.passed && described.passed && rule6Rejects && rule6Accepts && rule7Rejects && rule7Accepts && goodIsClean
+  contract.passed &&
+  described.passed &&
+  rule6Rejects &&
+  rule6Accepts &&
+  rule7Rejects &&
+  rule7Accepts &&
+  rule8Rejects &&
+  rule8Accepts &&
+  rule9Rejects &&
+  rule9Accepts &&
+  goodIsClean
     ? 0
     : 1,
 );

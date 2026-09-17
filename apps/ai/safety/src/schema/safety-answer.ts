@@ -45,7 +45,11 @@ const Count = z
   .strictObject({
     label: z
       .string()
-      .describe('What this number is, in plain words: "F-150 power-train complaints after the recall".'),
+      .describe(
+        'COPY THE TOOL\u2019S `describes` FIELD VERBATIM. Do not write your own wording for a ' +
+          'number — a paraphrase that widens "component POWER TRAIN:AUTOMATIC TRANSMISSION" into ' +
+          '"power-train complaints" turns 6 into an answer that reads like 351.',
+      ),
     value: z.number().int().describe('The number a tool returned. Never your own arithmetic.'),
     // ADDED 2026-09-17, BECAUSE THE FIELD WAS NARROWER THAN ITS JOB. A run put
     // 55,158 here labelled "units affected by recall 20V197000" — a real number,
@@ -320,10 +324,14 @@ export function coherenceErrors(v: SafetyAnswer): string[] {
   return errs;
 }
 
-/** What the tools actually returned, for the rule that cannot be checked without it. */
+/** What the tools actually returned, for the rules that cannot be checked without it. */
 export interface Evidence {
   /** True when `find_recalls` was called for this question and came back empty. */
   recallSearchWasEmpty: boolean;
+  /** How many tools were called at all. Zero is its own kind of answer. */
+  toolCalls: number;
+  /** Every `describes` string the tools produced, for rule 9. */
+  describedCounts: string[];
 }
 
 /**
@@ -344,6 +352,52 @@ export function evidenceErrors(v: SafetyAnswer, e: Evidence): string[] {
     errs.push(
       `find_recalls returned nothing, but the answer cites campaign(s) [${v.campaigns.join(', ')}] — ` +
         'no recall covers this vehicle and component, and a loosely related one is not an answer',
+    );
+  }
+
+  // RULE 9. A NUMBER'S LABEL MUST BE THE TOOL'S, NOT A PARAPHRASE OF IT.
+  //
+  // Rule 4 established that every number comes from a tool. It cannot see that
+  // the SENTENCE beside the number describes something else — and a run proved
+  // the gap: 6 complaints in `POWER TRAIN:AUTOMATIC TRANSMISSION`, filed after
+  // the recall, labelled "F-150 power-train complaints after the recall". The
+  // power-train figure is 351. Right number, right provenance, and a caption
+  // wrong by a factor of sixty.
+  //
+  // The label a human reads is now the tool's own `describes`, compared
+  // literally. A model that rewords it is caught; a model that copies it cannot
+  // misdescribe what it counted.
+  for (const c of v.counts) {
+    if (e.describedCounts.length && !e.describedCounts.includes(c.label)) {
+      errs.push(
+        `the label "${c.label}" is not what any tool said it counted — copy the tool's ` +
+          `\`describes\` verbatim. Available: ${e.describedCounts.map((d) => `"${d}"`).join(' | ')}`,
+      );
+    }
+  }
+
+  // RULE 8. AN ESCALATION BEFORE LOOKING IS A REFUSAL, NOT AN ESCALATION.
+  //
+  // MEASURED: asked "we run 2020 F-150s, is the transmission park problem a
+  // known defect and is the fix holding", a run called NO TOOLS AT ALL and
+  // escalated, on the grounds that the question was underspecified. Every rule
+  // written so far pushes against over-claiming — cite your sources, name the
+  // tool behind each number, never conclude a remedy failed — and a model that
+  // answers nothing satisfies all of them perfectly.
+  //
+  // This is insurance's control case arriving from the other side: a system
+  // that escalates on everything turns one eval green and another red, and
+  // REC-006 exists there for exactly this. Safe and useless is still useless,
+  // and on a safety corpus it is worse than it sounds — the fleet manager
+  // reading this has vehicles that may or may not have an open recall.
+  //
+  // You cannot know the corpus does not settle a question until you have asked
+  // it something.
+  if (e.toolCalls === 0 && (v.escalate !== null || v.answer === null)) {
+    errs.push(
+      'escalated or declined without calling a single tool — you cannot know this corpus ' +
+        'does not answer a question until you have asked it. Look first; escalate only about ' +
+        'what you found',
     );
   }
 

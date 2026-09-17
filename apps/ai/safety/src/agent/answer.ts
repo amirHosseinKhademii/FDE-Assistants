@@ -137,6 +137,12 @@ export function evidenceFrom(calls: CallRecord[]): Evidence {
   const last = [...calls].reverse().find((c) => c.name === 'find_recalls');
   return {
     recallSearchWasEmpty: !!last && ((last.result as any)?.matches?.length ?? 0) === 0,
+    toolCalls: calls.length,
+    // Only counts carry a `describes`; a run with none leaves rule 9 inert
+    // rather than rejecting every label for failing to match an empty list.
+    describedCounts: calls
+      .map((c) => (c.result as any)?.describes)
+      .filter((d): d is string => typeof d === 'string'),
   };
 }
 

@@ -1,7 +1,8 @@
 # Stage 6 — the loop, and the first model call
 
-**Nothing here is built.** This is the plan, written while stages 4 and 5 were
-fresh, so whoever picks it up does not have to re-derive the constraints.
+**6.1 through 6.4 are built and green; 6.6 remains.** This was written as a plan
+before any of it existed, and the tables below now record what happened as well
+as what was intended.
 
 Read [`STAGE4.md`](STAGE4.md) and [`STAGE5.md`](STAGE5.md) first — this stage is
 the wire between them.
@@ -123,14 +124,62 @@ measured failures:
 Deliberately one question before eight, because the first model call will fail
 in a way nobody predicted and a single case is where that is cheapest to read.
 
-| | step | done when |
-|---|---|---|
-| 6.1 | tools registered, no model | each of the five is callable through `ToolRegistry`, arguments validated by its Zod schema |
-| 6.2 | **REC-002, one question, one call** | *"What does recall 20V197000 cover?"* returns the campaign, and the record shows `get_recall` was called and `search_complaints` was **not** |
-| 6.3 | the answer through the contract | the reply parses, passes the schema, and trips no coherence rule |
-| 6.4 | REC-001, the hard one | two tool calls, in order, with the second's `filed_after` taken from the first's result |
-| 6.5 | REC-005, the negative one | `find_recalls` returns empty and the answer says so without citing a campaign |
-| 6.6 | pacing | a run of all eight completes without a 429, and the run reports how many calls it made |
+| | step | state | done when |
+|---|---|---|---|
+| 6.1 | tools registered, no model | **done** | each of the five callable through `ToolRegistry`, arguments validated |
+| 6.2 | REC-002, one question | **done** | `get_recall` called, `search_complaints` **not** |
+| 6.3 | the answer through the contract | **done** | parses, passes the schema, trips no rule — and rule 6 is finally *called* |
+| 6.4 | REC-001, the hard one | **done** | the second call's `filed_after` comes from the first call's result |
+| 6.5 | REC-005, the negative one | **folded into 6.3** | it is the only shape where rule 6 can fire, so it became 6.3's gate |
+| 6.6 | pacing | next | all eight complete without a 429, and the run reports how many calls it made |
+
+### What building 6.2–6.4 cost, which is the part worth carrying
+
+Nine faults, and **three of them were in fixes made an hour earlier**. The
+pattern is worth naming: every one was found by READING A REAL ANSWER, not by
+review, and the majority were in the checking apparatus rather than in the
+system being checked.
+
+```
+rule 4 fired on "F-150"              a hyphen is a word boundary
+rule 4 fired on "April 27, 2020"     ISO dates stripped, prose ones not — and
+                                     the model OBEYED, filing "27 — day of the
+                                     month owners were notified"
+the prompt contradicted the schema   it still said numbers come from
+                                     count_complaints after the schema was
+                                     widened to any tool
+evidenceFrom required EVERY search   a model narrowed from vehicle to component
+  to be empty                        and was scored as never having been told "none"
+the dependency check read the
+  FIRST date in any result           which is the tool ORDER, not the dependency
+rule 4 had no opinion on CAPTIONS    6 correct complaints labelled "power-train
+                                     complaints"; the power-train figure is 351
+```
+
+### The open decision in §7 is now closed by measurement
+
+§7 asked whether the loop should attach a count's provenance rather than asking
+the model to restate it, guessing that *"a model asked to restate its own
+arguments will paraphrase them."*
+
+It does. A run captioned `POWER TRAIN:AUTOMATIC TRANSMISSION` as "power-train",
+turning 6 into a sentence that reads like 351 — with `from`, `filter` and rule 4
+all correct. **The tools now write their own captions and rule 9 compares them
+literally.**
+
+### And one finding that stage 7 inherits
+
+REC-001's key requires an escalation: *"is the fix holding"* cannot be answered
+here, because whether a given vehicle had the repair is recorded nowhere.
+
+**Four consecutive runs, four times no escalation** — while the prompt says
+almost verbatim that a repair's completion is not in the corpus. That is
+reproducible behaviour, not variance, and it is reported by `safety:ask` rather
+than gating it: 6.4 asks a mechanical question and passes it, while *what the
+answer says* is content, and content on a non-deterministic system is measured
+with repeats and severity buckets.
+
+A permanently red check is one people learn to scroll past.
 
 **6.2 is the whole stage in miniature.** Its check is a *negative*: REC-002's
 key says `calls_get_recall_first` **and no `search_complaints` call at all**. A

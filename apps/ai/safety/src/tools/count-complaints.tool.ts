@@ -33,6 +33,22 @@ export const COUNT_COMPLAINTS = 'count_complaints';
 
 export interface CountResult {
   count: number;
+  /**
+   * WHAT THIS NUMBER IS, WRITTEN BY THE TOOL AND NOT BY THE MODEL.
+   *
+   * MEASURED: a run counted `POWER TRAIN:AUTOMATIC TRANSMISSION` filed after
+   * the recall — 6, correct — and labelled it "F-150 power-train complaints
+   * after the recall". The power-train figure is 351. The number was right, its
+   * provenance was right, `from` was right, the filter was recorded, and the
+   * SENTENCE A HUMAN READS was wrong by a factor of sixty.
+   *
+   * Rule 4 cannot catch that: it checks that a number came from a tool, and
+   * this one did. `STAGE6.md` §7 listed "have the loop attach this rather than
+   * asking the model to restate its own arguments" as an open decision, on the
+   * grounds that a model asked to restate its arguments will paraphrase them.
+   * This is the evidence, so the decision is made.
+   */
+  describes: string;
   /** The question this number answers. Required by stage 5's `counts` rule. */
   filter: ComplaintFilter;
   /** The narrowing phrase, when one was applied. */
@@ -112,10 +128,29 @@ export async function countComplaints(
         : ' NOTE: no make or model was given, so this counts ACROSS EVERY VEHICLE in the corpus. ' +
           'If you meant one vehicle, pass make and model and ask again.';
 
+    // Built from the filter, so it cannot drift from what was counted.
+    const parts = [
+      filter.year ? String(filter.year) : null,
+      filter.make ?? null,
+      filter.model ?? null,
+      filter.component ? `component ${filter.component}` : null,
+      filter.min_deaths ? `at least ${filter.min_deaths} death(s)` : null,
+      filter.min_injuries ? `at least ${filter.min_injuries} injuries` : null,
+      filter.crash === true ? 'crash reported' : null,
+      filter.fire === true ? 'fire reported' : null,
+      filter.filed_after ? `filed on or after ${filter.filed_after}` : null,
+      filter.filed_before ? `filed on or before ${filter.filed_before}` : null,
+      matching ? `describing "${matching}"` : null,
+    ].filter(Boolean);
+    const describes = parts.length
+      ? `complaints: ${parts.join(', ')}`
+      : 'complaints: every complaint in the corpus';
+
     if (!matching) {
       return {
         count,
         filter,
+        describes,
         note:
           `${count.toLocaleString('en-GB')} complaints match the filter. This counts the ` +
           'COMPONENT, not the defect — narrow it with `matching` before calling it a defect count.' +
@@ -137,6 +172,7 @@ export async function countComplaints(
           count: 0,
           filter,
           matching,
+          describes,
           note:
             `NO complaints matched "${matching}", but ${base.toLocaleString('en-GB')} match the ` +
             'filter alone. Spaces in a phrase mean AND, so several terms together may be ' +
@@ -150,6 +186,7 @@ export async function countComplaints(
       count,
       filter,
       matching,
+      describes,
       note:
         `${count.toLocaleString('en-GB')} complaints match the filter AND describe "${matching}". ` +
         'Run without `matching` for the filter alone; the difference is the complaints ' +

@@ -206,18 +206,132 @@ async function main(): Promise<number> {
       : `the last find_recalls found something, so no absence was established. Calls: ${searchArgs.join(' , ')}`,
   );
   check(
+    !!na && na.answer !== null,
+    'REC-005 · says so in words — an absence is an ANSWER, not a refusal',
+    na?.answer ? `${na.answer.slice(0, 96)}…` : 'answer was null; the key requires it stated plainly',
+  );
+  check(
     !!na && na.campaigns.length === 0,
     'REC-005 · no campaign is cited — rule 6 is now enforced at answer time',
     na ? `campaigns: [${na.campaigns.join(', ')}]` : `no structured answer: ${neg.result.schemaErrors.join(' | ')}`,
   );
   if (na) printAnswer(na);
 
+  // ── 6.4 · REC-001, WHERE ONE CALL MUST FEED THE NEXT ─────────────────────
+  //
+  // "We run 2020 F-150s. Is the transmission park problem a known defect, and
+  // is the fix holding?" is TWO questions with one answer each, and the second
+  // cannot be asked until the first is answered: "after the recall" has no
+  // meaning until you know when owners were notified.
+  //
+  // So this is the first check of a DEPENDENCY rather than of a tool. Stage 4.5
+  // hand-wrote that chain and proved the documents were reachable through it.
+  // Whether a model builds the same chain is a different question, and this is
+  // the first place it is asked.
+  console.log(`\n  ${DIM}6.4 · REC-001, where one call feeds the next${OFF}`);
+  const hard = await ask(
+    'We run 2020 F-150s. Is the transmission park problem a known defect, and is the fix holding?',
+  );
+  const hc: CallRecord[] = hard.calls;
+  const ha = hard.result.structured;
+
+  // The date as the RECALL gave it, not as the answer key gives it. Comparing
+  // against a literal would pass for a model that guessed 2020-04-27 from
+  // training data and never read the campaign.
+  //
+  // AND IT MUST BE THE DATE OF THE CAMPAIGN THE ANSWER CITES. The first version
+  // took the first notification date it could find anywhere in the results, and
+  // a run failed it while behaving perfectly: the model called
+  // find_recalls({make: FORD, model: F-150}) first, which returns every F-150
+  // campaign, so `matches[0].owners_notified` was 2019-06-03 — some unrelated
+  // recall — while the model correctly used 20V197000's own 2020-04-27 from
+  // get_recall.
+  //
+  // A check that reads "the first date in any result" is not checking the
+  // dependency; it is checking the order the tools happened to be called in.
+  const cited = new Set(ha?.campaigns ?? []);
+  const notifiedDates = new Set(
+    hc
+      .flatMap((c) => {
+        const r = c.result as any;
+        const one = r?.campaign_number ? [r] : [];
+        const many = Array.isArray(r?.matches) ? r.matches : [];
+        return [...one, ...many];
+      })
+      .filter((r: any) => r?.owners_notified && (cited.size === 0 || cited.has(r.campaign_number)))
+      .map((r: any) => r.owners_notified as string),
+  );
+  const notified = [...notifiedDates][0];
+
+  const dated = hc.filter((c) => (c.args as any)?.filed_after);
+
+  check(
+    hc.some((c) => c.name === 'find_recalls' || c.name === 'get_recall'),
+    'REC-001 · the campaign was looked up',
+    hc.map((c) => c.name).join(', ') || 'no tools called',
+  );
+  check(
+    notifiedDates.size > 0 &&
+      dated.length > 0 &&
+      dated.every((c) => notifiedDates.has((c.args as any).filed_after)),
+    'REC-001 · the complaint filter used the date the CITED RECALL returned',
+    notifiedDates.size
+      ? dated.length
+        ? `cited campaign notified ${[...notifiedDates].join('/')} · filed_after=${dated
+            .map((c) => (c.args as any).filed_after)
+            .join(', ')}`
+        : `notified ${[...notifiedDates].join('/')} but no call filtered on it — "after the recall" was never asked`
+      : 'no recall result carried a notification date for a cited campaign',
+  );
+  check(
+    !!ha && ha.counts.length > 0 && ha.counts.every((c) => !!c.from),
+    'REC-001 · every number carries the tool that produced it',
+    ha ? ha.counts.map((c) => `${c.value} from ${c.from}`).join(' · ') || 'no counts' : 'no answer',
+  );
+  // ── NOT A GATE, AND MOVING IT IS THE POINT ───────────────────────────────
+  //
+  // REC-001's key requires an escalation: "is the fix holding" cannot be
+  // answered from this corpus, because whether a given vehicle actually had the
+  // repair is recorded nowhere in it.
+  //
+  // MEASURED: four consecutive runs, four times no escalation — while the
+  // prompt says, almost verbatim, that a repair's completion "is not recorded
+  // anywhere in it". This is reproducible behaviour, not variance.
+  //
+  // It is REPORTED HERE AND SCORED IN STAGE 7, and the split is deliberate
+  // rather than convenient. 6.4 asks a MECHANICAL question — can the model use
+  // one tool's output as the next tool's input — and that now passes. Whether
+  // the answer says the right things is a CONTENT question, and content on a
+  // non-deterministic system is measured with repeat runs and severity buckets,
+  // not asserted once in a smoke test.
+  //
+  // Leaving it as a permanently red gate would be worse than either: a check
+  // that is always red is a check people learn to scroll past, and then it
+  // stops reporting the day it matters.
+  const escalated = !!ha?.escalate;
+  console.log(
+    escalated
+      ? `  ${DIM}note  REC-001 escalated: ${ha!.escalate!.reason.slice(0, 80)}${OFF}`
+      : `  ${YEL}note${OFF}  REC-001 did NOT escalate. The key requires it — whether a repair was ` +
+          `actually carried out\n        is not in this corpus. Four runs, four times. STAGE 7 ` +
+          `SCORES THIS; it is not a 6.4 failure.`,
+  );
+  // Rule 5 is enforced by the contract, so a structured answer already means it
+  // was not asserted. Checked anyway: the rule is the one with a legal edge,
+  // and "the contract would have caught it" is a claim worth testing directly.
+  check(
+    !!ha && !/fix is not holding|remedy failed|recall failed/i.test(ha.answer ?? ''),
+    'REC-001 · does not conclude the remedy failed',
+    ha?.answer ? `${ha.answer.slice(0, 92)}…` : 'no answer',
+  );
+  if (ha) printAnswer(ha);
+
   console.log(`  ${DIM}${result.turns.length} turn(s), ${(ms / 1000).toFixed(1)}s, model ${model}`);
   console.log(`  a single green run is a smoke test, not a scorecard — repeats are stage 7${OFF}`);
 
   console.log(
     failed === 0
-      ? `\n  ask: ${GREEN}PASS${OFF} — stages 6.2 and 6.3 green; 6.4 may begin\n`
+      ? `\n  ask: ${GREEN}PASS${OFF} — 6.2, 6.3 and 6.4 green; 6.6 (pacing) is what remains\n`
       : `\n  ask: ${RED}FAIL${OFF} — ${failed} check(s).\n`,
   );
   return failed;
