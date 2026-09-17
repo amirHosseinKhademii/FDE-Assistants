@@ -1,23 +1,20 @@
 /**
  * POST /api/ask — the same loop `pnpm safety:ask` runs, streamed.
  *
- * ── FOUR DOMAIN IMPORTS AND NO ASSEMBLY ───────────────────────────────────
+ * ── TWO DOMAIN CALLS AND NO ASSEMBLY ──────────────────────────────────────
  *
- * The tools, the prompt, the recorder and the contract all come from
- * `@calder/safety` exactly as the CLI takes them. Building the loop here would
- * mean building it in two places, and two places drift: add a tool or change a
- * rule and the browser and the terminal answer differently while both look
- * healthy.
+ * `resolveEngine` and `askSafety` are the whole of it. This route used to build
+ * the loop itself — registry, prompt, schema, validator — which was six lines
+ * of a thing that already existed in the CLI, and six lines is enough to drift.
+ *
+ * IT MATTERS MORE THAN TIDINESS HERE. `askSafety` wires `recordingTools`, and
+ * that is not an optimisation: it deduplicates repeated calls AND is what lets
+ * coherence rules 6 to 9 see what the tools returned. A copy that dropped it
+ * would silently switch off two rules of the contract and nothing would look
+ * wrong — the answers would still validate, against less.
  *
  * What stays here is what a surface is for — read the request, frame the events
  * as SSE, and decide what a failure looks like on the wire.
- *
- * ── `recordingTools` IS NOT OPTIONAL ──────────────────────────────────────
- *
- * It deduplicates repeated calls and, more importantly, it is what lets rules 6
- * through 9 see what the tools actually returned. Passing `SAFETY_TOOLS`
- * straight to the registry would leave four of the nine rules silently inert —
- * the answers would still validate, against less.
  *
  * ── THE STREAM IS NOT POLISH ──────────────────────────────────────────────
  *
@@ -34,20 +31,20 @@
  * its own thing. A generic failure would hide the most honest output this system
  * produces.
  *
- * ── AND THE ENGINE IS RESOLVED HERE, NOT DEFAULTED IN A CALL ──────────────
+ * ── AND AN ENGINE THAT CANNOT SERVE IS REFUSED, NOT SUBSTITUTED ───────────
  *
- * Steering shipped a bug where `?? 'sdk'` fired on every request because the
- * client sent `undefined`, so `LOOP` was ignored on the deployed app and the sdk
- * engine refused every question. Resolved once from the environment, and named
- * in the opening event so the page can say which engine answered.
+ * `resolveEngine` returns an error rather than falling back. Quietly swapping in
+ * a working engine would answer with a system the person did not choose, and the
+ * answer would look completely fine — which is the worst shape a bug can take on
+ * a page whose entire argument is that a plausible answer and a correct one read
+ * the same.
+ *
+ * The picker already disables what cannot work, so the only way to reach this is
+ * a hand-made request. That deserves a plain no.
  */
 import { createFileRoute } from '@tanstack/react-router';
-import { ToolRegistry, chatClient, chatModelName, runLoop, loopChoice, engineLabel } from '@fde/agent';
-import { openaiClient } from '@fde/foundry';
-import { SAFETY_TOOLS } from '@calder/safety/agent/tools';
-import { SAFETY_SYSTEM_PROMPT } from '@calder/safety/agent/prompt';
-import { recordingTools, validatorFor } from '@calder/safety/agent/answer';
-import { SafetyAnswerSchema, type SafetyAnswer } from '@calder/safety/schema/safety-answer';
+import { resolveEngine } from '@calder/safety/agent/engines';
+import { askSafety } from '@calder/safety/agent/run';
 import { recordAsk } from '../server/ask-history';
 
 /** Long enough to keep a proxy from closing a slow answer, short enough to matter. */
@@ -56,11 +53,24 @@ const HEARTBEAT_MS = 15_000;
 /** Longer than any real question, and a guard against an empty POST. */
 const MAX_QUESTION = 500;
 
+/**
+ * Waited after each model turn.
+ *
+ * The free tier limits by the minute and a question is NOT one request — one
+ * question has made ten tool calls, over half a minute's budget at once. A run
+ * whose average was under the limit still died, because a limit applies to any
+ * window rather than to the mean.
+ */
+const TURN_PACE_MS = 2_000;
+
 export const Route = createFileRoute('/api/ask')({
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {
-        const body = (await request.json().catch(() => null)) as { question?: string } | null;
+        const body = (await request.json().catch(() => null)) as {
+          question?: string;
+          engine?: string;
+        } | null;
         const question = String(body?.question ?? '').trim();
         const encoder = new TextEncoder();
 
@@ -96,55 +106,49 @@ export const Route = createFileRoute('/api/ask')({
                 return;
               }
 
-              const choice = loopChoice(process.env.LOOP);
-              const model = chatModelName(process.env.FOUNDRY_CHAT_DEPLOYMENT ?? '');
+              const picked = resolveEngine(body?.engine);
+              if ('error' in picked) {
+                send('error', { message: picked.error });
+                return;
+              }
 
-              const engine = engineLabel(choice);
-              send('started', { engine, model, question });
+              // BEFORE the loop runs, not after. The whole reason this route
+              // streams is that an answer can take eighty-five seconds, and a
+              // page that learns which engine is answering only once the answer
+              // arrives has been staring at nothing the entire time.
+              send('started', { engine: picked.engine, model: null, question });
 
               // The names, in order. What it ASKED FOR is the thing worth
               // keeping — two runs of one question can reach the same words by
               // different routes, and only this tells them apart.
               const asked: string[] = [];
 
-              // RECORDED, so the contract's later rules can be checked against
-              // what the tools returned rather than against what the answer says.
-              const { tools, calls } = recordingTools(SAFETY_TOOLS);
-              const registry = new ToolRegistry(tools);
-
-              const result = await runLoop<SafetyAnswer>(
-                choice,
-                // The azure branch is a THUNK so it is never constructed on
-                // another provider. Under LLM_PROVIDER=hosted this never runs.
-                chatClient(() => openaiClient()),
-                model,
-                registry,
-                question,
-                {
-                  system: SAFETY_SYSTEM_PROMPT,
-                  responseFormat: SafetyAnswerSchema,
-                  validate: validatorFor(calls),
-                  agentName: 'calder-safety',
-                  onEvent: (e: any) => {
-                    // The tool call, as it starts. THE PRODUCT ON THIS PAGE,
-                    // not debug output — "it looked the recall up rather than
-                    // searching for it" is invisible in the prose.
-                    if (e?.type === 'tool_call') {
-                      asked.push(String(e.name));
-                      send('tool', { name: e.name, args: e.args });
-                    }
-                  },
+              const result = await askSafety(question, {
+                engine: picked.engine,
+                // The free tier limits by the minute and a question is not one
+                // request. Pacing after each turn is what stopped a run dying
+                // while its average looked fine.
+                turnPaceMs: TURN_PACE_MS,
+                onToolCall: (name, args) => {
+                  // THE PRODUCT ON THIS PAGE, not debug output — "it looked the
+                  // recall up rather than searching for it" is invisible in the
+                  // prose.
+                  asked.push(name);
+                  send('tool', { name, args });
                 },
-              );
+              });
 
-              const ms = Date.now() - started;
+              const { engine, model, ms } = result;
+              // The model name is only known once the run has resolved it, so
+              // it arrives as its own event rather than being held back.
+              send('engine', { engine, model });
 
-              if (result.structured) {
-                send('answer', { answer: result.structured, ms, calls: calls.length });
+              if (result.answer) {
+                send('answer', { answer: result.answer, ms, calls: result.calls.length });
               } else {
                 // Not a crash. The contract refused it, and the reasons are the
                 // most honest thing this system produces.
-                send('rejected', { errors: result.schemaErrors ?? [], ms });
+                send('rejected', { errors: result.schemaErrors, ms });
               }
 
               // AFTER the answer is on the wire. Nobody waits on a database
@@ -156,9 +160,9 @@ export const Route = createFileRoute('/api/ask')({
                 model,
                 ms,
                 tools: asked,
-                answer: result.structured?.answer ?? null,
-                rejected: result.structured ? null : (result.schemaErrors ?? []),
-                escalated: Boolean(result.structured?.escalate),
+                answer: result.answer?.answer ?? null,
+                rejected: result.answer ? null : result.schemaErrors,
+                escalated: Boolean(result.answer?.escalate),
               });
             } catch (err) {
               send('error', {

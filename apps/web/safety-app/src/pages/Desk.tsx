@@ -38,7 +38,7 @@
  * they were looking at a fixed fact.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Mono } from '@fde/uikit';
+import { Field, Mono, Select } from '@fde/uikit';
 import { Link } from '@tanstack/react-router';
 import { Aurora } from '@veresk/surface';
 import { AURORA } from '../lib/aurora';
@@ -99,6 +99,20 @@ interface HistoryRow {
   escalated: boolean;
 }
 
+/**
+ * The three loops, and where each one stands against the configured provider.
+ *
+ * THE UNUSABLE ONE IS SHOWN, NOT FILTERED OUT. Having built three engines is
+ * what revealed the differences between them, and a picker offering two options
+ * tells that story less well than one offering three with a reason on the third.
+ */
+interface EngineOption {
+  id: string;
+  label: string;
+  usable: boolean;
+  note: string;
+}
+
 interface ToolCall {
   name: string;
   args: unknown;
@@ -121,13 +135,37 @@ export function Desk() {
   const [question, setQuestion] = useState('');
   const [phase, setPhase] = useState<Phase>('idle');
   const [asked, setAsked] = useState('');
-  const [engine, setEngine] = useState<{ engine: string; model: string } | null>(null);
+  const [engine, setEngine] = useState<{ engine: string; model: string | null } | null>(null);
   const [tools, setTools] = useState<ToolCall[]>([]);
   const [answer, setAnswer] = useState<Answer | null>(null);
   const [rejected, setRejected] = useState<string[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [ms, setMs] = useState<number | null>(null);
+  const [engines, setEngines] = useState<EngineOption[]>([]);
+  const [picked, setPicked] = useState('');
   const abort = useRef<AbortController | null>(null);
+
+  // Read per page load rather than baked in: which engines can serve depends on
+  // how the server is configured, and a picker built at compile time would keep
+  // offering an option that stopped working.
+  useEffect(() => {
+    void (async () => {
+      try {
+        const res = await fetch('/api/engines');
+        const data = (await res.json()) as { engines: EngineOption[] };
+        setEngines(data.engines ?? []);
+        setPicked((cur) => cur || (data.engines ?? []).find((e) => e.usable)?.id || '');
+      } catch {
+        /* the dropdown simply does not appear */
+      }
+    })();
+  }, []);
+
+  // The engine is read through a ref so `ask` does not need to be rebuilt every
+  // time the dropdown moves — and so a question already in flight keeps the
+  // engine it started with.
+  const pickedRef = useRef('');
+  pickedRef.current = picked;
 
   const ask = useCallback(async (q: string) => {
     const trimmed = q.trim();
@@ -150,7 +188,7 @@ export function Desk() {
       const res = await fetch('/api/ask', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ question: trimmed }),
+        body: JSON.stringify({ question: trimmed, engine: pickedRef.current }),
         signal: ctl.signal,
       });
       if (!res.body) throw new Error('no response body');
@@ -180,7 +218,8 @@ export function Desk() {
             continue;
           }
 
-          if (ev === 'started') setEngine({ engine: data.engine, model: data.model });
+          if (ev === 'started') setEngine({ engine: data.engine, model: data.model ?? null });
+          else if (ev === 'engine') setEngine({ engine: data.engine, model: data.model });
           else if (ev === 'tool') setTools((t) => [...t, { name: data.name, args: data.args }]);
           else if (ev === 'answer') {
             setAnswer(data.answer);
@@ -272,12 +311,40 @@ export function Desk() {
             </button>
           </div>
 
-          <p className="cal-ask-try">or try one of these</p>
+          {engines.length > 0 && (
+            <div className="cal-ask-engine">
+              <Field label="Engine">
+                <Select value={picked} onChange={setPicked} disabled={running}>
+                  {engines.map((e) => (
+                    <option key={e.id} value={e.id} disabled={!e.usable}>
+                      {e.label}
+                      {e.usable ? '' : ' — cannot serve this provider'}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+              <p className="cal-ask-engine-note">
+                {engines.find((e) => e.id === picked)?.note}
+              </p>
+              <p className="cal-ask-engine-why">
+                Not a preference. Ask the same question on either and you get the
+                same answer through two entirely different libraries — and
+                getting the second one there took two repairs to faults no
+                setting could reach, one of which was invisible until the other
+                was fixed.{' '}
+                <span className="text-ui-dim">
+                  A dropdown that changes nothing visible is the demonstration.
+                </span>
+              </p>
+            </div>
+          )}
+
           <p className="cal-ask-rate">
             The model runs on a free allowance of fifteen requests a minute, and
             a question costs roughly one per tool call. It stops answering when
             that is spent, and it does so quietly.
           </p>
+          <p className="cal-ask-try">or try one of these</p>
           <div className="cal-ask-chips">
             {TRY.map((t) => (
               <button
@@ -434,7 +501,7 @@ function Asked({
   running,
 }: {
   question: string;
-  engine: { engine: string; model: string } | null;
+  engine: { engine: string; model: string | null } | null;
   ms: number | null;
   running: boolean;
 }) {
@@ -442,7 +509,7 @@ function Asked({
     <div className="cal-asked">
       <p className="cal-asked-q">{question}</p>
       <p className="cal-asked-meta">
-        {engine ? `${engine.engine} · ${engine.model}` : 'connecting…'}
+        {engine ? [engine.engine, engine.model].filter(Boolean).join(' · ') : 'connecting…'}
         {ms !== null && ` · ${(ms / 1000).toFixed(1)}s`}
         {running && ms === null && ' · running'}
       </p>

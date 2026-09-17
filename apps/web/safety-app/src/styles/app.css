@@ -1833,3 +1833,27 @@ body {
   background: color-mix(in oklab, var(--color-cal-2) 4%, var(--color-ui-surface));
   padding: 1.125rem 1.25rem;
 }
+
+/* Which loop answers. Sits under the box because it qualifies the asking rather
+   than being part of it. */
+.cal-ask-engine {
+  margin-top: 1.125rem;
+  border-top: 1px solid color-mix(in oklab, var(--color-ui-line) 70%, transparent);
+  padding-top: 1rem;
+}
+
+.cal-ask-engine-note {
+  margin-top: 0.5rem;
+  max-width: 62ch;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--color-ui-dim);
+}
+
+.cal-ask-engine-why {
+  margin-top: 0.625rem;
+  max-width: 64ch;
+  font-size: 0.75rem;
+  line-height: 1.65;
+  color: var(--color-ui-faint);
+}
