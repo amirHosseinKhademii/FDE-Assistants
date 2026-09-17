@@ -86,8 +86,8 @@ NHTSA writes down what it thought before a recall existed.
 
 | | |
 |---|---|
-| ALL-CAPS narratives | **16,266 of 70,194 (23%)** |
-| narratives under 40 characters | **1,150** |
+| ALL-CAPS narratives | **16,292 of 70,194 (23%)** |
+| narratives under 40 characters | **1,150** — including 26 whose entire text is `UNKNOWN`, `NOTHING` or a part number |
 | empty narratives | 0 |
 | narrative length | mean **596**, max **2,048** (the field's declared size) |
 | distinct makes | **198** |
