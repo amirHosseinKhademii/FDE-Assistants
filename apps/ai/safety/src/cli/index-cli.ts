@@ -8,6 +8,7 @@
 import { createReadStream } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { Client } from 'pg';
+import { safetyDatabaseUrl } from '../config/connections';
 import { VECTORS_NDJSON } from '../config/paths';
 import { loadIntoStore } from '../grounding/index-store';
 
@@ -15,14 +16,8 @@ const TABLE = 'document_chunks';
 const CANARY = '11353867';
 const n = (x: number) => x.toLocaleString('en-GB');
 
-function connectionString(): string {
-  const url = process.env.SAFETY_DATABASE_URL;
-  if (!url) throw new Error('SAFETY_DATABASE_URL is not set — see docs/safety/PLAN.md §1b');
-  return url;
-}
-
 async function main(): Promise<number> {
-  const conn = connectionString();
+  const conn = safetyDatabaseUrl();
   console.log(`\nstage 3.4 · index\n  reading ${VECTORS_NDJSON}`);
   console.log(`  into ${new URL(conn).host} · ${TABLE}\n`);
 
@@ -86,8 +81,49 @@ async function main(): Promise<number> {
       `${n(ts)} of ${n(rows)} rows`,
     );
 
+    // 5 — THE KEY FUSION DEDUPLICATES ON, present and unique.
+    //
+    //     Stage 3.5 found this the expensive way. `@fde/grounding`'s `keyOf`
+    //     reads `metadata.chunkId` and falls back to the first 120 characters of
+    //     the text when it is absent. Ours was absent, and this corpus opens
+    //     every passage with a generated header — so 977 rows shared a prefix,
+    //     174 of them identically (`2019 HONDA CR-V | FORWARD COLLISION
+    //     AVOIDANCE: AUTOMATIC EME…`). Distinct complaints fused into ONE entry
+    //     and their reciprocal-rank scores ADDED, which put a keyword-rank-22
+    //     passage above a keyword-rank-1 exact match. Nothing errored. Search
+    //     simply returned the wrong order, and the natural suspect is the
+    //     embedder.
+    //
+    //     Asked of the DATABASE, in SQL, not of the loader that wrote it —
+    //     the same rule as check 1.
+    const keys = (
+      await c.query(
+        `select count(*) n,
+                count(metadata->>'chunkId') present,
+                count(distinct metadata->>'chunkId') uniq
+           from ${TABLE}`,
+      )
+    ).rows[0];
+    check(
+      Number(keys.present) === rows && Number(keys.uniq) === rows && rows > 0,
+      'every row carries a distinct chunkId — what fusion deduplicates on',
+      `${n(Number(keys.present))} present, ${n(Number(keys.uniq))} distinct, of ${n(rows)} rows`,
+    );
+
+    // BOTH NUMBERS, because they disagree and only one is the quota. Postgres
+    // reported 295 MB while Neon's own `pg_cluster_size()` reported 318 MB —
+    // planning a reload against the smaller one is how you run out of room.
     const size = (await c.query('select pg_size_pretty(pg_database_size(current_database())) s')).rows[0].s;
-    console.log(`\n  database size: ${size} (Neon free tier is 512 MB)`);
+    const billed = await c
+      .query('select pg_size_pretty(pg_cluster_size()) s')
+      .then((r) => r.rows[0].s as string)
+      .catch(() => null);
+    console.log(`\n  postgres reports: ${size}`);
+    console.log(
+      billed
+        ? `  neon bills:       ${billed}  (free tier is 512 MB — this is the one that stops the load)`
+        : '  neon bills:       n/a — `create extension neon` to see the number the quota uses',
+    );
   } finally {
     await c.end();
   }

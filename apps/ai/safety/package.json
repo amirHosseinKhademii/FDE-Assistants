@@ -12,7 +12,8 @@
     "parse": "ts-node src/cli/parse.ts",
     "chunk": "ts-node src/cli/chunk.ts",
     "embed": "ts-node src/cli/embed.ts",
-    "index": "ts-node src/cli/index-cli.ts"
+    "index": "ts-node src/cli/index-cli.ts",
+    "search": "ts-node src/cli/search.ts"
   },
   "dependencies": {
     "dotenv": "^16.4.5",

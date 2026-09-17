@@ -144,7 +144,8 @@
     "safety:parse": "pnpm --filter @calder/safety parse",
     "safety:chunk": "pnpm --filter @calder/safety chunk",
     "safety:embed": "pnpm --filter @calder/safety embed",
-    "safety:index": "pnpm --filter @calder/safety index"
+    "safety:index": "pnpm --filter @calder/safety index",
+    "safety:search": "pnpm --filter @calder/safety search"
   },
   "devDependencies": {
     "turbo": "^2.10.12"

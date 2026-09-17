@@ -46,6 +46,33 @@ export interface IndexReport {
  */
 const BATCH = Number(process.env.SAFETY_INDEX_BATCH ?? 500);
 
+/** Neon's free plan. Stated here because the guard below is meaningless without it. */
+const FREE_TIER_BYTES = 512 * 1024 * 1024;
+
+/** What the last full load actually occupied: 287 MB of table, plus margin. */
+const NEEDED_BYTES = 320 * 1024 * 1024;
+
+const mb = (b: number) => `${(b / 1048576).toFixed(0)} MB`;
+
+/**
+ * What NEON bills, which is not what Postgres reports.
+ *
+ * `pg_cluster_size()` comes from the `neon` extension and is the number the
+ * storage quota is read from. Returns null anywhere else — a local Postgres, a
+ * container, another provider — so the guard simply does not apply there rather
+ * than failing the load with a missing function.
+ */
+async function neonBilledBytes(pool: {
+  query: (q: string) => Promise<{ rows: Array<Record<string, unknown>> }>;
+}): Promise<number | null> {
+  try {
+    const { rows } = await pool.query('select pg_cluster_size() b');
+    return Number(rows[0].b);
+  } catch {
+    return null;
+  }
+}
+
 async function* records(path: string): AsyncGenerator<VectorRecord> {
   const rl = createInterface({
     input: createReadStream(path, { encoding: 'utf8' }),
@@ -72,6 +99,51 @@ export async function loadIntoStore(
   onProgress?: (inserted: number) => void,
 ): Promise<IndexReport> {
   const store = await openStore(new LocalEmbeddings(), opts);
+
+  // EMPTIED FIRST, so re-running is idempotent rather than doubling the table.
+  //
+  // Safe here in a way it is NOT in `ingestDocuments`: there the delete runs
+  // before a 37-minute embed, and a crash takes the index with it. Here the
+  // vectors already exist on disk, so a failed load is re-run and costs a
+  // minute.
+  //
+  // AND IT IS `truncate`, NOT `store.delete({ filter: {} })`. Both emit valid
+  // SQL and both leave the table empty, so the difference is invisible until
+  // the storage quota decides it. MEASURED before writing this: the table is
+  // 287 MB of the 295 MB database, against Neon's free 512 MB. `DELETE` marks
+  // all 73,442 rows dead WITHOUT returning their 287 MB — autovacuum gets to it
+  // later — so the reload would ask for a second 287 MB and hit the ceiling
+  // partway through, which reads as a network fault rather than a disk one.
+  // `truncate` returns the space at once and the reload writes into it.
+  //
+  // Unguarded because `PGVectorStore.initialize` has already created the table
+  // by this line; a failure here is real and should be heard, not swallowed.
+  const before = await neonBilledBytes(store.pool);
+  await store.pool.query(`truncate table ${opts.tableName}`);
+  const after = await neonBilledBytes(store.pool);
+
+  // AND THEN CHECK THAT THE SPACE CAME BACK, because the sentence above is a
+  // claim about NEON's accounting and not about Postgres's.
+  //
+  // The two disagree, measured: `pg_database_size()` said 295 MB while
+  // `pg_cluster_size()` — the function Neon's own quota is read from — said
+  // 318 MB. Postgres's number is the one that is easy to reach and the wrong
+  // one to plan with.
+  //
+  // If truncated space is still billed, this reload wants a second 287 MB
+  // against 194 MB of headroom and dies somewhere past row 40,000, looking
+  // exactly like the dropped connection the keepalive settings exist for. A
+  // stated refusal now is worth more than an opaque stall in four minutes.
+  if (after !== null && FREE_TIER_BYTES - after < NEEDED_BYTES) {
+    await store.end();
+    throw new Error(
+      `not enough room to reload: Neon bills ${mb(after)} of ${mb(FREE_TIER_BYTES)} ` +
+        `after truncate (${mb(before ?? 0)} before), leaving ${mb(FREE_TIER_BYTES - after)} ` +
+        `for a load that needs about ${mb(NEEDED_BYTES)}. ` +
+        'Truncated space has not returned to the quota — wait for it, or reset the branch.',
+    );
+  }
+
   const started = Date.now();
   const report: IndexReport = { inserted: 0, batches: 0, ms: 0 };
 
@@ -98,6 +170,22 @@ export async function loadIntoStore(
         // retrieved row can be quoted as the thing itself rather than as a
         // position in a file.
         metadata: {
+          // `chunkId` IS THE KEY RECIPROCAL-RANK FUSION DEDUPLICATES ON, and
+          // omitting it is not a cosmetic gap. `@fde/grounding`'s `keyOf` reads
+          // `metadata.chunkId` and falls back to the first 120 characters of the
+          // text — which, for this corpus, is the header stage 3.1 prepends.
+          //
+          // MEASURED with it absent: 977 rows shared a prefix and 174 distinct
+          // complaints collapsed into ONE fused entry, because they are all
+          // `2019 HONDA CR-V | FORWARD COLLISION AVOIDANCE: AUTOMATIC EME…`.
+          // Their RRF scores ADD, so a collided group outranks a genuine hit —
+          // it put a keyword-rank-22 investigation above a keyword-rank-1 exact
+          // match on `20V197000`. Both chunks of that investigation share a
+          // heading, so their scores summed.
+          //
+          // Nothing errors. The results simply come back in the wrong order,
+          // and the obvious response is to blame the embedder.
+          chunkId: rec.id,
           id: rec.id,
           documentId: rec.documentId,
           kind: rec.kind,

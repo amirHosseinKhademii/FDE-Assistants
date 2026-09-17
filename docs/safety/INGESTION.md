@@ -325,6 +325,100 @@ ODI 11298441   arm A rank 3   →  1/(60+3)  = 0.01587
 > either arm loves. `11353867` never ranks first in the keyword arm, and still
 > wins — because both arms agree it belongs near the top.
 
+### What broke here the first time, and why nothing complained
+
+The worked example above hides an assumption. To add two lists together, fusion
+must first decide **which entries are the same passage**. It needs an identity.
+
+It reads `metadata.chunkId`. **Our loader never wrote one.** And the fallback,
+when it is missing, is *the first 120 characters of the text*.
+
+That is a sensible fallback for prose. It is the wrong one for this corpus,
+because stage 3.1 **prepends a generated header to every passage**:
+
+```
+2019 HONDA CR-V | FORWARD COLLISION AVOIDANCE: AUTOMATIC EMERGENCY BRAKING | filed 2019-08-14
+└────────────────────── 92 characters before a single word of the driver's account ──────────────────────┘
+```
+
+Two different drivers, same car, same component, same month — **identical for
+the first 120 characters.** Measured on the loaded table:
+
+```
+rows                                73,442
+distinct 120-character prefixes     72,465
+rows sharing a prefix with another     977
+
+the worst three
+  174 x  "2019 HONDA CR-V | FORWARD COLLISION AVOIDANCE: AUTOMATIC EME…"
+  115 x  "2019 FORD ECOSPORT | ENGINE AND ENGINE COOLING | filed 2024-…"
+  111 x  "2019 HONDA ODYSSEY | FORWARD COLLISION AVOIDANCE: ADAPTIVE C…"
+```
+
+174 distinct complaints became **one entry** in the fusion map. And fusion does
+not overwrite — it accumulates:
+
+```js
+prev.score += 1 / (RRF_K + rank);   // ADDS. That is the whole point of fusion,
+                                    // and the whole problem when the key is wrong.
+```
+
+So a group of collided passages scores like a passage that every arm loved,
+several times over.
+
+### The symptom — and why it does not look like a key problem
+
+A real run, before the fix:
+
+```
+query:  "recall 20V197000"
+
+   1.  RQ24011#1     meaning  ·    keywords 22    score 1.000
+   3.  20V197000     meaning  4    keywords  1    score 0.842
+```
+
+Read that arithmetically. A keyword rank of 22 contributes `1/(60+22) = 0.0122`.
+A keyword rank of 1 contributes `1/(60+1) = 0.0164`. **The thing at rank 22
+cannot outscore the thing at rank 1.** Both chunks of investigation `RQ24011`
+open with the same heading, so they collided *with each other* and their two
+scores summed.
+
+The exact-match campaign number — the single most findable thing in this corpus,
+first in the keyword arm — was pushed to third by an arithmetic accident.
+
+### BEFORE → AFTER
+
+```
+BEFORE   identity = first 120 characters of the text
+         977 rows collide · scores add · the fused order is quietly wrong
+
+AFTER    identity = the passage id  (metadata.chunkId)
+         73,442 rows, 73,442 distinct keys, one entry per passage
+```
+
+The fix is one line in the loader. The cost of finding it was two searches that
+looked *merely disappointing*.
+
+> **The lesson, and it is the fifth of its kind in this repo:** nothing errored.
+> The SQL was valid, every row loaded, every check passed, the vectors were in
+> the right place — and search returned the wrong order. The natural suspect
+> when results look mediocre is the embedder or the chunker, and both were
+> innocent. **A silent wrong answer costs more than a loud failure**, which is
+> why every stage here checks what *landed* rather than what was sent.
+
+### The two guards that now exist
+
+Neither shares code with the thing it checks — the same rule as stage 3.1's
+`awk` cross-check:
+
+1. **`pnpm safety:index` check 5** asks *Postgres*, in SQL, whether every row
+   carries a distinct `chunkId`. The loader is not consulted about its own work.
+2. **`pnpm safety:search` recomputes the fusion arithmetic** from the two ranks
+   it just printed — `1/(60+rank)` summed, normalised — and prints
+   `FUSION IS NOT ADDING UP` when a reported score is not one its own ranks can
+   produce. The `60` is restated there deliberately rather than imported: a
+   check that shares a constant with its subject agrees with it by construction.
+
 ---
 
 ## 3.6b · RERANK — a second opinion on the top 50
@@ -444,6 +538,33 @@ reranker's value is a measurement rather than a belief** — turn it on from the
 start and you learn one number that cannot answer *"did the reranker help, or
 was the chunking simply fine?"*
 
+### FIRST, DECIDE THE DENOMINATOR — passages or documents?
+
+This has to be settled *before* a number is quoted, because the two are
+different and both are called "recall@6".
+
+```
+WALKTHROUGH.md names DOCUMENTS        ODI 11353867 · campaign 20V197000
+the index holds PASSAGES              RQ24011#0, RQ24011#1
+```
+
+A two-chunk investigation can occupy **two of the six slots**, so:
+
+```
+recall@6 over passages    both chunks count separately — six slots, maybe four documents
+recall@6 over documents   dedupe hits by documentId first — six slots, six documents
+```
+
+**We measure over documents**, deduplicating by `documentId` before counting,
+because the answer key names documents and because "did we retrieve the right
+complaint" is the question a fleet analyst is actually asking.
+
+> **And this is why the comparison to steering's 0.813 has to wait.** That
+> number was measured on another corpus with its own denominator. Confirm it was
+> counted the same way before putting the two side by side — otherwise the
+> comparison measures the counting rule, not the retrieval. Same failure as
+> `eval:diff` refusing to compare runs made with a different model.
+
 ### BEFORE → AFTER
 
 ```
@@ -483,7 +604,25 @@ AFTER    recall@6 = 0.81 plain, 0.9x reranked — and we know which ones
 
 ## Where we are
 
-**3.1 is next, and it is only parsing.** Read one file, write one file, print
+**3.1 through 3.4 are built and run.** 73,442 passages parsed, chunked,
+embedded locally in 36.6 minutes and loaded into Neon — 287 MB, every check
+green.
+
+**3.5 and 3.6 are built, and the first real searches found a bug in our own
+loader** rather than in retrieval: the missing `chunkId` above. Fixed, and the
+table needs reloading before any number from it means anything.
+
+```
+pnpm safety:index      reload — about a minute, now that the vectors exist
+pnpm safety:search "recall 20V197000"     confirm the arithmetic
+```
+
+**3.6b and 3.7 come after that**, in that order, and 3.7 is the first stage that
+produces a number worth quoting.
+
+### The older note, kept because it still holds
+
+**3.1 was only parsing.** Read one file, write one file, print
 three documents. Nothing is embedded, stored, or asked.
 
 **Nothing below 3.1 gets built until you have looked at the output of 3.1.**
