@@ -24,6 +24,7 @@
  */
 import { Mono } from '@fde/uikit';
 import { Data } from '@veresk/surface';
+import { CountModal } from './CountModal';
 import { FindRecallsModal } from './FindRecallsModal';
 import { GetRecallModal } from './GetRecallModal';
 import { SearchComplaintsModal } from './SearchComplaintsModal';
@@ -80,8 +81,9 @@ const TOOLS: readonly {
     sig: 'count_complaints({ ...filters })',
     rule: 'a number, never passages',
     origin: 'added',
-    what: 'Returns the count AND the filter that produced it.',
-    why: 'It came from re-reading the answer key. Three of the eight questions want a number, and no six passages contain a count.',
+    built: true,
+    what: 'Returns the count AND the filter that produced it — and, when a phrase narrows a set to nothing, says which kind of zero that is.',
+    why: 'It came from re-reading the answer key. Three of the eight questions want a number, and no six passages contain a count: retrieval returns examples, and counting is an aggregate.',
   },
   {
     n: '4.4b',
@@ -97,7 +99,7 @@ const STEPS: readonly (readonly [string, string, string] | readonly [string, str
   ['4.1', 'get_recall', 'returns 20V197000 exactly; a bad number returns nothing, not a near miss', 'done'],
   ['4.2', 'find_recalls', 'zero for the Odyssey case, with 16 other components named; 20V197000 for the F-150', 'done'],
   ['4.3', 'search_complaints', 'the complaint at position 1, where unfiltered it was outside the top 50', 'done'],
-  ['4.4', 'count_complaints', 'the numbers match awk over the raw file'],
+  ['4.4', 'count_complaints', 'three numbers, each agreeing with a shell pipeline over the raw file and with the key', 'done'],
   ['4.4b', 'complaints_citing', 'returns 7 for 20V197000, verified by grep'],
   ['4.5', 're-run 3.7 through the tools', 'recall@6 rises from 0.40 — and we can say by how much, and why'],
 ] as const;
@@ -112,7 +114,7 @@ export function Stage4() {
           Ways to ask that are not a search
         </h2>
         <span className="rounded-full border border-cal-1/40 px-2.5 py-0.5 font-mono text-[0.625rem] tracking-[0.06em] text-cal-1 uppercase">
-          building · 3 of 5 tools
+          building · 4 of 5 tools
         </span>
       </div>
 
@@ -169,6 +171,7 @@ export function Stage4() {
                   {t.n === '4.1' && <GetRecallModal />}
                   {t.n === '4.2' && <FindRecallsModal />}
                   {t.n === '4.3' && <SearchComplaintsModal />}
+                  {t.n === '4.4' && <CountModal />}
                 </div>
               </li>
             );
@@ -207,11 +210,22 @@ export function Stage4() {
           which is the most dangerous failure available here.
         </P>
         <Why>
-          The trap REC-001 is built around: <span className="text-ui-fg">1,057
-          and 103 are both true</span>, and only one answers the question. 1,057
-          matched on component; 103 matched on defect. A system that says 1,057
+          The trap the F-150 question is built around:{' '}
+          <span className="text-ui-fg">two numbers are both true</span>, and only
+          one answers what was asked. 1,057 complaints name the component; a
+          much smaller number describe the defect. A system reporting 1,057
           confidently has done the arithmetic correctly and answered a different
           question.
+        </Why>
+        <Why>
+          How much smaller is not settled, and the page says so rather than
+          picking one: three predicates for “describes the recalled defect”
+          exist and give 103, 93 and 89.{' '}
+          <span className="text-ui-fg">
+            An answer key must record the predicate, not only the answer
+          </span>{' '}
+          — a number without the question that produced it cannot be reproduced,
+          and three careful people will get three numbers.
         </Why>
       </Chapter>
 
