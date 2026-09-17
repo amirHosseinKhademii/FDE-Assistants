@@ -26,6 +26,7 @@ import { Mono } from '@fde/uikit';
 import { Data } from '@veresk/surface';
 import { FindRecallsModal } from './FindRecallsModal';
 import { GetRecallModal } from './GetRecallModal';
+import { SearchComplaintsModal } from './SearchComplaintsModal';
 
 /**
  * THE FIVE, AND WHAT EACH ONE IS FOR.
@@ -70,8 +71,9 @@ const TOOLS: readonly {
     rule: 'filter first, then search inside',
     origin: 'rebuilt',
     was: 'search_complaints — hybrid search over everything',
+    built: true,
     what: 'The same hybrid search from 3.5 and 3.6, run inside a filtered set: make, model, year, component, filed before or after, crash, fire, minimum deaths, minimum injuries.',
-    why: 'Same name, different tool. The key’s documents sat at ranks 93 and 3,026 because “2020 F-150” was being matched as prose instead of used as a filter. Filtering first moves one of them from 3,026 to 8.',
+    why: 'Same name, different tool. The complaint that answers the F-150 question sat at rank 3,026 because “2020 F-150” was being matched as prose instead of used as a filter. Filtered, it comes back first.',
   },
   {
     n: '4.4',
@@ -94,7 +96,7 @@ const TOOLS: readonly {
 const STEPS: readonly (readonly [string, string, string] | readonly [string, string, string, 'done'])[] = [
   ['4.1', 'get_recall', 'returns 20V197000 exactly; a bad number returns nothing, not a near miss', 'done'],
   ['4.2', 'find_recalls', 'zero for the Odyssey case, with 16 other components named; 20V197000 for the F-150', 'done'],
-  ['4.3', 'search_complaints', '11353867 in the top 6, where it was outside the top 50 unfiltered'],
+  ['4.3', 'search_complaints', 'the complaint at position 1, where unfiltered it was outside the top 50', 'done'],
   ['4.4', 'count_complaints', 'the numbers match awk over the raw file'],
   ['4.4b', 'complaints_citing', 'returns 7 for 20V197000, verified by grep'],
   ['4.5', 're-run 3.7 through the tools', 'recall@6 rises from 0.40 — and we can say by how much, and why'],
@@ -110,7 +112,7 @@ export function Stage4() {
           Ways to ask that are not a search
         </h2>
         <span className="rounded-full border border-cal-1/40 px-2.5 py-0.5 font-mono text-[0.625rem] tracking-[0.06em] text-cal-1 uppercase">
-          building · 2 of 5 tools
+          building · 3 of 5 tools
         </span>
       </div>
 
@@ -209,6 +211,7 @@ export function Stage4() {
                   <Why>{t.why}</Why>
                   {t.n === '4.1' && <GetRecallModal />}
                   {t.n === '4.2' && <FindRecallsModal />}
+                  {t.n === '4.3' && <SearchComplaintsModal />}
                 </div>
               </li>
             );
@@ -303,9 +306,15 @@ export function Stage4() {
           })}
         </ul>
         <Key>
-          4.5 is deliberately before the schema. It re-uses stage 3.7's harness
-          with the tools in front of retrieval — so if recall does not move, the
-          diagnosis was wrong and nothing below it should be built at all.
+          4.5 is the one that matters, and{' '}
+          <span style={{ color: 'var(--color-cal-2)' }}>
+            recall@6 is still 0.40 until it runs.
+          </span>{' '}
+          Two of the cases look dramatically better in isolation — one moved from
+          rank 3,026 to first — but the question that scores worst needs a recall
+          AND a complaint, and no single tool returns both. Promising in
+          isolation and measured end to end are different claims, and only the
+          second one counts.
         </Key>
       </Chapter>
 
