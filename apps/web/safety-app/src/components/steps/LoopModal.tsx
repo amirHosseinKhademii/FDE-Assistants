@@ -64,8 +64,8 @@ export function LoopModal() {
           under the hood
         </span>
         <span className="min-w-0 flex-1 text-[0.875rem] text-ui-dim">
-          Inside the loop — what the model is actually sent, and the check that
-          reads the method rather than the answer
+          Inside the loop — the code that sends it, and the check that looks at
+          which tools it used rather than what it wrote
         </span>
         <span className="font-mono text-sm text-ui-faint transition-colors group-hover:text-ui-fg">
           open →

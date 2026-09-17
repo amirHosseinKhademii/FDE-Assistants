@@ -214,21 +214,20 @@ export function Stage6() {
 
       <Chapter
         n="01"
-        title="One question, every hop, with what actually moved"
-        sub="The same drawing as the data-flow page, because a reader should not have to learn two — and every payload here is from a recorded run."
+        title="One question, step by step, and what was sent"
+        sub="Three turns. A turn is one message to the model, so three turns means three messages. Everything shown here is from a real run."
       >
         <Journey turns={LOOP_TURNS} />
         <Key>
-          Turn 2 sends back one integer. Turn 3 sends back five narratives. They
-          are drawn at the size they are, because that is the only distinction
-          that matters to somebody asking what leaves the building.
+          Turn 2 sends out one number. Turn 3 sends out five people's accounts
+          of fatal crashes. Those are very different things to hand to somebody
+          else, so they are not drawn the same.
         </Key>
         <Why>
-          And the page will not write “the complaints never reach the model”.
-          They do — that is how the question gets answered, and a reviewer
-          establishes it in their first question, at which point every other
-          claim is worthless. What it says instead is exactly which five, and
-          exactly what was in them.
+          We will not tell you the complaints never reach the model. They do —
+          that is how the question gets answered, and anyone reviewing this
+          would find out in their first question. So instead we say which five
+          went, and what was in them.
         </Why>
       </Chapter>
 
