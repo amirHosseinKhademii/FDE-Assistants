@@ -43,6 +43,16 @@ const LEDGER = [
   { source: 'investigations', out: 222, did: 'cut' },
 ] as const;
 
+/**
+ * How many investigations were actually CUT, which is not how many went in.
+ *
+ * All 114 pass through the chunker; 6 produce a single chunk and keep their own
+ * id. So "114 → 222" counts passages produced and "108 split" counts documents
+ * affected, and they are different questions with different answers — the same
+ * shape as rows against records one stage earlier.
+ */
+const SPLIT = 108;
+
 const IN_TOTAL = UNITS.complaints + UNITS.recalls + UNITS.investigations;
 const OUT_TOTAL = LEDGER.reduce((n, r) => n + r.out, 0);
 
@@ -338,6 +348,16 @@ function ChunkerPanel({ from, onClose }: { from: Origin; onClose: () => void }) 
             rather than slicing it arbitrarily — {UNITS.investigations} documents
             become {LEDGER[2].out}, not the ~340 a character count predicts.
           </P>
+          <Aside>
+            And <span className="text-ui-fg">{SPLIT} of the {UNITS.investigations}</span>{' '}
+            were actually split. All {UNITS.investigations} went through the
+            chunker; {UNITS.investigations - SPLIT} came out as a single piece and
+            correctly kept their own id with no <Mono>#</Mono> suffix. “
+            {UNITS.investigations} → {LEDGER[2].out}” and “{SPLIT} split” are
+            both true and count different things — the first is passages produced,
+            the second is documents affected. Quoting either as the other is the
+            same mistake as quoting rows for records.
+          </Aside>
           <Aside>
             That is the chunker being right, not failing. A library that always
             hit its budget would be one that always cut mid-sentence — and the

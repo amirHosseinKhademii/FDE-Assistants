@@ -38,6 +38,7 @@ import { Aurora } from '@veresk/surface';
 import { Code, Data } from '@veresk/surface';
 import { BeforeAfter, Because, Figure, Raw, Stage } from '../components/steps/kit';
 import { ChunkerModal } from '../components/steps/ChunkerModal';
+import { EmbedModal } from '../components/steps/EmbedModal';
 import { ParserModal } from '../components/steps/ParserModal';
 import { AURORA } from '../lib/aurora';
 import { ROWS, UNITS } from '../lib/estate.generated';
@@ -382,8 +383,8 @@ function Chunk() {
 
 function Embed() {
   const sims = [
-    { q: 'F-150 transmission will not go into park', v: 0.8035, near: true },
-    { q: 'windscreen wiper motor failure', v: 0.557, near: false },
+    { q: 'F-150 will not go into park, transmission shift', v: 0.8504, near: true },
+    { q: 'windscreen wiper motor failure', v: 0.5703, near: false },
   ];
 
   return (
@@ -393,12 +394,17 @@ function Embed() {
       when="once, offline"
       plain="A computer cannot compare meanings. An embedding model turns a piece of text into a list of numbers — 384 of them here — arranged so that texts meaning similar things get similar lists."
     >
-      <Figure caption={`bge-small, run for complaint ${SPINE}`} source="384 dims · first 8 shown">
-        <Raw>{`text    "2020 FORD F-150 | POWER TRAIN | filed 2020-09-08
-         THE GEAR WILL NOT GO INTO PARK…"
-
-vector  -0.0609  -0.0364   0.0624   0.0009
-        -0.0165   0.0766  -0.0246   0.0202   … 376 more`}</Raw>
+      <Figure caption={`bge-small, run for complaint ${SPINE}`} source="384 dims · first 6 shown">
+        <Data
+          path="615 characters in, 384 numbers out"
+          mark={[3]}
+          lines={[
+            '2020 FORD F-150 | POWER TRAIN | filed 2020-09-08',
+            'THE GEAR WILL NOT GO INTO PARK AND ALLOW ME TO START…',
+            '',
+            '-0.0357, -0.0272, 0.0568, 0.0164, -0.0230, 0.0981   … 378 more',
+          ]}
+        />
       </Figure>
 
       <Figure caption="two questions, against that one vector" source="cosine similarity, −1 to 1">
@@ -444,14 +450,29 @@ vector  -0.0609  -0.0364   0.0624   0.0009
 
       <Because>
         The model was never told these are about cars — the numbers carry the
-        meaning. Two things follow that matter more here than elsewhere. It runs{' '}
-        <span className="text-ui-fg">on this machine</span>: a 130 MB model, no
-        network, no key, which is the reason{' '}
-        {UNITS.complaints.toLocaleString('en-GB')} people's narratives never
-        leave the building. And it has to be batched — feeding all of them at
-        once asks for a single 35 GB tensor and dies. That was already hit and
-        fixed at 64 at a time.
+        meaning. It runs <span className="text-ui-fg">on this machine</span>: a
+        130 MB model, no network, no key, which is why{' '}
+        {UNITS.complaints.toLocaleString('en-GB')} people's accounts of crashes,
+        fires and 53 deaths never leave the building. Measured on the sibling
+        corpus, local scored recall@k 0.813 against the paid model's 0.813 — so
+        this is a decision about the data that costs no accuracy to make.
       </Because>
+
+      <Because>
+        <span className="text-ui-fg">
+          And this is the stage where the corpus taught the machinery something.
+        </span>{' '}
+        The model pads every text in a batch to the longest one in that batch, so
+        sorting the passages by length before batching is{' '}
+        <span className="text-ui-fg">58% faster for identical vectors</span> — an
+        hour and 47 minutes becomes 47. That belongs in{' '}
+        <Mono>@fde/grounding</Mono> rather than here, because it is not
+        safety-specific — and it is invisible at 555 chunks, which is why three
+        engagements went past it. The first corpus nobody wrote for us is the
+        first one big enough to find it.
+      </Because>
+
+      <EmbedModal />
     </Stage>
   );
 }
