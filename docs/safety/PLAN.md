@@ -33,6 +33,19 @@ If they do not, the places they break are worth more than the ones that hold.
 
 ---
 
+## 1b · Where it will live
+
+**`SAFETY_DATABASE_URL`** — a Neon project of its own,
+`ep-calm-leaf-b22bvt1j`, eu-central-1, database `neondb`. Verified reachable
+2026-09-17: **empty, and `vector` is not installed yet** (stage 3.4 installs it).
+
+A SEPARATE PROJECT FROM THE OTHER THREE, deliberately — the same reason pharma
+and steering have their own. A mistyped base URL cannot then reach across and
+drop another engagement's estate, which is the accident
+`apps/ai/steering/src/config/connections.ts` already guards against by name.
+
+---
+
 ## 2 · The data: NHTSA vehicle safety
 
 The US National Highway Traffic Safety Administration publishes every safety
@@ -310,8 +323,8 @@ questions never ran.
    the richest "NHTSA disagreed with the manufacturer" material. They also add
    work. I lean to **no for v1**, and a named reason rather than silence.
 
-5. **Package and app names.** Proposed: `apps/ai/recalls` (`@calder/recalls`)
-   and `apps/web/recalls-app`, following the existing layout. Say if you want a
+5. **Package and app names.** Proposed: `apps/ai/safety` (`@calder/safety`)
+   and `apps/web/safety-app`, following the existing layout. Say if you want a
    different customer name — it is cosmetic and it is easiest to change now.
 
 6. **Does anything actually need a new `@fde/*` package?** The answer should be

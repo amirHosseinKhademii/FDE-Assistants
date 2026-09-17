@@ -85,6 +85,17 @@ export interface EstateColumn {
   name: string;
   /** One real value from the table. Absent where a system may not publish them. */
   sample?: string;
+  /**
+   * Why this column's values are not published — shown in place of the sample.
+   *
+   * ADDED FOR THE FIRST ESTATE HERE MADE OF REAL PEOPLE'S RECORDS. Pharma and
+   * Vantis withhold per SYSTEM (`showSamples`), which is the right grain when
+   * the whole database is somebody's questions. NHTSA's complaints file needs
+   * a finer one: make, model, component and severity are the reason the estate
+   * is worth opening, and in the same 51-column row sit the narrative, the
+   * truncated VIN, the town and the vehicle operator's name.
+   */
+  withheld?: string;
   kind: 'text' | 'number' | 'date' | 'flag' | 'json' | 'other';
 }
 
@@ -128,6 +139,22 @@ export interface EstateExplorerProps {
   /** The drawing for a tile. */
   figure: (face: EstateFace) => ReactNode;
   /**
+   * The three figures above the row, when "databases · tables · rows" is wrong.
+   *
+   * IT IS WRONG WHENEVER THE ESTATE IS NOT DATABASES. Calder Safety's is three
+   * tab-delimited files with one table each, so the default would print
+   * "3 databases · 3 tables" — two ways of saying three — and then a row count
+   * that overstates the estate by 44%, because NHTSA writes one row per
+   * component and one complaint is up to five of them.
+   */
+  figures?: { value: number | string; label: string }[];
+  /**
+   * What the line above the table cards says about samples. Defaults to the
+   * two sentences pharma and Vantis need — all shown, or none shown. An estate
+   * that publishes most columns and suppresses a named few needs its own.
+   */
+  samplesNote?: ReactNode;
+  /**
    * Whether a system's sample values may be shown. Pharma withholds `mrd_kb`'s,
    * because its rows are questions real people typed; steering withholds
    * nothing. It is a per-customer judgement, so it is a prop.
@@ -159,6 +186,7 @@ export function EstateExplorer(props: EstateExplorerProps) {
       <p className="mt-4 max-w-[58ch] leading-relaxed text-ui-dim">{intro}</p>
 
       <EstateFigures
+        items={props.figures}
         databases={estate.length}
         tables={totalTables}
         rows={props.totalRows}
@@ -193,6 +221,7 @@ export function EstateExplorer(props: EstateExplorerProps) {
           notes={props.notes}
           figure={figure}
           showSamples={props.showSamples?.(opened.face) ?? true}
+          samplesNote={props.samplesNote}
           onClose={() => setOpened(null)}
         />
       )}
@@ -207,21 +236,25 @@ function EstateFigures({
   rows,
   at,
   by,
+  items,
 }: {
   databases: number;
   tables: number;
   rows: number;
   at: string;
   by: string;
+  items?: { value: number | string; label: string }[];
 }) {
   return (
     <div className="mt-8">
       <Figures
-        items={[
-          { value: databases, label: 'databases' },
-          { value: tables, label: 'tables' },
-          { value: rows.toLocaleString('en-GB'), label: 'rows' },
-        ]}
+        items={
+          items ?? [
+            { value: databases, label: 'databases' },
+            { value: tables, label: 'tables' },
+            { value: rows.toLocaleString('en-GB'), label: 'rows' },
+          ]
+        }
         note={
           <>
             counted {at} by <span className="text-ui-dim">{by}</span>
@@ -285,6 +318,7 @@ function EstateDialog({
   notes,
   figure,
   showSamples,
+  samplesNote,
   onClose,
 }: {
   opened: Opened;
@@ -292,6 +326,7 @@ function EstateDialog({
   notes: Record<string, string>;
   figure: (face: EstateFace) => ReactNode;
   showSamples: boolean;
+  samplesNote?: ReactNode;
   onClose: () => void;
 }) {
   const { face, from } = opened;
@@ -330,9 +365,10 @@ function EstateDialog({
       }
     >
       <p className="pb-3 text-xs text-ui-faint">
-        {showSamples
-          ? 'Largest tables first · every column as deployed, with one real value from each'
-          : 'Largest tables first · values are not shown — these rows are questions people asked'}
+        {samplesNote ??
+          (showSamples
+            ? 'Largest tables first · every column as deployed, with one real value from each'
+            : 'Largest tables first · values are not shown — these rows are questions people asked')}
       </p>
       <ul className="grid gap-3 lg:grid-cols-2 xl:grid-cols-3">
         {tables.map((table, i) => (
@@ -381,6 +417,7 @@ function TableCard({
         fields={table.columns.map((column) => ({
           name: column.name,
           value: column.sample,
+          withheld: column.withheld,
           kind: column.kind,
         }))}
         fallback={(kind) => KIND_WORD[kind]}

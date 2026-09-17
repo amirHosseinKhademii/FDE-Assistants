@@ -31,31 +31,34 @@
  * A second visual language would have been easier and would have said the firm
  * has no house style.
  */
-import { BoxIcon } from '@fde/uikit';
+import { BoxIcon, Mono } from '@fde/uikit';
 import { Link } from '@tanstack/react-router';
 import { Aurora } from '@veresk/surface';
+import { CalderEstate } from '../components/CalderEstate';
 import { AURORA } from '../lib/aurora';
+import { COMPLAINT_FACTS, DISTINCT, INFLUENCED_BY, UNITS } from '../lib/estate.generated';
 import { VERESK } from '../lib/links';
 
 /**
- * Every figure on this page, in one place, with what produced it.
+ * THE ONE-VEHICLE FIGURES, AND THEY STAY ONE VEHICLE ON PURPOSE.
  *
- * MEASURED AGAINST THE LIVE API on 2026-09-16/17 and recorded in
- * `docs/recalls/PLAN.md` §3. They describe ONE vehicle — the 2019 Honda
- * Odyssey — because the corpus slice is still an open decision (§9.1), and a
- * page that quoted an estate total before one existed would be inventing the
- * number it is most likely to be quoted on.
+ * Measured against the live API on 2026-09-16/17 and recorded in
+ * `docs/recalls/PLAN.md` §3–§4. They are not the estate — the estate is
+ * measured by `pnpm recalls:estate` and read out of `estate.generated.ts`
+ * everywhere else on this page. These describe the 2019 Honda Odyssey, because
+ * that is the vehicle whose two records contradict each other, and a
+ * contradiction is proved by naming the records rather than by a total.
+ *
+ * WHAT USED TO BE HERE AND IS NOT ANY MORE: `allCaps`, `components`, `withVin`
+ * and the narrative length range. Those were one vehicle's numbers standing in
+ * for the estate's while the slice was undecided. The slice is decided —
+ * `docs/recalls/CORPUS.md` §1 — so they come from the file now.
  */
-const MEASURED = {
+const ODYSSEY = {
   vehicle: '2019 Honda Odyssey',
   complaints: 956,
-  allCaps: 131,
-  allCapsPct: 13,
-  shortest: 7,
-  longest: 2076,
-  components: 143,
-  withVin: 939,
-  namingFamily: 39,
+  afterRemedy: 51,
+  slidingDoor: 55,
 } as const;
 
 export function CalderLanding() {
@@ -68,7 +71,9 @@ export function CalderLanding() {
       <main className="relative z-10 mx-auto max-w-5xl px-5 pb-24 sm:px-6">
         <Hero />
         <Contradiction />
-        <Estate />
+        <Documented />
+        <CalderEstate />
+        <Severity />
         <Refusal />
         <Onward />
       </main>
@@ -165,7 +170,9 @@ function Contradiction() {
         </div>
 
         <div className="cal-record" style={{ ['--source' as string]: 'var(--color-cal-1)' }}>
-          <p className="cal-record-id">51 of 55 complaints · filed after that date</p>
+          <p className="cal-record-id">
+            {ODYSSEY.afterRemedy} of {ODYSSEY.slidingDoor} complaints · filed after that date
+          </p>
           <p className="cal-record-body">
             <span className="text-ui-fg">What people kept reporting.</span> The
             most recent arrived this month.
@@ -189,75 +196,158 @@ function Contradiction() {
   );
 }
 
-function Estate() {
-  const sources = [
-    {
-      token: 'var(--color-cal-1)',
-      name: 'complaints',
-      shape: 'free text, loose fields',
-      body: `${MEASURED.complaints.toLocaleString('en-GB')} on the ${MEASURED.vehicle} alone. ${MEASURED.allCaps} of them (${MEASURED.allCapsPct}%) are in capitals, they run from ${MEASURED.shortest} to ${MEASURED.longest.toLocaleString('en-GB')} characters, and the component field takes ${MEASURED.components} distinct spellings.`,
-      inScope: true,
-    },
-    {
-      token: 'var(--color-cal-2)',
-      name: 'recalls',
-      shape: 'structured records, prose blocks',
-      body: 'The manufacturer’s filed statement of defect, consequence and remedy. Structured enough to look tidy, which is its own trap: the prose blocks carry the part that matters.',
-      inScope: true,
-    },
-    {
-      token: 'var(--color-cal-3)',
-      name: 'investigations',
-      shape: 'documents',
-      body: 'The regulator’s own enquiries, which may precede a recall. The richest material for “NHTSA disagreed with the manufacturer”, and out of scope for the first version — named rather than quietly omitted.',
-      inScope: false,
-    },
-  ];
+/**
+ * The second disagreement, and this one is already written down.
+ *
+ * WHY IT EARNS A SECTION. `Contradiction` above is a disagreement we ASSEMBLED
+ * — two records placed side by side, with a paragraph underneath saying what it
+ * does not prove. This one needed no assembling and no judgement: NHTSA records
+ * in `INFLUENCED_BY` whether the manufacturer volunteered the recall or was
+ * pushed into it, and the field has three values. A labelled conflict in a
+ * structured column is rarer than it sounds and it is the reason this corpus is
+ * worth the trouble.
+ *
+ * COUNTED PER CAMPAIGN, WHICH IS NOT WHAT THE ROWS SAY. `docs/recalls/CORPUS.md`
+ * §4 reports 1,407 ODI-initiated recalls; that is rows, and one campaign covers
+ * every make, model and year it applies to. 107 campaigns is the same fact
+ * counted once each. The larger number is not wrong, it is just not campaigns —
+ * and "1,407 recalls the manufacturer did not volunteer" is a sentence about
+ * campaigns.
+ */
+function Documented() {
+  const total = INFLUENCED_BY.MFR + INFLUENCED_BY.ODI + INFLUENCED_BY.OVSC;
+  const pushed = INFLUENCED_BY.ODI + INFLUENCED_BY.OVSC;
 
   return (
     <section
       className="lift-in border-t border-ui-line pt-10 pb-14"
-      style={{ animationDelay: '180ms' }}
+      style={{ animationDelay: '160ms' }}
     >
       <h2 className="font-mono text-lg leading-snug font-medium tracking-tight text-ui-fg md:text-xl">
-        Three sources, and their shapes differ on purpose
+        And one disagreement the regulator already wrote down
       </h2>
-      <p className="mt-3 max-w-[62ch] leading-relaxed text-ui-dim">
-        Nobody wrote this corpus for us. It is misspelt, inconsistently
-        formatted between one endpoint and the next, and full of things nobody
-        thought to categorise — which is the whole reason it is here.
+
+      <p className="mt-4 max-w-[64ch] leading-relaxed text-ui-dim">
+        Every recall record carries <Mono>INFLUENCED_BY</Mono>: who started it.
+        Most say <Mono>MFR</Mono> — the manufacturer came forward. {pushed} of{' '}
+        {total.toLocaleString('en-GB')} campaigns in this slice do not.
       </p>
 
-      <div className="mt-8 grid gap-5 sm:grid-cols-3">
-        {sources.map((s) => (
-          <div
-            key={s.name}
-            className={`rounded-xl border border-ui-line bg-ui-surface p-5 ${s.inScope ? '' : 'opacity-60'}`}
-          >
+      <ul className="mt-7 grid max-w-2xl gap-3">
+        {[
+          {
+            code: 'MFR',
+            n: INFLUENCED_BY.MFR,
+            says: 'the manufacturer recalled voluntarily',
+            tone: 'var(--color-cal-2)',
+          },
+          {
+            code: 'ODI',
+            n: INFLUENCED_BY.ODI,
+            says: 'NHTSA’s Office of Defects Investigation pushed for it',
+            tone: 'var(--color-cal-1)',
+          },
+          {
+            code: 'OVSC',
+            n: INFLUENCED_BY.OVSC,
+            says: 'Vehicle Safety Compliance pushed for it',
+            tone: 'var(--color-cal-1)',
+          },
+        ].map((row) => (
+          <li key={row.code} className="flex items-baseline gap-4">
             <span
-              aria-hidden
-              className="block h-[2px] w-10 rounded-full"
-              style={{ background: s.token }}
-            />
-            <p className="mt-4 font-mono text-sm text-ui-fg">{s.name}</p>
-            <p className="mt-1 font-mono text-[0.6875rem] tracking-[0.06em] text-ui-faint uppercase">
-              {s.shape}
-            </p>
-            <p className="mt-3 text-[0.8125rem] leading-relaxed text-ui-dim">{s.body}</p>
-            {!s.inScope && (
-              <p className="mt-3 font-mono text-[0.6875rem] tracking-[0.06em] text-ui-faint uppercase">
-                not ingested
-              </p>
-            )}
+              className="w-14 shrink-0 font-mono text-[0.6875rem] tracking-[0.08em] uppercase"
+              style={{ color: row.tone }}
+            >
+              {row.code}
+            </span>
+            {/* The bar is proportional and the numeral is exact. 107 against
+                2,893 is a sliver, and a sliver is the honest drawing of it —
+                a log scale would make the rare case look ordinary. */}
+            <span aria-hidden className="hidden h-px flex-1 bg-ui-line sm:block">
+              <span
+                className="block h-px"
+                style={{ background: row.tone, width: `${(row.n / total) * 100}%` }}
+              />
+            </span>
+            <span className="w-16 shrink-0 text-right font-mono text-sm text-ui-fg">
+              {row.n.toLocaleString('en-GB')}
+            </span>
+            <span className="hidden text-[0.8125rem] text-ui-dim md:block md:w-[30ch]">
+              {row.says}
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      <p className="mt-7 max-w-[64ch] leading-relaxed text-ui-dim">
+        No inference, no model, no threshold — the agency labelled it. It is the
+        cleanest example in the estate of the thing the product is for: a
+        difference between two parties that a document states and nobody here has
+        to decide.
+      </p>
+    </section>
+  );
+}
+
+/**
+ * What happened to the people in the file.
+ *
+ * WHY THIS IS A SECTION AND NOT A STATISTIC. Severity is usually something you
+ * infer from prose and argue about. Here it is four columns — `CRASH`, `FIRE`,
+ * `INJURED`, `DEATHS` — filled in on every filing. That makes an eval check
+ * possible that none of the three existing engagements can ask: did the answer
+ * surface the fatal ones? It also sets the register of the whole deployment.
+ *
+ * COUNTED PER COMPLAINT. The component fan-out means the row count reports the
+ * same death up to five times; `pnpm recalls:estate` counts each filing once.
+ * The two fatality figures are different questions with different answers —
+ * {deaths} filings mention a death and {fatalities} people died — and both are
+ * printed, because rounding them into one number is how a page ends up quoting
+ * whichever is larger.
+ */
+function Severity() {
+  return (
+    <section
+      className="lift-in border-t border-ui-line pt-10 pb-14"
+      style={{ animationDelay: '240ms' }}
+    >
+      <h2 className="font-mono text-lg leading-snug font-medium tracking-tight text-ui-fg md:text-xl">
+        Severity is a field here, not a reading
+      </h2>
+
+      <dl className="mt-7 grid gap-x-6 gap-y-7 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          { n: COMPLAINT_FACTS.crash, label: 'report a crash' },
+          { n: COMPLAINT_FACTS.fire, label: 'report a fire' },
+          { n: COMPLAINT_FACTS.injured, label: 'report an injury' },
+          { n: COMPLAINT_FACTS.deaths, label: 'report a death' },
+        ].map((f) => (
+          <div key={f.label}>
+            <dd className="font-mono text-2xl text-ui-fg">{f.n.toLocaleString('en-GB')}</dd>
+            <dt className="mt-1 font-mono text-[0.6875rem] tracking-[0.08em] text-ui-faint uppercase">
+              {f.label}
+            </dt>
           </div>
         ))}
-      </div>
+      </dl>
 
-      <p className="mt-6 max-w-[64ch] text-[0.8125rem] leading-relaxed text-ui-faint">
-        Counts are from one vehicle, measured against the live API on 2026-09-17.
-        The estate total is deliberately absent: which models and which years are
-        still being decided, and a number quoted before it exists is the one you
-        get held to.
+      <p className="mt-8 max-w-[64ch] leading-relaxed text-ui-dim">
+        Of {UNITS.complaints.toLocaleString('en-GB')} complaints, in four
+        columns that are filled in rather than written about. The{' '}
+        {COMPLAINT_FACTS.deaths} filings that report a death account for{' '}
+        {COMPLAINT_FACTS.fatalities} people. Three of those columns are a{' '}
+        <Mono>Y</Mono> or an <Mono>N</Mono> — which is the whole reason this
+        corpus can be scored rather than admired.
+      </p>
+
+      <p className="mt-4 max-w-[64ch] leading-relaxed text-ui-dim">
+        The rest of the file is the opposite.{' '}
+        {Math.round((COMPLAINT_FACTS.allCaps / UNITS.complaints) * 100)}% of
+        narratives are in capitals, {COMPLAINT_FACTS.short.toLocaleString('en-GB')}{' '}
+        are under forty characters, and the component field takes{' '}
+        {DISTINCT.components} distinct spellings across {DISTINCT.makes} makes.
+        Both halves are in the same row.
       </p>
     </section>
   );
