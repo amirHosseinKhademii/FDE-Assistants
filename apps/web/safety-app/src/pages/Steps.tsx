@@ -1,16 +1,14 @@
 /**
- * The seven stages, before any of them is built.
+ * The seven stages — four of them built, three of them still a proposal.
  *
- * ── THIS PAGE IS A PROPOSAL, NOT A RECORD ──────────────────────────────────
+ * ── THE PAGE IS HALF RECORD AND HALF PROPOSAL, AND SAYS WHICH ──────────────
  *
- * The other three engagements' explanatory pages describe pipelines that run.
- * Nothing here runs. Stage 3.1 has not been written, nothing has been parsed,
- * embedded or stored, and the database is empty — so the page's whole job is to
- * be the thing somebody reads BEFORE agreeing to it, which means every number
- * on it has to say where it came from. Three provenances, and the kit badges
- * each one: `measured` (out of the NHTSA files, or produced by running the
- * thing described), `worked` (carried through by hand in the source document),
- * `target` (somebody else's measurement, quoted as the bar).
+ * Stages 1 through 4 run. Stages 5, 6 and 7 are written down and argued with,
+ * and the tab bar encodes the difference rather than leaving it to prose. So
+ * every number still has to say where it came from. Three provenances, and the
+ * kit badges each one: `measured` (out of the NHTSA files, or produced by
+ * running the thing described), `worked` (carried through by hand in the source
+ * document), `target` (somebody else's measurement, quoted as the bar).
  *
  * THE ONE THAT WOULD BE A LIE WITHOUT ITS BADGE is recall@6 0.813 in stage 3.7.
  * That is Vantis Steering's measurement on a corpus somebody here wrote. On a
@@ -97,8 +95,8 @@ export function Steps() {
       </main>
 
       <footer className="relative z-10 mx-auto max-w-5xl border-t border-ui-line px-5 py-10 text-sm text-ui-faint sm:px-6">
-        Written before the code. Four of the seven parts exist or are under way;
-        the rest are a plan being argued with.
+        Written before the code, and kept up with it since. Four of the seven
+        parts are built and measured; the rest are a plan being argued with.
       </footer>
     </div>
   );
@@ -221,7 +219,7 @@ const TABS: StepTab[] = [
     id: 'tools',
     label: 'The tools',
     stage: '4',
-    status: 'all five built',
+    status: 'built · measured',
     built: true,
     content: <Stage4 />,
   },
@@ -357,8 +355,9 @@ function Head() {
         full — one complaint, <Mono>ODI {SPINE}</Mono>, a 2020 Ford F-150 whose
         gear display disagreed with its gearbox, followed from a tab-separated
         line in a 1.5 GB file to the passage that answers a question about it.
-        The fourth has all five of its tools built, and none of them measured
-        together yet. The rest are written down and argued with.
+        The fourth is built and measured: five tools, and the documents the
+        search could not reach are now reachable. The rest are written down and
+        argued with.
       </p>
     </section>
   );

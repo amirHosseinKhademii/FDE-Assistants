@@ -10,12 +10,12 @@
  *
  * ── AND THE CAVEAT IS AS PROMINENT AS THE NUMBER ──────────────────────────
  *
- * recall@6 has NOT improved. It has not been re-measured — that is step 4.5,
- * and it needs every tool at once, because the question wants both a recall and
- * a complaint and no single tool returns both. Two cases looking dramatically
- * better in isolation is a different claim from a measurement, and this page's
- * entire argument is that the second one is the one that counts. So the panel
- * says 0.40 is still the number, in the same breath as 3,026 → 1.
+ * 4.5 has now run and recall@6 went 0.40 to 1.00 over the three retrieval
+ * cases. The caveat did not go away, it changed shape: the routing is written
+ * by hand, so that is a CEILING rather than a score. This panel's own claim is
+ * still only about one case, and "promising in isolation" and "measured" remain
+ * different sentences — which is why 3,026 → 1 sits here and the measurement
+ * sits on the tab, rather than this panel quoting 1.00 as if it earned it.
  *
  * ── THE TRAP IS INVISIBLE AND WORTH THE SPACE ─────────────────────────────
  *
@@ -208,18 +208,19 @@ function SearchComplaintsPanel({ from, onClose }: { from: Origin; onClose: () =>
         </section>
 
         <section>
-          <H>What this does not yet prove</H>
+          <H>What this alone does not prove</H>
           <Key>
-            recall@6 has not improved. It has not been re-measured — that is
-            step 4.5, and it needs every tool at once, because the question wants
-            both the recall and the complaint and no single tool returns both.
-            The number is still 0.40.
+            This is one case. The end-to-end number is stage 4.5, and it needed
+            every tool at once — the question wants both the recall and the
+            complaint, and no single tool returns both.
           </Key>
           <Why>
-            Two cases looking dramatically better in isolation is a different
-            claim from a measurement, and it is the difference this site exists
-            to insist on. “Promising in isolation” and “measured end to end” are
-            not the same sentence, and only the second one counts.
+            It has since run: recall@6 went from 0.40 to 1.00 across the three
+            retrieval cases, with the tools called{' '}
+            <span className="text-ui-fg">by hand</span> — a ceiling on what is
+            reachable, not a score for what a model would ask. Two cases looking
+            dramatically better in isolation was still a different claim from a
+            measurement, and it is the difference this site exists to insist on.
           </Why>
         </section>
 

@@ -305,11 +305,18 @@ function CountPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
         </section>
 
         <section>
-          <H>And it is still not a measurement</H>
+          <H>And the measurement has since happened</H>
           <Key>
-            recall@6 is still 0.40. Four tools look good in isolation and none of
-            that is measured end to end until they run together.
+            recall@6 went 0.40 to 1.00 over the three retrieval cases. Five
+            tools looking good in isolation was not the claim; running them
+            together was, and it is now run.
           </Key>
+          <Why>
+            With the tools called by hand, because there is no model yet — so it
+            is a ceiling on what is reachable rather than a score. This tool is
+            not in that number at all: none of the three retrieval cases wants a
+            count. It is checked by its own arithmetic, three ways.
+          </Why>
         </section>
       </div>
     </OriginDialog>

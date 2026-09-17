@@ -19,11 +19,17 @@
  * check rather than an opinion: a complaint the vehicle filter misses is found
  * here.
  *
- * ── AND IT CARRIES A WARNING FORWARD ──────────────────────────────────────
+ * ── AND THE WARNING IT CARRIED FORWARD STILL STANDS ───────────────────────
  *
- * If recall@6 improves at 4.5, part of what is being measured is how good
- * NHTSA's own data entry is — not only how good the filters are. That belongs
- * on the page before the number arrives, not after.
+ * 4.5 has run: recall@6 went 0.40 to 1.00. This tool is NOT part of that
+ * number — the measurement calls `find_recalls` and `search_complaints` only —
+ * so the panel must not borrow credit for it.
+ *
+ * The warning is the other half. Any score over this corpus is partly a measure
+ * of how good NHTSA's own data entry is, not only of how good the filters are,
+ * and the F-250 SD row is the proof that those are different things. That was
+ * written here before the number arrived, which is the only time such a thing
+ * is worth writing.
  */
 import { useCallback, useState } from 'react';
 import { Mono, OriginDialog, originOf } from '@fde/uikit';
@@ -228,11 +234,21 @@ function CitingPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
         </section>
 
         <section>
-          <H>And a warning to carry into the re-measurement</H>
+          <H>And the warning it carried into the re-measurement</H>
           <Key>
-            If recall@6 improves, part of what is being measured is how good
-            NHTSA's own data entry is — not only how good the filters are.
+            Any score over this corpus is partly a measure of how good NHTSA's
+            own data entry is — not only of how good the filters are.
           </Key>
+          <Why>
+            4.5 has since run and recall@6 went 0.40 to 1.00.{' '}
+            <span className="text-ui-fg">
+              This tool is not part of that number
+            </span>{' '}
+            — the measurement calls the recall finder and the complaint search
+            only — so nothing here is evidence for it. The warning is what
+            travels: the row above is one complaint the filters cannot reach
+            through no fault of the filters.
+          </Why>
         </section>
 
         <section>

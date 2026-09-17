@@ -1,24 +1,30 @@
 /**
- * Stage 4 — the tools, and the shape an answer has to arrive in.
+ * Stage 4 — the tools, and the number they were built to move.
  *
- * ── SPECIFIED IS NOT BUILT, AND THE PAGE HAS TO SAY WHICH ─────────────────
+ * ── THE STAGE IS COMPLETE, AND 4.5 IS WHY IT EXISTED ──────────────────────
  *
- * Every number in here comes from a measurement or from the raw files; none of
- * it comes from a running stage 4, because there is not one. The tab says
- * "specified, not built" rather than "not written", which was true until the
- * spec landed and is not now — and the distinction is the whole difference
- * between a plan somebody could disagree with and a wish.
+ * All five tools are built, and stage 4.5 re-ran the answer key through them:
+ * recall@6 over the three retrieval cases went 0.40 to 1.00.
+ *
+ * THAT NUMBER IS A CEILING AND THE PAGE MUST NEVER SHOW IT ALONE. There is no
+ * model yet, so which tool to call with which arguments is written by hand. It
+ * answers "are the right documents reachable at all", not "will a model ask
+ * correctly" — that second number is stage 6's and will be lower. A ceiling
+ * quoted as a score is how a demo becomes a promise, so "hand-routed" and the
+ * denominator travel with 1.00 everywhere it appears.
+ *
+ * Two of the three cases moved. REC-005 was already 1.00 and its rightness is
+ * an EMPTY result, so "0.40 to 1.00" overstates what changed unless it says so.
  *
  * ── THE NARRATIVE BEAT IS THAT THE PLAN WAS WRONG ─────────────────────────
  *
- * `PLAN.md` §8 said two tools, reasoned from what the questions looked like.
- * Stage 3.7 measured recall@6 at 0.40 and diagnosed why, and half that design
- * did not survive it. Five tools now, and the reason for each of the three new
- * ones is a specific thing the measurement showed.
+ * The plan said two tools, reasoned from what the questions looked like. Stage
+ * 3.7 measured recall@6 at 0.40 and diagnosed why, and half that design did not
+ * survive it. Five tools now, and the reason for each of the three new ones is
+ * a specific thing the measurement showed.
  *
  * That is not a defect story. It is the plan being corrected by evidence, which
- * is the thing this whole site argues for — and it is the reason this stage is
- * worth a page before it is worth any code.
+ * is the thing this whole site argues for.
  *
  * Source: `docs/safety/STAGE4.md`.
  */
@@ -97,13 +103,26 @@ const TOOLS: readonly {
   },
 ];
 
+/**
+ * Stage 4.5, per case.
+ *
+ * REC-005 IS LISTED BECAUSE IT DID NOT MOVE. Two of the three cases improved;
+ * the third was already right, and its rightness is an empty result. Showing
+ * only the two that moved would make 0.40 → 1.00 read as though everything did.
+ */
+const MOVED: readonly { id: string; before: string; after: string; what: string }[] = [
+  { id: 'REC-001', before: '0.00', after: '1.00', what: 'the campaign first, the complaint second' },
+  { id: 'REC-004', before: '0.20', after: '1.00', what: 'all five death complaints, at 1 to 5' },
+  { id: 'REC-005', before: '1.00', after: '1.00', what: 'already right, and still correctly empty' },
+];
+
 const STEPS: readonly (readonly [string, string, string] | readonly [string, string, string, 'done'])[] = [
   ['4.1', 'get_recall', 'returns 20V197000 exactly; a bad number returns nothing, not a near miss', 'done'],
   ['4.2', 'find_recalls', 'zero for the Odyssey case, with 16 other components named; 20V197000 for the F-150', 'done'],
   ['4.3', 'search_complaints', 'the complaint at position 1, where unfiltered it was outside the top 50', 'done'],
   ['4.4', 'count_complaints', 'three numbers, each agreeing with a shell pipeline over the raw file and with the key', 'done'],
   ['4.4b', 'complaints_citing', 'seven for 20V197000, verified against the raw file — one of them invisible to the vehicle filter', 'done'],
-  ['4.5', 're-run 3.7 through the tools', 'recall@6 rises from 0.40 — and we can say by how much, and why'],
+  ['4.5', 're-run 3.7 through the tools', 'recall@6 over the three retrieval cases goes 0.40 to 1.00, hand-routed', 'done'],
 ] as const;
 
 export function Stage4() {
@@ -116,7 +135,7 @@ export function Stage4() {
           Ways to ask that are not a search
         </h2>
         <span className="rounded-full border border-cal-1/40 px-2.5 py-0.5 font-mono text-[0.625rem] tracking-[0.06em] text-cal-1 uppercase">
-          all five built · not yet measured
+          all five built · measured as a ceiling
         </span>
       </div>
 
@@ -135,6 +154,57 @@ export function Stage4() {
         is a shape an answer must arrive in, and neither needs the other to be
         testable.
       </p>
+
+      {/* THE RESULT. The qualifier is a sibling of the number, not a paragraph
+          after it: there must be no crop of this tab containing 1.00 without
+          "hand-routed" in the same block. */}
+      <div className="cal-result">
+        <p className="cal-result-label">
+          recall@6 · the three retrieval cases in the answer key
+        </p>
+
+        <div className="cal-result-arc">
+          <div>
+            <p className="cal-result-cap">searching</p>
+            <p className="cal-result-was">0.40</p>
+          </div>
+          <span className="cal-result-arrow" aria-hidden>
+            →
+          </span>
+          <div>
+            <p className="cal-result-cap">through the tools</p>
+            <p className="cal-result-now">1.00</p>
+          </div>
+          <p className="cal-result-ceiling">
+            <span>a ceiling, not a score</span>
+            The tools were called by hand — there is no model yet. It proves the
+            right documents are <em>reachable</em>, not that a model will ask for
+            them. That is stage 6, and it will be lower.
+          </p>
+        </div>
+
+        <ul className="cal-result-cases">
+          {MOVED.map((m) => (
+            <li key={m.id} data-still={m.before === m.after}>
+              <span className="cal-result-id">{m.id}</span>
+              <span className="cal-result-move">
+                {m.before} → {m.after}
+              </span>
+              <span className="cal-result-what">{m.what}</span>
+            </li>
+          ))}
+        </ul>
+
+        <p className="cal-result-foot">
+          Two of the three moved. The third was already right, and being right
+          here means returning <em>nothing</em> — so it is listed rather than
+          quietly dropped. And the number is reached by{' '}
+          <span className="text-ui-dim">two of the five tools</span>:{' '}
+          <Mono>find_recalls</Mono> and <Mono>search_complaints</Mono>. The other
+          three answer questions the answer key does not score this way — a
+          lookup, a count, and a list of citing complaints are not recall@6.
+        </p>
+      </div>
 
       <Chapter
         n="01"
@@ -262,7 +332,7 @@ export function Stage4() {
       <Chapter
         n="03"
         title="The order it gets built in"
-        sub="Eight steps, one done — and one of them is the step that decides whether any of the rest is worth building."
+        sub="Six steps, all of them done — and the last one is what decided whether any of the others was worth building."
       >
         <ul className="cal-panel grid gap-2.5">
           {STEPS.map((row) => {
@@ -307,15 +377,15 @@ export function Stage4() {
           })}
         </ul>
         <Key>
-          4.5 is the one that matters, and{' '}
+          4.5 was the one that mattered, and{' '}
           <span style={{ color: 'var(--color-cal-2)' }}>
-            recall@6 is still 0.40 until it runs.
+            it has now run: 0.40 to 1.00.
           </span>{' '}
-          Two of the cases look dramatically better in isolation — one moved from
-          rank 3,026 to first — but the question that scores worst needs a recall
-          AND a complaint, and no single tool returns both. Promising in
-          isolation and measured end to end are different claims, and only the
-          second one counts.
+          The question that scored worst needs a recall AND a complaint, and no
+          single tool returns both — so it took two calls, with the recall's
+          notification date becoming the filter on the complaint search. Until
+          that ran, two cases looking better in isolation was a different claim
+          from a measurement, and only the second one counts.
         </Key>
       </Chapter>
 

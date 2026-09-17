@@ -670,3 +670,144 @@ body {
   color: var(--color-ui-faint);
 }
 
+
+/* ── STAGE 4.5'S RESULT ─────────────────────────────────────────────────────
+   The stage's payoff, and the one number on this site most likely to be
+   quoted out of context.
+
+   THE CEILING NOTE IS INSIDE THE ARC, not below it. 1.00 and "a ceiling, not a
+   score" have to survive being cropped, screenshotted or skimmed together —
+   a qualifier in a following paragraph is a qualifier that gets left behind. */
+.cal-result {
+  margin-top: 1.75rem;
+  border: 1px solid color-mix(in oklab, var(--color-cal-1) 30%, var(--color-ui-line));
+  border-radius: 0.875rem;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--color-cal-1) 10%, var(--color-ui-surface)) 0,
+      color-mix(in oklab, var(--color-cal-1) 4%, var(--color-ui-surface)) 100%
+    );
+  padding: 1.25rem 1.375rem 1.125rem;
+}
+
+.cal-result-label {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ui-faint);
+}
+
+.cal-result-arc {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1.5rem;
+  margin-top: 0.875rem;
+}
+
+.cal-result-cap {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ui-faint);
+}
+
+.cal-result-was,
+.cal-result-now {
+  margin-top: 0.125rem;
+  font-family: var(--font-mono);
+  font-size: 2.25rem;
+  line-height: 1.1;
+}
+
+.cal-result-was {
+  color: var(--color-ui-dim);
+}
+
+.cal-result-now {
+  color: var(--color-cal-1);
+}
+
+.cal-result-arrow {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  color: var(--color-ui-faint);
+}
+
+/* Dashed and alongside the number, because it qualifies rather than concludes. */
+.cal-result-ceiling {
+  flex: 1 1 22rem;
+  align-self: stretch;
+  border: 1px dashed color-mix(in oklab, var(--color-cal-2) 50%, var(--color-ui-line));
+  border-radius: 0.625rem;
+  padding: 0.75rem 0.9375rem;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--color-ui-dim);
+}
+
+.cal-result-ceiling span {
+  display: block;
+  margin-bottom: 0.3125rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-cal-2);
+}
+
+.cal-result-cases {
+  display: grid;
+  gap: 0.375rem;
+  margin-top: 1.125rem;
+  border-top: 1px solid color-mix(in oklab, var(--color-cal-1) 16%, var(--color-ui-line));
+  padding-top: 0.875rem;
+}
+
+.cal-result-cases li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1rem;
+  font-size: 0.8125rem;
+}
+
+/* The case that did NOT move is dimmed, never hidden. */
+.cal-result-cases li[data-still='true'] {
+  opacity: 0.62;
+}
+
+.cal-result-id {
+  width: 4.5rem;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-ui-dim);
+}
+
+.cal-result-move {
+  width: 6.5rem;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-ui-fg);
+}
+
+.cal-result-cases li[data-still='true'] .cal-result-move {
+  color: var(--color-ui-dim);
+}
+
+.cal-result-what {
+  color: var(--color-ui-dim);
+}
+
+.cal-result-foot {
+  margin-top: 0.875rem;
+  max-width: 64ch;
+  font-size: 0.8125rem;
+  line-height: 1.65;
+  color: var(--color-ui-faint);
+}
