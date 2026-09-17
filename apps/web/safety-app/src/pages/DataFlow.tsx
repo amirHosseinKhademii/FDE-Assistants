@@ -38,7 +38,10 @@ export function DataFlow() {
         <Link to="/" className="font-medium tracking-tight">
           Calder Safety
         </Link>
-        <span className="text-sm text-ui-faint sm:ml-auto">Where the data goes</span>
+        <Link to="/desk" className="text-sm text-ui-dim transition-colors hover:text-ui-fg sm:ml-auto">
+          Ask it
+        </Link>
+        <span className="text-sm text-ui-faint">Where the data goes</span>
         <Link to="/steps" className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
           How it would work
         </Link>

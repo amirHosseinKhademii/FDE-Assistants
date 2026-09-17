@@ -389,6 +389,15 @@ importers:
 
   apps/web/safety-app:
     dependencies:
+      '@calder/safety':
+        specifier: workspace:*
+        version: link:../../ai/safety
+      '@fde/agent':
+        specifier: workspace:*
+        version: link:../../../packages/agent
+      '@fde/foundry':
+        specifier: workspace:*
+        version: link:../../../packages/providers/foundry
       '@fde/uikit':
         specifier: workspace:*
         version: link:../../../packages/uikit

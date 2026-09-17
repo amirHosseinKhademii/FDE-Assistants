@@ -75,7 +75,20 @@
     "AWS_SECRET_ACCESS_KEY",
     "AWS_SESSION_TOKEN",
     "BEDROCK_MODEL",
-    "LLM_PROVIDER"
+    "LLM_PROVIDER",
+    "SAFETY_DATABASE_URL",
+    "SAFETY_CORPUS_DIR",
+    "SAFETY_K",
+    "SAFETY_EMBED_SLAB",
+    "SAFETY_INDEX_BATCH",
+    "HOSTED_API_KEY",
+    "HOSTED_BASE_URL",
+    "HOSTED_MODEL",
+    "LOCAL_MODEL",
+    "LOCAL_OPENAI_BASE_URL",
+    "OPENAI_API_KEY",
+    "EVAL_PACE_MS",
+    "FIXTURE_MODE"
   ],
   "globalDependencies": [
     ".env"

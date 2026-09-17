@@ -76,7 +76,10 @@ export function Steps() {
         <Link to="/" className="font-medium tracking-tight">
           Calder Safety
         </Link>
-        <span className="text-sm text-ui-faint sm:ml-auto">How it would work</span>
+        <Link to="/desk" className="text-sm text-ui-dim transition-colors hover:text-ui-fg sm:ml-auto">
+          Ask it
+        </Link>
+        <span className="text-sm text-ui-faint">How it would work</span>
         <Link to="/data-flow" className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
           Where the data goes
         </Link>

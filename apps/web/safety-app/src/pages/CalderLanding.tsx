@@ -97,10 +97,11 @@ function Header() {
         <span className="font-medium tracking-tight">Calder Safety</span>
       </span>
 
-      <Link
-        to="/steps"
-        className="text-sm text-ui-dim transition-colors hover:text-ui-fg sm:ml-auto"
-      >
+      <Link to="/desk" className="text-sm text-ui-dim transition-colors hover:text-ui-fg sm:ml-auto">
+        Ask it
+      </Link>
+
+      <Link to="/steps" className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
         How it would work
       </Link>
 

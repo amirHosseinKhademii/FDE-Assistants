@@ -10,6 +10,9 @@
     "start": "node dist/server/server.js"
   },
   "dependencies": {
+    "@calder/safety": "workspace:*",
+    "@fde/agent": "workspace:*",
+    "@fde/foundry": "workspace:*",
     "@fde/uikit": "workspace:*",
     "@tanstack/react-query": "^5.102.8",
     "@tanstack/react-router": "^1.170.35",

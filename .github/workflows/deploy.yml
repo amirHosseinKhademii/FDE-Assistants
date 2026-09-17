@@ -176,11 +176,20 @@ env:
   # after, which it never quite did before.
   PHARMA_APP: pharma-app
   PHARMA_REPO: docker.io/amir2575/meridian-pharma
-  # The fourth engagement. It has no database, no model call and no API route —
-  # every figure on its pages is baked in at build time from the NHTSA files, so
-  # this app needs NO secrets, and `safety-deploy` sets none. If `/desk` ever
-  # lands it will need `SAFETY_DATABASE_URL` and a model key, and that is the
-  # commit where this comment stops being true.
+  # The fourth engagement. `/desk` landed, so the statement that used to be here
+  # — no database, no model call, no API route, no secrets — stopped being true
+  # and this is the commit that says so.
+  #
+  # ITS SECRETS ARE SET ON THE CONTAINER APP, NOT BY THIS WORKFLOW, the same way
+  # the other three are: the jobs below only push an image and update the tag.
+  # `safety-app` needs SAFETY_DATABASE_URL, HOSTED_API_KEY, HOSTED_MODEL and
+  # LLM_PROVIDER=hosted, plus LOOP set to an engine that can reach the model —
+  # `sdk` refuses a hosted endpoint by design, so LOOP and LLM_PROVIDER are one
+  # decision rather than two.
+  #
+  # An unset HOSTED_MODEL throws by name rather than defaulting, which is the
+  # behaviour you want: a page that loads perfectly and fails on the first
+  # question is the expensive kind of wrong.
   SAFETY_APP: safety-app
   SAFETY_REPO: docker.io/amir2575/calder-safety
   # The host — the firm's door and Meridian Pharma's pages.

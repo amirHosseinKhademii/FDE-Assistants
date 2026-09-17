@@ -4,7 +4,11 @@
   "private": true,
   "main": "./dist/config/paths.js",
   "exports": {
-    "./config": "./dist/config/paths.js"
+    "./config": "./dist/config/paths.js",
+    "./agent/tools": "./dist/agent/tools.js",
+    "./agent/prompt": "./dist/agent/prompt.js",
+    "./agent/answer": "./dist/agent/answer.js",
+    "./schema/safety-answer": "./dist/schema/safety-answer.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -24,7 +28,8 @@
     "schema": "ts-node src/schema/schema-selftest.ts",
     "tools": "ts-node src/cli/tools.ts",
     "ask": "ts-node src/cli/ask.ts",
-    "round-trip": "ts-node src/cli/round-trip.ts"
+    "round-trip": "ts-node src/cli/round-trip.ts",
+    "run-all": "ts-node src/cli/run-all.ts"
   },
   "dependencies": {
     "dotenv": "^16.4.5",

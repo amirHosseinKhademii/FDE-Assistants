@@ -1147,3 +1147,497 @@ body {
   line-height: 1.65;
   color: var(--color-ui-dim);
 }
+
+/* ── THE DESK ───────────────────────────────────────────────────────────────
+   One question in, and everything it did on the way to an answer.
+
+   THE TRACE IS STYLED LIKE CONTENT, NOT LIKE A CONSOLE. It is the part of this
+   page that makes the answer checkable, so it gets the same weight the prose
+   does rather than being greyed out under a disclosure triangle. */
+.cal-ask {
+  border: 1px solid color-mix(in oklab, var(--color-cal-1) 26%, var(--color-ui-line));
+  border-radius: 1rem;
+  background: color-mix(in oklab, var(--color-cal-1) 6%, var(--color-ui-surface));
+  padding: 1.25rem 1.375rem 1.375rem;
+}
+
+.cal-ask-label,
+.cal-sec-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ui-faint);
+}
+
+.cal-ask-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  margin-top: 0.625rem;
+}
+
+.cal-ask-input {
+  flex: 1 1 18rem;
+  min-width: 0;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.625rem;
+  background: var(--color-ui-bg);
+  padding: 0.75rem 0.9375rem;
+  font-size: 0.9375rem;
+  color: var(--color-ui-fg);
+  transition: border-color 0.15s;
+}
+
+.cal-ask-input:focus {
+  outline: none;
+  border-color: color-mix(in oklab, var(--color-cal-1) 55%, var(--color-ui-line));
+}
+
+.cal-ask-input::placeholder {
+  color: var(--color-ui-faint);
+}
+
+.cal-ask-go {
+  flex-shrink: 0;
+  border-radius: 0.625rem;
+  border: 1px solid color-mix(in oklab, var(--color-cal-1) 45%, var(--color-ui-line));
+  background: color-mix(in oklab, var(--color-cal-1) 16%, var(--color-ui-surface));
+  padding: 0.75rem 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--color-ui-fg);
+  transition: background-color 0.15s;
+}
+
+.cal-ask-go:hover:not(:disabled) {
+  background: color-mix(in oklab, var(--color-cal-1) 26%, var(--color-ui-surface));
+}
+
+.cal-ask-go:disabled,
+.cal-chip:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.cal-ask-try {
+  margin-top: 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ui-faint);
+}
+
+.cal-ask-chips {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.625rem;
+}
+
+@media (min-width: 48rem) {
+  .cal-ask-chips {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.cal-chip {
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.625rem;
+  background: var(--color-ui-bg);
+  padding: 0.6875rem 0.875rem;
+  text-align: left;
+  transition: border-color 0.15s;
+}
+
+.cal-chip:hover:not(:disabled) {
+  border-color: color-mix(in oklab, var(--color-cal-1) 45%, var(--color-ui-line));
+}
+
+.cal-chip-q {
+  display: block;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--color-ui-dim);
+}
+
+.cal-chip-s {
+  display: block;
+  margin-top: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  color: var(--color-cal-1);
+}
+
+/* What was asked, and by which engine. */
+.cal-asked {
+  border-inline-start: 3px solid var(--color-cal-1);
+  padding: 0.125rem 0 0.125rem 1rem;
+}
+
+.cal-asked-q {
+  max-width: 60ch;
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  color: var(--color-ui-fg);
+}
+
+.cal-asked-meta {
+  margin-top: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--color-ui-faint);
+}
+
+/* The trace. Content weight, because it is the product. */
+.cal-trace {
+  margin-top: 1.5rem;
+  border: 1px solid color-mix(in oklab, var(--color-cal-2) 26%, var(--color-ui-line));
+  border-radius: 0.875rem;
+  background: color-mix(in oklab, var(--color-cal-2) 5%, var(--color-ui-surface));
+  padding: 1.125rem 1.25rem;
+}
+
+.cal-trace-list {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.875rem;
+}
+
+.cal-trace-list li {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.cal-trace-n {
+  display: flex;
+  height: 1.375rem;
+  width: 1.375rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-cal-2) 22%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--color-cal-2);
+}
+
+.cal-trace-name {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  color: var(--color-ui-fg);
+}
+
+.cal-trace-args {
+  margin-top: 0.1875rem;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--color-ui-faint);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.cal-trace-wait {
+  margin-top: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-ui-faint);
+}
+
+/* The answer and everything under it. */
+.cal-answer,
+.cal-block {
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.875rem;
+  background: var(--color-ui-surface);
+  padding: 1.125rem 1.25rem;
+}
+
+.cal-answer {
+  border-color: color-mix(in oklab, var(--color-cal-1) 30%, var(--color-ui-line));
+  background: color-mix(in oklab, var(--color-cal-1) 6%, var(--color-ui-surface));
+}
+
+.cal-answer-prose {
+  margin-top: 0.75rem;
+  max-width: 68ch;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--color-ui-fg);
+}
+
+.cal-answer-none {
+  margin-top: 0.75rem;
+  max-width: 64ch;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-ui-dim);
+}
+
+.cal-answer-campaigns {
+  margin-top: 0.75rem;
+  font-size: 0.8125rem;
+  color: var(--color-ui-faint);
+}
+
+.cal-count,
+.cal-cite,
+.cal-absence,
+.cal-conflict {
+  margin-top: 0.75rem;
+}
+
+.cal-count {
+  display: flex;
+  align-items: baseline;
+  gap: 0.875rem;
+}
+
+.cal-count-v {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 1.375rem;
+  color: var(--color-cal-1);
+}
+
+.cal-count-l {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-ui-fg);
+}
+
+.cal-count-f {
+  margin-top: 0.125rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--color-ui-faint);
+}
+
+.cal-cite-s {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-cal-1);
+}
+
+.cal-cite-c {
+  margin-top: 0.125rem;
+  max-width: 68ch;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--color-ui-dim);
+}
+
+/* The absence. Its own tone, because "we looked and it is not there" is a
+   different kind of statement from "here is what we found". */
+.cal-block-absence {
+  border-color: color-mix(in oklab, var(--color-cal-2) 32%, var(--color-ui-line));
+  background: color-mix(in oklab, var(--color-cal-2) 5%, var(--color-ui-surface));
+}
+
+.cal-absence-q {
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-cal-2);
+}
+
+.cal-absence-m {
+  margin-top: 0.25rem;
+  max-width: 68ch;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--color-ui-dim);
+}
+
+.cal-block-warn {
+  border-style: dashed;
+  border-color: color-mix(in oklab, var(--color-cal-2) 40%, var(--color-ui-line));
+  background: transparent;
+}
+
+.cal-warn-line {
+  margin-top: 0.625rem;
+  max-width: 70ch;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-ui-dim);
+}
+
+.cal-conflict-t {
+  font-size: 0.9375rem;
+  color: var(--color-ui-fg);
+}
+
+.cal-conflict-p {
+  margin-top: 0.25rem;
+  max-width: 68ch;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--color-ui-faint);
+}
+
+.cal-conflict-r {
+  margin-top: 0.375rem;
+  font-size: 0.8125rem;
+  color: var(--color-cal-2);
+}
+
+/* Escalation is a success state and is not drawn as a warning. */
+.cal-block-esc {
+  border-color: color-mix(in oklab, var(--color-cal-1) 32%, var(--color-ui-line));
+  background: color-mix(in oklab, var(--color-cal-1) 5%, var(--color-ui-surface));
+}
+
+.cal-esc-r {
+  margin-top: 0.75rem;
+  max-width: 66ch;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-ui-fg);
+}
+
+.cal-esc-w {
+  margin-top: 0.375rem;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--color-cal-1);
+}
+
+.cal-note {
+  margin-top: 0.875rem;
+  max-width: 66ch;
+  border-top: 1px solid color-mix(in oklab, var(--color-ui-line) 70%, transparent);
+  padding-top: 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--color-ui-faint);
+}
+
+/* ── THE ANSWER, MADE READABLE ──────────────────────────────────────────────
+   A model writing into a schema field writes one unbroken paragraph. A narrower
+   measure and more leading do most of the work; the anchors do the rest, by
+   giving the eye somewhere to land when scanning back for a number. */
+.cal-answer-prose {
+  margin-top: 0.875rem;
+  max-width: 58ch;
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  color: var(--color-ui-fg);
+}
+
+.cal-answer-prose + .cal-answer-prose {
+  margin-top: 1rem;
+}
+
+/* Campaign numbers, ODI numbers and figures. Set apart, never reworded. */
+.cal-anchor {
+  border-radius: 0.25rem;
+  background: color-mix(in oklab, var(--color-cal-1) 14%, transparent);
+  padding: 0.0625rem 0.3125rem;
+  font-family: var(--font-mono);
+  font-size: 0.9375em;
+  color: var(--color-cal-1);
+}
+
+/* ── HISTORY, BEHIND A BUTTON ───────────────────────────────────────────────
+   Collapsed, because most readers ask one question and leave. */
+.cal-hist-toggle {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.75rem;
+  background: var(--color-ui-surface);
+  padding: 0.8125rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--color-ui-dim);
+  transition: border-color 0.15s;
+}
+
+.cal-hist-toggle:hover {
+  border-color: color-mix(in oklab, var(--color-cal-1) 45%, var(--color-ui-line));
+  color: var(--color-ui-fg);
+}
+
+.cal-hist-caret {
+  display: flex;
+  height: 1.25rem;
+  width: 1.25rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-cal-1) 18%, transparent);
+  font-size: 0.8125rem;
+  color: var(--color-cal-1);
+}
+
+.cal-hist-hint {
+  margin-inline-start: auto;
+  font-size: 0.6875rem;
+  color: var(--color-ui-faint);
+}
+
+.cal-hist {
+  margin-top: 0.75rem;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.875rem;
+  background: var(--color-ui-surface);
+  padding: 1.125rem 1.25rem;
+}
+
+.cal-hist-row {
+  border-top: 1px solid color-mix(in oklab, var(--color-ui-line) 70%, transparent);
+  padding: 0.9375rem 0;
+}
+
+.cal-hist-row:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.cal-hist-q {
+  max-width: 68ch;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--color-ui-fg);
+}
+
+.cal-hist-tools {
+  margin-top: 0.3125rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--color-cal-2);
+}
+
+.cal-hist-a {
+  margin-top: 0.375rem;
+  max-width: 72ch;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--color-ui-dim);
+}
+
+.cal-hist-meta {
+  margin-top: 0.375rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  color: var(--color-ui-faint);
+}
+
+.cal-hist-empty {
+  max-width: 62ch;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-ui-faint);
+}
