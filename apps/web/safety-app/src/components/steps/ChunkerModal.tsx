@@ -321,7 +321,7 @@ function ChunkerPanel({ from, onClose }: { from: Origin; onClose: () => void }) 
 
         <Sect
           k="investigations"
-          title="The 114 it does cut — and it surprised us"
+          title="The 114 it does cut, and how it cuts them"
           refs={sections}
           active={active}
         >
@@ -354,9 +354,9 @@ function ChunkerPanel({ from, onClose }: { from: Origin; onClose: () => void }) 
             chunker; {UNITS.investigations - SPLIT} came out as a single piece and
             correctly kept their own id with no <Mono>#</Mono> suffix. “
             {UNITS.investigations} → {LEDGER[2].out}” and “{SPLIT} split” are
-            both true and count different things — the first is passages produced,
-            the second is documents affected. Quoting either as the other is the
-            same mistake as quoting rows for records.
+            both true and count different things — the first is passages
+            produced, the second is documents affected, the same distinction as
+            rows against records one stage earlier.
           </Aside>
           <Aside>
             That is the chunker being right, not failing. A library that always

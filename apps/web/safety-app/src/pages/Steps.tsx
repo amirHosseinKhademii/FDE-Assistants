@@ -40,7 +40,6 @@ import { BeforeAfter, Because, Figure, Raw, Stage } from '../components/steps/ki
 import { ChunkerModal } from '../components/steps/ChunkerModal';
 import { EmbedModal } from '../components/steps/EmbedModal';
 import { IndexModal } from '../components/steps/IndexModal';
-import { Lessons } from '../components/steps/Lessons';
 import { ParserModal } from '../components/steps/ParserModal';
 import { AURORA } from '../lib/aurora';
 import { ROWS, UNITS } from '../lib/estate.generated';
@@ -98,7 +97,6 @@ export function Steps() {
           <Measure />
         </div>
 
-        <Lessons />
         <NotYet />
         <Patterns />
         <Onward />
@@ -478,17 +476,11 @@ function Embed() {
       </Because>
 
       <Because>
-        It also cost the only real time lost this week, and not where anybody was
-        looking. An attempt computed every vector — 37.9 minutes — and then threw
-        them all away on <Mono>JSON.stringify</Mono>, because V8 caps a string at
-        512 MB and 73,442 records serialise to 637 MB. The estimate beforehand
-        said 346 MB and would have passed review; it assumed a short float, and a
-        float serialises as twenty characters.{' '}
-        <span className="text-ui-fg">
-          The work had finished and the write destroyed it.
-        </span>{' '}
-        The output is NDJSON now, flushed as it goes and resumable — which is the
-        part that matters more than the format.
+        The vectors are written as NDJSON — one record a line, flushed every
+        4,000 and resumable from whatever is on disk. 641 MB on disk against 108
+        MB in memory, because a float serialises as{' '}
+        <Mono>0.019854292273521423</Mono>: twenty characters of double precision
+        out of a model that computed a float32.
       </Because>
 
       <EmbedModal />
@@ -570,8 +562,8 @@ function Index() {
 }
 
 function Retrieve() {
-  const armA = ['11353867', '11412093', '11298441'];
-  const armB = ['11298441', '11353867', '11501233'];
+  const armA = ['11416775', '19V620000', '20V425000'];
+  const armB = ['11592935', '20V197000', '11624180'];
 
   return (
     <Stage
@@ -580,28 +572,76 @@ function Retrieve() {
       when="every question"
       plain="Ask both, independently, at the same time. One arm matches meaning and the other matches words, and on this corpus neither is optional."
     >
-      <Figure
-        caption="question: “F-150 will not go into park after the recall”"
-        from="worked"
-        source="docs/safety/INGESTION.md §3.5"
-      >
+      <Figure caption="the two arms, as they are built" source="apps/ai/safety/src/grounding/search.ts">
         <div className="grid gap-5 sm:grid-cols-2">
           {[
-            { name: 'arm A — meaning', sub: 'vectors', list: armA, tone: 'var(--color-cal-1)' },
-            { name: 'arm B — keywords', sub: 'full text', list: armB, tone: 'var(--color-cal-2)' },
+            {
+              name: 'arm A — meaning',
+              sub: 'pgvector cosine over vector(384), bge-small',
+              tone: 'var(--color-cal-1)',
+              good: 'Matches “gearbox shows the wrong gear” to “display indicates I am in the wrong gear”, with no shared words.',
+            },
+            {
+              name: 'arm B — keywords',
+              sub: 'ts_rank over content_ts + its GIN index',
+              tone: 'var(--color-cal-2)',
+              good: 'Matches what arm A is worst at — a campaign number, a fault code, an ODI reference.',
+            },
           ].map((arm) => (
             <div key={arm.name} className="rounded-lg border border-ui-line bg-ui-surface p-4">
-              <p className="font-mono text-[0.6875rem] tracking-[0.06em] uppercase" style={{ color: arm.tone }}>
+              <p
+                className="font-mono text-[0.6875rem] tracking-[0.06em] uppercase"
+                style={{ color: arm.tone }}
+              >
                 {arm.name}
               </p>
               <p className="mt-0.5 font-mono text-[0.625rem] text-ui-faint">{arm.sub}</p>
+              <p className="mt-3 text-[0.8125rem] leading-relaxed text-ui-dim">{arm.good}</p>
+            </div>
+          ))}
+        </div>
+      </Figure>
+
+      <Because>
+        Each arm is asked for <Mono>k × 4</Mono>, so a six-result question
+        fetches 24 from each and fuses 48. A passage ranked 20th on meaning and
+        2nd on keywords{' '}
+        <span className="text-ui-fg">has to be in the lists before fusion</span>{' '}
+        — fetching six from each would throw it away before the step that would
+        have promoted it.
+      </Because>
+
+      <Because>
+        This corpus is made of what arm A is worst at: <Mono>20V197000</Mono>,{' '}
+        <Mono>{SPINE}</Mono>, <Mono>P0219A</Mono>, <Mono>PRNDL</Mono>. Ask a
+        vector index for a campaign number and it returns things that{' '}
+        <em>look like</em> campaign numbers. The keyword arm returns that
+        campaign.
+      </Because>
+
+      <Figure
+        caption="two ranked lists, for “recall 20V197000”"
+        source="6 results in 1,474 ms"
+      >
+        <div className="grid gap-5 sm:grid-cols-2">
+          {[
+            { name: 'arm A — meaning', list: armA, tone: 'var(--color-cal-1)' },
+            { name: 'arm B — keywords', list: armB, tone: 'var(--color-cal-2)' },
+          ].map((arm) => (
+            <div key={arm.name} className="rounded-lg border border-ui-line bg-ui-surface p-4">
+              <p
+                className="font-mono text-[0.6875rem] tracking-[0.06em] uppercase"
+                style={{ color: arm.tone }}
+              >
+                {arm.name}
+              </p>
               <ol className="mt-3 grid gap-1.5">
-                {arm.list.map((odi, i) => (
-                  <li key={odi} className="flex items-baseline gap-3 font-mono text-[0.8125rem]">
+                {arm.list.map((id, i) => (
+                  <li key={id} className="flex items-baseline gap-3 font-mono text-[0.8125rem]">
                     <span className="text-ui-faint">{i + 1}.</span>
-                    <span className={odi === SPINE ? 'text-ui-fg' : 'text-ui-dim'}>ODI {odi}</span>
-                    {odi === SPINE && (
-                      <span className="text-[0.625rem] text-ui-faint">← the one we are following</span>
+                    <span className={id === '20V197000' ? 'text-ui-fg' : 'text-ui-dim'}>{id}</span>
+                    {id === '20V197000' && (
+                      <span className="text-[0.625rem] text-ui-faint">← the campaign asked for</span>
                     )}
                   </li>
                 ))}
@@ -612,19 +652,8 @@ function Retrieve() {
       </Figure>
 
       <Because>
-        Arm A is good at “gearbox shows the wrong gear” matching “display
-        indicates I am in the wrong gear” with no shared words. Arm B is good at
-        exactly what arm A is worst at — and this corpus is made of it:{' '}
-        <Mono>20V197000</Mono>, <Mono>{SPINE}</Mono>, <Mono>P0219A</Mono>,{' '}
-        <Mono>PRNDL</Mono>. Ask a vector index for a campaign number and it
-        returns things that <em>look like</em> campaign numbers. The keyword arm
-        returns that campaign.
-      </Because>
-
-      <Because>
-        Which leaves two ranked lists that disagree about first place. That is
-        not a failure of either arm; it is the normal case, and it is what the
-        next stage is for.
+        Two lists that share no entries at all. That is not a failure of either
+        arm — it is what the next stage exists to resolve.
       </Because>
     </Stage>
   );
@@ -633,17 +662,28 @@ function Retrieve() {
 /**
  * The hero figure.
  *
- * EVERY NUMBER IN IT IS COMPUTED BY `rrf()` FROM THE RANKS BESIDE IT. The whole
- * argument rests on a 0.8% margin, so a typed total that drifted from the
- * formula printed next to it would be the worst possible error on this page:
- * invisible, and in the one place a careful reader checks.
+ * EVERY NUMBER IN IT IS COMPUTED BY `rrf()` FROM THE RANKS BESIDE IT, so the
+ * table cannot drift from the formula printed above it and a reader who checks
+ * the arithmetic finds it right.
+ *
+ * THE RESULTS ARE THE REAL ONES. `search.ts` was run against the loaded index
+ * for "recall 20V197000"; these six are what came back, with their arms and
+ * their ranks. The scores below are normalised to the top hit, which is how the
+ * tool prints them — the raw sums are `1/(60+rank)` per arm, added.
  */
 function Fuse() {
   const rows = [
-    { odi: SPINE, a: 1, b: 2 },
-    { odi: '11298441', a: 3, b: 1 },
-  ].map((r) => ({ ...r, total: rrf(r.a, r.b) }));
-  const winner = rows.reduce((best, r) => (r.total > best.total ? r : best));
+    { id: '11416775', a: 1, b: null, what: '2020 Lincoln Corsair' },
+    { id: '11592935', a: null, b: 1, what: '2020 Ford Ranger' },
+    { id: '19V620000', a: 2, b: null, what: 'a campaign' },
+    { id: '20V197000', a: null, b: 2, what: 'the campaign asked for' },
+    { id: '20V425000', a: 3, b: null, what: 'a campaign' },
+    { id: '11624180', a: null, b: 3, what: 'a complaint' },
+  ].map((r) => ({
+    ...r,
+    total: rrf(...([r.a, r.b].filter((n): n is number => n !== null))),
+  }));
+  const top = Math.max(...rows.map((r) => r.total));
 
   return (
     <Stage
@@ -652,39 +692,53 @@ function Fuse() {
       when="every question"
       plain="Arm A gives a similarity like 0.80. Arm B gives a keyword relevance like 0.41. They are different units, and adding them is like adding a temperature to a price. So the scores are thrown away and the positions are used instead."
     >
-      <Figure caption={`reciprocal rank fusion · 1 / (${K} + rank), summed`} from="worked">
+      <Figure caption={`reciprocal rank fusion · 1 / (${K} + rank), summed across the arms`}>
+        <Raw>{`score = 1/(${K} + rank in arm A) + 1/(${K} + rank in arm B)`}</Raw>
+      </Figure>
+
+      <Because>
+        The {K} is a convention from the original paper and its job is to stop
+        the top slot dominating.{' '}
+        <span className="text-ui-fg">
+          A passage both arms like beats one that either arm loves
+        </span>{' '}
+        — which is the right instinct, made arithmetic.
+      </Because>
+
+      <Figure
+        caption="what came back for “recall 20V197000”"
+        source="pnpm safety:search · 6 of 48 fused"
+      >
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[34rem] border-collapse font-mono text-[0.8125rem]">
+          <table className="w-full min-w-[38rem] border-collapse font-mono text-[0.8125rem]">
             <thead>
               <tr className="text-[0.625rem] tracking-[0.08em] text-ui-faint uppercase">
                 <th className="pb-2 text-left font-normal">passage</th>
-                <th className="pb-2 text-right font-normal">arm A</th>
-                <th className="pb-2 text-right font-normal">arm B</th>
-                <th className="pb-2 text-right font-normal">total</th>
-                <th className="pb-2 text-left font-normal" />
+                <th className="pb-2 text-right font-normal">meaning</th>
+                <th className="pb-2 text-right font-normal">keywords</th>
+                <th className="pb-2 text-right font-normal">score</th>
+                <th className="pb-2 pl-5 text-left font-normal" />
               </tr>
             </thead>
             <tbody>
               {rows.map((r) => {
-                const won = r.odi === winner.odi;
+                const asked = r.id === '20V197000';
                 return (
-                  <tr key={r.odi} className="border-t border-ui-line">
-                    <td className={`py-2.5 ${won ? 'text-ui-fg' : 'text-ui-dim'}`}>ODI {r.odi}</td>
+                  <tr key={r.id} className="border-t border-ui-line">
+                    <td className={`py-2.5 ${asked ? 'text-ui-fg' : 'text-ui-dim'}`}>{r.id}</td>
                     <td className="py-2.5 text-right text-ui-dim">
-                      rank {r.a} <span className="text-ui-faint">→ {(1 / (K + r.a)).toFixed(5)}</span>
+                      {r.a === null ? <span className="text-ui-faint">·</span> : r.a}
                     </td>
                     <td className="py-2.5 text-right text-ui-dim">
-                      rank {r.b} <span className="text-ui-faint">→ {(1 / (K + r.b)).toFixed(5)}</span>
+                      {r.b === null ? <span className="text-ui-faint">·</span> : r.b}
                     </td>
                     <td
                       className="py-2.5 text-right"
-                      style={{ color: won ? 'var(--color-cal-1)' : 'var(--color-ui-dim)' }}
+                      style={{ color: asked ? 'var(--color-cal-2)' : 'var(--color-ui-dim)' }}
                     >
-                      {r.total.toFixed(5)}
+                      {(r.total / top).toFixed(4)}
                     </td>
-                    <td className="py-2.5 pl-4 text-[0.6875rem] text-ui-faint">
-                      {won ? 'wins' : ''}
-                    </td>
+                    <td className="py-2.5 pl-5 text-[0.6875rem] text-ui-faint">{r.what}</td>
                   </tr>
                 );
               })}
@@ -694,15 +748,35 @@ function Fuse() {
       </Figure>
 
       <Because>
-        <Mono>{SPINE}</Mono> never ranks first in the keyword arm and still wins,
-        by {(rows[0].total - rows[1].total).toFixed(5)}. That is the right
-        instinct made arithmetic:{' '}
         <span className="text-ui-fg">
-          a passage both arms like beats one that either arm loves
+          Every one of the six was found by one arm only.
+        </span>{' '}
+        The dots are not missing data — they are an arm that did not return that
+        passage at all. So the scores pair off exactly, and fusion, whose whole
+        mechanism is rewarding agreement, has nothing to agree about: it
+        interleaves the two lists rather than reordering them.
+      </Because>
+
+      <Because>
+        And <Mono>20V197000</Mono>, the literal campaign number in the question,
+        comes back fourth of six. It is not first in its own arm either — keyword
+        rank 1 went to a complaint reading{' '}
+        <Mono>“ford is recalling certain 2020 ranger and f-15…”</Mono>, because{' '}
+        <Mono>to_tsquery('english')</Mono> matches the common word{' '}
+        <em>recall</em> across thousands of documents.
+      </Because>
+
+      <Because>
+        On the queries run so far, that is the pattern — and if it holds across
+        the eval set, fusion cannot promote what neither arm ranked highly. One
+        query is a smoke test and not a scorecard, so stage 3.7 is what settles
+        it.{' '}
+        <span className="text-ui-fg">
+          The same fuser fails the opposite way on the sibling engagement
         </span>
-        . The {K} is a convention from the original paper, and its job is to stop
-        the top slot dominating — without it the keyword arm's first place would
-        simply win.
+        : there the arms mostly agree, so a single-arm hit gets buried by
+        corroborated ones — two of its eight cases. Same code, two corpora,
+        opposite failure modes, and the argument for a reranker in both.
       </Because>
     </Stage>
   );
@@ -714,29 +788,44 @@ function Measure() {
       n="3.7"
       verb="MEASURE — did we find what we already knew?"
       when="every question"
-      plain="The answers were written by hand first, before any of this existed. So the only question worth asking at this stage is whether the passage we already know is right comes back in the top six."
+      plain="The answers were written by hand first, before any of this existed. So the only question worth asking at this stage is whether the document we already know is right comes back in the top six."
     >
       <Figure
         caption="recall@6"
         from="pending"
         source="docs/safety/WALKTHROUGH.md — the answer key"
       >
-        <Raw>{`recall@6  =  how many known-right passages were in the top 6
+        <Raw>{`recall@6  =  how many known-right DOCUMENTS were in the top 6
              ─────────────────────────────────────────────────
-             how many known-right passages there are
+             how many known-right documents there are
 
 REC-001   "is the F-150 park problem fixed?"
           is ODI 11353867 in the top 6?`}</Raw>
       </Figure>
 
-      <Figure caption="the bar to clear" from="target" source="Vantis Steering, docs/steering/evals/RETRIEVAL.md">
+      <Because>
+        <span className="text-ui-fg">Documents, not passages</span>, and the
+        distinction decides the number. The answer key names things a person can
+        look up — <Mono>ODI {SPINE}</Mono>, campaign <Mono>20V197000</Mono> —
+        while the index holds passages, and one investigation can be{' '}
+        <Mono>RQ24011#0</Mono> and <Mono>RQ24011#1</Mono>. Hits are deduplicated
+        by document before anything is counted, or the same finding scores twice
+        and the measurement rewards the chunker for splitting.
+      </Because>
+
+      <Figure caption="a number from elsewhere" from="target" source="Vantis Steering, docs/steering/evals/RETRIEVAL.md">
         <div className="flex flex-wrap items-baseline gap-x-8 gap-y-3">
-          <span className="font-mono text-2xl text-ui-fg">0.813</span>
-          <span className="max-w-[46ch] text-[0.8125rem] leading-relaxed text-ui-dim">
-            measured on the sibling engagement, on a corpus somebody here wrote.
-            It is <span className="text-ui-fg">not a Calder result</span> — there
-            is no Calder result, because stage 3.1 has not run. It is the number
-            this pipeline has to reach on data nobody wrote for us.
+          <span className="font-mono text-2xl text-ui-dim">0.813</span>
+          <span className="max-w-[48ch] text-[0.8125rem] leading-relaxed text-ui-dim">
+            measured on the sibling engagement, on a corpus somebody here wrote,
+            counted over its own units.{' '}
+            <span className="text-ui-fg">
+              It will not be printed beside Calder's number
+            </span>{' '}
+            when there is one — a different corpus with a different denominator,
+            set next to ours, would measure the counting rule rather than the
+            retrieval. It is here as context for what this kind of number looks
+            like, and for nothing else.
           </span>
         </div>
       </Figure>

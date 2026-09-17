@@ -69,7 +69,7 @@ const PASSAGES = 73442;
 const DIMS = 384;
 
 /** Sections, in the order the panel reads. The key is what a pressed row jumps to. */
-const KEYS = ['what', 'finding', 'shared', 'died', 'costs', 'checks'] as const;
+const KEYS = ['what', 'finding', 'shared', 'costs', 'checks'] as const;
 type Key = (typeof KEYS)[number];
 
 export function EmbedModal() {
@@ -202,7 +202,6 @@ function EmbedPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
               ['what', 'what an embedding is'],
               ['finding', 'why sorting wins'],
               ['shared', 'where the fix belongs'],
-              ['died', 'two ways it died'],
               ['costs', 'what it costs'],
               ['checks', 'the checks'],
             ] as const
@@ -314,73 +313,6 @@ function EmbedPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
           </P>
         </Sect>
 
-        <Sect k="died" title="Two ways this died — one before starting, one after finishing" refs={sections} active={active}>
-          <Data
-            path="the first attempt — all passages handed over in one call"
-            mark={[1]}
-            lines={[
-              'the library does not batch internally: it built one tensor for the lot',
-              'Failed to allocate memory for requested buffer of size 35571892224',
-            ]}
-          />
-          <P>
-            Insurance's 555 chunks fit. Steering's 2,827 did not. The failure is
-            not gradual — fine, fine, fine, then a hard allocation error — and it
-            landed <em>after</em> the ingest had already emptied the table, so a
-            crash took the index with it.
-          </P>
-          <Aside>
-            Fixed by batching at 64. The sorting above is the second act of the
-            same story:{' '}
-            <span className="text-ui-fg">
-              batch size stops it dying, batch composition decides how long it
-              takes.
-            </span>
-          </Aside>
-
-          <P>
-            <span className="text-ui-fg">
-              And then it died at the other end, which cost more.
-            </span>{' '}
-            The next attempt computed every vector and then threw them all away.
-          </P>
-          <Data
-            path="the second attempt — 37.9 minutes of finished work"
-            mark={[1]}
-            lines={[
-              `${PASSAGES.toLocaleString('en-GB')} vectors of ${DIMS} dimensions in 37.9 min`,
-              'RangeError: Invalid string length',
-            ]}
-          />
-          <P>
-            <Mono>JSON.stringify</Mono> over every record builds{' '}
-            <span className="text-ui-fg">one string</span>, and V8 caps a string
-            at 512 MB. A record is 9,101 characters, so the whole file is 637 MB
-            — because a float serialises as{' '}
-            <Mono>0.019854292273521423</Mono>, twenty characters of double
-            precision out of a model that computed a float32.
-          </P>
-          <Aside>
-            The estimate beforehand said 346 MB and{' '}
-            <span className="text-ui-fg">would have passed review</span>, because
-            it assumed a short float. Nothing about the arithmetic was careless;
-            the wrong number went into it, and it was wrong by less than a factor
-            of two — which is exactly the size of error a plausibility check does
-            not catch.
-          </Aside>
-          <Aside>
-            The fix is NDJSON, flushed every 4,000 records and resumable from
-            whatever is on disk — and the format is the smaller half of it. The
-            work had completed and the <em>write</em> destroyed it, which is the
-            same shape as the ingest emptying the table before it embeds.{' '}
-            <span className="text-ui-fg">
-              Write expensive work down as you produce it.
-            </span>{' '}
-            Thirty-eight minutes of finished vectors should never be one
-            unhandled call away from nothing.
-          </Aside>
-        </Sect>
-
         <Sect k="costs" title="What it costs, and why it runs here" refs={sections} active={active}>
           <Data
             path="the whole bill"
@@ -423,12 +355,10 @@ function EmbedPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             ]}
           />
           <Aside>
-            The marked one is the important one, and it is the check that exists
-            because of the optimisation above it. A vector attached to the wrong
-            passage does not error, does not look wrong, and makes retrieval
-            merely <em>seem</em> poor — which is the most expensive kind of bug
-            available in this layer, because the obvious response to it is to go
-            and change the chunker.
+            The marked one exists because of the optimisation above it. A vector
+            attached to the wrong passage does not error and does not look wrong
+            — it makes retrieval merely <em>seem</em> poor, and the obvious
+            response to that is to go and change the chunker.
           </Aside>
         </Sect>
       </div>

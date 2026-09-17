@@ -252,19 +252,19 @@ function ParserPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
           active={active}
         >
           <P>
-            <span className="text-ui-fg">This is the decision that already cost a day.</span>{' '}
-            A CSV reader with quote handling on merges records at an unbalanced{' '}
-            <Mono>"</Mono> — and 708 lines contain an odd number of them, because
-            people write <Mono>THE "SERVICE ENGINE" LIGHT CAME ON</Mono>. It
-            turned {ROWS.complaints.toLocaleString('en-GB')} rows into 100,928
-            and a 2,048-character narrative into one of 18,257, and both were
-            written into a document as properties of the data before anybody
-            checked them against the file.
+            NHTSA's file characteristics say <em>“TAB delimited”</em> and name no
+            quote character, so the rule is: split on tab, and treat{' '}
+            <Mono>"</Mono> as an ordinary letter.
           </P>
           <P>
-            NHTSA's file characteristics say <em>“TAB delimited”</em> and name no
-            quote character. So: split on tab, and treat <Mono>"</Mono> as an
-            ordinary letter.
+            <span className="text-ui-fg">
+              A CSV reader with quote handling on would not do that.
+            </span>{' '}
+            708 of the {ROWS.complaints.toLocaleString('en-GB')} lines carry an
+            odd number of double quotes, because people write{' '}
+            <Mono>THE "SERVICE ENGINE" LIGHT CAME ON</Mono>. At an unbalanced
+            quote such a reader keeps consuming — newlines included — and merges
+            records that the file keeps separate.
           </P>
           <Code
             path="apps/ai/safety/src/parse.ts — the split"
@@ -283,9 +283,9 @@ function ParserPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
           <P>
             The column numbers are transcribed from the data dictionary, which is{' '}
             <span className="text-ui-fg">1-indexed while JavaScript is 0-indexed</span>
-            , so every constant is the dictionary's minus one. That off-by-one is
-            the most likely bug in the file and it would not error — narratives
-            would simply start arriving in <Mono>MILES</Mono>.
+            , so every constant is the dictionary's minus one — and an
+            off-by-one there would not error. Narratives would simply start
+            arriving in <Mono>MILES</Mono>.
           </P>
         </Sect>
 
@@ -426,18 +426,16 @@ function ParserPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
           <Aside>
             The marked line is the one that matters: it compares the parser's
             count against <Mono>awk</Mono> over the raw file — a different tool,
-            with no parser in the path. A parser confirming its own output proves
-            nothing, which is exactly how the quoting bug survived long enough to
-            be written down as a property of the data.
+            with no parser in the path.{' '}
+            <span className="text-ui-fg">
+              A parser confirming its own output proves nothing.
+            </span>
           </Aside>
           <P>
-            This block used to be badged{' '}
-            <span className="text-ui-fg">“what stage 3.1 will print — not a run”</span>
-            , because it had not. It has now, and the three counts came back
-            equal to the ones the estate page had already measured from the same
-            files by a different route. That agreement is the point: two programs
-            that never saw each other reached the same{' '}
-            {UNITS.complaints.toLocaleString('en-GB')}.
+            The three counts came back equal to the ones the estate page had
+            already measured from the same files by a different route. That
+            agreement is the point: two programs that never saw each other
+            reached the same {UNITS.complaints.toLocaleString('en-GB')}.
           </P>
         </Sect>
 

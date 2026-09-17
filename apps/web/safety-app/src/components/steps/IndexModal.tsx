@@ -48,6 +48,25 @@ const STORAGE = {
   actualMb: 295,
 } as const;
 
+/**
+ * THREE SIZES, AND ONLY ONE OF THEM IS THE BILL.
+ *
+ * `pg_total_relation_size` is the table and its indexes. `pg_database_size` is
+ * what Postgres reports for the database. `pg_cluster_size` is what NEON
+ * BILLS, and it is the largest of the three — so a quota read off either of the
+ * first two leaves you thinking there is more headroom than there is.
+ *
+ * It needs `create extension neon`, which is why nobody reads it by default and
+ * why the number on this page was 295 for a while.
+ */
+const SIZES = [
+  { fn: "pg_total_relation_size('document_chunks')", mb: 287, is: 'table + indexes' },
+  { fn: 'pg_database_size(current_database())', mb: 296, is: 'what Postgres reports' },
+  { fn: 'pg_cluster_size()', mb: 319, is: 'WHAT NEON BILLS — the quota' },
+] as const;
+
+const BILLED_MB = 319;
+
 /** The real table, broken down. `heap 112 MB · indexes 20 MB` of a 287 MB total. */
 const BREAKDOWN = [
   { what: 'vector', mb: 108, note: '384 × 4 bytes = 1,536/row, exactly as expected' },
@@ -237,12 +256,11 @@ function IndexPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
 
         <Sect k="stream" title="Streamed in, because 641 MB will not fit in a string" refs={sections} active={active}>
           <P>
-            Stage 3.3 learned this at the cost of 37.9 minutes:{' '}
-            <Mono>JSON.stringify</Mono> over the corpus builds a 637 MB string
-            against V8's 512 MB limit.{' '}
-            <span className="text-ui-fg">Reading has the same shape.</span>{' '}
-            <Mono>JSON.parse(readFileSync(…))</Mono> on a{' '}
-            {MB_ON_DISK} MB file builds that string on the way in.
+            <Mono>JSON.parse(readFileSync(…))</Mono> on a {MB_ON_DISK} MB file
+            builds the whole thing as one string on the way in, and{' '}
+            <span className="text-ui-fg">V8 caps a string at 512 MB</span>. The
+            same ceiling applies writing it, which is why stage 3.3 emits NDJSON
+            in the first place.
           </P>
           <Code
             path="line by line, in batches"
@@ -255,9 +273,9 @@ function IndexPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             ]}
           />
           <Aside>
-            The format chosen after the last failure is what makes this one
-            possible. NDJSON is not tidier than JSON — it is a file you can read
-            a piece at a time, in both directions.
+            NDJSON is not tidier than JSON — it is a file you can read a piece
+            at a time, in both directions. That is the whole reason stage 3.3
+            writes it and this one can read it.
           </Aside>
         </Sect>
 
@@ -273,15 +291,31 @@ function IndexPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
           <Data
             path="storage — predicted, then measured"
             note="the prediction was 2.1x out"
-            mark={[4]}
+            mark={[3]}
             lines={[
               `                       predicted        actual`,
               `per row            ${String(STORAGE.predictedBytesPerRow).padStart(6)} bytes   ~${String(STORAGE.actualBytesPerRow).padStart(5)} bytes`,
-              `total              ${String(STORAGE.predictedMb).padStart(6)} MB      ${String(STORAGE.actualMb).padStart(6)} MB`,
-              `% of the free tier ${String(Math.round((STORAGE.predictedMb / NEON_FREE_MB) * 100)).padStart(6)}%       ${String(Math.round((STORAGE.actualMb / NEON_FREE_MB) * 100)).padStart(6)}%`,
-              `                                    ← more than half of it, now`,
+              `table + indexes    ${String(STORAGE.predictedMb).padStart(6)} MB      ${String(STORAGE.actualMb).padStart(6)} MB`,
+              `what Neon bills                     ${String(BILLED_MB).padStart(6)} MB   → ${Math.round((BILLED_MB / NEON_FREE_MB) * 100)}% of the free tier`,
             ]}
           />
+          <P>
+            And <span className="text-ui-fg">three numbers describe this table</span>,
+            of which only the last is the bill.
+          </P>
+          <Data
+            path="ask the right function"
+            note="pg_cluster_size needs `create extension neon`"
+            mark={[2]}
+            lines={SIZES.map((x) => `${x.fn.padEnd(44)}${String(x.mb).padStart(4)} MB   ${x.is}`)}
+          />
+          <Aside>
+            A quota read off either of the first two leaves you believing in
+            headroom that is not there — 216 MB rather than the real{' '}
+            {NEON_FREE_MB - BILLED_MB} MB. The one that bills is the one nobody
+            reads by default, because it needs an extension installed before it
+            answers at all.
+          </Aside>
           <P>
             The prediction came from the sibling engagement's 2,002 bytes a row,
             and{' '}
@@ -331,21 +365,34 @@ function IndexPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             looks exactly like a complete one: die at row 40,000 and the table
             has 40,000 rows and no error anywhere.
           </P>
+          <Aside>
+            A third arrived with the reload.{' '}
+            <span className="text-ui-fg">
+              <Mono>DELETE</Mono> does not return the space
+            </span>{' '}
+            — it marks 73,442 rows dead and autovacuum decides when, so a reload
+            would want a second 287 MB against a 512 MB ceiling. It is{' '}
+            <Mono>TRUNCATE</Mono> now, and the loader reads{' '}
+            <Mono>pg_cluster_size()</Mono> afterwards and{' '}
+            <em>refuses to start</em> if the space has not come back. A load that
+            runs out of room halfway looks exactly like a dropped connection.
+          </Aside>
         </Sect>
 
         <Sect k="checks" title="The checks, and the one with history" refs={sections} active={active}>
           <Code
-            path="pnpm safety:index — all four green"
+            path="pnpm safety:index — all five green"
             lang="text"
-            mark={[2, 5]}
-            note="it has run — 1.1 minutes, 147 batches"
+            note="it has run — 147 batches, 1.2 min"
+            mark={[2, 6]}
             lines={[
-              `${PASSAGES.toLocaleString('en-GB')} rows in document_chunks, in 1.1 min`,
+              `${PASSAGES.toLocaleString('en-GB')} rows in document_chunks, in 1.2 min`,
               '',
               'ok  the row count matches the file, counted with wc -l and not by the loader',
               'ok  ODI 11353867 is in the table, 615 characters intact',
               'ok  content_ts is populated on every row',
               'ok  one dimension group: 384. Not two.',
+              'ok  73,442 present, 73,442 distinct chunkIds, of 73,442 rows',
             ]}
           />
           <Aside>
@@ -364,6 +411,12 @@ function IndexPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             <span className="text-ui-fg">
               A loader confirming its own row count proves nothing.
             </span>
+          </Aside>
+          <Aside>
+            The fifth is newer than the rest and exists because of what stage 3.6
+            found: it asks <span className="text-ui-fg">Postgres, in SQL</span>,
+            whether every row carries a distinct <Mono>chunkId</Mono>. The loader
+            writes that field and is not consulted about whether it did.
           </Aside>
         </Sect>
       </div>
