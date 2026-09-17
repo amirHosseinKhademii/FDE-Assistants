@@ -29,7 +29,8 @@
     "tools": "ts-node src/cli/tools.ts",
     "ask": "ts-node src/cli/ask.ts",
     "round-trip": "ts-node src/cli/round-trip.ts",
-    "run-all": "ts-node src/cli/run-all.ts"
+    "run-all": "ts-node src/cli/run-all.ts",
+    "eval": "ts-node src/cli/eval.ts"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
