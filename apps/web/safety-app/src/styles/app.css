@@ -413,3 +413,225 @@ body {
     padding: 2.5rem 2rem 2.75rem;
   }
 }
+
+/* ── THE FIVE TOOLS ─────────────────────────────────────────────────────────
+   The first version put the signature, the rule and the provenance badge on one
+   flex row, and at five tools with names like `search_complaints({ ...filters,
+   query })` that row wrapped differently on every card — so the list read as
+   five boxes of text rather than as five things of the same kind.
+
+   EACH ONE IS NUMBERED, in the same language as the tabs above. 4.1 through
+   4.4b is how the build order refers to them and how the step table below lists
+   them; using it here means a reader can match a card to a step without
+   counting. The numeral also gives the header a fixed left edge, which is what
+   the wrapping was destroying.
+
+   THE STATUS IS ONE BADGE, TOP RIGHT, and it says one of three things: built,
+   from the plan, or from the measurement. Three states on a single axis rather
+   than a rule chip and a provenance chip competing for the same line.
+   ────────────────────────────────────────────────────────────────────────── */
+.cal-tool {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: 0 1rem;
+  padding: 1.25rem 1.25rem 1.375rem;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.75rem;
+  background: color-mix(in oklab, var(--color-cal-1) 3%, var(--color-ui-bg));
+}
+
+/* Built carries the engagement's colour down its left edge — the same signal
+   the tab cards use, so "this one exists" reads the same everywhere. */
+.cal-tool[data-built='true'] {
+  border-color: color-mix(in oklab, var(--color-cal-1) 32%, var(--color-ui-line));
+  background: color-mix(in oklab, var(--color-cal-1) 6%, var(--color-ui-surface));
+}
+
+.cal-tool-n {
+  grid-row: 1 / span 2;
+  display: flex;
+  height: 1.75rem;
+  width: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in oklab, var(--color-ui-line) 80%, transparent);
+  border-radius: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--color-ui-faint);
+}
+
+.cal-tool[data-built='true'] .cal-tool-n {
+  border-color: transparent;
+  background: color-mix(in oklab, var(--color-cal-1) 22%, transparent);
+  color: var(--color-ui-fg);
+}
+
+.cal-tool-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.875rem;
+}
+
+.cal-tool-sig {
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  color: var(--color-ui-fg);
+}
+
+.cal-tool-badge {
+  margin-inline-start: auto;
+  flex: none;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 999px;
+  padding: 0.0625rem 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ui-faint);
+}
+
+.cal-tool-badge[data-kind='built'] {
+  border-color: color-mix(in oklab, var(--color-cal-1) 45%, transparent);
+  color: var(--color-cal-1);
+}
+
+.cal-tool-badge[data-kind='measured'] {
+  border-color: color-mix(in oklab, var(--color-cal-2) 40%, transparent);
+  color: var(--color-cal-2);
+}
+
+/* The rule sits under the signature rather than beside it — it is a property of
+   the tool, not a second name for it. */
+.cal-tool-rule {
+  grid-column: 2;
+  margin-top: 0.125rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-cal-2);
+}
+
+.cal-tool-body {
+  grid-column: 2;
+  margin-top: 0.875rem;
+  display: grid;
+  gap: 0.875rem;
+}
+
+/* ── A LONG TAB NEEDS A SPINE ───────────────────────────────────────────────
+   Stage 4's panel is the longest thing on this site: five tools, a contract,
+   six rules, eight build steps and two arguments. As one column of headings and
+   paragraphs it read as uniform density — nothing to land on, nothing to skip
+   to, and no way to tell an argument from a figure from a caveat.
+
+   SO IT HAS NUMBERED CHAPTERS, in the same language as the tabs and the tools.
+   A rule, a numeral, a heading, and a one-line summary under it: the summary is
+   the part that makes the numeral worth having, because it lets a reader decide
+   whether to read the chapter without reading it.
+   ────────────────────────────────────────────────────────────────────────── */
+.cal-chapter {
+  margin-top: 3.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-ui-line);
+}
+
+.cal-chapter-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.875rem;
+}
+
+.cal-chapter-n {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  color: color-mix(in oklab, var(--color-cal-1) 70%, var(--color-ui-faint));
+}
+
+.cal-chapter-title {
+  font-family: var(--font-mono);
+  font-size: 1.0625rem;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--color-ui-fg);
+}
+
+.cal-chapter-sub {
+  margin-top: 0.5rem;
+  margin-inline-start: 2.375rem;
+  max-width: 60ch;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--color-ui-faint);
+}
+
+.cal-chapter-body {
+  margin-top: 1.5rem;
+  margin-inline-start: 2.375rem;
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (max-width: 44rem) {
+  .cal-chapter-sub,
+  .cal-chapter-body {
+    margin-inline-start: 0;
+  }
+}
+
+/* ── THREE KINDS OF CALLOUT, AND THEY LOOK DIFFERENT ────────────────────────
+   Everything used to be a cal-2 left border, so a conclusion, a reason and an
+   unresolved question were drawn identically. They are not the same thing to a
+   reader deciding what to trust.
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* THE POINT. One per chapter at most — lit, filled, and the only thing on the
+   page allowed to shout. */
+.cal-key {
+  border: 1px solid color-mix(in oklab, var(--color-cal-1) 38%, var(--color-ui-line));
+  border-radius: 0.625rem;
+  background: color-mix(in oklab, var(--color-cal-1) 9%, var(--color-ui-surface));
+  padding: 1rem 1.125rem;
+  max-width: 62ch;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--color-ui-fg);
+}
+
+/* WHY. A reason attached to something above it — a rule in the margin, no fill,
+   because it is support rather than a claim of its own. */
+.cal-why {
+  border-inline-start: 2px solid color-mix(in oklab, var(--color-cal-2) 55%, transparent);
+  padding: 0.125rem 0 0.125rem 1rem;
+  max-width: 64ch;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim);
+}
+
+/* STILL OPEN, or decided-and-worth-flagging. Dashed, so an unresolved thing
+   never looks like a settled one. */
+.cal-open {
+  border: 1px dashed color-mix(in oklab, var(--color-cal-2) 45%, var(--color-ui-line));
+  border-radius: 0.625rem;
+  background: transparent;
+  padding: 0.875rem 1.125rem;
+  max-width: 64ch;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim);
+}
+
+/* A figure that is not code: a table, a list of rules, a set of steps. It gets
+   a surface so the eye can tell it from prose at a glance. */
+.cal-panel {
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.625rem;
+  background: color-mix(in oklab, var(--color-cal-1) 3%, var(--color-ui-bg));
+  padding: 1.125rem 1.25rem;
+}
