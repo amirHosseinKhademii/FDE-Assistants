@@ -31,18 +31,45 @@ corpus is to decide **where not to**.
                    73,334      73,442      +108 passages, from 114 documents
 ```
 
-**0.3% of the corpus is affected.**
+**114 of 73,334 documents — 0.16%. 99.84% passes through untouched.**
 
 ---
 
+## Two ways to measure length, and each alone misleads
+
+**Both tables are true and they leave opposite impressions**, which is why both
+belong here. Printing only the second is how an earlier draft of `INGESTION.md`
+came to claim recalls run to "thousands of characters".
+
+```
+                          over the 1,200-char default
+  complaints                8,121 of 70,194   (11.6%)
+  recalls                      138 of  3,026    (4.6%)
+  investigations               108 of    114   (94.7%)
+```
+
+```
+  what the CHUNKER sees        mean   longest     (document text)
+  complaints                    662     2,207
+  recalls                       877     1,809   <- shorter than the longest complaint
+  investigations              2,701     6,046
+
+  what the SOURCE FIELD holds  mean   longest     (before stage 3.1)
+  complaints                    596     2,048   <- exactly CHAR(2048)
+  recalls                       696     1,608
+  investigations              2,505     5,796
+```
+
+**The chunker sees the upper numbers, not the lower ones.** Stage 3.1 prepends a
+header — `2020 FORD F-150 | POWER TRAIN | filed 2020-09-08` — and labels the
+recall blocks `DEFECT:` / `CONSEQUENCE:` / `REMEDY:`. That adds ~66 characters to
+a complaint and ~180 to a recall, and it is part of what gets embedded, so it is
+part of what has to fit.
+
+Quoting the source-field figure when reasoning about chunk budgets is off by the
+size of the very thing stage 3.1 added to make retrieval work.
+
 ## Why complaints are not cut — and it is not because they are short
-
-The obvious reason is wrong, and worth being precise about:
-
-```
-complaints over the 1,200-character default:   8,121 of 70,194  (11.6%)
-recalls over it:                                  138 of  3,026
-```
 
 **One complaint in nine is long enough to cut.** We decline anyway.
 
