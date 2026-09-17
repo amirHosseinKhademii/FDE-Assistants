@@ -16,10 +16,11 @@ is an open question which.
 
 Settled 2026-09-17, from `CORPUS.md` §7:
 
-1. **One complaint is one passage.** They average 709 characters; chopping one
+1. **One complaint is one passage.** They average 596 characters; chopping one
    separates *"the door failed to latch"* from *"while my daughter was getting
-   out"*. Recalls and investigations are long and do get chunked.
-2. **Collapse repeated `ODINO`.** 100,980 rows are **70,194 complaints** — 31%
+   out"*. **Recall campaigns average 696 characters and are one passage too** —
+   only the 114 investigations (mean 2,504) are chunked.
+2. **Collapse repeated `ODINO`.** 100,928 records are **70,155 complaints** — 31%
    repeat because NHTSA writes one row per component. ODI `11341276` appears
    five times with the same narrative. Components become metadata on one passage.
 3. **A recall is a campaign, not a row.** 44,791 rows are **3,026 campaigns**.
@@ -95,7 +96,9 @@ cable locking clip. Notified 2020-04-27. Initiated by the **manufacturer**.
 `INFLUENCED_BY` = **`ODI`** — NHTSA's Office of Defects Investigation, not the
 manufacturer.
 
-Across the slice: **43,162 campaigns `MFR`, 1,407 `ODI`, 222 `OVSC`.**
+Across the slice, **per campaign**: **2,893 `MFR`, 107 `ODI`, 26 `OVSC`** — so
+**133 of 3,026** were not volunteered. (The row-level 43,162 / 1,407 / 222 counts
+each campaign once per vehicle it covers, and is not a count of recalls.)
 
 **Checks:** cites the campaign · states ODI-initiated · `does_not_escalate` —
 this is a fact in a structured field, not a judgement. **A system that hedges

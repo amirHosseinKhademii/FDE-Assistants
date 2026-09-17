@@ -18,11 +18,16 @@ Chosen over 2022+2023 for one reason: these vehicles have had six years for
 recalls to be issued **and for remedies to be tested**, which is the engagement's
 actual question. The proven contradiction in `PLAN.md` §4 is a 2019 model.
 
-| source | rows | distinct units | on disk |
+| source | rows | **units of meaning** | on disk |
 |---|---|---|---|
-| complaints | **100,980** | 100,980 complaints | 79 MB |
+| complaints | 100,928 records / 100,980 lines | **70,155 complaints** | 79 MB |
 | recalls | 44,791 | **3,026 campaigns** | 56 MB |
 | investigations | 1,631 | **114 investigations** | 4.3 MB |
+
+**COUNT PER UNIT, NOT PER ROW — and the two differ by 44%.** An earlier version
+of this file quoted row counts in the units column and every figure below was
+wrong in the same direction. Corrected 2026-09-17 after the `fde-assistants-73`
+session counted per campaign and got different answers.
 
 A recall campaign covers many make/model/year rows, which is why 44,791 rows are
 3,026 campaigns. **That fan-out is the first modelling decision**: the unit of
@@ -81,9 +86,10 @@ NHTSA writes down what it thought before a recall existed.
 
 | | |
 |---|---|
-| ALL-CAPS narratives | **22,787 (23%)** |
-| narratives under 40 characters | 1,528 |
+| ALL-CAPS narratives | **16,292 of 70,155 (23%)** |
+| narratives under 40 characters | **1,150** |
 | empty narratives | 0 |
+| narrative length | mean **596**, max **18,257** |
 | distinct makes | **198** |
 | distinct make\|model pairs | 988 |
 | distinct `COMPDESC` | **472** |
@@ -98,6 +104,19 @@ BLACK SERIES CAMPERS <->  BLACKSERIES CAMPERS
 And in the recall prose itself: `"American Honda Motor Co."` in one campaign,
 `"America Honda Motor Co."` in the next. Any grouping by manufacturer name
 silently splits one company into two.
+
+### The file breaks its own rules, in two ways that change counts
+
+**1 · Records span lines.** The file is tab-delimited with one record per line
+— except 8 narratives contain a newline, so **100,980 physical lines are 100,928
+records**. `wc -l` and `awk` disagree with any real parser by 52, and every
+line-based figure in an earlier draft of this file inherited that.
+
+**2 · `CDESCR` is declared `CHAR(2048)` and the longest is 18,257 characters** —
+nine times its stated size. A pipeline that trusts the dictionary and allocates
+2,048 truncates 0.01% of narratives in the middle of a sentence, silently.
+
+**Both mean the same thing for stage 3.1: parse records, never lines.**
 
 ### Three date formats, from one agency
 
@@ -128,13 +147,18 @@ is recent enough to be mostly uniform, which is luck rather than design.
 **`INFLUENCED_BY` is a conflict marker hiding in a structured field:**
 
 ```
-MFR    43,162    the manufacturer recalled voluntarily
-ODI     1,407    NHTSA's Office of Defects Investigation pushed for it
-OVSC      222    Vehicle Safety Compliance pushed for it
+per CAMPAIGN (3,026 total)          per row (44,791, MISLEADING)
+  MFR   2,893                         MFR   43,162
+  ODI     107   ← pushed by NHTSA     ODI    1,407
+  OVSC     26   ← pushed by NHTSA     OVSC     222
 ```
 
-**1,407 campaigns the manufacturer did not volunteer.** That is a documented
-disagreement between two parties, already labelled, needing no inference.
+**133 of 3,026 campaigns — 4.4% — were not volunteered by the manufacturer.**
+
+**This file first said 1,407, and that was wrong.** The campaign-level figure had
+already been computed during the survey; the row-level one was what got written
+down. A recall is a campaign, so "1,407 recalls nobody volunteered" is a sentence
+about a unit that does not exist. 107 is a smaller number and a truer one.
 
 **And the complaints-after-remedy pattern**, from `PLAN.md` §4: recall
 `20V437000` replaced the sliding-door handle cables in July 2020; **51 of 55**
@@ -150,10 +174,13 @@ document cannot settle and a person must — which is what the answer contract's
 
 | | |
 |---|---|
-| crash reported | 4,589 |
-| fire reported | 1,355 |
-| injuries reported | 2,680 |
-| **deaths reported** | **64** |
+| crash reported | **2,729** |
+| fire reported | **842** |
+| injuries reported | **1,721** |
+| **complaints reporting a death** | **41**, accounting for **53 people** |
+
+*(Per complaint. The row-level figures — 4,589 / 1,355 / 2,680 / 64 — count the
+same event once per component named.)*
 
 Most corpora make you infer severity from prose. Here it is a field. That makes a
 measurable eval check possible — *did the answer surface the fatal ones?* — of a
@@ -189,12 +216,14 @@ Per `PLAN.md` §8, the answer key is written **before** retrieval exists.
 
 Open questions this survey raised, to be settled while writing it:
 
-1. **What is a document?** One complaint is 709 characters on average — smaller
-   than a normal chunk. Chunking is probably the wrong verb; one complaint is
-   likely one passage.
-2. **`ODINO` repeats across component rows.** Are those one complaint or
-   several? It changes every count in this file.
-3. **Is a recall campaign one document or 3,026 fan-out rows?** §1.
+1. ~~**What is a document?**~~ **SETTLED.** One complaint is **596** characters
+   on average — smaller than a chunk. One complaint, one passage. And measured
+   since: a recall campaign averages **696**, so it is one passage too. Only the
+   114 investigations (mean 2,504) need chunking at all.
+2. ~~**`ODINO` repeats across component rows.**~~ **SETTLED: one complaint.**
+   And it did change every count in this file — see §1 and §5.
+3. ~~**Is a recall campaign one document or fan-out rows?**~~ **SETTLED: one
+   campaign, one document.** §4 is what it cost to get this wrong once.
 4. **What is the exact-lookup tool keyed on?** `CAMPNO` is the obvious id. Is
    there a second — make/model/year?
 5. **How is "the remedy is not holding" expressed without asserting it?** This

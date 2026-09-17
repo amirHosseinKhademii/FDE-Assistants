@@ -144,11 +144,21 @@ roughly 500–1,000 characters. The question is how big a piece should be.
 
 ### The decision: complaints are NOT chunked
 
-| | average length | chunked? |
-|---|---|---|
-| **complaint** | **709 characters** | **no — one complaint, one passage** |
-| recall campaign | thousands | yes |
-| investigation | thousands | yes |
+**MEASURED over the whole slice, per unit of meaning** — an earlier draft
+guessed at the recalls and guessed wrong:
+
+| | mean | max | chunked? |
+|---|---|---|---|
+| **complaint** | **596** | 18,257 | **no** — one complaint, one passage |
+| **recall campaign** | **696** | 1,608 | **no** — shorter than the longest complaint |
+| investigation | **2,504** | 5,796 | **yes** — and there are only 114 of them |
+
+> **The recall line is the correction.** This document first said recalls run to
+> "thousands of characters — chunk them". Defect + consequence + remedy averages
+> **696** and never exceeds 1,608. So **only investigations need a chunker at
+> all**, and the chunker stops being the highest-leverage file in this pipeline
+> — it barely runs. Found by the `fde-assistants-73` session measuring instead of
+> trusting the prose.
 
 ### BEFORE and AFTER — why cutting hurts
 
@@ -300,7 +310,7 @@ ODI 11353867   arm A rank 1   →  1/(60+1)  = 0.01639
 
 ODI 11298441   arm A rank 3   →  1/(60+3)  = 0.01587
                arm B rank 1   →  1/(60+1)  = 0.01639
-                                  TOTAL    = 0.03226
+                                  TOTAL    = 0.03227
 ```
 
 > **Why this is the right instinct:** a passage both arms like beats one that
