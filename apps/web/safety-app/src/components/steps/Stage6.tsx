@@ -80,7 +80,7 @@ const LOOP: readonly { n: string; what: string; detail?: string }[] = [
  */
 const RUNS: readonly string[] = ['85.8s', '13.7s', '6.5s', '63.5s'];
 
-/** The six steps, three of them done. */
+/** The six steps, four of them done. */
 const STEPS: readonly { n: string; what: string; check: string; done?: boolean }[] = [
   {
     n: '6.1',
@@ -103,7 +103,8 @@ const STEPS: readonly { n: string; what: string; check: string; done?: boolean }
   {
     n: '6.4',
     what: 'the hard question',
-    check: 'two calls in order, the second filtered by a date taken from the first',
+    check: 'two calls in order, the second filtered by a date the first one returned',
+    done: true,
   },
   {
     n: '6.5',
@@ -173,7 +174,7 @@ export function Stage6() {
           Where a model is finally asked
         </h2>
         <span className="rounded-full border border-dashed border-cal-2/50 px-2.5 py-0.5 font-mono text-[0.625rem] tracking-[0.06em] text-cal-2 uppercase">
-          three steps run · three to go · no score yet
+          four steps run · two to go · no score yet
         </span>
       </div>
 
@@ -277,6 +278,31 @@ export function Stage6() {
         </p>
       </div>
 
+      <Chapter
+        n="02"
+        title="The hardest question needs one answer to build the next question"
+        sub="“After the recall” means nothing until you know when the recall was."
+      >
+        <Data
+          path="one run, five calls, and the date is not in the question"
+          mark={[2]}
+          lines={[
+            'find_recalls    F-150, 2020, power train automatic transmission',
+            'get_recall      20V197000        → owners notified 2020-04-27',
+            'count / search  filed_after: 2020-04-27',
+          ]}
+        />
+        <Key>
+          Nobody typed that date. It came out of the first call and became the
+          filter on the later ones.
+        </Key>
+        <Why>
+          This is the one thing stage 4 had to hand-write to measure the ceiling.
+          Here a model worked it out for itself, which is the whole difference
+          between the two numbers this stage is eventually going to show.
+        </Why>
+      </Chapter>
+
       {/* THE GAP. Drawn empty on purpose: the number has nowhere to arrive
           except beside the ceiling it will be compared against. */}
       <div className="cal-gap">
@@ -303,7 +329,7 @@ export function Stage6() {
       </div>
 
       <Chapter
-        n="02"
+        n="03"
         title="The same question can now give two answers"
         sub="And neither of them is a bug. That is new."
       >
@@ -329,7 +355,7 @@ export function Stage6() {
       </Chapter>
 
       <Chapter
-        n="03"
+        n="04"
         title="The order it gets built in"
         sub="One question first, not all eight."
       >
@@ -377,7 +403,7 @@ export function Stage6() {
       </Chapter>
 
       <Chapter
-        n="04"
+        n="05"
         title="The risk is picking the wrong tool"
         sub="Not the wording of the prompt."
       >
@@ -403,7 +429,7 @@ export function Stage6() {
       </Chapter>
 
       <Chapter
-        n="05"
+        n="06"
         title="Which engine talks to the model"
         sub="Three to choose from. Two of them work — and the second one only started working today."
       >
@@ -451,7 +477,7 @@ export function Stage6() {
       </Chapter>
 
       <Chapter
-        n="06"
+        n="07"
         title="Three things not decided yet"
         sub="Written down as open, so nobody later mistakes a guess for a decision."
       >
@@ -466,7 +492,7 @@ export function Stage6() {
       </Chapter>
 
       <Chapter
-        n="07"
+        n="08"
         title="What is proved so far, and what is not"
         sub="Worth saying plainly before anybody quotes a number from this stage."
       >

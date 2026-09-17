@@ -67,6 +67,17 @@ const RULES = [
     when: 'newer',
     note: 'Added once a model had to answer “there is no recall for this” and had no field to put the proof in.',
   },
+  {
+    n: 8,
+    rule: 'it escalated or declined without calling a single tool',
+    when: 'newer',
+    note: 'You cannot know this corpus does not answer a question until you have asked it something.',
+  },
+  {
+    n: 9,
+    rule: 'a number is captioned in the model’s words rather than the tool’s',
+    when: 'newer',
+  },
 ] as const;
 
 
@@ -78,7 +89,7 @@ export function Stage5() {
           What an answer is allowed to be
         </h2>
         <span className="rounded-full border border-cal-2/50 px-2.5 py-0.5 font-mono text-[0.625rem] tracking-[0.06em] text-cal-2 uppercase">
-          built · 16 checks · wired into the loop
+          built · 20 checks · wired into the loop
         </span>
       </div>
 
@@ -186,8 +197,8 @@ export function Stage5() {
 
       <Chapter
         n="02"
-        title="Seven rules for when the shape is right and the answer is wrong"
-        sub="Shape is one check. These are the other one — three carried over from the engagement before this, and four this data needed."
+        title="Nine rules for when the shape is right and the answer is wrong"
+        sub="Shape is one check. These are the other one — three carried over from the engagement before this, and six that real answers forced."
       >
         <ul className="cal-panel grid gap-3.5">
           {RULES.map((r) => (
@@ -378,7 +389,69 @@ export function Stage5() {
 
       <Chapter
         n="06"
-        title="Five of the seven were running. Two were on paper."
+        title="Two more ways to be wrong, both found by reading real answers"
+        sub="Neither could have come from a test, because both are things a model did that nobody thought to write a fixture for."
+      >
+        <P>
+          Asked the hardest question, one run called{' '}
+          <span className="text-ui-fg">no tools at all</span> and escalated,
+          saying the question was underspecified.
+        </P>
+        <Key>
+          Every rule written until then pushes against saying too much: cite your
+          sources, name the tool behind every number, never conclude a repair
+          failed. A model that answers nothing satisfies all of them perfectly.
+        </Key>
+        <Why>
+          Safe, and useless. On this corpus the person asking has vehicles that
+          may or may not have an open recall, so “please be more specific” is not
+          a neutral outcome. Rule 8: you cannot know the documents do not answer
+          a question until you have asked them something.
+        </Why>
+
+        <P className="mt-8">
+          Another run reported a number that was right, from a tool, with its
+          filter recorded — and described it as something sixty times larger.
+        </P>
+        <Data
+          path="the number was 6. the sentence beside it belonged to 351."
+          mark={[1]}
+          lines={[
+            'reported    6',
+            'captioned   "F-150 power-train complaints after the recall"',
+            'but 6 is    one sub-branch of the power train, not the whole of it',
+          ]}
+        />
+        <Key>
+          Rule 4 passed. The number did come from a tool. Rule 4 has no opinion
+          about the sentence beside it.
+        </Key>
+        <Why>
+          So the tools now write their own captions, built from the filter they
+          ran, and the model has to copy them word for word. Rule 9. It was an
+          open question whether to make the model restate its own arguments or
+          have the code attach them; a model asked to restate its arguments
+          rewords them, and now that is measured rather than assumed.
+        </Why>
+        <Data
+          path="four ways a number can be wrong"
+          mark={[0, 1]}
+          lines={[
+            'did it come from anywhere?          guarded',
+            'does its caption say what it is?    guarded',
+            'is the filter the one you meant?    not guarded',
+            'is that the question you asked?     not guarded',
+          ]}
+        />
+        <Key>
+          Where a number came from is not one property. Every link between a tool
+          running and a person reading a sentence is a place the chain can break.
+        </Key>
+      </Chapter>
+
+      <Chapter
+        n="07"
+        title="Five of the nine were running. The rest were on paper."
         sub="Written, tested, and never called — which is not the same as working."
       >
         <P>
@@ -392,9 +465,9 @@ export function Stage5() {
           rule you hope works.
         </Key>
         <Why>
-          They run now, on every answer. Sixteen checks pass. What that proves is
-          that the rules work — a model still has to be asked all eight questions
-          before any of this is a score.
+          They run now, on every answer, and twenty checks pass. What that
+          proves is that the rules work. A model still has to be asked all eight
+          questions, more than once each, before any of this is a score.
         </Why>
       </Chapter>
     </section>
