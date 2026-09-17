@@ -30,8 +30,33 @@
  * "transmission park problem", "Tesla Model 3", "a death". None of them names
  * an ODI number or a campaign the key is looking for. A plan that filtered on
  * the answer would measure nothing at all.
+ *
+ * ── AND ONLY TWO OF THE FIVE TOOLS APPEAR BELOW ───────────────────────────
+ *
+ * `find_recalls` and `search_complaints` reach 1.00 on their own. `get_recall`
+ * is absent because no question here names a campaign — REC-002 does, and it is
+ * not one of the three retrieval cases. `count_complaints` returns a number and
+ * not a document, so it cannot move a recall metric by construction.
+ *
+ * `complaints_citing` IS ABSENT FOR A REASON WORTH WRITING DOWN, because it
+ * looks like an oversight and is not.
+ *
+ * REC-001 asks whether the fix is holding, and the seven complaints naming
+ * 20V197000 are the best evidence in the corpus for that question — the people
+ * filing them had the campaign in front of them. MEASURED: those seven are
+ * 11589358, 11590464, 11592935, 11618838, 11624180, 11625426, 11659797, and
+ * **REC-001's target 11353867 is not among them.**
+ *
+ * So adding the call would contribute no target and consume slots in a
+ * six-slot budget, pushing 11353867 down or out. THE METRIC WOULD PUNISH
+ * CALLING THE RIGHT TOOL.
+ *
+ * That is a limit of recall@6, not of the tool: the metric rewards retrieving
+ * what the key NAMED, and the key names one supporting complaint rather than
+ * every complaint a good answer would cite. Worth knowing before 1.00 is read
+ * as "the tool layer is finished" — and worth fixing in stage 7, where an eval
+ * scores the ANSWER rather than the retrieval.
  */
-import { complaintsCiting } from '../tools/complaints-citing.tool';
 import { findRecalls } from '../tools/find-recalls.tool';
 import { searchComplaints } from '../tools/search-complaints.tool';
 import { CASES, overallRecall, scoreCase, type CaseResult } from '../grounding/measure';

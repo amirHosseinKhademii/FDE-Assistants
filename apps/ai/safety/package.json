@@ -20,13 +20,16 @@
     "complaints": "ts-node src/cli/complaints.ts",
     "count": "ts-node src/cli/count.ts",
     "citing": "ts-node src/cli/citing.ts",
-    "measure-tools": "ts-node src/cli/measure-tools.ts"
+    "measure-tools": "ts-node src/cli/measure-tools.ts",
+    "schema": "ts-node src/schema/schema-selftest.ts"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
     "@fde/grounding": "workspace:*",
     "pg": "^8.13.1",
-    "@langchain/core": "^0.3.18"
+    "@langchain/core": "^0.3.18",
+    "zod": "^4.5.4",
+    "@fde/schema": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.7.5",
