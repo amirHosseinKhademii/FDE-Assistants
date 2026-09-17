@@ -64,6 +64,9 @@ const LENGTHS = [
  * top slot dominating, which is the whole reason the loser here is the passage
  * that ranked first on keywords.
  */
+/** Every document in the estate, so a share of it can be stated rather than felt. */
+const TOTAL_DOCS = UNITS.complaints + UNITS.recalls + UNITS.investigations;
+
 const K = 60;
 const rrf = (...ranks: number[]) => ranks.reduce((sum, r) => sum + 1 / (K + r), 0);
 
@@ -338,6 +341,27 @@ piece 2  "…DISPLAY SHOWS NEUTRAL BUT TRUCK IS IN DRIVE,
         {MAX_CHARS.recalls.toLocaleString('en-GB')} — shorter than the longest
         complaint. Only investigations need a chunker, and there are{' '}
         {UNITS.investigations} of them.
+      </Because>
+
+      <Because>
+        <span className="text-ui-fg">Which demotes this stage, and that is the part worth taking away.</span>{' '}
+        <Mono>docs/RETRIEVAL.md</Mono> calls the chunker “the highest-leverage
+        file in the path”, and on a corpus of long documents it is — where you
+        cut decides what can be found. Here it touches{' '}
+        {UNITS.investigations} documents out of{' '}
+        {TOTAL_DOCS.toLocaleString('en-GB')}, and leaves{' '}
+        {(100 - (UNITS.investigations / TOTAL_DOCS) * 100).toFixed(1)}% of the
+        corpus alone.
+      </Because>
+
+      <Because>
+        So the leverage moves <em>upstream</em>, to stage 3.1. The line that
+        decides whether a question about a 2020 F-150 finds this complaint is the
+        header the parser prepends, not a cut the chunker makes — the narrative
+        itself never says “F-150”. On this corpus{' '}
+        <span className="text-ui-fg">the parser is the highest-leverage file</span>
+        , and a pipeline tuned by fiddling with chunk sizes would be tuning the
+        one stage that has almost nothing to do.
       </Because>
     </Stage>
   );
