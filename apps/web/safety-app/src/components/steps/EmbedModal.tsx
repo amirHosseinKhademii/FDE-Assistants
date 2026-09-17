@@ -36,7 +36,10 @@ import { Mono, OriginDialog, originOf } from '@fde/uikit';
 import type { Origin } from '@fde/uikit';
 import { Code, Data } from '@veresk/surface';
 
-/** Measured over 320 real passages, mean 610 characters, max 2,051. */
+/**
+ * The controlled comparison: 320 real passages, mean 610 characters, max 2,051,
+ * embedded twice in two orders.
+ */
 const TIMING = {
   sample: 320,
   asCome: 29179,
@@ -46,6 +49,21 @@ const TIMING = {
   minutesCome: 107,
   minutesSorted: 47,
 } as const;
+
+/**
+ * AND THE REAL RUN, WHICH BEAT THE PROJECTION BY 22%.
+ *
+ * The projection was a 230× extrapolation from a twelve-second sample, and it
+ * was wrong in the direction worth being wrong in. The full run sorts all
+ * 73,442 passages, so a batch of 64 is far more length-uniform than one drawn
+ * from a 320-passage sort — padding waste falls further at scale.
+ *
+ * BOTH NUMBERS STAY ON THE PANEL. A projection that came in 22% pessimistic for
+ * a stated reason is a better thing to show than a number that was simply
+ * right: it is the page being checkable about its own estimates rather than
+ * quietly replacing them.
+ */
+const ACTUAL = { minutes: 36.6, perSec: 32 } as const;
 
 const PASSAGES = 73442;
 const DIMS = 384;
@@ -164,10 +182,19 @@ function EmbedPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
           ))}
         </div>
 
-        <p className="pt-2 font-mono text-[0.625rem] text-ui-faint">
-          {saved}% faster · the projection is over{' '}
-          {PASSAGES.toLocaleString('en-GB')} passages · press a section below
-        </p>
+        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 pt-2.5 font-mono text-[0.625rem]">
+          <span className="text-ui-faint">{saved}% faster, on the sample</span>
+          <span className="text-ui-faint">·</span>
+          <span style={{ color: 'var(--color-cal-1)' }}>
+            the real run came in at {ACTUAL.minutes} min, {ACTUAL.perSec}/sec
+          </span>
+          <span className="text-ui-faint">
+            — 22% under the projection, because sorting all{' '}
+            {PASSAGES.toLocaleString('en-GB')} makes every batch more uniform than
+            sorting {TIMING.sample} does
+          </span>
+        </div>
+        <p className="pt-2 font-mono text-[0.625rem] text-ui-faint">press a section below</p>
 
         <div className="flex flex-wrap gap-1.5 pt-2.5">
           {(
@@ -175,7 +202,7 @@ function EmbedPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
               ['what', 'what an embedding is'],
               ['finding', 'why sorting wins'],
               ['shared', 'where the fix belongs'],
-              ['died', 'the 35.5 GB ask'],
+              ['died', 'two ways it died'],
               ['costs', 'what it costs'],
               ['checks', 'the checks'],
             ] as const
@@ -287,9 +314,9 @@ function EmbedPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
           </P>
         </Sect>
 
-        <Sect k="died" title="The 35.5 GB ask, and why batch size is only half the story" refs={sections} active={active}>
+        <Sect k="died" title="Two ways this died — one before starting, one after finishing" refs={sections} active={active}>
           <Data
-            path="the first attempt — all passages in one call"
+            path="the first attempt — all passages handed over in one call"
             mark={[1]}
             lines={[
               'the library does not batch internally: it built one tensor for the lot',
@@ -310,15 +337,58 @@ function EmbedPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
               takes.
             </span>
           </Aside>
+
+          <P>
+            <span className="text-ui-fg">
+              And then it died at the other end, which cost more.
+            </span>{' '}
+            The next attempt computed every vector and then threw them all away.
+          </P>
+          <Data
+            path="the second attempt — 37.9 minutes of finished work"
+            mark={[1]}
+            lines={[
+              `${PASSAGES.toLocaleString('en-GB')} vectors of ${DIMS} dimensions in 37.9 min`,
+              'RangeError: Invalid string length',
+            ]}
+          />
+          <P>
+            <Mono>JSON.stringify</Mono> over every record builds{' '}
+            <span className="text-ui-fg">one string</span>, and V8 caps a string
+            at 512 MB. A record is 9,101 characters, so the whole file is 637 MB
+            — because a float serialises as{' '}
+            <Mono>0.019854292273521423</Mono>, twenty characters of double
+            precision out of a model that computed a float32.
+          </P>
+          <Aside>
+            The estimate beforehand said 346 MB and{' '}
+            <span className="text-ui-fg">would have passed review</span>, because
+            it assumed a short float. Nothing about the arithmetic was careless;
+            the wrong number went into it, and it was wrong by less than a factor
+            of two — which is exactly the size of error a plausibility check does
+            not catch.
+          </Aside>
+          <Aside>
+            The fix is NDJSON, flushed every 4,000 records and resumable from
+            whatever is on disk — and the format is the smaller half of it. The
+            work had completed and the <em>write</em> destroyed it, which is the
+            same shape as the ingest emptying the table before it embeds.{' '}
+            <span className="text-ui-fg">
+              Write expensive work down as you produce it.
+            </span>{' '}
+            Thirty-eight minutes of finished vectors should never be one
+            unhandled call away from nothing.
+          </Aside>
         </Sect>
 
         <Sect k="costs" title="What it costs, and why it runs here" refs={sections} active={active}>
           <Data
             path="the whole bill"
-            mark={[2, 3]}
+            mark={[3, 4]}
             lines={[
-              `vectors   ${PASSAGES.toLocaleString('en-GB')} × ${DIMS} × 4 bytes   =   108 MB`,
-              `time      ~${TIMING.minutesSorted} minutes, sorted, on this CPU`,
+              `vectors   ${PASSAGES.toLocaleString('en-GB')} × ${DIMS} × 4 bytes   =   108 MB in memory`,
+              'on disk   641 MB of NDJSON — a float is 20 characters, not 4 bytes',
+              `time      ${ACTUAL.minutes} minutes, sorted, on this CPU`,
               'money     nothing',
               'egress    nothing',
             ]}

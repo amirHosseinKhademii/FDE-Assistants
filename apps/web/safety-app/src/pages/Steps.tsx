@@ -464,12 +464,28 @@ function Embed() {
         </span>{' '}
         The model pads every text in a batch to the longest one in that batch, so
         sorting the passages by length before batching is{' '}
-        <span className="text-ui-fg">58% faster for identical vectors</span> — an
-        hour and 47 minutes becomes 47. That belongs in{' '}
+        <span className="text-ui-fg">58% faster for identical vectors</span> —
+        and the real run came in at 36.6 minutes, 22% under the projection,
+        because sorting all 73,442 makes every batch more uniform than sorting a
+        sample does. That belongs in{' '}
         <Mono>@fde/grounding</Mono> rather than here, because it is not
         safety-specific — and it is invisible at 555 chunks, which is why three
         engagements went past it. The first corpus nobody wrote for us is the
         first one big enough to find it.
+      </Because>
+
+      <Because>
+        It also cost the only real time lost this week, and not where anybody was
+        looking. An attempt computed every vector — 37.9 minutes — and then threw
+        them all away on <Mono>JSON.stringify</Mono>, because V8 caps a string at
+        512 MB and 73,442 records serialise to 637 MB. The estimate beforehand
+        said 346 MB and would have passed review; it assumed a short float, and a
+        float serialises as twenty characters.{' '}
+        <span className="text-ui-fg">
+          The work had finished and the write destroyed it.
+        </span>{' '}
+        The output is NDJSON now, flushed as it goes and resumable — which is the
+        part that matters more than the format.
       </Because>
 
       <EmbedModal />
