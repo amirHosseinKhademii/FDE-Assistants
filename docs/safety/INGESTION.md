@@ -569,13 +569,69 @@ complaint" is the question a fleet analyst is actually asking.
 
 ```
 BEFORE   we believe search works, because the results look plausible
-AFTER    recall@6 = 0.81 plain, 0.9x reranked — and we know which ones
+AFTER    recall@6 = 0.40 plain, 0.40 reranked — and we know which ones
          each of them misses, by name
 ```
 
-> Your steering engagement measures **0.813**. That is the bar. A number lets us
-> change the chunker and *know* whether it helped — `RETRIEVAL.md`'s point that
-> **a plausible result is not a measured one**.
+### MEASURED, 2026-09-17 — and the two numbers are the same
+
+```
+3.7a  hybrid alone    recall@6 = 0.40
+3.7b  reranked        recall@6 = 0.40
+
+REC-001   0.00   both targets missing from the top 6 AND from the top 50
+REC-004   0.20   1 of 5; the one found moved 3rd → 1st under reranking
+REC-005   1.00   found at position 1; that hit moved 36th → 1st
+```
+
+**The reranker moved passages a long way and changed nothing**, because the
+documents the key asks for were never in the 50 it was handed:
+
+```
+20V197000  (the recall)      keyword rank    93
+11302656                     keyword rank   121
+11533202                     keyword rank 1,169
+11524321                     keyword rank 1,239
+11473666                     keyword rank 2,271
+11353867  (the complaint)    keyword rank 3,026
+```
+
+This is §3.6b's ceiling, confirmed rather than quoted. The diagnosis is **"never
+found it"**, not "found it and ranked it badly" — so no reranker moves these,
+and neither would a better one.
+
+### The cause: two of three questions are filters wearing the clothes of questions
+
+`2020 F-150`, `Tesla Model 3`, `involving a death` are **structured fields
+sitting in the metadata**, and search is matching them as words. REC-001's
+question matches **54,541 documents** on ordinary vocabulary alone — "run",
+"2020", "transmission", "problem", "fix". The right answer drowns.
+
+Measured, rather than asserted:
+
+```
+filter make=TESLA, model=MODEL 3, deaths>0     → exactly the 5 targets, recall 1.00
+filter make=FORD, model=F-150, POWER TRAIN,
+  then rank by park/prndl/roll/shift           → 11353867 at rank 8, from 3,026
+filter kind=recall, F-150, PRNDL component     → 20V197000, exactly
+```
+
+> **The fix is a metadata filter reached through a tool** — not a better
+> embedder, not a better chunker, not a better reranker. It is the finding
+> insurance already records as `get_policyholder`: *a question with one exact
+> answer is a lookup, not a search.* Reached here independently, on a corpus
+> that shares nothing with it.
+
+### And the number is flattered
+
+`0.40` is **n=3**, and REC-005 scored 1.00 against a bar of "return any one of
+400 documents". The two hard cases scored 0.00 and 0.20. It is a starting
+number, not a scorecard.
+
+> Steering measures **0.813** on its own corpus. **Do not put the two side by
+> side** until it is confirmed both counted the same denominator — otherwise the
+> comparison measures the counting rule rather than the retrieval. Same rule
+> `eval:diff` enforces by refusing runs that differ in setup.
 
 ---
 
