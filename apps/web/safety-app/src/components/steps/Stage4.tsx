@@ -70,7 +70,7 @@ const TOOLS: readonly {
     sig: 'search_complaints({ ...filters, query })',
     rule: 'filter first, then search inside',
     origin: 'rebuilt',
-    was: 'search_complaints — hybrid search over everything',
+    was: 'The plan called for a hybrid search over everything. This searches inside a filter instead — same name, different tool.',
     built: true,
     what: 'The same hybrid search from 3.5 and 3.6, run inside a filtered set: make, model, year, component, filed before or after, crash, fire, minimum deaths, minimum injuries.',
     why: 'Same name, different tool. The complaint that answers the F-150 question sat at rank 3,026 because “2020 F-150” was being matched as prose instead of used as a filter. Filtered, it comes back first.',
@@ -134,61 +134,22 @@ export function Stage4() {
 
       <Chapter
         n="01"
-        title="The plan had two tools. The data asked for five."
-        sub="Only one of the five survived the measurement exactly as it was designed."
-      >
-        <P>
-          The plan named two: one to look a recall up by its number, one to
-          search the complaints. That is what you design when you reason about
-          the problem from the outside — a way in by name, and a way in by
-          meaning.
-        </P>
-        <P>
-          Not because those were wrong, but because the questions people actually
-          ask turned out to need things search cannot do: prove something is{' '}
-          <em>absent</em>, produce a <em>count</em>, and follow a link owners
-          wrote by hand. One of the original two also changed shape.
-        </P>
-        <div className="cal-panel flex flex-wrap items-center gap-x-12 gap-y-4">
-          {[
-            { n: '2', l: 'planned by reasoning', tone: 'var(--color-ui-faint)' },
-            { n: '1', l: 'survived unchanged', tone: 'var(--color-ui-dim)' },
-            { n: '3', l: 'added by the measurement', tone: 'var(--color-cal-1)' },
-          ].map((x) => (
-            <div key={x.l}>
-              <p className="font-mono text-3xl" style={{ color: x.tone }}>
-                {x.n}
-              </p>
-              <p className="mt-0.5 font-mono text-[0.625rem] tracking-[0.06em] text-ui-faint uppercase">
-                {x.l}
-              </p>
-            </div>
-          ))}
-        </div>
-        <Key>
-          You cannot design the tool layer from the outside. You measure
-          retrieval, find out which questions it cannot answer, and the tools are
-          what is left over. The plan was not careless — it was written by the
-          same people from the same documents — and it was still 60% wrong about
-          what to build.
-        </Key>
-      </Chapter>
-
-      <Chapter
-        n="02"
         title="The five"
-        sub="Each card says where it came from, so the count above is checkable rather than assertable. The plainest card is the one reasoning got right."
+        sub="Each card says where it came from — written into the plan before any data was loaded, or added once the measurement showed what search could not do."
       >
         <ul className="grid gap-4">
           {TOOLS.map((t) => {
+            /* The badge is the ONLY place origin is said, now that the
+               background means built. So it says it in full rather than in a
+               word a reader has to decode. */
             const badge =
               t.origin === 'added'
-                ? 'added by the measurement'
+                ? 'not in the plan · added after measuring'
                 : t.origin === 'rebuilt'
-                  ? 'rebuilt by the measurement'
-                  : 'planned, and unchanged';
+                  ? 'in the plan · rebuilt after measuring'
+                  : 'in the plan · unchanged';
             return (
-              <li key={t.sig} className="cal-tool" data-origin={t.origin}>
+              <li key={t.sig} className="cal-tool" data-built={t.built ?? false}>
                 <span className="cal-tool-n" aria-hidden>
                   {t.n}
                 </span>
@@ -199,11 +160,7 @@ export function Stage4() {
                   </span>
                 </div>
                 <p className="cal-tool-rule">{t.rule}</p>
-                {t.was && (
-                  <p className="cal-tool-was">
-                    planned as <s>{t.was}</s>
-                  </p>
-                )}
+                {t.was && <p className="cal-tool-was">{t.was}</p>}
                 <div className="cal-tool-body">
                   <p className="max-w-[62ch] text-[0.875rem] leading-relaxed text-ui-dim">
                     {t.what}
@@ -227,7 +184,7 @@ export function Stage4() {
       </Chapter>
 
       <Chapter
-        n="03"
+        n="02"
         title="Why there is a counting tool at all"
         sub="Three of the eight questions want a number, and a number is not in the documents."
       >
@@ -259,7 +216,7 @@ export function Stage4() {
       </Chapter>
 
       <Chapter
-        n="04"
+        n="03"
         title="The order it gets built in"
         sub="Eight steps, one done — and one of them is the step that decides whether any of the rest is worth building."
       >
@@ -319,7 +276,7 @@ export function Stage4() {
       </Chapter>
 
       <Chapter
-        n="05"
+        n="04"
         title="The question that was blocking two tools"
         sub="How a component filter should match — decided, verified, and written down before the filter exists."
       >

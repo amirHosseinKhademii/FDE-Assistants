@@ -221,7 +221,7 @@ const TABS: StepTab[] = [
     id: 'tools',
     label: 'The tools',
     stage: '4',
-    status: '2 of 5 built',
+    status: '3 of 5 built',
     built: true,
     content: <Stage4 />,
   },

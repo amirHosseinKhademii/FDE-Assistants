@@ -636,55 +636,18 @@ body {
   padding: 1.125rem 1.25rem;
 }
 
-/* ── WHERE A TOOL CAME FROM, IN THREE STATES ────────────────────────────────
-   The strongest thing stage 4 says is that reasoning got the tool layer 60%
-   wrong, and all five cards looked alike — so the argument was in the prose and
-   nowhere in the design.
+/* ── LIT MEANS BUILT, EVERYWHERE ON THIS PAGE ───────────────────────────────
+   These cards briefly used their background to say where a tool CAME FROM —
+   planned, rebuilt, or added by the measurement. It read as a bug, and it was
+   one: the tab bar above uses fill and colour to mean "this exists", so a tool
+   that was built came out dimmer than two that are not, and the page contradicted
+   itself one element apart.
 
-   THREE STATES, NOT TWO, because two would be a simplification the data does
-   not support. One tool was planned and survived exactly. One was planned and
-   rebuilt into a different thing under the same name. Three did not exist.
-
-   THE CONTROL LOOKS PLAINEST, and that is the part worth getting right: 4.1's
-   whole point is that reasoning DID get one right, and if every card is
-   dramatic that lands as nothing. So the planned one is the quietest card on
-   the page and the arrivals carry the colour.
+   SO THE BACKGROUND SAYS BUILT AND THE BADGE SAYS ORIGIN. One signal, one
+   meaning, and origin is a word rather than a colour — which is also the only
+   way it survives a reader who arrives at this card without having read
+   anything above it.
    ────────────────────────────────────────────────────────────────────────── */
-.cal-tool[data-origin='added'] {
-  border-color: color-mix(in oklab, var(--color-cal-1) 38%, var(--color-ui-line));
-  background: color-mix(in oklab, var(--color-cal-1) 7%, var(--color-ui-surface));
-}
-
-/* Rebuilt: the same name, a different tool. Amber-free — this palette has no
-   warning colour — so it is marked by a dashed left edge instead, the same
-   language the tab bar uses for "not what it looks like". */
-.cal-tool[data-origin='rebuilt'] {
-  border-color: color-mix(in oklab, var(--color-cal-2) 40%, var(--color-ui-line));
-  border-left-width: 3px;
-  border-left-style: dashed;
-  border-left-color: var(--color-cal-2);
-  background: color-mix(in oklab, var(--color-cal-2) 5%, var(--color-ui-surface));
-}
-
-/* Planned and unchanged — the control. No fill, no accent, deliberately the
-   quietest thing in the list. */
-.cal-tool[data-origin='planned'] {
-  border-color: var(--color-ui-line);
-  background: color-mix(in oklab, var(--color-cal-1) 2%, var(--color-ui-bg));
-}
-
-.cal-tool[data-origin='added'] .cal-tool-n {
-  border-color: transparent;
-  background: color-mix(in oklab, var(--color-cal-1) 24%, transparent);
-  color: var(--color-ui-fg);
-}
-
-.cal-tool[data-origin='rebuilt'] .cal-tool-n {
-  border-color: transparent;
-  background: color-mix(in oklab, var(--color-cal-2) 22%, transparent);
-  color: var(--color-ui-fg);
-}
-
 .cal-tool-badge[data-kind='added'] {
   border-color: color-mix(in oklab, var(--color-cal-1) 50%, transparent);
   color: var(--color-cal-1);
@@ -695,18 +658,15 @@ body {
   color: var(--color-cal-2);
 }
 
-/* The "planned as X" line on the rebuilt card: struck through, because the name
-   survived and the thing under it did not. */
+/* What the plan called it, when the plan called it something else. Plain text:
+   a strike-through said "this is wrong" when the point is "this changed", and
+   with no key on the page it was just a cryptic mark. */
 .cal-tool-was {
   grid-column: 2;
   margin-top: 0.25rem;
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  letter-spacing: 0.04em;
+  max-width: 60ch;
+  font-size: 0.75rem;
+  line-height: 1.55;
   color: var(--color-ui-faint);
 }
 
-.cal-tool-was s {
-  text-decoration-color: color-mix(in oklab, var(--color-cal-2) 70%, transparent);
-  text-decoration-thickness: 1px;
-}
