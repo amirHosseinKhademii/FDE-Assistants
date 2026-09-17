@@ -29,8 +29,23 @@ export interface EngineOption {
   label: string;
   /** False when this engine cannot serve the configured provider. */
   usable: boolean;
-  /** Shown in the picker. Present whether usable or not — the why matters both ways. */
+  /**
+   * A FEW WORDS, for the option row itself.
+   *
+   * Sized deliberately. The first version put a full sentence here — "Reaches
+   * Gemini since 2026-09-17, after two wire-level repairs" — and it rendered as
+   * a subtitle longer than the control it belonged to. A picker row needs a
+   * label and a hint, not an explanation.
+   */
   note: string;
+  /**
+   * The full why, for a tooltip or a panel — NOT for the row.
+   *
+   * Kept because the reason genuinely matters, especially for a disabled
+   * option: a greyed choice with no explanation reads as a bug. It just does
+   * not belong inline under a select.
+   */
+  detail: string;
 }
 
 /** The provider the environment is configured for. */
@@ -54,7 +69,8 @@ export function availableEngines(): EngineOption[] {
       id: 'mastra',
       label: 'Mastra',
       usable: true,
-      note: hosted
+      note: 'default',
+      detail: hosted
         ? 'Builds its model against chat-completions and carries the whole message back.'
         : 'Works on every provider configured here.',
     },
@@ -65,17 +81,19 @@ export function availableEngines(): EngineOption[] {
       // are gated on `hosted`, so a local server needing either would fail the
       // same way Gemini did — which is a reason to say so, not to guess.
       usable: !local,
-      note: local
+      note: local ? 'untested here' : 'also works',
+      detail: local
         ? 'Untested against a local server — the hosted round-trip repairs do not apply there.'
         : hosted
-          ? 'Reaches Gemini since 2026-09-17, after two wire-level repairs.'
+          ? 'Reaches Gemini since 2026-09-17, after two wire-level repairs to faults no setting could reach.'
           : 'Works on this provider.',
     },
     {
       id: 'sdk',
       label: 'OpenAI Agents SDK',
       usable: !hosted && !local,
-      note:
+      note: hosted || local ? 'needs Azure or OpenAI' : 'default',
+      detail:
         hosted || local
           ? 'Drives the Responses API, which only OpenAI and Azure implement. It refuses by name rather than failing at the transport.'
           : 'The default engine.',
@@ -100,7 +118,7 @@ export function resolveEngine(requested?: string): { engine: LoopChoice } | { er
     return { error: `"${requested}" is not an engine. Choose one of: ${options.map((o) => o.id).join(', ')}.` };
   }
   if (!found.usable) {
-    return { error: `${found.label} cannot serve LLM_PROVIDER=${provider()}. ${found.note}` };
+    return { error: `${found.label} cannot serve LLM_PROVIDER=${provider()}. ${found.detail}` };
   }
   return { engine: found.id };
 }

@@ -8,7 +8,9 @@
     "./agent/tools": "./dist/agent/tools.js",
     "./agent/prompt": "./dist/agent/prompt.js",
     "./agent/answer": "./dist/agent/answer.js",
-    "./schema/safety-answer": "./dist/schema/safety-answer.js"
+    "./schema/safety-answer": "./dist/schema/safety-answer.js",
+    "./agent/engines": "./dist/agent/engines.js",
+    "./agent/run": "./dist/agent/run.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
