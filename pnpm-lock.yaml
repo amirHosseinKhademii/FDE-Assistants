@@ -190,6 +190,9 @@ importers:
 
   apps/ai/safety:
     dependencies:
+      '@fde/grounding':
+        specifier: workspace:*
+        version: link:../../../packages/grounding
       dotenv:
         specifier: ^16.4.5
         version: 16.6.1

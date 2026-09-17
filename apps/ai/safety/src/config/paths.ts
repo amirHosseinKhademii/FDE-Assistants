@@ -18,3 +18,6 @@ export const INVESTIGATIONS_TSV = resolve(CORPUS_DIR, 'INV_SLICE.tsv');
 
 /** Stage 3.1's output. Plain JSON, on purpose: you can open it and read it. */
 export const DOCUMENTS_JSON = resolve(CORPUS_DIR, 'documents.json');
+
+/** Stage 3.2's output. Still plain JSON — stage 3.4 is the first database. */
+export const PASSAGES_JSON = resolve(CORPUS_DIR, 'passages.json');

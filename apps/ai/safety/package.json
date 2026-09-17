@@ -9,10 +9,12 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "parse": "ts-node src/cli/parse.ts"
+    "parse": "ts-node src/cli/parse.ts",
+    "chunk": "ts-node src/cli/chunk.ts"
   },
   "dependencies": {
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "@fde/grounding": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.7.5",
