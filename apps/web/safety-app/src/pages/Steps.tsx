@@ -3,9 +3,9 @@
  *
  * ── THE PAGE IS HALF RECORD AND HALF PROPOSAL, AND SAYS WHICH ──────────────
  *
- * Stages 1 through 5 run. Stages 6 and 7 are written down and argued with,
- * and the tab bar encodes the difference rather than leaving it to prose. So
- * every number still has to say where it came from. Three provenances, and the
+ * Stages 1 through 5 run. Stage 6 is planned and not built, stage 7 is not
+ * written at all, and the tab bar encodes the difference rather than leaving it
+ * to prose. So every number still has to say where it came from. Three provenances, and the
  * kit badges each one: `measured` (out of the NHTSA files, or produced by
  * running the thing described), `worked` (carried through by hand in the source
  * document), `target` (somebody else's measurement, quoted as the bar).
@@ -43,6 +43,7 @@ import { MeasureModal } from '../components/steps/MeasureModal';
 import { RerankModal } from '../components/steps/RerankModal';
 import { Stage4 } from '../components/steps/Stage4';
 import { Stage5 } from '../components/steps/Stage5';
+import { Stage6 } from '../components/steps/Stage6';
 import { Done, NotBuilt, StepTabs } from '../components/steps/Tabs';
 import type { StepTab } from '../components/steps/Tabs';
 import { ParserModal } from '../components/steps/ParserModal';
@@ -235,41 +236,9 @@ const TABS: StepTab[] = [
     id: 'loop',
     label: 'The loop',
     stage: '6',
-    status: 'not written',
+    status: 'planned',
     built: false,
-    content: (
-      <NotBuilt
-        title="The model, and the two things it may ask for"
-        waits={[
-          'The contract has to exist, because the loop\'s job is to keep asking until it can fill one in.',
-          'The tools have to be decided — search over the passages, and an exact lookup keyed on a campaign number, which is a lookup rather than a search because it has one right answer.',
-          'Where the passages are sent has to be settled. This is the step where a member of the public’s account of their own crash leaves the machine, and it is the decision the data-flow page exists to have in the open before it is written.',
-        ]}
-        what={
-          <>
-            <p>
-              A model, a loop, and the tools it is allowed to call. It searches,
-              reads what comes back, decides whether that answers the question,
-              and searches again if it does not — which is the difference between
-              retrieval and an assistant.
-            </p>
-            <p className="mt-3.5">
-              It is also the first stage that costs money and the first that can
-              be wrong in a way no check catches, which is why it is last rather
-              than first.
-            </p>
-          </>
-        }
-        already={
-          <>
-            <Mono>@fde/agent</Mono> — the tool-calling loop with three
-            interchangeable engines behind <Mono>LOOP=</Mono>, and the compliance
-            tests that assert the outgoing request carries no server-side
-            conversation state. None of that is written again here.
-          </>
-        }
-      />
-    ),
+    content: <Stage6 />,
   },
   {
     id: 'evals',
