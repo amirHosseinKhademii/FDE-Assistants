@@ -44,6 +44,7 @@ import { Document as LCDocument } from '@langchain/core/documents';
 import { fuseByRank, LocalEmbeddings } from '@fde/grounding';
 import { safetyDatabaseUrl } from '../config/connections';
 import { TABLE } from '../grounding/search';
+import { COMPONENT_MATCH, MODEL_MATCH } from './matching';
 
 export const SEARCH_COMPLAINTS = 'search_complaints';
 
@@ -122,7 +123,9 @@ export function buildWhere(f: ComplaintFilter): { sql: string; params: unknown[]
   };
 
   if (f.make) clauses.push(`upper(metadata->>'make') = ${p(f.make.trim().toUpperCase())}`);
-  if (f.model) clauses.push(`upper(metadata->>'model') = ${p(f.model.trim().toUpperCase())}`);
+  // Prefix-matched for the same reason find_recalls is — see `matching.ts`.
+  // Verified not to move any number this engagement has published.
+  if (f.model) clauses.push(MODEL_MATCH(`upper(metadata->>'model')`, p(f.model.trim().toUpperCase())));
   if (f.year !== undefined) clauses.push(`(metadata->>'year')::int = ${p(f.year)}`);
 
   if (f.component) {
@@ -135,7 +138,7 @@ export function buildWhere(f: ComplaintFilter): { sql: string; params: unknown[]
     const c = p(f.component.trim().toUpperCase());
     clauses.push(
       `exists (select 1 from jsonb_array_elements_text(metadata->'components') comp
-                where comp = ${c} or comp like ${c} || ':%' or comp like ${c} || ': %')`,
+                where ${COMPONENT_MATCH('comp', c)})`,
     );
   }
 

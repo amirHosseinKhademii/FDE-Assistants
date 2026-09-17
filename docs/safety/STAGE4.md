@@ -347,6 +347,57 @@ recalls + prefix "POWER TRAIN:AUTOMATIC TRANSMISSION"
                                                     the bare POWER TRAIN rows
 ```
 
+### The same shape, for model names — added 2026-09-17 after REC-003
+
+`find_recalls(FORD, "F-250")` returned **nothing**. The campaign is filed under
+`F-250 SD`.
+
+```
+a person says          F-250
+the corpus stores      F-250 SD
+an exact match makes the natural name WRONG
+```
+
+REC-003 — *"did Ford volunteer the F-250 tailgate recall, or was it pushed?"* —
+scored **1 of 3** in the first baseline, and all three of its checks failed
+together in the two bad runs. It was never three properties failing; it was one
+lookup returning nothing, after which the model escalates and cites nothing.
+
+So model names get the same treatment as components, separated by a space
+instead of a colon: **exact, or a child of it.**
+
+```
+"F-250"    → F-250 SD      and 19V864000 is found
+"F-150"    → F-150         and nothing else
+"MODEL 3"  → MODEL 3       and not MODEL 3 PERFORMANCE, were there one
+```
+
+**Verified not to move anything already published**, which is the condition for
+changing a filter this late:
+
+```
+                 exact   prefix
+FORD F-150        2043    2043
+TESLA MODEL 3     1062    1062
+HONDA ODYSSEY     1416    1416
+```
+
+Every number this engagement has stated — 1,057, 5, 400 — comes from a filter
+this rule leaves alone, and `safety:count` still agrees three ways with `awk`.
+
+> **And it excludes the corpus's own junk without trying to.** The recall data
+> contains `redundant F-250` and `redundant  F-250`, one space and two, in the
+> model field — NHTSA's data entry, not this pipeline's. A prefix rule cannot
+> reach them because they do not *start* with the name. Substring matching would
+> have swept them in, which is one more reason it was not chosen.
+
+Both rules now live in `apps/ai/safety/src/tools/matching.ts`. The component
+rule had been written twice — once in `find_recalls`, once in the builder
+`count_complaints` imports — and two definitions of "what does this component
+mean" that can drift is the same hazard as two copies of a scoring rule.
+
+---
+
 ### And one rule that comes with it, for `count_complaints`
 
 Filtering on components means **unnesting an array**, and a complaint can carry

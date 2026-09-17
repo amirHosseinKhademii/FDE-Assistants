@@ -37,6 +37,7 @@
 import { Client } from 'pg';
 import { safetyDatabaseUrl } from '../config/connections';
 import { TABLE } from '../grounding/search';
+import { COMPONENT_MATCH, MODEL_MATCH } from './matching';
 
 export const FIND_RECALLS = 'find_recalls';
 
@@ -97,8 +98,7 @@ export interface FindRecallsResult {
  * reason — a false negative that no check would ever catch, because the key
  * says zero and the tool says zero.
  */
-const COMPONENT_PREFIX = (col: string, param: string) =>
-  `(${col} = ${param} or ${col} like ${param} || ':%' or ${col} like ${param} || ': %')`;
+const COMPONENT_PREFIX = COMPONENT_MATCH;
 
 export async function findRecalls(
   args: FindRecallsArgs,
@@ -111,7 +111,10 @@ export async function findRecalls(
   await client.connect();
   try {
     const params: unknown[] = [make, model];
-    let where = `upper(v->>'make') = $1 and upper(v->>'model') = $2`;
+    // MODEL IS PREFIX-MATCHED. "F-250" must reach "F-250 SD" — a person says
+    // the first and the corpus stores the second, and REC-003 scored 1 of 3
+    // entirely because an exact match returned nothing. See `matching.ts`.
+    let where = `upper(v->>'make') = $1 and ${MODEL_MATCH("upper(v->>'model')", '$2')}`;
 
     if (args.year !== undefined) {
       params.push(args.year);
