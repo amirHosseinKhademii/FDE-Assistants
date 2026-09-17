@@ -33,7 +33,7 @@
  *         --samples prints every value it is about to publish, and writes
  *         nothing. Run it before trusting the file.
  */
-import { createReadStream, writeFileSync } from 'node:fs';
+import { createReadStream, statSync, writeFileSync } from 'node:fs';
 import { createInterface } from 'node:readline';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -342,7 +342,22 @@ const estate = measured.map((m) => ({
   ],
 }));
 
-const today = new Date().toISOString().slice(0, 10);
+/**
+ * THE DATE COMES FROM THE FILES, NOT FROM THE CLOCK.
+ *
+ * It was `new Date()`, which is the day the generator last ran — and the page
+ * this feeds spends a paragraph arguing that the snapshot must be frozen and
+ * dated because `FLAT_CMPL.zip` changes daily. Re-running next month against
+ * the same slices would have moved the date and left the numbers alone, which
+ * is the exact drift the argument exists to prevent, on the page making it.
+ *
+ * The three slices are cut in one pass, so the newest of their mtimes is when
+ * the snapshot was taken. Each source carries its own as well, because they are
+ * three separate downloads and one of them could be refreshed alone.
+ */
+const snapshotOf = (file) => statSync(join(DIR, file)).mtime.toISOString().slice(0, 10);
+const snapshots = Object.fromEntries(measured.map((m) => [m.db, snapshotOf(m.file)]));
+const today = Object.values(snapshots).sort().at(-1);
 const units = Object.fromEntries(measured.map((m) => [m.db, m.units]));
 const rows = Object.fromEntries(measured.map((m) => [m.db, m.rows]));
 
@@ -396,8 +411,15 @@ export type EstateTableKey = ${JSON.stringify(
     estate.flatMap((s) => s.tables.map((t) => `${s.db}.${t.name}`)),
   ).replace(/^\[/, '').replace(/\]$/, '').split(',').join(' | ')};
 
-/** The day the snapshot was taken. It is frozen: \`FLAT_CMPL.zip\` changes daily. */
+/**
+ * The day the snapshot was cut, read from the slice files themselves — NOT the
+ * day this ran. It is frozen on purpose: \`FLAT_CMPL.zip\` changes daily, and an
+ * answer key written against moving data rots under its own eval baseline.
+ */
 export const MEASURED_AT = '${today}';
+
+/** Per source, because they are three downloads and one could be refreshed alone. */
+export const SNAPSHOT = ${JSON.stringify(snapshots, null, 2)} as const;
 
 /** The command that reproduces every number in this file. */
 export const MEASURED_BY = 'pnpm safety:estate';

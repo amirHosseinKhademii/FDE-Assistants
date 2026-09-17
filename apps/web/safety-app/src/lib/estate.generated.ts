@@ -44,8 +44,19 @@ export interface EstateSource {
  */
 export type EstateTableKey = "complaints.CMPL_SLICE" | "recalls.RCL_SLICE" | "investigations.INV_SLICE";
 
-/** The day the snapshot was taken. It is frozen: `FLAT_CMPL.zip` changes daily. */
+/**
+ * The day the snapshot was cut, read from the slice files themselves — NOT the
+ * day this ran. It is frozen on purpose: `FLAT_CMPL.zip` changes daily, and an
+ * answer key written against moving data rots under its own eval baseline.
+ */
 export const MEASURED_AT = '2026-09-17';
+
+/** Per source, because they are three downloads and one could be refreshed alone. */
+export const SNAPSHOT = {
+  "complaints": "2026-09-17",
+  "recalls": "2026-09-17",
+  "investigations": "2026-09-17"
+} as const;
 
 /** The command that reproduces every number in this file. */
 export const MEASURED_BY = 'pnpm safety:estate';
