@@ -36,13 +36,18 @@ new machinery; this is that pipeline pointed at messier data.
                                                   3.6  FUSE  (RRF)
                                                            │
                                                            ▼
+                                                  3.6b RERANK (optional)
+                                                   re-read the top 50
+                                                   properly, keep 6
+                                                           │
+                                                           ▼
                                                   3.7  MEASURE
                                                    did we find the
                                                    passage we know
                                                    is the right one?
 ```
 
-**Stages 3.1–3.4 happen once, offline.** Stages 3.5–3.6 happen every time
+**Stages 3.1–3.4 happen once, offline.** Stages 3.5–3.6b happen every time
 somebody asks a question. Stage 3.7 is how we know any of it works.
 
 ---
@@ -304,6 +309,93 @@ ODI 11298441   arm A rank 3   →  1/(60+3)  = 0.01587
 
 ---
 
+## 3.6b · RERANK — a second opinion on the top 50
+
+### Plainly
+
+Stages 3.5 and 3.6 are fast and slightly dumb. The vector arm compares the
+question to **each passage separately** — it never looks at the two together.
+That is what makes it fast enough to search 70,194 passages.
+
+A **cross-encoder** is the slow, careful version. It reads the question and one
+passage **at the same time** and answers a single question: *does this passage
+actually answer this question?* Far better, and far too slow to run on 70,194
+things.
+
+So you use both. Hybrid search narrows 70,194 → 50. The cross-encoder re-reads
+those 50 properly and re-orders them.
+
+```
+  70,194 passages
+        │   stage 3.5 + 3.6  — fast, approximate
+        ▼
+      top 50
+        │   stage 3.6b       — slow, careful
+        ▼
+      top 6   ──►  shown to the model
+```
+
+### You already have one
+
+`packages/grounding/src/rerank.ts`. A small model (`ms-marco-MiniLM-L-6-v2`)
+that runs **on this machine, on the CPU**, no network and no key — same story as
+the embedder. It is off unless `RERANK=local` is set.
+
+### What it was worth on the steering engagement — MEASURED
+
+```
+  arm        cases   recall@6    MRR
+  baseline    6/8      0.813     0.692
+  reranked    7/8      0.938     0.875     + local cross-encoder, 50 candidates
+```
+
+**+12.5 points.**
+
+### Why it helps, and it is not the reason you would guess
+
+The most useful thing that measurement turned up was a *failure of fusion*.
+
+Steering's `ret-007` asks which past job booked effort to a contaminated charge
+code. The answer is in **one** of 220 near-identical closure reports. Hybrid
+search ranked it **35th**; the cross-encoder moved it to **1st**.
+
+Why was it 35th? Because of how RRF adds up:
+
+```
+  keyword arm ranked it 1st, dense arm never returned it
+        →  1/(60+1)                  = 0.0164
+
+  a WORSE passage, both arms ranked 50th
+        →  1/(60+50) + 1/(60+50)     = 0.0182   ← wins
+```
+
+> **RRF rewards agreement.** A passage one arm is *certain* about, and the other
+> never saw, loses to a passage both arms are lukewarm about. That is usually
+> the right instinct — and it is exactly wrong when only one arm can see the
+> thing that matters.
+
+### Why we expect it to matter MORE here — a prediction, written before measuring
+
+That failure shape is the normal case in this corpus, not the exception:
+
+- The things **only the keyword arm** can find are the things that matter most —
+  `20V197000`, `11353867`, `P0219A`, `PRNDL`. The dense arm returns things that
+  *look like* campaign numbers.
+- **REC-001 is `ret-007` at ten times the scale**: 103 relevant complaints
+  hiding among 957 near-identical ones about a *different* transmission fault.
+  Near-identical neighbours are precisely what a cross-encoder is for.
+
+**Writing the prediction down before the run is the point.** If the delta here
+is smaller than steering's +12.5, that is a finding about this corpus and not a
+disappointment.
+
+### What it costs
+
+A second model over 50 candidates on every question. Slower, and ~200 MB of
+optional dependency. Nothing leaves the machine.
+
+---
+
 ## 3.7 · MEASURE — did we find what we already knew?
 
 ### Plainly
@@ -322,11 +414,24 @@ recall@6  =  how many known-right passages were in the top 6
              how many known-right passages there are
 ```
 
+### TWO numbers, not one — the plain pipeline and the reranked one
+
+```
+  3.7a   recall@6, hybrid alone        the baseline
+  3.7b   recall@6, RERANK=local        the same run, reranked
+```
+
+Same questions, same corpus, one variable changed. **This is the only way the
+reranker's value is a measurement rather than a belief** — turn it on from the
+start and you learn one number that cannot answer *"did the reranker help, or
+was the chunking simply fine?"*
+
 ### BEFORE → AFTER
 
 ```
-BEFORE   we believe search works, because results look plausible
-AFTER    recall@6 = 0.81  — and we know which 19% it misses, by name
+BEFORE   we believe search works, because the results look plausible
+AFTER    recall@6 = 0.81 plain, 0.9x reranked — and we know which ones
+         each of them misses, by name
 ```
 
 > Your steering engagement measures **0.813**. That is the bar. A number lets us
@@ -342,7 +447,7 @@ AFTER    recall@6 = 0.81  — and we know which 19% it misses, by name
 | no model call | if search cannot find the passage, no model saves it |
 | no answer contract | stage 4 |
 | no tools, no agent | stage 5 |
-| no reranker | measure the plain pipeline first, or you cannot say what the reranker bought |
+| no reranker **on the first run** | it is 3.6b and it *is* in scope — but measured as a delta against the plain pipeline, or you cannot say what it bought |
 
 ---
 
