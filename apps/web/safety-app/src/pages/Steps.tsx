@@ -36,6 +36,7 @@ import { Mono } from '@fde/uikit';
 import { Link } from '@tanstack/react-router';
 import { Aurora } from '@veresk/surface';
 import { BeforeAfter, Because, Figure, Raw, Stage } from '../components/steps/kit';
+import { ParserModal } from '../components/steps/ParserModal';
 import { AURORA } from '../lib/aurora';
 import { MAX_CHARS, MEAN_CHARS, ROWS, UNITS } from '../lib/estate.generated';
 import { VERESK } from '../lib/links';
@@ -267,6 +268,8 @@ DRIVE, DISPLAY SHOWS REVERSE BUT THE...`}</Raw>
         searched, because “deaths 0” in the text would make every complaint match
         a question about fatalities.
       </Because>
+
+      <ParserModal />
     </Stage>
   );
 }

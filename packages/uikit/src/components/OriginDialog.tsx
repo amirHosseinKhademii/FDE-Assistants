@@ -157,7 +157,15 @@ export function OriginDialog({
             <span aria-hidden />
           </button>
         </header>
-        <div className="ui-dialog-body">{children}</div>
+        {/* `data-dialog-scroll` names the element that actually scrolls, so a
+            consumer with a pinned header inside the panel can measure against
+            it without knowing how the dialog is built. `scrollIntoView` is not
+            enough there: it honours `scroll-margin`, which is a fixed guess,
+            and a pinned block's height moves with the font and the panel
+            width. */}
+        <div className="ui-dialog-body" data-dialog-scroll>
+          {children}
+        </div>
       </div>
     </div>,
     document.body,
