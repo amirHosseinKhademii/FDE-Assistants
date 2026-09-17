@@ -14,7 +14,8 @@
     "embed": "ts-node src/cli/embed.ts",
     "index": "ts-node src/cli/index-cli.ts",
     "search": "ts-node src/cli/search.ts",
-    "measure": "ts-node src/cli/measure.ts"
+    "measure": "ts-node src/cli/measure.ts",
+    "recall": "ts-node src/cli/recall.ts"
   },
   "dependencies": {
     "dotenv": "^16.4.5",

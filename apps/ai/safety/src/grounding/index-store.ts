@@ -203,6 +203,27 @@ export async function loadIntoStore(
   // `@fde/grounding`'s `ensureFullTextIndex`.
   await ensureFullTextIndex(opts);
 
+  // THE LOOKUP INDEX, WHICH IS STAGE 4'S AND NOT STAGE 3'S.
+  //
+  // Nothing in the retrieval pipeline needs it: both arms sort the whole table
+  // by relevance, so neither ever looks a document up by name. `get_recall`
+  // does nothing else.
+  //
+  // MEASURED before adding it, on the seq scan it replaces:
+  //
+  //   20V197000, found early    0.09 ms       65 rows scanned past
+  //   21V353000, found later    0.09 ms       72 rows scanned past
+  //   99V999999, ABSENT       45.13 ms   73,442 rows scanned past
+  //
+  // The found cases look fine and are misleading — `limit 1` lets Postgres stop
+  // at the first match. The ABSENT case cannot stop early, because proving
+  // something is missing means looking everywhere, and that is precisely the
+  // path a safety question takes: "is there a recall for this?" is answered by
+  // NOT finding one. The honest answer was the slow one.
+  await store.pool.query(
+    `create index if not exists ${opts.tableName}_id_idx on ${opts.tableName} ((metadata->>'id'))`,
+  );
+
   report.ms = Date.now() - started;
   await store.end();
   return report;
