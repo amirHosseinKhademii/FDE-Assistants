@@ -41,8 +41,10 @@ export const PACKAGES: ArchPackage[] = [
     "glob": "apps/ai/*",
     "kind": "judgement",
     "layerNote": null,
-    "lines": 362,
-    "deps": [],
+    "lines": 946,
+    "deps": [
+      "@fde/grounding"
+    ],
     "external": 1
   },
   {
@@ -51,7 +53,7 @@ export const PACKAGES: ArchPackage[] = [
     "glob": "apps/web/*",
     "kind": "surface",
     "layerNote": null,
-    "lines": 2793,
+    "lines": 3393,
     "deps": [
       "@fde/uikit",
       "@veresk/surface"
@@ -276,7 +278,7 @@ export const PACKAGES: ArchPackage[] = [
     "glob": "apps/web/*",
     "kind": "surface",
     "layerNote": null,
-    "lines": 15417,
+    "lines": 15460,
     "deps": [
       "@fde/uikit",
       "@veresk/surface"
