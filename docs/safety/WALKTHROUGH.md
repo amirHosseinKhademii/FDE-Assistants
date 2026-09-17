@@ -20,7 +20,7 @@ Settled 2026-09-17, from `CORPUS.md` §7:
    separates *"the door failed to latch"* from *"while my daughter was getting
    out"*. **Recall campaigns average 696 characters and are one passage too** —
    only the 114 investigations (mean 2,504) are chunked.
-2. **Collapse repeated `ODINO`.** 100,928 records are **70,155 complaints** — 31%
+2. **Collapse repeated `ODINO`.** 100,980 rows are **70,194 complaints** — 31%
    repeat because NHTSA writes one row per component. ODI `11341276` appears
    five times with the same narrative. Components become metadata on one passage.
 3. **A recall is a campaign, not a row.** 44,791 rows are **3,026 campaigns**.

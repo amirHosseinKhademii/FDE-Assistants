@@ -121,6 +121,14 @@ it.
 on. Putting "deaths 0" in the text would make every complaint match a question
 about fatalities.
 
+### One parser setting, and it is not the default
+
+Read these files with **`quoting=csv.QUOTE_NONE`**, or split each line on `\t`.
+NHTSA says *"TAB delimited"* and names no quote character — but 708 lines carry
+an odd number of `"` because people write `THE "SERVICE ENGINE" LIGHT CAME ON`.
+With quote handling on, the reader swallows newlines looking for a closing quote
+and silently merges 52 records. `CORPUS.md` §3 is what that cost.
+
 ### Dates — one function, one place
 
 All three flat files use `YYYYMMDD`. The **API** uses `MM/DD/YYYY` for
@@ -149,7 +157,7 @@ guessed at the recalls and guessed wrong:
 
 | | mean | max | chunked? |
 |---|---|---|---|
-| **complaint** | **596** | 18,257 | **no** — one complaint, one passage |
+| **complaint** | **596** | 2,048 | **no** — one complaint, one passage |
 | **recall campaign** | **696** | 1,608 | **no** — shorter than the longest complaint |
 | investigation | **2,504** | 5,796 | **yes** — and there are only 114 of them |
 

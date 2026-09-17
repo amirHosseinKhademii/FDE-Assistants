@@ -20,7 +20,7 @@ actual question. The proven contradiction in `PLAN.md` §4 is a 2019 model.
 
 | source | rows | **units of meaning** | on disk |
 |---|---|---|---|
-| complaints | 100,928 records / 100,980 lines | **70,155 complaints** | 79 MB |
+| complaints | **100,980** | **70,194 complaints** | 79 MB |
 | recalls | 44,791 | **3,026 campaigns** | 56 MB |
 | investigations | 1,631 | **114 investigations** | 4.3 MB |
 
@@ -86,10 +86,10 @@ NHTSA writes down what it thought before a recall existed.
 
 | | |
 |---|---|
-| ALL-CAPS narratives | **16,292 of 70,155 (23%)** |
+| ALL-CAPS narratives | **16,266 of 70,194 (23%)** |
 | narratives under 40 characters | **1,150** |
 | empty narratives | 0 |
-| narrative length | mean **596**, max **18,257** |
+| narrative length | mean **596**, max **2,048** (the field's declared size) |
 | distinct makes | **198** |
 | distinct make\|model pairs | 988 |
 | distinct `COMPDESC` | **472** |
@@ -105,20 +105,56 @@ And in the recall prose itself: `"American Honda Motor Co."` in one campaign,
 `"America Honda Motor Co."` in the next. Any grouping by manufacturer name
 silently splits one company into two.
 
-### The file breaks its own rules, in two ways that change counts
+### THE PARSER INVENTED TWO DEFECTS THAT ARE NOT IN THE FILE
 
-**1 · Records span lines.** The file is tab-delimited with one record per line
-— except 8 narratives contain a newline, so **100,980 physical lines are 100,928
-records**. `wc -l` and `awk` disagree with any real parser by 52, and every
-line-based figure in an earlier draft of this file inherited that.
+An earlier version of this section reported that records span lines and that
+`CDESCR` exceeds its declared `CHAR(2048)` by nine times. **Both were artefacts
+of Python's `csv.reader`, which defaults to `quotechar='"'`. This file is not
+quoted.**
 
-**2 · `CDESCR` is declared `CHAR(2048)` and the longest is 18,257 characters** —
-nine times its stated size. A pipeline that trusts the dictionary and allocates
-2,048 truncates 0.01% of narratives in the middle of a sentence, silently.
+708 of 100,980 lines contain an **odd** number of double quotes, because people
+write `THE "SERVICE ENGINE" LIGHT CAME ON`. At an unbalanced quote the reader
+keeps consuming — newlines included — until it finds the next one, merging
+records and producing a monstrous field.
 
-**Both mean the same thing for stage 3.1: parse records, never lines.**
+```
+                        default quoting   QUOTE_NONE     the file
+  csv rows                     100,928      100,980      100,980
+  longest CDESCR                18,257        2,048        2,048
+  distinct ODINO                 70,155       70,194       70,194
+```
 
-### Three date formats, from one agency
+Straight from the file, no parser involved:
+
+```bash
+awk -F'\t' '{c[NF]++} END {for (n in c) print n, c[n]}' CMPL_SLICE.tsv
+  51 fields: 100980 lines          # every line, no exceptions
+
+awk -F'\t' '{if(length($20)>m)m=length($20)} END {print m}' CMPL_SLICE.tsv
+  2048                             # exactly the declared size
+```
+
+**So `wc -l` is correct, and `CHAR(2048)` is the dictionary being honest.** A
+field that stops precisely at its declared size is not a trap.
+
+**The guidance for stage 3.1 is therefore the opposite of what this section
+first said.** Not "parse records, never lines" — on these files, set
+`quoting=csv.QUOTE_NONE`, or simply split each line on `\t`. NHTSA's own file
+characteristics say *"TAB delimited"* and never mention a quote character.
+**Enabling quote handling is what creates the spanning records.**
+
+The tell was sitting in the two numbers already: 52 merged records but only 8
+narratives containing a newline. Eight embedded newlines can produce eight extra
+physical lines, not fifty-two. The other forty-four came from quotes. Found by
+the `fde-assistants-73` session, which checked the hypothesis instead of the
+conclusion.
+
+> **The transferable lesson is bigger than the file.** A default in a standard
+> library manufactured a data-quality finding that was not true, and it was
+> written into a document as a property of the corpus. The corpus was clean. The
+> reader was configured for a format this file does not use.
+
+### Three date formats, from one agency### Three date formats, from one agency
 
 | where | format |
 |---|---|
@@ -175,7 +211,7 @@ document cannot settle and a person must — which is what the answer contract's
 | | |
 |---|---|
 | crash reported | **2,729** |
-| fire reported | **842** |
+| fire reported | **843** |
 | injuries reported | **1,721** |
 | **complaints reporting a death** | **41**, accounting for **53 people** |
 
