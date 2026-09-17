@@ -96,8 +96,8 @@ export function Steps() {
       </main>
 
       <footer className="relative z-10 mx-auto max-w-5xl border-t border-ui-line px-5 py-10 text-sm text-ui-faint sm:px-6">
-        Written before the code, from <Mono>docs/safety/</Mono>. Three of the six
-        parts exist; the other three are a plan being argued with.
+        Written before the code. Three of the six parts exist; the other three
+        are a plan being argued with.
       </footer>
     </div>
   );
@@ -576,10 +576,10 @@ function Chunk() {
 
       <Because>
         <span className="text-ui-fg">Which demotes this stage, and that is the part worth taking away.</span>{' '}
-        <Mono>docs/RETRIEVAL.md</Mono> calls the chunker “the highest-leverage
-        file in the path”, and on a corpus of long documents it is — where you
-        cut decides what can be found. Here it touches{' '}
-        {UNITS.investigations} documents out of {inTotal.toLocaleString('en-GB')}.
+        Where you cut normally decides what can be found, which is why chunking
+        is usually the highest-leverage step in the whole pipeline. Here it
+        touches {UNITS.investigations} documents out of{' '}
+        {inTotal.toLocaleString('en-GB')}.
       </Because>
 
       <Because>
@@ -593,11 +593,10 @@ function Chunk() {
       </Because>
 
       <Because>
-        And nothing new was written to get here.{' '}
-        <Mono>chunkDocument</Mono> is <Mono>@fde/grounding</Mono>'s, used by two
-        other engagements unchanged — which is the claim{' '}
-        <Mono>docs/TEMPLATE.md</Mono> makes, tested for the first time against a
-        corpus nobody wrote for us, passing quietly.
+        And nothing new was written to get here. The chunker is the shared one,
+        used by two other engagements unchanged — the claim that shared code
+        transfers, tested for the first time against a corpus nobody wrote for
+        us, passing quietly.
       </Because>
 
       <ChunkerModal />

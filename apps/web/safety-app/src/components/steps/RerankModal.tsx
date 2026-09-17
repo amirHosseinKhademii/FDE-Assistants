@@ -89,7 +89,7 @@ function RerankPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
         <>
           <p className="font-mono text-sm text-ui-fg">Inside the reranker</p>
           <p className="mt-0.5 text-[0.75rem] text-ui-faint">
-            stage 3.6b · optional, off by default · <Mono>packages/grounding/src/rerank.ts</Mono>
+            stage 3.6b · optional, and off by default
           </p>
         </>
       }

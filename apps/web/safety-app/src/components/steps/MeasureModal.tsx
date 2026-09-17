@@ -108,7 +108,7 @@ function MeasurePanel({ from, onClose }: { from: Origin; onClose: () => void }) 
         <>
           <p className="font-mono text-sm text-ui-fg">Inside the measurement</p>
           <p className="mt-0.5 text-[0.75rem] text-ui-faint">
-            stage 3.7 · n=3 · <Mono>docs/safety/evals/</Mono>
+            stage 3.7 · three questions, answered by hand first
           </p>
         </>
       }

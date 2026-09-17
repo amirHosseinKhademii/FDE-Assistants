@@ -75,8 +75,7 @@ function GetRecallPanel({ from, onClose }: { from: Origin; onClose: () => void }
         <>
           <p className="font-mono text-sm text-ui-fg">Inside get_recall</p>
           <p className="mt-0.5 text-[0.75rem] text-ui-faint">
-            stage 4.1 · built ·{' '}
-            <Mono>apps/ai/safety/src/tools/get-recall.tool.ts</Mono>
+            stage 4.1 · built, and checked against the answer key
           </p>
         </>
       }

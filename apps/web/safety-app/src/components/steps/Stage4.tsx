@@ -177,9 +177,9 @@ export function Stage4() {
         sub="Stage 3.7 measured recall@6 at 0.40, diagnosed why, and half the original design did not survive it."
       >
         <P>
-          <Mono>PLAN.md</Mono> §8 specified two: an exact recall lookup and a
-          hybrid complaint search. Both were reasoned from what the questions
-          looked like, before anything had been measured.
+          The plan named two: look a recall up by its number, and search the
+          complaints. Both were guesses from what the questions looked like,
+          before anything had been measured.
         </P>
         <div className="cal-panel flex flex-wrap items-center gap-x-10 gap-y-4">
           {[

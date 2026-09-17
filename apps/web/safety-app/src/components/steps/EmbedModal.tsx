@@ -135,8 +135,7 @@ function EmbedPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
         <>
           <p className="font-mono text-sm text-ui-fg">Inside the embedder</p>
           <p className="mt-0.5 text-[0.75rem] text-ui-faint">
-            stage 3.3 · {PASSAGES.toLocaleString('en-GB')} passages → {DIMS} numbers each ·{' '}
-            <Mono>docs/safety/EMBED.md</Mono>
+            stage 3.3 · {PASSAGES.toLocaleString('en-GB')} passages → {DIMS} numbers each
           </p>
         </>
       }
@@ -306,10 +305,9 @@ function EmbedPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             landing page.
           </Aside>
           <P>
-            It is written down before it is made, which is{' '}
-            <Mono>docs/safety/PLAN.md</Mono> §9.6: every time this engagement
-            reaches for a change to a shared package, the reach gets recorded
-            rather than quietly taken. This is the first one.
+            It is written down before it is made. Every time this engagement
+            reaches for a change to shared code, the reach gets recorded rather
+            than quietly taken — and this is the first one.
           </P>
         </Sect>
 
@@ -333,12 +331,12 @@ function EmbedPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             party to be read. Local means it never leaves.
           </Aside>
           <P>
-            And there is nothing traded away for that:{' '}
-            <Mono>docs/FREE.md</Mono> §8c measured local <Mono>bge-small</Mono>{' '}
-            at recall@k <span className="text-ui-fg">0.813</span> against the
-            paid Azure model's <span className="text-ui-fg">0.813</span> on the
-            sibling corpus. The same number. So “local” here is a decision about
-            the data rather than about the bill, and it costs no accuracy to make.
+            And nothing is traded away for it. Measured on the sibling
+            engagement, the local model scored{' '}
+            <span className="text-ui-fg">0.813</span> against the paid one's{' '}
+            <span className="text-ui-fg">0.813</span> — the same number. So
+            “local” here is a decision about the data rather than about the bill,
+            and it costs no accuracy to make.
           </P>
         </Sect>
 

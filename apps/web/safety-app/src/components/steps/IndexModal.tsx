@@ -138,8 +138,7 @@ function IndexPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
         <>
           <p className="font-mono text-sm text-ui-fg">Inside the index</p>
           <p className="mt-0.5 text-[0.75rem] text-ui-faint">
-            stage 3.4 · {MB_ON_DISK} MB of NDJSON → one Postgres table ·{' '}
-            <Mono>docs/safety/INDEX.md</Mono>
+            stage 3.4 · {MB_ON_DISK} MB on disk → one Postgres table
           </p>
         </>
       }

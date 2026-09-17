@@ -141,8 +141,7 @@ function ParserPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
           <p className="font-mono text-sm text-ui-fg">Inside the parser</p>
           <p className="mt-0.5 text-[0.75rem] text-ui-faint">
             stage 3.1 · {ROWS.complaints.toLocaleString('en-GB')} lines in,{' '}
-            {UNITS.complaints.toLocaleString('en-GB')} documents out ·{' '}
-            <Mono>docs/safety/PARSE.md</Mono>
+            {UNITS.complaints.toLocaleString('en-GB')} documents out
           </p>
         </>
       }
@@ -235,8 +234,7 @@ function ParserPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
           <P>
             The slice is 79 MB and would load fine. The full file is 1.5 GB and
             would not. Streaming costs nothing here and means the same code
-            survives the slice widening, which <Mono>PLAN.md</Mono> §9.1 says it
-            might.
+            survives the slice widening, which is still on the table.
           </P>
           <P>
             The marked line is not decoration. These files are Windows-origin,
@@ -453,9 +451,8 @@ function ParserPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
           />
           <Aside>
             That is a regulator writing down that this enquiry produced that
-            recall. It is the investigation → recall edge{' '}
-            <Mono>docs/rag/GRAPH.md</Mono> describes, sitting in the file with
-            nothing to infer and no model involved — which is why the parser
+            recall — a link between two documents, sitting in the file with
+            nothing to infer and no model involved, which is why the parser
             asserts it as a check rather than mentioning it in a comment. It also
             gives the estate a relationship worth drawing: investigation →
             recall → complaints about the same component, before and after the

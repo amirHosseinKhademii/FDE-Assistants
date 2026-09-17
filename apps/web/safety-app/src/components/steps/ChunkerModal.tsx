@@ -124,8 +124,7 @@ function ChunkerPanel({ from, onClose }: { from: Origin; onClose: () => void }) 
           <p className="font-mono text-sm text-ui-fg">Inside the chunker</p>
           <p className="mt-0.5 text-[0.75rem] text-ui-faint">
             stage 3.2 · {IN_TOTAL.toLocaleString('en-GB')} documents in,{' '}
-            {OUT_TOTAL.toLocaleString('en-GB')} passages out ·{' '}
-            <Mono>docs/safety/CHUNK.md</Mono>
+            {OUT_TOTAL.toLocaleString('en-GB')} passages out
           </p>
         </>
       }
@@ -232,9 +231,9 @@ function ChunkerPanel({ from, onClose }: { from: Origin; onClose: () => void }) 
             Two measurements of the same thing, and they disagree about which
             impression to leave. The counts above say one document in nine is
             long enough to cut; the lengths below say the typical one is nowhere
-            near it. Both are true, and printing only the second is how{' '}
-            <Mono>docs/safety/INGESTION.md</Mono> §3.2 came to say recall
-            campaigns run to “thousands of characters — chunk them”.
+            near it. Both are true, and printing only the second is how the plan
+            came to say recall campaigns run to thousands of characters and
+            should be cut up.
           </P>
           <Data
             path="two rulers, and the chunker only sees one of them"
@@ -384,13 +383,12 @@ function ChunkerPanel({ from, onClose }: { from: Origin; onClose: () => void }) 
             ]}
           />
           <Aside>
-            <span className="text-ui-fg">Nothing new is written.</span>{' '}
-            <Mono>chunkDocument</Mono> is <Mono>@fde/grounding</Mono>'s, used by
-            two other engagements unchanged. The claim{' '}
-            <Mono>docs/TEMPLATE.md</Mono> makes — that the shared packages
-            transfer to a customer nobody wrote the corpus for — is tested here
-            for the first time, and at this stage it passes quietly: the fourth
-            engagement reached 3.2 without needing a line of new shared code.
+            <span className="text-ui-fg">Nothing new is written.</span> The
+            chunker is the shared one, used by two other engagements unchanged.
+            The claim that shared code transfers to a customer nobody wrote the
+            corpus for is tested here for the first time, and at this stage it
+            passes quietly: the fourth engagement reached 3.2 without a line of
+            new shared code.
           </Aside>
           <P>
             The <Mono>#0</Mono>, <Mono>#1</Mono> suffix only ever appears on
@@ -402,10 +400,9 @@ function ChunkerPanel({ from, onClose }: { from: Origin; onClose: () => void }) 
 
         <Sect k="leverage" title="Where the leverage actually is" refs={sections} active={active}>
           <P>
-            <Mono>docs/RETRIEVAL.md</Mono> calls the chunker “the
-            highest-leverage file in the path”, and on a corpus of long documents
-            it is — where you cut decides what can be found. Here it touches{' '}
-            {UNITS.investigations} documents out of{' '}
+            Where you cut normally decides what can be found, which is why
+            chunking is usually the highest-leverage step in the whole pipeline.
+            Here it touches {UNITS.investigations} documents out of{' '}
             {IN_TOTAL.toLocaleString('en-GB')}.
           </P>
           <Aside>

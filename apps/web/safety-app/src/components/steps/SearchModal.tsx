@@ -78,7 +78,7 @@ function SearchPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
         <>
           <p className="font-mono text-sm text-ui-fg">Inside the search</p>
           <p className="mt-0.5 text-[0.75rem] text-ui-faint">
-            stage 3.5 · two arms, in parallel · <Mono>docs/safety/INGESTION.md</Mono> §3.5
+            stage 3.5 · two arms, asked at the same time
           </p>
         </>
       }
@@ -209,8 +209,7 @@ function FusePanel({ from, onClose }: { from: Origin; onClose: () => void }) {
         <>
           <p className="font-mono text-sm text-ui-fg">Inside the fusion</p>
           <p className="mt-0.5 text-[0.75rem] text-ui-faint">
-            stage 3.6 · pure arithmetic over two lists ·{' '}
-            <Mono>docs/safety/INGESTION.md</Mono> §3.6
+            stage 3.6 · pure arithmetic over two lists
           </p>
         </>
       }
