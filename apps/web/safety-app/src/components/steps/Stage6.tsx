@@ -1,12 +1,19 @@
 /**
  * Stage 6 — the loop, and the first stage whose answer is not the same twice.
  *
- * ── NOTHING HERE HAS RUN, AND THE TAB HAS TO SAY SO LOUDLY ────────────────
+ * ── TWO OF SIX STEPS HAVE RUN, AND THE TAB HAS TO SAY WHICH ───────────────
  *
- * The plan is written and committed; no part of it is built. That is a real
- * distinction on this site and it is the one most easily lost — stage 5 carried
- * "specified · not built" for a fortnight before it was true that it was built.
- * So every panel on this tab is dashed, and the frame says planned.
+ * 6.1 and 6.2 are built: the tools are reachable by name, and one question has
+ * been answered end to end by a model. 6.3 to 6.6 are not. Everything still
+ * unbuilt stays dashed, and the walkthrough of how the loop works is solid
+ * because that part describes something which has actually run.
+ *
+ * ── AND ONE GREEN RUN IS A SMOKE TEST, NOT A SCORE ────────────────────────
+ *
+ * The same question can now give two answers and neither is a bug, so the empty
+ * slot beside 1.00 STAYS EMPTY until every question runs with repeats. One
+ * question answered well is the least this stage could have shown and still
+ * been worth continuing.
  *
  * ── THE GAP IS THE WHOLE STAGE, AND IT IS THE PAYOFF OF TWO STAGES ────────
  *
@@ -29,18 +36,53 @@
  */
 import { Mono } from '@fde/uikit';
 import { Data } from '@veresk/surface';
+import { LoopModal } from './LoopModal';
 
-/** The six steps, none of them done. */
-const STEPS: readonly { n: string; what: string; check: string }[] = [
+/**
+ * The loop, as a person would describe it.
+ *
+ * THE FIRST LINE IS THE ONE THAT MATTERS: the model has no database access. Most
+ * people assume it queries something. It produces text, and one shape of text is
+ * a request that our code then honours.
+ */
+const LOOP: readonly { n: string; what: string; detail?: string }[] = [
+  {
+    n: '1',
+    what: 'We send it the question, the rules, and a menu of tools',
+    detail: 'Five names, what each one is for, and exactly what arguments each takes.',
+  },
+  {
+    n: '2',
+    what: 'It replies with an answer — or with a request',
+    detail: '“call count_complaints with make TESLA, model MODEL 3, at least one death”.',
+  },
+  {
+    n: '3',
+    what: 'If it asked for a tool, our code runs it',
+    detail: 'The model waits. It never sees the database, only what comes back.',
+  },
+  { n: '4', what: 'We hand the result back as another message' },
+  { n: '5', what: 'Repeat until it answers instead of asking' },
+  {
+    n: '6',
+    what: 'The answer has to satisfy the contract',
+    detail: 'If it does not, the errors go back and it tries again. We never repair it ourselves.',
+  },
+];
+
+/** The six steps, two of them done. */
+const STEPS: readonly { n: string; what: string; check: string; done?: boolean }[] = [
   {
     n: '6.1',
     what: 'the tools, registered',
     check: 'each of the five callable, with its arguments validated — and still no model',
+    done: true,
   },
   {
     n: '6.2',
     what: 'ONE question, end to end',
     check: 'the campaign comes back, and the record shows the lookup ran and the search did not',
+    done: true,
   },
   {
     n: '6.3',
@@ -114,14 +156,15 @@ export function Stage6() {
           Where a model is finally asked
         </h2>
         <span className="rounded-full border border-dashed border-cal-2/50 px-2.5 py-0.5 font-mono text-[0.625rem] tracking-[0.06em] text-cal-2 uppercase">
-          planned · nothing here has run
+          two steps run · four to go · no score yet
         </span>
       </div>
 
       <p className="mt-4 max-w-[64ch] leading-relaxed text-ui-dim">
         Everything up to here runs <em>without</em> a model. This is where one is
         finally asked a question — and it is the first stage whose answer is not
-        the same twice.
+        the same twice. A model has now been asked one, and answered it well;
+        that is a long way from a score.
       </p>
 
       <div className="cal-plain">
@@ -135,6 +178,41 @@ export function Stage6() {
           never been tested is whether a model{' '}
           <span className="text-ui-fg">asks for the right things</span>.
         </p>
+      </div>
+
+      <div className="cal-loop">
+        <p className="cal-result-label">how it actually works</p>
+        <p className="cal-loop-lead">
+          The model never touches the database. It{' '}
+          <span className="text-ui-fg">cannot</span> — no connection, no
+          credentials, no way to run anything. All it can do is produce text.
+        </p>
+        <p className="cal-loop-lead mt-2.5">
+          So it is allowed to produce one very specific kind of text:{' '}
+          <span className="text-ui-fg">a request</span>.
+        </p>
+
+        <ol className="cal-loop-steps">
+          {LOOP.map((l) => (
+            <li key={l.n}>
+              <span className="cal-loop-n" aria-hidden>
+                {l.n}
+              </span>
+              <div>
+                <p className="cal-loop-what">{l.what}</p>
+                {l.detail && <p className="cal-loop-detail">{l.detail}</p>}
+              </div>
+            </li>
+          ))}
+        </ol>
+
+        <p className="cal-loop-punch">
+          The model is not doing the work. It is deciding what work to ask for.
+        </p>
+      </div>
+
+      <div className="mt-6">
+        <LoopModal />
       </div>
 
       {/* THE GAP. Drawn empty on purpose: the number has nowhere to arrive
@@ -194,9 +272,22 @@ export function Stage6() {
         <ul className="cal-panel cal-dashed grid gap-2.5">
           {STEPS.map((s) => (
             <li key={s.n} className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-              <span className="w-10 shrink-0 font-mono text-[0.75rem] text-ui-faint">{s.n}</span>
-              <span className="w-44 shrink-0 font-mono text-[0.8125rem] text-ui-dim">
+              <span
+                className="w-10 shrink-0 font-mono text-[0.75rem]"
+                style={{ color: s.done ? 'var(--color-cal-1)' : 'var(--color-ui-faint)' }}
+              >
+                {s.n}
+              </span>
+              <span
+                className="w-44 shrink-0 font-mono text-[0.8125rem]"
+                style={{ color: s.done ? 'var(--color-ui-fg)' : 'var(--color-ui-dim)' }}
+              >
                 {s.what}
+                {s.done && (
+                  <span className="ml-2 text-[0.5625rem] tracking-[0.06em] text-cal-1 uppercase">
+                    done
+                  </span>
+                )}
               </span>
               <span className="max-w-[46ch] text-[0.8125rem] leading-relaxed text-ui-dim">
                 {s.check}
