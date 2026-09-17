@@ -47,6 +47,13 @@ function printAnswer(a: SafetyAnswer): void {
   if (a.campaigns.length) console.log(`  campaigns   ${a.campaigns.join(', ')}`);
   for (const c of a.counts) console.log(`  count       ${c.value} — ${c.label}`);
   for (const c of a.citations) console.log(`  cite        ${c.source}  ${DIM}${c.claim}${OFF}`);
+  // PRINTED, BECAUSE AN UNSEEN FIELD IS AN UNCHECKED ONE. Rule 7 forces this to
+  // be non-empty when an answer rests on an absence, and a rule satisfied by
+  // something nobody reads is satisfied by anything.
+  for (const e of a.searches_that_found_nothing) {
+    console.log(`  ${YEL}found none${OFF}  ${e.tool}(${JSON.stringify(e.arguments)})`);
+    console.log(`              ${DIM}${e.what_it_means}${OFF}`);
+  }
   for (const u of a.unverified_claims) console.log(`  ${YEL}unverified${OFF}  ${u}`);
   for (const c of a.conflicts) console.log(`  ${YEL}conflict${OFF}    ${c.topic}`);
   if (a.escalate) console.log(`  ${YEL}escalate${OFF}    ${a.escalate.reason} → ${a.escalate.suggested_owner}`);
@@ -89,7 +96,7 @@ async function main(): Promise<number> {
   }
 
   console.log('\nstage 6.2 · one question, end to end');
-  const { result, ms, model } = await ask(REC002);
+  const { result, ms, model, calls: recorded } = await ask(REC002);
 
   let failed = 0;
   const check = (ok: boolean, name: string, detail: string) => {
@@ -123,11 +130,32 @@ async function main(): Promise<number> {
     calls.map((c) => `${c.name} ${c.ok ? 'ok' : `FAILED: ${c.error}`}`).join(' · ') || 'none',
   );
 
+  // REPEATS ARE REPORTED, NOT HIDDEN. The cache stops a duplicate reaching the
+  // database; it must not stop it reaching the reader, because "the model asked
+  // the same thing twice" is a fact about the model and stage 7 turns it into a
+  // number.
+  const repeats = recorded.filter((c) => c.cached);
+  console.log(
+    repeats.length
+      ? `  ${YEL}note${OFF}  ${repeats.length} duplicate tool call(s) served from cache, not re-run: ` +
+          `${repeats.map((c) => c.name).join(', ')}`
+      : `  ${DIM}note  no duplicate tool calls${OFF}`,
+  );
+
   check(
     !!result.structured,
     'the answer parsed, matched the schema and tripped no coherence rule',
     result.structured ? 'valid' : `schemaErrors: ${result.schemaErrors.join(' | ')}`,
   );
+
+  // THE REJECTED TEXT, PRINTED. A rule that says "number 2 is unaccounted for"
+  // is unactionable without the sentence containing the 2 — and this suite
+  // exists to find rules that misfire, which cannot be told from rules that
+  // fired correctly unless the answer is visible.
+  if (!result.structured && result.text) {
+    console.log(`\n  ${DIM}the answer that was rejected:${OFF}`);
+    console.log(`  ${result.text.slice(0, 900)}\n`);
+  }
 
   const a = result.structured;
   check(
@@ -160,10 +188,22 @@ async function main(): Promise<number> {
     'REC-005 · the recall search ran',
     negCalls.map((c) => c.name).join(', ') || 'no tools called',
   );
+  // THE METHOD, NOT THE TEXT. A run that never narrows to the component still
+  // answers correctly — it reads all 22 Odyssey recalls and observes that none
+  // is a forward-collision one. That is READING COMPREHENSION, which is exactly
+  // what insurance could not get past on its rideshare question, and exactly
+  // what `find_recalls(component)` exists to replace. An absence established by
+  // a search is checkable; an absence inferred from a list is a judgement
+  // wearing a fact's clothes.
+  const searchArgs = negCalls
+    .filter((c) => c.name === 'find_recalls')
+    .map((c) => JSON.stringify(c.args));
   check(
     ev.recallSearchWasEmpty,
-    'REC-005 · and it came back empty, which is the answer',
-    `recallSearchWasEmpty=${ev.recallSearchWasEmpty}`,
+    'REC-005 · the absence was PROVEN by a search, not inferred from a list',
+    ev.recallSearchWasEmpty
+      ? 'the last find_recalls returned nothing — that empty result is the evidence'
+      : `the last find_recalls found something, so no absence was established. Calls: ${searchArgs.join(' , ')}`,
   );
   check(
     !!na && na.campaigns.length === 0,

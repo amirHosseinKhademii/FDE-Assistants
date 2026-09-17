@@ -48,10 +48,37 @@ export interface CallRecord {
   name: string;
   args: unknown;
   result: unknown;
+  /** True when this repeated an earlier identical call and was served from memory. */
+  cached?: boolean;
 }
 
 /**
- * Wrap tools so every result is recorded, and hand back the shared log.
+ * Wrap tools so every result is recorded, and identical calls are made once.
+ *
+ * ── WHY DEDUPLICATE ───────────────────────────────────────────────────────
+ *
+ * A real run called `get_recall({campaign_number: "20V197000"})` TWICE with
+ * identical arguments. Nothing errored and nothing charged for it, which is
+ * exactly why it would have kept happening: a wasted call is invisible in the
+ * answer and visible only in the quota, and this engagement runs on a free tier
+ * whose failure mode is silent (`docs/FREE.md` §10).
+ *
+ * These tools are READ-ONLY and the corpus is a frozen snapshot, so the same
+ * arguments cannot produce a different answer within one conversation. That is
+ * what makes caching safe here and would not make it safe for a tool that
+ * writes.
+ *
+ * ── AND THE REPEAT IS STILL RECORDED ──────────────────────────────────────
+ *
+ * The call is logged with `cached: true` rather than dropped. Hiding it would
+ * make the trace lie about what the model did — and "it asked the same question
+ * twice" is a fact about the model worth keeping, especially for stage 7, which
+ * is where it becomes a number rather than an anecdote.
+ *
+ * ── THE CACHE IS PER CONVERSATION ─────────────────────────────────────────
+ *
+ * Created inside this call, so two questions never share one. A process-wide
+ * cache would be faster and would make the eval's repeat runs meaningless.
  *
  * The array is returned by reference and filled as the conversation runs. A
  * caller that reads it before the loop finishes sees a partial list, which is
@@ -59,12 +86,23 @@ export interface CallRecord {
  */
 export function recordingTools(tools: Tool[]): { tools: Tool[]; calls: CallRecord[] } {
   const calls: CallRecord[] = [];
+  const seen = new Map<string, unknown>();
+
   return {
     calls,
     tools: tools.map((t) => ({
       ...t,
       execute: async (args: unknown) => {
+        const key = `${t.schema.name}:${JSON.stringify(args ?? null)}`;
+
+        if (seen.has(key)) {
+          const result = seen.get(key);
+          calls.push({ name: t.schema.name, args, result, cached: true });
+          return result;
+        }
+
         const result = await t.execute(args);
+        seen.set(key, result);
         calls.push({ name: t.schema.name, args, result });
         return result;
       },
@@ -72,17 +110,33 @@ export function recordingTools(tools: Tool[]): { tools: Tool[]; calls: CallRecor
   };
 }
 
-/** What rule 6 needs, derived from the calls rather than self-reported. */
+/**
+ * What rules 6 and 7 need, derived from the calls rather than self-reported.
+ *
+ * ── THE LAST SEARCH, NOT EVERY SEARCH ─────────────────────────────────────
+ *
+ * This first required EVERY `find_recalls` call to be empty, and a real run
+ * broke it immediately by doing the sensible thing:
+ *
+ *   find_recalls({ make: HONDA, model: ODYSSEY })                    → 22
+ *   find_recalls({ make: HONDA, model: ODYSSEY, component: FCA })    → 0
+ *
+ * It looked at the vehicle, then narrowed to the component. Under "every", that
+ * conversation counted as NOT having been told "none" — so rules 6 and 7 both
+ * stood down on the exact question they exist for, and the check failed with
+ * `recallSearchWasEmpty=false` while the answer was correct.
+ *
+ * The last search is the one the answer rests on. Narrow-then-broad and
+ * broad-then-narrow both come out right: whichever the model finished on is
+ * what it is entitled to conclude from.
+ *
+ * A conversation that never searched at all is still not an absence — it cannot
+ * have been told "none" by a question it did not ask.
+ */
 export function evidenceFrom(calls: CallRecord[]): Evidence {
-  const recallSearches = calls.filter((c) => c.name === 'find_recalls');
+  const last = [...calls].reverse().find((c) => c.name === 'find_recalls');
   return {
-    // TRUE ONLY IF A SEARCH RAN AND EVERY ONE CAME BACK EMPTY. A conversation
-    // that never asked cannot have been told "none", and one that asked twice
-    // — say a narrow component and then a wider one — is entitled to cite what
-    // the wider search found.
-    recallSearchWasEmpty:
-      recallSearches.length > 0 &&
-      recallSearches.every((c) => ((c.result as any)?.matches?.length ?? 0) === 0),
+    recallSearchWasEmpty: !!last && ((last.result as any)?.matches?.length ?? 0) === 0,
   };
 }
 

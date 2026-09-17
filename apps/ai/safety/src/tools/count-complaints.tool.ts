@@ -100,13 +100,26 @@ export async function countComplaints(
     const { rows } = await client.query(`select count(*) n from ${TABLE} where ${where}`, all);
     const count = Number(rows[0].n);
 
+    // WHAT WAS THIS COUNTED ACROSS? A real run called this with a component and
+    // no make or model, counting that component over all 70,194 complaints —
+    // and then never used the number. An unscoped count is a legitimate
+    // question ("how many complaints mention fire at all") and an easy mistake,
+    // and the two produce the same shape of result. So the result says which
+    // one it is rather than leaving the caller to notice.
+    const scope =
+      filter.make || filter.model
+        ? ''
+        : ' NOTE: no make or model was given, so this counts ACROSS EVERY VEHICLE in the corpus. ' +
+          'If you meant one vehicle, pass make and model and ask again.';
+
     if (!matching) {
       return {
         count,
         filter,
         note:
           `${count.toLocaleString('en-GB')} complaints match the filter. This counts the ` +
-          'COMPONENT, not the defect — narrow it with `matching` before calling it a defect count.',
+          'COMPONENT, not the defect — narrow it with `matching` before calling it a defect count.' +
+          scope,
       };
     }
 

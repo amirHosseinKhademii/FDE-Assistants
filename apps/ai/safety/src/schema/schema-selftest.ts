@@ -50,11 +50,13 @@ const GOOD: SafetyAnswer = {
     {
       label: 'F-150 power-train complaints filed after 2020-04-27',
       value: 1057,
+      from: 'count_complaints',
       filter: { make: 'FORD', model: 'F-150', component: 'POWER TRAIN', filed_after: '2020-04-27' },
     },
     {
       label: 'of those, describing the recalled symptom',
       value: 89,
+      from: 'count_complaints',
       filter: {
         make: 'FORD',
         model: 'F-150',
@@ -64,6 +66,7 @@ const GOOD: SafetyAnswer = {
       },
     },
   ],
+  searches_that_found_nothing: [],
   unverified_claims: [],
   conflicts: [],
   escalate: {
@@ -95,9 +98,11 @@ const CASES: ValidatorCase[] = [
   },
   {
     name: 'rule 2 · an answer with nothing behind it',
-    expect: 'no citations and no unverified_claims',
+    expect: 'no recorded empty search',
     body: clone({ citations: [], unverified_claims: [] }),
-    why: 'every factual claim is either cited or declared unverified — there is no third place',
+    why:
+      'every factual claim is cited, declared unverified, or rests on a recorded empty search. ' +
+      'It was two places until REC-005 showed an answer can rest entirely on an absence.',
   },
   {
     name: 'rule 3 · an unresolved conflict, silently decided',
@@ -142,6 +147,29 @@ const CASES: ValidatorCase[] = [
       'the repair. Guardrail 5, and REC-001 checks for it explicitly.',
   },
   {
+    name: 'rule 2 · an answer resting only on an absence is ACCEPTED',
+    expect: 'accept',
+    body: clone({
+      answer: 'No recall covers the 2019-2020 Honda Odyssey for forward-collision avoidance.',
+      campaigns: [],
+      citations: [],
+      counts: [],
+      unverified_claims: [],
+      searches_that_found_nothing: [
+        {
+          tool: 'find_recalls',
+          arguments: { make: 'HONDA', model: 'ODYSSEY', component: 'FORWARD COLLISION AVOIDANCE' },
+          what_it_means: 'No campaign covers that vehicle and component.',
+        },
+      ],
+      escalate: null,
+    }),
+    why:
+      'REC-005 answers with an absence and there is no document to cite. Before this field ' +
+      'existed the only way to pass rule 2 was to write a citation to a document that does not ' +
+      'exist — which a real run did.',
+  },
+  {
     name: 'a year is not a count',
     expect: 'accept',
     body: clone({
@@ -164,11 +192,18 @@ for (const l of contract.lines) console.log(l);
 
 // Rule 6 separately, because it is not a property of the answer — it depends on
 // what `find_recalls` returned. REC-005 exactly.
+// ASSERTED BY MESSAGE, NOT BY COUNT. These two rules share a trigger — an empty
+// recall search — so one fixture can legitimately trip both, and a test that
+// counted errors would break the moment a sibling rule was added. It did:
+// adding rule 7 turned this from `length === 1` into a failure, and the rule it
+// was testing had not changed at all.
+const cites = (errs: string[]) => errs.some((e) => /cites campaign/.test(e));
+
 const citesAnyway = { ...structuredClone(GOOD), campaigns: ['20V438000'] };
-const rule6Rejects = evidenceErrors(citesAnyway, { recallSearchWasEmpty: true }).length === 1;
+const rule6Rejects = cites(evidenceErrors(citesAnyway, { recallSearchWasEmpty: true }));
 const rule6Accepts =
-  evidenceErrors(citesAnyway, { recallSearchWasEmpty: false }).length === 0 &&
-  evidenceErrors({ ...structuredClone(GOOD), campaigns: [] }, { recallSearchWasEmpty: true }).length === 0;
+  !cites(evidenceErrors(citesAnyway, { recallSearchWasEmpty: false })) &&
+  !cites(evidenceErrors({ ...structuredClone(GOOD), campaigns: [] }, { recallSearchWasEmpty: true }));
 
 console.log(
   `\n  ${rule6Rejects ? 'ok  ' : 'FAIL'}  rule 6 · a campaign cited after find_recalls returned nothing\n` +
@@ -178,6 +213,35 @@ console.log(
 console.log(
   `  ${rule6Accepts ? 'ok  ' : 'FAIL'}  control: rule 6 stays quiet when the search found something, and when nothing is cited\n` +
     '        a rule that fires on a real recall would make every answer citing one unusable',
+);
+
+// RULE 7 — the other half of rule 6. Having been told "none", say so with the
+// search rather than asserting an absence with no record of how you know.
+const assertsWithoutRecord = { ...structuredClone(GOOD), campaigns: [], searches_that_found_nothing: [] };
+const records = (errs: string[]) => errs.some((e) => /searches_that_found_nothing is empty/.test(e));
+const rule7Rejects = records(evidenceErrors(assertsWithoutRecord, { recallSearchWasEmpty: true }));
+const rule7Accepts =
+  !records(
+    evidenceErrors(
+      {
+        ...structuredClone(GOOD),
+        campaigns: [],
+        searches_that_found_nothing: [
+          { tool: 'find_recalls', arguments: { make: 'HONDA' }, what_it_means: 'none' },
+        ],
+      },
+      { recallSearchWasEmpty: true },
+    ),
+  ) && !records(evidenceErrors(assertsWithoutRecord, { recallSearchWasEmpty: false }));
+
+console.log(
+  `\n  ${rule7Rejects ? 'ok  ' : 'FAIL'}  rule 7 · an absence asserted with no record of the search that established it\n` +
+    '        a real run cited "NHTSA recall database lookup for make HONDA…", which is a sentence ' +
+    'and not a document',
+);
+console.log(
+  `  ${rule7Accepts ? 'ok  ' : 'FAIL'}  control: rule 7 stays quiet when the search IS recorded, and when nothing was empty\n` +
+    '        an absence with its query attached is properly evidenced, not a gap',
 );
 
 // The description walk, last, so a regression is reported beside the table
@@ -194,4 +258,8 @@ console.log(
 );
 
 console.log('');
-process.exit(contract.passed && described.passed && rule6Rejects && rule6Accepts && goodIsClean ? 0 : 1);
+process.exit(
+  contract.passed && described.passed && rule6Rejects && rule6Accepts && rule7Rejects && rule7Accepts && goodIsClean
+    ? 0
+    : 1,
+);

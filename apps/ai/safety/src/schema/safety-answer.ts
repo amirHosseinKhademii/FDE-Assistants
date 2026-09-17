@@ -45,12 +45,25 @@ const Count = z
   .strictObject({
     label: z
       .string()
-      .describe('What was counted, in plain words: "F-150 power-train complaints after the recall".'),
-    value: z.number().int().describe('The number the count_complaints tool returned. Never your own arithmetic.'),
+      .describe('What this number is, in plain words: "F-150 power-train complaints after the recall".'),
+    value: z.number().int().describe('The number a tool returned. Never your own arithmetic.'),
+    // ADDED 2026-09-17, BECAUSE THE FIELD WAS NARROWER THAN ITS JOB. A run put
+    // 55,158 here labelled "units affected by recall 20V197000" — a real number,
+    // correctly traceable, and from `get_recall` rather than `count_complaints`.
+    // Rule 4 passed because the number WAS from a tool, which is what rule 4 is
+    // for. The field's own description said otherwise, so the description was
+    // wrong rather than the answer.
+    from: z
+      .string()
+      .describe(
+        'Which tool returned it: "count_complaints", "get_recall", "find_recalls". Every number ' +
+          'in your answer comes from a tool call, and this says which one — a number you worked ' +
+          'out yourself does not belong in an answer at all.',
+      ),
     filter: z
       .record(z.string(), z.unknown())
       .describe(
-        'The exact filter passed to count_complaints. A number without the question it answers ' +
+        'The exact arguments you passed to that tool. A number without the question it answers ' +
           'cannot be checked, and 1,057 and 103 are both true of the same corpus.',
       ),
   })
@@ -76,6 +89,34 @@ const Conflict = z
       ),
   })
   .describe('Two documents that cannot both be right.');
+
+/**
+ * A search that found nothing, recorded as evidence.
+ *
+ * ADDED 2026-09-17. REC-005's answer is that no recall covers the Odyssey's
+ * forward-collision braking, and it was correct — but its `citations` entry
+ * read "NHTSA recall database lookup for make HONDA, model ODYSSEY…", which is
+ * NOT A DOCUMENT. There was none to cite. The contract could prove an absence
+ * through `find_recalls` and had no way to say so, so the model composed a
+ * source that looks like a citation and is a sentence.
+ *
+ * An absence is evidence, and it has different provenance from a quotation: not
+ * "this document says X" but "this query returned nothing".
+ */
+const EmptySearch = z
+  .strictObject({
+    tool: z.string().describe('Which tool was called, e.g. "find_recalls".'),
+    arguments: z
+      .record(z.string(), z.unknown())
+      .describe('Exactly what you asked for. This is what a reader would re-run to check you.'),
+    what_it_means: z
+      .string()
+      .describe(
+        'What the empty result establishes, in one sentence: "no recall covers the 2019-2020 ' +
+          'Honda Odyssey for forward-collision avoidance."',
+      ),
+  })
+  .describe('A query that returned nothing, where that nothing is part of the answer.');
 
 const Escalation = z
   .strictObject({
@@ -107,6 +148,13 @@ export const SafetyAnswerSchema = z.strictObject({
       'Every number that appears in your answer, with the tool call that produced it. ' +
         'A number not listed here is a number you invented.',
     ),
+  searches_that_found_nothing: z
+    .array(EmptySearch)
+    .describe(
+      'Every search whose EMPTY result your answer rests on. If you say no recall covers ' +
+        'something, the search that established that goes here — not in citations, because ' +
+        'there is no document to cite. Empty array when your answer rests on no such search.',
+    ),
   unverified_claims: z
     .array(z.string())
     .describe('Anything stated without a document behind it. Better here than dressed as a citation.'),
@@ -136,11 +184,32 @@ export type SafetyAnswer = z.infer<typeof SafetyAnswerSchema>;
  *                                    correct answer. Caught by the control case
  *                                    — which is the entire reason a suite gets
  *                                    one. Every other case still passed.
+ *
+ *   WRITTEN DATES  April 27, 2020    THE SECOND ONE, and it did worse than
+ *                                    fail. ISO dates were stripped and prose
+ *                                    ones were not, so "owners were notified on
+ *                                    April 27, 2020" yielded 27 — and the model
+ *                                    OBEYED, filing a counts entry reading
+ *                                    "27 — Day of the month owners were
+ *                                    notified". The rule did not reject a good
+ *                                    answer; it pressured a good answer into
+ *                                    carrying a nonsense field, which is the
+ *                                    harder failure to notice.
  */
 export function countLikeNumbers(prose: string): number[] {
   const cleaned = prose
-    // dates first: their parts would otherwise read as counts
+    // dates first: their parts would otherwise read as counts. BOTH SPELLINGS —
+    // a model writes prose, and "April 27, 2020" is a date to every reader and
+    // was a count to this function.
     .replace(/\d{4}-\d{2}-\d{2}/g, ' ')
+    .replace(
+      /\b(january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{1,2}(st|nd|rd|th)?,?\s*\d{0,4}/gi,
+      ' ',
+    )
+    .replace(
+      /\b\d{1,2}(st|nd|rd|th)?\s+(january|february|march|april|may|june|july|august|september|october|november|december),?\s*\d{0,4}/gi,
+      ' ',
+    )
     // campaign ids and ODI numbers
     .replace(/\b\d{2}[VETS]\d{6}\b/gi, ' ')
     .replace(/\b\d{8,}\b/g, ' ')
@@ -186,10 +255,19 @@ export function coherenceErrors(v: SafetyAnswer): string[] {
   }
 
   // 2
-  if (v.answer !== null && v.citations.length === 0 && v.unverified_claims.length === 0) {
+  // An answer may rest entirely on an absence — REC-005 does — so a recorded
+  // empty search counts as support here. Before `searches_that_found_nothing`
+  // existed, the only way to satisfy this rule for such an answer was to write
+  // a citation to a document that does not exist.
+  if (
+    v.answer !== null &&
+    v.citations.length === 0 &&
+    v.unverified_claims.length === 0 &&
+    v.searches_that_found_nothing.length === 0
+  ) {
     errs.push(
-      'gave an answer with no citations and no unverified_claims — every factual claim must be in ' +
-        'one list or the other',
+      'gave an answer with no citations, no unverified_claims and no recorded empty search — ' +
+        'every factual claim must be in one of the three',
     );
   }
 
@@ -260,13 +338,27 @@ export interface Evidence {
  * campaign will also tick a box saying it did not.
  */
 export function evidenceErrors(v: SafetyAnswer, e: Evidence): string[] {
+  const errs: string[] = [];
+
   if (e.recallSearchWasEmpty && v.campaigns.length > 0) {
-    return [
+    errs.push(
       `find_recalls returned nothing, but the answer cites campaign(s) [${v.campaigns.join(', ')}] — ` +
         'no recall covers this vehicle and component, and a loosely related one is not an answer',
-    ];
+    );
   }
-  return [];
+
+  // RULE 7. The other half of rule 6: having been told "none", SAY SO WITH THE
+  // SEARCH. Rule 6 stops a model citing something it should not; this stops it
+  // asserting an absence with no record of how it knows.
+  if (e.recallSearchWasEmpty && v.answer !== null && v.searches_that_found_nothing.length === 0) {
+    errs.push(
+      'the recall search returned nothing and the answer relies on that, but ' +
+        'searches_that_found_nothing is empty — record the query, because an absence has ' +
+        'provenance too and there is no document to cite for it',
+    );
+  }
+
+  return errs;
 }
 
 export const validateSafetyAnswer = createAnswerValidator<SafetyAnswer>({
