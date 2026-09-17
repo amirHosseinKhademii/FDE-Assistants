@@ -239,6 +239,40 @@ contract around.
 
 ---
 
+## 4b · recall@6 has a slot budget, and it distorts twice
+
+Both of these came out of building stage 4, two cases apart, and they are the
+same artefact wearing different clothes. **Neither is about retrieval.**
+
+```
+REC-004   the key named 12 targets for a 6-slot metric
+          → recall@6 could not exceed 0.5, by arithmetic
+          → a healthy retriever would have scored as a failure
+          → surfaced only because the 12 turned out to be a row count, and
+            the real figure is 5
+
+REC-001   the 7 complaints CITING the recall are the best evidence the
+          corpus holds for "is the fix holding"
+          → none of them is the target the key named
+          → adding them pushes the named target out of 6 slots
+          → THE METRIC WOULD PUNISH CALLING THE RIGHT TOOL
+```
+
+> **A fixed-k recall metric scores what the key NAMED, not what a good answer
+> would cite.** With few targets it flatters; with many it caps; and it is
+> actively hostile to a tool that returns more correct material than the key
+> happened to list.
+
+It is still the right metric for stage 3 and 4, because those stages ask *can
+the machine reach the document* and nothing else. **It stops being the right
+metric the moment an answer is being judged** — which is stage 7, and this is
+why stage 7 scores the answer rather than the retrieval.
+
+Worth carrying to another engagement: when a retrieval number looks strange,
+check the slot budget before checking the retriever.
+
+---
+
 ## 5 · What stage 4 deliberately does NOT do
 
 - **No model call.** Tools are functions; the loop that lets a model call them
