@@ -142,6 +142,14 @@ the one above it is verifiable**.
 | 3.6 | fuse | RRF, arithmetic matching the formula on the page |
 | 3.6b | rerank | a delta against 3.7a, not a default |
 | 3.7 | measure | recall@6 against `WALKTHROUGH.md`, twice |
-| 4 | tools + contract | four tools, then recall@6 re-measured THROUGH them — see [`STAGE4.md`](STAGE4.md) |
-| 5 | loop | `LOOP=mastra`, `LLM_PROVIDER=hosted` |
-| 6 | evals | severity buckets separating wrong answers from quota failures |
+| 4 | tools | five tools, then recall@6 re-measured THROUGH them — [`STAGE4.md`](STAGE4.md) |
+| 5 | contract | the schema, and coherence rejecting an unescalated conflict — [`STAGE5.md`](STAGE5.md) |
+| 6 | loop | `LOOP=mastra`, `LLM_PROVIDER=hosted` |
+| 7 | evals | severity buckets separating wrong answers from quota failures |
+| 8 | page | a fourth surface, once there is something measured to show |
+
+**Stages 4 and 5 were one stage until 2026-09-17.** Splitting them is not
+cosmetic: a tool is a question you can ask the data, a contract is a shape an
+answer must arrive in, and **neither needs the other to be testable**. Bundled,
+stage 4 became the longest thing in this folder and the contract read as an
+afterthought to five tools.

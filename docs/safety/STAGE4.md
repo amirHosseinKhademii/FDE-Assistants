@@ -1,4 +1,4 @@
-# Stage 4 — the tools and the answer contract
+# Stage 4 — the tools
 
 **Read [`INGESTION.md`](INGESTION.md) §3.7 first.** This document exists because
 of what that measurement found, and half of what is below would have been
@@ -8,9 +8,9 @@ designed differently without it.
 
 ## The one-line version
 
-Stage 3 can *find* things. Stage 4 is where the machine is allowed to **answer**
-— and the answer has to be a shape we can check, not a paragraph we hope is
-true.
+Stage 3 can only ask one question: *"what text looks like this?"* Stage 4 gives
+the machine the questions the data can actually answer — by name, by vehicle, by
+count.
 
 ---
 
@@ -19,18 +19,21 @@ true.
 So far there is no model. Nothing has been asked. Stage 3 takes a question,
 returns six passages, and stops.
 
-Stage 4 adds two things:
+Stage 4 adds ONE thing:
 
 ```
 TOOLS      ways the model can ask the database a question that
            is not "find me text like this"
-
-CONTRACT   the shape an answer must arrive in, and the rules that
-           reject it when the shape is right but the answer is wrong
 ```
 
-That is all. **No user interface, no deployment, no evals.** Those are stages 5,
-6 and 7.
+That is all. **No answer contract** — that is [`STAGE5.md`](STAGE5.md), and it
+was split out of here on 2026-09-17 because the two are different kinds of work:
+a tool is a question you can ask the data, and a contract is a shape an answer
+must arrive in. Bundling them made stage 4 the longest thing in this folder and
+hid the fact that **the contract is testable without a single tool, and the
+tools are testable without any contract.**
+
+No loop, no evals, no page either. Those are stages 6, 7 and 8.
 
 ---
 
@@ -213,74 +216,7 @@ which is the trap the whole case is built around.
 
 ---
 
-## 4 · The answer contract
-
-A Zod `strictObject`, the same pattern as
-`apps/ai/insurance/src/schema/coverage-schema.ts`.
-
-```
-answer              the prose, or null if it cannot be answered
-campaigns           campaign numbers this answer rests on
-citations           { source, claim } — every factual statement, tied to a document
-counts              { label, value, filter } — every NUMBER, tied to the tool call
-                    that produced it
-unverified_claims   things stated without a document behind them
-conflicts           { topic, positions[], resolved_by }
-escalate            { reason, suggested_owner } or null
-```
-
-**Every field carries a `.describe()` string**, because those strings are sent
-to the model as part of the schema. They are prompt engineering, not
-documentation — which is why `pnpm schema:check` fails when a field loses one.
-
-### `counts` is the new field, and the reason for it
-
-Insurance has no equivalent. It is here because three of eight questions are
-counting questions, and because the key's own trap is a number.
-
-> A number in `answer` that does not appear in `counts` is a number the model
-> made up. That is a checkable rule, and it is the only defence against a
-> confident 1,060.
-
----
-
-## 5 · Coherence — the rules Zod cannot express
-
-Shape and sense are different failures. Zod checks shape; these check sense.
-
-Three carried over from insurance, both already proven:
-
-1. **`answer` is null and `escalate` is null.** If you cannot answer, say why and
-   name an owner.
-2. **An answer with no citations and no `unverified_claims`.** Every factual
-   claim is in one list or the other.
-3. **An unresolved conflict with no escalation.** *The most important rule in the
-   file* — it means the model silently picked a side between two documents that
-   disagree.
-
-And three that are new, each from this domain:
-
-4. **A number in `answer` with no matching entry in `counts`.** §4.
-5. **Any claim that a remedy failed.** This is
-   [`ARCHITECTURE.md`](ARCHITECTURE.md) guardrail 5, and it is a legal
-   distinction, not a stylistic one:
-
-   > Complaints filed after a recall are **allegations by members of the
-   > public**. They are not evidence the remedy failed. The vehicle may not have
-   > had the repair done. The complaint may describe a different fault. Saying
-   > "the fix is not holding" states as fact something no document here
-   > supports.
-
-   REC-001 explicitly checks **must not state the remedy failed** while still
-   requiring the 103 to be surfaced. Both, at once.
-
-6. **`find_recalls` returned `[]` but the answer cites a campaign.** The model
-   reached for a loosely-related recall to avoid saying "none". REC-005's check
-   is *does not cite a loosely-related campaign.*
-
----
-
-## 6 · The baby steps, and what "done" means
+## 4 · The baby steps, and what "done" means
 
 **No step starts before the one above it is verifiable.** Same rule as stage 3,
 which is how 3.7 caught a problem that would otherwise have surfaced as "the
@@ -294,30 +230,30 @@ model seems bad".
 | 4.4 | `count_complaints` | numbers match `awk` over the raw file |
 | 4.4b | `complaints_citing` | returns 7 for `20V197000`, verified by `grep` |
 | 4.5 | re-run 3.7 **through the tools** | recall@6 rises from 0.40, and we can say by how much and why |
-| 4.6 | the schema | `pnpm safety:schema:check` — every field has a `.describe()` |
-| 4.7 | the coherence rules | each of the six rejects a hand-written bad answer, and accepts a good one |
 
-**4.5 is the one that matters**, and it is placed before the schema on purpose.
-It re-uses stage 3.7's harness with the tools in front of retrieval, and it is
-how we learn whether the diagnosis in §2 was right. If recall does not move,
-the tools are not the answer and nothing below 4.5 should be built yet.
+**4.5 is the one that matters, and it ends the stage.** It re-uses stage 3.7's
+harness with the tools in front of retrieval, and it is how we learn whether the
+diagnosis in §2 was right. If recall does not move, the tools are not the answer
+and **stage 5 should not begin** — there would be nothing worth writing a
+contract around.
 
 ---
 
-## 7 · What stage 4 deliberately does NOT do
+## 5 · What stage 4 deliberately does NOT do
 
 - **No model call.** Tools are functions; the loop that lets a model call them
   is stage 5. Each tool is testable from a CLI with no network.
-- **No prompt.** It belongs with the loop.
-- **No evals.** Stage 6, with severity buckets that separate *a wrong answer*
+- **No answer contract.** [`STAGE5.md`](STAGE5.md).
+- **No prompt.** It belongs with the loop, stage 6.
+- **No evals.** Stage 7, with severity buckets that separate *a wrong answer*
   from *a quota failure* — [`FREE.md`](../FREE.md) §10 is the cautionary tale,
   where an unpaced run reported zero wrong answers because three questions
   never ran.
-- **No UI.** Stage 7.
+- **No UI.** Stage 8.
 
 ---
 
-## 8 · The learnings this stage is built on
+## 6 · The learnings this stage is built on
 
 Everything here came from somewhere measured:
 
@@ -335,7 +271,7 @@ Everything here came from somewhere measured:
 
 ---
 
-## 9 · The component filter — decided, 2026-09-17, before building it
+## 7 · The component filter — decided, 2026-09-17, before building it
 
 NHTSA's components are a tree written with colons:
 
