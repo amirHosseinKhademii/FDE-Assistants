@@ -18,8 +18,19 @@
  */
 import { writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
-import { COMPLAINTS_TSV, DOCUMENTS_JSON } from '../config/paths';
-import { EXPECTED_FIELDS, parseComplaints } from '../grounding/parse';
+import {
+  COMPLAINTS_TSV,
+  DOCUMENTS_JSON,
+  INVESTIGATIONS_TSV,
+  RECALLS_TSV,
+} from '../config/paths';
+import {
+  EXPECTED_FIELDS,
+  parseComplaints,
+  parseInvestigations,
+  parseRecalls,
+  type SafetyDoc,
+} from '../grounding/parse';
 
 /** The complaint that answers eval case REC-001. If it is missing, so is the point. */
 const CANARY = '11353867';
@@ -46,14 +57,28 @@ async function main(): Promise<number> {
   console.log(`\nstage 3.1 · parse\n  reading ${COMPLAINTS_TSV}\n`);
 
   const started = Date.now();
-  const { docs, report } = await parseComplaints(COMPLAINTS_TSV);
+  const complaints = await parseComplaints(COMPLAINTS_TSV);
+  const recalls = await parseRecalls(RECALLS_TSV);
+  const investigations = await parseInvestigations(INVESTIGATIONS_TSV);
   const ms = Date.now() - started;
 
+  const docs: SafetyDoc[] = [...complaints.docs, ...recalls.docs, ...investigations.docs];
+  const report = complaints.report;
+
+  for (const [label, r] of [
+    ['complaints', complaints.report],
+    ['recalls', recalls.report],
+    ['investigations', investigations.report],
+  ] as const) {
+    console.log(
+      `  ${label.padEnd(15)} ${n(r.linesRead).padStart(8)} lines → ` +
+        `${n(r.documents).padStart(7)} documents   ` +
+        `(${n(r.merged)} merged, ${n(r.ragged)} ragged)`,
+    );
+  }
+  console.log(`\n  ${n(docs.length)} documents total, in ${(ms / 1000).toFixed(1)}s`);
+
   writeFileSync(DOCUMENTS_JSON, JSON.stringify(docs));
-  console.log(
-    `  ${n(report.linesRead)} lines → ${n(report.documents)} documents ` +
-      `(${n(report.merged)} rows merged, ${n(report.ragged)} ragged) in ${(ms / 1000).toFixed(1)}s`,
-  );
   console.log(`  wrote ${DOCUMENTS_JSON}\n`);
 
   let failed = 0;
@@ -83,7 +108,9 @@ async function main(): Promise<number> {
   );
 
   // 3 — the one document the whole exercise is aimed at.
-  const canary = docs.find((d) => d.id === CANARY);
+  const canary = docs.find((d) => d.id === CANARY) as
+    | Extract<SafetyDoc, { kind: 'complaint' }>
+    | undefined;
   check(
     !!canary && canary.meta.make === 'FORD' && canary.meta.filed === '2020-09-08',
     `ODI ${CANARY} is present and reads correctly (eval case REC-001)`,
@@ -92,11 +119,21 @@ async function main(): Promise<number> {
       : 'NOT FOUND — the complaint REC-001 turns on is missing',
   );
 
-  console.log(`\n  ── the first 3 documents, in full ──────────────────────────\n`);
-  for (const d of docs.slice(0, 3)) {
-    console.log(`  id ${d.id}  ${JSON.stringify(d.meta.components)}`);
-    console.log(`  meta ${JSON.stringify({ ...d.meta, components: undefined })}`);
-    console.log(`  text ${JSON.stringify(d.text).slice(0, 200)}…\n`);
+  // 4 — the link between two sources, which nothing has to infer.
+  const linked = investigations.docs.filter((d) => d.meta.campno);
+  check(
+    linked.length > 0,
+    'investigations carry the recall they led to (the graph edge, already in the data)',
+    `${n(linked.length)} of ${n(investigations.report.documents)} name a CAMPNO — ` +
+      (linked[0] ? `e.g. ${linked[0].id} → ${linked[0].meta.campno}` : 'none'),
+  );
+
+  console.log(`\n  ── one of each kind ───────────────────────────────────────\n`);
+  for (const kind of ['complaint', 'recall', 'investigation'] as const) {
+    const d = docs.find((x) => x.kind === kind);
+    if (!d) continue;
+    console.log(`  ${kind}  id ${d.id}`);
+    console.log(`  text ${JSON.stringify(d.text).slice(0, 240)}…\n`);
   }
 
   console.log(

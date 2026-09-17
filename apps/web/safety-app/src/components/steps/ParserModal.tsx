@@ -29,8 +29,8 @@
 import { useCallback, useRef, useState } from 'react';
 import { Mono, OriginDialog, originOf } from '@fde/uikit';
 import type { Origin } from '@fde/uikit';
+import { Code, Data } from '@veresk/surface';
 import { ROWS, UNITS } from '../../lib/estate.generated';
-import { Raw } from './kit';
 
 /**
  * The five lines, as segments, so a numeral can be a button.
@@ -111,23 +111,20 @@ function ParserPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
    *
    * THE OFFSET IS MEASURED, NOT A `scroll-mt` GUESS. The pinned skeleton is
    * thirteen lines of monospace and its height moves with the font, the zoom
-   * and the panel width; a fixed scroll-margin put the section's own heading
+   * and the panel width; a fixed scroll-margin put each section's own heading
    * behind it, so pressing 3 scrolled to a paragraph whose title you could not
-   * see. `offsetHeight` at the moment of the press is the only number that is
-   * true for the panel as it is actually laid out.
+   * see. Rects rather than `offsetTop`, because the scroller is not a
+   * positioned ancestor.
    */
   const go = useCallback((n: number) => {
     setActive(n);
     const target = sections.current[n];
-    const scroller = target?.closest<HTMLElement>('[data-dialog-scroll]') ?? null;
     if (!target) return;
+    const scroller = target.closest<HTMLElement>('[data-dialog-scroll]');
     if (!scroller) {
       target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       return;
     }
-    /* Rects, not `offsetTop`: the scroller is not a positioned ancestor, so
-       `offsetTop` is measured against whatever is, which is not what we are
-       scrolling. */
     const gap = (sticky.current?.offsetHeight ?? 0) + 16;
     const delta = target.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
     scroller.scrollTo({ top: scroller.scrollTop + delta - gap, behavior: 'smooth' });
@@ -150,18 +147,22 @@ function ParserPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
         </>
       }
     >
-      {/* THE ANCHOR. `sticky` inside the dialog's scroll container, so the five
-          lines stay in view while their explanations pass underneath. The
-          wrapper below carries `data-dialog-scroll` so `go` can find the thing
-          that actually scrolls without knowing what the dialog is made of. */}
+      {/* THE ANCHOR, AND IT OWNS THE TOP OF THE SCROLLER.
+          The first version was translucent with a blur and began a few pixels
+          below the top, so lines scrolled through the gap and showed behind the
+          blur — two layers fighting rather than one pinned header. Negative
+          margins cancel the dialog body's own padding so there is no strip for
+          anything to appear in, and the background is the body's own colour at
+          full opacity. `data-dialog-scroll` on the body is what `go` measures
+          against. */}
       <div
         ref={sticky}
-        className="sticky top-0 z-10 -mx-1 mb-6 bg-ui-bg/95 px-1 pt-1 pb-3 backdrop-blur"
+        className="sticky -top-3.5 z-20 -mx-5 -mt-3.5 mb-7 border-b border-ui-line bg-ui-bg px-5 pt-3.5 pb-3"
       >
         <p className="pb-2 font-mono text-[0.625rem] tracking-[0.08em] text-ui-faint uppercase">
           the whole parser · press a number to jump
         </p>
-        <pre className="overflow-x-auto rounded-lg border border-ui-line bg-ui-bg p-3.5 font-mono text-[0.6875rem] leading-[1.7] text-ui-dim">
+        <pre className="overflow-x-auto rounded-lg border border-ui-line bg-[var(--snip-bg)] p-3.5 font-mono text-[0.6875rem] leading-[1.7] text-ui-dim">
           {SKELETON.map((row, i) => (
             <div key={i} className="flex items-baseline gap-3 whitespace-pre">
               <span className="w-5 shrink-0 text-right">
@@ -197,14 +198,19 @@ function ParserPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             first sighting creates the document, every later one adds its
             component.
           </P>
-          <Raw>{`type Doc = {
-  id: string;
-  text: string;
-  meta: { odino: string; make: string; model: string; year: number;
-          filed: string; components: string[];
-          crash: boolean; fire: boolean; injuries: number; deaths: number;
-          miles: number | null; state: string; vin11: string };
-};`}</Raw>
+          <Code
+            path="apps/ai/safety/src/parse.ts — what a document is"
+            lines={[
+              'type Doc = {',
+              '  id: string;',
+              '  text: string;',
+              '  meta: { odino: string; make: string; model: string; year: number;',
+              '          filed: string; components: string[];',
+              '          crash: boolean; fire: boolean; injuries: number; deaths: number;',
+              '          miles: number | null; state: string; vin11: string };',
+              '};',
+            ]}
+          />
           <Aside>
             {UNITS.complaints.toLocaleString('en-GB')} objects is about 60 MB in
             memory. A database at this stage would mean nobody could open the
@@ -213,13 +219,19 @@ function ParserPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
         </Sect>
 
         <Sect n={2} title="One line at a time, not all at once" refs={sections} active={active}>
-          <Raw>{`async function* lines(path: string) {
-  const rl = createInterface({
-    input: createReadStream(path, { encoding: 'utf8' }),
-    crlfDelay: Infinity,          // treat \\r\\n as one break
-  });
-  for await (const line of rl) if (line.length) yield line;
-}`}</Raw>
+          <Code
+            path="apps/ai/safety/src/parse.ts — the reader"
+            mark={[3]}
+            lines={[
+              'async function* lines(path: string) {',
+              '  const rl = createInterface({',
+              "    input: createReadStream(path, { encoding: 'utf8' }),",
+              '    crlfDelay: Infinity,          // treat \\r\\n as one break',
+              '  });',
+              '  for await (const line of rl) if (line.length) yield line;',
+              '}',
+            ]}
+          />
           <P>
             The slice is 79 MB and would load fine. The full file is 1.5 GB and
             would not. Streaming costs nothing here and means the same code
@@ -227,15 +239,15 @@ function ParserPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             might.
           </P>
           <P>
-            <Mono>crlfDelay: Infinity</Mono> is not decoration. These files are
-            Windows-origin, and a stray <Mono>\r</Mono> left on the end of field
-            51 becomes part of its value without anything complaining.
+            The marked line is not decoration. These files are Windows-origin,
+            and a stray <Mono>\r</Mono> left on the end of field 51 becomes part
+            of its value without anything complaining.
           </P>
         </Sect>
 
         <Sect
           n={3}
-          title="split('\t') — and deliberately not a CSV library"
+          title="split by tab — and deliberately not a CSV library"
           refs={sections}
           active={active}
         >
@@ -254,8 +266,14 @@ function ParserPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             quote character. So: split on tab, and treat <Mono>"</Mono> as an
             ordinary letter.
           </P>
-          <Raw>{`const f = line.split('\\t');
-if (f.length !== 51) { ragged++; continue; }   // never fires; kept anyway`}</Raw>
+          <Code
+            path="apps/ai/safety/src/parse.ts — the split"
+            mark={[0]}
+            lines={[
+              "const f = line.split('\\t');",
+              'if (f.length !== 51) { ragged++; continue; }   // never fires; kept anyway',
+            ]}
+          />
           <Aside>
             The guard should never fire — every one of the{' '}
             {ROWS.complaints.toLocaleString('en-GB')} lines has exactly 51
@@ -272,16 +290,27 @@ if (f.length !== 51) { ragged++; continue; }   // never fires; kept anyway`}</Ra
         </Sect>
 
         <Sect n={4} title="Merging the repeats" refs={sections} active={active}>
-          <Raw>{`const existing = byOdi.get(odi);
-if (existing) {
-  if (!existing.meta.components.includes(comp)) existing.meta.components.push(comp);
-  return;                        // narrative already captured — it is identical
-}`}</Raw>
-          <Raw>{`11341276  STRUCTURE:BODY                                   ┐
-11341276  ELECTRICAL SYSTEM                                │  same narrative,
-11341276  POWER TRAIN                                      │  five times
-11341276  ENGINE                                           │
-11341276  FORWARD COLLISION AVOIDANCE: AUTOMATIC EMERGENCY ┘`}</Raw>
+          <Code
+            path="apps/ai/safety/src/parse.ts — the merge"
+            lines={[
+              'const existing = byOdi.get(odi);',
+              'if (existing) {',
+              '  if (!existing.meta.components.includes(comp)) existing.meta.components.push(comp);',
+              '  return;                        // narrative already captured — it is identical',
+              '}',
+            ]}
+          />
+          <Data
+            path="CMPL_SLICE.tsv — ODI 11341276, as filed"
+            note="one person, five rows"
+            lines={[
+              '11341276  STRUCTURE:BODY',
+              '11341276  ELECTRICAL SYSTEM',
+              '11341276  POWER TRAIN',
+              '11341276  ENGINE',
+              '11341276  FORWARD COLLISION AVOIDANCE: AUTOMATIC EMERGENCY',
+            ]}
+          />
           <Aside>
             Without this, that one person takes five of the six result slots and
             crowds out four others — and every count published anywhere is 44%
@@ -295,18 +324,34 @@ if (existing) {
           refs={sections}
           active={active}
         >
-          <Raw>{`const header = \`\${year} \${make} \${model} | \${components.join(', ')} | filed \${filed}\`;
-doc.text = \`\${header}\\n\${narrative}\`;`}</Raw>
+          <Code
+            path="apps/ai/safety/src/parse.ts — the header line"
+            mark={[0]}
+            lines={[
+              "const header = `${year} ${make} ${model} | ${components.join(', ')} | filed ${filed}`;",
+              'doc.text = `${header}\\n${narrative}`;',
+            ]}
+          />
           <P>
             <span className="text-ui-fg">The narrative never says “F-150”.</span>{' '}
             It says <em>“THE GEAR WILL NOT GO INTO PARK…”</em>. Without the
             header, a question about a 2020 F-150 transmission matches nothing on
             the meaning arm.
           </P>
+          <Data
+            path="what the text becomes — ODI 11353867"
+            lines={[
+              '2020 FORD F-150 | POWER TRAIN | filed 2020-09-08',
+              'THE GEAR WILL NOT GO INTO PARK AND ALLOW ME TO START. ALSO, THE',
+              'DISPLAY INDICATES I AM IN THE WRONG GEAR DISPLAY SHOWS NEUTRAL',
+              'BUT TRUCK IS IN DRIVE…',
+            ]}
+            mark={[0]}
+          />
           <Aside>
             Stage 3.2 barely runs on this corpus — 114 investigations get
             chunked and nothing else does. So the parser, not the chunker,
-            decides what can be found, and it comes down to this one string
+            decides what can be found, and it comes down to that one string
             concatenation.
           </Aside>
           <P>
@@ -318,17 +363,22 @@ doc.text = \`\${header}\\n\${narrative}\`;`}</Raw>
         </Sect>
 
         <Sect title="Dates, converted once, in one function" refs={sections} active={active}>
-          <Raw>{`function isoDate(raw: string): string | null {
-  if (!/^\\d{8}$/.test(raw)) return null;
-  const [y, m, d] = [raw.slice(0, 4), raw.slice(4, 6), raw.slice(6)];
-  return \`\${y}-\${m}-\${d}\`;
-}`}</Raw>
+          <Code
+            path="apps/ai/safety/src/parse.ts — one date function"
+            lines={[
+              'function isoDate(raw: string): string | null {',
+              '  if (!/^\\d{8}$/.test(raw)) return null;',
+              '  const [y, m, d] = [raw.slice(0, 4), raw.slice(4, 6), raw.slice(6)];',
+              '  return `${y}-${m}-${d}`;',
+              '}',
+            ]}
+          />
           <P>
             The flat files use <Mono>YYYYMMDD</Mono>; the complaints API uses{' '}
-            <Mono>MM/DD/YYYY</Mono> and the recalls API{' '}
-            <Mono>DD/MM/YYYY</Mono> — one agency, three formats. Everything
-            becomes <Mono>YYYY-MM-DD</Mono> at the boundary so nothing downstream
-            has to know what shape it arrived in.
+            <Mono>MM/DD/YYYY</Mono> and the recalls API <Mono>DD/MM/YYYY</Mono> —
+            one agency, three formats. Everything becomes{' '}
+            <Mono>YYYY-MM-DD</Mono> at the boundary so nothing downstream has to
+            know what shape it arrived in.
           </P>
           <P>
             It returns <Mono>null</Mono> rather than throwing, because a missing
@@ -338,8 +388,14 @@ doc.text = \`\${header}\\n\${narrative}\`;`}</Raw>
         </Sect>
 
         <Sect title="Numbers that are sometimes not numbers" refs={sections} active={active}>
-          <Raw>{`const int = (s: string) => (/^\\d+$/.test(s) ? Number(s) : null);
-const yn  = (s: string) => s.trim().toUpperCase() === 'Y';`}</Raw>
+          <Code
+            path="apps/ai/safety/src/parse.ts — blank is not zero"
+            mark={[0]}
+            lines={[
+              "const int = (s: string) => (/^\\d+$/.test(s) ? Number(s) : null);",
+              "const yn  = (s: string) => s.trim().toUpperCase() === 'Y';",
+            ]}
+          />
           <P>
             <Mono>MILES</Mono> is blank in two rows out of three.{' '}
             <span className="text-ui-fg">
@@ -352,13 +408,20 @@ const yn  = (s: string) => s.trim().toUpperCase() === 'Y';`}</Raw>
         </Sect>
 
         <Sect title="The three checks, printed at the end" refs={sections} active={active}>
-          <Raw>{`parsed 100,980 lines → 70,194 documents   ragged rows: 0
-raw file says (awk, no parser): 100,980 lines, 51 fields on every one   ✓
-ODI 11353867 present: yes — "2020 FORD F-150 | POWER TRAIN | filed 2020-09-08…"`}</Raw>
+          <Data
+            path="what stage 3.1 will print"
+            note="not a run — nothing has been parsed"
+            mark={[1]}
+            lines={[
+              'parsed 100,980 lines → 70,194 documents   ragged rows: 0',
+              'raw file says (awk, no parser): 100,980 lines, 51 fields on every one   ✓',
+              'ODI 11353867 present: yes — "2020 FORD F-150 | POWER TRAIN | filed 2020-09-08…"',
+            ]}
+          />
           <Aside>
-            The second is the one that matters: it compares the parser's count
-            against <Mono>awk</Mono> over the raw file — a different tool, with
-            no parser in the path. A parser confirming its own output proves
+            The marked line is the one that matters: it compares the parser's
+            count against <Mono>awk</Mono> over the raw file — a different tool,
+            with no parser in the path. A parser confirming its own output proves
             nothing, which is exactly how the quoting bug survived long enough to
             be written down as a property of the data.
           </Aside>

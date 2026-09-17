@@ -125,11 +125,20 @@ export function Figure({
 }
 
 /**
- * A block of literal text, as it is on the wire or on disk.
+ * A block of literal text with no file behind it.
  *
- * IT SCROLLS SIDEWAYS RATHER THAN WRAPPING. A tab-separated line and a
- * `CREATE TABLE` both mean something by their layout; re-flowing them to fit a
- * column destroys the thing the reader is being shown.
+ * ── WHEN TO USE THIS AND WHEN TO USE `Code` / `Data` ───────────────────────
+ *
+ * `@veresk/surface`'s `Code` and `Data` are the site's code block: VS Code's
+ * own grammars, and a header naming the file so a reader can go and check it.
+ * Anything quoting a real file gets one of those. This is for the rest — an
+ * arrow diagram, a hand-worked sum, a shape drawn in characters. Giving those a
+ * path would be inventing provenance; giving them syntax colour would be
+ * inventing a grammar they do not have.
+ *
+ * IT SCROLLS SIDEWAYS RATHER THAN WRAPPING, for the same reason as the others:
+ * these mean something by their layout, and re-flowing them to fit a column
+ * destroys the thing being shown.
  */
 export function Raw({ children, tone }: { children: ReactNode; tone?: string }) {
   return (

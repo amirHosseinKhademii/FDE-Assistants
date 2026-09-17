@@ -61,8 +61,15 @@ const F = {
 /** What the dictionary says a complaint row has. A short row is a shifted row. */
 export const EXPECTED_FIELDS = 51;
 
+/** What a document is FROM. The pipeline downstream treats all three alike. */
+export type DocKind = 'complaint' | 'recall' | 'investigation';
+
+/** Any of the three. Everything downstream — chunk, embed, index — takes this. */
+export type SafetyDoc = ComplaintDoc | RecallDoc | InvestigationDoc;
+
 export interface ComplaintDoc {
   id: string;
+  kind: 'complaint';
   /** What gets embedded and searched. See `buildText` for why it starts with a header. */
   text: string;
   meta: {
@@ -220,10 +227,265 @@ export async function parseComplaints(
     };
 
     narrativeOf.set(odino, narrative);
-    byOdi.set(odino, { id: odino, text: buildText(meta, narrative), meta });
+    byOdi.set(odino, { id: odino, kind: 'complaint', text: buildText(meta, narrative), meta });
   }
 
   const docs = [...byOdi.values()];
   report.documents = docs.length;
   return { docs, report };
+}
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RECALLS — one CAMPAIGN, one document
+//
+// The file has 44,791 rows and 3,026 campaigns: NHTSA writes one row per
+// make/model/year a campaign covers. A person quotes `20V437000`, never "row
+// 18,332", so the campaign is the unit and the vehicles are metadata.
+//
+// Column numbers are RCL.txt's minus one. Note field 21 is spelled
+// `CONEQUENCE_DEFECT` in NHTSA's own dictionary — the typo is theirs and is
+// reproduced here deliberately, because a reader checking this against the
+// dictionary should find them identical.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const R = {
+  CAMPNO: 1,
+  MAKETXT: 2,
+  MODELTXT: 3,
+  YEARTXT: 4,
+  COMPNAME: 6,
+  MFGNAME: 7,
+  POTAFF: 11,
+  ODATE: 12,
+  INFLUENCED_BY: 13,
+  DESC_DEFECT: 19,
+  CONEQUENCE_DEFECT: 20,
+  CORRECTIVE_ACTION: 21,
+} as const;
+
+export const RECALL_FIELDS = 27;
+
+export interface RecallDoc {
+  id: string;
+  kind: 'recall';
+  text: string;
+  meta: {
+    campno: string;
+    component: string;
+    manufacturer: string;
+    /** Every make/model/year this campaign covers — the fan-out, folded in. */
+    vehicles: Array<{ make: string; model: string; year: number | null }>;
+    /** Date the manufacturer notified owners. The "after the remedy" clock. */
+    notified: string | null;
+    /** MFR, ODI or OVSC. 133 of 3,026 were NOT volunteered — CORPUS.md §4. */
+    influencedBy: string;
+    unitsAffected: number | null;
+  };
+}
+
+export async function parseRecalls(
+  path: string,
+): Promise<{ docs: RecallDoc[]; report: ParseReport }> {
+  const byCamp = new Map<string, RecallDoc>();
+  const prose = new Map<string, string>();
+  const report: ParseReport = { linesRead: 0, documents: 0, ragged: 0, merged: 0 };
+
+  for await (const line of lines(path)) {
+    report.linesRead++;
+    const f = line.split('\t');
+    if (f.length < RECALL_FIELDS) {
+      report.ragged++;
+      continue;
+    }
+
+    const campno = f[R.CAMPNO].trim();
+    const vehicle = {
+      make: f[R.MAKETXT].trim(),
+      model: f[R.MODELTXT].trim(),
+      year: int(f[R.YEARTXT]),
+    };
+    const existing = byCamp.get(campno);
+
+    if (existing) {
+      report.merged++;
+      const seen = existing.meta.vehicles.some(
+        (v) => v.make === vehicle.make && v.model === vehicle.model && v.year === vehicle.year,
+      );
+      if (!seen) {
+        existing.meta.vehicles.push(vehicle);
+        existing.text = recallText(existing.meta, prose.get(campno) ?? '');
+      }
+      continue;
+    }
+
+    // Three prose blocks, in the order a reader needs them: what is wrong, what
+    // it causes, what will be done. Joined rather than concatenated so a search
+    // hit can be traced back to which block it came from.
+    const body = [
+      f[R.DESC_DEFECT].trim() && `DEFECT: ${f[R.DESC_DEFECT].trim()}`,
+      f[R.CONEQUENCE_DEFECT].trim() && `CONSEQUENCE: ${f[R.CONEQUENCE_DEFECT].trim()}`,
+      f[R.CORRECTIVE_ACTION].trim() && `REMEDY: ${f[R.CORRECTIVE_ACTION].trim()}`,
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    const meta: RecallDoc['meta'] = {
+      campno,
+      component: f[R.COMPNAME].trim(),
+      manufacturer: f[R.MFGNAME].trim(),
+      vehicles: [vehicle],
+      notified: isoDate(f[R.ODATE]),
+      influencedBy: f[R.INFLUENCED_BY].trim(),
+      unitsAffected: int(f[R.POTAFF]),
+    };
+
+    prose.set(campno, body);
+    byCamp.set(campno, { id: campno, kind: 'recall', text: recallText(meta, body), meta });
+  }
+
+  const docs = [...byCamp.values()];
+  report.documents = docs.length;
+  return { docs, report };
+}
+
+/** Same argument as `buildText`: the prose rarely names the campaign or the car. */
+function recallText(meta: RecallDoc['meta'], body: string): string {
+  const vehicles = meta.vehicles
+    .slice(0, 6)
+    .map((v) => [v.year, v.make, v.model].filter(Boolean).join(' '))
+    .join('; ');
+  const more = meta.vehicles.length > 6 ? ` (+${meta.vehicles.length - 6} more)` : '';
+  const head = [
+    `RECALL ${meta.campno}`,
+    meta.component,
+    `${vehicles}${more}`,
+    meta.notified ? `owners notified ${meta.notified}` : null,
+  ]
+    .filter(Boolean)
+    .join(' | ');
+  return `${head}\n${body}`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INVESTIGATIONS — the only source with a LINK to another source
+//
+// Field 9 is `CAMPNO`, "Recall Campaign Number, if applicable". That is the
+// edge from an investigation to the recall it produced, already in the data —
+// the graph `docs/rag/GRAPH.md` describes, without having to infer one.
+//
+// Also the only source that needs chunking: 114 documents, mean 2,504
+// characters, max 5,796.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const I = {
+  ACTION_NUMBER: 0,
+  MAKE: 1,
+  MODEL: 2,
+  YEAR: 3,
+  COMPNAME: 4,
+  MFR_NAME: 5,
+  ODATE: 6,
+  CDATE: 7,
+  CAMPNO: 8,
+  SUBJECT: 9,
+  SUMMARY: 10,
+} as const;
+
+export const INVESTIGATION_FIELDS = 11;
+
+export interface InvestigationDoc {
+  id: string;
+  kind: 'investigation';
+  text: string;
+  meta: {
+    actionNumber: string;
+    subject: string;
+    component: string;
+    manufacturer: string;
+    vehicles: Array<{ make: string; model: string; year: number | null }>;
+    opened: string | null;
+    closed: string | null;
+    /** The recall this investigation led to, when there was one. The graph edge. */
+    campno: string | null;
+  };
+}
+
+export async function parseInvestigations(
+  path: string,
+): Promise<{ docs: InvestigationDoc[]; report: ParseReport }> {
+  const byAction = new Map<string, InvestigationDoc>();
+  const summaries = new Map<string, string>();
+  const report: ParseReport = { linesRead: 0, documents: 0, ragged: 0, merged: 0 };
+
+  for await (const line of lines(path)) {
+    report.linesRead++;
+    const f = line.split('\t');
+    if (f.length < INVESTIGATION_FIELDS) {
+      report.ragged++;
+      continue;
+    }
+
+    const id = f[I.ACTION_NUMBER].trim();
+    const vehicle = {
+      make: f[I.MAKE].trim(),
+      model: f[I.MODEL].trim(),
+      year: int(f[I.YEAR]),
+    };
+    const existing = byAction.get(id);
+
+    if (existing) {
+      report.merged++;
+      const seen = existing.meta.vehicles.some(
+        (v) => v.make === vehicle.make && v.model === vehicle.model && v.year === vehicle.year,
+      );
+      if (!seen) {
+        existing.meta.vehicles.push(vehicle);
+        existing.text = investigationText(existing.meta, summaries.get(id) ?? '');
+      }
+      continue;
+    }
+
+    const summary = f[I.SUMMARY].trim();
+    const campno = f[I.CAMPNO].trim();
+    const meta: InvestigationDoc['meta'] = {
+      actionNumber: id,
+      subject: f[I.SUBJECT].trim(),
+      component: f[I.COMPNAME].trim(),
+      manufacturer: f[I.MFR_NAME].trim(),
+      vehicles: [vehicle],
+      opened: isoDate(f[I.ODATE]),
+      closed: isoDate(f[I.CDATE]),
+      campno: campno || null,
+    };
+
+    summaries.set(id, summary);
+    byAction.set(id, {
+      id,
+      kind: 'investigation',
+      text: investigationText(meta, summary),
+      meta,
+    });
+  }
+
+  const docs = [...byAction.values()];
+  report.documents = docs.length;
+  return { docs, report };
+}
+
+function investigationText(meta: InvestigationDoc['meta'], summary: string): string {
+  const vehicles = meta.vehicles
+    .slice(0, 6)
+    .map((v) => [v.year, v.make, v.model].filter(Boolean).join(' '))
+    .join('; ');
+  const head = [
+    `INVESTIGATION ${meta.actionNumber}`,
+    meta.component,
+    vehicles,
+    meta.opened ? `opened ${meta.opened}` : null,
+    meta.campno ? `led to recall ${meta.campno}` : null,
+  ]
+    .filter(Boolean)
+    .join(' | ');
+  return `${head}\n${meta.subject}\n${summary}`;
 }

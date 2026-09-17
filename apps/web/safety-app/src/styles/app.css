@@ -99,6 +99,15 @@ body {
   --color-cal-3: #64748b;
 }
 
+/* The code blocks on `/steps` follow this customer's palette too: `--snip-accent`
+   colours the `code`/`data` label and the marked row. It defaults to VS Code's
+   own light blue, which would be the only cool-but-not-Calder colour on the
+   page. The token colours are NOT touched — the whole promise of using shiki is
+   that they are the editor's own values. */
+:root {
+  --snip-accent: var(--color-cal-1);
+}
+
 /* What the shared package draws in this customer's colours: the headline's
    gradient, and the bar that says a navigation is in flight. Both are defined
    in `@veresk/surface` against these names, with a neutral fallback, so a page

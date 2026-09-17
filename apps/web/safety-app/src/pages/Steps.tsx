@@ -35,6 +35,7 @@
 import { Mono } from '@fde/uikit';
 import { Link } from '@tanstack/react-router';
 import { Aurora } from '@veresk/surface';
+import { Code, Data } from '@veresk/surface';
 import { BeforeAfter, Because, Figure, Raw, Stage } from '../components/steps/kit';
 import { ParserModal } from '../components/steps/ParserModal';
 import { AURORA } from '../lib/aurora';
@@ -211,31 +212,41 @@ function Parse() {
     >
       <BeforeAfter
         before={
-          <Figure caption="one raw line, tabs shown as ⇥" source="CMPL_SLICE.tsv">
-            <Raw>{`1690864⇥11353867⇥Ford Motor Company⇥FORD⇥F-150⇥2020⇥N⇥
-20200906⇥N⇥0⇥0⇥POWER TRAIN⇥SPRING⇥TX⇥1FTEW1E43LF⇥
-20200908⇥20200908⇥2800⇥1⇥THE GEAR WILL NOT GO INTO PARK
-AND ALLOW ME TO START. ALSO, THE DISPLAY INDICATES I AM
-IN THE WRONG GEAR DISPLAY SHOWS NEUTRAL BUT TRUCK IS IN
-DRIVE, DISPLAY SHOWS REVERSE BUT THE...`}</Raw>
+          <Figure caption="one raw line, tabs shown as ⇥">
+            <Data
+              path="CMPL_SLICE.tsv — ODI 11353867"
+              lines={[
+                '1690864⇥11353867⇥Ford Motor Company⇥FORD⇥F-150⇥2020⇥N⇥',
+                '20200906⇥N⇥0⇥0⇥POWER TRAIN⇥SPRING⇥TX⇥1FTEW1E43LF⇥',
+                '20200908⇥20200908⇥2800⇥1⇥THE GEAR WILL NOT GO INTO PARK',
+                'AND ALLOW ME TO START. ALSO, THE DISPLAY INDICATES I AM',
+                'IN THE WRONG GEAR DISPLAY SHOWS NEUTRAL BUT TRUCK IS IN',
+                'DRIVE, DISPLAY SHOWS REVERSE BUT THE...',
+              ]}
+            />
           </Figure>
         }
         after={
-          <Figure caption="one document" from="worked" source="docs/safety/INGESTION.md §3.1">
-            <Raw tone="color-mix(in oklab, var(--color-cal-1) 35%, transparent)">{`{
-  "id": "11353867",
-  "text": "2020 FORD F-150 | POWER TRAIN | filed 2020-09-08
-           THE GEAR WILL NOT GO INTO PARK AND ALLOW ME TO
-           START. ALSO, THE DISPLAY INDICATES I AM IN THE
-           WRONG GEAR...",
-  "meta": {
-    "odino": "11353867",  "make": "FORD",  "model": "F-150",
-    "year": 2020,         "filed": "2020-09-08",
-    "components": ["POWER TRAIN"],
-    "crash": false, "fire": false, "deaths": 0,
-    "miles": 2800, "state": "TX", "vin11": "1FTEW1E43LF"
-  }
-}`}</Raw>
+          <Figure caption="one document" from="worked">
+            <Data
+              path="documents.json — the shape it will take"
+              lang="json"
+              note="docs/safety/INGESTION.md §3.1"
+              mark={[2]}
+              lines={[
+                '{',
+                '  "id": "11353867",',
+                '  "text": "2020 FORD F-150 | POWER TRAIN | filed 2020-09-08\\nTHE GEAR WILL NOT GO INTO PARK…",',
+                '  "meta": {',
+                '    "odino": "11353867",  "make": "FORD",  "model": "F-150",',
+                '    "year": 2020,         "filed": "2020-09-08",',
+                '    "components": ["POWER TRAIN"],',
+                '    "crash": false, "fire": false, "deaths": 0,',
+                '    "miles": 2800, "state": "TX", "vin11": "1FTEW1E43LF"',
+                '  }',
+                '}',
+              ]}
+            />
           </Figure>
         }
       />
@@ -459,13 +470,21 @@ function Index() {
         from="pending"
         source="Neon eu-central-1 · empty, and `vector` not installed yet"
       >
-        <Raw>{`CREATE TABLE complaint_chunks (
-  id         uuid PRIMARY KEY,
-  content    text,        -- the passage, for reading and quoting
-  vector     vector(384), -- for MEANING   (3.5, arm A)
-  content_ts tsvector,    -- for KEYWORDS  (3.5, arm B)
-  metadata   jsonb        -- for FILTERING (make, year, deaths…)
-);`}</Raw>
+        <Code
+          path="the whole store — one table"
+          lang="sql"
+          note="not created yet"
+          mark={[3, 4]}
+          lines={[
+            'CREATE TABLE complaint_chunks (',
+            '  id         uuid PRIMARY KEY,',
+            '  content    text,        -- the passage, for reading and quoting',
+            '  vector     vector(384), -- for MEANING   (3.5, arm A)',
+            '  content_ts tsvector,    -- for KEYWORDS  (3.5, arm B)',
+            '  metadata   jsonb        -- for FILTERING (make, year, deaths…)',
+            ');',
+          ]}
+        />
       </Figure>
 
       <Because>
