@@ -221,7 +221,7 @@ const TABS: StepTab[] = [
     id: 'tools',
     label: 'The tools',
     stage: '4',
-    status: '4 of 5 built',
+    status: 'all five built',
     built: true,
     content: <Stage4 />,
   },
@@ -357,7 +357,8 @@ function Head() {
         full — one complaint, <Mono>ODI {SPINE}</Mono>, a 2020 Ford F-150 whose
         gear display disagreed with its gearbox, followed from a tab-separated
         line in a 1.5 GB file to the passage that answers a question about it.
-        The fourth is half built. The rest are written down and argued with.
+        The fourth has all five of its tools built, and none of them measured
+        together yet. The rest are written down and argued with.
       </p>
     </section>
   );

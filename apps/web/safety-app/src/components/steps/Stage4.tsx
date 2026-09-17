@@ -24,6 +24,7 @@
  */
 import { Mono } from '@fde/uikit';
 import { Data } from '@veresk/surface';
+import { CitingModal } from './CitingModal';
 import { CountModal } from './CountModal';
 import { FindRecallsModal } from './FindRecallsModal';
 import { GetRecallModal } from './GetRecallModal';
@@ -90,7 +91,8 @@ const TOOLS: readonly {
     sig: 'complaints_citing(campaign_number)',
     rule: 'one hop, not a graph',
     origin: 'added',
-    what: 'The complaints whose narrative names that campaign. Seven, for the F-150 case.',
+    built: true,
+    what: 'The complaints whose narrative names that campaign. Seven, for the F-150 case — and one of them is filed under a model the recall does not cover.',
     why: 'It came from measuring the corpus for a graph. The documented link between an investigation and its recall resolves 14 times out of 114; the link that works is owners typing a campaign number into their own complaint, which reaches 563 campaigns.',
   },
 ];
@@ -100,7 +102,7 @@ const STEPS: readonly (readonly [string, string, string] | readonly [string, str
   ['4.2', 'find_recalls', 'zero for the Odyssey case, with 16 other components named; 20V197000 for the F-150', 'done'],
   ['4.3', 'search_complaints', 'the complaint at position 1, where unfiltered it was outside the top 50', 'done'],
   ['4.4', 'count_complaints', 'three numbers, each agreeing with a shell pipeline over the raw file and with the key', 'done'],
-  ['4.4b', 'complaints_citing', 'returns 7 for 20V197000, verified by grep'],
+  ['4.4b', 'complaints_citing', 'seven for 20V197000, verified against the raw file — one of them invisible to the vehicle filter', 'done'],
   ['4.5', 're-run 3.7 through the tools', 'recall@6 rises from 0.40 — and we can say by how much, and why'],
 ] as const;
 
@@ -114,7 +116,7 @@ export function Stage4() {
           Ways to ask that are not a search
         </h2>
         <span className="rounded-full border border-cal-1/40 px-2.5 py-0.5 font-mono text-[0.625rem] tracking-[0.06em] text-cal-1 uppercase">
-          building · 4 of 5 tools
+          all five built · not yet measured
         </span>
       </div>
 
@@ -139,6 +141,33 @@ export function Stage4() {
         title="The five"
         sub="Each card says where it came from — written into the plan before any data was loaded, or added once the measurement showed what search could not do."
       >
+        <P>
+          They answer in four different ways, and stage 3 could only ever do one
+          of them.
+        </P>
+        <div className="cal-panel grid gap-2.5">
+          {[
+            ['from structure', 'get_recall · find_recalls', 'a field says so'],
+            ['from meaning', 'search_complaints', 'the words are close'],
+            ['from arithmetic', 'count_complaints', 'how many, not which'],
+            ['from reference', 'complaints_citing', 'somebody named it'],
+          ].map(([kind, which, gloss], i) => (
+            <div key={kind} className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+              <span
+                className="w-36 shrink-0 font-mono text-[0.75rem]"
+                style={{ color: i === 1 ? 'var(--color-cal-2)' : 'var(--color-cal-1)' }}
+              >
+                {kind}
+              </span>
+              <span className="w-56 shrink-0 font-mono text-[0.75rem] text-ui-dim">{which}</span>
+              <span className="text-[0.8125rem] text-ui-faint">{gloss}</span>
+            </div>
+          ))}
+        </div>
+        <Why>
+          The middle one is stage 3 in its entirety. Everything above and below
+          it is a question the old pipeline had no way to ask.
+        </Why>
         <ul className="grid gap-4">
           {TOOLS.map((t) => {
             /* The badge is the ONLY place origin is said, now that the
@@ -172,6 +201,7 @@ export function Stage4() {
                   {t.n === '4.2' && <FindRecallsModal />}
                   {t.n === '4.3' && <SearchComplaintsModal />}
                   {t.n === '4.4' && <CountModal />}
+                  {t.n === '4.4b' && <CitingModal />}
                 </div>
               </li>
             );
