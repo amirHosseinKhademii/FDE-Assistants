@@ -106,8 +106,14 @@ export interface SearchComplaintsResult {
  *
  * Returns SQL and parameters together so a caller cannot get them out of step.
  * Every clause is on `metadata`, which is where stage 3.4 put these fields.
+ *
+ * EXPORTED, AND `count_complaints` USES THIS EXACT FUNCTION. Two tools that
+ * built the same predicate separately could drift, and the drift would be
+ * invisible in the worst way: an answer stating "1,057 complaints" and then
+ * quoting examples drawn from a different set. One builder, one meaning of
+ * "the complaints matching this filter".
  */
-function buildWhere(f: ComplaintFilter): { sql: string; params: unknown[] } {
+export function buildWhere(f: ComplaintFilter): { sql: string; params: unknown[] } {
   const params: unknown[] = [];
   const clauses: string[] = [`metadata->>'kind' = 'complaint'`];
   const p = (v: unknown) => {
