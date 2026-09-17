@@ -23,7 +23,7 @@
  */
 import { useState } from 'react';
 import { OriginDialog, originOf, type Origin } from '@fde/uikit';
-import { Snippet, type Lang } from '../Snippet';
+import { Snippet, type Lang } from '@veresk/surface';
 
 export type State = 'live' | 'wired' | 'refuses';
 

@@ -32,16 +32,39 @@ export interface ArchPackage {
   external: number;
 }
 
-export const GENERATED_AT = "2026-09-15";
+export const GENERATED_AT = "2026-09-17";
 
 export const PACKAGES: ArchPackage[] = [
+  {
+    "name": "@calder/safety",
+    "dir": "apps/ai/safety",
+    "glob": "apps/ai/*",
+    "kind": "judgement",
+    "layerNote": null,
+    "lines": 362,
+    "deps": [],
+    "external": 1
+  },
+  {
+    "name": "@calder/safety-app",
+    "dir": "apps/web/safety-app",
+    "glob": "apps/web/*",
+    "kind": "surface",
+    "layerNote": null,
+    "lines": 2793,
+    "deps": [
+      "@fde/uikit",
+      "@veresk/surface"
+    ],
+    "external": 5
+  },
   {
     "name": "@claims/insurance",
     "dir": "apps/ai/insurance",
     "glob": "apps/ai/*",
     "kind": "judgement",
     "layerNote": null,
-    "lines": 2999,
+    "lines": 3031,
     "deps": [
       "@fde/grounding",
       "@fde/evals",
@@ -73,7 +96,7 @@ export const PACKAGES: ArchPackage[] = [
     "glob": "packages/*",
     "kind": "shared",
     "layerNote": null,
-    "lines": 3508,
+    "lines": 4419,
     "deps": [
       "@fde/foundry"
     ],
@@ -105,7 +128,7 @@ export const PACKAGES: ArchPackage[] = [
     "glob": "packages/*",
     "kind": "shared",
     "layerNote": null,
-    "lines": 2084,
+    "lines": 2139,
     "deps": [],
     "external": 7
   },
@@ -125,7 +148,7 @@ export const PACKAGES: ArchPackage[] = [
     "glob": "packages/*",
     "kind": "shared",
     "layerNote": null,
-    "lines": 3405,
+    "lines": 3519,
     "deps": [],
     "external": 5
   },
@@ -165,7 +188,7 @@ export const PACKAGES: ArchPackage[] = [
     "glob": "packages/*",
     "kind": "shared",
     "layerNote": null,
-    "lines": 540,
+    "lines": 562,
     "deps": [],
     "external": 1
   },
@@ -175,7 +198,7 @@ export const PACKAGES: ArchPackage[] = [
     "glob": "packages/*",
     "kind": "surface",
     "layerNote": "domain-neutral, so leak:check polices it — but nothing below the surface may depend on it.",
-    "lines": 2115,
+    "lines": 2153,
     "deps": [],
     "external": 0
   },
@@ -185,7 +208,7 @@ export const PACKAGES: ArchPackage[] = [
     "glob": "apps/ai/*",
     "kind": "judgement",
     "layerNote": null,
-    "lines": 16634,
+    "lines": 16638,
     "deps": [
       "@fde/agent",
       "@fde/estate",
@@ -204,7 +227,7 @@ export const PACKAGES: ArchPackage[] = [
     "glob": "apps/web/*",
     "kind": "surface",
     "layerNote": null,
-    "lines": 8134,
+    "lines": 8173,
     "deps": [
       "@fde/guard",
       "@fde/uikit",
@@ -219,7 +242,7 @@ export const PACKAGES: ArchPackage[] = [
     "glob": "apps/ai/*",
     "kind": "judgement",
     "layerNote": null,
-    "lines": 21470,
+    "lines": 21528,
     "deps": [
       "@fde/agent",
       "@fde/bedrock",
@@ -238,7 +261,7 @@ export const PACKAGES: ArchPackage[] = [
     "glob": "apps/web/*",
     "kind": "surface",
     "layerNote": null,
-    "lines": 7655,
+    "lines": 7735,
     "deps": [
       "@fde/guard",
       "@fde/uikit",
@@ -253,12 +276,12 @@ export const PACKAGES: ArchPackage[] = [
     "glob": "apps/web/*",
     "kind": "surface",
     "layerNote": null,
-    "lines": 10102,
+    "lines": 15417,
     "deps": [
       "@fde/uikit",
       "@veresk/surface"
     ],
-    "external": 6
+    "external": 5
   },
   {
     "name": "@veresk/surface",
@@ -266,10 +289,10 @@ export const PACKAGES: ArchPackage[] = [
     "glob": "packages/*",
     "kind": "surface",
     "layerNote": "this SITE's own shared parts. It knows there is a firm with several engagements, so it could never be lifted into a customer's repo.",
-    "lines": 956,
+    "lines": 1307,
     "deps": [
       "@fde/uikit"
     ],
-    "external": 0
+    "external": 1
   }
 ];

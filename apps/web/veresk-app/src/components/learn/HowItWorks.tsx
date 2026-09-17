@@ -29,7 +29,7 @@
  */
 import { useState } from 'react';
 import { OriginDialog, originOf, type Origin } from '@fde/uikit';
-import { Snippet, type Lang } from './Snippet';
+import { Snippet, type Lang } from '@veresk/surface';
 
 export interface Walkthrough {
   /** A claim, not a noun phrase. "How two lists become one" beats "Fusion". */

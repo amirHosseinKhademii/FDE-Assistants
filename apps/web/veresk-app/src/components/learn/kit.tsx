@@ -14,7 +14,7 @@
  * is the trap `Journey` fell into.
  */
 import type { ReactNode } from 'react';
-import { Snippet, type Lang } from './Snippet';
+import { Snippet, type Lang } from '@veresk/surface';
 
 /* ── A NUMBERED STEP ───────────────────────────────────────────────────────
    The unit a lesson is read in. The numeral is a SEQUENCE, not a bullet — see
