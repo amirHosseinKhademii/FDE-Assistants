@@ -94,7 +94,12 @@ engine, the contract in `core/loop.types.ts` would not be one.
 | **Can reach a HOSTED compatible endpoint** | **no** — same reason as the row below: Gemini, Groq and the rest all serve `/chat/completions`, which is what "OpenAI-compatible" means in practice | yes | yes |
 | **Can reach a LOCAL model** | **no** — and the reason is the row above, not a credential: Ollama and llama.cpp serve `/chat/completions` and do not implement `/responses` | yes | yes |
 
-### ONLY ONE OF THREE ENGINES REACHES GEMINI, AND FOR THREE DIFFERENT REASONS
+### WHICH ENGINES REACH GEMINI, AND WHY THE ANSWER CHANGED
+
+This heading used to read "only one of three, and for three different reasons".
+It was true on 2026-09-16 and wrong by 2026-09-17, which is the hazard of
+putting a COUNT in a heading: the body below was corrected and the heading kept
+asserting the old number at the top of the section, where it is read first.
 
 MEASURED 2026-09-16 against `gemini-3.5-flash-lite`, the same question on all
 three:
