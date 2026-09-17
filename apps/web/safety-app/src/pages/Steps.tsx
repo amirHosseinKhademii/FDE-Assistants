@@ -41,6 +41,8 @@ import { ChunkerModal } from '../components/steps/ChunkerModal';
 import { EmbedModal } from '../components/steps/EmbedModal';
 import { IndexModal } from '../components/steps/IndexModal';
 import { FuseModal, SearchModal } from '../components/steps/SearchModal';
+import { NotBuilt, StepTabs } from '../components/steps/Tabs';
+import type { StepTab } from '../components/steps/Tabs';
 import { ParserModal } from '../components/steps/ParserModal';
 import { AURORA } from '../lib/aurora';
 import { ROWS, UNITS } from '../lib/estate.generated';
@@ -86,36 +88,192 @@ export function Steps() {
 
       <main className="relative z-10 mx-auto max-w-5xl px-5 pb-24 sm:px-6">
         <Head />
-        <Shape />
-
-        <div className="mt-16 grid gap-16">
-          <Parse />
-          <Chunk />
-          <Embed />
-          <Index />
-          <Retrieve />
-          <Fuse />
-          <Measure />
-        </div>
-
-        <NotYet />
-        <Patterns />
+        <StepTabs tabs={TABS} />
         <Onward />
       </main>
 
       <footer className="relative z-10 mx-auto max-w-5xl border-t border-ui-line px-5 py-10 text-sm text-ui-faint sm:px-6">
-        Written before the code, from <Mono>docs/safety/INGESTION.md</Mono>. Nothing on this page has
-        been built.
+        Written before the code, from <Mono>docs/safety/INGESTION.md</Mono>. One
+        of the four parts exists; the other three are a plan being argued with.
       </footer>
     </div>
+  );
+}
+
+/**
+ * THE FOUR PARTS, IN DEPENDENCY ORDER, and only the first has anything in it.
+ *
+ * The order is not a preference. The answer contract is written after the
+ * answer key exists; the loop is written after the contract; the evals need
+ * something to score. So reading the bar left to right is reading the sequence
+ * — and three quarters of it being empty is the honest state of a build that is
+ * one stage into four.
+ *
+ * WHAT EACH EMPTY TAB SAYS came from the list this page used to carry as "what
+ * is deliberately not here yet". That list was right and was in the wrong
+ * place: each row is a whole part of the build rather than a footnote to the
+ * part that exists.
+ */
+const TABS: StepTab[] = [
+  {
+    id: 'grounding',
+    label: 'Grounding',
+    stage: 'stage 3',
+    status: 'seven stages',
+    built: true,
+    content: <Grounding />,
+  },
+  {
+    id: 'contract',
+    label: 'The answer contract',
+    stage: 'stage 4',
+    status: 'not written',
+    built: false,
+    content: (
+      <NotBuilt
+        title="What an answer is allowed to be"
+        waits={[
+          'The answer key has to exist first — written by hand from the raw files, so the shape of a right answer is known before anything is built that could grade itself.',
+          'Retrieval has to be measured. A contract written against search that cannot find the passage would be a schema for a wrong answer.',
+          'The refusal has to be decided: concluding that a remedy failed is a regulatory judgement, and the field that carries “these two records disagree” is what stops a model reaching it.',
+        ]}
+        what={
+          <>
+            <p>
+              A schema every answer must satisfy — the finding, the ODI numbers
+              and campaign numbers it rests on, the claims it could not support,
+              the records that contradict each other, and who has to decide.
+              Shape is checked first, then coherence: an answer naming a conflict
+              and escalating to nobody is structurally valid and still wrong.
+            </p>
+            <p className="mt-3.5">
+              On the three engagements before this one it is the field
+              descriptions that do most of the work — they are prompt
+              engineering, not documentation, which is why their own check fails
+              if a field loses one.
+            </p>
+          </>
+        }
+        already={
+          <>
+            <Mono>@fde/schema</Mono> — parse, shape-check, then coherence rules —
+            unchanged, as it was for the other three. What has to be written here
+            is the judgement: which fields this domain needs, and which
+            combinations of them are incoherent for a corpus of public filings.
+          </>
+        }
+      />
+    ),
+  },
+  {
+    id: 'loop',
+    label: 'The loop',
+    stage: 'stage 5',
+    status: 'not written',
+    built: false,
+    content: (
+      <NotBuilt
+        title="The model, and the two things it may ask for"
+        waits={[
+          'The contract has to exist, because the loop\'s job is to keep asking until it can fill one in.',
+          'The tools have to be decided — search over the passages, and an exact lookup keyed on a campaign number, which is a lookup rather than a search because it has one right answer.',
+          'Where the passages are sent has to be settled. This is the step where a member of the public’s account of their own crash leaves the machine, and it is the decision the data-flow page exists to have in the open before it is written.',
+        ]}
+        what={
+          <>
+            <p>
+              A model, a loop, and the tools it is allowed to call. It searches,
+              reads what comes back, decides whether that answers the question,
+              and searches again if it does not — which is the difference between
+              retrieval and an assistant.
+            </p>
+            <p className="mt-3.5">
+              It is also the first stage that costs money and the first that can
+              be wrong in a way no check catches, which is why it is last rather
+              than first.
+            </p>
+          </>
+        }
+        already={
+          <>
+            <Mono>@fde/agent</Mono> — the tool-calling loop with three
+            interchangeable engines behind <Mono>LOOP=</Mono>, and the compliance
+            tests that assert the outgoing request carries no server-side
+            conversation state. None of that is written again here.
+          </>
+        }
+      />
+    ),
+  },
+  {
+    id: 'evals',
+    label: 'Evals',
+    stage: 'stage 6',
+    status: 'not written',
+    built: false,
+    content: (
+      <NotBuilt
+        title="How we would know it got better"
+        waits={[
+          'There has to be something to score. Retrieval can be measured now — stage 3.7 — but an answer cannot be graded before there are answers.',
+          'A baseline has to be recorded, or a later run has nothing to be compared against and every change is an opinion.',
+          'The severity rules have to be written: on this corpus a missed filing that reports a death is not the same failure as a missed one that reports a rattle, and a scorecard that counts them the same is measuring the wrong thing.',
+        ]}
+        what={
+          <>
+            <p>
+              Repeat runs against a fixed set of questions whose answers were
+              written by hand, bucketed by how badly each failure matters, with
+              a baseline on disk that the next change is diffed against.
+            </p>
+            <p className="mt-3.5">
+              The point is not the number. It is being able to change the parser
+              and say whether it helped — which is the whole argument stage 3.7
+              makes one part of.
+            </p>
+          </>
+        }
+        already={
+          <>
+            <Mono>@fde/evals</Mono> — repeat counts, severity buckets, committed
+            baselines and the diff that refuses to compare two runs made with a
+            different model or repeat count, because comparing those measures the
+            setup change rather than the code change.
+          </>
+        }
+      />
+    ),
+  },
+];
+
+/** Everything under the first tab: the shape, the seven stages, the patterns. */
+function Grounding() {
+  return (
+    <>
+      <Shape />
+      <div className="mt-16 grid gap-16">
+        <Parse />
+        <Chunk />
+        <Embed />
+        <Index />
+        <Retrieve />
+        <Fuse />
+        <Measure />
+      </div>
+      <NotYet />
+      <Patterns />
+    </>
   );
 }
 
 function Head() {
   return (
     <section className="pt-8 pb-12 md:pt-12">
+      {/* COUNTED FROM `TABS`, not typed. "seven stages · none of them built"
+          was true for about a day and then was not, twice over: the stages have
+          run, and there are four parts of the build rather than one. */}
       <p className="lift-in font-mono text-[0.6875rem] tracking-[0.08em] text-cal-1 uppercase">
-        seven stages · none of them built
+        {TABS.length} parts · {TABS.filter((t) => t.built).length} of them built
       </p>
 
       <h1 className="lift-in title-spectrum mt-4 max-w-3xl font-mono text-[1.6rem] leading-[1.1] font-semibold tracking-tighter sm:text-[2.25rem]">
@@ -126,10 +284,11 @@ function Head() {
         className="lift-in mt-5 max-w-[62ch] leading-relaxed text-ui-dim"
         style={{ animationDelay: '90ms' }}
       >
-        One complaint — <Mono>ODI {SPINE}</Mono>, a 2020 Ford F-150 whose gear
-        display disagreed with its gearbox — followed from a tab-separated line
-        in a 1.5 GB file to the passage that answers a question about it. This is
-        the plan, written down to be argued with before it is written in code.
+        Four parts, in the order they have to be built. The first is here in
+        full — one complaint, <Mono>ODI {SPINE}</Mono>, a 2020 Ford F-150 whose
+        gear display disagreed with its gearbox, followed from a tab-separated
+        line in a 1.5 GB file to the passage that answers a question about it.
+        The other three are written down and argued with, and not written.
       </p>
     </section>
   );
@@ -139,6 +298,10 @@ function Head() {
  * The shape of the whole thing: four stages that happen once and three that
  * happen every time somebody asks. The split is the single most useful thing on
  * the page for anybody deciding what this costs to run.
+ */
+/*
+ * NO TOP BORDER ON THIS SECTION. The tab bar above already ends in a rule, and
+ * two a few pixels apart read as a mistake rather than as a division.
  */
 function Shape() {
   const once = [
@@ -154,10 +317,7 @@ function Shape() {
   ];
 
   return (
-    <section
-      className="lift-in grid gap-8 border-t border-ui-line pt-10 md:grid-cols-2"
-      style={{ animationDelay: '140ms' }}
-    >
+    <section className="lift-in grid gap-8 md:grid-cols-2">
       {[
         { title: 'once, offline', rows: once, tone: 'var(--color-cal-1)', note: 'Runs on a laptop, costs nothing, and nobody is waiting for it.' },
         { title: 'every question', rows: each, tone: 'var(--color-cal-2)', note: 'Runs while somebody watches, so this is where latency and money live.' },
@@ -852,31 +1012,33 @@ REC-001   "is the F-150 park problem fixed?"
  * argument, and a reader who skips it will assume the missing pieces were
  * forgotten rather than sequenced.
  */
+/**
+ * What grounding itself is still missing.
+ *
+ * THIS LIST USED TO BE THE WHOLE BUILD'S and it was in the wrong place. Three
+ * of its four rows — the contract, the loop, the evals — are entire parts of
+ * the build and are tabs of their own now. What is left is the one that belongs
+ * to grounding: the reranker, which is a stage 3 decision and not a later part.
+ */
 function NotYet() {
-  const rows = [
-    ['no model call', 'if search cannot find the passage, no model saves it'],
-    ['no answer contract', 'stage 4 — it is written after the answer key, not before'],
-    ['no tools, no agent', 'stage 5'],
-    ['no reranker', 'measure the plain pipeline first, or you cannot say what the reranker bought'],
-  ];
-
   return (
     <section className="lift-in mt-20 border-t border-ui-line pt-10">
       <h2 className="font-mono text-lg leading-snug font-medium tracking-tight text-ui-fg md:text-xl">
-        What is deliberately not here yet
+        One thing grounding is still missing, on purpose
       </h2>
-      <ul className="mt-6 grid gap-3">
-        {rows.map(([what, why]) => (
-          <li key={what} className="flex flex-wrap items-baseline gap-x-5 gap-y-1">
-            <span className="w-44 shrink-0 font-mono text-sm text-ui-fg">{what}</span>
-            <span className="max-w-[52ch] text-[0.8125rem] leading-relaxed text-ui-dim">{why}</span>
-          </li>
-        ))}
-      </ul>
+      <div className="mt-6 flex flex-wrap items-baseline gap-x-5 gap-y-1">
+        <span className="w-44 shrink-0 font-mono text-sm text-ui-fg">no reranker</span>
+        <span className="max-w-[54ch] text-[0.8125rem] leading-relaxed text-ui-dim">
+          3.6b, and it stays out until 3.7 has a number. Measure the plain
+          pipeline first or you cannot say what the reranker bought — and on the
+          sibling engagement it bought 0.813 → 0.938, which is exactly the size
+          of gain that is worth knowing rather than assuming.
+        </span>
+      </div>
       <p className="mt-7 max-w-[64ch] leading-relaxed text-ui-dim">
-        Stage 3.1 is next and it is only parsing: read one file, write one file,
-        print three documents. Nothing below it gets built until somebody has
-        looked at that output.
+        The other three things this page used to list here — the answer
+        contract, the loop and the evals — are not missing from grounding. They
+        are the rest of the build, and they have tabs of their own above.
       </p>
     </section>
   );
