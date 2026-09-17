@@ -47,3 +47,15 @@ export type {
   EstateLike,
   EstateTable,
 } from './components/EstateExplorer';
+
+/**
+ * The site's code block: `shiki` with VS Code's own `dark-plus` grammars, and
+ * the frame that names the file above it.
+ *
+ * MOVED HERE FROM `veresk-app/src/components/learn/` when a second deployment
+ * wanted it. `Code` is an excerpt from a real file in this repo and `Data` is a
+ * real excerpt from a corpus or a run — two blocks that look alike on purpose
+ * and are labelled differently, because the reader's question about each is
+ * different: "where do I open this" against "is this really what is in there".
+ */
+export { Snippet, Code, Data, type Lang } from './components/Snippet';

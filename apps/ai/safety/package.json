@@ -1,0 +1,22 @@
+{
+  "name": "@calder/safety",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./dist/config/paths.js",
+  "exports": {
+    "./config": "./dist/config/paths.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "parse": "ts-node src/cli/parse.ts"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  }
+}

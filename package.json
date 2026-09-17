@@ -1,7 +1,7 @@
 {
   "name": "claims-assistant",
   "private": true,
-  "description": "FDE practice #2 \u2014 Turborepo workspace. See README.md.",
+  "description": "FDE practice #2 — Turborepo workspace. See README.md.",
   "license": "UNLICENSED",
   "packageManager": "pnpm@9.15.9",
   "scripts": {
@@ -140,7 +140,8 @@
     "steering:eval-history": "pnpm --filter @vantis/steering eval:history",
     "arch:graph": "node scripts/arch-graph.mjs",
     "arch:check": "node scripts/arch-graph.mjs --check",
-    "compat:check": "node scripts/local-llm-check.mjs"
+    "compat:check": "node scripts/local-llm-check.mjs",
+    "safety:parse": "pnpm --filter @calder/safety parse"
   },
   "devDependencies": {
     "turbo": "^2.10.12"

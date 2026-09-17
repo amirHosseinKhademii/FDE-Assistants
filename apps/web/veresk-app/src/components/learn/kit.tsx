@@ -167,73 +167,10 @@ export function Figure({
   );
 }
 
-/* ── CODE, AND DATA ────────────────────────────────────────────────────────
-   Two blocks that look alike on purpose and are labelled differently, because
-   the reader's question about each one is different: for code it is "where do I
-   open this", and for data it is "is this really what is in the corpus".
-
-   BOTH ARE COLOURED BY VS CODE'S OWN THEME — see `Snippet`, which runs the
-   editor's grammars rather than an imitation of them. `Data` defaults to no
-   grammar at all, because a console diagnostic or a distance scale has no
-   syntax and colouring it would be inventing one.
-
-   `lines` is an array rather than one template literal so a long sample does
-   not become an unreadable string with escaped backticks in the middle of a TSX
-   file. `mark` names the lines the prose above is pointing at, by index — the
-   one thing no grammar can know, because it is the page's claim and not the
-   code's.
-   ────────────────────────────────────────────────────────────────────────── */
-function Source({
-  kind,
-  path,
-  note,
-  lines,
-  lang,
-  mark = [],
-  startLine,
-}: {
-  kind: string;
-  path: string;
-  note?: string;
-  lines: string[];
-  lang?: Lang;
-  mark?: number[];
-  startLine?: number;
-}) {
-  return (
-    <div className="snip-frame">
-      <div className="snip-head">
-        <span className="snip-kind">{kind}</span>
-        <span className="snip-path">{path}</span>
-        {note && <span className="ml-auto">{note}</span>}
-      </div>
-      <Snippet lines={lines} lang={lang} mark={mark} startLine={startLine} />
-    </div>
-  );
-}
-
-/** A real excerpt from a real file in this repo. The path is how a reader checks it. */
-export function Code(props: {
-  path: string;
-  note?: string;
-  lines: string[];
-  lang?: Lang;
-  mark?: number[];
-  startLine?: number;
-}) {
-  return <Source kind="code" lang="typescript" {...props} />;
-}
-
-/** A real excerpt from the corpus, a record, or a run's output. Never a paraphrase. */
-export function Data(props: {
-  path: string;
-  note?: string;
-  lines: string[];
-  lang?: Lang;
-  mark?: number[];
-}) {
-  return <Source kind="data" lang="text" {...props} />;
-}
+/* CODE AND DATA MOVED TO `@veresk/surface` when Calder Safety's steps page
+   wanted the same two blocks. They are re-exported here so every lesson's
+   import list is unchanged — the components are the site's, not this app's. */
+export { Code, Data } from '@veresk/surface';
 
 /* ── THE COMMANDS ──────────────────────────────────────────────────────────
    WHAT IT COSTS IS PART OF THE COMMAND. Half of what this repo can run is free

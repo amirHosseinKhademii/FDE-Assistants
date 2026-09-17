@@ -312,3 +312,111 @@ html[data-motion='settled'] .estate-land {
    that lit up on its own. */
 @keyframes hop-title { 0%, 2% { opacity: 0.72; } 7% { opacity: 1; } 20%, 100% { opacity: 0.72; } }
 .hop-title { animation: hop-title var(--sweep, 12s) cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+
+
+/* ── A CODE SNIPPET, AND WHY IT IS IN THE SHARED PACKAGE ───────────────────
+   Moved out of `veresk-app` when a second deployment wanted the same block.
+   The accent used to be `--lesson`, which only `/learn` has; it is
+   `--snip-accent` now, with the same default, so an app that sets nothing gets
+   VS Code's own light blue rather than another page's palette.
+   ────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* Lifted from Dark+'s own #1e1e1e. Against a #0d0f15 surface the original is
+     close enough that the block has no visible edge — it reads as a patch of
+     slightly different darkness rather than as an editor. */
+  --snip-bg: #1e2024;
+  --snip-mark: rgba(255, 255, 255, 0.055);
+}
+
+.snip {
+  overflow-x: auto;
+  background: var(--snip-bg);
+}
+
+.snip pre {
+  margin: 0;
+  padding: 0.75rem 0;
+  font-family: var(--font-mono);
+  font-size: 0.78125rem;
+  line-height: 1.75;
+  tab-size: 2;
+}
+
+.snip code {
+  display: block;
+  min-width: max-content;
+}
+
+.snip-line {
+  display: flex;
+  gap: 1rem;
+  padding: 0 1rem;
+}
+
+/* THE MARKED ROW. Syntax colour says what a token IS; only the page knows which
+   line its own paragraph is about. Drawn as a tinted row plus a rule in the
+   gutter — UNDER the tokens, never over them, so it cannot change what a token
+   looks like. Untinted rows keep the editor background exactly. */
+.snip-line[data-mark] {
+  background: var(--snip-mark);
+  box-shadow: inset 2px 0 0 var(--snip-accent, #9cdcfe);
+}
+
+.snip-n {
+  flex: none;
+  text-align: right;
+  color: #6e7681; /* VS Code's own editorLineNumber.foreground */
+  user-select: none;
+}
+
+.snip-code {
+  white-space: pre;
+}
+
+/* ── THE EDITOR CHROME ──────────────────────────────────────────────────────
+   A header that names the file, because a snippet with no path is a snippet
+   somebody has to take on trust. `kind` distinguishes the two things that look
+   alike and are not: code from a source file, and data out of the corpus or a
+   recorded run.
+   ────────────────────────────────────────────────────────────────────────── */
+.snip-frame {
+  margin: 1.5rem 0;
+  overflow: hidden;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.75rem;
+}
+
+.snip-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 0.875rem;
+  padding: 0.5rem 0.875rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--color-ui-line) 70%, var(--snip-bg));
+  background: color-mix(in oklab, var(--snip-bg) 82%, #000);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--color-ui-faint);
+}
+
+.snip-kind {
+  color: var(--snip-accent, #9cdcfe);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.snip-path {
+  color: #cccccc; /* VS Code's tab foreground — this is a file name */
+}
+
+/* INSIDE A DIALOG, LIFT IT FURTHER. The panel is darker than the page and the
+   code is usually the thing the reader opened the dialog to see, so it gets the
+   most separation of anywhere on the site. Two selectors because two pages
+   arrived at it independently: `/learn`'s walkthrough and the dialog body
+   itself, which is what Calder's parser panel scrolls inside. */
+.ui-dialog-body,
+.learn-walk {
+  --snip-bg: #262a30;
+  --snip-mark: rgba(255, 255, 255, 0.075);
+}

@@ -564,111 +564,13 @@ a.case-card:focus-visible {
    instead — see `components/learn/HowItWorks.tsx`. A CSS fix here would also
    have been written against the wrong class name: the panel is `.ui-dialog`. */
 
-/* ── A CODE SNIPPET ─────────────────────────────────────────────────────────
-   Coloured by `shiki` with VS Code's own `dark-plus` grammars and theme, so a
-   reader who lives in that editor reads it without re-learning it. Token
-   colours come from the theme and are set inline per token — nothing below
-   touches them, because the moment this file starts adjusting them the claim
-   "these are VS Code's colours" stops being true.
-
-   WHAT THIS FILE DOES OWN is the frame: the background, the gutter, and the row
-   the prose above is pointing at.
-   ────────────────────────────────────────────────────────────────────────── */
-:root {
-  /* Lifted from Dark+'s own #1e1e1e. Against a #0d0f15 surface the original is
-     close enough that the block has no visible edge — it reads as a patch of
-     slightly different darkness rather than as an editor. */
-  --snip-bg: #1e2024;
-  --snip-mark: rgba(255, 255, 255, 0.055);
-}
-
-.snip {
-  overflow-x: auto;
-  background: var(--snip-bg);
-}
-
-.snip pre {
-  margin: 0;
-  padding: 0.75rem 0;
-  font-family: var(--font-mono);
-  font-size: 0.78125rem;
-  line-height: 1.75;
-  tab-size: 2;
-}
-
-.snip code {
-  display: block;
-  min-width: max-content;
-}
-
-.snip-line {
-  display: flex;
-  gap: 1rem;
-  padding: 0 1rem;
-}
-
-/* THE MARKED ROW. Syntax colour says what a token IS; only the page knows which
-   line its own paragraph is about. Drawn as a tinted row plus a rule in the
-   gutter — UNDER the tokens, never over them, so it cannot change what a token
-   looks like. Untinted rows keep the editor background exactly. */
-.snip-line[data-mark] {
-  background: var(--snip-mark);
-  box-shadow: inset 2px 0 0 var(--lesson, #9cdcfe);
-}
-
-.snip-n {
-  flex: none;
-  text-align: right;
-  color: #6e7681; /* VS Code's own editorLineNumber.foreground */
-  user-select: none;
-}
-
-.snip-code {
-  white-space: pre;
-}
-
-/* ── THE EDITOR CHROME ──────────────────────────────────────────────────────
-   A header that names the file, because a snippet with no path is a snippet
-   somebody has to take on trust. `kind` distinguishes the two things that look
-   alike and are not: code from a source file, and data out of the corpus or a
-   recorded run.
-   ────────────────────────────────────────────────────────────────────────── */
-.snip-frame {
-  margin: 1.5rem 0;
-  overflow: hidden;
-  border: 1px solid var(--color-ui-line);
-  border-radius: 0.75rem;
-}
-
-.snip-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.5rem 0.875rem;
-  padding: 0.5rem 0.875rem;
-  border-bottom: 1px solid color-mix(in oklab, var(--color-ui-line) 70%, var(--snip-bg));
-  background: color-mix(in oklab, var(--snip-bg) 82%, #000);
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  color: var(--color-ui-faint);
-}
-
-.snip-kind {
-  color: var(--lesson);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.snip-path {
-  color: #cccccc; /* VS Code's tab foreground — this is a file name */
-}
-
-/* INSIDE THE DIALOG, LIFT IT FURTHER. The panel is darker than the page and the
-   code is the thing the reader opened the dialog to see, so it gets the most
-   separation of anywhere on the site. */
-.learn-walk {
-  --snip-bg: #262a30;
-  --snip-mark: rgba(255, 255, 255, 0.075);
+/* The code-snippet frame moved to `@veresk/surface` when Calder Safety's steps
+   page needed the same block — see `packages/surface/src/styles/surface.css`.
+   What stays here is the one thing that is this app's: `--snip-accent` follows
+   the lesson's own hue, so the marked row and the `code`/`data` label are the
+   colour of the track being read. */
+.lesson {
+  --snip-accent: var(--lesson);
 }
 
 /* ── THE LESSON MAP ON `/learn` ─────────────────────────────────────────────

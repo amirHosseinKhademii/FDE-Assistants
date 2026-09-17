@@ -1,6 +1,20 @@
 /**
  * Code, coloured the way the reader's editor colours it.
  *
+ * ── IT LIVES HERE BECAUSE A SECOND DEPLOYMENT NEEDED IT ────────────────────
+ *
+ * Written for `/learn` on the firm's own page, and moved into the shared
+ * package when Calder Safety's steps page wanted the same block. The
+ * alternative was a second copy differing only in which app imports it, which
+ * is the exact duplication `src/index.ts` argues against — one of the two would
+ * get a fix and the other would not.
+ *
+ * IT IS NOT `@fde/uikit`, for the usual reason. `@fde/uikit` is what a customer
+ * could lift into their own repository and must render with no build
+ * configuration; this carries a 90 KB highlighter and four grammars chosen for
+ * what THIS site quotes. That is a decision about this site's content, so it
+ * belongs to this site's package.
+ *
  * WHY A REAL HIGHLIGHTER AND NOT A REGEX. The first version of these pages
  * painted one line and left the rest grey, on the argument that highlighting
  * everything is decoration with no argument behind it. That argument is right
@@ -161,4 +175,72 @@ export function Snippet({
       </pre>
     </div>
   );
+}
+
+/* ── CODE, AND DATA ────────────────────────────────────────────────────────
+   Two blocks that look alike on purpose and are labelled differently, because
+   the reader's question about each one is different: for code it is "where do I
+   open this", and for data it is "is this really what is in the corpus".
+
+   BOTH ARE COLOURED BY VS CODE'S OWN THEME — see `Snippet`, which runs the
+   editor's grammars rather than an imitation of them. `Data` defaults to no
+   grammar at all, because a console diagnostic or a distance scale has no
+   syntax and colouring it would be inventing one.
+
+   `lines` is an array rather than one template literal so a long sample does
+   not become an unreadable string with escaped backticks in the middle of a TSX
+   file. `mark` names the lines the prose above is pointing at, by index — the
+   one thing no grammar can know, because it is the page's claim and not the
+   code's.
+   ────────────────────────────────────────────────────────────────────────── */
+function Source({
+  kind,
+  path,
+  note,
+  lines,
+  lang,
+  mark = [],
+  startLine,
+}: {
+  kind: string;
+  path: string;
+  note?: string;
+  lines: string[];
+  lang?: Lang;
+  mark?: number[];
+  startLine?: number;
+}) {
+  return (
+    <div className="snip-frame">
+      <div className="snip-head">
+        <span className="snip-kind">{kind}</span>
+        <span className="snip-path">{path}</span>
+        {note && <span className="ml-auto">{note}</span>}
+      </div>
+      <Snippet lines={lines} lang={lang} mark={mark} startLine={startLine} />
+    </div>
+  );
+}
+
+/** A real excerpt from a real file in this repo. The path is how a reader checks it. */
+export function Code(props: {
+  path: string;
+  note?: string;
+  lines: string[];
+  lang?: Lang;
+  mark?: number[];
+  startLine?: number;
+}) {
+  return <Source kind="code" lang="typescript" {...props} />;
+}
+
+/** A real excerpt from the corpus, a record, or a run's output. Never a paraphrase. */
+export function Data(props: {
+  path: string;
+  note?: string;
+  lines: string[];
+  lang?: Lang;
+  mark?: number[];
+}) {
+  return <Source kind="data" lang="text" {...props} />;
 }
