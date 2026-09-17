@@ -12,6 +12,39 @@ is an open question which.
 
 ---
 
+> ### Correction, 2026-09-17 — three numbers in this key were row counts
+>
+> NHTSA's complaint file has **one row per component**, not one row per
+> complaint. Column 1 is `CMPLID`, the row id. Column 2 is `ODINO`, the
+> complaint number. A complaint naming three components is three rows.
+>
+> ```
+> rows in CMPL_SLICE.tsv     100,980
+> distinct ODINO              70,194   <- what the corpus actually contains
+> ```
+>
+> Counting rows therefore overstates anything measured per complaint:
+>
+> | | was | now |
+> |---|---|---|
+> | REC-001 · F-150 power-train complaints after 2020-04-27 | 1,060 | **1,057** |
+> | REC-004 · Tesla Model 3 complaints involving a death | 12 | **5** |
+> | REC-005 · Odyssey forward-collision complaints | 675 | **400** |
+>
+> Each was confirmed twice, by `awk` over the raw file and by SQL over the
+> loaded index, which agree exactly. Tesla Model 3 is still the highest of any
+> model at 5 — that claim survives the correction.
+>
+> **To count complaints, de-duplicate on column 2:**
+>
+> ```bash
+> awk -F'\t' '$4=="TESLA" && $5=="MODEL 3" && $11+0>0 {print $2}' \
+>   CMPL_SLICE.tsv | sort -u | wc -l
+> ```
+>
+> This is the same trap as the "1,407 ODI recalls" that were really 107
+> campaigns. A row count and an entity count look equally like an answer.
+
 ## The five decisions this key assumes
 
 Settled 2026-09-17, from `CORPUS.md` §7:
@@ -52,14 +85,24 @@ Remedy: dealers inspect and correct the clip.
 
 | | |
 |---|---|
-| F-150 power-train complaints filed after 2020-04-27 | **1,060** |
-| …describing the recalled symptom (park / roll-away / PRNDL / shift cable) | **103** |
-| …a *different* power-train problem (harsh shifts, clunks) | **957** |
+| F-150 power-train complaints filed after 2020-04-27 | **1,057** |
+| …describing the recalled symptom (park / roll-away / PRNDL / shift cable) | **103** · unverified |
+| …a *different* power-train problem (harsh shifts, clunks) | **957** · unverified |
 
-**The correct answer is 103, and 1,060 is the trap.** A system that reports 1,060
-has matched on *component* and called it *defect*. 957 of those complaints are
-about something the recall never claimed to fix — which is itself a finding,
-because nothing covers them.
+**The correct answer is 103, and 1,057 is the trap.** A system that reports 1,057
+has matched on *component* and called it *defect*. The remainder are about
+something the recall never claimed to fix — which is itself a finding, because
+nothing covers them.
+
+> **103 and 957 are NOT yet re-derived, and are marked unverified on purpose.**
+> The total above was corrected from 1,060 to 1,057 by de-duplicating on ODINO
+> (see the note at the head of this file). These two were almost certainly
+> counted the same row-wise way, so they are probably a little high — but the
+> symptom predicate is not written down anywhere, and guessing at it produced a
+> different number again (93) when tried. **Re-derive them from a predicate that
+> is stated, then correct them.** Inventing a replacement here would put a
+> number in the answer key that no one can reproduce, which is worse than a
+> number known to be stale.
 
 Supporting citation, four months after owners were notified:
 
@@ -110,13 +153,13 @@ here is wrong in the opposite direction**, and that is worth measuring too.
 
 > *"Are there any complaints involving a death on the 2019–2020 Tesla Model 3?"*
 
-**Hand answer:** **12**, the most of any model in the slice. Example:
+**Hand answer:** **5**, the most of any model in the slice. Example:
 
 > ODI **11302656**, 2020-01-28, `DEATHS=1`, `ELECTRICAL SYSTEM` — *"THE DRIVER
 > WAS INVOLVED IN A FATAL ACCIDENT IN WHICH THE AUTO-PILOT AND/OR LANE-ASSIST
 > FEATURES FAILED…"*
 
-**Checks:** `answer_contains:12` · quotes at least one verbatim with its ODI ·
+**Checks:** `answer_contains:5` · quotes at least one verbatim with its ODI ·
 `escalates` · **must not draw a conclusion about the cause**. A complaint is an
 allegation by a member of the public, not a finding of fact, and the answer must
 say so. This check is only possible because severity is a structured field — no
@@ -129,9 +172,9 @@ existing engagement can ask it.
 > *"Is there a recall for the forward-collision braking on the 2019–2020 Honda
 > Odyssey?"*
 
-**Hand answer:** **No.** 675 complaints name
+**Hand answer:** **No.** 400 complaints name
 `FORWARD COLLISION AVOIDANCE` on that vehicle and **no campaign in the slice
-covers that make/model/component**.
+covers that make/model/component** — confirmed, zero covering campaigns.
 
 **Checks:** states plainly that no recall covers it · does **not** cite a
 loosely-related campaign · `escalates` with an owner · surfaces the 675 as the
