@@ -1,0 +1,317 @@
+# Stage 4 — the tools and the answer contract
+
+**Read [`INGESTION.md`](INGESTION.md) §3.7 first.** This document exists because
+of what that measurement found, and half of what is below would have been
+designed differently without it.
+
+---
+
+## The one-line version
+
+Stage 3 can *find* things. Stage 4 is where the machine is allowed to **answer**
+— and the answer has to be a shape we can check, not a paragraph we hope is
+true.
+
+---
+
+## 1 · What stage 4 actually is, plainly
+
+So far there is no model. Nothing has been asked. Stage 3 takes a question,
+returns six passages, and stops.
+
+Stage 4 adds two things:
+
+```
+TOOLS      ways the model can ask the database a question that
+           is not "find me text like this"
+
+CONTRACT   the shape an answer must arrive in, and the rules that
+           reject it when the shape is right but the answer is wrong
+```
+
+That is all. **No user interface, no deployment, no evals.** Those are stages 5,
+6 and 7.
+
+---
+
+## 2 · Why the original plan is now wrong, and what changed it
+
+[`PLAN.md`](PLAN.md) §8 said stage 4 was *"the two tools and the answer
+contract — `get_recall` exact, `search_complaints` hybrid."*
+
+Then 3.7 measured recall@6 = **0.40**, and diagnosed why:
+
+```
+20V197000  (the recall)      keyword rank    93
+11353867   (the complaint)   keyword rank 3,026
+```
+
+The key's documents were nowhere near the top. Not because search is bad, but
+because **two of the three questions were filters wearing the clothes of
+questions** — `2020 F-150`, `Tesla Model 3`, `involving a death` are structured
+fields being matched as prose.
+
+And the fix was measured, not guessed:
+
+```
+filter make=TESLA, model=MODEL 3, deaths>0     → exactly the 5 targets
+filter make=FORD, model=F-150, POWER TRAIN,
+  then rank by park/prndl/roll/shift           → 11353867 at rank 8, from 3,026
+```
+
+**So the tools are not "exact lookup plus search". They are filters.** That is
+the first change.
+
+### The second change, which 3.7 also exposed
+
+Look at what the answer key actually asks for:
+
+| Case | The answer is | Can six passages contain it? |
+|---|---|---|
+| REC-001 | **103**, and not 1,060 | **No** |
+| REC-004 | **5** | **No** |
+| REC-007 | **103 and 957** | **No** |
+
+Three of eight cases want a **count**. A count is not in the documents. You
+cannot read six passages and know there are 103 of something — and a model that
+tries will produce a number that sounds right, which is the single most
+dangerous failure available here.
+
+> **No amount of better retrieval ever answers "how many".** Retrieval returns
+> examples; counting is an aggregate. They are different operations and they
+> need different tools.
+
+---
+
+## 3 · The four tools
+
+Not two. The count came from §2, and the fourth came from the negative case.
+
+### 3.1 · `get_recall(campaign_number)` — exact, and it must not search
+
+```
+get_recall("20V197000")
+  → the campaign: vehicles covered, units, component, defect,
+    consequence, remedy, who initiated it, date owners were notified
+```
+
+**A question with one exact answer is a lookup, not a search.** This is
+`get_policyholder` from the insurance engagement, reached again here.
+
+REC-002 asks *"What does recall 20V197000 cover?"* and its check is
+`calls_get_recall_first` **and no `search_complaints` call at all**. Searching
+for a campaign number returns passages that look like they contain campaign
+numbers.
+
+*Done when:* returns the campaign for a valid number, and a clean "no such
+campaign" for an invalid one — never a near miss.
+
+---
+
+### 3.2 · `find_recalls({ make, model, year, component? })` — and it may return nothing
+
+```
+find_recalls({ make: "HONDA", model: "ODYSSEY",
+               component: "FORWARD COLLISION" })
+  → []
+```
+
+**The empty list is the point.** REC-005 asks whether a recall exists for the
+Odyssey's forward-collision braking. It does not. Verified: zero covering
+campaigns.
+
+Today, search always returns *something* — there is no score cutoff, by design.
+So "no recall exists" is currently a judgement the model makes by reading six
+loosely-related results and deciding none of them count. That is exactly the
+rideshare case from insurance, and it is the hardest thing to get right.
+
+Here we can do better, and it is worth being precise about why:
+
+> Insurance could not prove absence, because "is rideshare covered" is not a
+> field in a policy document. **Here it is.** A campaign names the make, model,
+> year and component it covers, so the absence of a match is a *fact about the
+> corpus*, not an impression of it.
+
+*Done when:* returns `[]` for the Odyssey forward-collision query, and the
+recall for `find_recalls({make:"FORD", model:"F-150", component:"PRNDL"})` —
+which is `20V197000`, measured.
+
+---
+
+### 3.3 · `search_complaints({ ...filters, query })` — filter first, then search
+
+```
+search_complaints({
+  make: "FORD", model: "F-150", component: "POWER TRAIN",
+  filed_after: "2020-04-27",
+  query: "will not go into park, rolls away"
+})
+  → the complaints themselves, to quote
+```
+
+Every filter is a column we already have in metadata: `make`, `model`, `year`,
+`component`, `filed_after`, `filed_before`, `crash`, `fire`, `min_deaths`,
+`min_injuries`.
+
+The hybrid search from 3.5/3.6 still runs — **but inside the filtered set**,
+which is the whole difference. 681 documents instead of 70,194, and the target
+moves from rank 3,026 to rank 8.
+
+*Done when:* the REC-001 complaint `11353867` comes back in the top 6 for a
+filtered call, where it was absent from the top 50 unfiltered.
+
+---
+
+### 3.4 · `count_complaints({ ...filters })` — a number, never passages
+
+```
+count_complaints({ make:"FORD", model:"F-150",
+                   component:"POWER TRAIN", filed_after:"2020-04-27" })
+  → { count: 1057, filter: { ... } }
+```
+
+**It returns the filter alongside the number, and that is not decoration.** It
+is what lets the answer contract check that a number in the prose came from a
+tool rather than from the model's sense of what a plausible number looks like.
+
+REC-001's whole trap is that **1,057 and 103 are both true and only one answers
+the question.** 1,057 matched on *component*; 103 matched on *defect*. A system
+that says 1,057 confidently has done the arithmetic correctly and answered the
+wrong question.
+
+*Done when:* the same filters produce the same numbers as `awk` over the raw
+file — the no-parser check that guardrail 3 requires.
+
+---
+
+## 4 · The answer contract
+
+A Zod `strictObject`, the same pattern as
+`apps/ai/insurance/src/schema/coverage-schema.ts`.
+
+```
+answer              the prose, or null if it cannot be answered
+campaigns           campaign numbers this answer rests on
+citations           { source, claim } — every factual statement, tied to a document
+counts              { label, value, filter } — every NUMBER, tied to the tool call
+                    that produced it
+unverified_claims   things stated without a document behind them
+conflicts           { topic, positions[], resolved_by }
+escalate            { reason, suggested_owner } or null
+```
+
+**Every field carries a `.describe()` string**, because those strings are sent
+to the model as part of the schema. They are prompt engineering, not
+documentation — which is why `pnpm schema:check` fails when a field loses one.
+
+### `counts` is the new field, and the reason for it
+
+Insurance has no equivalent. It is here because three of eight questions are
+counting questions, and because the key's own trap is a number.
+
+> A number in `answer` that does not appear in `counts` is a number the model
+> made up. That is a checkable rule, and it is the only defence against a
+> confident 1,060.
+
+---
+
+## 5 · Coherence — the rules Zod cannot express
+
+Shape and sense are different failures. Zod checks shape; these check sense.
+
+Three carried over from insurance, both already proven:
+
+1. **`answer` is null and `escalate` is null.** If you cannot answer, say why and
+   name an owner.
+2. **An answer with no citations and no `unverified_claims`.** Every factual
+   claim is in one list or the other.
+3. **An unresolved conflict with no escalation.** *The most important rule in the
+   file* — it means the model silently picked a side between two documents that
+   disagree.
+
+And three that are new, each from this domain:
+
+4. **A number in `answer` with no matching entry in `counts`.** §4.
+5. **Any claim that a remedy failed.** This is
+   [`ARCHITECTURE.md`](ARCHITECTURE.md) guardrail 5, and it is a legal
+   distinction, not a stylistic one:
+
+   > Complaints filed after a recall are **allegations by members of the
+   > public**. They are not evidence the remedy failed. The vehicle may not have
+   > had the repair done. The complaint may describe a different fault. Saying
+   > "the fix is not holding" states as fact something no document here
+   > supports.
+
+   REC-001 explicitly checks **must not state the remedy failed** while still
+   requiring the 103 to be surfaced. Both, at once.
+
+6. **`find_recalls` returned `[]` but the answer cites a campaign.** The model
+   reached for a loosely-related recall to avoid saying "none". REC-005's check
+   is *does not cite a loosely-related campaign.*
+
+---
+
+## 6 · The baby steps, and what "done" means
+
+**No step starts before the one above it is verifiable.** Same rule as stage 3,
+which is how 3.7 caught a problem that would otherwise have surfaced as "the
+model seems bad".
+
+| | step | done when |
+|---|---|---|
+| 4.1 | `get_recall` | returns `20V197000` exactly; a bad number returns nothing, not a near miss |
+| 4.2 | `find_recalls` | `[]` for the Odyssey case; `20V197000` for the F-150 PRNDL case |
+| 4.3 | `search_complaints` with filters | `11353867` in the top 6, where it was outside the top 50 |
+| 4.4 | `count_complaints` | numbers match `awk` over the raw file |
+| 4.5 | re-run 3.7 **through the tools** | recall@6 rises from 0.40, and we can say by how much and why |
+| 4.6 | the schema | `pnpm safety:schema:check` — every field has a `.describe()` |
+| 4.7 | the coherence rules | each of the six rejects a hand-written bad answer, and accepts a good one |
+
+**4.5 is the one that matters**, and it is placed before the schema on purpose.
+It re-uses stage 3.7's harness with the tools in front of retrieval, and it is
+how we learn whether the diagnosis in §2 was right. If recall does not move,
+the tools are not the answer and nothing below 4.5 should be built yet.
+
+---
+
+## 7 · What stage 4 deliberately does NOT do
+
+- **No model call.** Tools are functions; the loop that lets a model call them
+  is stage 5. Each tool is testable from a CLI with no network.
+- **No prompt.** It belongs with the loop.
+- **No evals.** Stage 6, with severity buckets that separate *a wrong answer*
+  from *a quota failure* — [`FREE.md`](../FREE.md) §10 is the cautionary tale,
+  where an unpaced run reported zero wrong answers because three questions
+  never ran.
+- **No UI.** Stage 7.
+
+---
+
+## 8 · The learnings this stage is built on
+
+Everything here came from somewhere measured:
+
+| Learning | Where it was learned | What it changes here |
+|---|---|---|
+| A question with one exact answer is a lookup | insurance, `get_policyholder` | 4.1 exists, and REC-002 forbids searching |
+| Filters beat search when the field exists | **3.7, measured** | 4.2–4.4 are filters; rank 3,026 → 8 |
+| Retrieval cannot count | **3.7, measured** | 4.4 exists; `counts` is in the contract |
+| A reranker cannot fetch | **3.6b, measured** | why we are not tuning retrieval further |
+| An unresolved conflict must escalate, never resolve | insurance coherence | rule 3 |
+| Absence is an answer | insurance, the rideshare case | 4.2, and provable here rather than inferred |
+| Complaints are allegations, not findings | this corpus, guardrail 5 | rule 5 |
+| Check every count against something that shares no code | **this engagement, four times** | 4.4's `awk` check |
+| A number without its denominator gets quoted without it | **3.7** | `counts` carries its filter |
+
+---
+
+## 9 · The open question, to be decided before 4.1
+
+**How does a component filter match?** `FORWARD COLLISION AVOIDANCE: ADAPTIVE
+CRUISE CONTROL` and `FORWARD COLLISION AVOIDANCE: WARNINGS` are different
+components on the same vehicle, and REC-005 needs both. Exact match is too
+narrow; substring risks matching things nobody meant.
+
+The measurement used `like '%FORWARD COLLISION%'` and produced the right 400.
+That is evidence, not a decision — **write down which rule we chose and why,
+before building the filter, so the eval cannot be quietly tuned to it.**
