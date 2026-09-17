@@ -116,19 +116,19 @@ const CONFUSABLE: readonly { tool: string; want: string }[] = [
   { tool: 'complaints_citing', want: 'I want the complaints that name this campaign' },
 ];
 
-/** Measured on 2026-09-16, and paid for on an earlier engagement. */
+/** Measured on an earlier job, on 2026-09-16. */
 const ENGINES: readonly { name: string; state: string; why: string; ok: boolean }[] = [
   {
-    name: 'the default engine',
+    name: 'the default one',
     state: 'refuses',
-    why: 'it drives an API only two clouds implement, and it refuses by name rather than failing oddly',
+    why: 'it only talks to two clouds, and ours is not one of them. It says so instead of failing oddly.',
     ok: false,
   },
-  { name: 'the second engine', state: 'works', why: 'the only one of the three that reaches this model', ok: true },
+  { name: 'the second one', state: 'works', why: 'the only one of the three that reaches our model', ok: true },
   {
-    name: 'the third engine',
-    state: '400',
-    why: 'it drops a provider-specific field between turns',
+    name: 'the third one',
+    state: 'error',
+    why: 'it loses a field between turns and the model rejects the request',
     ok: false,
   },
 ];
@@ -136,16 +136,16 @@ const ENGINES: readonly { name: string; state: string; why: string; ok: boolean 
 /** Left open on purpose rather than guessed. */
 const OPEN: readonly { q: string; why: string }[] = [
   {
-    q: 'Which model',
-    why: 'Product names get retired, and two runs on different models are not comparable. Whichever one produces a number has to be recorded beside it.',
+    q: 'Which model to use',
+    why: 'Two runs on different models cannot be compared. So whichever one produces a number gets written down next to it.',
   },
   {
-    q: 'What happens to a rejected answer',
-    why: 'The contract rejects rather than repairs. Whether the loop tries again with the errors attached — and how many times — is a cost decision, and an unbudgeted one is how a quota disappears in an afternoon.',
+    q: 'What to do with a rejected answer',
+    why: 'Try again with the errors attached? How many times? Every retry costs money, and an unlimited budget is how a free allowance disappears in an afternoon.',
   },
   {
-    q: 'Who fills in where a number came from',
-    why: 'Every number has to carry the tool call behind it. The cleanest version has the loop attach that from its own record, because a model asked to restate its own arguments will paraphrase them.',
+    q: 'Who records where a number came from',
+    why: 'Better for our code to attach it from what it just ran than to ask the model. A model asked to repeat its own arguments will reword them.',
   },
 ];
 
@@ -263,32 +263,34 @@ export function Stage6() {
 
       <Chapter
         n="02"
-        title="Everything before this was the same twice. This will not be."
-        sub="Which is not a flaw in the stage — it is what the five underneath it exist to make survivable."
+        title="The same question can now give two answers"
+        sub="And neither of them is a bug. That is new."
       >
         <Data
-          path="what changes at this line"
+          path="what changes here"
           mark={[1]}
           lines={[
-            'stages 1 to 5   same input, same output — each checked against something',
-            '                that shares no code with it',
-            'stage 6         the model picks the tools, the arguments and the words.',
-            '                The same question twice can give two answers, and',
-            '                neither one is a bug.',
+            'everything so far   ask twice, get the same thing. Each part was checked',
+            '                    against something built separately.',
+            'from here           the model picks the tools, the arguments and the',
+            '                    words. Twice is not the same twice.',
           ]}
         />
         <Key>
-          So the value of everything underneath is that when an answer looks
-          wrong, the retrieval, the counting and the contract are each{' '}
-          <em>already known to be sound</em>. Without that, a bad answer has five
-          possible causes and no way to tell them apart.
+          Which is why the five parts underneath had to be checked first. When an
+          answer looks wrong, we already know the searching, the counting and the
+          rules are sound — so the model is the only thing left to look at.
         </Key>
+        <Why>
+          Without that, a bad answer has five possible causes and no way to tell
+          them apart.
+        </Why>
       </Chapter>
 
       <Chapter
         n="03"
         title="The order it gets built in"
-        sub="One question before eight, on purpose — the first model call fails in a way nobody predicted, and one case is where that is cheapest to read."
+        sub="One question first, not all eight."
       >
         <ul className="cal-panel cal-dashed grid gap-2.5">
           {STEPS.map((s) => (
@@ -316,22 +318,27 @@ export function Stage6() {
             </li>
           ))}
         </ul>
+        <Why>
+          One question before eight, because the first model call always fails in
+          a way nobody predicted, and one question is the cheapest place to read
+          it.
+        </Why>
         <Key>
-          The second step's check is a <em>negative</em>, and that is the
-          interesting part: the question names a campaign number, so the lookup
-          should run and the search should not run at all.
+          The second step checks something did <em>not</em> happen. The question
+          gives a campaign number, so the lookup should run and the search should
+          not run at all.
         </Key>
         <Why>
-          A model that searches for a campaign number it was handed has
-          misunderstood the whole tool layer — and that is worth catching on
-          question one rather than question eight.
+          A model that searches for a number it was just handed has
+          misunderstood what the tools are for. Better to find that out on
+          question one.
         </Why>
       </Chapter>
 
       <Chapter
         n="04"
-        title="The real risk is not the prompt"
-        sub="Five tools, and the two that return numbers are the ones easiest to mix up."
+        title="The risk is picking the wrong tool"
+        sub="Not the wording of the prompt."
       >
         <ul className="cal-panel cal-dashed grid gap-2">
           {CONFUSABLE.map((c) => (
@@ -342,57 +349,59 @@ export function Stage6() {
           ))}
         </ul>
         <Key>
-          A model that reaches for the search when it wanted the count produces a
-          confident wrong number — the same trap as before, arriving from a new
-          direction.
+          Ask the search when you meant the count and you get a number that is
+          confidently wrong. The search hands back six examples. Count those and
+          the answer is always six, whatever the real total is.
         </Key>
         <Why>
-          And it is prevented in the <em>descriptions of the tools' own
-          arguments</em> rather than in the prompt. A parameter's description is
-          the only thing telling a model what to put there, so a vague one
-          produces a tool called with the wrong arguments — which looks like a
-          model problem and is a writing problem.
+          The fix is in how each tool describes its own arguments, not in the
+          prompt. That description is the only thing telling the model what to
+          put there — so a vague one produces a tool called wrongly, which looks
+          like a model problem and is a writing problem.
         </Why>
       </Chapter>
 
       <Chapter
         n="05"
-        title="Two things already known, and both were paid for"
-        sub="Measured on an earlier engagement, which is the only reason they are not going to be discovered again here."
+        title="Two things we already know"
+        sub="Learned on an earlier job, so they do not have to be learned again here."
       >
         <ul className="cal-panel cal-dashed grid gap-2.5">
           {ENGINES.map((e) => (
             <li key={e.name} className="flex flex-wrap items-baseline gap-x-4 gap-y-0.5">
-              <span className="w-36 shrink-0 text-[0.8125rem] text-ui-dim">{e.name}</span>
+              <span className="w-32 shrink-0 text-[0.8125rem] text-ui-dim">{e.name}</span>
               <span
                 className="w-20 shrink-0 font-mono text-[0.75rem]"
                 style={{ color: e.ok ? 'var(--color-cal-1)' : 'var(--color-ui-faint)' }}
               >
                 {e.state}
               </span>
-              <span className="max-w-[44ch] text-[0.8125rem] leading-relaxed text-ui-faint">
+              <span className="max-w-[46ch] text-[0.8125rem] leading-relaxed text-ui-faint">
                 {e.why}
               </span>
             </li>
           ))}
         </ul>
         <Why>
-          Which engine drives the loop and which cloud it talks to are{' '}
-          <span className="text-ui-dim">one decision, not two</span>. Changing
-          the cloud alone leaves the refusing engine in place.
+          There are three of these to choose from and only one works with our
+          model. Picking the cloud without also picking the engine leaves the
+          refusing one in place — they are one decision, not two.
         </Why>
         <Key>
-          And the free tier rate-limits without saying so. An unpaced run once
-          reported <em>zero wrong answers</em> because three of the questions
-          never ran at all — so pacing is not a tidy-up here. It is the
-          difference between a number and a fiction.
+          And the free allowance cuts you off without saying so. A run that was
+          not paced once reported <em>no wrong answers</em> — because three of
+          the questions never ran at all.
         </Key>
+        <Why>
+          So pacing is not tidying up. It is the difference between a number and
+          a fiction.
+        </Why>
       </Chapter>
 
       <Chapter
         n="06"
-        title="Three things left open rather than guessed"
-        sub="Written down as undecided, because a decision recorded as a guess is indistinguishable later from one that was made."
+        title="Three things not decided yet"
+        sub="Written down as open, so nobody later mistakes a guess for a decision."
       >
         <div className="grid gap-3">
           {OPEN.map((o) => (
@@ -406,24 +415,26 @@ export function Stage6() {
 
       <Chapter
         n="07"
-        title="What the stages underneath have and have not proved"
-        sub="Worth stating plainly before a model is allowed anywhere near this."
+        title="What is proved so far, and what is not"
+        sub="Worth saying plainly before anybody quotes a number from this stage."
       >
         <Data
-          path="the honest position"
+          path="where this actually stands"
           mark={[2]}
           lines={[
-            'stage 4   proved the right documents are REACHABLE',
-            'stage 5   proved a right answer can be CHECKED',
-            'neither   has been tested against a model',
+            'proved       the right documents can be found',
+            'proved       a right answer can be checked',
+            'not proved   that a model asks for the right things',
           ]}
         />
         <Key>
-          Which is the whole reason this stage is last rather than first. It is
-          also the first one that costs money, and the first that can be wrong in
-          a way no check catches. <Mono>1.00</Mono> was the ceiling. What a model
-          reaches is the number that matters, and it is not in yet.
+          One question has been answered well. That is the least this stage could
+          have shown and still been worth carrying on with — it is not a score.
         </Key>
+        <Why>
+          This is also the first part that costs money, and the first that can be
+          wrong in a way no check catches. Which is why it is last.
+        </Why>
       </Chapter>
     </section>
   );
