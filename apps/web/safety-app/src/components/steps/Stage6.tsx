@@ -80,7 +80,7 @@ const LOOP: readonly { n: string; what: string; detail?: string }[] = [
  */
 const RUNS: readonly string[] = ['85.8s', '13.7s', '6.5s', '63.5s'];
 
-/** The six steps, four of them done. */
+/** The six steps, all of them done. */
 const STEPS: readonly { n: string; what: string; check: string; done?: boolean }[] = [
   {
     n: '6.1',
@@ -110,11 +110,13 @@ const STEPS: readonly { n: string; what: string; check: string; done?: boolean }
     n: '6.5',
     what: 'the negative question',
     check: 'nothing found, and the answer says so without reaching for a different campaign',
+    done: true,
   },
   {
     n: '6.6',
     what: 'pacing',
     check: 'all eight finish, and none of them is silently dropped',
+    done: true,
   },
 ];
 
@@ -174,15 +176,15 @@ export function Stage6() {
           Where a model is finally asked
         </h2>
         <span className="rounded-full border border-dashed border-cal-2/50 px-2.5 py-0.5 font-mono text-[0.625rem] tracking-[0.06em] text-cal-2 uppercase">
-          four steps run · two to go · no score yet
+          all six run · still not a score
         </span>
       </div>
 
       <p className="mt-4 max-w-[64ch] leading-relaxed text-ui-dim">
         Everything up to here runs <em>without</em> a model. This is where one is
         finally asked a question — and it is the first stage whose answer is not
-        the same twice. A model has now been asked one, and answered it well;
-        that is a long way from a score.
+        the same twice. All eight have now been asked and all eight were
+        answered. That is still not a score.
       </p>
 
       <div className="cal-plain">
@@ -404,6 +406,60 @@ export function Stage6() {
 
       <Chapter
         n="05"
+        title="The check for running out of quota printed PASS while running out of quota"
+        sub="In the step written to prevent exactly that, in a file whose own comments describe the failure."
+      >
+        <Data
+          path="the first run of the last step"
+          mark={[1]}
+          lines={[
+            'quota 0 · error 1',
+            '6.6: PASS — the whole key was asked without hitting the quota.',
+          ]}
+        />
+        <Key>
+          One question had died of the quota. The detector looked for the words
+          “rate limit” in the error, and the message said{' '}
+          <em>Too Many Requests</em> — so it filed a quota failure as an ordinary
+          error, and the one thing that step asserts came back green.
+        </Key>
+        <Why>
+          A detector for a failure is part of that failure until something has
+          been seen to trip it. The real error is now kept and checked before the
+          run spends anything — it has to recognise the recorded one, and it has
+          to not call an ordinary error a quota failure. If either check fails
+          the run refuses to start, because every result would be trustworthy
+          except the one that matters.
+        </Why>
+        <P className="mt-8">
+          The pacing was also aimed at the wrong thing. The limit is fifteen
+          requests a minute, and a question is not one request.
+        </P>
+        <Data
+          path="why an average is not a rate limit"
+          mark={[1]}
+          lines={[
+            'one question             made ten tool calls',
+            '                         over half the minute’s budget, all at once',
+            'the whole run averaged   under the limit, and still died',
+          ]}
+        />
+        <Why>
+          A limit applies to any window, not to the mean. Pacing moved to after
+          every turn — which uncovered a third fault underneath: the callback it
+          waits on was typed as returning nothing, so all three engines called it
+          without waiting. The sleep finished after the next request had already
+          gone out. The run would have looked paced and hit the quota anyway.
+        </Why>
+        <Key>
+          Eleven faults were fixed across this stage. Four were in fixes made
+          earlier the same day, and three were in the checking apparatus rather
+          than in the thing being checked.
+        </Key>
+      </Chapter>
+
+      <Chapter
+        n="06"
         title="The risk is picking the wrong tool"
         sub="Not the wording of the prompt."
       >
@@ -429,7 +485,7 @@ export function Stage6() {
       </Chapter>
 
       <Chapter
-        n="06"
+        n="07"
         title="Which engine talks to the model"
         sub="Three to choose from. Two of them work — and the second one only started working today."
       >
@@ -477,7 +533,7 @@ export function Stage6() {
       </Chapter>
 
       <Chapter
-        n="07"
+        n="08"
         title="Three things not decided yet"
         sub="Written down as open, so nobody later mistakes a guess for a decision."
       >
@@ -492,7 +548,7 @@ export function Stage6() {
       </Chapter>
 
       <Chapter
-        n="08"
+        n="09"
         title="What is proved so far, and what is not"
         sub="Worth saying plainly before anybody quotes a number from this stage."
       >
@@ -540,6 +596,14 @@ function Chapter({
       <p className="cal-chapter-sub">{sub}</p>
       <div className="cal-chapter-body">{children}</div>
     </section>
+  );
+}
+
+function P({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return (
+    <p className={`max-w-[64ch] text-[0.875rem] leading-relaxed text-ui-dim ${className}`}>
+      {children}
+    </p>
   );
 }
 

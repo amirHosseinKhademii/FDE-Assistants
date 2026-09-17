@@ -1805,3 +1805,21 @@ body {
 .ui-flow-card[data-kind='loop']   { width: 13.5rem; height: 6.5rem; }
 .ui-flow-card[data-kind='tool']   { width: 14.5rem; height: 6.75rem; }
 .ui-flow-card[data-kind='store']  { width: 13rem;   height: 6.5rem; }
+
+/* What a question costs, beside what it shows. Ranges, not numbers — the same
+   question has come back in 4 seconds and in 131. */
+.cal-chip-c {
+  display: block;
+  margin-top: 0.1875rem;
+  font-size: 0.5625rem;
+  letter-spacing: 0.04em;
+  color: var(--color-ui-faint);
+}
+
+.cal-ask-rate {
+  margin-top: 0.5rem;
+  max-width: 62ch;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--color-ui-faint);
+}

@@ -1,10 +1,9 @@
 /**
- * The seven stages — five of them built, two of them still a proposal.
+ * The seven stages — six of them built, one still a proposal.
  *
  * ── THE PAGE IS HALF RECORD AND HALF PROPOSAL, AND SAYS WHICH ──────────────
  *
- * Stages 1 through 5 run. Stage 6 is planned and not built, stage 7 is not
- * written at all, and the tab bar encodes the difference rather than leaving it
+ * Stages 1 through 6 run. Stage 7 is not written at all, and the tab bar encodes the difference rather than leaving it
  * to prose. So every number still has to say where it came from. Three provenances, and the
  * kit badges each one: `measured` (out of the NHTSA files, or produced by
  * running the thing described), `worked` (carried through by hand in the source
@@ -99,8 +98,8 @@ export function Steps() {
       </main>
 
       <footer className="relative z-10 mx-auto max-w-5xl border-t border-ui-line px-5 py-10 text-sm text-ui-faint sm:px-6">
-        Written before the code, and kept up with it since. Five of the seven
-        parts are built and checked; the rest are a plan being argued with.
+        Written before the code, and kept up with it since. Six of the seven
+        parts are built and checked; the last is a plan being argued with.
       </footer>
     </div>
   );
@@ -239,8 +238,8 @@ const TABS: StepTab[] = [
     id: 'loop',
     label: 'The loop',
     stage: '6',
-    status: 'planned',
-    built: false,
+    status: 'built · all eight asked',
+    built: true,
     content: <Stage6 />,
   },
   {
@@ -327,10 +326,9 @@ function Head() {
         full — one complaint, <Mono>ODI {SPINE}</Mono>, a 2020 Ford F-150 whose
         gear display disagreed with its gearbox, followed from a tab-separated
         line in a 1.5 GB file to the passage that answers a question about it.
-        The fourth is built and measured: five tools, and the documents the
-        search could not reach are now reachable. The fifth is the shape an
-        answer has to arrive in, and it is checked. The last two are written
-        down and argued with.
+        The fourth is built and measured, the fifth is the shape an answer has
+        to arrive in, and the sixth is a model actually being asked — all eight
+        questions, end to end. The last one is written down and argued with.
       </p>
     </section>
   );

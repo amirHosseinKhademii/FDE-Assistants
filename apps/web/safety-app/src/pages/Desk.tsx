@@ -45,26 +45,44 @@ import { AURORA } from '../lib/aurora';
 import { VERESK } from '../lib/links';
 
 /**
- * Four questions, each verified against this corpus.
+ * Four questions, each measured against this corpus today.
  *
  * They are suggestions rather than the only way in — the box takes anything.
- * Each one shows a different shape of answer, which is why these four: a clean
- * lookup, an absence, a count that becomes citations, and the five-call chain
+ * Each shows a different shape of answer, which is why these four and not any
+ * other four: a clean lookup, a proven absence, an escalation, and the chain
  * where one tool's result becomes the next one's filter.
+ *
+ * THE THIRD ONE EARNS ITS PLACE by being the only question on the site where
+ * ESCALATING IS THE CORRECT ANSWER. Whether a particular vehicle actually had
+ * its repair done is recorded nowhere in this corpus, so a system that answered
+ * it confidently would be wrong. Without this button the escalation panel is a
+ * state nobody can reach.
+ *
+ * THE RANGES ARE REAL AND ARE RANGES ON PURPOSE. Measured across runs today,
+ * and the spread is the point — the same question has come back in 4 seconds
+ * and in 131. Printing one number would be the page claiming a determinism this
+ * stage does not have.
  */
-const TRY: readonly { q: string; shows: string }[] = [
-  { q: 'What does recall 20V197000 cover?', shows: 'one lookup, no search' },
+const TRY: readonly { q: string; shows: string; cost: string }[] = [
   {
-    q: 'Is there a recall for the forward-collision braking on the 2019-2020 Honda Odyssey?',
+    q: 'What does recall 20V197000 cover?',
+    shows: 'a lookup, not a search',
+    cost: '1 call · 4–71s',
+  },
+  {
+    q: 'Is there a recall for the forward-collision braking on our 2020 Odysseys?',
     shows: 'the answer is no, and it proves it',
+    cost: '2–3 calls · 5–113s',
   },
   {
-    q: 'Are there complaints about deaths on the Tesla Model 3?',
-    shows: 'counts, then reads, then cites',
+    q: "What's the remedy for recall 19V864000, and has it been done on our vehicles?",
+    shows: 'hands it to a person, correctly',
+    cost: '1 call · 4–12s',
   },
   {
-    q: 'We run 2020 F-150s. Is the transmission park problem a known defect, and is the fix holding?',
+    q: 'We run 2020 F-150s — is the transmission park problem a known defect, and is the fix holding?',
     shows: 'five calls, and one feeds the next',
+    cost: '5–7 calls · 15–131s',
   },
 ];
 
@@ -255,6 +273,11 @@ export function Desk() {
           </div>
 
           <p className="cal-ask-try">or try one of these</p>
+          <p className="cal-ask-rate">
+            The model runs on a free allowance of fifteen requests a minute, and
+            a question costs roughly one per tool call. It stops answering when
+            that is spent, and it does so quietly.
+          </p>
           <div className="cal-ask-chips">
             {TRY.map((t) => (
               <button
@@ -268,7 +291,10 @@ export function Desk() {
                 }}
               >
                 <span className="cal-chip-q">{t.q}</span>
-                <span className="cal-chip-s">{t.shows}</span>
+                <span className="cal-chip-s">
+                  {t.shows}
+                  <span className="cal-chip-c">{t.cost}</span>
+                </span>
               </button>
             ))}
           </div>
