@@ -338,7 +338,7 @@ function Chunk() {
 
       <Because>
         <span className="text-ui-fg">
-          {((untouched / inTotal) * 100).toFixed(1)}% of the corpus passes through
+          {((untouched / inTotal) * 100).toFixed(2)}% of the corpus passes through
           untouched.
         </span>{' '}
         That is the stage, and the reason is not that complaints are short — one

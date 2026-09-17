@@ -193,7 +193,7 @@ function ChunkerPanel({ from, onClose }: { from: Origin; onClose: () => void }) 
           </table>
         </div>
         <p className="pt-2 font-mono text-[0.625rem] text-ui-faint">
-          {(((IN_TOTAL - UNITS.investigations) / IN_TOTAL) * 100).toFixed(1)}% of the corpus passes
+          {(((IN_TOTAL - UNITS.investigations) / IN_TOTAL) * 100).toFixed(2)}% of the corpus passes
           through untouched
         </p>
       </div>
@@ -227,16 +227,43 @@ function ChunkerPanel({ from, onClose }: { from: Origin; onClose: () => void }) 
             campaigns run to “thousands of characters — chunk them”.
           </P>
           <Data
-            path="pnpm safety:estate — per unit of meaning"
-            note="the correction to INGESTION.md §3.2"
-            mark={[2]}
+            path="two rulers, and the chunker only sees one of them"
+            note="pnpm safety:estate · docs/safety/CHUNK.md"
+            mark={[3, 8]}
             lines={[
-              'source            mean     longest',
-              `complaints       ${String(MEAN_CHARS.complaints).padStart(5)}  ${String(MAX_CHARS.complaints).padStart(10)}`,
-              `recalls          ${String(MEAN_CHARS.recalls).padStart(5)}  ${String(MAX_CHARS.recalls).padStart(10)}   <- shorter than the longest complaint`,
-              `investigations   ${String(MEAN_CHARS.investigations).padStart(5)}  ${String(MAX_CHARS.investigations).padStart(10)}`,
+              'WHAT THE SOURCE FIELD HOLDS        mean     longest     (before stage 3.1)',
+              ...(['complaints', 'recalls', 'investigations'] as const).map(
+                (k) =>
+                  `  ${k.padEnd(30)}${MEAN_CHARS[k].toLocaleString('en-GB').padStart(5)}  ${MAX_CHARS[k].toLocaleString('en-GB').padStart(10)}`,
+              ),
+              ' ',
+              'WHAT THE CHUNKER SEES              mean     longest     (the document text)',
+              '  complaints                        662       2,207',
+              '  recalls                           877       1,809',
+              '  investigations                  2,701       6,046',
             ]}
           />
+          <Aside>
+            <span className="text-ui-fg">
+              The gap between the two tables is stage 3.1's header.
+            </span>{' '}
+            <Mono>2020 FORD F-150 | POWER TRAIN | filed 2020-09-08</Mono> is
+            about 66 characters on a complaint, and the{' '}
+            <Mono>DEFECT:</Mono> / <Mono>CONSEQUENCE:</Mono> /{' '}
+            <Mono>REMEDY:</Mono> labels are about 180 on a recall. Reasoning
+            about a chunk budget from the upper table is off by exactly the thing
+            the parser added to make retrieval work — so the lower one is the
+            ruler that applies here, and the upper one is what the file holds.
+          </Aside>
+          <Aside>
+            One number in the upper table is worth its own line.{' '}
+            <Mono>{MAX_CHARS.complaints.toLocaleString('en-GB')}</Mono> is
+            exactly <Mono>CHAR(2048)</Mono>, the size NHTSA declares for{' '}
+            <Mono>CDESCR</Mono> in its own dictionary. A field that stops
+            precisely where it says it will is the dictionary being honest — the
+            opposite of the trap this corpus is full of, and worth saying because
+            an earlier draft of these pages had it down as a defect.
+          </Aside>
           <P>
             <span className="text-ui-fg">One complaint in nine is long enough to cut.</span>{' '}
             We decline anyway, and the real reason is better than the length: a
