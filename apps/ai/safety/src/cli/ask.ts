@@ -21,7 +21,8 @@
  * produce two different answers and neither is a bug, so a single green run is
  * a smoke test and not a scorecard — the repeat runs are stage 7's.
  */
-import { ToolRegistry, chatClient, chatModelName, runLoop, loopChoice, engineLabel } from '@fde/agent';
+import { ToolRegistry, chatClient, chatModelName, runLoop, engineLabel } from '@fde/agent';
+import { resolveEngine } from '../agent/engines';
 import { openaiClient } from '@fde/foundry';
 import { SAFETY_TOOLS } from '../agent/tools';
 import { SAFETY_SYSTEM_PROMPT } from '../agent/prompt';
@@ -61,7 +62,18 @@ function printAnswer(a: SafetyAnswer): void {
 }
 
 async function ask(question: string) {
-  const choice = loopChoice(process.env.LOOP);
+  // `--engine langgraph` for parity with the picker the desk page gets. It
+  // REFUSES an engine that cannot serve the provider rather than quietly
+  // substituting one — answering with a system the asker did not choose is
+  // worse than an error, because the answer looks fine.
+  const i = process.argv.indexOf('--engine');
+  const requested = i >= 0 ? process.argv[i + 1] : process.env.LOOP;
+  const resolved = resolveEngine(requested);
+  if ('error' in resolved) {
+    console.log(`\n  ${RED}${resolved.error}${OFF}\n`);
+    process.exit(1);
+  }
+  const choice = resolved.engine;
   const model = chatModelName(process.env.FOUNDRY_CHAT_DEPLOYMENT ?? '');
   console.log(`\n  ${DIM}engine ${engineLabel(choice)} · model ${model}${OFF}`);
   console.log(`  ${DIM}"${question}"${OFF}\n`);
