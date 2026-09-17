@@ -15,7 +15,8 @@
     "index": "ts-node src/cli/index-cli.ts",
     "search": "ts-node src/cli/search.ts",
     "measure": "ts-node src/cli/measure.ts",
-    "recall": "ts-node src/cli/recall.ts"
+    "recall": "ts-node src/cli/recall.ts",
+    "recalls-for": "ts-node src/cli/recalls-for.ts"
   },
   "dependencies": {
     "dotenv": "^16.4.5",

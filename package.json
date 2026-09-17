@@ -147,7 +147,8 @@
     "safety:index": "pnpm --filter @calder/safety index",
     "safety:search": "pnpm --filter @calder/safety search",
     "safety:measure": "pnpm --filter @calder/safety measure",
-    "safety:recall": "pnpm --filter @calder/safety recall"
+    "safety:recall": "pnpm --filter @calder/safety recall",
+    "safety:recalls-for": "pnpm --filter @calder/safety recalls-for"
   },
   "devDependencies": {
     "turbo": "^2.10.12"
