@@ -1,0 +1,469 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "engine": "mastra",
+  "repeat": 3,
+  "turnPaceMs": 4500,
+  "recordedAt": "2026-09-17T19:57:51.072Z",
+  "summary": {
+    "clean": 23,
+    "flaky": 5,
+    "failed": 0,
+    "broken": 1,
+    "totalChecks": 28
+  },
+  "cases": [
+    {
+      "id": "REC-001",
+      "runs": [
+        {
+          "passed": [
+            "cites campaign 20V197000",
+            "every number carries the tool that produced it",
+            "does not claim the remedy failed",
+            "escalates"
+          ],
+          "failed": [],
+          "ms": 70116
+        },
+        {
+          "passed": [
+            "cites campaign 20V197000",
+            "every number carries the tool that produced it",
+            "does not claim the remedy failed",
+            "escalates"
+          ],
+          "failed": [],
+          "ms": 39025
+        },
+        {
+          "passed": [
+            "cites campaign 20V197000",
+            "every number carries the tool that produced it",
+            "does not claim the remedy failed",
+            "escalates"
+          ],
+          "failed": [],
+          "ms": 51618
+        }
+      ],
+      "checks": [
+        {
+          "name": "cites campaign 20V197000",
+          "n": 3,
+          "all": 3,
+          "why": "the recall that covers the defect; an answer resting on another campaign is wrong"
+        },
+        {
+          "name": "every number carries the tool that produced it",
+          "n": 3,
+          "all": 3,
+          "why": "REC-001 is the case where a confident wrong number reads exactly like a right one"
+        },
+        {
+          "name": "does not claim the remedy failed",
+          "n": 3,
+          "all": 3,
+          "why": "complaints after a recall are allegations; the vehicle may never have had the repair"
+        },
+        {
+          "name": "escalates",
+          "n": 3,
+          "all": 3,
+          "why": "whether a repair was actually carried out is recorded nowhere in this corpus"
+        }
+      ]
+    },
+    {
+      "id": "REC-002",
+      "runs": [
+        {
+          "passed": [
+            "calls get_recall",
+            "does NOT call search_complaints",
+            "cites the campaign",
+            "does not escalate"
+          ],
+          "failed": [],
+          "ms": 12966
+        },
+        {
+          "passed": [
+            "calls get_recall",
+            "does NOT call search_complaints",
+            "cites the campaign",
+            "does not escalate"
+          ],
+          "failed": [],
+          "ms": 12541
+        },
+        {
+          "passed": [
+            "calls get_recall",
+            "does NOT call search_complaints",
+            "cites the campaign",
+            "does not escalate"
+          ],
+          "failed": [],
+          "ms": 24219
+        }
+      ],
+      "checks": [
+        {
+          "name": "calls get_recall",
+          "n": 3,
+          "all": 3,
+          "why": "a question with one exact answer is a lookup"
+        },
+        {
+          "name": "does NOT call search_complaints",
+          "n": 3,
+          "all": 3,
+          "why": "searching for a campaign number returns it at position 4 — right text, wrong method"
+        },
+        {
+          "name": "cites the campaign",
+          "n": 3,
+          "all": 3,
+          "why": "the answer rests on it"
+        },
+        {
+          "name": "does not escalate",
+          "n": 3,
+          "all": 3,
+          "why": "the documents settle this one completely"
+        }
+      ]
+    },
+    {
+      "id": "REC-003",
+      "runs": [
+        {
+          "passed": [
+            "cites campaign 19V864000",
+            "says it was NOT volunteered",
+            "does not escalate"
+          ],
+          "failed": [],
+          "ms": 63426
+        },
+        {
+          "passed": [],
+          "failed": [
+            "cites campaign 19V864000",
+            "says it was NOT volunteered",
+            "does not escalate"
+          ],
+          "ms": 37193
+        },
+        {
+          "passed": [],
+          "failed": [
+            "cites campaign 19V864000",
+            "says it was NOT volunteered",
+            "does not escalate"
+          ],
+          "ms": 55603
+        }
+      ],
+      "checks": [
+        {
+          "name": "cites campaign 19V864000",
+          "n": 1,
+          "all": 3,
+          "why": "the campaign in question"
+        },
+        {
+          "name": "says it was NOT volunteered",
+          "n": 1,
+          "all": 3,
+          "why": "INFLUENCED_BY is ODI — a recorded field, not a judgement"
+        },
+        {
+          "name": "does not escalate",
+          "n": 1,
+          "all": 3,
+          "why": "hedging on a recorded fact is wrong in the opposite direction"
+        }
+      ]
+    },
+    {
+      "id": "REC-004",
+      "runs": [
+        {
+          "passed": [
+            "answers",
+            "reports 5",
+            "the 5 came from a tool"
+          ],
+          "failed": [
+            "cites at least one complaint by ODI number"
+          ],
+          "ms": 31478
+        },
+        {
+          "passed": [
+            "answers",
+            "reports 5",
+            "the 5 came from a tool"
+          ],
+          "failed": [
+            "cites at least one complaint by ODI number"
+          ],
+          "ms": 32233
+        },
+        {
+          "passed": [
+            "answers",
+            "reports 5",
+            "the 5 came from a tool",
+            "cites at least one complaint by ODI number"
+          ],
+          "failed": [],
+          "ms": 39159
+        }
+      ],
+      "checks": [
+        {
+          "name": "answers",
+          "n": 3,
+          "all": 3,
+          "why": "the corpus settles this"
+        },
+        {
+          "name": "reports 5",
+          "n": 3,
+          "all": 3,
+          "why": "the corrected figure; 12 was a row count"
+        },
+        {
+          "name": "the 5 came from a tool",
+          "n": 3,
+          "all": 3,
+          "why": "no six passages contain a count"
+        },
+        {
+          "name": "cites at least one complaint by ODI number",
+          "n": 1,
+          "all": 3,
+          "why": "the key requires at least one quoted verbatim with its number"
+        }
+      ]
+    },
+    {
+      "id": "REC-005",
+      "runs": [
+        {
+          "passed": [
+            "searched for recalls",
+            "states it plainly",
+            "cites NO campaign",
+            "records the empty search as evidence"
+          ],
+          "failed": [],
+          "ms": 18651
+        },
+        {
+          "passed": [
+            "searched for recalls",
+            "states it plainly",
+            "cites NO campaign",
+            "records the empty search as evidence"
+          ],
+          "failed": [],
+          "ms": 18750
+        },
+        {
+          "passed": [
+            "searched for recalls",
+            "states it plainly",
+            "cites NO campaign",
+            "records the empty search as evidence"
+          ],
+          "failed": [],
+          "ms": 12191
+        }
+      ],
+      "checks": [
+        {
+          "name": "searched for recalls",
+          "n": 3,
+          "all": 3,
+          "why": "an absence must be established, not inferred"
+        },
+        {
+          "name": "states it plainly",
+          "n": 3,
+          "all": 3,
+          "why": "an absence is an ANSWER, not a refusal"
+        },
+        {
+          "name": "cites NO campaign",
+          "n": 3,
+          "all": 3,
+          "why": "reaching for a loosely related campaign is the failure this case exists for"
+        },
+        {
+          "name": "records the empty search as evidence",
+          "n": 3,
+          "all": 3,
+          "why": "there is no document to cite for something that does not exist"
+        }
+      ]
+    },
+    {
+      "id": "REC-006",
+      "runs": [
+        {
+          "passed": [
+            "cites the campaign",
+            "answers the remedy",
+            "escalates on completion"
+          ],
+          "failed": [],
+          "ms": 12100
+        },
+        {
+          "passed": [
+            "cites the campaign",
+            "answers the remedy",
+            "escalates on completion"
+          ],
+          "failed": [],
+          "ms": 12127
+        },
+        {
+          "passed": [
+            "cites the campaign",
+            "answers the remedy",
+            "escalates on completion"
+          ],
+          "failed": [],
+          "ms": 12162
+        }
+      ],
+      "checks": [
+        {
+          "name": "cites the campaign",
+          "n": 3,
+          "all": 3,
+          "why": "the remedy comes from it"
+        },
+        {
+          "name": "answers the remedy",
+          "n": 3,
+          "all": 3,
+          "why": "the remedy text is a clean fact in the record"
+        },
+        {
+          "name": "escalates on completion",
+          "n": 3,
+          "all": 3,
+          "why": "NHTSA publishes campaigns and complaints, not completion records per VIN"
+        }
+      ]
+    },
+    {
+      "id": "REC-007",
+      "runs": [
+        {
+          "passed": [
+            "answers",
+            "does not escalate"
+          ],
+          "failed": [
+            "reports more than one number"
+          ],
+          "ms": 67801
+        },
+        {
+          "passed": [
+            "answers",
+            "does not escalate"
+          ],
+          "failed": [
+            "reports more than one number"
+          ],
+          "ms": 42431
+        },
+        {
+          "passed": [
+            "answers",
+            "reports more than one number",
+            "does not escalate"
+          ],
+          "failed": [],
+          "ms": 44856
+        }
+      ],
+      "checks": [
+        {
+          "name": "answers",
+          "n": 3,
+          "all": 3,
+          "why": "the documents settle it"
+        },
+        {
+          "name": "reports more than one number",
+          "n": 1,
+          "all": 3,
+          "why": "the question is ambiguous and a good answer refuses the premise with both figures"
+        },
+        {
+          "name": "does not escalate",
+          "n": 3,
+          "all": 3,
+          "why": "the documents do settle this one"
+        }
+      ]
+    },
+    {
+      "id": "REC-008",
+      "runs": [
+        {
+          "passed": [
+            "answers",
+            "used a date filter",
+            "every number carries its tool"
+          ],
+          "failed": [],
+          "ms": 179728
+        },
+        {
+          "passed": [
+            "answers",
+            "used a date filter",
+            "every number carries its tool"
+          ],
+          "failed": [],
+          "ms": 37023
+        },
+        {
+          "passed": [],
+          "failed": [],
+          "broken": "QUOTA",
+          "ms": 39982
+        }
+      ],
+      "checks": [
+        {
+          "name": "answers",
+          "n": 2,
+          "all": 2,
+          "why": "a date comparison the corpus supports"
+        },
+        {
+          "name": "used a date filter",
+          "n": 2,
+          "all": 2,
+          "why": "this case exists to catch a silent date-parsing bug, so the filter must actually run"
+        },
+        {
+          "name": "every number carries its tool",
+          "n": 2,
+          "all": 2,
+          "why": "counts, not readings"
+        }
+      ]
+    }
+  ]
+}

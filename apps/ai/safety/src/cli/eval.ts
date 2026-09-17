@@ -190,7 +190,13 @@ async function main(): Promise<number> {
 
   const dir = resolve(REPO_ROOT, 'docs/safety/evals');
   mkdirSync(dir, { recursive: true });
-  const file = resolve(dir, `baseline-${new Date().toISOString().slice(0, 10)}.json`);
+  // TO THE MINUTE, NOT THE DAY. A date-only name overwrote the first baseline
+  // with the second one taken an hour later — the before and the after of a
+  // change, and the file that proved it moved was the one destroyed. Git had
+  // the first, which is luck rather than design.
+  const stamp = new Date().toISOString().replace(/[:T]/g, '-').slice(0, 16);
+  const label = process.env.EVAL_LABEL ? `-${process.env.EVAL_LABEL}` : '';
+  const file = resolve(dir, `baseline-${stamp}${label}.json`);
   writeFileSync(
     file,
     `${JSON.stringify(
