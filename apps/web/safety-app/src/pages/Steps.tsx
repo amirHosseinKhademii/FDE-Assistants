@@ -746,9 +746,9 @@ function Patterns() {
     },
     {
       name: 'graph',
-      status: 'not built',
-      here: 'Genuinely real here: complaint → component → recall → manufacturer.',
-      live: false,
+      status: 'not built · 42 edges found',
+      here: 'The one claim on this table that stopped being an opinion. Investigations carry a CAMPNO field — “the recall campaign initiated as a result of the investigation” — and 42 of the 114 fill it in. DP22005 → 22V063000 is an edge already in the file, with nothing to infer.',
+      live: true,
     },
     {
       name: 'multimodal',
@@ -765,7 +765,8 @@ function Patterns() {
       </h2>
       <p className="mt-3 max-w-[64ch] leading-relaxed text-ui-dim">
         The patterns are the same five the firm teaches. What changes on real
-        data is which of them stop being an argument.
+        data is which of them stop being an argument — and one of them stopped
+        while this page was being written.
       </p>
 
       <ul className="mt-7 grid gap-4">

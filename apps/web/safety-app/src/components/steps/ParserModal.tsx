@@ -409,13 +409,18 @@ function ParserPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
 
         <Sect title="The three checks, printed at the end" refs={sections} active={active}>
           <Data
-            path="what stage 3.1 will print"
-            note="not a run — nothing has been parsed"
+            path="pnpm safety:parse — 2026-09-17"
+            note="it has run"
             mark={[1]}
             lines={[
-              'parsed 100,980 lines → 70,194 documents   ragged rows: 0',
+              'complaints       100,980 lines →  70,194 documents   (30,786 merged, 0 ragged)',
+              'recalls           44,791 lines →   3,026 documents   (41,765 merged, 0 ragged)',
+              'investigations     1,631 lines →     114 documents   (1,517 merged, 0 ragged)',
+              '',
               'raw file says (awk, no parser): 100,980 lines, 51 fields on every one   ✓',
               'ODI 11353867 present: yes — "2020 FORD F-150 | POWER TRAIN | filed 2020-09-08…"',
+              '',
+              '73,334 documents in 0.9s',
             ]}
           />
           <Aside>
@@ -424,6 +429,40 @@ function ParserPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             with no parser in the path. A parser confirming its own output proves
             nothing, which is exactly how the quoting bug survived long enough to
             be written down as a property of the data.
+          </Aside>
+          <P>
+            This block used to be badged{' '}
+            <span className="text-ui-fg">“what stage 3.1 will print — not a run”</span>
+            , because it had not. It has now, and the three counts came back
+            equal to the ones the estate page had already measured from the same
+            files by a different route. That agreement is the point: two programs
+            that never saw each other reached the same{' '}
+            {UNITS.complaints.toLocaleString('en-GB')}.
+          </P>
+        </Sect>
+
+        <Sect title="The edge nobody had to infer" refs={sections} active={active}>
+          <P>
+            Investigations carry a field the other two sources do not:{' '}
+            <Mono>CAMPNO</Mono>, documented as{' '}
+            <em>“the recall campaign initiated as a result of the
+            investigation”</em>. 42 of the 114 fill it in.
+          </P>
+          <Data
+            path="INV_SLICE.tsv — field 9, where it is set"
+            note="42 of 114"
+            lines={['DP22005  →  22V063000']}
+          />
+          <Aside>
+            That is a regulator writing down that this enquiry produced that
+            recall. It is the investigation → recall edge{' '}
+            <Mono>docs/rag/GRAPH.md</Mono> describes, sitting in the file with
+            nothing to infer and no model involved — which is why the parser
+            asserts it as a check rather than mentioning it in a comment. It also
+            gives the estate a relationship worth drawing: investigation →
+            recall → complaints about the same component, before and after the
+            remedy. That is the whole product in one line, and 42 real instances
+            of it exist.
           </Aside>
         </Sect>
 

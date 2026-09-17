@@ -11,10 +11,10 @@
 #
 # So the order is the pipeline:
 #
-#   1a/1b. build both ENGAGEMENT images       steering-build · pharma-build
-#   2a/2b. deploy them and prove they serve   steering-deploy · pharma-deploy
-#   3.     only then build the HOST's image   veresk-build   ← takes both URLs
-#   4.     deploy the host and prove it       veresk-deploy
+#   1a/1b/1c. build the ENGAGEMENT images    steering-build · pharma-build · safety-build
+#   2a/2b/2c. deploy them, prove they serve   steering-deploy · pharma-deploy · safety-deploy
+#   3.        only then build the HOST image  veresk-build   ← takes all three URLs
+#   4.        deploy the host and prove it    veresk-deploy
 #
 # The two engagements are independent of each other, so they run in parallel and
 # the graph forks. The host's build cannot start until BOTH are live and
@@ -128,10 +128,12 @@ on:
       - 'apps/web/veresk-app/**'
       - 'apps/web/steering-app/**'
       - 'apps/web/pharma-app/**'
+      - 'apps/web/safety-app/**'
       - 'packages/**'
       - 'infra/veresk/Dockerfile'
       - 'infra/steering/Dockerfile'
       - 'infra/pharma/Dockerfile'
+      - 'infra/safety/Dockerfile'
       - 'pnpm-lock.yaml'
       - '.github/workflows/deploy.yml'
 
@@ -174,6 +176,13 @@ env:
   # after, which it never quite did before.
   PHARMA_APP: pharma-app
   PHARMA_REPO: docker.io/amir2575/meridian-pharma
+  # The fourth engagement. It has no database, no model call and no API route —
+  # every figure on its pages is baked in at build time from the NHTSA files, so
+  # this app needs NO secrets, and `safety-deploy` sets none. If `/desk` ever
+  # lands it will need `SAFETY_DATABASE_URL` and a model key, and that is the
+  # commit where this comment stops being true.
+  SAFETY_APP: safety-app
+  SAFETY_REPO: docker.io/amir2575/calder-safety
   # The host — the firm's door and Meridian Pharma's pages.
   #
   # RENAMED FROM `pharma-app` ON 2026-09-13, which meant recreating it: Azure
@@ -566,15 +575,224 @@ jobs:
 
           echo "✅ **2b · pharma deployed** — <$url>" >> "$GITHUB_STEP_SUMMARY"
 
+  # ── 1c ── the fourth engagement's image ─────────────────────────────────
+  #
+  # A SIBLING OF 1a AND 1b, AND DELIBERATELY THE DULLEST OF THE THREE. Calder
+  # Safety has no database, no model call and no API route: every figure on
+  # every page is read from a generated file that is committed, so there is
+  # nothing to configure and nothing that can differ between the image and the
+  # repository. The interesting part of this job is how little of it there is.
+  safety-build:
+    name: 1c · build safety image
+    if: ${{ (inputs.scope || 'all') == 'all' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # The back-link to the firm, resolved rather than written down. Empty is
+      # the correct answer if the host has no ingress: `links.ts` scopes its dev
+      # fallback to `import.meta.env.DEV`, so an unset value renders the firm's
+      # name as text rather than as a link to a port on the reader's machine.
+      - name: Resolve the host's URL
+        run: |
+          fqdn=$(az containerapp show -n "$VERESK_APP" -g "$RG" \
+            --query "properties.configuration.ingress.fqdn" -o tsv 2>/dev/null || true)
+          if [ -n "$fqdn" ]; then
+            echo "resolved $VERESK_APP -> https://$fqdn"
+            echo "VERESK_URL=https://$fqdn" >> "$GITHUB_ENV"
+          else
+            echo "::warning::$VERESK_APP has no ingress — the back-link will render as plain text"
+            echo "VERESK_URL=" >> "$GITHUB_ENV"
+          fi
+
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/safety/Dockerfile
+          push: true
+          tags: ${{ env.SAFETY_REPO }}:sha-${{ github.sha }}
+          build-args: |
+            VITE_VERESK_URL=${{ env.VERESK_URL }}
+          cache-from: type=gha
+          # mode=min, NOT max — see the note in 1a.
+          cache-to: type=gha,mode=min,scope=safety
+
+      - run: echo "✅ **1c · safety image built** — \`${SAFETY_REPO}:sha-${GITHUB_SHA}\`" >> "$GITHUB_STEP_SUMMARY"
+
+  # ── 2c ── the fourth engagement, live ───────────────────────────────────
+  safety-deploy:
+    name: 2c · deploy safety
+    needs: safety-build
+    if: ${{ (inputs.scope || 'all') == 'all' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      url: ${{ steps.smoke.outputs.url }}
+    steps:
+      # Checked out only so the smoke test can read its assertion out of the
+      # source instead of having it typed into this file. See that step.
+      - uses: actions/checkout@v4
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # Created if it is not there — this app has never been stood up, so the
+      # FIRST run of this job takes the create branch. Every argument in it is
+      # the same as steering's and for the same reasons, which are written out
+      # there rather than repeated: ask the RESOURCE GROUP rather than the app,
+      # because `show` fails identically for "missing" and "may not read"; and
+      # derive the image name here rather than inheriting it, because a skipped
+      # build contributes no outputs and `--image ""` means "change nothing"
+      # and exits 0.
+      #
+      # NO SECRETS, AND THAT IS THE WHOLE POINT OF THIS ENGAGEMENT'S SHAPE. The
+      # other two need a database URL, a Foundry endpoint and an API key. This
+      # one needs none, because nothing on it runs at request time.
+      - name: Create or update the app
+        run: |
+          image="${SAFETY_REPO}:sha-${GITHUB_SHA}"
+          echo "IMAGE=$image" >> "$GITHUB_ENV"
+
+          if ! names=$(az containerapp list -g "$RG" --query "[].name" -o tsv 2>/tmp/az-err); then
+            echo "::error::cannot list container apps in $RG — the deploy identity needs Contributor on the RESOURCE GROUP, not on a single app. Azure said: $(cat /tmp/az-err)"
+            exit 1
+          fi
+
+          if printf '%s\n' "$names" | grep -qx "$SAFETY_APP"; then
+            echo "updating $SAFETY_APP -> $image"
+            az containerapp update -n "$SAFETY_APP" -g "$RG" --image "$image" --output none
+          else
+            echo "creating $SAFETY_APP -> $image"
+            az containerapp create \
+              --name "$SAFETY_APP" --resource-group "$RG" --environment "$ENVIRONMENT" \
+              --image "$image" \
+              --target-port 8080 --ingress external \
+              --cpu 0.5 --memory 1.0Gi \
+              --min-replicas 0 --max-replicas 1 \
+              --output none
+          fi
+
+      # `az containerapp update` RETURNS BEFORE THE NEW REVISION SERVES, so
+      # assert the template carries the sha we just pushed AND that the active
+      # revision finished provisioning. Without this, curling straight after can
+      # hit the OLD revision, get a 200, and turn this job green having deployed
+      # nothing.
+      - name: Wait for the revision
+        run: |
+          for i in $(seq 1 40); do
+            state=$(az containerapp revision list -n "$SAFETY_APP" -g "$RG" \
+              --query "[?properties.active] | [0].properties.provisioningState" -o tsv)
+            image=$(az containerapp show -n "$SAFETY_APP" -g "$RG" \
+              --query "properties.template.containers[0].image" -o tsv)
+            echo "attempt $i — provisioning=$state image=$image"
+            if [ "$state" = "Provisioned" ] && [ "$image" = "$IMAGE" ]; then
+              echo "revision is provisioned and carries the expected sha"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::error::no active revision reached Provisioned with $IMAGE"
+          exit 1
+
+      # A 200 says the process boots. The content assertion says it SERVED THE
+      # PAGE — and the marker is READ OUT OF THE GENERATED FILE rather than
+      # typed here, for the reason the steering job records at length: a typed
+      # marker went stale when a name changed and failed twelve green 200s in a
+      # row, reporting a deploy problem that did not exist.
+      #
+      # Here the marker is the complaint count. It is the number the estate page
+      # leads with and the one thing on the page that could only have come from
+      # the generated file, so its presence proves the bundle and its data both
+      # made it into the image.
+      - name: Smoke test
+        id: smoke
+        run: |
+          fqdn=$(az containerapp show -n "$SAFETY_APP" -g "$RG" \
+            --query "properties.configuration.ingress.fqdn" -o tsv)
+          url="https://$fqdn"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+          # ── EXTRACTING THIS MARKER WENT WRONG TWICE, AND BOTH WOULD HAVE
+          #    PASSED THE STEP ────────────────────────────────────────────────
+          #
+          # `grep -o '[0-9]*'` matches the EMPTY STRING before it matches any
+          # digits, so the marker came out as `0` — and `grep -qa "0"` then
+          # matched a page full of dates and passed. That is the same shape as
+          # the `grep -q ""` bug the veresk job records below: an assertion that
+          # cannot fail, on the step whose whole job is to be able to. Hence
+          # `-E '[0-9]+'`.
+          #
+          # And `"complaints":` appears FOUR times in the generated file — in
+          # SNAPSHOT (a date), ROWS (100,980), UNITS (70,194) and MEAN_CHARS
+          # (596). `-m1` took the date. So the block is named before the key is
+          # read, and UNITS is the right block: 70,194 is what the page prints,
+          # because rows are not what this estate is counted in.
+          #
+          # `toLocaleString('en-GB')` turns 70194 into 70,194 on the page, so
+          # the comma is put back here. Asserting what the reader sees, not what
+          # the file says.
+          RAW=$(sed -n '/^export const UNITS/,/}/p' apps/web/safety-app/src/lib/estate.generated.ts \
+            | grep -oE '"complaints": [0-9]+' | grep -oE '[0-9]+')
+          case "$RAW" in
+            ''|*[!0-9]*) echo "::error::could not read UNITS.complaints out of estate.generated.ts — got '$RAW'"; exit 1 ;;
+          esac
+          [ "$RAW" -gt 1000 ] || { echo "::error::UNITS.complaints is $RAW, which is not a corpus — refusing to assert on it"; exit 1; }
+          MARKER=$(printf "%'d" "$RAW" | tr -d ' ')
+          echo "asserting the page contains $MARKER"
+
+          # Written to a file rather than captured: command substitution is not
+          # safe for arbitrary response bodies. --max-time is generous because
+          # min-replicas is 0 and the first request pays a cold start.
+          ok=
+          for i in $(seq 1 12); do
+            code=$(curl -s --max-time 180 -o /tmp/page.html -w '%{http_code}' "$url/")
+            echo "attempt $i — GET / -> $code"
+            if [ "$code" = "200" ] && grep -qa "$MARKER" /tmp/page.html; then ok=yes; break; fi
+            sleep 10
+          done
+          [ "$ok" = "yes" ] || { echo "::error::safety never served its estate data"; exit 1; }
+
+          grep -qa 'Calder Safety' /tmp/page.html \
+            || { echo "::error::the page rendered without its own name in it"; exit 1; }
+
+          # THE OTHER TWO PAGES ARE ASSERTED TOO, because this deployment is
+          # three routes and a landing-only check would pass on an image whose
+          # router never built. `/steps` is the one that would break first: it
+          # is the only page importing from @veresk/surface's Snippet, which
+          # carries a highlighter and four grammars.
+          for path in steps data-flow; do
+            code=$(curl -s --max-time 120 -o /tmp/p.html -w '%{http_code}' "$url/$path")
+            echo "GET /$path -> $code"
+            [ "$code" = "200" ] || { echo "::error::/$path did not serve"; exit 1; }
+          done
+
+      - run: echo "✅ **2c · safety deployed** — ${{ steps.smoke.outputs.url }}" >> "$GITHUB_STEP_SUMMARY"
+
   # ── 3 ── the host's image, built after both engagements are live ─────────
   veresk-build:
     name: 3 · build veresk image
-    needs: [steering-deploy, pharma-deploy]
+    needs: [steering-deploy, pharma-deploy, safety-deploy]
     # SKIPPED IS NOT FAILED, AND THIS JOB HAS TO TELL THEM APART. Without an
     # `if`, a skipped dependency skips this job too — so `veresk-only` would
     # deploy nothing at all. `!cancelled()` and not `always()`, because
     # `always()` would also build after somebody pressed cancel.
-    if: ${{ !cancelled() && needs.steering-deploy.result != 'failure' && needs.pharma-deploy.result != 'failure' }}
+    if: ${{ !cancelled() && needs.steering-deploy.result != 'failure' && needs.pharma-deploy.result != 'failure' && needs.safety-deploy.result != 'failure' }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -583,10 +801,11 @@ jobs:
       # THE WHOLE POINT OF THE ORDERING IS THIS LINE. The URL comes from the job
       # that just watched that app return 200, so the firm's page cannot ship a
       # link to something that is not there.
-      - name: Take both URLs from the deploys that proved them
+      - name: Take all three URLs from the deploys that proved them
         run: |
           echo "STEERING_URL=${{ needs.steering-deploy.outputs.url }}" >> "$GITHUB_ENV"
           echo "PHARMA_URL=${{ needs.pharma-deploy.outputs.url }}" >> "$GITHUB_ENV"
+          echo "SAFETY_URL=${{ needs.safety-deploy.outputs.url }}" >> "$GITHUB_ENV"
 
       - uses: docker/setup-buildx-action@v3
       - uses: docker/login-action@v3
@@ -603,21 +822,22 @@ jobs:
           build-args: |
             VITE_PHARMA_URL=${{ env.PHARMA_URL }}
             VITE_STEERING_URL=${{ env.STEERING_URL }}
+            VITE_SAFETY_URL=${{ env.SAFETY_URL }}
           # This cache only pays off because the Dockerfile installs
           # dependencies BEFORE copying the source — see the layer-order comment
           # there. With the original `COPY . .` first it had nothing cacheable.
           cache-from: type=gha
           cache-to: type=gha,mode=min,scope=veresk
 
-      - run: echo "✅ **3 · veresk image built** — links to \`${PHARMA_URL:-(none)}\` and \`${STEERING_URL:-(none)}\`" >> "$GITHUB_STEP_SUMMARY"
+      - run: echo "✅ **3 · veresk image built** — links to \`${PHARMA_URL:-(none)}\`, \`${STEERING_URL:-(none)}\` and \`${SAFETY_URL:-(none)}\`" >> "$GITHUB_STEP_SUMMARY"
 
   # ── 4 ── the host, live ─────────────────────────────────────────────────
   veresk-deploy:
     name: 4 · deploy veresk
-    needs: [veresk-build, steering-deploy, pharma-deploy]
+    needs: [veresk-build, steering-deploy, pharma-deploy, safety-deploy]
     # Same rule as the build, with one difference: the BUILD must have
     # succeeded. A skipped build means there is no image to deploy.
-    if: ${{ !cancelled() && needs.veresk-build.result == 'success' && needs.steering-deploy.result != 'failure' && needs.pharma-deploy.result != 'failure' }}
+    if: ${{ !cancelled() && needs.veresk-build.result == 'success' && needs.steering-deploy.result != 'failure' && needs.pharma-deploy.result != 'failure' && needs.safety-deploy.result != 'failure' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -717,6 +937,7 @@ jobs:
           url="https://$fqdn"
           pharma="${{ needs.pharma-deploy.outputs.url }}"
           steering="${{ needs.steering-deploy.outputs.url }}"
+          safety="${{ needs.safety-deploy.outputs.url }}"
 
           # ── AN ABSENT URL IS NOT A URL TO LOOK FOR ─────────────────────────
           #
@@ -734,6 +955,7 @@ jobs:
           want=
           [ -n "$pharma" ] && want="$want $pharma"
           [ -n "$steering" ] && want="$want $steering"
+          [ -n "$safety" ] && want="$want $safety"
           if [ -z "$want" ]; then
             echo "veresk-only: no engagement URLs to assert — checking 200 and no-localhost only"
           else

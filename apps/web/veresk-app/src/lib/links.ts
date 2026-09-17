@@ -1,5 +1,5 @@
 /**
- * Where the engagements live. All three are elsewhere now.
+ * Where the engagements live. All of them are elsewhere now.
  *
  * WHY URLS AND NOT `<Link>`s. Each engagement is its own deployment on its own
  * origin, so crossing to one is a plain anchor. A typed `<Link to="/pharma">`
@@ -39,3 +39,13 @@ export const PHARMA = url(import.meta.env.VITE_PHARMA_URL as string | undefined,
 
 /** Vantis Steering — the bid page. */
 export const STEERING = url(import.meta.env.VITE_STEERING_URL as string | undefined, 3400);
+
+/**
+ * Calder Safety — the public vehicle-safety record.
+ *
+ * The fourth, and the first whose corpus nobody here wrote. It is deployed on
+ * the same terms as the other two and resolved the same way: the pipeline looks
+ * its URL up from Azure AFTER watching it return 200, so this value is never a
+ * guess about something that might exist.
+ */
+export const SAFETY = url(import.meta.env.VITE_SAFETY_URL as string | undefined, 3500);

@@ -1,4 +1,4 @@
-# The web surface — three apps, two shared packages, and the decisions behind them
+# The web surface — the apps, the two shared packages, and the decisions behind them
 
 *Written 2026-09-13, at the end of the session that split the site into separate
 deployments and rebuilt Vantis Steering's page. Everything below is on disk and
@@ -32,6 +32,19 @@ apps/web/pharma-app     @meridian/pharma-app    Meridian Pharma: `/`, `/desk`,
 apps/web/steering-app   @vantis/steering-app    Vantis Steering, at `/` of its own
                                                 deployment. Port 3400,
                                                 `pnpm steering:dev`.
+apps/web/safety-app     @calder/safety-app      Calder Safety: `/`, `/steps`,
+                                                `/data-flow`. The fourth, added
+                                                2026-09-17, and the ONLY one with
+                                                no API route, no database and no
+                                                model call — every figure on it is
+                                                read from `estate.generated.ts`,
+                                                which `pnpm safety:estate` wrote by
+                                                counting the NHTSA flat files and
+                                                which is committed. So its image
+                                                needs no secrets and its deploy job
+                                                sets none. `/desk` is what will end
+                                                that; see infra/safety/Dockerfile.
+                                                Port 3500, `pnpm safety:dev`.
 
 packages/uikit          @fde/uikit              Liftable into a customer's repo.
                                                 Controls, severity, motion, tokens.
@@ -426,6 +439,15 @@ Three bugs came out of that and all three are now closed in the pipeline:
 |---|---|
 | `veresk` | https://veresk.lemonsky-6acd5222.swedencentral.azurecontainerapps.io |
 | `steering-app` | https://steering-app.lemonsky-6acd5222.swedencentral.azurecontainerapps.io |
+| `safety-app` | created by its first deploy — the name is fixed, the domain is not ours to write down |
+
+**`safety-app` has never been stood up**, so the first run of job `2c` takes the
+create branch rather than the update one. That path exists in all three deploy
+jobs and has only ever been exercised by `steering-app`; this is the second time
+it matters, and it is the reason it is not a manual `az containerapp create` in a
+runbook. Its URL is deliberately not written into this table before it exists —
+`infra/RESTORE.md` records what a rebuild costs every place a domain is written
+down, and the answer was six documented URLs across four files.
 
 `veresk` was `pharma-app` until 2026-09-13. Azure has no rename for a container
 app, so it was a recreate — and `FOUNDRY_OPENAI_ENDPOINT` carries an

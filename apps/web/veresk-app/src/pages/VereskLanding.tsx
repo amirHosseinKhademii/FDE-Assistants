@@ -38,7 +38,7 @@ import { FlowMap } from '@fde/uikit';
 import type { FlowEdge, FlowNode, FlowStage } from '@fde/uikit';
 import { Aurora } from '@veresk/surface';
 import { AURORA } from '../lib/aurora';
-import { PHARMA, STEERING } from '../lib/links';
+import { PHARMA, SAFETY, STEERING } from '../lib/links';
 import { BoxIcon } from '@fde/uikit';
 import { CaseGlyph, PackageGlyph } from '../components/flow/veresk-glyphs';
 import { hueOf, lessonsIn, MAP, TOTALS, TRACKS } from '../lib/learn/lessons';
@@ -71,14 +71,26 @@ const ENGAGEMENTS = [
     id: 'pharma',
     name: 'Meridian Pharma',
     sub: 'batch release',
-    y: 320,
+    y: 287,
     uses: ['grounding', 'agent', 'evals', 'schema', 'telemetry', 'foundry'],
   },
   {
     id: 'steering',
     name: 'Vantis Steering',
     sub: 'bid response',
-    y: 520,
+    y: 453,
+    uses: ['grounding'],
+  },
+  /* THE FOURTH REACHES ONE PACKAGE, AND THAT IS THE HONEST DRAWING. It parses
+     and surveys a public corpus; the retrieval, the loop and the evals are
+     ahead of it, not behind. An edge drawn to a package it does not import yet
+     would make the map a plan rather than a dependency graph — which is the one
+     thing this drawing is for. */
+  {
+    id: 'safety',
+    name: 'Calder Safety',
+    sub: 'vehicle recalls',
+    y: 620,
     uses: ['grounding'],
   },
 ];
@@ -127,7 +139,7 @@ const EDGES: FlowEdge[] = ENGAGEMENTS.flatMap((e, i) =>
 );
 
 const STAGES: FlowStage[] = [
-  { title: 'Three customers', ids: ENGAGEMENTS.map((e) => e.id) },
+  { title: 'Four customers', ids: ENGAGEMENTS.map((e) => e.id) },
   { title: 'One set of parts', ids: PACKAGES.map((p) => p.id) },
 ];
 
@@ -158,6 +170,11 @@ export function VereskLanding() {
           </a>
         )}
         {/* Absent rather than dead when there is nowhere to send anybody. */}
+        {SAFETY && (
+          <a href={SAFETY} className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
+            Calder Safety
+          </a>
+        )}
         {STEERING && (
           <a href={STEERING} className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
             Vantis Steering
@@ -231,7 +248,7 @@ function ReuseGraph() {
           height={680}
           cycle={8}
           figure={figureFor}
-          stackNote="Vantis Steering reaches one shared package so far. It is six days old and has an estate and nothing above it yet."
+          stackNote="Two of the four reach one shared package each. Vantis Steering has an estate and nothing above it; Calder Safety has parsed a public corpus and nothing above that. Neither is finished, and the drawing says so by having nothing to draw."
         />
       </div>
 
@@ -284,20 +301,36 @@ const CASES = [
     state: 'Six days in. The estate is built and seeded; nothing is answered yet.',
     elsewhere: 'Runs as its own application — pnpm steering:dev, port 3400',
   },
+  {
+    href: SAFETY,
+    customer: 'Calder Safety',
+    persona: 'an analyst running four hundred vans',
+    asks: 'Is this a known defect with a remedy, and is the remedy holding?',
+    /* THE ONLY ONE OF THE FOUR WHOSE CORPUS WE DID NOT WRITE, which is the
+       whole reason it exists and so it is what the card says. The others'
+       documents were written to contain the traps we wanted to teach; these are
+       73,334 public filings that nobody made tractable for us. */
+    state: 'The first corpus here nobody wrote for us — 73,334 public NHTSA filings. Parsed and surveyed; the desk is not built.',
+    elsewhere: 'Runs as its own application — pnpm safety:dev, port 3500',
+  },
 ];
 
 function Engagements() {
   return (
     <section className="border-t border-ui-line py-16">
       <h2 className="max-w-[30ch] font-mono text-2xl leading-snug font-medium tracking-tight text-ui-fg md:text-3xl">
-        Three customers, three questions.
+        Four customers, four questions.
       </h2>
       <p className="mt-4 max-w-[58ch] leading-relaxed text-ui-dim">
         Every engagement starts the same way: one person, one question they answer badly today, and
         a number that says whether it got better.
       </p>
 
-      <div className="mt-10 grid gap-3 lg:grid-cols-3">
+      {/* TWO BY TWO, NOT THREE AND A ONE. Three columns was right for three
+          engagements and a fourth card left a row of one next to two columns of
+          nothing, which reads as a card that failed to load rather than as the
+          fourth customer. Four items want an even grid. */}
+      <div className="mt-10 grid gap-3 sm:grid-cols-2">
         {CASES.map((c) => {
           const inside = (
             <>
