@@ -44,6 +44,7 @@ import { FuseModal, SearchModal } from '../components/steps/SearchModal';
 import { MeasureModal } from '../components/steps/MeasureModal';
 import { RerankModal } from '../components/steps/RerankModal';
 import { Stage4 } from '../components/steps/Stage4';
+import { Stage5 } from '../components/steps/Stage5';
 import { Done, NotBuilt, StepTabs } from '../components/steps/Tabs';
 import type { StepTab } from '../components/steps/Tabs';
 import { ParserModal } from '../components/steps/ParserModal';
@@ -96,8 +97,8 @@ export function Steps() {
       </main>
 
       <footer className="relative z-10 mx-auto max-w-5xl border-t border-ui-line px-5 py-10 text-sm text-ui-faint sm:px-6">
-        Written before the code. Three of the six parts exist; the other three
-        are a plan being argued with.
+        Written before the code. Four of the seven parts exist or are under way;
+        the rest are a plan being argued with.
       </footer>
     </div>
   );
@@ -217,17 +218,25 @@ const TABS: StepTab[] = [
     content: <Grounding />,
   },
   {
-    id: 'contract',
-    label: 'Tools + contract',
+    id: 'tools',
+    label: 'The tools',
     stage: '4',
+    status: '2 of 5 built',
+    built: true,
+    content: <Stage4 />,
+  },
+  {
+    id: 'contract',
+    label: 'The contract',
+    stage: '5',
     status: 'specified',
     built: false,
-    content: <Stage4 />,
+    content: <Stage5 />,
   },
   {
     id: 'loop',
     label: 'The loop',
-    stage: '5',
+    stage: '6',
     status: 'not written',
     built: false,
     content: (
@@ -267,7 +276,7 @@ const TABS: StepTab[] = [
   {
     id: 'evals',
     label: 'Evals',
-    stage: '6',
+    stage: '7',
     status: 'not written',
     built: false,
     content: (
@@ -344,12 +353,11 @@ function Head() {
         className="lift-in mt-5 max-w-[62ch] leading-relaxed text-ui-dim"
         style={{ animationDelay: '90ms' }}
       >
-        Six parts, in the order they have to be built. The third is here in
+        Seven parts, in the order they have to be built. The third is here in
         full — one complaint, <Mono>ODI {SPINE}</Mono>, a 2020 Ford F-150 whose
         gear display disagreed with its gearbox, followed from a tab-separated
         line in a 1.5 GB file to the passage that answers a question about it.
-        The first two are done and said briefly. The fourth is specified in full
-        and not built; the last two are argued with and not written.
+        The fourth is half built. The rest are written down and argued with.
       </p>
     </section>
   );

@@ -38,7 +38,10 @@ const TOOLS: readonly {
   n: string;
   sig: string;
   rule: string;
-  from: 'planned' | 'measured';
+  /** planned and unchanged · planned but rebuilt · did not exist in the plan */
+  origin: 'planned' | 'rebuilt' | 'added';
+  /** Only on the rebuilt one: what the plan said it would be. */
+  was?: string;
   built?: boolean;
   what: string;
   why: string;
@@ -47,73 +50,46 @@ const TOOLS: readonly {
     n: '4.1',
     sig: 'get_recall(campaign_number)',
     rule: 'exact, and must not search',
-    from: 'planned',
+    origin: 'planned',
     built: true,
     what: 'The campaign: vehicles, units, component, defect, consequence, remedy, who initiated it, the date owners were notified.',
-    why: 'A question with one exact answer is a lookup, not a search. Searching for a campaign number returns passages that look like they contain campaign numbers — which is what stage 3.5 showed. The check is that it is called first AND that no complaint search runs at all.',
+    why: 'A question with one exact answer is a lookup, not a search. Written into the plan before any data was loaded, and it survived exactly as specified — reasoning got this one right.',
   },
   {
     n: '4.2',
     sig: 'find_recalls({ make, model, year, component? })',
     rule: 'may return nothing, and says so with evidence',
-    from: 'planned',
+    origin: 'added',
     built: true,
     what: 'Every campaign covering that vehicle and component — often an empty list, and when it is empty it also returns the components on that vehicle that DO have campaigns.',
-    why: 'Search can never say no: it always hands back something that looks close enough and leaves you guessing whether it counts. This can say no, because a recall lists the car and the part it covers. And “no” arrives with proof that it was looked for.',
+    why: 'It came from a question whose right answer is “no recall exists”. Nothing in the plan could say that, because search always returns something.',
   },
   {
     n: '4.3',
     sig: 'search_complaints({ ...filters, query })',
-    rule: 'filter first, then search',
-    from: 'measured',
+    rule: 'filter first, then search inside',
+    origin: 'rebuilt',
+    was: 'search_complaints — hybrid search over everything',
     what: 'The same hybrid search from 3.5 and 3.6, run inside a filtered set: make, model, year, component, filed before or after, crash, fire, minimum deaths, minimum injuries.',
-    why: '681 documents instead of 73,442, and the target moves from rank 3,026 to rank 8. This is stage 3.7’s diagnosis turned into an argument list.',
+    why: 'Same name, different tool. The key’s documents sat at ranks 93 and 3,026 because “2020 F-150” was being matched as prose instead of used as a filter. Filtering first moves one of them from 3,026 to 8.',
   },
   {
     n: '4.4',
     sig: 'count_complaints({ ...filters })',
     rule: 'a number, never passages',
-    from: 'measured',
+    origin: 'added',
     what: 'Returns the count AND the filter that produced it.',
-    why: 'Returning the filter is not decoration: it is what lets the contract check that a number in the prose came from a tool rather than from the model’s sense of a plausible number.',
+    why: 'It came from re-reading the answer key. Three of the eight questions want a number, and no six passages contain a count.',
   },
   {
     n: '4.4b',
     sig: 'complaints_citing(campaign_number)',
     rule: 'one hop, not a graph',
-    from: 'measured',
+    origin: 'added',
     what: 'The complaints whose narrative names that campaign. Seven, for the F-150 case.',
-    why: 'Somebody who types a campaign number into their own complaint had it in front of them. That is a different claim from “a complaint about the same component”, and it is the strongest evidence available on whether a fix is holding.',
+    why: 'It came from measuring the corpus for a graph. The documented link between an investigation and its recall resolves 14 times out of 114; the link that works is owners typing a campaign number into their own complaint, which reaches 563 campaigns.',
   },
-] as const;
-
-const RULES = [
-  { n: 1, rule: 'answer is null and escalate is null', when: 'carried over' },
-  { n: 2, rule: 'an answer with no citations and no unverified claims', when: 'carried over' },
-  {
-    n: 3,
-    rule: 'an unresolved conflict with no escalation',
-    when: 'carried over',
-    note: 'The most important of the six: it means the model silently picked a side between two records that disagree.',
-  },
-  {
-    n: 4,
-    rule: 'a number in the answer with no matching entry in counts',
-    when: 'new',
-    note: 'The only defence against a confident wrong number.',
-  },
-  {
-    n: 5,
-    rule: 'any claim that a remedy failed',
-    when: 'new',
-    note: 'A legal distinction rather than a stylistic one — see below.',
-  },
-  {
-    n: 6,
-    rule: 'find_recalls returned nothing but the answer cites a campaign',
-    when: 'new',
-  },
-] as const;
+];
 
 const STEPS: readonly (readonly [string, string, string] | readonly [string, string, string, 'done'])[] = [
   ['4.1', 'get_recall', 'returns 20V197000 exactly; a bad number returns nothing, not a near miss', 'done'],
@@ -122,8 +98,6 @@ const STEPS: readonly (readonly [string, string, string] | readonly [string, str
   ['4.4', 'count_complaints', 'the numbers match awk over the raw file'],
   ['4.4b', 'complaints_citing', 'returns 7 for 20V197000, verified by grep'],
   ['4.5', 're-run 3.7 through the tools', 'recall@6 rises from 0.40 — and we can say by how much, and why'],
-  ['4.6', 'the schema', 'every field has a describe() string'],
-  ['4.7', 'the coherence rules', 'each of the six rejects a hand-written bad answer and accepts a good one'],
 ] as const;
 
 export function Stage4() {
@@ -133,7 +107,7 @@ export function Stage4() {
           IS, not a step in the argument about it. ─────────────────────────── */}
       <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
         <h2 className="font-mono text-lg leading-snug font-medium tracking-tight text-ui-fg md:text-xl">
-          Where the machine is allowed to answer
+          Ways to ask that are not a search
         </h2>
         <span className="rounded-full border border-cal-1/40 px-2.5 py-0.5 font-mono text-[0.625rem] tracking-[0.06em] text-cal-1 uppercase">
           building · 2 of 5 tools
@@ -146,47 +120,38 @@ export function Stage4() {
         checked, not a paragraph anybody hopes is true.
       </p>
 
-      <div className="mt-7 grid gap-4 sm:grid-cols-2">
-        {[
-          {
-            k: 'tools',
-            v: 'Ways the model can ask the database a question that is not “find me text like this”.',
-          },
-          {
-            k: 'the contract',
-            v: 'The shape an answer must arrive in, and the rules that reject it when the shape is right and the answer is wrong.',
-          },
-        ].map((b) => (
-          <div key={b.k} className="cal-panel">
-            <p className="font-mono text-[0.6875rem] tracking-[0.06em] text-cal-1 uppercase">
-              {b.k}
-            </p>
-            <p className="mt-2.5 text-[0.875rem] leading-relaxed text-ui-dim">{b.v}</p>
-          </div>
-        ))}
-      </div>
-
       <p className="mt-5 max-w-[64ch] text-[0.8125rem] leading-relaxed text-ui-faint">
-        And nothing else. No interface, no deployment, no evals, no prompt, and{' '}
-        <span className="text-ui-dim">no model call</span> — the tools are plain
-        functions, testable from a command line with no network. Those are stages
-        5, 6 and 7.
+        Five of them, and nothing else. No interface, no deployment, no evals, no
+        prompt, and <span className="text-ui-dim">no model call</span> — a tool
+        is a plain function, testable from a command line with no network. The
+        shape an answer has to arrive in is the next tab, and it is a separate
+        stage for a reason: a tool is a question you can ask the data, a contract
+        is a shape an answer must arrive in, and neither needs the other to be
+        testable.
       </p>
 
       <Chapter
         n="01"
-        title="The plan said two tools. The measurement said five."
-        sub="Stage 3.7 measured recall@6 at 0.40, diagnosed why, and half the original design did not survive it."
+        title="The plan had two tools. The data asked for five."
+        sub="Only one of the five survived the measurement exactly as it was designed."
       >
         <P>
-          The plan named two: look a recall up by its number, and search the
-          complaints. Both were guesses from what the questions looked like,
-          before anything had been measured.
+          The plan named two: one to look a recall up by its number, one to
+          search the complaints. That is what you design when you reason about
+          the problem from the outside — a way in by name, and a way in by
+          meaning.
         </P>
-        <div className="cal-panel flex flex-wrap items-center gap-x-10 gap-y-4">
+        <P>
+          Not because those were wrong, but because the questions people actually
+          ask turned out to need things search cannot do: prove something is{' '}
+          <em>absent</em>, produce a <em>count</em>, and follow a link owners
+          wrote by hand. One of the original two also changed shape.
+        </P>
+        <div className="cal-panel flex flex-wrap items-center gap-x-12 gap-y-4">
           {[
-            { n: '2', l: 'tools, from reasoning', tone: 'var(--color-ui-faint)' },
-            { n: '5', l: 'tools, from measurement', tone: 'var(--color-cal-1)' },
+            { n: '2', l: 'planned by reasoning', tone: 'var(--color-ui-faint)' },
+            { n: '1', l: 'survived unchanged', tone: 'var(--color-ui-dim)' },
+            { n: '3', l: 'added by the measurement', tone: 'var(--color-cal-1)' },
           ].map((x) => (
             <div key={x.l}>
               <p className="font-mono text-3xl" style={{ color: x.tone }}>
@@ -198,29 +163,45 @@ export function Stage4() {
             </div>
           ))}
         </div>
+        <Key>
+          You cannot design the tool layer from the outside. You measure
+          retrieval, find out which questions it cannot answer, and the tools are
+          what is left over. The plan was not careless — it was written by the
+          same people from the same documents — and it was still 60% wrong about
+          what to build.
+        </Key>
       </Chapter>
 
       <Chapter
         n="02"
         title="The five"
-        sub="Two came from the plan and three out of the measurement — each card says which, so the count is checkable rather than assertable."
+        sub="Each card says where it came from, so the count above is checkable rather than assertable. The plainest card is the one reasoning got right."
       >
         <ul className="grid gap-4">
           {TOOLS.map((t) => {
-            const kind = t.built ? 'built' : t.from === 'measured' ? 'measured' : 'planned';
-            const badge = t.built ? 'built' : t.from === 'measured' ? 'from 3.7' : 'in the plan';
+            const badge =
+              t.origin === 'added'
+                ? 'added by the measurement'
+                : t.origin === 'rebuilt'
+                  ? 'rebuilt by the measurement'
+                  : 'planned, and unchanged';
             return (
-              <li key={t.sig} className="cal-tool" data-built={t.built ?? false}>
+              <li key={t.sig} className="cal-tool" data-origin={t.origin}>
                 <span className="cal-tool-n" aria-hidden>
                   {t.n}
                 </span>
                 <div className="cal-tool-head">
                   <span className="cal-tool-sig">{t.sig}</span>
-                  <span className="cal-tool-badge" data-kind={kind}>
+                  <span className="cal-tool-badge" data-kind={t.origin}>
                     {badge}
                   </span>
                 </div>
                 <p className="cal-tool-rule">{t.rule}</p>
+                {t.was && (
+                  <p className="cal-tool-was">
+                    planned as <s>{t.was}</s>
+                  </p>
+                )}
                 <div className="cal-tool-body">
                   <p className="max-w-[62ch] text-[0.875rem] leading-relaxed text-ui-dim">
                     {t.what}
@@ -276,80 +257,6 @@ export function Stage4() {
 
       <Chapter
         n="04"
-        title="The shape an answer has to arrive in"
-        sub="A Zod strictObject, the same pattern as the insurance engagement's — with one field the others have no equivalent for."
-      >
-        <Data
-          path="the contract"
-          mark={[3]}
-          lines={[
-            'answer              the prose, or null if it cannot be answered',
-            'campaigns           campaign numbers this answer rests on',
-            'citations           { source, claim } — every factual statement',
-            'counts              { label, value, filter } — every NUMBER, tied to the tool call',
-            'unverified_claims   things stated with no document behind them',
-            'conflicts           { topic, positions[], resolved_by }',
-            'escalate            { reason, suggested_owner } or null',
-          ]}
-        />
-        <P>
-          Every field carries a <Mono>.describe()</Mono> string, and those
-          strings are sent to the model as part of the schema — prompt
-          engineering rather than documentation, which is why the schema check
-          fails when a field loses one.
-        </P>
-        <Key>
-          A number in the answer that does not appear in <Mono>counts</Mono> is a
-          number the model made up. That is the rule the marked field exists to
-          make checkable.
-        </Key>
-      </Chapter>
-
-      <Chapter
-        n="05"
-        title="Six rules for when the shape is right and the answer is wrong"
-        sub="Zod checks shape. These check sense — three carried over from the engagements before this one, three that only this corpus needs."
-      >
-        <ul className="cal-panel grid gap-3.5">
-          {RULES.map((r) => (
-            <li key={r.n} className="grid gap-1">
-              <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                <span className="w-4 shrink-0 font-mono text-[0.75rem] text-ui-faint">{r.n}</span>
-                <span className="max-w-[50ch] font-mono text-[0.8125rem] text-ui-fg">
-                  {r.rule}
-                </span>
-                <span
-                  className="ml-auto font-mono text-[0.5625rem] tracking-[0.06em] uppercase"
-                  style={{
-                    color: r.when === 'new' ? 'var(--color-cal-1)' : 'var(--color-ui-faint)',
-                  }}
-                >
-                  {r.when}
-                </span>
-              </div>
-              {'note' in r && r.note && (
-                <p className="max-w-[58ch] pl-8 text-[0.75rem] leading-relaxed text-ui-dim">
-                  {r.note}
-                </p>
-              )}
-            </li>
-          ))}
-        </ul>
-        <Key>
-          Rule 5 is a legal distinction, not a stylistic one. Complaints filed
-          after a recall are allegations by members of the public — the vehicle
-          may never have had the repair, and the complaint may describe a
-          different fault. “The fix is not holding” states as fact something no
-          document here supports.
-        </Key>
-        <Why>
-          REC-001 checks both halves: the answer must not claim the remedy
-          failed, <em>and</em> must surface the 103.
-        </Why>
-      </Chapter>
-
-      <Chapter
-        n="06"
         title="The order it gets built in"
         sub="Eight steps, one done — and one of them is the step that decides whether any of the rest is worth building."
       >
@@ -403,7 +310,7 @@ export function Stage4() {
       </Chapter>
 
       <Chapter
-        n="07"
+        n="05"
         title="The question that was blocking two tools"
         sub="How a component filter should match — decided, verified, and written down before the filter exists."
       >
