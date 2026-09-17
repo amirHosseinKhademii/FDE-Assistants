@@ -11,7 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DataFlowRouteImport } from './routes/data-flow'
+import { Route as DeskRouteImport } from './routes/desk'
 import { Route as StepsRouteImport } from './routes/steps'
+import { Route as ApiAskRouteImport } from './routes/api.ask'
+import { Route as ApiEnginesRouteImport } from './routes/api.engines'
+import { Route as ApiHistoryRouteImport } from './routes/api.history'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -23,40 +27,98 @@ const DataFlowRoute = DataFlowRouteImport.update({
   path: '/data-flow',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DeskRoute = DeskRouteImport.update({
+  id: '/desk',
+  path: '/desk',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StepsRoute = StepsRouteImport.update({
   id: '/steps',
   path: '/steps',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAskRoute = ApiAskRouteImport.update({
+  id: '/api/ask',
+  path: '/api/ask',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEnginesRoute = ApiEnginesRouteImport.update({
+  id: '/api/engines',
+  path: '/api/engines',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiHistoryRoute = ApiHistoryRouteImport.update({
+  id: '/api/history',
+  path: '/api/history',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/data-flow': typeof DataFlowRoute
+  '/desk': typeof DeskRoute
   '/steps': typeof StepsRoute
+  '/api/ask': typeof ApiAskRoute
+  '/api/engines': typeof ApiEnginesRoute
+  '/api/history': typeof ApiHistoryRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/data-flow': typeof DataFlowRoute
+  '/desk': typeof DeskRoute
   '/steps': typeof StepsRoute
+  '/api/ask': typeof ApiAskRoute
+  '/api/engines': typeof ApiEnginesRoute
+  '/api/history': typeof ApiHistoryRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/data-flow': typeof DataFlowRoute
+  '/desk': typeof DeskRoute
   '/steps': typeof StepsRoute
+  '/api/ask': typeof ApiAskRoute
+  '/api/engines': typeof ApiEnginesRoute
+  '/api/history': typeof ApiHistoryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/data-flow' | '/steps'
+  fullPaths:
+    | '/'
+    | '/data-flow'
+    | '/desk'
+    | '/steps'
+    | '/api/ask'
+    | '/api/engines'
+    | '/api/history'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/data-flow' | '/steps'
-  id: '__root__' | '/' | '/data-flow' | '/steps'
+  to:
+    | '/'
+    | '/data-flow'
+    | '/desk'
+    | '/steps'
+    | '/api/ask'
+    | '/api/engines'
+    | '/api/history'
+  id:
+    | '__root__'
+    | '/'
+    | '/data-flow'
+    | '/desk'
+    | '/steps'
+    | '/api/ask'
+    | '/api/engines'
+    | '/api/history'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DataFlowRoute: typeof DataFlowRoute
+  DeskRoute: typeof DeskRoute
   StepsRoute: typeof StepsRoute
+  ApiAskRoute: typeof ApiAskRoute
+  ApiEnginesRoute: typeof ApiEnginesRoute
+  ApiHistoryRoute: typeof ApiHistoryRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -75,11 +137,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DataFlowRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/desk': {
+      id: '/desk'
+      path: '/desk'
+      fullPath: '/desk'
+      preLoaderRoute: typeof DeskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/steps': {
       id: '/steps'
       path: '/steps'
       fullPath: '/steps'
       preLoaderRoute: typeof StepsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ask': {
+      id: '/api/ask'
+      path: '/api/ask'
+      fullPath: '/api/ask'
+      preLoaderRoute: typeof ApiAskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/engines': {
+      id: '/api/engines'
+      path: '/api/engines'
+      fullPath: '/api/engines'
+      preLoaderRoute: typeof ApiEnginesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/history': {
+      id: '/api/history'
+      path: '/api/history'
+      fullPath: '/api/history'
+      preLoaderRoute: typeof ApiHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -88,7 +178,11 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DataFlowRoute: DataFlowRoute,
+  DeskRoute: DeskRoute,
   StepsRoute: StepsRoute,
+  ApiAskRoute: ApiAskRoute,
+  ApiEnginesRoute: ApiEnginesRoute,
+  ApiHistoryRoute: ApiHistoryRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
