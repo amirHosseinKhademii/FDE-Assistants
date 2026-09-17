@@ -1,9 +1,9 @@
 /**
- * The seven stages — four of them built, three of them still a proposal.
+ * The seven stages — five of them built, two of them still a proposal.
  *
  * ── THE PAGE IS HALF RECORD AND HALF PROPOSAL, AND SAYS WHICH ──────────────
  *
- * Stages 1 through 4 run. Stages 5, 6 and 7 are written down and argued with,
+ * Stages 1 through 5 run. Stages 6 and 7 are written down and argued with,
  * and the tab bar encodes the difference rather than leaving it to prose. So
  * every number still has to say where it came from. Three provenances, and the
  * kit badges each one: `measured` (out of the NHTSA files, or produced by
@@ -95,8 +95,8 @@ export function Steps() {
       </main>
 
       <footer className="relative z-10 mx-auto max-w-5xl border-t border-ui-line px-5 py-10 text-sm text-ui-faint sm:px-6">
-        Written before the code, and kept up with it since. Four of the seven
-        parts are built and measured; the rest are a plan being argued with.
+        Written before the code, and kept up with it since. Five of the seven
+        parts are built and checked; the rest are a plan being argued with.
       </footer>
     </div>
   );
@@ -227,8 +227,8 @@ const TABS: StepTab[] = [
     id: 'contract',
     label: 'The contract',
     stage: '5',
-    status: 'specified',
-    built: false,
+    status: 'built · checked',
+    built: true,
     content: <Stage5 />,
   },
   {
@@ -356,8 +356,9 @@ function Head() {
         gear display disagreed with its gearbox, followed from a tab-separated
         line in a 1.5 GB file to the passage that answers a question about it.
         The fourth is built and measured: five tools, and the documents the
-        search could not reach are now reachable. The rest are written down and
-        argued with.
+        search could not reach are now reachable. The fifth is the shape an
+        answer has to arrive in, and it is checked. The last two are written
+        down and argued with.
       </p>
     </section>
   );

@@ -950,3 +950,18 @@ body {
   text-transform: uppercase;
   color: var(--color-cal-2);
 }
+
+/* The plain-words block a tab opens with, before any detail. Larger than body
+   text and unornamented: it is the version somebody reads if they read nothing
+   else on the tab. */
+.cal-plain {
+  margin-top: 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in oklab, var(--color-cal-2) 22%, var(--color-ui-line));
+  background: color-mix(in oklab, var(--color-cal-2) 6%, var(--color-ui-surface));
+  padding: 1.125rem 1.25rem;
+  max-width: 68ch;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim);
+}

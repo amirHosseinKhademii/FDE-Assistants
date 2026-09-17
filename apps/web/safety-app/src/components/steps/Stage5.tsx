@@ -11,12 +11,29 @@
  *
  * ── THE SPLIT ALSO MAKES AN ORDERING RULE VISIBLE ─────────────────────────
  *
- * Nothing here begins until stage 4 shows the tools moved recall@6. A contract
+ * Nothing here began until stage 4 showed the tools moved recall@6. A contract
  * around an answer built from passages that could not be retrieved would be a
  * very well-checked wrong answer.
+ *
+ * ── IT IS BUILT NOW, AND THE CONTROL CASE IS THE STORY ────────────────────
+ *
+ * 13 checks pass. On the first run every rule-specific test passed and the
+ * CONTROL failed: a word boundary treats a hyphen as a break, so the 150 inside
+ * "F-150" read as an undeclared count and rule 4 rejected a correct answer.
+ *
+ * A rule that rejects correct answers gets switched off rather than debugged,
+ * and then it is no longer catching what it was built for. That is the argument
+ * for controls, and here it is a run rather than an anecdote.
+ *
+ * ── AND NO MODEL HAS WRITTEN AN ANSWER HERE YET ───────────────────────────
+ *
+ * The fixtures are hand-written, so this proves the CONTRACT works rather than
+ * that the system does. Same shape of caveat as 4.5's ceiling, and it stays on
+ * the page until a loop exists to retire it.
  */
 import { Mono } from '@fde/uikit';
-import { Data } from '@veresk/surface';
+import { Code, Data } from '@veresk/surface';
+import { ContractModal } from './ContractModal';
 
 const RULES = [
   { n: 1, rule: 'answer is null and escalate is null', when: 'carried over' },
@@ -54,23 +71,46 @@ export function Stage5() {
         <h2 className="font-mono text-lg leading-snug font-medium tracking-tight text-ui-fg md:text-xl">
           What an answer is allowed to be
         </h2>
-        <span className="rounded-full border border-dashed border-cal-2/50 px-2.5 py-0.5 font-mono text-[0.625rem] tracking-[0.06em] text-cal-2 uppercase">
-          specified · not built
+        <span className="rounded-full border border-cal-2/50 px-2.5 py-0.5 font-mono text-[0.625rem] tracking-[0.06em] text-cal-2 uppercase">
+          built · 13 checks · no model yet
         </span>
       </div>
 
       <p className="mt-4 max-w-[64ch] leading-relaxed text-ui-dim">
-        The tools are ways of asking. This is the shape the answer has to come
-        back in — and the rules that reject it when the shape is right and the
-        answer is wrong.
+        Up to now the machine could <em>find</em> things. It still could not{' '}
+        <em>say</em> anything. This is the rules for saying it.
       </p>
 
-      <p className="mt-5 max-w-[64ch] text-[0.8125rem] leading-relaxed text-ui-faint">
+      <div className="cal-plain">
+        <p>
+          Ask a model a question and you get prose.{' '}
+          <span className="text-ui-fg">Prose cannot be checked.</span> You cannot
+          tell which sentence came from a document and which one the model
+          supplied because it sounded right.
+        </p>
+        <p className="mt-3">
+          So the answer comes back as separate boxes instead — the answer, which
+          recalls it rests on, a citation for every claim, the tool call behind
+          every number, anything said with nothing behind it, documents that
+          disagree, and whether a person needs to look. Now a machine can check
+          it.
+        </p>
+        <p className="mt-3">
+          And nothing is ever quietly repaired. A repaired answer is a failure
+          you stopped counting.
+        </p>
+      </div>
+
+      <div className="mt-6">
+        <ContractModal />
+      </div>
+
+      <p className="mt-6 max-w-[64ch] text-[0.8125rem] leading-relaxed text-ui-faint">
         It is a separate stage from the tools because neither needs the other to
         be testable: the tools are checked against the answer key, and the
-        contract is checked against answers written by hand.{' '}
+        contract against answers written by hand.{' '}
         <span className="text-ui-dim">
-          Nothing here begins until the tools have moved recall@6
+          Nothing here began until the tools had moved recall@6
         </span>{' '}
         — a contract around an answer built from passages nobody could retrieve
         would be a very well-checked wrong answer.
@@ -94,11 +134,42 @@ export function Stage5() {
             'escalate            { reason, suggested_owner } or null',
           ]}
         />
+        <Code
+          path="apps/ai/safety/src/schema/safety-answer.ts:89"
+          note="four of the seven fields"
+          lang="typescript"
+          startLine={89}
+          mark={[5, 16]}
+          lines={[
+            'export const SafetyAnswerSchema = z.strictObject({',
+            '  answer: z',
+            '    .string()',
+            '    .nullable()',
+            '    .describe(',
+            "      'The answer in plain prose, or null if this corpus cannot answer it. Null is a legitimate ' +",
+            "        'answer and is always better than a plausible guess about a vehicle defect.',",
+            '    ),',
+            '  campaigns: z',
+            '    .array(z.string())',
+            '    .describe(',
+            '      \'Every recall campaign this answer rests on, e.g. ["20V197000"]. Empty when no recall is \' +',
+            "        'relevant — do NOT list a loosely related campaign to avoid an empty array.',",
+            '    ),',
+            '  counts: z',
+            '    .array(Count)',
+            '    .describe(',
+            "      'Every number that appears in your answer, with the tool call that produced it. ' +",
+            "        'A number not listed here is a number you invented.',",
+            '    ),',
+            '});',
+          ]}
+        />
         <P>
           Every field carries a <Mono>.describe()</Mono> string, and those
-          strings are sent to the model as part of the schema — prompt
-          engineering rather than documentation, which is why the schema check
-          fails when a field loses one.
+          strings are sent to the model as part of the schema — prompt text
+          rather than documentation, which is why a check fails when a field
+          loses one. Two had gone missing on the first run, nested a level
+          deeper than the prose written for them, and the check caught them.
         </P>
         <Key>
           A number in the answer that does not appear in <Mono>counts</Mono> is a
@@ -181,30 +252,68 @@ export function Stage5() {
 
       <Chapter
         n="04"
-        title="The order it gets built in"
-        sub="Three steps, and the second one has a done-condition that is easy to get wrong."
+        title="Every rule passed. The control failed."
+        sub="Which is the whole argument for having one — and here it is a run rather than a story about a run."
       >
-        <ul className="cal-panel grid gap-2.5">
-          {[
-            ['5.1', 'the schema', 'every field has a describe() string, because those strings are sent to the model'],
-            ['5.2', 'the six rules', 'each one rejects a hand-written bad answer AND accepts a good one'],
-            ['5.3', 'the fixtures', 'the bad answers and the good ones, written by hand'],
-          ].map(([n, what, check]) => (
-            <li key={n} className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-              <span className="w-10 shrink-0 font-mono text-[0.75rem] text-ui-faint">{n}</span>
-              <span className="w-40 shrink-0 font-mono text-[0.8125rem] text-ui-fg">{what}</span>
-              <span className="max-w-[46ch] text-[0.8125rem] leading-relaxed text-ui-dim">
-                {check}
-              </span>
-            </li>
-          ))}
-        </ul>
+        <P>
+          On the first run every rule-specific test passed. The one that failed
+          was the one asserting a <span className="text-ui-fg">correct</span>{' '}
+          answer is accepted.
+        </P>
+        <Data
+          path="the failure"
+          mark={[1]}
+          lines={[
+            'FAIL  a correct REC-001 answer',
+            '      number(s) [150] appear in the answer but not in counts',
+          ]}
+        />
         <Key>
-          5.2 says “and accepts a good one” for a reason. A rule that rejects
-          everything passes a test fed only bad input — which is how the
-          insurance engagement came to need a control case, and it is cheaper to
-          write the good fixture now than to find out later.
+          150. From “F-150”. A word boundary treats a hyphen as a break, so the
+          scanner found the 150 inside the truck's name and rule 4 demanded to
+          know which tool call produced it. <Mono>10-speed</Mono> does it too. So
+          does <Mono>Model 3</Mono>.
         </Key>
+        <Why>
+          The reason that matters is written in the rule's own comment, before it
+          ever happened: <em>a rule that fires on every digit would be turned off
+          within a week</em>. A rule that rejects correct answers does not get
+          debugged — it gets disabled, and then it has stopped catching the thing
+          it was built for. Without the control, all six would have looked
+          healthy while the contract rejected every real answer the system could
+          produce.
+        </Why>
+        <Code
+          path="apps/ai/safety/src/schema/safety-answer.ts:147–149"
+          lang="typescript"
+          startLine={147}
+          mark={[1]}
+          lines={[
+            '    // VEHICLE AND PART DESIGNATORS, which are names that happen to contain digits',
+            "    .replace(/\\b[A-Za-z]+-\\d+\\b/g, ' ') // F-150, F-250, DMC-12",
+            "    .replace(/\\b\\d+-[A-Za-z]+\\b/g, ' ') // 10-speed",
+          ]}
+        />
+        <Why>
+          The accepting fixture now carries <Mono>10-speed</Mono>, so the same
+          thing cannot come back unnoticed.
+        </Why>
+      </Chapter>
+
+      <Chapter
+        n="05"
+        title="And no model has written an answer here yet"
+        sub="The fixtures are hand-written, which makes this a working contract rather than a working system."
+      >
+        <Key>
+          13 checks pass, and all of them run against answers a person typed.
+          What is proved is that the contract works — not that the thing does.
+        </Key>
+        <Why>
+          The same shape of caveat as the tools' ceiling one stage earlier, and
+          it stays here until the part that chooses the tools exists to retire
+          it. The stage after that is what scores real answers.
+        </Why>
       </Chapter>
     </section>
   );
