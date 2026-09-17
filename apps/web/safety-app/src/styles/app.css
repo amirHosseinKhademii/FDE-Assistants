@@ -164,3 +164,244 @@ body {
   line-height: 1.6;
   color: var(--color-ui-dim);
 }
+
+/* ── THE FOUR PARTS, AS TABS ────────────────────────────────────────────────
+   A text strip with an underline was the first version and it read as a menu:
+   four labels of different lengths, nothing to tell you they were peers, and
+   the only signal of state a two-pixel line most of the way down.
+
+   SO EACH ONE IS A CARD WITH A NUMERAL. The stage number is the thing that
+   makes them distinct from each other at a glance — 3, 4, 5, 6, in order — and
+   it does the work the labels were being asked to do alone. The card gives the
+   state somewhere to live: a background, a border, and a top edge that lights.
+
+   AND THE ACTIVE ONE JOINS THE PANEL BELOW IT. Its bottom border is erased and
+   its background is the panel's, so the pair reads as one surface with a tab
+   attached rather than as a button that happens to be above some text. That is
+   the whole reason this is a card and not a pill.
+
+   BUILT AND UNBUILT ARE DIFFERENT SHAPES, NOT DIFFERENT SHADES. Three of the
+   four have nothing behind them yet, and a reader should see that before they
+   read a word: solid border against dashed, and a numeral that is lit against
+   one that is outlined.
+   ────────────────────────────────────────────────────────────────────────── */
+/* ── THE SHADES THE ROW AND ITS PANEL ARE MADE OF ───────────────────────────
+   The first version mixed the page's background with WHITE, which is how you
+   get grey — and grey is the one colour this page does not have. Everything
+   here is near-black with a blue cast, and a neutral card sitting on it reads
+   as a different material rather than as the same surface lifted.
+
+   So each shade is the surface mixed with THE ENGAGEMENT'S OWN INDIGO, at a few
+   percent. It is not enough to look coloured; it is enough to stop looking
+   grey, which is the difference being aimed at.
+   ────────────────────────────────────────────────────────────────────────── */
+.cal-tabs,
+.cal-tabpanel {
+  --tab-rest: color-mix(in oklab, var(--color-cal-1) 5%, #0a0c12);
+  --tab-hover: color-mix(in oklab, var(--color-cal-1) 9%, #0d0f15);
+  --tab-edge: color-mix(in oklab, var(--color-cal-1) 18%, var(--color-ui-line));
+
+  /* THE TWO VALUES THE JOIN DEPENDS ON, and they are shared rather than
+     matched by eye. `--tab-on` is what the active card is filled with AND what
+     the panel's gradient starts at, so the seam between them has nothing to
+     see. `--panel-base` is where that gradient lands. Setting them separately
+     put a visible step across the join, which is exactly the thing the card
+     shape exists to avoid. */
+  --tab-on: color-mix(in oklab, var(--color-cal-1) 9%, var(--color-ui-surface));
+  --panel-base: color-mix(in oklab, var(--color-cal-1) 4%, var(--color-ui-surface));
+
+}
+
+.cal-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+@media (min-width: 40rem) {
+  .cal-tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* SIX ACROSS ONLY WHEN SIX FIT. The labels are short enough at 64rem — the
+   container's width — and below that they wrap into three and then two, where
+   the cards stop being attached to the panel and keep their own borders. */
+@media (min-width: 56rem) {
+  .cal-tabs {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0;
+    align-items: end;
+  }
+}
+
+.cal-tab {
+  position: relative;
+  display: grid;
+  gap: 0.375rem;
+  padding: 0.875rem 0.75rem 1rem;
+  text-align: left;
+  border: 1px solid var(--tab-edge);
+  border-radius: 0.75rem;
+  background: var(--tab-rest);
+  transition:
+    background 220ms ease,
+    border-color 220ms ease;
+}
+
+@media (min-width: 56rem) {
+  .cal-tab {
+    border-radius: 0.75rem 0.75rem 0 0;
+    /* Collapse the shared edge so four cards read as one row of four rather
+       than as four separate things that happen to be adjacent. */
+    margin-inline-start: -1px;
+  }
+  .cal-tab:first-child {
+    margin-inline-start: 0;
+  }
+}
+
+.cal-tab:hover {
+  background: var(--tab-hover);
+}
+
+/* Not built: dashed, unfilled, and on a cooler edge — the three that are done
+   carry the indigo and the three that are not carry none of it. */
+.cal-tab[data-built='false'] {
+  border-style: dashed;
+  border-color: var(--color-ui-line);
+  background: transparent;
+}
+
+.cal-tab[data-built='false']:hover {
+  background: color-mix(in oklab, var(--color-cal-3) 7%, transparent);
+}
+
+/* THE ACTIVE ONE IS THE PANEL'S TOP EDGE. Raised a pixel so it overlaps the
+   rule below the row, and its own bottom border removed, so the card and the
+   content under it are one shape. */
+.cal-tab[aria-selected='true'] {
+  z-index: 1;
+  border-color: color-mix(in oklab, var(--color-cal-1) 50%, var(--color-ui-line));
+  background: var(--tab-on);
+}
+
+@media (min-width: 56rem) {
+  .cal-tab[aria-selected='true'] {
+    margin-bottom: -1px;
+    padding-bottom: calc(1rem + 1px);
+    border-bottom-color: var(--tab-on);
+  }
+}
+
+/* The lit top edge, in the customer's own ramp. It is the only place on this
+   page the three source colours appear together, which is why it is a gradient
+   rather than a single accent. */
+.cal-tab[aria-selected='true']::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0.75rem;
+  top: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--color-cal-1),
+    var(--color-cal-2),
+    var(--color-cal-3)
+  );
+}
+
+.cal-tab-n {
+  display: flex;
+  height: 1.5rem;
+  width: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in oklab, var(--color-ui-line) 80%, transparent);
+  border-radius: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-ui-faint);
+  transition:
+    color 220ms ease,
+    border-color 220ms ease,
+    background 220ms ease;
+}
+
+.cal-tab[aria-selected='true'] .cal-tab-n {
+  border-color: transparent;
+  background: color-mix(in oklab, var(--color-cal-1) 22%, transparent);
+  color: var(--color-ui-fg);
+}
+
+.cal-tab-label {
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  line-height: 1.2;
+  color: var(--color-ui-dim);
+  transition: color 220ms ease;
+}
+
+.cal-tab[aria-selected='true'] .cal-tab-label,
+.cal-tab:hover .cal-tab-label {
+  color: var(--color-ui-fg);
+}
+
+.cal-tab[data-built='false'] .cal-tab-label {
+  color: var(--color-ui-faint);
+}
+
+/* THE STATUS LINE IS WHERE BUILT AND UNBUILT SEPARATE when neither is active.
+   The border style says it too, but a dashed edge at this size is a detail a
+   reader finds rather than notices — "SURVEYED" in the estate's own colour
+   against "NOT WRITTEN" in grey is the thing they see. */
+.cal-tab-status {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--color-cal-2) 72%, var(--color-ui-faint));
+  transition: color 220ms ease;
+}
+
+.cal-tab[data-built='false'] .cal-tab-status {
+  color: var(--color-ui-faint);
+}
+
+.cal-tab[aria-selected='true'] .cal-tab-status {
+  color: var(--color-cal-1);
+}
+
+/* And the numeral of a finished stage carries a hairline of the same colour,
+   so the row reads 1-2-3 lit and 4-5-6 outlined before any word is read. */
+.cal-tab[data-built='true'] .cal-tab-n {
+  border-color: color-mix(in oklab, var(--color-cal-2) 40%, transparent);
+  color: var(--color-ui-dim);
+}
+
+/* THE PANEL IS LIT FROM THE TAB IT HANGS OFF, which is the other half of them
+   being one surface. A flat fill reads as a box that happens to be under a
+   button; a gradient that fades over the first few hundred pixels reads as the
+   tab's own light falling into it. It fades to the same value the tab carries,
+   so the join has no seam.
+
+   On a narrow screen the cards are a grid and nothing is attached to anything,
+   so the panel keeps its own border on all four sides. */
+.cal-tabpanel {
+  border: 1px solid color-mix(in oklab, var(--color-cal-1) 18%, var(--color-ui-line));
+  border-radius: 0.75rem;
+  background: linear-gradient(180deg, var(--tab-on) 0, var(--panel-base) 16rem);
+  padding: 1.75rem 1.25rem 2rem;
+}
+
+@media (min-width: 56rem) {
+  .cal-tabpanel {
+    border-top-color: color-mix(in oklab, var(--color-cal-1) 50%, var(--color-ui-line));
+    /* BOTH TOP CORNERS SQUARE, so the panel's top is one straight line however
+       far along the row the active card is. Rounding the left one assumed the
+       first tab was the active one, and looked arbitrary the moment it was not. */
+    border-radius: 0 0 0.75rem 0.75rem;
+    padding: 2.5rem 2rem 2.75rem;
+  }
+}

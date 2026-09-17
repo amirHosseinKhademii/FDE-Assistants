@@ -41,7 +41,7 @@ import { ChunkerModal } from '../components/steps/ChunkerModal';
 import { EmbedModal } from '../components/steps/EmbedModal';
 import { IndexModal } from '../components/steps/IndexModal';
 import { FuseModal, SearchModal } from '../components/steps/SearchModal';
-import { NotBuilt, StepTabs } from '../components/steps/Tabs';
+import { Done, NotBuilt, StepTabs } from '../components/steps/Tabs';
 import type { StepTab } from '../components/steps/Tabs';
 import { ParserModal } from '../components/steps/ParserModal';
 import { AURORA } from '../lib/aurora';
@@ -93,21 +93,25 @@ export function Steps() {
       </main>
 
       <footer className="relative z-10 mx-auto max-w-5xl border-t border-ui-line px-5 py-10 text-sm text-ui-faint sm:px-6">
-        Written before the code, from <Mono>docs/safety/INGESTION.md</Mono>. One
-        of the four parts exists; the other three are a plan being argued with.
+        Written before the code, from <Mono>docs/safety/</Mono>. Three of the six
+        parts exist; the other three are a plan being argued with.
       </footer>
     </div>
   );
 }
 
 /**
- * THE FOUR PARTS, IN DEPENDENCY ORDER, and only the first has anything in it.
+ * THE SIX PARTS, IN DEPENDENCY ORDER, of which three exist.
  *
- * The order is not a preference. The answer contract is written after the
- * answer key exists; the loop is written after the contract; the evals need
- * something to score. So reading the bar left to right is reading the sequence
- * — and three quarters of it being empty is the honest state of a build that is
- * one stage into four.
+ * The order is not a preference and not a plan somebody could rearrange. You
+ * cannot write an answer key for a corpus you have not surveyed, or a contract
+ * before the key, or evals before there is something to score. Reading the bar
+ * left to right is reading the sequence.
+ *
+ * ONE AND TWO ARE SHORT ON PURPOSE. They are done, they took days rather than
+ * weeks, and a reader arriving at the first tab should be able to follow the
+ * sequence without being handed the whole of stage 3. What each one cost to get
+ * through is in `docs/safety/` and not here.
  *
  * WHAT EACH EMPTY TAB SAYS came from the list this page used to carry as "what
  * is deliberately not here yet". That list was right and was in the wrong
@@ -116,17 +120,103 @@ export function Steps() {
  */
 const TABS: StepTab[] = [
   {
+    id: 'corpus',
+    label: 'The corpus',
+    stage: '1',
+    status: 'surveyed',
+    built: true,
+    content: (
+      <Done
+        title="Find out what the data actually is"
+        status="done"
+        what={
+          <>
+            <p>
+              Before anything is built, get the files onto disk and describe
+              them — how many records, what shape, what is missing, and what is
+              in them that nobody expected. Nothing is parsed, embedded or
+              stored at this stage. It exists so the next one is taken with open
+              eyes.
+            </p>
+            <p className="mt-3.5">
+              Model years 2019 and 2020, every make and model, nationwide. Three
+              tab-delimited downloads from a US government server: what people
+              filed, what manufacturers admitted, and what the regulator went on
+              to ask.
+            </p>
+          </>
+        }
+        facts={[
+          { value: UNITS.complaints.toLocaleString('en-GB'), label: 'complaints' },
+          { value: UNITS.recalls.toLocaleString('en-GB'), label: 'recall campaigns' },
+          { value: String(UNITS.investigations), label: 'investigations' },
+        ]}
+        note={
+          <>
+            The most useful thing it turned up is that the counts are not the
+            row counts. NHTSA writes one row per component, so{' '}
+            {ROWS.complaints.toLocaleString('en-GB')} rows are{' '}
+            {UNITS.complaints.toLocaleString('en-GB')} filings — and every figure
+            quoted from the rows would be 44% too high. That is the first
+            modelling decision, and it was made by counting rather than by
+            assuming.
+          </>
+        }
+      />
+    ),
+  },
+  {
+    id: 'key',
+    label: 'The answer key',
+    stage: '2',
+    status: 'written by hand',
+    built: true,
+    content: (
+      <Done
+        title="Write the answers down before anything can grade itself"
+        status="done"
+        what={
+          <>
+            <p>
+              Pick a handful of real questions, go and find the answers by hand
+              in the raw files, and write them down — which filings answer it,
+              and what a correct reply would say. No code is involved and none
+              of it is generated.
+            </p>
+            <p className="mt-3.5">
+              It comes second for a reason.{' '}
+              <span className="text-ui-fg">
+                A system that produces its own answer key scores itself
+              </span>
+              , and everything after this point is measured against what is
+              written here.
+            </p>
+          </>
+        }
+        note={
+          <>
+            It is also what makes stage 3.7 possible at all. “Did search find the
+            right thing?” is not a question anybody can answer without having
+            already decided what the right thing is — and deciding that{' '}
+            <em>after</em> seeing the results is how a pipeline comes to score
+            well on a test it wrote for itself.
+          </>
+        }
+      />
+    ),
+  },
+  {
     id: 'grounding',
     label: 'Grounding',
-    stage: 'stage 3',
+    stage: '3',
     status: 'seven stages',
     built: true,
     content: <Grounding />,
   },
   {
     id: 'contract',
-    label: 'The answer contract',
-    stage: 'stage 4',
+    label: 'The contract',
+    stage: '4',
     status: 'not written',
     built: false,
     content: (
@@ -168,7 +258,7 @@ const TABS: StepTab[] = [
   {
     id: 'loop',
     label: 'The loop',
-    stage: 'stage 5',
+    stage: '5',
     status: 'not written',
     built: false,
     content: (
@@ -208,7 +298,7 @@ const TABS: StepTab[] = [
   {
     id: 'evals',
     label: 'Evals',
-    stage: 'stage 6',
+    stage: '6',
     status: 'not written',
     built: false,
     content: (
@@ -284,11 +374,12 @@ function Head() {
         className="lift-in mt-5 max-w-[62ch] leading-relaxed text-ui-dim"
         style={{ animationDelay: '90ms' }}
       >
-        Four parts, in the order they have to be built. The first is here in
+        Six parts, in the order they have to be built. The third is here in
         full — one complaint, <Mono>ODI {SPINE}</Mono>, a 2020 Ford F-150 whose
         gear display disagreed with its gearbox, followed from a tab-separated
         line in a 1.5 GB file to the passage that answers a question about it.
-        The other three are written down and argued with, and not written.
+        The first two are done and said briefly; the last three are written down
+        and argued with, and not written.
       </p>
     </section>
   );

@@ -1,18 +1,27 @@
 /**
- * The four parts of the build, as tabs — of which one exists.
+ * The parts of the build, as tabs.
  *
- * ── WHY A TAB BAR AND NOT FOUR PAGES ───────────────────────────────────────
+ * ── WHY A TAB BAR AND NOT A PAGE EACH ──────────────────────────────────────
  *
- * The seven stages under "grounding" are one of four things this engagement
- * will be made of, and the other three are written down, argued about and not
- * built. Four routes would give three of them a URL that serves an apology.
- * A tab bar puts the whole shape in front of the reader at once and lets them
- * see which quarter of it is real — which is more useful than the page
- * pretending the other three do not exist until they do.
+ * The seven stages under "grounding" are one of six things this engagement is
+ * made of, and half of them are written down, argued about and not built. Six
+ * routes would give three of them a URL that serves an apology. A tab bar puts
+ * the whole shape in front of the reader at once and lets them see which half
+ * is real, which is more useful than the page pretending the rest do not exist
+ * until they do.
+ *
+ * ── EACH TAB IS A NUMBERED CARD, AND THE NUMERAL DOES THE WORK ─────────────
+ *
+ * The first version was a strip of text with an underline and it read as a
+ * menu: six labels of different lengths, nothing to say they were peers, and
+ * the only signal of state a two-pixel line most of the way down. The stage
+ * number is what makes them distinct at a glance — 1 through 6, in order — and
+ * the card gives the state somewhere to live. `app.css` carries the rest of
+ * that argument, including why the active card has no bottom border.
  *
  * ── AN EMPTY TAB IS NOT DISABLED, AND THAT IS DELIBERATE ───────────────────
  *
- * The obvious treatment is to grey the unbuilt tabs out and refuse the press.
+ * The obvious treatment is to grey the unbuilt ones out and refuse the press.
  * It is wrong here: what each one WILL hold, and what has to happen before it
  * can, is the most interesting thing this page knows — it is the difference
  * between a plan and a wish. So every tab opens, and the ones with no stages
@@ -20,10 +29,10 @@
  *
  * ── THE ORDER IS THE DEPENDENCY ORDER ──────────────────────────────────────
  *
- * Not the order somebody would like to build them in. The answer contract is
- * written after the answer key; the loop is written after the contract; the
- * evals need something to score. Reading left to right is reading the sequence,
- * and the bar says so under the labels rather than leaving it to be inferred.
+ * Not the order somebody would like to build them in. You cannot write an
+ * answer key for a corpus you have not surveyed, or a contract before the key,
+ * or evals before there is something to score. Reading left to right is reading
+ * the sequence.
  */
 import { useCallback, useId, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
@@ -32,7 +41,7 @@ export interface StepTab {
   id: string;
   /** What it is called. */
   label: string;
-  /** Which stage of the plan, shown small under the label. */
+  /** The stage number, shown as the chip that makes the tabs distinct. */
   stage: string;
   /** How much of it exists, in two or three words. */
   status: string;
@@ -72,73 +81,30 @@ export function StepTabs({ tabs }: { tabs: StepTab[] }) {
 
   return (
     <section className="lift-in" style={{ animationDelay: '140ms' }}>
-      {/* THE BAR SCROLLS SIDEWAYS ON A PHONE rather than wrapping. Four tabs
-          wrapped to two rows stop reading as one sequence, and the sequence is
-          half of what the bar is saying. */}
-      <div
-        role="tablist"
-        aria-label="the four parts of the build"
-        className="-mx-5 flex gap-1 overflow-x-auto border-b border-ui-line px-5 sm:mx-0 sm:px-0"
-      >
-        {tabs.map((tab, i) => {
-          const on = tab.id === active;
-          return (
-            <button
-              key={tab.id}
-              ref={(el) => {
-                buttons.current[tab.id] = el;
-              }}
-              role="tab"
-              id={`${base}-tab-${tab.id}`}
-              aria-controls={`${base}-panel-${tab.id}`}
-              aria-selected={on}
-              tabIndex={on ? 0 : -1}
-              onClick={() => setActive(tab.id)}
-              onKeyDown={(e) => onKey(e, i)}
-              className="group relative shrink-0 px-4 pt-2 pb-3 text-left transition-colors"
-            >
-              <span
-                className={`block font-mono text-[0.9375rem] transition-colors ${
-                  on ? 'text-ui-fg' : tab.built ? 'text-ui-dim' : 'text-ui-faint'
-                } group-hover:text-ui-fg`}
-              >
-                {tab.label}
-              </span>
-              <span className="mt-0.5 flex items-baseline gap-2 font-mono text-[0.625rem] tracking-[0.06em] uppercase">
-                <span className="text-ui-faint">{tab.stage}</span>
-                <span
-                  style={{
-                    color: on
-                      ? 'var(--color-cal-1)'
-                      : tab.built
-                        ? 'var(--color-cal-2)'
-                        : undefined,
-                  }}
-                  className={tab.built ? undefined : 'text-ui-faint'}
-                >
-                  {tab.status}
-                </span>
-              </span>
-
-              {/* The underline grows from the middle when the tab is chosen. A
-                  bar that slides between tabs was tried and needs measurement
-                  that re-runs on every resize and font load; this reads the
-                  same and cannot be wrong about where it is. The unbuilt tabs
-                  get a dashed one, so the bar says which quarter is real
-                  without anybody having to read the labels. */}
-              <span
-                aria-hidden
-                className="absolute inset-x-2 bottom-[-1px] h-[2px] origin-center transition-transform duration-300"
-                style={{
-                  transform: `scaleX(${on ? 1 : 0})`,
-                  background: tab.built
-                    ? 'var(--color-cal-1)'
-                    : 'repeating-linear-gradient(90deg, var(--color-ui-faint) 0 4px, transparent 4px 8px)',
-                }}
-              />
-            </button>
-          );
-        })}
+      <div role="tablist" aria-label="the parts of the build" className="cal-tabs">
+        {tabs.map((tab, i) => (
+          <button
+            key={tab.id}
+            ref={(el) => {
+              buttons.current[tab.id] = el;
+            }}
+            role="tab"
+            id={`${base}-tab-${tab.id}`}
+            aria-controls={`${base}-panel-${tab.id}`}
+            aria-selected={tab.id === active}
+            data-built={tab.built}
+            tabIndex={tab.id === active ? 0 : -1}
+            onClick={() => setActive(tab.id)}
+            onKeyDown={(e) => onKey(e, i)}
+            className="cal-tab"
+          >
+            <span className="cal-tab-n" aria-hidden>
+              {tab.stage}
+            </span>
+            <span className="cal-tab-label">{tab.label}</span>
+            <span className="cal-tab-status">{tab.status}</span>
+          </button>
+        ))}
       </div>
 
       {tabs.map((tab) => (
@@ -151,7 +117,7 @@ export function StepTabs({ tabs }: { tabs: StepTab[] }) {
           /* `hidden` rather than unmounting: a panel that rebuilds on every
              press loses the reader's scroll position and re-runs every
              entrance animation, which reads as the page reloading. */
-          className="pt-10"
+          className="cal-tabpanel"
         >
           {tab.id === active && tab.content}
         </div>
@@ -217,6 +183,64 @@ export function NotBuilt({
             {already}
           </div>
         </>
+      )}
+    </section>
+  );
+}
+
+/**
+ * A part that exists, said plainly.
+ *
+ * SHORTER THAN `NotBuilt` ON PURPOSE. A stage that has run can be summarised in
+ * a paragraph and a few figures; what it cost to get there belongs in
+ * `docs/safety/`. The point of these panels is that a reader arriving at tab 1
+ * can follow the sequence without being handed the whole of stage 3.
+ */
+export function Done({
+  title,
+  status,
+  what,
+  facts,
+  note,
+}: {
+  title: string;
+  /** Two or three words: what was produced. */
+  status: string;
+  what: ReactNode;
+  /** The handful of numbers that say what came out of it. */
+  facts?: { value: string; label: string }[];
+  note?: ReactNode;
+}) {
+  return (
+    <section className="lift-in">
+      <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+        <h2 className="font-mono text-lg leading-snug font-medium tracking-tight text-ui-fg md:text-xl">
+          {title}
+        </h2>
+        <span className="rounded-full border border-cal-1/40 px-2.5 py-0.5 font-mono text-[0.625rem] tracking-[0.06em] text-cal-1 uppercase">
+          {status}
+        </span>
+      </div>
+
+      <div className="mt-4 max-w-[64ch] leading-relaxed text-ui-dim">{what}</div>
+
+      {facts && (
+        <dl className="mt-8 grid gap-6 sm:grid-cols-3">
+          {facts.map((f) => (
+            <div key={f.label}>
+              <dd className="font-mono text-2xl text-ui-fg">{f.value}</dd>
+              <dt className="mt-1 font-mono text-[0.6875rem] tracking-[0.08em] text-ui-faint uppercase">
+                {f.label}
+              </dt>
+            </div>
+          ))}
+        </dl>
+      )}
+
+      {note && (
+        <p className="mt-8 max-w-[64ch] border-l-2 border-cal-2/50 py-1 pl-4 text-[0.9375rem] leading-relaxed text-ui-dim">
+          {note}
+        </p>
       )}
     </section>
   );
