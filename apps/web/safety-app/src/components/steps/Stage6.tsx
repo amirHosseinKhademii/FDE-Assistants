@@ -116,7 +116,13 @@ const CONFUSABLE: readonly { tool: string; want: string }[] = [
   { tool: 'complaints_citing', want: 'I want the complaints that name this campaign' },
 ];
 
-/** Measured on an earlier job, on 2026-09-16. */
+/**
+ * Measured 2026-09-16, and the third row CHANGED on 2026-09-17.
+ *
+ * It used to fail. It was fixed, and the fix is the argument for having built
+ * three of these: a single-engine stack would have called both faults "the model
+ * does not support tools properly" and been wrong twice.
+ */
 const ENGINES: readonly { name: string; state: string; why: string; ok: boolean }[] = [
   {
     name: 'the default one',
@@ -124,12 +130,12 @@ const ENGINES: readonly { name: string; state: string; why: string; ok: boolean 
     why: 'it only talks to two clouds, and ours is not one of them. It says so instead of failing oddly.',
     ok: false,
   },
-  { name: 'the second one', state: 'works', why: 'the only one of the three that reaches our model', ok: true },
+  { name: 'the second one', state: 'works', why: 'has worked with our model from the start', ok: true },
   {
     name: 'the third one',
-    state: 'error',
-    why: 'it loses a field between turns and the model rejects the request',
-    ok: false,
+    state: 'works now',
+    why: 'it used to fail. Two faults, and the second was hidden behind the first.',
+    ok: true,
   },
 ];
 
@@ -371,8 +377,8 @@ export function Stage6() {
 
       <Chapter
         n="05"
-        title="Two things we already know"
-        sub="Learned on an earlier job, so they do not have to be learned again here."
+        title="Which engine talks to the model"
+        sub="Three to choose from. Two of them work — and the second one only started working today."
       >
         <ul className="cal-panel cal-dashed grid gap-2.5">
           {ENGINES.map((e) => (
@@ -391,9 +397,20 @@ export function Stage6() {
           ))}
         </ul>
         <Why>
-          There are three of these to choose from and only one works with our
-          model. Picking the cloud without also picking the engine leaves the
-          refusing one in place — they are one decision, not two.
+          There are three of these to choose from and two of them now work with
+          our model. Picking the cloud without also picking the engine leaves
+          the refusing one in place — they are one decision, not two.
+        </Why>
+        <Key>
+          The third one was fixed on the day this page was written, and it took
+          two repairs. The second fault was invisible until the first was
+          mended, because nobody had ever got past the first.
+        </Key>
+        <Why>
+          Which is the argument for having built three of these rather than one.
+          A single-engine stack would have called both faults “the model does
+          not support tools properly” and been wrong twice. The difference
+          between the engines was invisible until something was swapped.
         </Why>
         <Key>
           And the free allowance cuts you off without saying so. A run that was
