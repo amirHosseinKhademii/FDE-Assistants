@@ -70,6 +70,7 @@ export function CalderLanding() {
 
       <main className="relative z-10 mx-auto max-w-5xl px-5 pb-24 sm:px-6">
         <Hero />
+        <Plainly />
         <Contradiction />
         <Documented />
         <CalderEstate />
@@ -141,6 +142,161 @@ function Hero() {
         is missing is somebody to hold two of them side by side and say what they
         do and do not settle.
       </p>
+    </section>
+  );
+}
+
+/**
+ * The whole engagement, in plain words, before any of the evidence.
+ *
+ * ── IT IS FIRST BECAUSE EVERYTHING ELSE ASSUMES IT ────────────────────────
+ *
+ * The rest of this page is two filings that contradict each other, an estate
+ * table and a refusal — all of which are the RIGHT things to show somebody who
+ * already knows what this is, and none of which tell somebody who does not.
+ * Seven steps and one sentence do.
+ *
+ * ── NO JARGON, AND THAT IS A CONSTRAINT NOT A STYLE ───────────────────────
+ *
+ * No recall@6, no case identifiers, no "hybrid retrieval", no file names. The
+ * same story is told precisely on `/steps`; this is the version that survives
+ * being read by somebody who will never open that page.
+ *
+ * ── STEP 5 IS THE WHOLE THING AND IS MARKED AS SUCH ───────────────────────
+ *
+ * Every other step is what anybody would do. Step 5 is the finding — the
+ * questions were not searches — and steps 6 and 7 are only consequences of it.
+ * A flat list of seven would bury it.
+ *
+ * ── AND THE FOOTNOTE IS NOT OPTIONAL ──────────────────────────────────────
+ *
+ * 100% is a CEILING: the tools were called by hand, because the part that
+ * chooses them is not built. A landing page is exactly where that gets quoted
+ * as a score, so it sits in the same block as the number rather than below it.
+ */
+const DID: readonly { n: string; what: string; how: string; pivot?: boolean }[] = [
+  {
+    n: '01',
+    what: 'Took real, messy data',
+    how: 'Not a clean sample. Real government records, typos and all — including the regulator\u2019s own.',
+  },
+  {
+    n: '02',
+    what: 'Wrote the answers by hand first',
+    how: 'Eight questions, answered by a person reading the raw files, before any code existed. Otherwise you are grading the machine against itself.',
+  },
+  {
+    n: '03',
+    what: 'Built the search',
+    how: 'Read the files, cut them up, turn them into numbers a computer can compare, store them, search two ways at once, combine the results.',
+  },
+  {
+    n: '04',
+    what: 'Measured it',
+    how: 'It found 40% of what it should have.',
+  },
+  {
+    n: '05',
+    what: 'Found out why',
+    how: 'The questions were not really searches.',
+    pivot: true,
+  },
+  {
+    n: '06',
+    what: 'Built five tools instead of a better search',
+    how: 'Look a recall up by number. Ask whether one exists. Filter first, then search inside. Count. Follow the recall numbers owners typed themselves.',
+  },
+  {
+    n: '07',
+    what: 'Measured again',
+    how: '40% became 100%.',
+  },
+];
+
+function Plainly() {
+  return (
+    <section
+      className="lift-in border-t border-ui-line pt-10 pb-14"
+      style={{ animationDelay: '120ms' }}
+    >
+      <h2 className="font-mono text-lg leading-snug font-medium tracking-tight text-ui-fg md:text-xl">
+        What this is, in plain terms
+      </h2>
+
+      <p className="mt-4 max-w-[62ch] leading-relaxed text-ui-dim">
+        A fleet manager runs a few hundred vehicles. They need to know one thing:{' '}
+        <span className="text-ui-fg">
+          is this fault a known defect, and did the fix work?
+        </span>{' '}
+        The answers exist, in public government data. Nobody can read it —{' '}
+        {UNITS.complaints.toLocaleString('en-GB')} complaints and{' '}
+        {UNITS.recalls.toLocaleString('en-GB')} recalls, written by the public
+        and by lawyers. This answers those questions from that data, with
+        citations, and admits when it does not know.
+      </p>
+
+      <ol className="cal-did">
+        {DID.map((d) => (
+          <li key={d.n} data-pivot={d.pivot ?? false}>
+            <span className="cal-did-n" aria-hidden>
+              {d.n}
+            </span>
+            <div className="cal-did-body">
+              <p className="cal-did-what">{d.what}</p>
+              <p className="cal-did-how">{d.how}</p>
+              {d.pivot && (
+                <p className="cal-did-more">
+                  “A 2020 F-150” and “involving a death” are{' '}
+                  <span className="text-ui-fg">facts in a database column</span>{' '}
+                  — make, model, a count of deaths. We were matching them as
+                  words, like poetry. The complaint that answered the question
+                  came back three thousandth.
+                </p>
+              )}
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <p className="cal-sentence">
+        We didn’t make the search smarter. We stopped asking it questions it was
+        never able to answer.
+      </p>
+
+      <div className="mt-6 grid items-start gap-4 md:grid-cols-2">
+        <div className="cal-note">
+          <p className="cal-note-head">the honest footnote</p>
+          <p>
+            That 100% is a <span className="text-ui-fg">ceiling, not a score</span>
+            . The tools were called by hand, because the part that chooses them
+            is not built yet. It proves the right documents can be reached — not
+            that a machine will ask for them. That number comes next, and it
+            will be lower.
+          </p>
+          <p className="mt-3">
+            And the plan said two tools. Measuring said five, with one of the
+            original two rebuilt. Only one survived exactly as designed — same
+            people, same documents, and still wrong about most of what to build.
+          </p>
+        </div>
+
+        <div className="cal-note">
+          <p className="cal-note-head">what is left</p>
+          <p>
+            It can now <span className="text-ui-fg">find</span> the right
+            documents, and the rules for what it is allowed to say are written
+            and checked — every number traceable to the tool that produced it, a
+            refusal when the documents do not settle the question, and never a
+            conclusion that a repair failed.
+          </p>
+          <p className="mt-3">
+            What is missing is the part that{' '}
+            <span className="text-ui-fg">chooses</span> which tool to call. No
+            model has written an answer here yet, so what is proved is that the
+            pieces work — not that the system does.
+          </p>
+        </div>
+      </div>
     </section>
   );
 }

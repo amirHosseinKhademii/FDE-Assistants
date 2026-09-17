@@ -811,3 +811,142 @@ body {
   line-height: 1.65;
   color: var(--color-ui-faint);
 }
+
+/* The landing page's variant: a question rather than a case identifier, so the
+   first column is prose and wide instead of mono and narrow. */
+.cal-result-asked li {
+  gap: 0.25rem 1rem;
+}
+
+.cal-result-q {
+  flex: 1 1 24rem;
+  min-width: 0;
+  color: var(--color-ui-fg);
+}
+
+.cal-result-asked .cal-result-move {
+  width: 7.5rem;
+  color: var(--color-cal-1);
+}
+
+.cal-result-asked li[data-still='true'] .cal-result-q {
+  color: var(--color-ui-dim);
+}
+
+.cal-result-asked .cal-result-what {
+  flex: 1 1 18rem;
+  font-size: 0.8125rem;
+  color: var(--color-ui-faint);
+}
+
+/* ── THE PLAIN EXPLANATION, ON THE DOOR ─────────────────────────────────────
+   Seven steps where six are ordinary and one is the finding. The pivot gets a
+   fill and a left rule; the rest get neither, so the eye lands on it without
+   anybody being told to look. */
+.cal-did {
+  display: grid;
+  gap: 0.25rem;
+  margin-top: 1.75rem;
+}
+
+.cal-did li {
+  display: flex;
+  gap: 1rem;
+  border-radius: 0.625rem;
+  padding: 0.625rem 0.875rem;
+}
+
+.cal-did li[data-pivot='true'] {
+  margin: 0.5rem 0;
+  border: 1px solid color-mix(in oklab, var(--color-cal-1) 32%, var(--color-ui-line));
+  border-inline-start-width: 3px;
+  background: color-mix(in oklab, var(--color-cal-1) 8%, var(--color-ui-surface));
+  padding: 1rem 1.125rem;
+}
+
+.cal-did-n {
+  flex-shrink: 0;
+  padding-top: 0.125rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  color: var(--color-ui-faint);
+}
+
+.cal-did li[data-pivot='true'] .cal-did-n {
+  color: var(--color-cal-1);
+}
+
+.cal-did-body {
+  min-width: 0;
+}
+
+.cal-did-what {
+  font-size: 0.9375rem;
+  color: var(--color-ui-fg);
+}
+
+.cal-did li[data-pivot='true'] .cal-did-what {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  color: var(--color-cal-1);
+}
+
+.cal-did-how {
+  margin-top: 0.1875rem;
+  max-width: 68ch;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-ui-dim);
+}
+
+.cal-did li[data-pivot='true'] .cal-did-how {
+  font-size: 1rem;
+  color: var(--color-ui-fg);
+}
+
+.cal-did-more {
+  margin-top: 0.625rem;
+  max-width: 66ch;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--color-ui-dim);
+}
+
+/* The one sentence. It is the page's thesis, so it is allowed to be large and
+   is given nothing to compete with. */
+.cal-sentence {
+  margin-top: 1.75rem;
+  border-inline-start: 3px solid var(--color-cal-1);
+  padding: 0.25rem 0 0.25rem 1.25rem;
+  max-width: 54ch;
+  font-family: var(--font-mono);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  color: var(--color-ui-fg);
+}
+
+@media (min-width: 768px) {
+  .cal-sentence {
+    font-size: 1.25rem;
+  }
+}
+
+/* The two caveats, side by side. Dashed, because neither is a result. */
+.cal-note {
+  border: 1px dashed color-mix(in oklab, var(--color-cal-2) 42%, var(--color-ui-line));
+  border-radius: 0.625rem;
+  padding: 0.9375rem 1.125rem;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--color-ui-dim);
+}
+
+.cal-note-head {
+  margin-bottom: 0.4375rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-cal-2);
+}
