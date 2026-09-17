@@ -288,7 +288,8 @@ the right ones, nothing above it can work.
 rejected.
 
 **Step 5 — the loop, on `LOOP=mastra` and `LLM_PROVIDER=hosted`.** Everything
-learned yesterday applies: only one engine reaches Gemini, `LOOP` must be set
+learned yesterday applies: not every engine reaches Gemini (two of three do,
+since 2026-09-17), `LOOP` must be set
 beside `LLM_PROVIDER`, and the eval runner needs `EVAL_PACE_MS` against a free
 tier.
 
