@@ -56,10 +56,27 @@ curl -s "https://api.nhtsa.gov/complaints/complaintsByVehicle?make=honda&model=o
 curl -s "https://api.nhtsa.gov/recalls/recallsByVehicle?make=honda&model=odyssey&modelYear=2019"
 ```
 
-Bulk flat files exist for complaints and investigations
-(`https://static.nhtsa.gov/odi/ffdd/cmpl/FLAT_CMPL.zip`, `.../inv/FLAT_INV.zip`,
-both HTTP 200). The recalls flat file is **not** at the path the others follow —
-an unresolved question, see §9.
+**Bulk flat files — all verified HTTP 200 on 2026-09-17:**
+
+```
+https://static.nhtsa.gov/odi/ffdd/cmpl/FLAT_CMPL.zip            complaints
+https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_POST_2010.zip    recalls
+https://static.nhtsa.gov/odi/ffdd/inv/FLAT_INV.zip              investigations
+https://static.nhtsa.gov/odi/ffdd/cmpl/CMPL.txt                 data dictionary
+https://static.nhtsa.gov/odi/ffdd/rcl/RCL.txt                   data dictionary
+```
+
+The recalls file does **not** follow the others' naming — it is
+`FLAT_RCL_POST_2010`, split by era, and `FLAT_RCL.zip` is a 404. Guessing the
+path failed five times; the answer came from NHTSA's own download page.
+
+**The `.txt` files are data dictionaries and we will need them**: the flat files
+are pipe-delimited with **no header row**, so a column is only knowable by
+position. Mis-aligning a column would not error — it would put narratives in the
+date field and nothing would say so. Same class as the date-format trap.
+
+`FLAT_CMPL.zip` reports `last-modified` yesterday, so the source moves daily —
+which is an argument for a frozen snapshot, see §9.2.
 
 `/investigations/investigationsByVehicle` returns **403**. Investigations are
 available as a flat file but not via that API path. Also §9.
@@ -285,9 +302,9 @@ questions never ran.
    because an answer key written against moving data rots. I lean to the flat
    files for the corpus and the API for spot checks.
 
-3. **Where do the recall flat files live?** `.../ffdd/rcl/FLAT_RCL.zip` is a 404
-   while the complaints and investigations equivalents are 200. Needs finding
-   before step 1 can be complete.
+3. ~~**Where do the recall flat files live?**~~ **RESOLVED 2026-09-17**:
+   `rcl/FLAT_RCL_POST_2010.zip`, plus data dictionaries at `rcl/RCL.txt` and
+   `cmpl/CMPL.txt`. See §2.
 
 4. **Are investigations in scope for v1?** They add a third document type and
    the richest "NHTSA disagreed with the manufacturer" material. They also add
