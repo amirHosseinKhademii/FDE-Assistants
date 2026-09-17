@@ -14,12 +14,18 @@
  * text, who it belongs to, and the fact that it is already public being a
  * reason to be careful rather than a reason not to be.
  *
- * ── AND ONE TURN OF THE WALK IS MARKED NOT BUILT ───────────────────────────
+ * ── AND TURN 3 NO LONGER SAYS "NOT BUILT" ──────────────────────────────────
  *
- * Turn 3 is the request that would put those narratives in front of a model.
- * It does not exist yet. It is described because the decision about what it
- * sends is worth taking before it is written, and it is labelled because a page
- * that drew it like the other two would be claiming a capability nobody has.
+ * The request that puts those narratives in front of a model exists and runs.
+ * Every payload in that turn is from a recorded run, and the page states plainly
+ * what crosses: the vehicle, the components, the filed date and the narrative.
+ * The VIN, the state and the mileage are stored, filtered on, and never sent.
+ *
+ * ── A FOURTH TURN, BECAUSE SOMETHING IS KEPT NOW ───────────────────────────
+ *
+ * The desk files one row per question. It is the first thing on this engagement
+ * that writes anything at all, and a retention section that did not mention it
+ * would be describing the deployment of a fortnight ago.
  */
 import { Mono } from '@fde/uikit';
 import { Link } from '@tanstack/react-router';
@@ -174,7 +180,19 @@ function Whose() {
         the surrounding sentence are often what distinguish one fault from
         another with the same symptom. The control is <em>where</em> the text
         goes rather than what is cut out of it — which is why turn 2 embeds on
-        this machine and why turn 3 is not written yet.
+        this machine.
+      </p>
+
+      <p className="mt-4 max-w-[64ch] leading-relaxed text-ui-dim">
+        And the control holds at the crossing.{' '}
+        <span className="text-ui-fg">
+          The VIN is stored and never sent
+        </span>{' '}
+        — it is a field the tools filter on and do not return, along with the
+        state and the mileage. What reaches the model is the vehicle, the
+        components, the date filed and the narrative. The narrative is somebody's
+        own words, so it carries whatever they chose to put in it, and that is
+        the part worth being careful about rather than the column.
       </p>
     </section>
   );
@@ -201,6 +219,30 @@ function Kept() {
           Nothing is written back to NHTSA and no record here is amended. This
           reads the public file; it does not correct it, annotate it, or hold an
           opinion about it that a reader could mistake for the regulator's.
+        </p>
+      </div>
+
+      <div className="cal-keep">
+        <p className="cal-sec-label">and one thing that is written</p>
+        <p className="mt-3 max-w-[62ch] leading-relaxed text-ui-dim">
+          Every question asked at the desk is filed: the words, the tools it
+          called in order, the answer, which engine ran it and how long it took.{' '}
+          <span className="text-ui-fg">
+            Nothing in the row says who asked
+          </span>{' '}
+          — no address, no account, no session.
+        </p>
+        <p className="mt-3 max-w-[62ch] leading-relaxed text-ui-dim">
+          It is kept because this is the first part of the machine that does not
+          do the same thing twice. The same question has come back in 4 seconds
+          and in 131, and has reached the same words by different routes. A page
+          that only ever showed the latest answer could not show that.
+        </p>
+        <p className="mt-3 max-w-[62ch] text-[0.8125rem] leading-relaxed text-ui-faint">
+          Durable, with no expiry. These are public questions about public
+          filings, so nothing here is sensitive in the way another engagement's
+          rows would be — but it is written down rather than left to be asked
+          about later.
         </p>
       </div>
 

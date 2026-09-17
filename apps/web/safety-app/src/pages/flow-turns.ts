@@ -27,8 +27,21 @@
  * The desk does not exist: the answer contract is written after an answer key
  * has been made by hand from the raw files, which is step 4 of a build that is
  * at step 0. Describing the request it WOULD make is useful — it is the step
- * where this corpus first leaves the machine, and that is worth deciding before
- * it is built rather than after. Describing it as though it runs would not be.
+ * where this corpus first leaves the machine, and that was worth deciding
+ * before it was built rather than after.
+ *
+ * ── TURN 3 USED TO SAY "NOT BUILT". IT RUNS NOW ───────────────────────────
+ *
+ * Every payload in it is from a recorded run. And one claim it used to make has
+ * been corrected: it said the passages crossing to the model carry a partial
+ * VIN. THEY DO NOT. That figure was about the VIN FIELD on the stored row —
+ * which is filtered on and never returned. What crosses is the vehicle, the
+ * components, the filed date and the narrative.
+ *
+ * ── AND TURN 4 IS NEW, BECAUSE THERE IS NOW SOMETHING KEPT ────────────────
+ *
+ * The desk files a row per question. It is the first thing on this engagement
+ * that writes anything, so it gets a turn of its own rather than a footnote.
  */
 import type { Turn } from '@veresk/surface';
 import { ROWS, UNITS } from '../lib/estate.generated';
@@ -104,40 +117,91 @@ export const FLOW_TURNS: Turn[] = [
   },
 
   {
-    label: 'ask — NOT BUILT',
+label: 'ask',
     n: '3',
-    note: 'The step where this corpus would first leave the machine. It does not exist yet, and what it sends is a decision to take before writing it, not after.',
-    plain: 'When somebody asks a question, the passages that answer it are put in front of a model — and that model is somebody else’s.',
-    example: 'not implemented — see docs/safety/PLAN.md §8, step 5',
+    note: 'The step where this corpus leaves the machine. It exists now, and what it sends was decided before it was written.',
+    plain: 'Somebody asks a question, and the complaints that answer it are put in front of a model — and that model is somebody else’s.',
+    example: 'one question · one to seven tool calls · 4 to 131 seconds',
     crosses: true,
     hops: [
       {
         where: 'browser',
-        title: 'the analyst asks',
-        payload: '"is the sliding-door problem a known defect, and is the remedy holding?"',
+        title: 'somebody asks',
+        payload: '"are there complaints about deaths on the Tesla Model 3?"',
+        plain: 'A question typed in ordinary words. Nothing personal in it.',
         detail:
-          'A question about a vehicle, typed by an employee of the customer. Nothing personal in itself.',
-      },
-      {
-        where: 'yours',
-        title: 'search picks the passages',
-        payload: `6 of ${UNITS.complaints.toLocaleString('en-GB')} passages`,
-        detail:
-          'Chosen here, by the local index. Up to this point every byte has stayed on machines Calder controls.',
+          'Anyone can ask, at /desk. The question itself names a vehicle and a symptom and nothing about the person asking — we set no cookie, take no account and keep no address.',
       },
       {
         where: 'crosses',
-        title: 'the passages go to the model provider',
-        payload: 'the narratives themselves, verbatim',
+        title: 'the question and the tool descriptions',
+        payload:
+          'system   who you are, and the rules you answer under\n' +
+          'user     the question, as typed\n' +
+          'tools    five names, five descriptions, five argument shapes',
+        plain: 'The question goes to the model. No complaint does, yet.',
         detail:
-          'THIS IS THE HOP THAT MATTERS. Those passages are what members of the public wrote about their own cars — 99% carry a partial VIN, and some describe the crash, the fire or the death it happened in. They are already public, which makes this defensible; it does not make it automatic, and a free tier that trains on what it is sent would be the wrong place to send them.',
+          'The smallest crossing of the three. Not one document from the corpus is in it — at this point the model has been told what it may ask for and nothing about what the answer might be.',
+      },
+      {
+        where: 'yours',
+        title: 'the tools run here',
+        payload: 'select … from documents where … · on our own connection',
+        plain: 'The model asked for a tool. Our code ran it, on our machine.',
+        detail:
+          'The model has no connection, no credentials and no way to run anything. It produced text asking for this; our code decided whether to honour it. Every query in an answer runs here.',
+      },
+      {
+        where: 'crosses',
+        title: 'and then the narratives',
+        payload:
+          'ODI 11302656   ...autopilot and/or lane-assist features failed\n' +
+          'ODI 11533202   ...fatal accident and fire\n' +
+          'ODI 11364724   ...an upper ball joint failure',
+        plain: 'What people wrote about their own crashes goes to a model we do not run.',
+        detail:
+          'THIS IS THE HOP THAT MATTERS, and the page will not pretend otherwise: the corpus reaches the model, because that is how the question gets answered. WHAT CROSSES IS THE VEHICLE, THE COMPONENTS, THE DATE FILED AND THE NARRATIVE. The VIN, the state and the mileage are parsed, stored and filtered on — and are not in what the tools return. The narrative itself is a member of the public’s own words, so it holds whatever they chose to type. Already public makes this defensible; it does not make it automatic, and a free tier that trained on what it was sent would be the wrong place to send it.',
       },
       {
         where: 'back',
-        title: 'an answer, with identifiers',
-        payload: 'finding + ODI numbers + an escalation',
+        title: 'an answer, in boxes rather than prose',
+        payload:
+          'answer    the prose\n' +
+          'counts    every number, with the tool call behind it\n' +
+          'cites     every claim, with the document behind it\n' +
+          'escalate  when a person has to decide',
+        plain: 'The answer comes back as separate fields, then is checked before anybody sees it.',
         detail:
-          'Every claim carries the filing it rests on, so the reader can check it against nhtsa.gov rather than against us. Where two records disagree it says so and names who must decide.',
+          'Every claim carries the filing it rests on, so a reader can check it against nhtsa.gov rather than against us. Nine rules run before it is shown, and nothing is ever quietly repaired.',
+      },
+    ],
+  },
+
+  {
+    label: 'keep',
+    n: '4',
+    note: 'One row per question asked at the desk, so the same question answered twice can be seen to differ.',
+    plain: 'We keep what was asked and what came back — because this is the first part that does not do the same thing twice.',
+    example: 'question · tools, in order · answer · engine · how long it took',
+    crosses: false,
+    hops: [
+      {
+        where: 'yours',
+        title: 'the question and the answer, filed',
+        payload:
+          'safety_ask_history\n' +
+          '  question · tools[] · answer · engine · model · ms · escalated',
+        plain: 'A row on our own database. Nothing about who asked.',
+        detail:
+          'Written AFTER the answer has been sent, so nobody waits on it, and it never throws — losing a row is an annoyance, losing the answer somebody waited eighty seconds for is not. It records no address, no account and no session: there is nothing in the row that identifies who typed the question.',
+      },
+      {
+        where: 'yours',
+        title: 'the tool names, in the order they were called',
+        payload: 'find_recalls → get_recall → count_complaints → search_complaints',
+        plain: 'What it asked for, not just what it said.',
+        detail:
+          'The reason the row is worth keeping at all. Two runs of one question can reach the same words by different routes, and this is the only place that difference survives — which is the distinction this whole engagement exists to insist on.',
       },
     ],
   },

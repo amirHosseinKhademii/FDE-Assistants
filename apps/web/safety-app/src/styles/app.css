@@ -1823,3 +1823,13 @@ body {
   line-height: 1.6;
   color: var(--color-ui-faint);
 }
+
+/* The one thing this engagement writes. Set apart from the two paragraphs about
+   what it only reads, because "we keep nothing" stopped being true. */
+.cal-keep {
+  margin-top: 1.5rem;
+  border: 1px solid color-mix(in oklab, var(--color-cal-2) 26%, var(--color-ui-line));
+  border-radius: 0.875rem;
+  background: color-mix(in oklab, var(--color-cal-2) 4%, var(--color-ui-surface));
+  padding: 1.125rem 1.25rem;
+}
