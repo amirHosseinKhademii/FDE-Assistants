@@ -34,6 +34,7 @@
 import { BoxIcon, Mono } from '@fde/uikit';
 import { Link } from '@tanstack/react-router';
 import { Aurora } from '@veresk/surface';
+import { Brain } from '../components/Brain';
 import { CalderEstate } from '../components/CalderEstate';
 import { AURORA } from '../lib/aurora';
 import { COMPLAINT_FACTS, DISTINCT, INFLUENCED_BY, UNITS } from '../lib/estate.generated';
@@ -73,6 +74,7 @@ export function CalderLanding() {
         <Plainly />
         <Contradiction />
         <Documented />
+        <Brain />
         <CalderEstate />
         <Severity />
         <Refusal />

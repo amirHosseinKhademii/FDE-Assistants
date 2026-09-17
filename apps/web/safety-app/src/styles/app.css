@@ -1641,3 +1641,155 @@ body {
   line-height: 1.6;
   color: var(--color-ui-faint);
 }
+
+/* ── THE BRAIN ──────────────────────────────────────────────────────────────
+   Four columns: asked, decided, asked for, read. The arms between them carry a
+   pulse left to right, and the captions carry the same order statically so the
+   sequence survives reduced motion. */
+.cal-brain {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+  align-items: start;
+}
+
+@media (min-width: 60rem) {
+  .cal-brain {
+    grid-template-columns: minmax(0, 1fr) 2rem minmax(0, 1fr) 2rem minmax(0, 1.35fr) 2rem minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+}
+
+.cal-brain-col {
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+}
+
+.cal-brain-cap {
+  margin-bottom: 0.125rem;
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-ui-faint);
+}
+
+/* The connecting arm. Horizontal on wide screens, vertical when stacked. */
+.cal-brain-arm {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.5rem;
+}
+
+.cal-brain-arm span {
+  display: block;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--color-cal-1) 55%, transparent),
+    transparent
+  );
+  height: 1px;
+  width: 100%;
+}
+
+@media (min-width: 60rem) {
+  .cal-brain-arm {
+    min-height: 4rem;
+    margin-top: 1.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cal-brain-arm span {
+    animation: cal-pulse 2.6s ease-in-out infinite;
+  }
+  .cal-brain > .cal-brain-arm:nth-of-type(2) span {
+    animation-delay: 0.3s;
+  }
+  .cal-brain > .cal-brain-arm:nth-of-type(3) span {
+    animation-delay: 0.6s;
+  }
+}
+
+@keyframes cal-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.cal-node {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.625rem;
+  background: var(--color-ui-surface);
+  padding: 0.625rem 0.75rem;
+  text-align: left;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
+}
+
+.cal-node:hover,
+.cal-node[data-open='true'] {
+  border-color: color-mix(in oklab, var(--color-cal-1) 50%, var(--color-ui-line));
+  background: color-mix(in oklab, var(--color-cal-1) 8%, var(--color-ui-surface));
+}
+
+/* Provenance, and only at the outer columns. A question has no source; a
+   finding does. */
+.cal-node[data-tone='recalls'] {
+  border-inline-start: 3px solid color-mix(in oklab, var(--color-cal-1) 70%, transparent);
+}
+
+.cal-node[data-tone='complaints'] {
+  border-inline-start: 3px solid color-mix(in oklab, var(--color-cal-2) 70%, transparent);
+}
+
+.cal-node-l {
+  display: block;
+  font-size: 0.875rem;
+  line-height: 1.35;
+  color: var(--color-ui-fg);
+}
+
+.cal-node-l--mono {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.cal-node-s {
+  display: block;
+  margin-top: 0.1875rem;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--color-ui-faint);
+}
+
+.cal-brain-one {
+  margin-top: 0.375rem;
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+  color: var(--color-ui-faint);
+}
+
+.cal-brain-detail {
+  margin-top: 1.25rem;
+  max-width: 68ch;
+  border-inline-start: 3px solid var(--color-cal-1);
+  padding: 0.25rem 0 0.25rem 1rem;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim);
+}
