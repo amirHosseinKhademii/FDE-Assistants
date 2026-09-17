@@ -1114,3 +1114,36 @@ body {
   background: color-mix(in oklab, var(--color-cal-2) 4%, var(--color-ui-surface));
   color: var(--color-ui-dim);
 }
+
+/* Four timings from one afternoon, all correct. The figure IS the argument for
+   why one green run is not a score, so it wants no ornament. */
+.cal-spread {
+  margin-top: 1.75rem;
+  border: 1px solid color-mix(in oklab, var(--color-cal-2) 24%, var(--color-ui-line));
+  border-radius: 0.875rem;
+  background: color-mix(in oklab, var(--color-cal-2) 4%, var(--color-ui-surface));
+  padding: 1.25rem 1.375rem 1.125rem;
+}
+
+.cal-spread-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem 2.25rem;
+  margin-top: 0.875rem;
+}
+
+.cal-spread-t {
+  font-family: var(--font-mono);
+  font-size: 1.75rem;
+  line-height: 1.1;
+  color: var(--color-ui-fg);
+}
+
+.cal-spread-note {
+  margin-top: 1rem;
+  max-width: 64ch;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--color-ui-dim);
+}

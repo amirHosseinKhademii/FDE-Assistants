@@ -228,7 +228,7 @@ const TABS: StepTab[] = [
     id: 'contract',
     label: 'The contract',
     stage: '5',
-    status: 'built · checked',
+    status: 'built · wired in',
     built: true,
     content: <Stage5 />,
   },

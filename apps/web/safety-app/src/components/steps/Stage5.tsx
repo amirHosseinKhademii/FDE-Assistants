@@ -58,8 +58,14 @@ const RULES = [
   },
   {
     n: 6,
-    rule: 'find_recalls returned nothing but the answer cites a campaign',
+    rule: 'the search found no recall, and the answer cites one anyway',
     when: 'new',
+  },
+  {
+    n: 7,
+    rule: 'the answer rests on nothing being found, and does not say what it searched',
+    when: 'newer',
+    note: 'Added once a model had to answer “there is no recall for this” and had no field to put the proof in.',
   },
 ] as const;
 
@@ -72,7 +78,7 @@ export function Stage5() {
           What an answer is allowed to be
         </h2>
         <span className="rounded-full border border-cal-2/50 px-2.5 py-0.5 font-mono text-[0.625rem] tracking-[0.06em] text-cal-2 uppercase">
-          built · 13 checks · no model yet
+          built · 16 checks · wired into the loop
         </span>
       </div>
 
@@ -180,8 +186,8 @@ export function Stage5() {
 
       <Chapter
         n="02"
-        title="Six rules for when the shape is right and the answer is wrong"
-        sub="Zod checks shape. These check sense — three carried over from the engagements before this one, three that only this corpus needs."
+        title="Seven rules for when the shape is right and the answer is wrong"
+        sub="Shape is one check. These are the other one — three carried over from the engagement before this, and four this data needed."
       >
         <ul className="cal-panel grid gap-3.5">
           {RULES.map((r) => (
@@ -194,7 +200,12 @@ export function Stage5() {
                 <span
                   className="ml-auto font-mono text-[0.5625rem] tracking-[0.06em] uppercase"
                   style={{
-                    color: r.when === 'new' ? 'var(--color-cal-1)' : 'var(--color-ui-faint)',
+                    color:
+                      r.when === 'newer'
+                        ? 'var(--color-cal-2)'
+                        : r.when === 'new'
+                          ? 'var(--color-cal-1)'
+                          : 'var(--color-ui-faint)',
                   }}
                 >
                   {r.when}
@@ -298,21 +309,92 @@ export function Stage5() {
           The accepting fixture now carries <Mono>10-speed</Mono>, so the same
           thing cannot come back unnoticed.
         </Why>
+
+        <P className="mt-8">
+          It happened a second time, to the same rule, and the second one was
+          worse.
+        </P>
+        <Data
+          path="what a model filed when the rule leaned on it"
+          mark={[2]}
+          lines={[
+            'the answer said   "owners were notified on April 27, 2020"',
+            'the rule saw      27',
+            'so the model      filed a count reading "27 — Day of the month',
+            '                  owners were notified"',
+          ]}
+        />
+        <Key>
+          The first time, the rule rejected a correct answer. Loudly, and
+          somebody looked. This time it <em>accepted</em> one and quietly
+          deformed it — the model obeyed a rule that was wrong and wrote
+          nonsense to satisfy it.
+        </Key>
+        <Why>
+          Written dates were not being stripped and ISO ones were. A rule that
+          rejects a good answer gets found in an afternoon. A rule that bends a
+          good answer into a worse one can sit there indefinitely, because
+          everything still passes.
+        </Why>
       </Chapter>
 
       <Chapter
         n="05"
-        title="And no model has written an answer here yet"
-        sub="The fixtures are hand-written, which makes this a working contract rather than a working system."
+        title="It could prove an absence and had nowhere to write it down"
+        sub="The best thing this stage found, and it came from reading a real answer rather than from a test."
       >
+        <P>
+          One question's right answer is “there is no recall for this”. A tool
+          was built to prove that. The contract had no field to put the proof in.
+        </P>
+        <Data
+          path="so the model wrote this as a citation"
+          mark={[0]}
+          lines={['"NHTSA recall database lookup for make HONDA, model ODYSSEY…"']}
+        />
         <Key>
-          13 checks pass, and all of them run against answers a person typed.
-          What is proved is that the contract works — not that the thing does.
+          That is a sentence, not a document. Every claim has to cite something,
+          nothing existed to cite, so it composed a thing shaped like a citation.
         </Key>
         <Why>
-          The same shape of caveat as the tools' ceiling one stage earlier, and
-          it stays here until the part that chooses the tools exists to retire
-          it. The stage after that is what scores real answers.
+          The fault was ours. We could establish an absence and could not express
+          one, so the answer had to be bent to fit. There is now a field for what
+          was searched and what its emptiness settles — and a seventh rule that
+          insists on it when the answer leans on it.
+        </Why>
+        <Data
+          path="two rules, opposite directions"
+          lines={[
+            'rule 6   stops the model citing a recall it should not',
+            'rule 7   stops it claiming nothing exists without saying how it looked',
+          ]}
+        />
+        <Key>
+          An absence proved by a search can be checked by running the search
+          again. An absence inferred from reading a list is a judgement wearing a
+          fact's clothes. Both produce the same sentence.
+        </Key>
+      </Chapter>
+
+      <Chapter
+        n="06"
+        title="Five of the seven were running. Two were on paper."
+        sub="Written, tested, and never called — which is not the same as working."
+      >
+        <P>
+          Two of the rules cannot be checked by reading an answer. Citing a
+          recall is perfectly sensible on its own; it is only wrong given what
+          the search came back with. So they need to see what the tools returned.
+        </P>
+        <Key>
+          Until that was wired in, they were tested against answers typed by hand
+          and nothing called them on a real one. A rule that has never run is a
+          rule you hope works.
+        </Key>
+        <Why>
+          They run now, on every answer. Sixteen checks pass. What that proves is
+          that the rules work — a model still has to be asked all eight questions
+          before any of this is a score.
         </Why>
       </Chapter>
     </section>
@@ -349,8 +431,12 @@ function Chapter({
   );
 }
 
-function P({ children }: { children: React.ReactNode }) {
-  return <p className="max-w-[64ch] text-[0.875rem] leading-relaxed text-ui-dim">{children}</p>;
+function P({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return (
+    <p className={`max-w-[64ch] text-[0.875rem] leading-relaxed text-ui-dim ${className}`}>
+      {children}
+    </p>
+  );
 }
 
 function Key({ children }: { children: React.ReactNode }) {

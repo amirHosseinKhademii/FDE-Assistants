@@ -71,7 +71,16 @@ const LOOP: readonly { n: string; what: string; detail?: string }[] = [
   },
 ];
 
-/** The six steps, two of them done. */
+/**
+ * The same two questions, same model, same wording, four runs in one afternoon.
+ *
+ * ALL FOUR ANSWERED CORRECTLY. This is the honest argument for why one green run
+ * is not a number, and it is better than saying so in prose: everything through
+ * stage 5 was the same every time and checkable against a shell command.
+ */
+const RUNS: readonly string[] = ['85.8s', '13.7s', '6.5s', '63.5s'];
+
+/** The six steps, three of them done. */
 const STEPS: readonly { n: string; what: string; check: string; done?: boolean }[] = [
   {
     n: '6.1',
@@ -88,7 +97,8 @@ const STEPS: readonly { n: string; what: string; check: string; done?: boolean }
   {
     n: '6.3',
     what: 'the answer, through the contract',
-    check: 'it parses, it is the right shape, and it trips none of the six rules',
+    check: 'every rule runs at answer time — including the one that needs to see what the tools returned',
+    done: true,
   },
   {
     n: '6.4',
@@ -163,7 +173,7 @@ export function Stage6() {
           Where a model is finally asked
         </h2>
         <span className="rounded-full border border-dashed border-cal-2/50 px-2.5 py-0.5 font-mono text-[0.625rem] tracking-[0.06em] text-cal-2 uppercase">
-          two steps run · four to go · no score yet
+          three steps run · three to go · no score yet
         </span>
       </div>
 
@@ -249,6 +259,23 @@ export function Stage6() {
           <LoopModal />
         </div>
       </Chapter>
+
+      <div className="cal-spread">
+        <p className="cal-result-label">the same two questions, four times this afternoon</p>
+        <div className="cal-spread-row">
+          {RUNS.map((t, i) => (
+            <span key={i} className="cal-spread-t">
+              {t}
+            </span>
+          ))}
+        </div>
+        <p className="cal-spread-note">
+          Same model, same wording, and{' '}
+          <span className="text-ui-fg">all four answered correctly</span>. One
+          took thirteen times longer than another. Nothing before this stage
+          behaved like that.
+        </p>
+      </div>
 
       {/* THE GAP. Drawn empty on purpose: the number has nowhere to arrive
           except beside the ceiling it will be compared against. */}
