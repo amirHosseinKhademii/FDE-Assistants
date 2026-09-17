@@ -40,6 +40,7 @@ import { BeforeAfter, Because, Figure, Raw, Stage } from '../components/steps/ki
 import { ChunkerModal } from '../components/steps/ChunkerModal';
 import { EmbedModal } from '../components/steps/EmbedModal';
 import { IndexModal } from '../components/steps/IndexModal';
+import { FuseModal, SearchModal } from '../components/steps/SearchModal';
 import { ParserModal } from '../components/steps/ParserModal';
 import { AURORA } from '../lib/aurora';
 import { ROWS, UNITS } from '../lib/estate.generated';
@@ -652,9 +653,11 @@ function Retrieve() {
       </Figure>
 
       <Because>
-        Two lists that share no entries at all. That is not a failure of either
-        arm — it is what the next stage exists to resolve.
+        Two lists that share no entries at all — which is what the next stage
+        exists to resolve.
       </Because>
+
+      <SearchModal />
     </Stage>
   );
 }
@@ -778,6 +781,8 @@ function Fuse() {
         corroborated ones — two of its eight cases. Same code, two corpora,
         opposite failure modes, and the argument for a reranker in both.
       </Because>
+
+      <FuseModal />
     </Stage>
   );
 }
