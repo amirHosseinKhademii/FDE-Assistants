@@ -35,7 +35,8 @@
  * contract are each already known to be sound.
  */
 import { Mono } from '@fde/uikit';
-import { Data } from '@veresk/surface';
+import { Data, Journey } from '@veresk/surface';
+import { LOOP_TURNS } from '../../pages/loop-turns';
 import { LoopModal } from './LoopModal';
 
 /**
@@ -211,7 +212,27 @@ export function Stage6() {
         </p>
       </div>
 
-      <div className="mt-6">
+      <Chapter
+        n="01"
+        title="One question, every hop, with what actually moved"
+        sub="The same drawing as the data-flow page, because a reader should not have to learn two — and every payload here is from a recorded run."
+      >
+        <Journey turns={LOOP_TURNS} />
+        <Key>
+          Turn 2 sends back one integer. Turn 3 sends back five narratives. They
+          are drawn at the size they are, because that is the only distinction
+          that matters to somebody asking what leaves the building.
+        </Key>
+        <Why>
+          And the page will not write “the complaints never reach the model”.
+          They do — that is how the question gets answered, and a reviewer
+          establishes it in their first question, at which point every other
+          claim is worthless. What it says instead is exactly which five, and
+          exactly what was in them.
+        </Why>
+      </Chapter>
+
+      <div className="mt-2">
         <LoopModal />
       </div>
 
@@ -241,7 +262,7 @@ export function Stage6() {
       </div>
 
       <Chapter
-        n="01"
+        n="02"
         title="Everything before this was the same twice. This will not be."
         sub="Which is not a flaw in the stage — it is what the five underneath it exist to make survivable."
       >
@@ -265,7 +286,7 @@ export function Stage6() {
       </Chapter>
 
       <Chapter
-        n="02"
+        n="03"
         title="The order it gets built in"
         sub="One question before eight, on purpose — the first model call fails in a way nobody predicted, and one case is where that is cheapest to read."
       >
@@ -308,7 +329,7 @@ export function Stage6() {
       </Chapter>
 
       <Chapter
-        n="03"
+        n="04"
         title="The real risk is not the prompt"
         sub="Five tools, and the two that return numbers are the ones easiest to mix up."
       >
@@ -335,7 +356,7 @@ export function Stage6() {
       </Chapter>
 
       <Chapter
-        n="04"
+        n="05"
         title="Two things already known, and both were paid for"
         sub="Measured on an earlier engagement, which is the only reason they are not going to be discovered again here."
       >
@@ -369,7 +390,7 @@ export function Stage6() {
       </Chapter>
 
       <Chapter
-        n="05"
+        n="06"
         title="Three things left open rather than guessed"
         sub="Written down as undecided, because a decision recorded as a guess is indistinguishable later from one that was made."
       >
@@ -384,7 +405,7 @@ export function Stage6() {
       </Chapter>
 
       <Chapter
-        n="06"
+        n="07"
         title="What the stages underneath have and have not proved"
         sub="Worth stating plainly before a model is allowed anywhere near this."
       >
