@@ -190,6 +190,9 @@ importers:
 
   apps/ai/safety:
     dependencies:
+      '@fde/agent':
+        specifier: workspace:*
+        version: link:../../../packages/agent
       '@fde/grounding':
         specifier: workspace:*
         version: link:../../../packages/grounding
