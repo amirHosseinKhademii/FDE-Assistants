@@ -727,16 +727,49 @@ function Rejected({ errors }: { errors: string[] }) {
   );
 }
 
+/**
+ * Why the question could not be asked.
+ *
+ * ── IT USED TO BLAME THE QUOTA FOR EVERYTHING ─────────────────────────────
+ *
+ * This panel carried one fixed sentence — "the model runs on a free allowance
+ * that stops answering when it is spent" — under every failure. The first real
+ * failure it met was a deployed container missing `LLM_PROVIDER`, whose error
+ * said so precisely, and the page answered that with a paragraph about a free
+ * tier. A wrong explanation under a right error message is worse than no
+ * explanation: somebody goes and checks the quota.
+ *
+ * So the message is shown first and at full weight, and a hint is added only
+ * when the message supports it.
+ */
 function Failed({ message }: { message: string }) {
+  const hint = hintFor(message);
   return (
     <div className="mt-8 cal-block cal-block-warn">
       <p className="cal-sec-label">it could not be asked</p>
-      <p className="cal-warn-line">{message}</p>
-      <p className="cal-note">
-        The model runs on a free allowance that stops answering when it is spent,
-        and it does so quietly. If this keeps happening, that is the likeliest
-        reason.
-      </p>
+      <p className="cal-fail-msg">{message}</p>
+      {hint && <p className="cal-note">{hint}</p>}
     </div>
   );
+}
+
+/**
+ * A hint, or nothing.
+ *
+ * NOTHING IS THE DEFAULT. An unrecognised error gets its own words and no
+ * guess — this page is on a site whose argument is that a confident wrong
+ * answer reads exactly like a right one, and that applies to its own failures.
+ */
+function hintFor(message: string): string | null {
+  const m = message.toLowerCase();
+  if (/unset|placeholder|not configured|missing env|environment/.test(m)) {
+    return 'That is a configuration problem on the server rather than anything about the question. The deployment needs its model provider and key set before it can answer.';
+  }
+  if (/429|rate.?limit|too many requests|quota|resource_exhausted/.test(m)) {
+    return 'The model runs on a free allowance of fifteen requests a minute. It stops answering when that is spent, and it does so quietly — waiting a minute is usually enough.';
+  }
+  if (/timeout|timed out|abort|network|fetch failed|econn/.test(m)) {
+    return 'The connection did not complete. Answers here have taken anywhere from 4 to 131 seconds, so a slow one is not unusual — but this one did not arrive at all.';
+  }
+  return null;
 }

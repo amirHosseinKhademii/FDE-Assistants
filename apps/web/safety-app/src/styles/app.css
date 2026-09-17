@@ -1871,3 +1871,13 @@ body {
 .cal-engine-s:disabled {
   opacity: 0.45;
 }
+
+/* The actual error, at full weight. It is usually more accurate than anything
+   this page could add underneath it. */
+.cal-fail-msg {
+  margin-top: 0.75rem;
+  max-width: 68ch;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-ui-fg);
+}
