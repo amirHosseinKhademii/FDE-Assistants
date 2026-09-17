@@ -747,13 +747,39 @@ jobs:
           # `toLocaleString('en-GB')` turns 70194 into 70,194 on the page, so
           # the comma is put back here. Asserting what the reader sees, not what
           # the file says.
+          #
+          # ── AND IT IS GROUPED BY `sed`, NOT BY `printf "%'d"` ──────────────
+          #
+          # THAT IS THE BUG THAT FAILED THIS JOB ONCE, and it is the third of
+          # the same family in this one step. `%'d` is LOCALE-DEPENDENT: the
+          # apostrophe flag groups only if the active locale defines a thousands
+          # separator. My shell is `en_US.UTF-8` and prints `70,194`; a GitHub
+          # runner is `C.UTF-8` and prints `70194`. So the deploy worked, the
+          # page served 200 in 0.6s with `70,194` in it, and the assertion spent
+          # twelve attempts looking for a string that was never going to be
+          # there before reporting that the app "never served its estate data".
+          #
+          # The lesson is not about `printf`. All three bugs in this step were
+          # found by RUNNING the assertion in the environment it runs in rather
+          # than reading it in mine — the same rule as checking the parser
+          # against `awk` instead of against itself.
           RAW=$(sed -n '/^export const UNITS/,/}/p' apps/web/safety-app/src/lib/estate.generated.ts \
             | grep -oE '"complaints": [0-9]+' | grep -oE '[0-9]+')
           case "$RAW" in
             ''|*[!0-9]*) echo "::error::could not read UNITS.complaints out of estate.generated.ts — got '$RAW'"; exit 1 ;;
           esac
           [ "$RAW" -gt 1000 ] || { echo "::error::UNITS.complaints is $RAW, which is not a corpus — refusing to assert on it"; exit 1; }
-          MARKER=$(printf "%'d" "$RAW" | tr -d ' ')
+
+          MARKER=$(printf '%s' "$RAW" | sed -E ':a;s/([0-9])([0-9]{3})(,|$)/\1,\2\3/;ta')
+
+          # The grouping is the part that silently did nothing, so it is checked
+          # rather than trusted. Anything over a thousand must come out with a
+          # comma in it; if it does not, the step fails HERE with the reason
+          # rather than twelve attempts later with the wrong one.
+          case "$MARKER" in
+            *,*) ;;
+            *) echo "::error::grouping produced '$MARKER' from '$RAW' — the page prints en-GB grouping, so this would never match"; exit 1 ;;
+          esac
           echo "asserting the page contains $MARKER"
 
           # Written to a file rather than captured: command substitution is not
