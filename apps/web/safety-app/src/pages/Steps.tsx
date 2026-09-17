@@ -41,6 +41,7 @@ import { ChunkerModal } from '../components/steps/ChunkerModal';
 import { EmbedModal } from '../components/steps/EmbedModal';
 import { IndexModal } from '../components/steps/IndexModal';
 import { FuseModal, SearchModal } from '../components/steps/SearchModal';
+import { MeasureModal } from '../components/steps/MeasureModal';
 import { RerankModal } from '../components/steps/RerankModal';
 import { Done, NotBuilt, StepTabs } from '../components/steps/Tabs';
 import type { StepTab } from '../components/steps/Tabs';
@@ -210,7 +211,7 @@ const TABS: StepTab[] = [
     id: 'grounding',
     label: 'Grounding',
     stage: '3',
-    status: 'seven stages',
+    status: 'built · measured',
     built: true,
     content: <Grounding />,
   },
@@ -224,8 +225,8 @@ const TABS: StepTab[] = [
       <NotBuilt
         title="What an answer is allowed to be"
         waits={[
-          'The answer key has to exist first — written by hand from the raw files, so the shape of a right answer is known before anything is built that could grade itself.',
-          'Retrieval has to be measured. A contract written against search that cannot find the passage would be a schema for a wrong answer.',
+          'DONE — the answer key exists, written by hand from the raw files before anything was built that could grade itself.',
+          'DONE — retrieval is measured. recall@6 is 0.40, and its verdict is that the next thing to build is a tool the model can call with structured arguments rather than a bigger pile of text to search.',
           'The refusal has to be decided: concluding that a remedy failed is a regulatory judgement, and the field that carries “these two records disagree” is what stops a model reaching it.',
         ]}
         what={
@@ -242,6 +243,16 @@ const TABS: StepTab[] = [
               descriptions that do most of the work — they are prompt
               engineering, not documentation, which is why their own check fails
               if a field loses one.
+            </p>
+            <p className="mt-3.5">
+              <span className="text-ui-fg">
+                And stage 3.7 said what has to come with it.
+              </span>{' '}
+              Retrieval alone tops out at 0.40 because the questions are filters
+              wearing the clothes of questions — so the tools the contract is
+              filled in by have to take <Mono>make</Mono>, <Mono>model</Mono>,{' '}
+              <Mono>year</Mono> and <Mono>deaths</Mono> as arguments rather than
+              as words.
             </p>
           </>
         }
@@ -1073,7 +1084,7 @@ REC-001   "is the F-150 park problem fixed?"
         are deduplicated by document before anything is counted.
       </Because>
 
-      <Figure caption="two numbers, one variable" from="pending" source="apps/ai/safety/src/cli/measure.ts">
+      <Figure caption="two numbers, one variable" source="apps/ai/safety/src/cli/measure.ts">
         <Raw>{`pnpm safety:measure                 3.7a  hybrid alone      the baseline
 RERANK=local pnpm safety:measure    3.7b  the same, reranked`}</Raw>
       </Figure>
@@ -1151,6 +1162,76 @@ RERANK=local pnpm safety:measure    3.7b  the same, reranked`}</Raw>
         because a number printed without its denominator gets quoted without it.
       </Because>
 
+      <Figure caption="what came back" source="pnpm safety:measure · n=3 · docs/safety/evals/">
+        <div className="flex flex-wrap items-baseline gap-x-12 gap-y-4">
+          {[
+            { k: '3.7a', v: '0.40', how: 'hybrid alone' },
+            { k: '3.7b', v: '0.40', how: 'the same run, reranked' },
+          ].map((n) => (
+            <div key={n.k}>
+              <p className="font-mono text-[0.625rem] tracking-[0.06em] text-ui-faint uppercase">
+                {n.k} · {n.how}
+              </p>
+              <p className="mt-1 font-mono text-3xl text-ui-fg">{n.v}</p>
+            </div>
+          ))}
+        </div>
+      </Figure>
+
+      <Because>
+        <span className="text-ui-fg">
+          The same number twice, and that is the result rather than a
+          disappointment.
+        </span>{' '}
+        The reranker did work — it moved one hit from 36th to 1st and another
+        from 3rd to 1st. The score did not budge, because the documents the
+        answer key names were sitting at ranks 93, 121, 1,169, 1,239, 2,271 and
+        3,026. The reranker was handed the top 50. Not one of them was in it.
+      </Because>
+
+      <Because>
+        So it reordered a pile that did not contain the answer, perfectly.{' '}
+        <span className="text-ui-fg">A reranker reorders; it cannot fetch.</span>{' '}
+        The diagnosis is not “found it, ranked it badly” — it is “never found
+        it”, and no reranker fixes that, nor would a better one.
+      </Because>
+
+      <Because>
+        The reason is in the questions.{' '}
+        <Mono>2020 F-150</Mono>, <Mono>Tesla Model 3</Mono>,{' '}
+        <Mono>involving a death</Mono> are structured fields already sitting in
+        the database — make, model, year, death count — and search is treating
+        them as words.{' '}
+        <span className="text-ui-fg">
+          These are filters wearing the clothes of questions.
+        </span>{' '}
+        The F-150 one matches 54,541 documents on ordinary vocabulary alone, and
+        the right answer drowns. Filter first and the same corpus returns exactly
+        the five Tesla complaints, and moves {SPINE} from rank 3,026 to rank 8.
+      </Because>
+
+      <Because>
+        Which says what to build next, and it is not a better model. The machine
+        needs to read “2020 F-150” as a{' '}
+        <span className="text-ui-fg">filter rather than a phrase</span> — a tool
+        it can call with structured arguments. That is the lesson the insurance
+        engagement already carries in <Mono>get_policyholder</Mono>, reached
+        again here on a completely different corpus:{' '}
+        <span className="text-ui-fg">
+          a question with one exact answer is a lookup, not a search.
+        </span>
+      </Because>
+
+      <Because>
+        And <span className="text-ui-fg">0.40 is flattered.</span> REC-005 scored
+        1.00 against a bar of “return any one of 400 documents”, which is nearly
+        impossible to fail; the two hard cases scored 0.00 and 0.20. With n=3
+        that is enough to say retrieval alone tops out here, and not enough for
+        anything finer.
+      </Because>
+
+      <MeasureModal />
+
       <Figure caption="a number from elsewhere" from="target" source="Vantis Steering, docs/steering/evals/RETRIEVAL.md">
         <div className="flex flex-wrap items-baseline gap-x-8 gap-y-3">
           <span className="font-mono text-2xl text-ui-dim">0.813</span>
@@ -1158,12 +1239,12 @@ RERANK=local pnpm safety:measure    3.7b  the same, reranked`}</Raw>
             measured on the sibling engagement, on a corpus somebody here wrote,
             counted over its own units.{' '}
             <span className="text-ui-fg">
-              It will not be printed beside Calder's number
+              It is deliberately not set beside the 0.40 above.
             </span>{' '}
-            when there is one — a different corpus with a different denominator,
-            set next to ours, would measure the counting rule rather than the
-            retrieval. It is here as context for what this kind of number looks
-            like, and for nothing else.
+            A different corpus with an unconfirmed denominator, placed next to
+            ours, would measure the counting rule rather than the retrieval — and
+            the comparison a reader would draw from the two numbers side by side
+            is one neither of them supports.
           </span>
         </div>
       </Figure>
@@ -1232,7 +1313,7 @@ function Rerank() {
       when="every question"
       plain="Everything so far compares two summaries made separately: the passage was turned into numbers long before the question existed. A reranker reads the question and one passage together and says how well one answers the other — much better judgement, far too slow to run on everything."
     >
-      <Figure caption="so it runs on 50, not on 73,442" from="pending" source="off unless RERANK=local">
+      <Figure caption="so it runs on 50, not on 73,442" source="off unless RERANK=local">
         <Raw>{`cheap search finds 50 candidates     fast, indexed, a bit blunt
 the reranker reads all 50 properly   slow, no index, sharp
 keep the best 6                      what the model sees`}</Raw>
@@ -1255,6 +1336,16 @@ keep the best 6                      what the model sees`}</Raw>
         helps, the problem was “found it, ranked it badly”. If it does not, the
         problem was “never found it”, and the answer is better chunking or a
         wider pool rather than a smarter scorer.
+      </Because>
+
+      <Because>
+        <span className="text-ui-fg">
+          Which is what happened when it was measured.
+        </span>{' '}
+        It promoted a hit from 36th to 1st and another from 3rd to 1st — working
+        exactly as intended — and stage 3.7's number did not move, because the
+        documents that mattered were never in the fifty. That is the ceiling
+        above, arriving as a measurement rather than as an argument.
       </Because>
 
       <RerankModal />
