@@ -53,14 +53,20 @@ measures.
 
 ## 3 · Constraints already known — do not rediscover these
 
-**Only Mastra reaches Gemini.** `docs/ENGINES.md` is the chart:
+**Two of three engines reach Gemini.** `docs/ENGINES.md` is the chart:
 
 ```
 LOOP=sdk         refuses non-Azure by design
-LOOP=mastra      works                            ← the only option here
-LOOP=langgraph   400 from Gemini — it drops a provider-specific field
-                 between turns (thought_signature)
+LOOP=mastra      works
+LOOP=langgraph   works, since 2026-09-17 — it needed two wire-level repairs
 ```
+
+*This paragraph said "only Mastra reaches Gemini" until LangGraph was fixed a
+few hours after it was written, and was corrected on the day. It is the fourth
+time in one day that a claim was updated in one file and left standing in its
+neighbour — the others were `ENGINES.md`'s own heading, the prompt still naming
+`count_complaints` after the schema had widened, and two unrelated `3,026`s in
+one narrative. **When a fact changes, grep for it.***
 
 **`LOOP` must be set beside `LLM_PROVIDER`.** Setting the provider alone leaves
 the default engine in place, which then refuses it. The two are one decision.
