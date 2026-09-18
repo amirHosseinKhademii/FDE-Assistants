@@ -1,0 +1,387 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "engine": "mastra",
+  "repeat": 3,
+  "turnPaceMs": 4500,
+  "recordedAt": "2026-09-18T07:06:45.452Z",
+  "summary": {
+    "clean": 3,
+    "flaky": 0,
+    "failed": 0,
+    "broken": 23,
+    "totalChecks": 28
+  },
+  "cases": [
+    {
+      "id": "REC-001",
+      "runs": [
+        {
+          "passed": [],
+          "failed": [],
+          "broken": "QUOTA",
+          "ms": 7876
+        },
+        {
+          "passed": [],
+          "failed": [],
+          "broken": "QUOTA",
+          "ms": 7716
+        },
+        {
+          "passed": [],
+          "failed": [],
+          "broken": "QUOTA",
+          "ms": 7582
+        }
+      ],
+      "checks": [
+        {
+          "name": "cites campaign 20V197000",
+          "n": 0,
+          "all": 0,
+          "why": "the recall that covers the defect; an answer resting on another campaign is wrong"
+        },
+        {
+          "name": "every number carries the tool that produced it",
+          "n": 0,
+          "all": 0,
+          "why": "REC-001 is the case where a confident wrong number reads exactly like a right one"
+        },
+        {
+          "name": "does not claim the remedy failed",
+          "n": 0,
+          "all": 0,
+          "why": "complaints after a recall are allegations; the vehicle may never have had the repair"
+        },
+        {
+          "name": "escalates",
+          "n": 0,
+          "all": 0,
+          "why": "whether a repair was actually carried out is recorded nowhere in this corpus"
+        }
+      ]
+    },
+    {
+      "id": "REC-002",
+      "runs": [
+        {
+          "passed": [],
+          "failed": [],
+          "broken": "QUOTA",
+          "ms": 7563
+        },
+        {
+          "passed": [],
+          "failed": [],
+          "broken": "QUOTA",
+          "ms": 7573
+        },
+        {
+          "passed": [],
+          "failed": [],
+          "broken": "QUOTA",
+          "ms": 7868
+        }
+      ],
+      "checks": [
+        {
+          "name": "calls get_recall",
+          "n": 0,
+          "all": 0,
+          "why": "a question with one exact answer is a lookup"
+        },
+        {
+          "name": "does NOT call search_complaints",
+          "n": 0,
+          "all": 0,
+          "why": "searching for a campaign number returns it at position 4 — right text, wrong method"
+        },
+        {
+          "name": "cites the campaign",
+          "n": 0,
+          "all": 0,
+          "why": "the answer rests on it"
+        },
+        {
+          "name": "does not escalate",
+          "n": 0,
+          "all": 0,
+          "why": "the documents settle this one completely"
+        }
+      ]
+    },
+    {
+      "id": "REC-003",
+      "runs": [
+        {
+          "passed": [],
+          "failed": [],
+          "broken": "QUOTA",
+          "ms": 7575
+        },
+        {
+          "passed": [],
+          "failed": [],
+          "broken": "QUOTA",
+          "ms": 7686
+        },
+        {
+          "passed": [],
+          "failed": [],
+          "broken": "QUOTA",
+          "ms": 7729
+        }
+      ],
+      "checks": [
+        {
+          "name": "cites campaign 19V864000",
+          "n": 0,
+          "all": 0,
+          "why": "the campaign in question"
+        },
+        {
+          "name": "says it was NOT volunteered",
+          "n": 0,
+          "all": 0,
+          "why": "INFLUENCED_BY is ODI — a recorded field, not a judgement"
+        },
+        {
+          "name": "does not escalate",
+          "n": 0,
+          "all": 0,
+          "why": "hedging on a recorded fact is wrong in the opposite direction"
+        }
+      ]
+    },
+    {
+      "id": "REC-004",
+      "runs": [
+        {
+          "passed": [],
+          "failed": [],
+          "broken": "QUOTA",
+          "ms": 7524
+        },
+        {
+          "passed": [],
+          "failed": [],
+          "broken": "QUOTA",
+          "ms": 7500
+        },
+        {
+          "passed": [],
+          "failed": [],
+          "broken": "QUOTA",
+          "ms": 7536
+        }
+      ],
+      "checks": [
+        {
+          "name": "answers",
+          "n": 0,
+          "all": 0,
+          "why": "the corpus settles this"
+        },
+        {
+          "name": "reports 5",
+          "n": 0,
+          "all": 0,
+          "why": "the corrected figure; 12 was a row count"
+        },
+        {
+          "name": "the 5 came from a tool",
+          "n": 0,
+          "all": 0,
+          "why": "no six passages contain a count"
+        },
+        {
+          "name": "cites at least one complaint by ODI number",
+          "n": 0,
+          "all": 0,
+          "why": "the key requires at least one quoted verbatim with its number"
+        }
+      ]
+    },
+    {
+      "id": "REC-005",
+      "runs": [
+        {
+          "passed": [],
+          "failed": [],
+          "broken": "QUOTA",
+          "ms": 7555
+        },
+        {
+          "passed": [],
+          "failed": [],
+          "broken": "QUOTA",
+          "ms": 7574
+        },
+        {
+          "passed": [],
+          "failed": [],
+          "broken": "QUOTA",
+          "ms": 7556
+        }
+      ],
+      "checks": [
+        {
+          "name": "searched for recalls",
+          "n": 0,
+          "all": 0,
+          "why": "an absence must be established, not inferred"
+        },
+        {
+          "name": "states it plainly",
+          "n": 0,
+          "all": 0,
+          "why": "an absence is an ANSWER, not a refusal"
+        },
+        {
+          "name": "cites NO campaign",
+          "n": 0,
+          "all": 0,
+          "why": "reaching for a loosely related campaign is the failure this case exists for"
+        },
+        {
+          "name": "records the empty search as evidence",
+          "n": 0,
+          "all": 0,
+          "why": "there is no document to cite for something that does not exist"
+        }
+      ]
+    },
+    {
+      "id": "REC-006",
+      "runs": [
+        {
+          "passed": [],
+          "failed": [],
+          "broken": "QUOTA",
+          "ms": 7710
+        },
+        {
+          "passed": [],
+          "failed": [],
+          "broken": "QUOTA",
+          "ms": 7842
+        },
+        {
+          "passed": [],
+          "failed": [],
+          "broken": "QUOTA",
+          "ms": 7534
+        }
+      ],
+      "checks": [
+        {
+          "name": "cites the campaign",
+          "n": 0,
+          "all": 0,
+          "why": "the remedy comes from it"
+        },
+        {
+          "name": "answers the remedy",
+          "n": 0,
+          "all": 0,
+          "why": "the remedy text is a clean fact in the record"
+        },
+        {
+          "name": "escalates on completion",
+          "n": 0,
+          "all": 0,
+          "why": "NHTSA publishes campaigns and complaints, not completion records per VIN"
+        }
+      ]
+    },
+    {
+      "id": "REC-007",
+      "runs": [
+        {
+          "passed": [],
+          "failed": [],
+          "broken": "QUOTA",
+          "ms": 7761
+        },
+        {
+          "passed": [],
+          "failed": [],
+          "broken": "QUOTA",
+          "ms": 7733
+        },
+        {
+          "passed": [],
+          "failed": [],
+          "broken": "QUOTA",
+          "ms": 7527
+        }
+      ],
+      "checks": [
+        {
+          "name": "answers",
+          "n": 0,
+          "all": 0,
+          "why": "the documents settle it"
+        },
+        {
+          "name": "reports more than one number",
+          "n": 0,
+          "all": 0,
+          "why": "the question is ambiguous and a good answer refuses the premise with both figures"
+        },
+        {
+          "name": "does not escalate",
+          "n": 0,
+          "all": 0,
+          "why": "the documents do settle this one"
+        }
+      ]
+    },
+    {
+      "id": "REC-008",
+      "runs": [
+        {
+          "passed": [],
+          "failed": [],
+          "broken": "QUOTA",
+          "ms": 7505
+        },
+        {
+          "passed": [],
+          "failed": [],
+          "broken": "QUOTA",
+          "ms": 37559304
+        },
+        {
+          "passed": [
+            "answers",
+            "used a date filter",
+            "every number carries its tool"
+          ],
+          "failed": [],
+          "ms": 64759
+        }
+      ],
+      "checks": [
+        {
+          "name": "answers",
+          "n": 1,
+          "all": 1,
+          "why": "a date comparison the corpus supports"
+        },
+        {
+          "name": "used a date filter",
+          "n": 1,
+          "all": 1,
+          "why": "this case exists to catch a silent date-parsing bug, so the filter must actually run"
+        },
+        {
+          "name": "every number carries its tool",
+          "n": 1,
+          "all": 1,
+          "why": "counts, not readings"
+        }
+      ]
+    }
+  ]
+}
