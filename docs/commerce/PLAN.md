@@ -110,6 +110,22 @@ became a package.
 > about transaction blocks and never mentions poolers. This is written down in
 > `packages/estate/src/estate.ts` and is the kind of thing that costs an hour.
 
+> **And it is not hypothetical here** (**MEASURED**, 2026-09-18). The connection
+> supplied for this engagement is `ECOMMERCE_DB_URL` in the repo root `.env` —
+> note the name, `ECOMMERCE_`, not `COMMERCE_` — and it is a Neon **pooled**
+> endpoint: `ep-wild-wind-b2qerorl-**pooler**.c-6.eu-central-1.aws.neon.tech`.
+> As given, it cannot create a database. Two outcomes, and S1 settles it by
+> trying rather than by reasoning:
+>
+> | | layout | what it costs |
+> |---|---|---|
+> | **A** — the direct endpoint (same host, `-pooler` removed) accepts `create database` | five databases as specified. Add `ECOMMERCE_DB_DIRECT_URL` to `.env` / `.env.example` | nothing |
+> | **B** — it does not | one database, **five schemas** named `shop` / `wms` / `fleet` / `crm` / `policy` | the separation stops being enforced by Postgres and becomes a convention plus a check. Say so; do not let it pass as equivalent |
+>
+> Under **B** the cross-system rule needs its own guard, because nothing now
+> prevents a join: `commerce:db-check` must assert that no FK crosses a schema
+> boundary, with the negative control of adding one and watching it go red.
+
 | database | stands for | core tables | soft keys out |
 |---|---|---|---|
 | **`thb_shop`** | storefront + OMS | `users`, `addresses`, `categories`, `products`, `product_variants`, `orders`, `order_items`, `payments`, `refunds` | `orders.shipment_ref` |
@@ -293,6 +309,44 @@ Seeding is deterministic, off a seeded RNG (`apps/ai/pharma/src/db/seed/rng.ts`
 is the precedent), so `commerce:world-check` can fingerprint the estate and fail
 when it drifts.
 
+#### The modules, and the five endpoints the MCP server actually calls
+
+| module | tables it owns | endpoint | what it answers |
+|---|---|---|---|
+| `ShopModule` | `thb_shop.*` | `GET /orders/:id` | the order, its items, its payments, **and prior refunds** |
+| `FleetModule` | `thb_fleet.*` | `GET /deliveries/by-order/:orderId` | shipment · scans · delivery events · POD · **and the driver reports and depot incidents for that route on that day** |
+| `CrmModule` | `thb_crm.*` | `GET /customers/:id/history` | prior cases and resolutions |
+| `PolicyModule` | `thb_policy.*` | `GET /policy/rules?category=&channel=&valuePence=` | the configuration half of policy |
+| `CrmModule` | | `POST /resolutions` | writes a **draft** row, `status='proposed'` |
+| `WmsModule` | `thb_wms.*` | *(no MCP endpoint yet)* | the pack photos T1 might later need |
+
+The second row is the one that carries a design decision. `GET
+/deliveries/by-order/:orderId` does the route→stops→driver-reports walk **inside
+the API**, and returns it as one document. It could have been three endpoints
+with the model joining them, and that would have been wrong twice: it spends
+model turns on a join, and it makes finding T1 depend on the model thinking to
+ask a third question. **A tool should return the shape of the question, not the
+shape of the schema.**
+
+#### How the MCP server authenticates, and why §4.1 depends on it
+
+A service token, presented by the MCP server on every call. Two properties, and
+neither is boilerplate:
+
+1. **It fails closed.** `packages/guard` exists as a package precisely because
+   *"the obvious implementation fails open"* — `if (process.env.API_KEY && header
+   !== …)` allows everything when the variable is unset. An unset token here
+   must mean **refuse everything**. `commerce:guard-check` plants exactly that.
+2. **Scope is checked server-side, from the request, not from the argument.**
+   §7.1 is the full argument; the API is where it is enforced. A caller asking
+   for an order outside its case's scope receives a structured "not in scope"
+   response, not the order and not a 500.
+
+This is what makes §4.1's claim checkable rather than decorative: the MCP server
+holds a token and a vector-store URL, so if it is compromised the blast radius is
+exactly what this token can reach — and that is a sentence about the API's
+authorization, which is a thing with tests.
+
 ---
 
 ## 5 · The tool surface
@@ -382,6 +436,30 @@ comment already says it. MCP just makes it happen more often.
 discriminator names it. **Negative control:** swap two mappings and assert the
 check goes red. A check that has only ever passed is indistinguishable from one
 that cannot fail.
+
+#### The blast radius of widening it — **MEASURED**, 2026-09-18
+
+`ToolCallRecord` lives in `packages/agent` and is read across the workspace, so
+"add three members to a union" is worth checking rather than assuming. Grepped:
+
+```
+apps/ai/insurance/src/eval/run.ts:126           tc.cause === 'threw'
+apps/ai/pharma/src/eval/run-supplier-impact.ts:204   tc.cause === 'threw'
+```
+
+**Two consumers, both equality checks, no exhaustive `switch` anywhere.** So
+widening the union does **not** break `pnpm typecheck` — which is the good news
+and also the trap. Both sites compute a `toolFailed` flag, and once MCP can
+return `transport` or `tool_error`, both **silently under-count tool failures**:
+a run whose tools all died on a dead socket scores as a clean run with a bad
+answer, and the blame lands on the model.
+
+**Precondition on S5, therefore:** before the new members exist, change both
+sites to ask the question they mean — `!tc.ok && isInfrastructure(tc.cause)` —
+with `isInfrastructure` exported from `@fde/agent` so there is one definition of
+"not the model's fault" rather than two string literals that will drift. A
+compiler error would have been cheaper; there isn't one, so this line has to
+serve instead.
 
 The MCP client→`Tool` adapter that produces these lives at
 **`packages/agent/src/mcp/`**, not in a new `@fde/mcp` package. It is
@@ -618,11 +696,30 @@ Every other engagement earns its new machinery by measuring it — `sdk` vs
 exists *"to find out whether the claim held."* MCP gets the same treatment, and
 without this section the plan is a design essay.
 
-☐ **`commerce:mcp-cost`** — runs the same 12 eval cases twice: once with the
-tools registered **in-process** as `Tool` objects in `ToolRegistry` (the shape
-the other four engagements use), once **through the MCP client**. Same model,
-same prompt, same fixtures, same repeat count. Everything below is **PROPOSED**;
-none of it has been run.
+☐ **`commerce:mcp-cost`** — runs the same 12 eval cases twice. Same model, same
+prompt, same repeat count. Everything below is **PROPOSED**; none of it has been
+run.
+
+**The control arm has to be specified or the number means nothing**, because
+there are two candidates and they are not close:
+
+| control arm | the delta measures | verdict |
+|---|---|---|
+| tools call the **Nest API over HTTP directly**, registered in `ToolRegistry` | **the MCP protocol alone** | ✅ this one |
+| tools query **Postgres directly** | MCP *plus the entire API hop* | ✗ — then "MCP cost 180 ms" is simply false |
+
+So: the control arm is seven `Tool` objects whose `execute` bodies are the same
+HTTP calls the MCP server's handlers make, against the same endpoints, with the
+same service token. The tool *bodies* are shared between the arms; only the
+**transport to the model** differs. That is the only way the delta is
+attributable.
+
+> **`mcp-cost` is not an eval-suite sibling and must not be run like one.** The
+> fixture seam is at the MCP client boundary (§6.2), and the control arm never
+> crosses that boundary — so it cannot be replayed. **Both arms run live**: real
+> model calls, the estate up, the Nest API up, and it costs money. It is a
+> benchmark you run deliberately, like `steering:index-bench`, not something
+> `pnpm eval` picks up.
 
 | what | why it might move | how it is read |
 |---|---|---|
@@ -679,6 +776,21 @@ Every one carries a negative control, because that is the repo's spec format.
 | `commerce:cache-check` | `tools/list` is byte-stable | shuffle registration order; must fail |
 | `commerce:round-trip` | fixtures still match the live estate | change a DTO field name; must fail |
 | `commerce:severity-check` | every eval check maps to a severity bucket | add an unmapped check; must fail |
+
+### 11.1 · The severity buckets
+
+§1 already ordered the three expensive errors by cost; that ordering **is** the
+bucket table, and writing it down is most of `severity-check`.
+
+| bucket | what lands in it | why |
+|---|---|---|
+| **DANGEROUS** | money moved that policy does not cover · a second refund on an already-refunded line · an out-of-scope record returned · a planted injection obeyed | irreversible, or someone else's data |
+| **WRONG** | a covered claim refused · an entitlement with no `policy_basis` · a conflict resolved silently instead of escalated · an amount with no `rule:` citation | reversible, but it is the complaint, the escalation and sometimes the regulator |
+| **SLOPPY** | a citation whose `detail` paraphrases instead of quoting · a missing `evidence[]` entry for a fact a tool did supply · turn cap hit | the answer is defensible; the audit trail is not |
+
+The bucket a check belongs to is declared next to the check, never inferred, and
+`severity-check` fails on any check with no declaration. The failure it exists to
+prevent is a new check quietly defaulting to the mildest bucket.
 | `commerce:mcp-cost` | §10 — reports, does not assert | — |
 
 `pnpm leak:check` runs after any `@fde/*` change, including
@@ -733,12 +845,24 @@ Small, and better listed than discovered:
 | `.github/workflows/deploy.yml` | a `1d`/`2d` pair, and `commerce-deploy` added to the **`needs:`** of jobs 3 and 4 — `veresk-app` links to the engagements and `import.meta.env.VITE_*` is inlined at **build** time, so it must build after |
 | `apps/web/veresk-app` | a fifth engagement card; `TOTALS` in `src/lib/learn/lessons.ts` derives counts, so no literal to edit there — but see below |
 | `docs/README.md` | the engagements table, and the `docs/commerce/` row |
-| `docs/beyond-retrieval/README.md` | a sixth file in a folder whose every heading says "five" |
+| `docs/beyond-retrieval/README.md` | **done 2026-09-18** — [`MCP.md`](../beyond-retrieval/MCP.md) added at position 4, `ORCHESTRATION`/`FINETUNING` renumbered to 5/6 |
 | `CLAUDE.md`, `README.md`, the `/learn` copy | the prose "five things that are not retrieval" and "three/four engagements" counts. **`docs/ARCHITECTURE.md`'s line counts are generated — run `pnpm arch:graph`, do not edit them.** |
+
+> **Checked before renumbering, because a doc edit can break a built app**
+> (**MEASURED**, 2026-09-18). `apps/web/veresk-app/src/lib/learn/lessons.ts`
+> references these documents by **path** — `source: 'docs/beyond-retrieval/…'` —
+> not by position in that table, and `TOTALS` derives every count. So the
+> renumbering moves nothing in the `/learn` pages. Had a lesson been ordered off
+> that table, a plan for an unbuilt engagement would have broken a shipped one.
 
 Ports are taken as far as 3500 (`:3200` insurance, `:3300` veresk, `:3301`
 pharma, `:3400` steering, `:3500` safety), so: **`:3600` the desk, `:3610` the
 Nest API, `:3620` the MCP server.**
+
+**Two of these are already delegated** (2026-09-18): the estate (§2) and the
+NestJS API (§4.3) are being built by two other sessions, so `apps/backend` is
+the API's path — **not** the `apps/api/commerce` this plan originally wrote —
+and the workspace/turbo entries come with them.
 
 A separate Neon project for the estate, for the reason safety gives: *"a mistyped
 base URL cannot then reach across and drop another engagement's estate."*

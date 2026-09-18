@@ -109,6 +109,9 @@ four — **an MCP server between the model and every tool.** Read
 protocol; the plan's §6, §7 and §10 are what MCP breaks in this repo's existing
 machinery, how a write path is guarded when annotations cannot be trusted, and
 the measurement that decides whether the protocol was worth its cost.
+[`commerce/MCP-STEPS.md`](commerce/MCP-STEPS.md) is the build-along — twelve
+steps, each one sitting, each naming the tech and why that tech. Steps 0–3
+depend on nothing and can start before the estate exists.
 
 ### safety — the fourth engagement, PLANNED ONLY
 

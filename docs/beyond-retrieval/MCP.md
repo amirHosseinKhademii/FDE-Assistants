@@ -100,9 +100,23 @@ implements it.** None of this repo's three loop engines is an MCP client at all.
 
 ### 1.2 · Two protocol eras, and the SDK knows both
 
-Version strings present in the v2 bundles: **`2026-07-28`** (the modern one, by
-far the most references), `2025-11-25`, `2025-06-18`, `2025-03-26` (**MEASURED**
-— string scan over `core/dist/*.mjs` and `server/dist/*.mjs`). The SDK
+Date-shaped strings in the v2 bundles, with their occurrence counts
+(**MEASURED** — `grep -rhoE '20(25|26)-[0-9]{2}-[0-9]{2}'` over
+`core/dist/*.mjs` and `server/dist/*.mjs`, 2026-09-18):
+
+```
+  145  2026-07-28     the modern revision
+   61  2025-11-25     the previous one, still served
+    2  2025-03-26
+    1  2026-07-17  ┐  one occurrence each, and NOT protocol revisions —
+    1  2026-07-15  ┤  they do not appear in the version-negotiation paths.
+    1  2025-06-18  ┘  Listed because dropping them silently would be exactly
+                      the badge failure this document is about.
+```
+
+Treat the first three as the versions in play and the last three as noise until
+someone reads the surrounding code; the honest state is "counted, not
+explained." The SDK
 classifies inbound traffic and can either serve the old era statelessly or
 reject it outright: `createMcpHandler`'s `legacy` option is
 `'stateless' | 'reject'`, and in `'reject'` mode *"legacy-classified requests are
