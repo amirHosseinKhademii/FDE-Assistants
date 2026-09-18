@@ -163,7 +163,64 @@ for this stage in one example.
 
 ---
 
-## 7b · REC-007, the one that did not move
+## 7a · The trajectory, four baselines
+
+```
+before tool note   20 pass · 7 flaky · 1 fail · 0 broken   of 28
+after tool note    23 pass · 5 flaky · 0 fail · 1 broken
+after model fix    26 pass · 1 flaky · 1 fail · 0 broken
+after no-op fix    28 pass · 0 flaky · 0 fail · 0 broken
+```
+
+**Four fixes, and not one of them was a prompt edit:**
+
+```
+a fact moved into the tool result, read at the moment of use     REC-001
+a filter taught to match the name a person actually says         REC-003
+a count that reports when its own narrowing did nothing          REC-007
+a count that says it is not yet a quotation                      REC-004
+```
+
+The two that landed last:
+
+```
+reports more than one number                1/3 → 1/3 → 0/3 → 3/3
+cites at least one complaint by ODI number  2/3 → 1/3 → 1/3 → 3/3
+```
+
+REC-007 had two successes in nine runs and was the clearest remaining failure.
+What fixed it was not an instruction about ambiguity — it was
+`count_complaints` fetching the unnarrowed count whenever `matching` is set, and
+saying so when the two are equal. A model narrowing with *"transmission"* inside
+a transmission component now narrows with terms that actually separate a defect
+from its component.
+
+Every one was found by **reading a baseline**, not by reasoning about the
+system, and every one was verified against the baseline before it.
+
+### And 28 of 28 is the DECIDED checks only
+
+```
+decided    28 of 28     mechanically verifiable
+judged      0 of 3      has to be read, every control passing
+```
+
+Both numbers are real and they are not added. The system does what a mechanism
+makes it do and does not do what only a prompt asks for — which is the finding
+of this stage, and it survives a perfect mechanical score.
+
+### One cost, worth watching
+
+Times rose sharply as the fixes landed: REC-007 to 128s, REC-001 to 115s,
+REC-008 to 100s, against 25–53s in the previous baseline. **The answers do more
+work than they did this morning**, and that work is the extra tool calls the
+notes prompt. A future fix of this kind should be weighed against it.
+
+---
+
+## 7b · REC-007 — SOLVED at the fourth baseline
+
+*Kept as written, because the reasoning was right before the outcome was known.*
 
 Three baselines, and *"reports more than one number"* scored **1/3, 1/3, 0/3** —
 two successes in nine runs.
