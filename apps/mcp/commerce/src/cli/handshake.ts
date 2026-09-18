@@ -16,55 +16,93 @@
  *
  * This is a teaching tool, not a test. Step 3 is the test.
  */
-import { spawn } from 'node:child_process';
+import { spawn, type ChildProcessByStdio } from 'node:child_process';
+import type { Readable, Writable } from 'node:stream';
 import * as path from 'node:path';
 
-/** The revision this server speaks. See docs/beyond-retrieval/MCP.md §1.2. */
+/**
+ * stdin piped, stdout piped, stderr INHERITED — so the server's own diagnostics
+ * land straight on our terminal and only the protocol comes back through the
+ * pipe. That inherited third stream is why this is not `ServerProcess`.
+ */
+type ServerProcess = ChildProcessByStdio<Writable, Readable, null>;
+
+/** The revision we ASK for. Step 1 measured that we are answered 2025-11-25. */
 const PROTOCOL_VERSION = '2026-07-28';
 
-const OUT = (s: string) => process.stdout.write(s);
 const DIM = '\x1b[2m';
 const OFF = '\x1b[0m';
 
+// ── printing ────────────────────────────────────────────────────────────────
+
+/** What to call a message, for the one-line header above its body. */
+function labelOf(msg: { method?: string; error?: unknown }): string {
+  if (msg.method) return msg.method;
+  return msg.error ? 'ERROR' : 'result';
+}
+
+/**
+ * Print one message. An unparseable line is PRINTED, never swallowed — it is
+ * what a stray `console.log` in a stdio server looks like from out here, and
+ * hiding it would hide the single most common way to lose an hour.
+ */
 function show(direction: '→' | '←', line: string): void {
-  // Pretty-print when we can, but never hide a line we could not parse — an
-  // unparseable line IS the finding (see the console.log warning in server.ts).
   try {
-    const v = JSON.parse(line);
-    const label = v.method ?? (v.error ? 'ERROR' : 'result');
-    OUT(`${direction} ${DIM}${label}${OFF}\n${JSON.stringify(v, null, 2)}\n\n`);
+    const msg = JSON.parse(line);
+    process.stdout.write(`${direction} ${DIM}${labelOf(msg)}${OFF}\n${JSON.stringify(msg, null, 2)}\n\n`);
   } catch {
-    OUT(`${direction} ${DIM}UNPARSEABLE — this is what a stray console.log looks like${OFF}\n${line}\n\n`);
+    process.stdout.write(
+      `${direction} ${DIM}UNPARSEABLE — this is what a stray console.log looks like${OFF}\n${line}\n\n`,
+    );
   }
 }
 
-async function main(): Promise<void> {
+// ── the subprocess ──────────────────────────────────────────────────────────
+
+function spawnServer(): ServerProcess {
   const serverPath = path.join(__dirname, '..', 'server.ts');
-  const child = spawn(process.execPath, [require.resolve('ts-node/dist/bin.js'), serverPath], {
+  return spawn(process.execPath, [require.resolve('ts-node/dist/bin.js'), serverPath], {
     stdio: ['pipe', 'pipe', 'inherit'],
   });
+}
 
-  let buffered = '';
+/**
+ * Print each complete line the server writes.
+ *
+ * THE TRAILING PARTIAL IS THE WHOLE REASON THIS IS NOT A ONE-LINER: a message
+ * can arrive split across two chunks, and a naive `split('\n')` per chunk
+ * corrupts it. Keep the last fragment; it is the start of the next message.
+ */
+function printServerOutput(child: ServerProcess): void {
+  let pending = '';
   child.stdout.on('data', (chunk: Buffer) => {
-    buffered += chunk.toString();
-    // Split on newlines; keep the trailing partial. A message can arrive split
-    // across two chunks and a naive split would corrupt it.
-    const lines = buffered.split('\n');
-    buffered = lines.pop() ?? '';
+    pending += chunk.toString();
+    const lines = pending.split('\n');
+    pending = lines.pop() ?? '';
     for (const line of lines) if (line.trim()) show('←', line);
   });
+}
 
-  const send = (msg: unknown): void => {
+type Send = (msg: unknown) => void;
+
+function makeSender(child: ServerProcess): Send {
+  return (msg) => {
     const line = JSON.stringify(msg);
     show('→', line);
     child.stdin.write(line + '\n');
   };
+}
 
-  const settle = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const settle = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
 
-  // 1 · initialize. Both sides declare capabilities, and neither may use what
-  //     the other did not declare. We declare NOTHING — no sampling, no
-  //     elicitation — which is exactly the state described in PLAN.md §9.1.
+// ── the four exchanges, one function each ───────────────────────────────────
+
+/**
+ * Both sides declare capabilities, and neither may use what the other did not
+ * declare. WE DECLARE NOTHING — no sampling, no elicitation — which is exactly
+ * the state PLAN.md §9.1 describes and not an oversight.
+ */
+async function initialize(send: Send): Promise<void> {
   send({
     jsonrpc: '2.0',
     id: 1,
@@ -77,23 +115,45 @@ async function main(): Promise<void> {
   });
   await settle(1500);
 
-  // 2 · the notification that says the handshake is done. No id, no reply.
+  // No id, no reply: this one is a notification.
   send({ jsonrpc: '2.0', method: 'notifications/initialized' });
   await settle(300);
+}
 
-  // 3 · what have you got? THIS is the payload that lands in the model's
-  //     context on every request — PLAN.md §10 measures its size.
+/** The payload that lands in the model's context on EVERY request. §10 sizes it. */
+async function listTools(send: Send): Promise<void> {
   send({ jsonrpc: '2.0', id: 2, method: 'tools/list' });
   await settle(800);
+}
 
-  // 4 · run it.
+async function callPing(send: Send): Promise<void> {
   send({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'ping', arguments: {} } });
   await settle(800);
+}
 
-  // 5 · and a deliberate miss, because Step 6 needs you to have SEEN one.
-  //     Expect JSON-RPC -32601 / METHOD_NOT_FOUND, not a crash.
+/**
+ * A deliberate miss, because Step 6 needs you to have SEEN one.
+ *
+ * MEASURED: this answers `-32602 INVALID_PARAMS`, NOT the `-32601
+ * METHOD_NOT_FOUND` the plan first predicted — `tools/call` is a method the
+ * server has, and `name` is one of its parameters.
+ */
+async function callMissingTool(send: Send): Promise<void> {
   send({ jsonrpc: '2.0', id: 4, method: 'tools/call', params: { name: 'no_such_tool', arguments: {} } });
   await settle(800);
+}
+
+// ── orchestration ───────────────────────────────────────────────────────────
+
+async function main(): Promise<void> {
+  const child = spawnServer();
+  printServerOutput(child);
+  const send = makeSender(child);
+
+  await initialize(send);
+  await listTools(send);
+  await callPing(send);
+  await callMissingTool(send);
 
   child.kill();
 }

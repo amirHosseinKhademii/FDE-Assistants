@@ -458,6 +458,32 @@ discriminator names it. **Negative control:** swap two mappings and assert the
 check goes red. A check that has only ever passed is indistinguishable from one
 that cannot fail.
 
+#### ▲ And the taxonomy is client-dependent — **MEASURED**, 2026-09-18
+
+A second measurement, from driving the same server with a client we did not
+write (`@modelcontextprotocol/inspector@2.7.0`, Step 2 of
+[`MCP-STEPS.md`](MCP-STEPS.md)). One failure, two descriptions:
+
+```
+  raw wire        { "code": -32602,           "message": "Tool no_such_tool not found" }
+  the inspector   { "code": "tool_not_found", "message": "Tool '...' not found on server." }
+```
+
+The client **renormalised** the error — a string code where the protocol has a
+number — and delivered it on stderr with exit code 5.
+
+That cuts both ways and the table above has to say which way we are cutting.
+`tool_not_found` is *precisely* the distinction the numeric codes cannot express,
+so a client that normalises can hand us a better discriminator than the wire
+has. A different client could equally flatten `isError: true` and a `-32602`
+into one "call failed" and destroy the domain/model split silently.
+
+**So the rule for S5 is: the discriminator is written against the client we
+ship, and `cause-check` plants its five failures through that same client.** A
+taxonomy verified against the raw wire is a taxonomy for a client we are not
+using. This is the same shape as `compliance:check` capturing the real outgoing
+request rather than trusting the SDK's documented behaviour.
+
 #### The blast radius of widening it — **MEASURED**, 2026-09-18
 
 `ToolCallRecord` lives in `packages/agent` and is read across the workspace, so

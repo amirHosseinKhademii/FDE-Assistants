@@ -177,8 +177,66 @@ handshake, and shows you every message.
 failures. You cannot classify what you have never watched happen. Twenty minutes
 here saves a day later.
 
+### ☑ DONE 2026-09-18 — and it qualified Step 6's taxonomy
+
+The inspector has three modes: `--web` (the clickable UI, the default), `--tui`,
+and `--cli` (scriptable). The CLI mode is what is recorded here because it can be
+captured; **run the web UI yourself** — it is the one that shows the message log
+as a list you can click through:
+
+```bash
+cd apps/mcp/commerce
+npx -y @modelcontextprotocol/inspector@2.7.0 npx ts-node src/server.ts
+```
+
+What the CLI proved:
+
+```
+--method tools/list              → our one tool, with the JSON Schema the model
+                                   would see
+--method tools/call ping         → { content: [ { type: "text", text: "pong" } ] }
+--method tools/call no_such_tool → stderr:
+      {"error":{"code":"tool_not_found",
+                "message":"Tool 'no_such_tool' not found on server."}}
+      exit code 5
+```
+
+**The first line is the point of Step 2.** A client we did not write, from a
+different package, spawned our server, negotiated with it and used it. Until
+now the only thing that could talk to it was our own handshake CLI — which
+proves a program can talk to itself. This proves it is an MCP server.
+
+**The third line is the finding, and it changes Step 6.** Look at the same
+failure in two places:
+
+```
+  raw wire (Step 1)   { "code": -32602, "message": "Tool no_such_tool not found" }
+  the inspector       { "code": "tool_not_found", "message": "Tool '...' not found on server." }
+```
+
+The inspector **rewrote the error into its own vocabulary** — a *string* code
+where the protocol has a *number*, and a different message. It also put it on
+**stderr**, not stdout, and signalled it by **exit code 5**.
+
+So the failure taxonomy is not purely a property of the protocol. **It is a
+property of the protocol AND the client you use.** A client that normalises
+errors can hand you a cleaner discriminator than the wire has (`tool_not_found`
+is *exactly* the distinction Step 1 discovered the numeric codes cannot make) —
+or it can flatten a distinction you needed and never tell you.
+
+The rule that follows: **write the discriminator against the client you actually
+ship, and verify it there.** Not against the wire, and definitely not against
+whatever a debugging tool prints.
+
+> **A note on how this was nearly got wrong.** The first run of that command was
+> piped into `head`, so `$?` reported `head`'s exit status — 0 — and the draft of
+> this section said "the CLI does not signal failure via exit code." It does;
+> it exits 5. Re-running it without the pipe is the only reason that sentence is
+> not in the document. A measurement taken through a pipe measures the pipe.
+
 **Stop here and check:** you can point at the line in the inspector where the
-client and server agreed a protocol version.
+client and server agreed a protocol version — and you have seen the same failure
+described two different ways by two different clients.
 
 ---
 
