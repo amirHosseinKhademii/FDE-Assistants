@@ -118,6 +118,44 @@ testable if the gap is real.
 by turning the absence into a finding. If one ever appears here, `cov-dmg-009`
 starts passing for the wrong reason and nothing will say so.
 
+### ☑ And it nearly did — in the DATABASE, not here (2026-09-18)
+
+This warning caught a live one. The estate had a seeded row,
+`refund_rules.RR-MARKETPLACE`: *"the item was sold by a third-party seller →
+Thornbury policies do not apply; refer to the seller."* Written as housekeeping.
+
+**It is an answer.** `get_policy_rules` would have returned a determinate,
+citable response to exactly the question T4 says has none — and `cov-dmg-009`
+would have failed, with the obvious fix being to weaken the eval rather than
+delete the row. T4 would have been dead and nothing would have said so.
+
+The row is gone, and because a comment is not a defence, **`commerce:db-check`
+now enforces the gap**: it scans every text column of all eight `thb_policy`
+tables for anything addressing marketplace or third-party sales and fails
+naming the table, the column and the file to fix. Proved by putting the row
+back and watching it go red. The `rule_id` sequence now reads RR-001..RR-006,
+RR-008 — **the gap is the scar, left deliberately**, with the story in the
+comment where RR-007 used to be, pointing back at this section.
+
+> ### A third species, and this is the one with no natural defender
+>
+> The estate session named it, and it is worth keeping:
+>
+> | | |
+> |---|---|
+> | a check that cannot fail | passes forever, proves nothing |
+> | a column that cannot disagree | consistent with every answer anyone wants from it |
+> | **an absence that nothing is defending** | |
+>
+> The third is the worst of the three, because **every other check asks "is this
+> consistent?" — and adding the missing thing makes the estate MORE consistent,
+> not less.** Row counts, soft-key walks and fingerprints would all have gone
+> green the moment that row was added. *Greener.*
+>
+> **Only a check that knows an absence is load-bearing can protect one.** That
+> is why the defence lives in `db-check` and in this section, on both sides of
+> the boundary, each pointing at the other.
+
 ---
 
 ## 5 · Why twelve and not forty

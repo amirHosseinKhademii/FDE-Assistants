@@ -425,6 +425,28 @@ outcomes where there were two, and three of them are new:
 | `threw` | a **returned result**, `isError: true`, text = the exception message | **infrastructure** |
 | `transport` | nothing comes back | **infrastructure** |
 
+> ### These five are a taxonomy of CAUSES, not of wire shapes
+>
+> Stated first because everything under it depends on it, and because the
+> section spent two drafts quietly assuming the opposite.
+>
+> **The mapping from cause to wire shape is many-to-one, and it has been
+> measured to be.** Three causes share `isError: true`. Writing a discriminator
+> that keys on wire shape is not a simplification of this table; it is a
+> different and smaller table wearing this one's names.
+>
+> The estate session put the same failure in one sentence from the other side:
+> *"a discriminator built on wire shape when three causes share one wire shape
+> is `promised_by` built on the delivery date"* — their defect where a shipment's
+> promised time held its actual delivery time, so no shipment could ever be
+> late and forty-two checks stayed green over an estate that could not disagree
+> with them.
+>
+> And the detail that makes ours invisible: **both confusable model-blame causes
+> are still model-blame.** A totals-based check sees the right numbers. Only the
+> diagnosis is wrong, which is exactly the failure a totals-based check cannot
+> see.
+
 > ### ▲▲ THE PROTOCOL ERASES THREE OF THESE. Read this before writing the discriminator.
 >
 > Rows 2, 3 and 4 have **three different owners and one wire shape.** Measured
