@@ -409,13 +409,56 @@ comment with:
 **MCP moves that line.** Over the protocol there are five distinguishable
 outcomes where there were two, and three of them are new:
 
-| proposed `cause` | how it arrives on the wire | blame |
+| proposed `cause` | how it **actually** arrives — **MEASURED**, `commerce:mcp-check` | blame |
 |---|---|---|
-| `unknown_tool` | JSON-RPC `-32602`, **and** the name is absent from the last `tools/list` | **model** — it invented a capability |
-| `invalid_args` | JSON-RPC `-32602`, and the name **is** in `tools/list` — the server's pre-dispatch input validation rejected the arguments | **model** — it called a real tool wrongly |
-| `tool_error` | HTTP 200, a `CallToolResult` with `isError: true` | **domain** — the tool ran and refused |
-| `threw` | the tool implementation raised | **infrastructure** |
-| `transport` | dead socket, closed session, server restarted, timeout | **infrastructure** |
+| `unknown_tool` | a **thrown** JSON-RPC `-32602`, and the name is absent from the last `tools/list` | **model** — it invented a capability |
+| `invalid_args` | a **returned result**, `isError: true`, text beginning `"Input validation error:"` | **model** — it called a real tool wrongly |
+| `tool_error` | a **returned result**, `isError: true`, any other text | **domain** — the tool ran and refused |
+| `threw` | a **returned result**, `isError: true`, text = the exception message | **infrastructure** |
+| `transport` | nothing comes back | **infrastructure** |
+
+> ### ▲▲ THE PROTOCOL ERASES THREE OF THESE. Read this before writing the discriminator.
+>
+> Rows 2, 3 and 4 have **three different owners and one wire shape.** Measured
+> over `InMemoryTransport`, 2026-09-18, and asserted from here on by
+> `probeCausesCollapse` in `apps/mcp/commerce/src/wire-selftest.ts`:
+>
+> ```
+> DOMAIN refusal   isError=true  text="not in scope for this case"
+> THROWN           isError=true  text="socket is on fire"
+> BAD ARGS         isError=true  text="Input validation error: Invalid arguments
+>                                      for tool typed: id: Invalid input:
+>                                      expected string, received number"
+> ```
+>
+> Only the third is identifiable, and only by a **message prefix**. The other two
+> are free text whoever wrote the tool chose.
+>
+> **This is the opposite of what §6.1 was drafted to say.** The section opened by
+> arguing MCP gives you *more* failure resolution than the in-process registry —
+> five buckets where there were two. It gives **less**: `packages/agent/src/core/registry.ts`
+> distinguishes a throw from a return **structurally**, by catching, and MCP
+> flattens that into a boolean before it reaches us.
+>
+> **So the cause cannot be recovered from the protocol, and must be carried by
+> our own tools.** Every Thornbury tool returns `structuredContent` with an
+> explicit outcome — `{ ok: false, cause: 'out_of_scope' | 'not_found' | ... }` —
+> and the discriminator reads *that*, falling back to `isError` only for tools
+> that are not ours. Matching on prose is not a discriminator, it is a guess that
+> passes its own test.
+>
+> The one thing to take from this beyond MCP: **a boundary that serialises does
+> not preserve what your type system was preserving.** `cause` survived as long
+> as the tool was a function call in the same process. Putting a wire under it
+> cost a distinction, and nothing announced the loss — the calls all still
+> worked.
+>
+> **Also measured, same run:** an **undeclared argument is silently accepted**.
+> `{ orderId: 'THB-1049', unexpected: 'ignored' }` runs the handler and returns
+> normally. Zod objects are not strict by default and the SDK does not make them
+> so. `coverage-schema.ts` already uses `z.strictObject` for the answer contract;
+> **tool inputs crossing a trust boundary deserve the same**, and S5 should make
+> that call deliberately rather than inherit the default.
 
 > **▲ CORRECTED 2026-09-18, against a running server.** This table first said
 > `unknown_tool` arrives as `-32601 METHOD_NOT_FOUND`. **It does not.** A real

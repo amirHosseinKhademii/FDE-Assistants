@@ -8,7 +8,8 @@
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "serve": "ts-node src/server.ts",
-    "handshake": "ts-node src/cli/handshake.ts"
+    "handshake": "ts-node src/cli/handshake.ts",
+    "check": "ts-node src/wire-selftest.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "2.0.0",

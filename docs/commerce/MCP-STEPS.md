@@ -254,8 +254,60 @@ connection that dies mid-call — gets planted over this transport. It is what
 makes the checks in `PLAN.md` §11 possible at all. A protocol you can only test
 by starting a server is a protocol nobody tests.
 
-**Stop here and check:** a test asserts `ping` returns `pong`, and it runs in
-milliseconds.
+**The repo has no test runner**, deliberately — *"each pillar's correctness is
+asserted by its own `*-selftest.ts`"*. So this is `src/wire-selftest.ts`, run by
+`pnpm commerce:mcp-check`, shaped like `packages/guard/src/selftest.ts`: named
+cases, a `why:` line on each, and a negative control for the harness itself.
+
+### ☑ DONE 2026-09-18 — ten checks, and one of them broke the plan
+
+```
+CONTROLS — the server can succeed
+  ok  the real server answers ping with pong
+  ok  tools/list publishes exactly the tools we registered
+PLANTED FAILURES
+  ok  an unknown TOOL is -32602, not -32601
+  ok  a tool that refuses returns isError on a 200, not a JSON-RPC error
+  ok  a tool that throws is converted into isError, not a dead connection
+  ok  arguments that violate the schema are rejected before the handler runs
+WHAT THE PROTOCOL DOES NOT CARRY
+  ok  a refusal, a throw and a schema violation are ALL isError:true
+  ok  only the validation one is identifiable, and only by a message PREFIX
+  ok  an undeclared argument is silently accepted
+THE HARNESS ITSELF
+  ok  the harness counts a failure when one happens
+```
+
+**The three-line block is the finding, and it is the biggest one so far.**
+Step 6's taxonomy has five buckets with different owners. Three of them arrive
+in **one wire shape**:
+
+```
+DOMAIN refusal   isError=true  text="not in scope for this case"
+THROWN           isError=true  text="socket is on fire"
+BAD ARGS         isError=true  text="Input validation error: … received number"
+```
+
+Only the last is identifiable, and only by a message prefix. The other two are
+free text a tool author picked.
+
+**This is the reverse of what the plan assumed.** §6.1 was drafted arguing MCP
+gives you *more* failure resolution than an in-process function — five buckets
+where there were two. It gives **less**. `registry.ts` tells a throw from a
+return *structurally*, by catching one of them; MCP flattens that to a boolean
+before it reaches us.
+
+So from Step 5 onward, **every Thornbury tool carries its own outcome in
+`structuredContent`** — `{ ok: false, cause: 'out_of_scope' }` — and the
+discriminator reads that. The protocol will not carry it for us.
+
+The general lesson, worth more than the MCP detail: **a boundary that serialises
+does not preserve what your type system was preserving.** Nothing announced the
+loss. Every call still worked.
+
+**Stop here and check:** `pnpm commerce:mcp-check` is green, **and** the negative
+control prints one deliberate `FAIL` before reporting all-passed. A harness that
+cannot fail proves nothing.
 
 ---
 

@@ -319,6 +319,31 @@ Error constants and both 2026-07-28 error-data shapes are **MEASURED**
 `server/dist/createMcpHandler-*.d.mts`). `isError` is an optional boolean on the
 call-tool result (**MEASURED** — `core/dist/auth-BWdKR39I.d.mts`).
 
+> ### ▲ And the three middle rows are the SAME shape — **MEASURED**
+>
+> The diagram above separates a domain refusal, a thrown implementation and a
+> schema violation. **The wire does not.** All three come back as a returned
+> result with `isError: true` and a text block:
+>
+> ```
+> DOMAIN refusal   isError=true  text="not in scope for this case"
+> THROWN           isError=true  text="socket is on fire"
+> BAD ARGS         isError=true  text="Input validation error: … expected string, received number"
+> ```
+>
+> Only the last is identifiable, by a message *prefix*. Note especially that a
+> schema violation is **not** a JSON-RPC `-32602` — only an unknown tool NAME is
+> that. The server validates, fails, and hands you a normal-looking result.
+>
+> The consequence generalises past MCP: **a boundary that serialises does not
+> preserve what your type system preserved.** In-process, "the tool threw" and
+> "the tool returned a refusal" are different by construction — one goes through
+> `catch`. Serialised, they are one boolean. If you need the distinction, your
+> own tools have to carry it in `structuredContent`; the protocol will not.
+>
+> **Also measured:** an undeclared argument is silently accepted. Zod objects are
+> not strict by default and the SDK does not make them so.
+
 **The rule:** a tool that ran and decided the answer is "no" returns
 `isError: true` with a readable explanation the model can act on. It does **not**
 throw. Throwing turns a domain outcome into a protocol failure, and then no
