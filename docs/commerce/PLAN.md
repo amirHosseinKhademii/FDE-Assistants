@@ -493,6 +493,26 @@ outcomes where there were two, and three of them are new:
 >
 > An exception that still escapes after that means the plumbing genuinely broke,
 > which restores `threw` as a signal that means something.
+>
+> **▲ CORRECTED 2026-09-18 — "every tool catches its own exceptions" was the
+> wrong place to put it.** The first implementation had each tool call
+> `guarded()` itself, and `register()` centralised only the `structuredContent`
+> write. That is precisely the failure this section warns about: a tool author
+> who forgets the wrapper gets a throw that escapes into the SDK, which converts
+> it to `isError: true` with **no** `structuredContent`, and the cause is
+> unrecoverable — **because a handler that throws never reaches its return.**
+>
+> Found by the UI session reading `register()` against the claim made for it.
+> The catch now lives **in `register()`**, so it applies whether or not a tool
+> author remembers, and `probeUnguardedToolStillLabelled` registers a tool that
+> throws and never guards and requires the cause to arrive anyway. Verified by
+> sabotage rather than by reading: removing the central catch turns that check
+> red and restoring it turns it green.
+>
+> The general form is worth more than the fix: **centralising the part that is
+> easy to centralise is not the same as centralising the part that matters.**
+> Writing the outcome is recoverable if you forget — you see `undefined` and go
+> looking. Catching is not.
 
 > The one thing to take from this beyond MCP: **a boundary that serialises does
 > not preserve what your type system was preserving.** `cause` survived as long

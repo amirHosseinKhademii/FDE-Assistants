@@ -23,7 +23,7 @@ import { McpServer } from '@modelcontextprotocol/server';
 import { InMemoryTransport } from '@modelcontextprotocol/server';
 import { Client } from '@modelcontextprotocol/client';
 import { z } from 'zod';
-import { createServer } from './server';
+import { createServer, register } from './server';
 import { startOrderStub, STUB } from './stub/order-stub';
 import type { Outcome } from './api/outcome';
 
@@ -377,6 +377,39 @@ async function probeCauseSurvives(stub: Stub): Promise<void> {
   await client.close();
 }
 
+/**
+ * THE NEGATIVE CONTROL FOR `register()`'s CENTRAL CATCH.
+ *
+ * Registers a tool that throws and that does NOT call `guarded()` — the exact
+ * mistake a tool author makes once. If the catch lived in each tool instead of
+ * in `register`, this arrives as `isError: true` with NO structuredContent and
+ * the cause is unrecoverable, because a handler that throws never reaches its
+ * return. That is the failure this check exists to make impossible to ship.
+ */
+async function probeUnguardedToolStillLabelled(): Promise<void> {
+  const server = new McpServer({ name: 'plant-unguarded', version: '0.0.0' });
+  register(server, {
+    name: 'forgets_to_guard',
+    config: { title: 'Forgets', description: 'Throws, unguarded.', inputSchema: z.object({}) },
+    run: async () => {
+      throw new Error('the author forgot to catch');
+    },
+    render: () => 'unreachable',
+  });
+
+  const client = await connected(server);
+  const result = await client.callTool({ name: 'forgets_to_guard', arguments: {} });
+  const outcome = result.structuredContent as { ok: boolean; cause?: string } | undefined;
+  check(
+    'a tool that throws and never calls guarded() is STILL labelled',
+    outcome?.ok === false && outcome.cause === 'threw',
+    `structuredContent=${JSON.stringify(outcome)}. register() wraps every body, so ` +
+      'the guarantee does not depend on a tool author remembering — which is the ' +
+      'half that cannot be recovered after the fact',
+  );
+  await client.close();
+}
+
 /** The negative control for the HARNESS. A check() that cannot fail proves nothing. */
 function probeHarnessCanFail(): void {
   const before = failed;
@@ -418,6 +451,7 @@ async function main(): Promise<void> {
     await probeOutOfScope(stub);
     await probeNoToken(stub);
     await probeCauseSurvives(stub);
+    await probeUnguardedToolStillLabelled();
   } finally {
     stub.close();
   }

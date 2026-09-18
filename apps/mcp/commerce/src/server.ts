@@ -31,6 +31,7 @@ import type { Tool } from './tools/types';
 import { buildGetOrder } from './tools/get-order';
 import { apiConfigFromEnv, type ApiConfig } from './api/client';
 import { sessionFromEnv, type Session } from './session';
+import { guarded } from './api/outcome';
 
 /** stderr, never stdout. See the header. */
 export function serverLog(...parts: unknown[]): void {
@@ -61,7 +62,20 @@ export const SERVER_INFO = { name: 'thornbury-commerce', version: '0.1.0' } as c
  */
 export function register(server: McpServer, tool: Tool): void {
   server.registerTool(tool.name, tool.config, async (args: Record<string, unknown>) => {
-    const outcome = await tool.run(args);
+    // THE CATCH LIVES HERE, NOT IN THE TOOL — corrected 2026-09-18.
+    //
+    // It was `tool.run(args)` bare, with each tool calling `guarded()` itself.
+    // That is exactly the failure this function claims to prevent: a tool author
+    // who forgets the wrapper gets a throw that escapes into the SDK, which
+    // converts it to `isError: true` with NO structuredContent, and the cause is
+    // gone. "Centralised" was true of the structuredContent write and false of
+    // the catch, which is the half that cannot be recovered afterwards.
+    //
+    // Found by the UI session reading this function against the claim made for
+    // it. `probeUnguardedToolStillLabelled` is the negative control: it registers
+    // a tool that throws and never calls `guarded`, and requires the cause to
+    // arrive anyway.
+    const outcome = await guarded(() => tool.run(args));
     return {
       content: [{ type: 'text' as const, text: tool.render(outcome) }],
       structuredContent: outcome,

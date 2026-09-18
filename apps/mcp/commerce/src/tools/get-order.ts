@@ -17,7 +17,7 @@ import { z } from 'zod';
 import type { Tool } from './types';
 import { getJson, type ApiConfig } from '../api/client';
 import { OrderResponseSchema, type OrderResponse } from '../api/schemas';
-import { guarded, type Outcome } from '../api/outcome';
+import type { Outcome } from '../api/outcome';
 import type { Session } from '../session';
 
 /** The shape is in `schemas.ts` and is PARSED, not asserted. See Step 4b. */
@@ -63,10 +63,11 @@ export function buildGetOrder(cfg: ApiConfig, session: Session): Tool {
       // names; this is documentation. PLAN.md §7.
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true },
     },
+    // No try/catch and no `guarded()` here ON PURPOSE. `register()` wraps every
+    // tool body, so a throw is labelled whether or not a tool author remembers.
+    // Wrapping again here would hide where the guarantee actually lives.
     run: async () =>
-      guarded<Order>(async () =>
-        getJson(cfg, session, `/orders/${encodeURIComponent(session.orderId)}`, OrderResponseSchema),
-      ),
+      getJson(cfg, session, `/orders/${encodeURIComponent(session.orderId)}`, OrderResponseSchema),
     render: (outcome: Outcome<Order>) =>
       outcome.ok ? summarise(outcome.data) : `Could not read the order: ${outcome.detail}`,
   };

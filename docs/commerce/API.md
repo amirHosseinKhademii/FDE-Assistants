@@ -4,8 +4,8 @@
 against the seeded estate.*
 
 **Badges, and they are not decoration here.** Everything about this API's own
-behaviour is **MEASURED** — it was printed by one of its five checks, 110
-assertions of which 48 run against the live estate. But the thing this API exists
+behaviour is **MEASURED** — it was printed by one of its five checks, 111
+assertions of which 54 run against the live estate. But the thing this API exists
 for has **not** happened yet: the MCP server has never called it. So the contract
 in §2 and §3 is MEASURED as an API and **PROPOSED as an integration**. When
 `fde-assistants-86`'s step 4b wires the two together, the first failure is likelier
@@ -348,7 +348,11 @@ Separate named functions rather than one helper with a mode flag:
 `londonCivilDate`, `civilDate` (for `date` columns, which must **not** go through
 the London formatter — UTC midnight in July reads back as the previous day),
 `isWorkingDay`, `addWorkingDays`, `workingDaysBetween`, `slaDueDate`,
-`workingDaysLate`, `londonDayRange`.
+`workingDaysLate`.
+
+**This trap is about SLA arithmetic and nowhere else.** It does *not* apply to
+finding a round's driver reports, and §10's third defect is what happened when I
+assumed it did.
 
 **The holiday table is a committed data file**, not a `thb_policy` row, so
 `commerce:sla-check` runs offline and free — a date-arithmetic test that needs
@@ -372,9 +376,9 @@ indistinguishable from one that cannot fail.
 |---|---|---|---|
 | `commerce:api-guard-check` | unset token ⇒ every request refused | the classic fail-open guard, and a restored dev exemption, are both caught | yes · 11 |
 | `commerce:api-scope-check` | out-of-scope ⇒ structured miss | a ScopeService that always allows, and a controller that never asks | yes · 18 |
-| `commerce:sla-check` | working-day arithmetic across a bank holiday | drop the holiday table — the answers must **move** | yes · 26 |
+| `commerce:sla-check` | working-day arithmetic across a bank holiday | drop the holiday table — the answers must **move** | yes · 21 |
 | `commerce:api-isolation-check` | a cross-system join does not compile | a probe that *should* compile does | yes · 7 |
-| `commerce:api-check` | every endpoint, against the seeded estate | — | **live · 48** |
+| `commerce:api-check` | every endpoint, against the seeded estate | — | **live · 54** |
 
 **A check that could not run fails rather than passes** (the repo learned this at
 commit `7b450fc`). `commerce:api-check` exits 2 with a sentence when the estate is
@@ -388,7 +392,7 @@ live row counts and would report *"the estate drifted"* when the truth is *"a
 self-test crashed mid-write"* — precise, and accusing the wrong thing.
 
 ```
-build 23/23 · typecheck 38/38 · leak:check PASS · 110 assertions, 5/5 green
+build 23/23 · typecheck 38/38 · leak:check PASS · 111 assertions, 5/5 green
 ```
 
 ---
@@ -396,7 +400,8 @@ build 23/23 · typecheck 38/38 · leak:check PASS · 110 assertions, 5/5 green
 ## 10 · Three defects the checks were written to catch, and did
 
 All three were invisible to a green local run, which is the only thing that makes
-them worth writing down.
+them worth writing down. The third is the one worth reading: the defect was a fix,
+and the tests I wrote for it passed.
 
 **1 · Turbo cached a `dist/` that could not run.** The build is
 `prisma generate && tsc`, and the generated clients are gitignored. With
@@ -426,18 +431,55 @@ the check asserts both `status !== 500` and `cause === 'invalid_request'`.
 *What was green while it was broken:* all 44 assertions, because none of them sent
 a date outside 2024–2027.
 
-**3 · The T1 day window was an hour wrong every summer.** Driver reports were
-filtered by a **UTC** day built from `route_date` (a `date` column) against
-`reported_at` (a `timestamptz`). During BST that drops reports filed 00:00–01:00
-London on the route date and wrongly includes the first hour of the next day.
+**3 · I broke the T1 lookup while fixing a bug that barely existed.** This one is
+the most useful of the three, because the fix was the defect.
 
-On the T1 path that is not a rounding error. **A driver writing up a round just
-after midnight is exactly the report that says the trolley tipped** — so
-`get_delivery` would have answered "no driver reports" for a damaged parcel, and
-the model would have correctly denied the claim from the evidence it was given.
-*What was green while it was broken:* everything, because the seeded timestamps sit
-mid-shift. Now uses a real Europe/London day range, with four assertions including
-the 00:30-London case.
+Driver reports were originally filtered by a **UTC** day built from `route_date`
+(a `date` column) against `reported_at` (a `timestamptz`). I reasoned that during
+BST this drops reports filed 00:00–01:00 London on the route date, changed it to
+a real Europe/London day range, wrote four assertions for the new helper, and
+documented the hour it "used to lose every summer."
+
+fde-assistants-2d then seeded five reports filed 23:30 UTC — **00:30 the next day
+in London** — because their estate could not previously have caught either
+version: all 66 reports sat at 17:35 UTC, so none had a London date differing from
+its route date. Measured against the new data:
+
+```
+DRP-00011  route_date 2026-09-06  filed 23:30Z   UTC-window KEPT   London-window DROPPED
+DRP-00022  route_date 2026-09-09  filed 23:30Z   UTC-window KEPT   London-window DROPPED
+…five of sixty-six, all dropped by my fix and all kept by what it replaced
+```
+
+**My version was worse.** A round that ends after midnight is still that round, and
+"long round, back at the depot after midnight" is exactly the write-up that says
+something went wrong. The hour I set out to protect — a report filed just after
+midnight at the *start* of the route date, before the round had run — is close to
+nonsensical; the hour I destroyed is routine.
+
+The real error was upstream of both versions. **`driver_reports.route_id` is a real
+foreign key, and a route is one round on one day**, so the route already scopes the
+reports completely. Every date window was *redundant* — layered on top of a key
+that was never ambiguous — and **a redundant filter cannot add correctness; it can
+only drop evidence.** The lookup now filters on `route_id` alone. `londonDayRange`
+is deleted rather than left unused, because an available helper that looks exactly
+right is how the bug comes back.
+
+*What was green while it was broken:* every check, twice over. The estate had no
+data that could distinguish the two, and my own four assertions tested the helper's
+arithmetic — which was correct — rather than whether applying it here was. **A
+passing test of the wrong question is not weaker evidence than no test; it is
+worse, because it is mistaken for coverage.**
+
+`commerce:api-check` now asserts the invariant rather than the fix: for the route
+the walk reaches, every report the database holds must come back, and the estate
+must still contain reports whose London date differs from their route date — so
+the assertion cannot start passing because the case disappeared.
+
+The date filter on `depot_incidents` stayed, and the distinction is the point:
+that table has no route key, the depot and the day *are* its identity, and
+`occurred_on` is a `date` compared to a `date`, so no instant and no timezone
+enters it.
 
 A fourth, smaller: the stop lookup was an unordered `findFirst`, so a
 re-delivered parcel with two stops on two rounds could resolve to the wrong route
