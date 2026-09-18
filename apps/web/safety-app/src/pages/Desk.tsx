@@ -345,9 +345,11 @@ export function Desk() {
           )}
 
           <p className="cal-ask-rate">
-            The model runs on a free allowance of fifteen requests a minute, and
-            a question costs roughly one per tool call. It stops answering when
-            that is spent, and it does so quietly.
+            The model runs on a free allowance — fifteen requests a minute and
+            five hundred a day — and a question costs roughly one per tool call.
+            It stops answering when either is spent, and it does so quietly. The
+            same five hundred pays for re-measuring this system, so a few dozen
+            clicks here is a real trade rather than a notional one.
           </p>
           <p className="cal-ask-try">or try one of these</p>
           <div className="cal-ask-chips">

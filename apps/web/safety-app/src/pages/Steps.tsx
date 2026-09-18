@@ -1,11 +1,13 @@
 /**
- * The seven stages — six of them built, one still a proposal.
+ * The seven stages, and all seven now run.
  *
- * ── THE PAGE IS HALF RECORD AND HALF PROPOSAL, AND SAYS WHICH ──────────────
+ * ── IT IS A RECORD NOW, AND USED NOT TO BE ─────────────────────────────────
  *
- * Stages 1 through 6 run. Stage 7 is not written at all, and the tab bar encodes the difference rather than leaving it
- * to prose. So every number still has to say where it came from. Three provenances, and the
- * kit badges each one: `measured` (out of the NHTSA files, or produced by
+ * This page opened as a proposal with one stage built, and the tab bar existed
+ * to keep the difference between specified and built visible. There is no
+ * not-built state left to encode. What survives is the older discipline: every
+ * number says where it came from. Three provenances, and the kit badges each
+ * one: `measured` (out of the NHTSA files, or produced by
  * running the thing described), `worked` (carried through by hand in the source
  * document), `target` (somebody else's measurement, quoted as the bar).
  *
@@ -43,7 +45,8 @@ import { RerankModal } from '../components/steps/RerankModal';
 import { Stage4 } from '../components/steps/Stage4';
 import { Stage5 } from '../components/steps/Stage5';
 import { Stage6 } from '../components/steps/Stage6';
-import { Done, NotBuilt, StepTabs } from '../components/steps/Tabs';
+import { Stage7 } from '../components/steps/Stage7';
+import { Done, StepTabs } from '../components/steps/Tabs';
 import type { StepTab } from '../components/steps/Tabs';
 import { ParserModal } from '../components/steps/ParserModal';
 import { AURORA } from '../lib/aurora';
@@ -98,8 +101,8 @@ export function Steps() {
       </main>
 
       <footer className="relative z-10 mx-auto max-w-5xl border-t border-ui-line px-5 py-10 text-sm text-ui-faint sm:px-6">
-        Written before the code, and kept up with it since. Six of the seven
-        parts are built and checked; the last is a plan being argued with.
+        Written before the code, and kept up with it since. All seven parts are
+        built, and the ones that can be measured have been.
       </footer>
     </div>
   );
@@ -246,40 +249,9 @@ const TABS: StepTab[] = [
     id: 'evals',
     label: 'Evals',
     stage: '7',
-    status: 'not written',
-    built: false,
-    content: (
-      <NotBuilt
-        title="How we would know it got better"
-        waits={[
-          'There has to be something to score. Retrieval can be measured now — stage 3.7 — but an answer cannot be graded before there are answers.',
-          'A baseline has to be recorded, or a later run has nothing to be compared against and every change is an opinion.',
-          'The severity rules have to be written: on this corpus a missed filing that reports a death is not the same failure as a missed one that reports a rattle, and a scorecard that counts them the same is measuring the wrong thing.',
-        ]}
-        what={
-          <>
-            <p>
-              Repeat runs against a fixed set of questions whose answers were
-              written by hand, bucketed by how badly each failure matters, with
-              a baseline on disk that the next change is diffed against.
-            </p>
-            <p className="mt-3.5">
-              The point is not the number. It is being able to change the parser
-              and say whether it helped — which is the whole argument stage 3.7
-              makes one part of.
-            </p>
-          </>
-        }
-        already={
-          <>
-            <Mono>@fde/evals</Mono> — repeat counts, severity buckets, committed
-            baselines and the diff that refuses to compare two runs made with a
-            different model or repeat count, because comparing those measures the
-            setup change rather than the code change.
-          </>
-        }
-      />
-    ),
+    status: 'three baselines',
+    built: true,
+    content: <Stage7 />,
   },
 ];
 
@@ -327,8 +299,8 @@ function Head() {
         gear display disagreed with its gearbox, followed from a tab-separated
         line in a 1.5 GB file to the passage that answers a question about it.
         The fourth is built and measured, the fifth is the shape an answer has
-        to arrive in, and the sixth is a model actually being asked — all eight
-        questions, end to end. The last one is written down and argued with.
+        to arrive in, the sixth is a model actually being asked, and the seventh
+        asks all eight three times over and scores what comes back.
       </p>
     </section>
   );

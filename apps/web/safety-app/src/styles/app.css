@@ -1881,3 +1881,103 @@ body {
   line-height: 1.6;
   color: var(--color-ui-fg);
 }
+
+/* ── THREE BASELINES ────────────────────────────────────────────────────────
+   Twenty-eight marks per row, one per check, in the order clean / flaky /
+   failed / broken. The bar is the figure: a reader sees the flaky block shrink
+   without reading a number, and flaky is drawn as its own state rather than as
+   a paler pass — it is not a softer kind of passing. */
+.cal-base {
+  margin-top: 1.75rem;
+  border: 1px solid color-mix(in oklab, var(--color-cal-1) 26%, var(--color-ui-line));
+  border-radius: 0.875rem;
+  background: color-mix(in oklab, var(--color-cal-1) 5%, var(--color-ui-surface));
+  padding: 1.25rem 1.375rem 1.125rem;
+}
+
+.cal-base-rows {
+  display: grid;
+  gap: 0.875rem;
+  margin-top: 1rem;
+}
+
+.cal-base-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+.cal-base-when {
+  width: 11rem;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-ui-dim);
+}
+
+.cal-base-when span {
+  display: block;
+  margin-top: 0.125rem;
+  font-size: 0.625rem;
+  color: var(--color-ui-faint);
+}
+
+.cal-base-bar {
+  display: flex;
+  min-width: 14rem;
+  flex: 1 1 16rem;
+  gap: 2px;
+}
+
+.cal-base-bar i {
+  height: 1.375rem;
+  flex: 1 1 0;
+  border-radius: 1px;
+}
+
+.cal-base-bar i[data-s='clean'] {
+  background: var(--color-cal-1);
+}
+
+.cal-base-bar i[data-s='flaky'] {
+  background: color-mix(in oklab, var(--color-cal-2) 45%, transparent);
+}
+
+.cal-base-bar i[data-s='failed'] {
+  background: color-mix(in oklab, var(--color-ui-faint) 55%, transparent);
+}
+
+/* A run lost to the quota is not a failed check. Hollow, so it reads as absent
+   rather than as wrong. */
+.cal-base-bar i[data-s='broken'] {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-ui-faint) 60%, transparent);
+}
+
+.cal-base-n {
+  width: 5rem;
+  flex-shrink: 0;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  color: var(--color-cal-1);
+}
+
+.cal-base-n span {
+  display: block;
+  font-size: 0.5625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ui-faint);
+}
+
+.cal-base-foot {
+  margin-top: 1rem;
+  max-width: 64ch;
+  border-top: 1px solid color-mix(in oklab, var(--color-cal-1) 16%, var(--color-ui-line));
+  padding-top: 0.875rem;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--color-ui-faint);
+}
