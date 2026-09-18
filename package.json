@@ -171,6 +171,7 @@
     "commerce:world-check": "pnpm --filter @thornbury/commerce world:check",
     "commerce:mcp-serve": "pnpm --filter @thornbury/commerce-mcp serve",
     "commerce:mcp-handshake": "pnpm --filter @thornbury/commerce-mcp handshake",
+    "commerce:dev": "turbo run dev --filter=@thornbury/commerce-app",
     "commerce:mcp-check": "pnpm --filter @thornbury/commerce-mcp check"
   },
   "devDependencies": {

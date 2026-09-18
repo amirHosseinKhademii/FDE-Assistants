@@ -96,9 +96,14 @@ marked MEASURED or PROPOSED, and none of it is built yet ·
 what** — a source catalogue for the `/learn` pages, with the measured figure and
 the dependency edges for each topic. Deliberately not a lesson plan.
 
-### commerce — the fifth engagement, PLANNED ONLY
+### commerce — the fifth engagement, PARTLY BUILT
 
-[`commerce/PLAN.md`](commerce/PLAN.md) — **nothing is built.** Thornbury Goods,
+[`commerce/PLAN.md`](commerce/PLAN.md) — the plan. **The MCP server's protocol
+layer and the policy corpus are built; the estate, the API and the desk are being
+built by three other sessions.** [`commerce/CORPUS.md`](commerce/CORPUS.md) is
+the corpus meta-document — read it before quoting anything in `commerce/corpus/`,
+and note §4: there is a question the corpus deliberately cannot answer, and
+writing the missing document would destroy the test. Thornbury Goods,
 a mid-size online retailer with its own last-mile fleet; the persona is a
 resolutions specialist answering *"my order arrived damaged."* Five Postgres
 databases (shop · wms · fleet · crm · policy) with real foreign keys inside each

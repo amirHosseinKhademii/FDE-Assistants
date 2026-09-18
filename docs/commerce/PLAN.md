@@ -168,8 +168,14 @@ the depot incident-reporting standard.
 > finds there with no exclusion list, so a `README.md` about the corpus becomes a
 > retrievable document the model will cite as though it were a procedure. This
 > happened in pharma on 2026-09-14 and `corpus:check` caught it — 75 chunks
-> became 80. The meta-document is `CORPUS.md`, *beside* the folder — an S0
-> deliverable (§12), not yet written.
+> became 80. The meta-document is [`CORPUS.md`](CORPUS.md), *beside* the folder.
+>
+> ☑ **WRITTEN 2026-09-18 — twelve documents, not forty.** Every one is
+> load-bearing; none is filler. `CORPUS.md` §5 argues the count: padding to forty
+> before a single eval case has run would add retrieval difficulty **we could not
+> attribute**, so a miss would be ambiguous between a hard corpus and filler
+> crowding the results. The gate for growing it is `retrieval:eval` against these
+> twelve, not a target. §14 open question 2 is answered.
 
 ### 2.3 · The structural point: policy lives in both places, and they disagree
 
