@@ -249,7 +249,7 @@ const TABS: StepTab[] = [
     id: 'evals',
     label: 'Evals',
     stage: '7',
-    status: 'three baselines',
+    status: 'four baselines',
     built: true,
     content: <Stage7 />,
   },

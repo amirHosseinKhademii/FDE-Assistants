@@ -1,34 +1,41 @@
 /**
- * Stage 7 — the same eight questions, three times each, scored.
+ * Stage 7 — the same eight questions, three times each, scored twice.
  *
- * ── THIS IS NOT THE NUMBER THE TOOLS TAB IS WAITING FOR ───────────────────
+ * ── TWO NUMBERS, AND THEY SHARE A BOX ─────────────────────────────────────
  *
- * The slot beside 1.00 on the loop tab is recall@6: did the right DOCUMENTS come
- * back. This stage measures something else — whether the ANSWER satisfies the
- * checks in the key. Tools called, escalation, citations, numbers carrying their
- * provenance.
+ *     decided   28 of 28    a mechanism behind every check
+ *     judged     0 of 3     has to be read, every control passing
  *
- *     4.5   recall@6 over documents, tools called by hand      1.00
- *     7     answer checks passing, a model doing everything    26 of 28
+ * 28 of 28 is the most quotable figure this engagement has produced and the
+ * least honest one on its own. They are NEVER ADDED and never separated: one is
+ * decided by a contract rule or a tool result, the other by reading. A page
+ * showing the first without the second is advertising.
  *
- * Both are large and both are good, and putting the second in the first's slot
- * would be exactly the comparison that slot exists to prevent. IT STAYS EMPTY.
- * The number that belongs there has never been measured.
+ * THE JUDGED ZERO IS NOT A BROKEN JUDGE. Each rubric required it to ACCEPT a
+ * known-good answer and all three did, so it discriminates — it does not think
+ * these answers qualify.
  *
- * ── THE HEADLINE IS THAT NEITHER FIX WAS A PROMPT EDIT ────────────────────
+ * ── AND THAT IS THE FINDING ───────────────────────────────────────────────
  *
- * One moved a fact to where it is read — out of the opening instructions and
- * into the tool result, at the moment the number is used. The other made a
- * filter match the name a person says rather than the name the corpus stores.
- * Both were found by reading a baseline rather than by reasoning about the
- * system, which is the whole argument for having baselines.
+ * Every mechanical check has a MECHANISM behind it. Nothing in this system makes
+ * an answer explain itself; that was left to the prompt, and a prompt is read
+ * once at the start. What a tool result says at the moment of use, the system
+ * does. What a prompt asks for in general, it does when it happens to.
  *
- * ── AND WHAT IS STILL WRONG IS KEPT VISIBLE ───────────────────────────────
+ * A perfect mechanical score sharpens that rather than erasing it.
  *
- * One case has passed twice in nine runs, and it is the case designed to be
- * ambiguous. The trap works; the system falls into it. Another moved and nothing
- * we did touched it, so it is recorded as unexplained rather than explained
- * badly.
+ * ── NOT ONE OF THE FOUR FIXES WAS A PROMPT EDIT ───────────────────────────
+ *
+ * A fact moved into a tool result. A filter taught the name a person says. A
+ * count that reports when its own narrowing did nothing. A count that says it is
+ * not yet a quotation. Every one found by reading a baseline rather than by
+ * reasoning about the system, and verified against the baseline before it.
+ *
+ * ── AND IT IS STILL NOT THE LOOP TAB'S NUMBER ─────────────────────────────
+ *
+ * That one is recall@6 — did the right DOCUMENTS come back. A system can
+ * retrieve the wrong documents and still satisfy every check about what it said,
+ * because most of these checks are about honesty rather than coverage.
  */
 import { Mono } from '@fde/uikit';
 import { Data } from '@veresk/surface';
@@ -45,28 +52,50 @@ const BASELINES: readonly {
   { when: '17 Sep', what: 'before anything was changed', clean: 20, flaky: 7, failed: 1, broken: 0 },
   { when: '17 Sep', what: 'after the first fix', clean: 23, flaky: 5, failed: 0, broken: 1 },
   { when: '18 Sep', what: 'after the second', clean: 26, flaky: 1, failed: 1, broken: 0 },
+  { when: '18 Sep', what: 'after the fourth', clean: 28, flaky: 0, failed: 0, broken: 0 },
 ];
 
 /** What moved, and what moved it. Neither was a change of wording. */
-const MOVED: readonly { check: string; from: string; to: string }[] = [
-  { check: 'it escalates when a repair cannot be confirmed', from: '0 of 3', to: '3 of 3' },
-  { check: 'it cites the right campaign', from: '1 of 3', to: '3 of 3' },
-  { check: 'it says the recall was not volunteered', from: '1 of 3', to: '3 of 3' },
-  { check: 'it does not escalate when the documents settle it', from: '1 of 3', to: '3 of 3' },
+const MOVED: readonly { check: string; from: string; to: string; how: string }[] = [
+  {
+    check: 'it escalates when a repair cannot be confirmed',
+    from: '0 of 3',
+    to: '3 of 3',
+    how: 'a fact moved into the tool result, read at the moment it is used',
+  },
+  {
+    check: 'it cites the right campaign, and three checks with it',
+    from: '1 of 3',
+    to: '3 of 3',
+    how: 'a filter taught to match the name a person actually says',
+  },
+  {
+    check: 'it reports more than one number',
+    from: '0 of 3',
+    to: '3 of 3',
+    how: 'a count that says when its own narrowing did nothing',
+  },
+  {
+    check: 'it cites a complaint by number',
+    from: '1 of 3',
+    to: '3 of 3',
+    how: 'a count that says it is not yet a quotation',
+  },
 ];
 
-/** Still failing, across all three baselines. */
-const STUCK: readonly { check: string; runs: string; why: string }[] = [
-  {
-    check: 'reports more than one number',
-    runs: '1/3 · 1/3 · 0/3',
-    why: 'The question has two true answers and the key wants both, with the premise refused. The model answers the question as asked.',
-  },
-  {
-    check: 'cites at least one complaint by number',
-    runs: '2/3 · 1/3 · 1/3',
-    why: 'It moved, and nothing we changed touched it. Recorded as unexplained rather than explained badly.',
-  },
+/**
+ * The five editorial properties, and what grades them.
+ *
+ * THREE ARE JUDGED AND SCORE ZERO. Two are graded by nothing at all, and are
+ * listed saying so rather than dropped — a property nobody is checking should be
+ * visible, because an unchecked property and a passing one look identical on a
+ * page that omits the first.
+ */
+const JUDGED: readonly { what: string; state: 'no' | 'ungraded' }[] = [
+  { what: 'it explains why two true numbers differ', state: 'no' },
+  { what: 'it holds the line between an allegation and a finding', state: 'no' },
+  { what: 'it says why the distinction matters', state: 'no' },
+  { what: 'two more properties, with no exemplar to grade them against', state: 'ungraded' },
 ];
 
 export function Stage7() {
@@ -77,7 +106,7 @@ export function Stage7() {
           Asking the same eight questions, over and over
         </h2>
         <span className="rounded-full border border-cal-1/50 px-2.5 py-0.5 font-mono text-[0.625rem] tracking-[0.06em] text-cal-1 uppercase">
-          three baselines · 26 of 28
+          four baselines
         </span>
       </div>
 
@@ -86,6 +115,33 @@ export function Stage7() {
         so a check that passed once has not passed —{' '}
         <span className="text-ui-fg">it passed once</span>.
       </p>
+
+      {/* THE TWO NUMBERS, AND THEY SHARE A BOX ON PURPOSE. 28 of 28 is the most
+          quotable figure this engagement has produced and the least honest one
+          alone. They are never added: one is decided by a mechanism, the other
+          has to be read. */}
+      <div className="cal-two">
+        <div className="cal-two-half">
+          <p className="cal-two-cap">what a mechanism decides</p>
+          <p className="cal-two-n">28 of 28</p>
+          <p className="cal-two-s">
+            tools called, escalations, citations, every number carrying the tool
+            that produced it
+          </p>
+        </div>
+        <div className="cal-two-half" data-weak="true">
+          <p className="cal-two-cap">what has to be read</p>
+          <p className="cal-two-n">0 of 3</p>
+          <p className="cal-two-s">
+            and every control passed — the judge accepted a known-good answer
+            each time, so it discriminates. It does not think these qualify.
+          </p>
+        </div>
+        <p className="cal-two-foot">
+          These are not added together, and the second is the more interesting
+          one. A page showing only the first would be advertising.
+        </p>
+      </div>
 
       <div className="cal-plain">
         <p>
@@ -102,7 +158,7 @@ export function Stage7() {
       </div>
 
       <div className="cal-base">
-        <p className="cal-result-label">three complete baselines</p>
+        <p className="cal-result-label">four complete baselines</p>
         <div className="cal-base-rows">
           {BASELINES.map((b, i) => (
             <div key={i} className="cal-base-row" data-last={i === BASELINES.length - 1}>
@@ -134,100 +190,132 @@ export function Stage7() {
           ))}
         </div>
         <p className="cal-base-foot">
-          Twenty to twenty-six, and the middle run lost one to the quota rather
-          than to an answer — which it says rather than quietly scoring over.
+          Twenty to twenty-eight in a day. The second run lost one to the quota
+          rather than to an answer — drawn hollow, because absent is not wrong.
         </p>
       </div>
 
       <Chapter
         n="01"
-        title="Neither fix was a change of wording"
-        sub="Which is the argument for baselines: both were found by reading one, not by reasoning about the system."
+        title="Not one of the four fixes was a change of wording"
+        sub="Every one was found by reading a baseline rather than by reasoning about the system. If this page keeps one sentence, it is that one."
       >
-        <div className="cal-panel grid gap-2.5">
+        <div className="cal-panel grid gap-3">
           {MOVED.map((m) => (
-            <div key={m.check} className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-              <span className="w-20 shrink-0 font-mono text-[0.75rem] text-ui-faint">
-                {m.from}
-              </span>
-              <span className="w-4 shrink-0 font-mono text-[0.75rem] text-ui-faint">→</span>
-              <span className="w-16 shrink-0 font-mono text-[0.75rem] text-cal-1">{m.to}</span>
-              <span className="max-w-[46ch] text-[0.8125rem] leading-relaxed text-ui-dim">
-                {m.check}
-              </span>
+            <div key={m.check} className="grid gap-1">
+              <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                <span className="w-16 shrink-0 font-mono text-[0.75rem] text-ui-faint">
+                  {m.from}
+                </span>
+                <span className="w-4 shrink-0 font-mono text-[0.75rem] text-ui-faint">→</span>
+                <span className="w-14 shrink-0 font-mono text-[0.75rem] text-cal-1">{m.to}</span>
+                <span className="max-w-[44ch] text-[0.8125rem] leading-relaxed text-ui-fg">
+                  {m.check}
+                </span>
+              </div>
+              <p className="pl-[5.5rem] text-[0.75rem] leading-relaxed text-ui-faint">{m.how}</p>
             </div>
           ))}
         </div>
         <Key>
-          The first had escalated <em>zero</em> times in seven runs, while the
-          instructions asked for it in almost the answer key's own words. Moving
-          the same fact into the tool's result — read at the moment the number is
-          used, rather than once at the beginning — took it to three of three.
+          The last one was the hardest: two passes in nine runs on a question
+          built to be ambiguous. What fixed it was not an instruction about
+          ambiguity — the counting tool now fetches the unnarrowed figure too and
+          says when the two are equal.
         </Key>
+        <Data
+          path="what the model searched for, before and after"
+          mark={[1]}
+          lines={[
+            'before   "shift or linkage or cable or prndl or gear or park or   6 and 6',
+            '          transmission"',
+            'after    "cable or clip or shift or prndl or gear or position or  6 and 5',
+            '          park or roll"',
+          ]}
+        />
         <Why>
-          The other three moved together, because they were never three
-          properties. Looking up <Mono>F-250</Mono> returned nothing: a person
-          says “F-250” and the corpus stores <Mono>F-250 SD</Mono>. One failing
-          lookup wearing three check names.
+          The first narrows “transmission complaints” with the word
+          <Mono>transmission</Mono> — a tautology reported as an analysis. Told
+          that its narrowing changed nothing, the model picked terms that
+          actually separate a defect from its component.
         </Why>
-        <Key>
-          One fix moved a fact to where it is read. The other made a filter match
-          the name a person says. Neither touched a word of the prompt.
-        </Key>
       </Chapter>
 
       <Chapter
         n="02"
-        title="What is still wrong"
-        sub="Kept on the page, because a scorecard that only shows what improved is an advertisement."
+        title="And a perfect mechanical score sharpens the finding rather than erasing it"
+        sub="Three editorial properties are judged, and all three score zero with every control passing."
       >
-        <div className="grid gap-3">
-          {STUCK.map((s) => (
-            <div key={s.check} className="cal-open">
-              <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                <p className="font-mono text-[0.8125rem] text-ui-fg">{s.check}</p>
-                <p className="font-mono text-[0.75rem] text-ui-faint">{s.runs}</p>
-              </div>
-              <p className="mt-1.5 max-w-[62ch] text-[0.8125rem] leading-relaxed">{s.why}</p>
+        <div className="grid gap-2">
+          {JUDGED.map((j) => (
+            <div key={j.what} className="cal-judged" data-state={j.state}>
+              <span>{j.state === 'no' ? 'no' : 'ungraded'}</span>
+              <p>{j.what}</p>
             </div>
           ))}
         </div>
         <Key>
-          Two passes in nine runs. Calling that flaky would be generous — the
-          question was built to be ambiguous, the trap is working exactly as
-          designed, and the system is falling into it.
+          Every mechanical check has a mechanism behind it — a contract rule, a
+          tool result, a coherence check. Nothing in this system makes an answer{' '}
+          <em>explain itself</em>. That was left to the prompt, and a prompt is
+          read once at the start.
         </Key>
         <Why>
-          And some checks are not scored at all. “Does it say why the distinction
-          matters” needs a judgement rather than a rule, and a judged score must
-          not be added to a decided one — so they are listed and left unscored
-          rather than folded in to make the total look better.
+          What a tool result says at the moment of use, the system does. What a
+          prompt asks for in general, it does when it happens to. That is the
+          finding, and twenty-eight of twenty-eight makes it sharper rather than
+          softer.
+        </Why>
+        <Why>
+          Two of the five properties are graded by nothing at all. They are
+          listed saying so rather than dropped: an unchecked property and a
+          passing one look identical on a page that omits the first.
         </Why>
       </Chapter>
 
       <Chapter
         n="03"
-        title="And this is not the number the tools tab is waiting for"
+        title="The answers got slower as they got better"
+        sub="A real trade, recorded rather than hidden."
+      >
+        <Data
+          path="the same questions, that morning and that afternoon"
+          mark={[1]}
+          lines={[
+            'one question    25s   →   128s',
+            'another        ~60s   →   115s',
+            'a third         —     →   100s',
+          ]}
+        />
+        <Why>
+          The extra time is extra tool calls, and the extra tool calls are what
+          the fixes prompt. The system does more work than it did that morning
+          because it now checks things it used to assume.
+        </Why>
+      </Chapter>
+
+      <Chapter
+        n="04"
+        title="And this is still not the number the tools tab holds"
         sub="They are both large, both good, and about different things."
       >
         <Data
           path="two measurements that must not be read as one"
           mark={[1]}
           lines={[
-            'stage 4.5   did the right DOCUMENTS come back, tools called by hand   1.00',
-            'stage 7     does the ANSWER satisfy the key, a model doing it all     26 of 28',
+            'the loop tab   did the right DOCUMENTS come back, model routing   0.17–0.50',
+            'here           does the ANSWER satisfy the key                    28 of 28',
           ]}
         />
         <Key>
-          The empty slot on the previous tab is the first of those, measured with
-          a model doing the routing. That has never been run. Putting this number
-          in it would be comparing a retrieval score with an answer score because
-          both are large.
+          A system can retrieve the wrong documents and still satisfy every check
+          about what it said, because most of those checks are about honesty
+          rather than about coverage.
         </Key>
         <Why>
-          So the slot stays empty, which is the correct state rather than an
-          oversight. It has now refused two numbers: one nobody had, and one that
-          was real and belonged somewhere else.
+          Which is why the slot on that tab refused this number twice before a
+          range went into it. Two large good numbers about different things are
+          the easiest pair on this site to mistake for one.
         </Why>
       </Chapter>
     </section>

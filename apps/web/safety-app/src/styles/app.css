@@ -2062,3 +2062,105 @@ body {
   line-height: 1.55;
   color: var(--color-ui-dim);
 }
+
+/* ── THE TWO NUMBERS ────────────────────────────────────────────────────────
+   One box, two halves, one footer. They are never added and never separated:
+   28 of 28 is the most quotable figure here and the least honest alone, so the
+   layout makes quoting it in isolation take deliberate effort. */
+.cal-two {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.75rem;
+  border: 1px solid color-mix(in oklab, var(--color-cal-1) 28%, var(--color-ui-line));
+  border-radius: 0.875rem;
+  background: color-mix(in oklab, var(--color-cal-1) 5%, var(--color-ui-surface));
+  padding: 1.25rem 1.375rem 1.125rem;
+}
+
+@media (min-width: 48rem) {
+  .cal-two {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem 2rem;
+  }
+}
+
+.cal-two-cap {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ui-faint);
+}
+
+.cal-two-n {
+  margin-top: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  line-height: 1.1;
+  color: var(--color-cal-1);
+}
+
+/* The judged half is the second tone rather than a dimmer first — it is a
+   different KIND of measurement, not a lesser one. */
+.cal-two-half[data-weak='true'] .cal-two-n {
+  color: var(--color-cal-2);
+}
+
+.cal-two-s {
+  margin-top: 0.4375rem;
+  max-width: 40ch;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--color-ui-dim);
+}
+
+.cal-two-foot {
+  border-top: 1px solid color-mix(in oklab, var(--color-cal-1) 16%, var(--color-ui-line));
+  padding-top: 0.875rem;
+  max-width: 66ch;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--color-ui-faint);
+}
+
+@media (min-width: 48rem) {
+  .cal-two-foot {
+    grid-column: 1 / -1;
+  }
+}
+
+/* An editorial property, and what grades it. */
+.cal-judged {
+  display: flex;
+  align-items: baseline;
+  gap: 0.875rem;
+  border: 1px dashed color-mix(in oklab, var(--color-cal-2) 38%, var(--color-ui-line));
+  border-radius: 0.625rem;
+  padding: 0.625rem 0.875rem;
+}
+
+.cal-judged span {
+  width: 4.5rem;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-cal-2);
+}
+
+/* Graded by nothing at all. Fainter, because it is not a result. */
+.cal-judged[data-state='ungraded'] {
+  border-color: color-mix(in oklab, var(--color-ui-faint) 35%, transparent);
+}
+
+.cal-judged[data-state='ungraded'] span,
+.cal-judged[data-state='ungraded'] p {
+  color: var(--color-ui-faint);
+}
+
+.cal-judged p {
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--color-ui-dim);
+}
