@@ -80,9 +80,21 @@ does it surface the uncovered complaints as a finding REC-001
 ```
 
 **These are NOT scored mechanically here.** A regex for "did it explain the
-distinction" measures the regex. `@fde/evals` has a classifier verifier for this
-and it is the obvious next step — but a judged score and a decided score must
-never be added together, so this stage reports them separately or not at all.
+distinction" measures the regex.
+
+> **CORRECTION, 2026-09-18.** This paragraph used to say `@fde/evals` "has a
+> classifier verifier for this". **It does not.** `verifyClassifier` verifies a
+> SEVERITY classifier — that every check name maps to a bucket — and
+> `agreement.ts` is word overlap. Neither reads prose for meaning, and there is
+> no LLM judge anywhere in this repo. The claim survived two handoffs before
+> anybody opened the file.
+
+They are judged by `pnpm safety:judge`, reported apart, and **never added to the
+decided score**. The judge is the same model being judged, which is a real
+weakness — so every rubric ships with a failing exemplar AND a passing one, and
+the judge must reject the first and accept the second before its verdict on the
+real answer is reported at all. A judge stuck on "yes" scores perfectly and is
+worthless, and that is the direction everyone wants to believe.
 
 ---
 

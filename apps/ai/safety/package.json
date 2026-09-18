@@ -32,7 +32,9 @@
     "ask": "ts-node src/cli/ask.ts",
     "round-trip": "ts-node src/cli/round-trip.ts",
     "run-all": "ts-node src/cli/run-all.ts",
-    "eval": "ts-node src/cli/eval.ts"
+    "eval": "ts-node src/cli/eval.ts",
+    "measure-model": "ts-node src/cli/measure-model.ts",
+    "judge": "ts-node src/cli/judge.ts"
   },
   "dependencies": {
     "dotenv": "^16.4.5",

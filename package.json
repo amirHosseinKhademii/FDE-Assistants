@@ -158,7 +158,9 @@
     "safety:ask": "pnpm --filter @calder/safety ask",
     "safety:round-trip": "pnpm --filter @calder/safety round-trip",
     "safety:run-all": "pnpm --filter @calder/safety run-all",
-    "safety:eval": "pnpm --filter @calder/safety eval"
+    "safety:eval": "pnpm --filter @calder/safety eval",
+    "safety:measure-model": "pnpm --filter @calder/safety measure-model",
+    "safety:judge": "pnpm --filter @calder/safety judge"
   },
   "devDependencies": {
     "turbo": "^2.10.12"
