@@ -1,0 +1,247 @@
+# Calder Safety's checks, in three tiers by what they cost.
+#
+# ── WHY THIS IS NOT ONE JOB THAT RUNS EVERYTHING ──────────────────────────────
+#
+# "Run the evals on every push" is the right instinct and, taken literally here,
+# would break the thing it is trying to protect. The model runs on a free tier
+# with two limits — 15 requests a minute and 500 a day — and one full baseline is
+# eight questions times three runs, roughly 40 minutes and about a fifth of a
+# day's budget. Five pushes in an afternoon would spend the day's quota on CI and
+# leave nothing for re-measuring the system, which is the only reason the numbers
+# on the site can be trusted.
+#
+# So the split is by COST, not by importance:
+#
+#   offline    no secrets, no network, seconds         every push
+#   data       one database, no model, deterministic   every push
+#   baseline   a model, a quota and 40 minutes         on request, and nightly
+#
+# The first two are the ones that catch a regression on the push that caused it.
+# Everything in them gives the same answer every time it runs, which is what
+# makes a red one worth reading.
+#
+# ── AND THE BASELINE IS NOT A GATE ────────────────────────────────────────────
+#
+# It cannot be. Its own numbers move between runs on identical code — one case
+# retrieves five complaints or none depending on the day — so a threshold on it
+# would fail builds for reasons nobody introduced. It runs, it writes its report
+# to the summary and uploads the JSON, and a person reads it. That is the same
+# reasoning `eval:diff` uses when it refuses to compare runs made with different
+# settings: a number that moves on its own is a report, not a gate.
+
+name: safety checks
+
+on:
+  push:
+    branches: [master]
+    # The same trap `deploy.yml` records having fallen into twice: this list has
+    # to name every source a check reads. The domain package, the app, and the
+    # shared packages the tools are built on.
+    paths:
+      - 'apps/ai/safety/**'
+      - 'apps/web/safety-app/**'
+      - 'packages/**'
+      - '.github/workflows/safety-checks.yml'
+  pull_request:
+    paths:
+      - 'apps/ai/safety/**'
+      - 'apps/web/safety-app/**'
+      - 'packages/**'
+  workflow_dispatch:
+    inputs:
+      baseline:
+        description: 'also run the model baseline (~40 min, ~1/5 of the daily quota)'
+        type: boolean
+        default: false
+
+  # Once a day, when nothing is competing for the quota. The numbers on the site
+  # are only as current as the last run that produced them.
+  schedule:
+    - cron: '0 3 * * *'
+
+concurrency:
+  # A second push should not have two baselines bidding for the same 500
+  # requests. Queued rather than cancelled for the offline tiers is not worth the
+  # complexity; one run of the truth is enough.
+  group: safety-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── TIER 1 · costs nothing, so it gates ────────────────────────────────────
+  #
+  # No database, no model, no secrets. Twenty schema checks against hand-written
+  # fixtures and four wire-repair checks against a fake fetch — both including
+  # their controls, which is what makes a green one mean anything.
+  offline:
+    name: offline checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: typecheck
+        run: pnpm typecheck
+
+      - name: no domain words in the reusable packages
+        run: pnpm leak:check
+
+      - name: the answer contract, and both its controls
+        run: pnpm safety:schema
+
+      - name: the hosted round-trip repairs, and both their controls
+        run: pnpm safety:round-trip
+
+      - name: build
+        run: pnpm build
+
+  # ── TIER 2 · one database, no model ────────────────────────────────────────
+  #
+  # Every tool checked against the answer key, and stage 4.5's recall@6 with the
+  # tools called by hand. All deterministic: the same input gives the same output
+  # every time, so a failure here is a real regression rather than a bad day.
+  #
+  # It needs the corpus, so it is skipped rather than failed when no database is
+  # configured — a fork without secrets should report "not run", not "broken".
+  data:
+    name: tool checks
+    runs-on: ubuntu-latest
+    needs: offline
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    env:
+      SAFETY_DATABASE_URL: ${{ secrets.SAFETY_DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: is the corpus reachable
+        id: db
+        run: |
+          if [ -z "$SAFETY_DATABASE_URL" ]; then
+            echo "::notice::SAFETY_DATABASE_URL is not set — the tool checks need the corpus and were skipped."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: the five tools, against the answer key
+        if: steps.db.outputs.ready == 'true'
+        run: |
+          pnpm safety:recall
+          pnpm safety:recalls-for
+          pnpm safety:complaints
+          pnpm safety:count
+          pnpm safety:citing
+
+      - name: the seam a model calls through
+        if: steps.db.outputs.ready == 'true'
+        run: pnpm safety:tools
+
+      - name: recall@6 with the tools called by hand
+        if: steps.db.outputs.ready == 'true'
+        run: pnpm safety:measure-tools
+
+  # ── TIER 3 · a model, a quota, and forty minutes ───────────────────────────
+  #
+  # NOT on push. Eight questions, three runs each, against a free tier that stops
+  # answering when its daily budget is spent — and the same budget pays for the
+  # measurements the site quotes. On request, or once a night.
+  #
+  # `continue-on-error` because this is a report rather than a gate: its numbers
+  # move between runs on unchanged code, so a red here is something to read, not
+  # something that broke.
+  baseline:
+    name: the model baseline
+    runs-on: ubuntu-latest
+    needs: offline
+    if: github.event_name == 'schedule' || inputs.baseline
+    continue-on-error: true
+    timeout-minutes: 90
+    env:
+      SAFETY_DATABASE_URL: ${{ secrets.SAFETY_DATABASE_URL }}
+      HOSTED_API_KEY: ${{ secrets.HOSTED_API_KEY }}
+      HOSTED_MODEL: ${{ vars.HOSTED_MODEL || 'gemini-3.5-flash-lite' }}
+      HOSTED_BASE_URL: ${{ vars.HOSTED_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta/openai' }}
+      # LOOP AND LLM_PROVIDER ARE ONE DECISION, NOT TWO. Setting the provider
+      # alone leaves the default engine in place, and that engine refuses a
+      # hosted endpoint by name — every question would fail on the transport
+      # while the configuration looked correct.
+      LLM_PROVIDER: hosted
+      LOOP: mastra
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: is there a model and a corpus
+        id: ready
+        run: |
+          missing=""
+          [ -z "$SAFETY_DATABASE_URL" ] && missing="$missing SAFETY_DATABASE_URL"
+          [ -z "$HOSTED_API_KEY" ] && missing="$missing HOSTED_API_KEY"
+          if [ -n "$missing" ]; then
+            echo "::warning::the baseline needs$missing and was skipped."
+            echo "go=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: eight questions, three runs each
+        if: steps.ready.outputs.go == 'true'
+        run: |
+          set -o pipefail
+          pnpm safety:run-all 2>&1 | tee /tmp/baseline.log
+
+      - name: put the result in the run summary
+        if: always() && steps.ready.outputs.go == 'true'
+        run: |
+          {
+            echo '## Calder Safety — model baseline'
+            echo
+            echo 'Three runs of eight questions. These numbers move between runs on'
+            echo 'unchanged code, so this is a report rather than a gate.'
+            echo
+            echo '```'
+            tail -40 /tmp/baseline.log 2>/dev/null || echo '(no output captured)'
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # The JSON is the thing worth keeping — the summary is a screenshot of it.
+      # Every baseline file carries its model, engine, repeat count and pacing,
+      # which is what makes two of them comparable at all.
+      - name: keep the baseline
+        if: always() && steps.ready.outputs.go == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: safety-baseline-${{ github.run_number }}
+          path: docs/safety/evals/baseline-*.json
+          if-no-files-found: warn
+          retention-days: 90
