@@ -141,9 +141,17 @@ async function ask(question: string, answer: string): Promise<boolean> {
  * indistinguishable from the system being excellent — and it is the direction
  * everyone wants to believe.
  */
-export async function judge(rubric: Rubric, answer: string): Promise<Verdict> {
+export async function judge(
+  rubric: Rubric,
+  answer: string,
+  paceMs = Number(process.env.JUDGE_PACE_MS ?? 4500),
+): Promise<Verdict> {
+  const pause = () => new Promise((r) => setTimeout(r, paceMs));
+
   const rejectsBad = !(await ask(rubric.question, rubric.failingExemplar));
+  await pause();
   const acceptsGood = await ask(rubric.question, rubric.passingExemplar);
+  await pause();
   const controlled = rejectsBad && acceptsGood;
 
   if (!controlled) {

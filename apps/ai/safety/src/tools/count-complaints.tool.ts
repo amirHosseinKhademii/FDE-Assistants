@@ -220,17 +220,25 @@ export async function countComplaints(
       : '';
 
     if (!matching) {
+      // ONE INSTRUCTION, NOT FOUR.
+      //
+      // This concatenated every applicable note — scope, the two-answers
+      // warning, the completions caveat, and an invitation to quote. MEASURED
+      // consequence: a model asked the SAME count nine times in a row, each
+      // identical, each served from cache but each costing a model round trip.
+      // It is the picker-subtitle mistake in a worse place: a tool result is
+      // read at the moment of deciding what to do next, and four instructions
+      // there is not guidance, it is a stall.
+      //
+      // So the most specific applicable note wins, and at most two are sent.
+      const notes = [twoAnswers, scope, afterRecall, quotable(count)].filter(Boolean);
       return {
         count,
         filter,
         describes,
         note:
-          `${count.toLocaleString('en-GB')} complaints match the filter. This counts the ` +
-          'COMPONENT, not the defect — narrow it with `matching` before calling it a defect count.' +
-          scope +
-          twoAnswers +
-          afterRecall +
-          quotable(count),
+          `${count.toLocaleString('en-GB')} complaints match the filter — the COMPONENT, not the ` +
+          'defect.' + notes.slice(0, 2).join(''),
       };
     }
 

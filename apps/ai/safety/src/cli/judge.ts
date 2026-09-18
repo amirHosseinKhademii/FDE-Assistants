@@ -6,6 +6,7 @@
  * and the control is what makes the rest worth anything.
  */
 import { askSafety } from '../agent/run';
+import { setTimeout as sleep } from 'node:timers/promises';
 import { resolveEngine } from '../agent/engines';
 import { RUBRICS, judge } from '../eval/judge';
 import { CASES } from '../eval/cases';
@@ -17,6 +18,27 @@ const DIM = '\x1b[2m';
 const OFF = '\x1b[0m';
 
 const TURN_PACE_MS = Number(process.env.TURN_PACE_MS ?? 4500);
+
+/**
+ * Between judge calls.
+ *
+ * THE JUDGE HAD NO PACING AND CRASHED ON A PER-MINUTE 429. It makes three rapid
+ * calls per rubric — the failing exemplar, the passing one, the real answer —
+ * on top of the answer it just generated, and fired them back to back against a
+ * limit of fifteen a minute. Every other runner in this engagement paces; this
+ * one was written last and inherited nothing.
+ */
+const JUDGE_PACE_MS = Number(process.env.JUDGE_PACE_MS ?? 4500);
+
+function isRateLimit(e: unknown): boolean {
+  const err = e as any;
+  const status = err?.status ?? err?.statusCode ?? err?.cause?.status ?? err?.cause?.statusCode;
+  if (status === 429) return true;
+  const text = [err?.message, err?.cause?.message, err?.cause?.responseBody, String(e)]
+    .filter(Boolean)
+    .join(' ');
+  return /\b429\b|too many requests|rate.?limit|RESOURCE_EXHAUSTED|quota/i.test(text);
+}
 
 async function main(): Promise<number> {
   const resolved = resolveEngine(process.env.LOOP);
@@ -35,7 +57,21 @@ async function main(): Promise<number> {
 
   for (const r of RUBRICS) {
     const c = CASES.find((x) => x.id === r.caseId)!;
-    const run = await askSafety(c.question, { engine: resolved.engine, turnPaceMs: TURN_PACE_MS });
+
+    // PACED AND CAUGHT. A quota failure here is infrastructure, not a verdict,
+    // and it must not crash the run or be recorded as a judgement — the same
+    // rule safety:eval enforces and this file was written without.
+    let run;
+    try {
+      run = await askSafety(c.question, { engine: resolved.engine, turnPaceMs: TURN_PACE_MS });
+    } catch (e) {
+      console.log(
+        `  ${RED}BROKEN${OFF} ${r.caseId}  ${isRateLimit(e) ? 'QUOTA — no verdict' : String((e as any)?.message).slice(0, 70)}\n`,
+      );
+      discarded++;
+      await sleep(JUDGE_PACE_MS);
+      continue;
+    }
     const prose = run.answer?.answer;
 
     if (!prose) {
@@ -44,7 +80,18 @@ async function main(): Promise<number> {
       continue;
     }
 
-    const v = await judge(r, prose);
+    await sleep(JUDGE_PACE_MS);
+    let v;
+    try {
+      v = await judge(r, prose);
+    } catch (e) {
+      console.log(
+        `  ${RED}BROKEN${OFF} ${r.caseId}  ${isRateLimit(e) ? 'QUOTA during judging — no verdict' : String((e as any)?.message).slice(0, 70)}\n`,
+      );
+      discarded++;
+      await sleep(JUDGE_PACE_MS);
+      continue;
+    }
     if (v.passes === null) {
       discarded++;
       console.log(`  ${RED}VOID${OFF}  ${r.caseId}  ${v.why}`);
@@ -55,6 +102,7 @@ async function main(): Promise<number> {
       );
     }
     console.log(`        ${DIM}${prose.slice(0, 150)}…${OFF}\n`);
+    await sleep(JUDGE_PACE_MS);
   }
 
   const judged = RUBRICS.length - discarded;
