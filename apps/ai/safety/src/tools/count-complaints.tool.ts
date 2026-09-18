@@ -172,6 +172,31 @@ export async function countComplaints(
     // AND THIS IS A NUDGE, NOT A GUARANTEE. Nothing here can force an
     // escalation, and a contract rule cannot tell REC-001's question from
     // REC-008's. Whether it works is the next baseline's to say.
+    // ── THE AMBIGUOUS SHAPE, NAMED WHEN IT APPEARS ───────────────────────
+    //
+    // A component filter, a date, and no `matching` is exactly the question
+    // REC-007 asks: "how many complaints about the 2020 F-150 transmission were
+    // filed after the recall". It has TWO true answers — every complaint
+    // against the component, and the subset describing the recalled defect —
+    // and the key requires refusing the premise and giving both.
+    //
+    // MEASURED: 2 successes in 9 runs across three baselines. The generic note
+    // below already said "this counts the COMPONENT, not the defect", and that
+    // was not enough. Advice about a distinction is easy to read past; a
+    // SPECIFIC NEXT CALL is not, which is what worked for the AND-versus-OR
+    // zero and for the empty find_recalls.
+    //
+    // It cannot supply the defect terms itself — it does not know which defect
+    // is meant. It can say where they come from.
+    const twoAnswers =
+      filter.component && filter.filed_after && !matching
+        ? ' THIS QUESTION HAS TWO TRUE ANSWERS AND THIS IS THE BROADER ONE. It counts every ' +
+          `complaint against ${filter.component}, including faults the recall never claimed to ` +
+          'fix. For the narrower one, call again with `matching` set to words from the recall\u2019s ' +
+          'own defect description. REPORT BOTH NUMBERS and say what separates them — reporting ' +
+          'only this one answers a different question than the one asked.'
+        : '';
+
     const afterRecall = filter.filed_after
       ? ' NOTE: this corpus records complaints and campaigns, NOT repair completions. ' +
         'A complaint filed after a recall does not establish that the vehicle had the remedy ' +
@@ -188,6 +213,7 @@ export async function countComplaints(
           `${count.toLocaleString('en-GB')} complaints match the filter. This counts the ` +
           'COMPONENT, not the defect — narrow it with `matching` before calling it a defect count.' +
           scope +
+          twoAnswers +
           afterRecall,
       };
     }

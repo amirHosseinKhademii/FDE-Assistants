@@ -156,13 +156,20 @@ async function main(): Promise<number> {
 
   for (const c of CASES) {
     if (dailyCap) break;
-    const perRun: Array<{ passed: string[]; failed: string[]; broken?: string; ms: number }> = [];
+    const perRun: Array<{
+      passed: string[];
+      failed: string[];
+      broken?: string;
+      ms: number;
+      tools: Array<{ name: string; args: unknown; cached: boolean }>;
+      counts?: Array<{ value: number; from: string }>;
+    }> = [];
 
     for (let i = 0; i < REPEAT; i++) {
       const o = await once(c.question);
       if (!o.run) {
         broken++;
-        perRun.push({ passed: [], failed: [], broken: o.broken, ms: o.ms });
+        perRun.push({ passed: [], failed: [], broken: o.broken, ms: o.ms, tools: [] });
         // STOP AT THE DAILY CAP. Nothing that happens in the next twenty
         // minutes can succeed, and every remaining attempt still waits out its
         // pacing first. A run that keeps going here produces no data and looks
@@ -174,7 +181,23 @@ async function main(): Promise<number> {
       } else {
         const passed = c.checks.filter((ck) => ck.holds(o.run!)).map((ck) => ck.name);
         const failed = c.checks.filter((ck) => !ck.holds(o.run!)).map((ck) => ck.name);
-        perRun.push({ passed, failed, ms: o.ms });
+        // THE CALLS, RECORDED. A baseline that says WHICH check failed and not
+        // WHAT THE MODEL DID cannot be diagnosed without spending the quota
+        // again — and on a free tier with a 500/day cap, re-running to find out
+        // why is the expensive way to ask a cheap question. REC-003's three
+        // checks were only shown to be one failure by the per-run record; this
+        // is the same idea one level deeper.
+        perRun.push({
+          passed,
+          failed,
+          ms: o.ms,
+          tools: o.run.calls.map((call) => ({
+            name: call.name,
+            args: call.args,
+            cached: call.cached ?? false,
+          })),
+          counts: (o.run.answer?.counts ?? []).map((x) => ({ value: x.value, from: x.from })),
+        });
       }
       await sleep(PACE_MS);
     }

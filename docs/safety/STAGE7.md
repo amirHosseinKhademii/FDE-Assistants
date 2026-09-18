@@ -151,6 +151,44 @@ for this stage in one example.
 
 ---
 
+## 7b · REC-007, the one that did not move
+
+Three baselines, and *"reports more than one number"* scored **1/3, 1/3, 0/3** —
+two successes in nine runs.
+
+The question is deliberately ambiguous: *"how many complaints about the 2020
+F-150 transmission were filed after the recall"* has two true answers, and the
+key requires **refusing the premise** and giving both. The model answers what
+was asked, which is the trap working exactly as designed.
+
+**Why it is harder than the two that were fixed.** REC-001 and REC-003 were
+cases where the machine lacked a fact — that completions are not recorded, that
+a model name is stored differently. Supplying the fact fixed them. Here the
+machine has every fact it needs and lacks *suspicion*: nothing is missing except
+the instinct that a question might not mean what it says.
+
+**What was tried, 2026-09-18.** The tool already said "this counts the
+COMPONENT, not the defect" and that produced 2 of 9. It now names the specific
+second call to make when it sees the ambiguous shape — a component filter, a
+date, and no `matching`:
+
+```
+THIS QUESTION HAS TWO TRUE ANSWERS AND THIS IS THE BROADER ONE …
+call again with `matching` set to words from the recall's own defect
+description. REPORT BOTH NUMBERS and say what separates them.
+```
+
+Advice about a distinction is easy to read past; a specific next call is harder.
+That is what worked for the AND-versus-OR zero and for the empty `find_recalls`.
+
+**And it is a nudge, like the other two were.** Whether it moves 0/3 is the next
+baseline's to say. If it does not, the honest conclusion is that this is not
+reachable by giving the model better information, and the options become
+structural — a required field for "what else could this question mean", or a
+second model pass whose only job is to look for ambiguity.
+
+---
+
 ## 8 · What stage 7 does NOT do
 
 - **No prompt tuning inside the loop.** Three prompt edits were already made
