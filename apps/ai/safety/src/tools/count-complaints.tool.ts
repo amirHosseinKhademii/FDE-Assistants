@@ -87,6 +87,21 @@ export interface CountResult {
  * genuinely empty answer produce the same number, and they must not produce the
  * same sentence.
  */
+/**
+ * A count is not a quotation, and a reader wants one of each.
+ *
+ * MEASURED: REC-004's "cites at least one complaint by ODI number" scored 1 of
+ * 3, and the model-routed recall measurement saw the same behaviour from the
+ * other side — in two runs of three it reported the number of death complaints
+ * and retrieved not one of them to quote. An answer that says "5" and shows
+ * nothing is weaker than the corpus allows it to be.
+ */
+const quotable = (n: number) =>
+  n > 0
+    ? ' To QUOTE any of these, call search_complaints with the same filter — a number on its own ' +
+      'gives the reader nothing to check.'
+    : '';
+
 export async function countComplaints(
   filter: ComplaintFilter,
   matching?: string,
@@ -214,7 +229,46 @@ export async function countComplaints(
           'COMPONENT, not the defect — narrow it with `matching` before calling it a defect count.' +
           scope +
           twoAnswers +
-          afterRecall,
+          afterRecall +
+          quotable(count),
+      };
+    }
+
+    // THE UNNARROWED COUNT IS ALWAYS FETCHED WHEN `matching` IS SET, because
+    // two different failures both hide in the comparison and neither is visible
+    // from the narrowed number alone.
+    const { rows: baseRows } = await client.query(
+      `select count(*) n from ${TABLE} where ${sql}`,
+      params,
+    );
+    const base = Number(baseRows[0].n);
+
+    // FAILURE TWO: A PHRASE THAT NARROWS NOTHING.
+    //
+    // MEASURED. Asked how many 2020 F-150 transmission complaints were filed
+    // after the recall, a run counted component POWER TRAIN:AUTOMATIC
+    // TRANSMISSION and then "narrowed" it with
+    //
+    //   "shift or linkage or cable or prndl or gear or park or transmission"
+    //
+    // inside a component that IS the transmission. Both counts came back 6, and
+    // the answer reported "6 complaints, all of which matched the
+    // defect-related terms" — which reads as an analysis and was a tautology.
+    //
+    // REC-001's whole trap is a component count wearing a defect's clothes.
+    // This is that trap rebuilt by a model that did call the second tool.
+    if (count > 0 && count === base) {
+      return {
+        count,
+        filter,
+        matching,
+        describes,
+        note:
+          `${count.toLocaleString('en-GB')} complaints — BUT "${matching}" NARROWED NOTHING. ` +
+          `The same ${count.toLocaleString('en-GB')} match the filter without it, so this is a ` +
+          'COMPONENT count and not a defect count, whatever the phrase says. A term like ' +
+          '"transmission" inside a transmission component matches everything. Narrow it to the ' +
+          'SYMPTOM the recall describes, or report this as the component figure and say so.',
       };
     }
 
@@ -222,11 +276,6 @@ export async function countComplaints(
     // phrase and a genuinely empty answer are the same number and must not be
     // the same sentence.
     if (count === 0) {
-      const { rows: baseRows } = await client.query(
-        `select count(*) n from ${TABLE} where ${sql}`,
-        params,
-      );
-      const base = Number(baseRows[0].n);
       if (base > 0) {
         return {
           count: 0,

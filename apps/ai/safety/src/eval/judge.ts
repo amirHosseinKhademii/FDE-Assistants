@@ -49,10 +49,18 @@ export interface Rubric {
 export const RUBRICS: Rubric[] = [
   {
     caseId: 'REC-001',
+    // SHARPENED AFTER ITS OWN CONTROL FAILED. The first version was one
+    // sentence of forty words with two subordinate clauses, and it ended on
+    // "rather than only reporting a total" — so an answer that DID only report
+    // a total still contained the judge's own last phrase. The judge accepted
+    // the failing exemplar.
+    //
+    // A rubric a judge cannot apply is a rubric, not a judge problem. This one
+    // asks for one thing and names what a failure looks like.
     question:
-      'Does the answer present the complaints filed after the recall that are NOT covered by it — ' +
-      'complaints sharing the component but not the recalled defect — as a finding in their own ' +
-      'right, rather than only reporting a total?',
+      'Does the answer mention complaints that the recall does NOT cover — complaints about the ' +
+      'same component but a different fault? Answer NO if the answer gives only a single total, ' +
+      'or mentions no uncovered complaints at all.',
     failingExemplar:
       'Recall 20V197000 covers the transmission shift cable clip on 2020 F-150 vehicles. ' +
       '1,057 power-train complaints have been filed since owners were notified.',
@@ -98,10 +106,20 @@ export interface Verdict {
   controlled: boolean;
 }
 
+/**
+ * STRICT BY DEFAULT, because the failure that matters is leniency.
+ *
+ * A judge that says yes to everything scores every editorial check as passing,
+ * and that is indistinguishable from the system being excellent. It is also the
+ * answer everyone prefers. So the instruction says which way to err, rather
+ * than leaving it to the model's disposition.
+ */
 const SYSTEM =
-  'You are grading one property of an answer. Reply with exactly one line: YES or NO, then ' +
-  'a dash and at most fifteen words of reason. Judge only the property asked about. Do not ' +
-  'reward or penalise anything else about the answer.';
+  'You are grading ONE property of an answer, strictly. Reply with exactly one line: YES or NO, ' +
+  'then a dash and at most fifteen words of reason. Say YES only if the answer clearly and ' +
+  'explicitly satisfies the property — if it is partial, implied, or you are unsure, say NO. ' +
+  'Judge only the property asked about, and ignore everything else about the answer, including ' +
+  'whether it is well written or correct.';
 
 async function ask(question: string, answer: string): Promise<boolean> {
   const client = chatClient(() => openaiClient());
