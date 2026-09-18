@@ -110,8 +110,9 @@ jobs:
   # tools called by hand. All deterministic: the same input gives the same output
   # every time, so a failure here is a real regression rather than a bad day.
   #
-  # It needs the corpus, so it is skipped rather than failed when no database is
-  # configured — a fork without secrets should report "not run", not "broken".
+  # It needs the corpus. A MISSING SECRET FAILS HERE AND SKIPS ON A FORK: on
+  # this repository it can only mean nobody configured it, and a green run that
+  # checked nothing is the one failure this whole project is about.
   data:
     name: tool checks
     runs-on: ubuntu-latest
@@ -119,6 +120,10 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     env:
       SAFETY_DATABASE_URL: ${{ secrets.SAFETY_DATABASE_URL }}
+      # Named rather than derived. `github.repository` equals
+      # `event.repository.full_name` on a fork's own push as well, so comparing
+      # those two discriminated nothing at all.
+      UPSTREAM: amirHosseinKhademii/FDE-Assistants
     steps:
       - uses: actions/checkout@v4
 
@@ -133,15 +138,34 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # A SKIP THAT REPORTS SUCCESS IS THE FAILURE THIS REPO IS ABOUT.
+      #
+      # The first run of this workflow went green in sixteen seconds with every
+      # check skipped, because the secret was not set. A green tick claiming
+      # coverage it does not have is the same shape as the eval that reported
+      # "zero wrong answers" because three questions never ran, and the schema
+      # suite that passed while two of its rules were never called.
+      #
+      # So a missing secret is a FAILURE here and a SKIP on a fork. On this
+      # repository it can only mean the secret was never configured, which is
+      # exactly the thing nobody would notice. On somebody else's fork there is
+      # no secret to configure and nothing is wrong.
       - name: is the corpus reachable
         id: db
         run: |
-          if [ -z "$SAFETY_DATABASE_URL" ]; then
-            echo "::notice::SAFETY_DATABASE_URL is not set — the tool checks need the corpus and were skipped."
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-          else
+          if [ -n "$SAFETY_DATABASE_URL" ]; then
             echo "ready=true" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
+          echo "ready=false" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.repository }}" = "$UPSTREAM" ]; then
+            echo "::error::SAFETY_DATABASE_URL is not set, so none of the tool checks ran."
+            echo "Set it with: gh secret set SAFETY_DATABASE_URL"
+            echo "Reporting a failure rather than a pass: a green run that checked nothing"
+            echo "is worse than a red one, because nobody looks at it again."
+            exit 1
+          fi
+          echo "::notice::No SAFETY_DATABASE_URL on this fork — the tool checks need the corpus and were skipped."
 
       - name: the five tools, against the answer key
         if: steps.db.outputs.ready == 'true'
@@ -201,18 +225,24 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # Same rule as the tier above. This job is `continue-on-error`, so a
+      # failure here marks the step red without failing the run — which is the
+      # right weight: somebody asked for a baseline and did not get one, and
+      # that should be visible without breaking a push.
       - name: is there a model and a corpus
         id: ready
         run: |
           missing=""
           [ -z "$SAFETY_DATABASE_URL" ] && missing="$missing SAFETY_DATABASE_URL"
           [ -z "$HOSTED_API_KEY" ] && missing="$missing HOSTED_API_KEY"
-          if [ -n "$missing" ]; then
-            echo "::warning::the baseline needs$missing and was skipped."
-            echo "go=false" >> "$GITHUB_OUTPUT"
-          else
+          if [ -z "$missing" ]; then
             echo "go=true" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
+          echo "go=false" >> "$GITHUB_OUTPUT"
+          echo "::error::the baseline needs$missing and could not run."
+          echo "Set them with: gh secret set SAFETY_DATABASE_URL && gh secret set HOSTED_API_KEY"
+          exit 1
 
       - name: eight questions, three runs each
         if: steps.ready.outputs.go == 'true'
