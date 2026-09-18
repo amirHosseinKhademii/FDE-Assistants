@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/shop"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  userId         String    @id @map("user_id")
+  email          String    @unique
+  fullName       String    @map("full_name")
+  createdOn      DateTime  @map("created_on") @db.Date
+  marketingOptIn Boolean   @map("marketing_opt_in")
+  status         String
+  addresses      Address[]
+  orders         Order[]
+
+  @@map("users")
+}
+
+model Address {
+  addressId String  @id @map("address_id")
+  userId    String  @map("user_id")
+  line1     String
+  line2     String?
+  city      String
+  postcode  String
+  country   String
+  isDefault Boolean @map("is_default")
+  user      User    @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: NoAction)
+  orders    Order[]
+
+  @@map("addresses")
+}
+
+model Category {
+  categoryId       String     @id @map("category_id")
+  name             String
+  parentCategoryId String?    @map("parent_category_id")
+  categories       Category?  @relation("categoriesTocategories", fields: [parentCategoryId], references: [categoryId], onDelete: NoAction, onUpdate: NoAction)
+  otherCategories  Category[] @relation("categoriesTocategories")
+  products         Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  productId         String           @id @map("product_id")
+  sku               String           @unique
+  name              String
+  categoryId        String           @map("category_id")
+  brand             String
+  listPricePence    Int              @map("list_price_pence")
+  status            String
+  marketplaceSeller String?          @map("marketplace_seller")
+  orderItems        OrderItem[]
+  variants          ProductVariant[]
+  categoryRc        Category         @relation(fields: [categoryId], references: [categoryId], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("products")
+}
+
+model ProductVariant {
+  variantId   String      @id @map("variant_id")
+  productId   String      @map("product_id")
+  sku         String      @unique
+  variantName String      @map("variant_name")
+  pricePence  Int         @map("price_pence")
+  orderItems  OrderItem[]
+  product     Product     @relation(fields: [productId], references: [productId], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("product_variants")
+}
+
+model Order {
+  orderId           String      @id @map("order_id")
+  userId            String      @map("user_id")
+  placedAt          DateTime    @map("placed_at") @db.Timestamptz(6)
+  channel           String
+  status            String
+  subtotalPence     Int         @map("subtotal_pence")
+  shippingPence     Int         @map("shipping_pence")
+  totalPence        Int         @map("total_pence")
+  deliveryAddressId String      @map("delivery_address_id")
+  serviceLevel      String      @map("service_level")
+  promisedBy        DateTime    @map("promised_by") @db.Date
+  shipmentRef       String?     @map("shipment_ref")
+  items             OrderItem[]
+  addresses         Address     @relation(fields: [deliveryAddressId], references: [addressId], onDelete: NoAction, onUpdate: NoAction)
+  user              User        @relation(fields: [userId], references: [userId], onDelete: NoAction, onUpdate: NoAction)
+  payments          Payment[]
+  refunds           Refund[]
+
+  @@index([shipmentRef], map: "orders_shipment_ref_ix")
+  @@index([userId], map: "orders_user_idx")
+  @@map("orders")
+}
+
+model OrderItem {
+  orderItemId    String         @id @map("order_item_id")
+  orderId        String         @map("order_id")
+  productId      String         @map("product_id")
+  variantId      String         @map("variant_id")
+  qty            Int
+  unitPricePence Int            @map("unit_price_pence")
+  lineTotalPence Int            @map("line_total_pence")
+  order          Order          @relation(fields: [orderId], references: [orderId], onDelete: Cascade, onUpdate: NoAction)
+  product        Product        @relation(fields: [productId], references: [productId], onDelete: NoAction, onUpdate: NoAction)
+  variant        ProductVariant @relation(fields: [variantId], references: [variantId], onDelete: NoAction, onUpdate: NoAction)
+  refunds        Refund[]
+
+  @@index([orderId], map: "order_items_order_idx")
+  @@map("order_items")
+}
+
+model Payment {
+  paymentId    String   @id @map("payment_id")
+  orderId      String   @map("order_id")
+  method       String
+  amountPence  Int      @map("amount_pence")
+  capturedAt   DateTime @map("captured_at") @db.Timestamptz(6)
+  pspReference String   @map("psp_reference")
+  order        Order    @relation(fields: [orderId], references: [orderId], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("payments")
+}
+
+model Refund {
+  refundId    String     @id @map("refund_id")
+  orderId     String     @map("order_id")
+  orderItemId String?    @map("order_item_id")
+  amountPence Int        @map("amount_pence")
+  kind        String
+  reason      String
+  issuedAt    DateTime   @map("issued_at") @db.Timestamptz(6)
+  issuedBy    String     @map("issued_by")
+  order       Order      @relation(fields: [orderId], references: [orderId], onDelete: Cascade, onUpdate: NoAction)
+  orderItem   OrderItem? @relation(fields: [orderItemId], references: [orderItemId], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([orderItemId], map: "refunds_item_idx")
+  @@index([orderId], map: "refunds_order_idx")
+  @@map("refunds")
+}

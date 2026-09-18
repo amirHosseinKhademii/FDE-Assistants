@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/wms"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Warehouse {
+  warehouseId String             @id @map("warehouse_id")
+  name        String
+  city        String
+  postcode    String
+  manifests   DispatchManifest[]
+  packages    Package[]
+  pickTasks   PickTask[]
+  stockLevels StockLevel[]
+
+  @@map("warehouses")
+}
+
+model StockLevel {
+  warehouseId String    @map("warehouse_id")
+  variantRef  String    @map("variant_ref")
+  onHand      Int       @map("on_hand")
+  allocated   Int
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [warehouseId], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([warehouseId, variantRef])
+  @@map("stock_levels")
+}
+
+model PickTask {
+  pickTaskId  String    @id @map("pick_task_id")
+  warehouseId String    @map("warehouse_id")
+  orderRef    String    @map("order_ref")
+  picker      String
+  startedAt   DateTime  @map("started_at") @db.Timestamptz(6)
+  completedAt DateTime? @map("completed_at") @db.Timestamptz(6)
+  status      String
+  packages    Package[]
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [warehouseId], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([orderRef], map: "pick_tasks_order_ref_ix")
+  @@map("pick_tasks")
+}
+
+model Package {
+  packageId    String            @id @map("package_id")
+  warehouseId  String            @map("warehouse_id")
+  pickTaskId   String            @map("pick_task_id")
+  manifestId   String?           @map("manifest_id")
+  orderRef     String            @map("order_ref")
+  packedAt     DateTime          @map("packed_at") @db.Timestamptz(6)
+  weightG      Int               @map("weight_g")
+  cartonType   String            @map("carton_type")
+  doubleWalled Boolean           @map("double_walled")
+  photos       PackPhoto[]
+  items        PackageItem[]
+  manifest     DispatchManifest? @relation(fields: [manifestId], references: [manifestId], onDelete: NoAction, onUpdate: NoAction)
+  pickTasks    PickTask          @relation(fields: [pickTaskId], references: [pickTaskId], onDelete: NoAction, onUpdate: NoAction)
+  warehouses   Warehouse         @relation(fields: [warehouseId], references: [warehouseId], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([orderRef], map: "packages_order_ref_ix")
+  @@map("packages")
+}
+
+model PackageItem {
+  packageId    String  @map("package_id")
+  orderItemRef String  @map("order_item_ref")
+  variantRef   String  @map("variant_ref")
+  qty          Int
+  package      Package @relation(fields: [packageId], references: [packageId], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([packageId, orderItemRef])
+  @@index([orderItemRef], map: "package_items_item_ix")
+  @@map("package_items")
+}
+
+model DispatchManifest {
+  manifestId   String    @id @map("manifest_id")
+  warehouseId  String    @map("warehouse_id")
+  carrierRef   String    @map("carrier_ref")
+  cutoffAt     DateTime  @map("cutoff_at") @db.Timestamptz(6)
+  dispatchedAt DateTime? @map("dispatched_at") @db.Timestamptz(6)
+  sealNo       String    @map("seal_no")
+  warehouse    Warehouse @relation(fields: [warehouseId], references: [warehouseId], onDelete: NoAction, onUpdate: NoAction)
+  packages     Package[]
+
+  @@map("dispatch_manifests")
+}
+
+model PackPhoto {
+  photoId   String   @id @map("photo_id")
+  packageId String   @map("package_id")
+  takenAt   DateTime @map("taken_at") @db.Timestamptz(6)
+  uri       String
+  checksum  String
+  package   Package  @relation(fields: [packageId], references: [packageId], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("pack_photos")
+}

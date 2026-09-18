@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/crm"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Customer {
+  customerId  String    @id @map("customer_id")
+  userRef     String    @map("user_ref")
+  displayName String    @map("display_name")
+  email       String
+  since       DateTime  @db.Date
+  segment     String
+  cases       Case[]
+  contacts    Contact[]
+
+  @@index([userRef], map: "customers_user_ref_ix")
+  @@map("customers")
+}
+
+model Contact {
+  contactId  String           @id @map("contact_id")
+  customerId String           @map("customer_id")
+  channel    String
+  openedAt   DateTime         @map("opened_at") @db.Timestamptz(6)
+  subject    String
+  status     String
+  cases      Case[]
+  messages   ContactMessage[]
+  customer   Customer         @relation(fields: [customerId], references: [customerId], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("contacts")
+}
+
+model ContactMessage {
+  messageId String   @id @map("message_id")
+  contactId String   @map("contact_id")
+  sentAt    DateTime @map("sent_at") @db.Timestamptz(6)
+  direction String
+  author    String
+  body      String
+  contact   Contact  @relation(fields: [contactId], references: [contactId], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([contactId], map: "messages_contact_ix")
+  @@map("contact_messages")
+}
+
+model Case {
+  caseId      String       @id @map("case_id")
+  customerId  String       @map("customer_id")
+  contactId   String?      @map("contact_id")
+  orderRef    String?      @map("order_ref")
+  openedAt    DateTime     @map("opened_at") @db.Timestamptz(6)
+  closedAt    DateTime?    @map("closed_at") @db.Timestamptz(6)
+  category    String
+  status      String
+  owner       String
+  notes       CaseNote[]
+  contacts    Contact?     @relation(fields: [contactId], references: [contactId], onDelete: NoAction, onUpdate: NoAction)
+  customer    Customer     @relation(fields: [customerId], references: [customerId], onDelete: NoAction, onUpdate: NoAction)
+  csat        Csat[]
+  resolutions Resolution[]
+
+  @@index([customerId], map: "cases_customer_ix")
+  @@index([orderRef], map: "cases_order_ref_ix")
+  @@map("cases")
+}
+
+model CaseNote {
+  noteId    String   @id @map("note_id")
+  caseId    String   @map("case_id")
+  writtenAt DateTime @map("written_at") @db.Timestamptz(6)
+  author    String
+  body      String
+  case      Case     @relation(fields: [caseId], references: [caseId], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("case_notes")
+}
+
+model Resolution {
+  resolutionId String    @id @map("resolution_id")
+  caseId       String    @map("case_id")
+  kind         String
+  amountPence  Int       @map("amount_pence")
+  status       String
+  proposedAt   DateTime  @map("proposed_at") @db.Timestamptz(6)
+  proposedBy   String    @map("proposed_by")
+  decidedAt    DateTime? @map("decided_at") @db.Timestamptz(6)
+  approvedBy   String?   @map("approved_by")
+  case         Case      @relation(fields: [caseId], references: [caseId], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([caseId], map: "resolutions_case_ix")
+  @@map("resolutions")
+}
+
+model Csat {
+  csatId      String   @id @map("csat_id")
+  caseId      String   @map("case_id")
+  respondedAt DateTime @map("responded_at") @db.Timestamptz(6)
+  score       Int
+  comment     String?
+  case        Case     @relation(fields: [caseId], references: [caseId], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("csat")
+}

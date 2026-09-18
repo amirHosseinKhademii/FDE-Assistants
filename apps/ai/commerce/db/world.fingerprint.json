@@ -1,0 +1,270 @@
+{
+  "seed": 20260918,
+  "tables": [
+    {
+      "system": "shop",
+      "table": "addresses",
+      "rows": 260,
+      "sha": "cb853b840f7030b5"
+    },
+    {
+      "system": "shop",
+      "table": "categories",
+      "rows": 6,
+      "sha": "7e2320dafd63e29d"
+    },
+    {
+      "system": "shop",
+      "table": "order_items",
+      "rows": 4016,
+      "sha": "de9ad8985e697ece"
+    },
+    {
+      "system": "shop",
+      "table": "orders",
+      "rows": 2000,
+      "sha": "33b4182ed218bb96"
+    },
+    {
+      "system": "shop",
+      "table": "payments",
+      "rows": 2000,
+      "sha": "d15becbbeef33599"
+    },
+    {
+      "system": "shop",
+      "table": "product_variants",
+      "rows": 767,
+      "sha": "d27c84f83507a63c"
+    },
+    {
+      "system": "shop",
+      "table": "products",
+      "rows": 400,
+      "sha": "b7d2a7c48082e0b1"
+    },
+    {
+      "system": "shop",
+      "table": "refunds",
+      "rows": 130,
+      "sha": "4fadb924c265f0d6"
+    },
+    {
+      "system": "shop",
+      "table": "users",
+      "rows": 200,
+      "sha": "c1740b0b2fb54c21"
+    },
+    {
+      "system": "wms",
+      "table": "dispatch_manifests",
+      "rows": 282,
+      "sha": "1fa23e9c8f490d38"
+    },
+    {
+      "system": "wms",
+      "table": "pack_photos",
+      "rows": 1546,
+      "sha": "e49311f418a22c2a"
+    },
+    {
+      "system": "wms",
+      "table": "package_items",
+      "rows": 4016,
+      "sha": "4aeee6b7c5867638"
+    },
+    {
+      "system": "wms",
+      "table": "packages",
+      "rows": 2000,
+      "sha": "02fcf739c03a0f6b"
+    },
+    {
+      "system": "wms",
+      "table": "pick_tasks",
+      "rows": 2000,
+      "sha": "90e8587516f62d2b"
+    },
+    {
+      "system": "wms",
+      "table": "stock_levels",
+      "rows": 1661,
+      "sha": "d5945cd00a697b7b"
+    },
+    {
+      "system": "wms",
+      "table": "warehouses",
+      "rows": 3,
+      "sha": "c0f414d9073c351b"
+    },
+    {
+      "system": "fleet",
+      "table": "carriers",
+      "rows": 3,
+      "sha": "dd5ed9901551f865"
+    },
+    {
+      "system": "fleet",
+      "table": "delivery_events",
+      "rows": 1761,
+      "sha": "23705c5588ab1ab2"
+    },
+    {
+      "system": "fleet",
+      "table": "depot_incidents",
+      "rows": 24,
+      "sha": "57a0f0ce59c2972b"
+    },
+    {
+      "system": "fleet",
+      "table": "depots",
+      "rows": 8,
+      "sha": "578c055df005d7aa"
+    },
+    {
+      "system": "fleet",
+      "table": "driver_reports",
+      "rows": 66,
+      "sha": "435329545d980085"
+    },
+    {
+      "system": "fleet",
+      "table": "drivers",
+      "rows": 42,
+      "sha": "8579494bd1e22e5f"
+    },
+    {
+      "system": "fleet",
+      "table": "proofs_of_delivery",
+      "rows": 1708,
+      "sha": "6d181bb797978907"
+    },
+    {
+      "system": "fleet",
+      "table": "routes",
+      "rows": 157,
+      "sha": "a39e3ebc10712a85"
+    },
+    {
+      "system": "fleet",
+      "table": "scans",
+      "rows": 7522,
+      "sha": "79ec6fd31b4493d4"
+    },
+    {
+      "system": "fleet",
+      "table": "shipments",
+      "rows": 2000,
+      "sha": "7abacc570d745bd2"
+    },
+    {
+      "system": "fleet",
+      "table": "stops",
+      "rows": 1050,
+      "sha": "630496b7dbcc3073"
+    },
+    {
+      "system": "fleet",
+      "table": "vehicles",
+      "rows": 36,
+      "sha": "9afe2e18039847a6"
+    },
+    {
+      "system": "crm",
+      "table": "case_notes",
+      "rows": 446,
+      "sha": "8eadaf80409dc5c5"
+    },
+    {
+      "system": "crm",
+      "table": "cases",
+      "rows": 253,
+      "sha": "401775865e821cda"
+    },
+    {
+      "system": "crm",
+      "table": "contact_messages",
+      "rows": 1179,
+      "sha": "eb5e3a26bff86150"
+    },
+    {
+      "system": "crm",
+      "table": "contacts",
+      "rows": 392,
+      "sha": "7fa05d421798b7f0"
+    },
+    {
+      "system": "crm",
+      "table": "csat",
+      "rows": 86,
+      "sha": "7900af65c89be032"
+    },
+    {
+      "system": "crm",
+      "table": "customers",
+      "rows": 200,
+      "sha": "7f9e7a6251ad8afe"
+    },
+    {
+      "system": "crm",
+      "table": "resolutions",
+      "rows": 140,
+      "sha": "fedb2e80ad2d83ab"
+    },
+    {
+      "system": "policy",
+      "table": "approval_thresholds",
+      "rows": 4,
+      "sha": "3e66f460cc4a7d4e"
+    },
+    {
+      "system": "policy",
+      "table": "bank_holidays",
+      "rows": 25,
+      "sha": "8e754ecb696b7e26"
+    },
+    {
+      "system": "policy",
+      "table": "carrier_sla",
+      "rows": 8,
+      "sha": "cff6631f2be6f098"
+    },
+    {
+      "system": "policy",
+      "table": "category_overrides",
+      "rows": 3,
+      "sha": "6098014eea98e165"
+    },
+    {
+      "system": "policy",
+      "table": "goodwill_limits",
+      "rows": 2,
+      "sha": "1b58bc76a8b29663"
+    },
+    {
+      "system": "policy",
+      "table": "policy_documents",
+      "rows": 10,
+      "sha": "4e97bafafc952fb1"
+    },
+    {
+      "system": "policy",
+      "table": "policy_versions",
+      "rows": 12,
+      "sha": "5d38c92686239144"
+    },
+    {
+      "system": "policy",
+      "table": "refund_rules",
+      "rows": 7,
+      "sha": "eafcb45f1022c6ce"
+    },
+    {
+      "system": "policy",
+      "table": "return_windows",
+      "rows": 6,
+      "sha": "145988512e4bee79"
+    }
+  ],
+  "sha": "99766bd4fe4bbeb4"
+}

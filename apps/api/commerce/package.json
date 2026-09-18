@@ -1,0 +1,41 @@
+{
+  "name": "@thornbury/commerce-api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Thornbury Goods' own backend. Five source systems, five pools, no AI anywhere in it.",
+  "license": "UNLICENSED",
+  "main": "./dist/main.js",
+  "scripts": {
+    "generate": "node scripts/prisma-each.mjs generate",
+    "pull": "node scripts/prisma-each.mjs db pull",
+    "build": "pnpm generate && tsc -p tsconfig.json",
+    "typecheck": "pnpm generate && tsc --noEmit -p tsconfig.json",
+    "dev": "ts-node src/main.ts",
+    "start": "node dist/main.js",
+    "api-check": "ts-node src/checks/api-check.ts",
+    "guard-check": "ts-node src/checks/guard-check.ts",
+    "scope-check": "ts-node src/checks/scope-check.ts",
+    "sla-check": "ts-node src/checks/sla-check.ts",
+    "isolation-check": "ts-node src/checks/isolation-check.ts"
+  },
+  "dependencies": {
+    "@fde/guard": "workspace:*",
+    "@nestjs/common": "^12.0.3",
+    "@nestjs/core": "^12.0.3",
+    "@nestjs/platform-express": "^12.0.3",
+    "@prisma/adapter-pg": "7.10.0",
+    "@prisma/client": "7.10.0",
+    "dotenv": "^16.4.5",
+    "pg": "^8.13.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.5",
+    "@types/pg": "^8.11.10",
+    "prisma": "7.10.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  }
+}

@@ -4,12 +4,13 @@
 against the seeded estate.*
 
 **Badges, and they are not decoration here.** Everything about this API's own
-behaviour is **MEASURED** — it was printed by one of its five checks, 111
-assertions of which 54 run against the live estate. But the thing this API exists
-for has **not** happened yet: the MCP server has never called it. So the contract
-in §2 and §3 is MEASURED as an API and **PROPOSED as an integration**. When
-`fde-assistants-86`'s step 4b wires the two together, the first failure is likelier
-to be a disagreement about this contract than a regression in either side.
+behaviour is **MEASURED** — it was printed by one of its five checks, 112
+assertions of which 55 run against the live estate. But **no check in this package
+exercises the MCP path**, so the contract in §2 and §3 is MEASURED as an API and
+only as an API. The integration is exercised from the other side — fde-assistants-86
+reports their Step 4b working, and they hold a Zod schema read off this running API
+with curl, asserted by `commerce:mcp-round-trip`. That is their measurement to
+publish, not this document's to claim.
 
 The estate this reads from is [`ESTATE.md`](ESTATE.md) — table shapes, soft keys,
 row counts and fingerprints live there and are deliberately not repeated here,
@@ -20,6 +21,97 @@ stale within the day.
 apps/api/commerce   @thornbury/commerce-api   :3610
 46 TypeScript files · ~4,500 lines · 5 Prisma schemas · ~840 schema lines
 ```
+
+---
+
+## 0 · Handover — read this first if you are picking it up cold
+
+*Written at a stop point on 2026-09-18, for someone who was not here.*
+
+### Where it stands
+
+Built and green on its own: seven routes, five pools, a fail-closed service
+token, server-side scope, and five checks — **112 assertions, 55 of them against
+the live Neon estate.** `pnpm build` 23/23, `pnpm typecheck` 38/38,
+`pnpm leak:check` PASS. The estate is fde-assistants-2d's and is reached at
+fingerprint `99766bd4fe4bbeb4`.
+
+### ⚠ NOT COMMITTED, and the repo is inconsistent because of it
+
+This is the most losable thing here and it is worse than "some files are dirty".
+**The root wiring is committed; the package it points at is not.**
+
+| | state |
+|---|---|
+| `package.json` — 8 `commerce:api-*` scripts | **committed** (`a1178e6`) |
+| `pnpm-workspace.yaml` — the `apps/api/*` glob | **committed** |
+| `docs/commerce/API.md` — this file | committed at `a1178e6`, **and modified since** — §0, the status-code table and the §10 defect-3 rewrite are not in git |
+| `apps/api/commerce/**` — *the entire package*, 58 files | **UNTRACKED** |
+| `turbo.json` — `globalEnv` + build `inputs`/`outputs` | modified, uncommitted |
+| `.env.example` — the `COMMERCE_*` block | modified, uncommitted |
+
+So a fresh clone of `master` has scripts that filter for `@thornbury/commerce-api`
+and a workspace glob that expects it, and **no such package**. Committing the
+package is the first thing to do, and `turbo.json` must go with it — without the
+`generated/**` output the build caches a `dist/` that cannot run (§10).
+
+`generated/` and `dist/` are correctly gitignored; nothing under them should ever
+be committed.
+
+### The parts that are decisions, not code
+
+Four things here were argued rather than typed, and each is somewhere an
+implementer will actually hit it:
+
+- **The enumeration oracle** (§3) — why `not_found` and `out_of_scope` collapse.
+  This refused an instruction and the instruction changed. The full reasoning is
+  at the top of `src/common/outcome.ts`; §3 is the short form; PLAN.md §7.1 now
+  carries the general rule.
+- **A 5xx always means plumbing** (§3) — a contract another deployable depends
+  on by name, broken once, and now tested.
+- **`isDev: false`, unconditionally** (§4) — the one place this package closes a
+  branch a shared `@fde/*` package leaves open.
+- **The foreign key is the key** (§10) — why `driver_reports` has no date filter,
+  learned by shipping the opposite.
+
+### Two things that now depend on this API
+
+1. **fde-assistants-86 holds the response shape in a Zod schema**, at
+   `apps/mcp/commerce/src/api/schemas.ts`, read off this running API with curl.
+   **`commerce:mcp-round-trip` is what catches a field rename here** — it asserts
+   one schema parses both this API and their stub. If you rename a DTO field, that
+   is the check that goes red, and it is in a different package than the one you
+   edited.
+2. **`/orders/:id` returns `customer.email` and `customer.fullName`.** 86's MCP
+   layer parses both and deliberately does **not** render them into the prose the
+   model reads. **Whether a named customer's PII should cross that boundary at all
+   is a data-residency decision nobody has taken.** It is listed here as OPEN, not
+   answered — `docs/steering/DATA-RESIDENCY.md` is this repo's precedent for
+   treating that as a decision with a document rather than a default. Neither
+   field is needed by any tool that exists today; if the answer is "it should
+   not", removing them is a one-line change here and a schema change there.
+
+### What is NOT done — bluntly
+
+- **Nothing in this package tests the MCP path.** 86 reports Step 4b working and
+  owns that evidence; from here, the contract is verified as an HTTP API and
+  nothing more. If the two ever disagree, no check in *this* repo half will say so
+  — `commerce:mcp-round-trip`, in theirs, is the one that would.
+- **`upstream_unavailable` is declared in the envelope and never produced.** No
+  code path emits it. Do not write a consumer branch that waits for it.
+- **No load testing of any kind.** Five pools × 4 connections = 20 against a
+  metered Neon project, sized for a caller that numbers one. Nobody has checked
+  what happens when two callers arrive.
+- **No authorization beyond scope-by-case.** Every valid token can reach every
+  case. There are no roles, and `POST /resolutions` trusts `proposedBy` as a
+  free-text label rather than an identity.
+- **`prisma format` does not run** — its wasm formatter crashes in this
+  workspace, so schema files are aligned by `prisma-humanise.mjs` and not by
+  Prisma. Cosmetic, and it means schema whitespace is not canonical.
+- **The check suite has one live dependency**: `commerce:api-check` needs 2d's
+  estate up and seeded. The other four are offline and free.
+- **Nothing here has been deployed**, and there is no entry in
+  `.github/workflows/deploy.yml`.
 
 ---
 
@@ -147,6 +239,22 @@ Three different owners — the domain said no, the code broke, the caller sent t
 wrong type — flattened to a boolean plus free text. **A boundary that serialises
 does not preserve what the type system was preserving.** Anything the far side
 needs to know goes in the payload.
+
+### Status codes, exhaustively
+
+Because "which status means what" is the half of a contract that gets assumed.
+
+| status | means | body |
+|---|---|---|
+| **200** | the request was understood — **including every domain refusal** | `{ok:true,…}` or `{ok:false,cause,detail}` |
+| **201** | `POST /resolutions` created a draft | `{ok:true,…}` |
+| **400** | the request did not match the endpoint's Zod contract | `{error, problems[]}` — field and rule, never the value |
+| **401** | service token missing or wrong | `{error:'refused', reason}` |
+| **503** | **service token not configured** — refusing to serve | `{error:'refused', reason}` |
+| **5xx** | **plumbing, always** — never a domain outcome | — |
+
+A 400 carries the offending FIELD and RULE but never the offending VALUE, because
+a received value here is an order id somebody typed.
 
 ### The property a consumer depends on by name
 
@@ -378,7 +486,7 @@ indistinguishable from one that cannot fail.
 | `commerce:api-scope-check` | out-of-scope ⇒ structured miss | a ScopeService that always allows, and a controller that never asks | yes · 18 |
 | `commerce:sla-check` | working-day arithmetic across a bank holiday | drop the holiday table — the answers must **move** | yes · 21 |
 | `commerce:api-isolation-check` | a cross-system join does not compile | a probe that *should* compile does | yes · 7 |
-| `commerce:api-check` | every endpoint, against the seeded estate | — | **live · 54** |
+| `commerce:api-check` | every endpoint, against the seeded estate | — | **live · 55** |
 
 **A check that could not run fails rather than passes** (the repo learned this at
 commit `7b450fc`). `commerce:api-check` exits 2 with a sentence when the estate is
@@ -392,7 +500,7 @@ live row counts and would report *"the estate drifted"* when the truth is *"a
 self-test crashed mid-write"* — precise, and accusing the wrong thing.
 
 ```
-build 23/23 · typecheck 38/38 · leak:check PASS · 111 assertions, 5/5 green
+build 23/23 · typecheck 38/38 · leak:check PASS · 112 assertions, 5/5 green
 ```
 
 ---
@@ -440,9 +548,11 @@ BST this drops reports filed 00:00–01:00 London on the route date, changed it 
 a real Europe/London day range, wrote four assertions for the new helper, and
 documented the hour it "used to lose every summer."
 
-fde-assistants-2d then seeded five reports filed 23:30 UTC — **00:30 the next day
-in London** — because their estate could not previously have caught either
-version: all 66 reports sat at 17:35 UTC, so none had a London date differing from
+**The fix and its witness arrived separately, and that gap is the story.** The
+change was made by reasoning, shipped, and documented as correct; the data that
+could judge it did not exist for another day. fde-assistants-2d then seeded five
+reports filed 23:30 UTC — **00:30 the next day in London** — because their estate
+could not previously have caught either version: all 66 reports sat at 17:35 UTC, so none had a London date differing from
 its route date. Measured against the new data:
 
 ```
@@ -470,6 +580,12 @@ data that could distinguish the two, and my own four assertions tested the helpe
 arithmetic — which was correct — rather than whether applying it here was. **A
 passing test of the wrong question is not weaker evidence than no test; it is
 worse, because it is mistaken for coverage.**
+
+2d placed those five **off T1's route on purpose**, so that a timezone bug and a
+broken walk stay distinguishable: both present as "no report for this route", and
+separating them means a failure names which one it is. That paid off within
+minutes — T1's own report was fine while five others vanished, which said
+*timezone*, not *walk*.
 
 `commerce:api-check` now asserts the invariant rather than the fix: for the route
 the walk reaches, every report the database holds must come back, and the estate

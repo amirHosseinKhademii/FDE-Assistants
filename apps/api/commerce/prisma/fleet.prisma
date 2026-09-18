@@ -1,0 +1,181 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/fleet"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Carrier {
+  carrierId String     @id @map("carrier_id")
+  name      String
+  kind      String
+  depots    Depot[]
+  shipments Shipment[]
+
+  @@map("carriers")
+}
+
+model Depot {
+  depotId   String          @id @map("depot_id")
+  carrierId String          @map("carrier_id")
+  name      String
+  metro     String
+  postcode  String
+  incidents DepotIncident[]
+  carrier   Carrier         @relation(fields: [carrierId], references: [carrierId], onDelete: NoAction, onUpdate: NoAction)
+  drivers   Driver[]
+  routes    Route[]
+  scans     Scan[]
+  vehicles  Vehicle[]
+
+  @@map("depots")
+}
+
+model Vehicle {
+  vehicleId       String  @id @map("vehicle_id")
+  depotId         String  @map("depot_id")
+  regPlate        String  @unique @map("reg_plate")
+  kind            String
+  capacityParcels Int     @map("capacity_parcels")
+  routes          Route[]
+  depot           Depot   @relation(fields: [depotId], references: [depotId], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("vehicles")
+}
+
+model Driver {
+  driverId  String         @id @map("driver_id")
+  depotId   String         @map("depot_id")
+  fullName  String         @map("full_name")
+  licenceNo String         @unique @map("licence_no")
+  reports   DriverReport[]
+  depot     Depot          @relation(fields: [depotId], references: [depotId], onDelete: NoAction, onUpdate: NoAction)
+  routes    Route[]
+
+  @@map("drivers")
+}
+
+model Route {
+  routeId      String         @id @map("route_id")
+  depotId      String         @map("depot_id")
+  vehicleId    String         @map("vehicle_id")
+  driverId     String         @map("driver_id")
+  routeDate    DateTime       @map("route_date") @db.Date
+  plannedStops Int            @map("planned_stops")
+  startedAt    DateTime       @map("started_at") @db.Timestamptz(6)
+  finishedAt   DateTime?      @map("finished_at") @db.Timestamptz(6)
+  reports      DriverReport[]
+  depot        Depot          @relation(fields: [depotId], references: [depotId], onDelete: NoAction, onUpdate: NoAction)
+  driver       Driver         @relation(fields: [driverId], references: [driverId], onDelete: NoAction, onUpdate: NoAction)
+  vehicle      Vehicle        @relation(fields: [vehicleId], references: [vehicleId], onDelete: NoAction, onUpdate: NoAction)
+  stops        Stop[]
+
+  @@index([routeDate], map: "routes_date_ix")
+  @@map("routes")
+}
+
+model Stop {
+  stopId      String    @id @map("stop_id")
+  routeId     String    @map("route_id")
+  seq         Int
+  shipmentId  String?   @map("shipment_id")
+  addressLine String    @map("address_line")
+  postcode    String
+  arrivedAt   DateTime? @map("arrived_at") @db.Timestamptz(6)
+  departedAt  DateTime? @map("departed_at") @db.Timestamptz(6)
+  route       Route     @relation(fields: [routeId], references: [routeId], onDelete: Cascade, onUpdate: NoAction)
+  shipment    Shipment? @relation(fields: [shipmentId], references: [shipmentId], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([routeId, seq])
+  @@index([routeId], map: "stops_route_ix")
+  @@index([shipmentId], map: "stops_shipment_ix")
+  @@map("stops")
+}
+
+model Shipment {
+  shipmentId   String           @id @map("shipment_id")
+  carrierId    String           @map("carrier_id")
+  orderRef     String           @map("order_ref")
+  packageRef   String           @map("package_ref")
+  trackingNo   String           @unique @map("tracking_no")
+  serviceLevel String           @map("service_level")
+  dispatchedAt DateTime         @map("dispatched_at") @db.Timestamptz(6)
+  promisedBy   DateTime         @map("promised_by") @db.Date
+  status       String
+  events       DeliveryEvent[]
+  proofs       ProofOfDelivery?
+  scans        Scan[]
+  carrier      Carrier          @relation(fields: [carrierId], references: [carrierId], onDelete: NoAction, onUpdate: NoAction)
+  stops        Stop[]
+
+  @@index([orderRef], map: "shipments_order_ref_ix")
+  @@index([packageRef], map: "shipments_pkg_ref_ix")
+  @@map("shipments")
+}
+
+model Scan {
+  scanId     String   @id @map("scan_id")
+  shipmentId String   @map("shipment_id")
+  scannedAt  DateTime @map("scanned_at") @db.Timestamptz(6)
+  scanType   String   @map("scan_type")
+  location   String
+  depotId    String?  @map("depot_id")
+  depots     Depot?   @relation(fields: [depotId], references: [depotId], onDelete: NoAction, onUpdate: NoAction)
+  shipment   Shipment @relation(fields: [shipmentId], references: [shipmentId], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([shipmentId], map: "scans_shipment_ix")
+  @@map("scans")
+}
+
+model DeliveryEvent {
+  eventId       String   @id @map("event_id")
+  shipmentId    String   @map("shipment_id")
+  occurredAt    DateTime @map("occurred_at") @db.Timestamptz(6)
+  status        String
+  exceptionCode String?  @map("exception_code")
+  notes         String?
+  shipment      Shipment @relation(fields: [shipmentId], references: [shipmentId], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([shipmentId], map: "devents_shipment_ix")
+  @@map("delivery_events")
+}
+
+model ProofOfDelivery {
+  podId         String   @id @map("pod_id")
+  shipmentId    String   @unique @map("shipment_id")
+  capturedAt    DateTime @map("captured_at") @db.Timestamptz(6)
+  kind          String
+  uri           String
+  recipientName String?  @map("recipient_name")
+  shipment      Shipment @relation(fields: [shipmentId], references: [shipmentId], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("proofs_of_delivery")
+}
+
+model DriverReport {
+  reportId   String   @id @map("report_id")
+  routeId    String   @map("route_id")
+  driverId   String   @map("driver_id")
+  reportedAt DateTime @map("reported_at") @db.Timestamptz(6)
+  severity   String
+  body       String
+  driver     Driver   @relation(fields: [driverId], references: [driverId], onDelete: NoAction, onUpdate: NoAction)
+  route      Route    @relation(fields: [routeId], references: [routeId], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([routeId], map: "dreports_route_ix")
+  @@map("driver_reports")
+}
+
+model DepotIncident {
+  incidentId String   @id @map("incident_id")
+  depotId    String   @map("depot_id")
+  occurredOn DateTime @map("occurred_on") @db.Date
+  kind       String
+  body       String
+  reportedBy String   @map("reported_by")
+  depot      Depot    @relation(fields: [depotId], references: [depotId], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("depot_incidents")
+}

@@ -1,0 +1,38 @@
+// ── THIS FILE IS RECONCILED BY INTROSPECTION AND NEVER PUSHED ───────────────
+//
+// fde-assistants-2d owns the DDL (apps/ai/commerce/db/schema/*.sql) and the
+// comments in it are a deliverable — they name which columns are soft keys and
+// why they cannot be foreign keys. So the workflow here is one-way:
+//
+//     pnpm commerce:api-pull      introspect 2d's schema into this file
+//     pnpm commerce:api-generate  build the client
+//
+// There is deliberately NO `db push` target. Pushing from here would drop 2d's
+// comments and rewrite column types they chose on purpose.
+//
+// THE OUTPUT PATH IS THE ARCHITECTURE. Five schemas generate five clients into
+// five directories, so the storefront client has no `shipment` model to reach
+// for. The brief asked that a cross-system join be UNEXPRESSIBLE rather than
+// discouraged; a pool cannot deliver that (you can always type a join into raw
+// SQL) and a generated client can, because the other system's types do not
+// exist in it. `pnpm commerce:api-isolation-check` asserts it against the
+// compiler rather than trusting this paragraph.
+//
+// DO NOT ENABLE `multiSchema`. It merges datasources into one client and hands
+// the join straight back.
+//
+// FIELD NAMES ARE camelCase WITH `@map` TO THE REAL COLUMN, applied by
+// `scripts/prisma-humanise.mjs` after every pull. Prisma's re-introspection
+// preserves names it can match through an existing `@map`, so this is stable
+// across pulls. A rename WITHOUT its `@map` is not a compile error anywhere —
+// it is a lie the database settles at runtime.
+//
+// NO `url` IN THE DATASOURCE BLOCK. Prisma 7 removed it (P1012: "The datasource
+// property `url` is no longer supported in schema files"); the CLI reads it from
+// prisma.config.ts and the running app passes a driver adapter. That is why `pg`
+// is still a dependency after moving to Prisma, and why "five pools" stayed
+// literally true — each client is handed a `pg.Pool` this code owns.
+//
+// These comments are re-applied by prisma-humanise after every pull, because
+// `prisma db pull` rewrites the file and drops `//` comments.
+// ───────────────────────────────────────────────────────────────────────────

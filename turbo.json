@@ -1,5 +1,5 @@
 {
-  "//": "globalEnv exists because Turbo 2 runs tasks in STRICT ENVIRONMENT MODE: variables not declared here are stripped before the task starts. The fail-closed guard read an empty API_KEY and correctly allowed the request, while the operator had set one — the guard was right and the environment lied to it. Anything the app reads from process.env belongs in this list.",
+  "//": "globalEnv exists because Turbo 2 runs tasks in STRICT ENVIRONMENT MODE: variables not declared here are stripped before the task starts. The fail-closed guard read an empty API_KEY and correctly allowed the request, while the operator had set one \u2014 the guard was right and the environment lied to it. Anything the app reads from process.env belongs in this list.  \u2014\u2014  `build` declares `generated/**` as an OUTPUT and `prisma/**` as an INPUT because of a defect that was reproduced rather than imagined: @thornbury/commerce-api builds with `prisma generate && tsc`, and the generated Prisma clients are gitignored. Declared neither way, a cache hit restored dist/** WITHOUT generated/**, and every file in dist/ requires ../../generated/shop at runtime \u2014 so `pnpm build` printed FULL TURBO and left a dist that throws MODULE_NOT_FOUND on boot. Editing a .prisma file also invalidated nothing. Local `pnpm typecheck` hides both, because that package's typecheck script runs `generate` itself first. Harmless for the other packages: none of them has a generated/ or prisma/ directory.",
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "build": {
@@ -9,12 +9,14 @@
       "inputs": [
         "src/**",
         "tsconfig.json",
-        "package.json"
+        "package.json",
+        "prisma/**"
       ],
       "outputs": [
         "dist/**",
         ".output/**",
-        "apps/web/insurance-app/dist/**"
+        "apps/web/insurance-app/dist/**",
+        "generated/**"
       ]
     },
     "dev": {
@@ -90,7 +92,9 @@
     "EVAL_PACE_MS",
     "FIXTURE_MODE",
     "ECOMMERCE_DB_URL",
-    "ECOMMERCE_DB_DIRECT_URL"
+    "ECOMMERCE_DB_DIRECT_URL",
+    "COMMERCE_SERVICE_TOKEN",
+    "COMMERCE_API_PORT"
   ],
   "globalDependencies": [
     ".env"

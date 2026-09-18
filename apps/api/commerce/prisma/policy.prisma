@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/policy"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model PolicyDocument {
+  documentId String          @id @map("document_id")
+  slug       String          @unique
+  title      String
+  kind       String
+  owner      String
+  versions   PolicyVersion[]
+
+  @@map("policy_documents")
+}
+
+model PolicyVersion {
+  versionId     String         @id @map("version_id")
+  documentId    String         @map("document_id")
+  revision      String
+  effectiveFrom DateTime       @map("effective_from") @db.Date
+  effectiveTo   DateTime?      @map("effective_to") @db.Date
+  published     Boolean
+  summary       String
+  document      PolicyDocument @relation(fields: [documentId], references: [documentId], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("policy_versions")
+}
+
+model ReturnWindow {
+  windowId      String    @id @map("window_id")
+  category      String
+  channel       String
+  windowDays    Int       @map("window_days")
+  effectiveFrom DateTime  @map("effective_from") @db.Date
+  effectiveTo   DateTime? @map("effective_to") @db.Date
+
+  @@index([category], map: "return_windows_cat_ix")
+  @@map("return_windows")
+}
+
+model RefundRule {
+  ruleId           String   @id @map("rule_id")
+  code             String   @unique
+  appliesTo        String   @map("applies_to")
+  condition        String
+  outcome          String
+  requiresApproval Boolean  @map("requires_approval")
+  effectiveFrom    DateTime @map("effective_from") @db.Date
+
+  @@map("refund_rules")
+}
+
+model CategoryOverride {
+  overrideId    String   @id @map("override_id")
+  category      String
+  overrideKind  String   @map("override_kind")
+  valueText     String   @map("value_text")
+  note          String
+  effectiveFrom DateTime @map("effective_from") @db.Date
+
+  @@map("category_overrides")
+}
+
+model CarrierSla {
+  slaId           String   @id @map("sla_id")
+  carrierRef      String   @map("carrier_ref")
+  serviceLevel    String   @map("service_level")
+  workingDays     Int      @map("working_days")
+  penaltyRate     Decimal  @map("penalty_rate") @db.Decimal(6, 4)
+  penaltyCapPence Int      @map("penalty_cap_pence")
+  effectiveFrom   DateTime @map("effective_from") @db.Date
+
+  @@index([carrierRef], map: "carrier_sla_ref_ix")
+  @@map("carrier_sla")
+}
+
+model GoodwillLimit {
+  limitId                    String   @id @map("limit_id")
+  tier                       String
+  maxPence                   Int      @map("max_pence")
+  requiresApprovalAbovePence Int      @map("requires_approval_above_pence")
+  effectiveFrom              DateTime @map("effective_from") @db.Date
+
+  @@map("goodwill_limits")
+}
+
+model ApprovalThreshold {
+  thresholdId   String   @id @map("threshold_id")
+  action        String
+  maxPence      Int      @map("max_pence")
+  approverRole  String   @map("approver_role")
+  effectiveFrom DateTime @map("effective_from") @db.Date
+
+  @@map("approval_thresholds")
+}
+
+model bank_holidays {
+  holidayDate  DateTime @map("holiday_date") @db.Date
+  jurisdiction String
+  name         String
+
+  @@id([holidayDate, jurisdiction])
+}
