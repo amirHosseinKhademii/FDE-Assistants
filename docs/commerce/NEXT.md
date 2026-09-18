@@ -226,7 +226,7 @@ one.
 | | |
 |---|---|
 | **PII across the boundary** | `/orders/:id` returns `customer.email` and `customer.fullName`. The MCP layer parses them so the contract is honest, and does **not** render them into the prose the model reads — but `structuredContent` is the model's context either way. Two sessions agree the narrow answer is probably "parse, do not forward"; *probably* is not good enough for a data-residency decision. `docs/steering/DATA-RESIDENCY.md` is the precedent for the format. **Byron's call.** |
-| **the env prefix** | §5.5 |
+| **the env prefix** | §5.5 — and the two sessions that recorded a view **disagree**, which is why it needs deciding rather than defaulting. The estate session: unify to `COMMERCE_DATABASE_URL`, because it is inconsistent with all four siblings (`PHARMA_`/`STEERING_`/`SAFETY_DATABASE_URL`) on two axes at once. The web session: **keep them different on purpose and say why at the definition** — `ECOMMERCE_DB_URL` creates and drops five databases, `COMMERCE_API_*` is a token holding no database access at all, §4.1's whole argument is that those must never sit in one process, and a shared prefix invites the copy-paste that puts them there. Their compromise if unified: rename the estate credential to say what it is, `COMMERCE_ESTATE_ADMIN_URL`, rather than making it look like a peer of the service token. |
 | **tool-input strictness** | Zod objects are not strict by default and the SDK does not make them so — an undeclared argument is silently accepted. `coverage-schema.ts` uses `z.strictObject` for the answer contract; tool inputs crossing a trust boundary arguably deserve the same. Recorded as behaviour, not endorsed. |
 
 A line from the estate session worth keeping whoever answers the first one:
@@ -317,11 +317,36 @@ git add apps/ai/commerce apps/api/commerce apps/web/commerce-app \
 git commit
 ```
 
-**The lesson, and it is the reason this is written down rather than quietly
-fixed:** `git add <path>` is a claim to own everything under that path. In a
-shared tree that claim is usually false, and it is false silently — nothing in
-the commit output distinguishes the two files you meant from the two you did
-not. Stage files, not directories, when you are not alone in the tree.
+**The lesson — and the web session found a stronger version of it by being on
+the receiving end.**
+
+My first statement was *"stage files, not directories."* That is true and it is
+not enough. `43a26a7` — the commit whose **message** is about directory
+ownership — staged exactly one file, `docs/commerce/NEXT.md`, and contains
+**5,265 lines of somebody else's web surface and deployment work and none of my
+own reasoning about it.**
+
+Because `git add` was never the whole problem. The web session staged their work
+with fully explicit paths, precisely to avoid sweeping anyone up, and then went
+away to write a commit message. My `git commit` ran in between and took the
+entire loaded index.
+
+```
+  git add <dir>            → you take what is under that path
+  git add <file>; commit   → you take whatever ANYONE has staged since
+```
+
+> **The safe unit is stage-and-commit as ONE action.**
+> `git commit -F msg -- <paths>` — never a stage that waits.
+
+Explicit paths protect you from what *you* sweep up. They do not protect you
+from somebody else committing while your index is loaded, and in a tree several
+agents share, the index is shared state with no lock on it. This paragraph was
+committed with `git commit -- <paths>` for that reason.
+
+**Nothing was lost** — their work is committed and the tree is correct. What is
+wrong is only the attribution and the messages, and neither is worth a rewrite
+of published history to repair.
 
 **A NestJS API was left running on `:3610`** during this session and a
 `COMMERCE_SERVICE_TOKEN` was generated into `.env` (it was empty; the API is
