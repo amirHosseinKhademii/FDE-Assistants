@@ -185,6 +185,34 @@ comment where RR-007 used to be, pointing back at this section.
 > There is nothing inconsistent about an order with no case — it is the ordinary
 > state of most orders — which is why every consistency measure was satisfied.
 >
+> ### ☑ A fifth species, 2026-09-18 — the fix with no witness
+>
+> The backend session found and fixed a BST day-boundary bug: their driver-report
+> lookup built a UTC day from a date column, so during British Summer Time it
+> dropped reports filed 00:00–01:00 London — which is precisely the report a
+> driver files after a long round. They found it by reasoning, not by a red check.
+>
+> The estate session then asked whether the data could ever have caught it.
+> **It could not.** All 66 driver reports were filed at 17:35 UTC — mid-evening,
+> nowhere near a date change — so zero reports had a London date differing from
+> their route date. The fix was real, the reasoning was right, and **the
+> regression test was a memory.**
+>
+> | | |
+> |---|---|
+> | **a fix no data exercises** | **indistinguishable from a bug that was never there** |
+>
+> Five reports are now filed at 23:30 UTC = 00:30 the next day in London, and
+> the placement is the design: **none is on T1's route.** A timezone bug and a
+> broken walk produce the *same symptom* — "no report for this route" — and need
+> opposite fixes. Keeping them on different routes is what makes the two
+> distinguishable by which route fails.
+>
+> **The common thread through all five species is tidy data.** RR-MARKETPLACE
+> was tidy. A column that always agrees is tidy. An order with no case is tidy.
+> Reports all filed at 17:35 are tidy. An estate's job is to be realistic, and
+> realistic means ragged at exactly the edges the code has to handle.
+>
 > One detail worth more than the fix: **T6-4 had a case purely by chance**, and
 > that is *worse* than having none. A front door that appears and disappears with
 > the dice means any test that finds it breaks on the next reseed with nothing to

@@ -21,6 +21,19 @@ export type Cause =
   | 'not_found'
   | 'invalid_request'
   | 'upstream_unavailable'
+  /**
+   * The API answered `ok: true` and the payload was not the shape we parse.
+   * OURS, not the API's vocabulary — a contract violation is neither the API
+   * refusing nor the plumbing failing, and calling it either would hide it.
+   *
+   * ADDED AFTER STEP 4b, WHICH IS THE REASON IT EXISTS. Pointing the tool at
+   * the live API returned `ok: true`, `isError: false`, and an order whose id,
+   * status, total and every line quantity rendered as `undefined`. Nothing
+   * failed. The envelope said success and the type said `Order` — because
+   * `getJson<Order>` was a CAST, and a cast is a hope the compiler is obliged
+   * to believe. See `schemas.ts`.
+   */
+  | 'malformed_response'
   /** The tool itself raised. Ours, not the API's — see `guarded()`. */
   | 'threw';
 

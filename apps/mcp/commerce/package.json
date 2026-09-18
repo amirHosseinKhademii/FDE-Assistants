@@ -9,11 +9,14 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "serve": "ts-node src/server.ts",
     "handshake": "ts-node src/cli/handshake.ts",
-    "check": "ts-node src/wire-selftest.ts"
+    "check": "ts-node src/wire-selftest.ts",
+    "live": "ts-node src/cli/live.ts",
+    "round-trip": "ts-node src/round-trip.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "2.0.0",
-    "zod": "^4.5.4"
+    "zod": "^4.5.4",
+    "dotenv": "^16.4.5"
   },
   "devDependencies": {
     "@modelcontextprotocol/client": "2.0.0",

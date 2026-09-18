@@ -45,7 +45,7 @@ environment mode and strips anything not declared there.
 
 ## 2 · What is in them
 
-44 tables, 38,598 rows, seeded in ~23 seconds. Fingerprint `af322f5024a1d5e5`.
+44 tables, 38,598 rows, seeded in ~23 seconds. Fingerprint `f6d71ee0e48cbbf1`.
 
 | database | tables | rows | |
 |---|---:|---:|---|
@@ -148,7 +148,7 @@ database, deliberately; the defence belongs where the text enters the prompt.
 ```bash
 pnpm commerce:env-check     # 9 checks   free, offline
 pnpm commerce:world-check   # 44 tables  free, offline
-pnpm commerce:db-check      # 49 checks  reads all five databases
+pnpm commerce:db-check      # 50 checks  reads all five databases
 ```
 
 Every one carries a negative control that runs **on every invocation**, because
@@ -295,6 +295,37 @@ means `get_contact_history` is load-bearing rather than decorative.
 Three checks guard all of this: every anchored case resolves to its trap order;
 no trap order carries a stray random case; and `CAS-90004`'s approved amount
 matches the refund row.
+
+## 5e · The day boundary, exercised next door to T1
+
+The `route → driver_reports for that day` lookup is the last hop of T1, and it
+is a date comparison — so it is exposed to a timezone bug. Every date in this
+estate falls in **BST**, where a report filed just after midnight has a London
+date one day past its `route_date`. A lookup that converts to local time before
+comparing drops exactly those reports.
+
+**The estate had no such report.** Every one was filed at 17:35 UTC —
+mid-evening BST, nowhere near a date change. The backend session found and fixed
+that bug by reasoning about it; nothing here would have failed if they had not,
+and nothing would fail if it came back.
+
+Five reports are now filed at **23:30 UTC = 00:30 the next day in London**, which
+is a real thing that happens: a driver finishing a long round writes it up when
+they get back, and "when they get back" is sometimes tomorrow. Verified
+server-side rather than trusted:
+
+```
+report      route_date    UTC                 Europe/London
+DRP-00011   2026-09-06    2026-09-06 23:30    2026-09-07 00:30
+DRP-00022   2026-09-09    2026-09-09 23:30    2026-09-10 00:30
+…5 in total, and 0 of them on the T1 trap route
+```
+
+**None is on `RTE-20260908-BRM-1`, and that is the design.** If T1's own report
+were the boundary case, a timezone bug and a broken walk would produce the same
+symptom — *"no report for this route"* — and the two need opposite fixes. Keep
+the trap unambiguous; exercise the boundary next door. `db-check` asserts both
+halves: that a boundary report exists, and that it is not on the trap route.
 
 ## 6 · For the sessions downstream
 

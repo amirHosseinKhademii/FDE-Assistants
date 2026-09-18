@@ -16,20 +16,12 @@
 import { z } from 'zod';
 import type { Tool } from './types';
 import { getJson, type ApiConfig } from '../api/client';
+import { OrderResponseSchema, type OrderResponse } from '../api/schemas';
 import { guarded, type Outcome } from '../api/outcome';
 import type { Session } from '../session';
 
-/** What `GET /orders/:id` returns. Narrowed to what the desk actually reads. */
-export interface Order {
-  orderId: string;
-  placedAt: string;
-  status: string;
-  totals: { itemsPence: number; deliveryPence: number; grandTotalPence: number };
-  items: Array<{ lineId: string; productId: string; name: string; qty: number; unitPricePence: number }>;
-  payments: Array<{ paymentId: string; method: string; amountPence: number }>;
-  /** THE FIELD T3 TURNS ON. A prior refund on a line the order total still hides. */
-  priorRefunds: Array<{ refundId: string; lineId: string | null; amountPence: number; reason: string }>;
-}
+/** The shape is in `schemas.ts` and is PARSED, not asserted. See Step 4b. */
+export type Order = OrderResponse;
 
 export const DESCRIPTION =
   'The order this case is about: what was bought, what it cost, how it was paid, ' +
@@ -38,15 +30,23 @@ export const DESCRIPTION =
   'cannot be chosen.';
 
 /** Prose for the model. The structured half is where a machine reads the outcome. */
+function summariseLine(i: Order['items'][number]): string {
+  const seller = i.marketplaceSeller ? ` [sold by ${i.marketplaceSeller}]` : '';
+  const category = i.productCategory ? ` (${i.productCategory})` : '';
+  return `${i.id} ${i.name}${category}${seller} \u00d7${i.quantity} @ ${i.unitPricePence}p`;
+}
+
+function summariseRefunds(o: Order): string {
+  if (!o.priorRefunds.length) return 'none';
+  return o.priorRefunds.map((r) => `${r.id} ${r.amountPence}p`).join('; ');
+}
+
 function summarise(o: Order): string {
-  const refunds = o.priorRefunds.length
-    ? o.priorRefunds.map((r) => `${r.refundId} ${r.amountPence}p on ${r.lineId ?? 'the order'} (${r.reason})`).join('; ')
-    : 'none';
   return [
-    `Order ${o.orderId}, placed ${o.placedAt}, status ${o.status}.`,
-    `Total ${o.totals.grandTotalPence}p across ${o.items.length} line(s).`,
-    `Lines: ${o.items.map((i) => `${i.lineId} ${i.name} ×${i.qty} @ ${i.unitPricePence}p`).join('; ')}.`,
-    `PRIOR REFUNDS: ${refunds}.`,
+    `Order ${o.order.id}, placed ${o.order.placedAt}, status ${o.order.status}, channel ${o.order.channel}.`,
+    `Total ${o.order.totalPence}p across ${o.items.length} line(s); captured ${o.totals.capturedPence}p, refunded ${o.totals.refundedPence}p.`,
+    `Lines: ${o.items.map(summariseLine).join('; ')}.`,
+    `PRIOR REFUNDS: ${summariseRefunds(o)}.`,
   ].join('\n');
 }
 
@@ -65,7 +65,7 @@ export function buildGetOrder(cfg: ApiConfig, session: Session): Tool {
     },
     run: async () =>
       guarded<Order>(async () =>
-        getJson<Order>(cfg, session, `/orders/${encodeURIComponent(session.orderId)}`),
+        getJson(cfg, session, `/orders/${encodeURIComponent(session.orderId)}`, OrderResponseSchema),
       ),
     render: (outcome: Outcome<Order>) =>
       outcome.ok ? summarise(outcome.data) : `Could not read the order: ${outcome.detail}`,

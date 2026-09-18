@@ -22,19 +22,52 @@ const TOKEN = 'stub-service-token';
 const CASE = 'CASE-STUB-0001';
 const ORDER = 'ORD-100931';
 
+/**
+ * THE SHAPE IS COPIED FROM THE RUNNING API, NOT INVENTED.
+ *
+ * The first version of this file was a flat order with `orderId`, `qty` and
+ * `totals.grandTotalPence`. Every Step 4a check passed against it. Step 4b
+ * pointed the same tool at the real API and got `ok: true` with every scalar
+ * `undefined`, because the real payload NESTS under `order` and names things
+ * differently. The stub was lying and six green checks were green about a
+ * fiction.
+ *
+ * A stub is a claim about someone else's contract. This one is now read off
+ * `curl :3610/orders/ORD-101414` and `commerce:mcp-round-trip` re-checks that
+ * claim against the live API rather than trusting this comment.
+ */
 const ORDER_BODY = {
-  orderId: ORDER,
-  placedAt: '2026-08-14',
-  status: 'delivered',
-  totals: { itemsPence: 19899, deliveryPence: 997, grandTotalPence: 20896 },
+  order: {
+    id: ORDER,
+    placedAt: '2026-08-14T09:12:00.000Z',
+    status: 'delivered',
+    channel: 'web',
+    serviceLevel: 'standard',
+    shipmentRef: 'SHP-100931',
+    promisedBy: '2026-08-19T17:00:00.000Z',
+    subtotalPence: 19899,
+    shippingPence: 997,
+    totalPence: 20896,
+  },
+  customer: { userId: 'USR-0412', email: 'held.by.the.api@example.co.uk', fullName: 'Stub Customer' },
   items: [
-    { lineId: 'ORD-100931-L1', productId: 'PRD-0112', name: 'Aldworth stoneware dinner set', qty: 1, unitPricePence: 8900 },
-    { lineId: 'ORD-100931-L2', productId: 'PRD-0341', name: 'Caldbeck wool throw', qty: 1, unitPricePence: 10999 },
+    {
+      id: 'ORD-100931-L1', sku: 'ALD-DIN-12', name: 'Aldworth stoneware dinner set',
+      variantName: 'slate', quantity: 1, unitPricePence: 8900, lineTotalPence: 8900,
+      productCategory: 'homeware', marketplaceSeller: null,
+    },
+    {
+      id: 'ORD-100931-L2', sku: 'CAL-THR-01', name: 'Caldbeck wool throw',
+      variantName: null, quantity: 1, unitPricePence: 10999, lineTotalPence: 10999,
+      productCategory: 'homeware', marketplaceSeller: null,
+    },
   ],
-  payments: [{ paymentId: 'PAY-500221', method: 'card', amountPence: 20896 }],
-  priorRefunds: [
-    { refundId: 'REF-700118', lineId: 'ORD-100931-L1', amountPence: 2200, reason: 'chipped side plate, partial' },
+  payments: [
+    { id: 'PAY-500221', method: 'card', amountPence: 20896, pspReference: 'psp_9f21', capturedAt: '2026-08-14T09:12:04.000Z' },
   ],
+  // T3: a prior partial the ORDER total still reads as unrefunded.
+  priorRefunds: [{ id: 'REF-700118', amountPence: 2200, reason: 'chipped side plate, partial' }],
+  totals: { capturedPence: 20896, refundedPence: 2200, netPence: 18696 },
 };
 
 const send = (res: ServerResponse, status: number, body: unknown): void => {

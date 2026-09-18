@@ -291,7 +291,7 @@ async function probeGetOrder(stub: Stub): Promise<void> {
   const outcome = outcomeOf(result);
   check(
     'get_order reads a real order across the boundary',
-    outcome.ok === true && outcome.data.orderId === STUB.orderId,
+    outcome.ok === true && outcome.data.order.id === STUB.orderId,
     'no database credential in this process — a base URL and a service token. ' +
       'That emptiness is what PLAN.md §4.1 claims and this is where it becomes true',
   );

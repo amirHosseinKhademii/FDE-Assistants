@@ -100,8 +100,16 @@ the dependency edges for each topic. Deliberately not a lesson plan.
 ### commerce — the fifth engagement, PARTLY BUILT
 
 [`commerce/PLAN.md`](commerce/PLAN.md) — the plan. **The MCP server's protocol
-layer and the policy corpus are built; the estate, the API and the desk are being
-built by three other sessions.** [`commerce/CORPUS.md`](commerce/CORPUS.md) is
+layer, the policy corpus, the five-database estate and the NestJS backend are
+built and green independently; nothing is wired end to end yet, and the desk is
+not started.** [`commerce/ESTATE.md`](commerce/ESTATE.md) is the estate as built —
+what exists, what the identifiers are, and the reserved `CAS-9xxxx` id block that
+survives a reseed. [`commerce/API.md`](commerce/API.md) is the backend as built —
+the seven routes, the answer envelope and the one property a consumer depends on
+by name (*a 5xx always means plumbing*), the fail-closed service token, the
+schema workflow that introspects and never pushes, and §10: three defects that
+were invisible to a green local run.
+[`commerce/CORPUS.md`](commerce/CORPUS.md) is
 the corpus meta-document — read it before quoting anything in `commerce/corpus/`,
 and note §4: there is a question the corpus deliberately cannot answer, and
 writing the missing document would destroy the test. Thornbury Goods,

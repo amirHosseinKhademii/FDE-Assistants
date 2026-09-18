@@ -400,6 +400,50 @@ polite refusal rather than the order.
 
 ---
 
+### ☑ DONE 2026-09-18 — and it was NOT a base-URL change
+
+The step's own claim was that going from stub to live is a base URL and nothing
+else. **It was not, and the way it failed is the lesson.**
+
+```
+  OK — the order came back across the boundary
+    Order undefined, placed undefined, status undefined.
+    Total undefinedp across 2 line(s).
+  isError            false
+  structuredContent  ok:true
+```
+
+`ok: true`. `isError: false`. Every scalar `undefined`. **Nothing failed.** The
+real payload nests under `order` and names things differently; the stub was flat
+and had been lying, and Step 4a's six green checks were green about a fiction.
+
+**A silently wrong success is the worst available failure.** A 500 is loud. A
+refusal is labelled. This is neither, and it is what an unvalidated boundary
+produces by default — because `getJson<Order>` was a **cast**, and a cast tells
+the compiler what to believe rather than checking anything.
+
+Three changes came out of it:
+
+1. **The boundary parses.** `getJson` now takes a Zod schema rather than a type
+   parameter, so there is no overload that skips the check. A payload that does
+   not match is `malformed_response` — a named, countable outcome — and the
+   message names the field: *"customer.userId: expected string, received
+   undefined"*. That arrived on the very next run and was right.
+2. **A sixth cause.** `malformed_response` is ours, not the API's vocabulary. A
+   contract violation is neither the API refusing nor the plumbing failing, and
+   calling it either would hide it.
+3. **`commerce:mcp-round-trip`** — asserts the same schema parses the stub AND
+   the live API. This is the check §6.2 promised when it put the fixture seam at
+   the client boundary and admitted the cost. **It caught a drift on its first
+   run** (I had corrected the schema and not the stub), which is the best
+   possible first result for a check of that kind.
+
+> **Two field names, guessed twice, both wrong.** `customer.id` then
+> `customer.userId`. The compiler was content both times, because a cast cannot
+> disagree and a schema can. The habit this replaces: read the shape off the wire
+> with `curl` before writing the interface — it takes one command and it is the
+> difference between a contract and a wish.
+
 ## Step 5 · Make the result typed
 
 **Goal.** Add `outputSchema`, and return `structuredContent` alongside `content`.

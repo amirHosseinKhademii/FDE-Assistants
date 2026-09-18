@@ -10,6 +10,7 @@
  * Inside the NestJS app the same claim would be unverifiable, because the
  * process it lived in would hold five database pools. See PLAN.md §4.1.
  */
+import type { ZodType } from 'zod';
 import { fail, ok, type Cause, type Outcome } from './outcome';
 import type { Session } from '../session';
 
@@ -68,10 +69,20 @@ function isPlumbing(status: number): boolean {
   return status >= 500;
 }
 
+/**
+ * Fetch, then PARSE. The schema is required, and that is the point.
+ *
+ * The previous signature was `getJson<T>(...)` with `T` supplied at the call
+ * site and nothing checking it — a cast, which the compiler is obliged to
+ * believe. Step 4b returned `ok: true` with every scalar `undefined` and no
+ * layer complained. Taking a schema instead of a type parameter makes the
+ * check impossible to skip: there is no overload that omits it.
+ */
 export async function getJson<T>(
   cfg: ApiConfig,
   session: Session,
   path: string,
+  schema: ZodType<T>,
 ): Promise<Outcome<T>> {
   if (!cfg.serviceToken) {
     return fail('invalid_request', 'COMMERCE_SERVICE_TOKEN is not set; refusing to call the API.');
@@ -83,8 +94,21 @@ export async function getJson<T>(
     return fail('upstream_unavailable', `the API answered ${res.status} for ${path}`);
   }
 
-  const body = (await res.json()) as ApiEnvelope<T>;
-  if (body.ok && body.data !== undefined) return ok(body.data);
+  const body = (await res.json()) as ApiEnvelope<unknown>;
+  if (!body.ok || body.data === undefined) {
+    return fail(narrowCause(body.cause), body.detail ?? `the API refused ${path}`);
+  }
 
-  return fail(narrowCause(body.cause), body.detail ?? `the API refused ${path}`);
+  const parsed = schema.safeParse(body.data);
+  if (!parsed.success) {
+    // NAME THE FIELDS. "Validation failed" sends the next person back to the
+    // network tab; the path and the expectation send them to the line.
+    const issues = parsed.error.issues
+      .slice(0, 4)
+      .map((i) => `${i.path.join('.') || '<root>'}: ${i.message}`)
+      .join('; ');
+    return fail('malformed_response', `${path} answered ok but not the shape we parse — ${issues}`);
+  }
+
+  return ok(parsed.data);
 }
