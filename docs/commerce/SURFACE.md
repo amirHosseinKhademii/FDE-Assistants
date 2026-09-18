@@ -279,32 +279,38 @@ it look like a peer of the service token.
 
 ---
 
-## 9 · What is on disk and not in git
+## 9 · Where this ended up in git, and the caveat on the history
 
-**At the time of writing, none of this is committed.** Untracked:
+**It is all committed.** `apps/web/commerce-app/`, `infra/commerce/`, the
+`deploy.yml` edits, `infra/DEPLOYMENT.md`, `docs/SITE.md`, this file and the
+`pnpm-lock.yaml` entry are in `43a26a7` and `dc08150`.
 
-```
-apps/web/commerce-app/     the whole app
-infra/commerce/            Dockerfile + DEPLOY.md
-```
+**But not under a commit message that describes them**, and that is worth
+knowing before you read the history. This section originally said none of it was
+committed and listed the command to do it. What happened between those two
+sentences is the interesting part:
 
-Modified: `.github/workflows/deploy.yml` (env, path filter, jobs 1d/2d),
-`infra/DEPLOYMENT.md` (the runbook index).
+> The work was staged with explicit paths — `git add apps/web/commerce-app
+> infra/commerce …` — precisely to avoid sweeping up three other sessions'
+> files. Another session then ran `git commit` for its own handover while that
+> index was populated, and took all of it.
 
-Two earlier edits — `commerce:dev` in the root `package.json` and the
-`commerce-app` entry in `docs/SITE.md` — **were swept into other sessions'
-commits** and are already in git.
+So `git log --oneline -- apps/web/commerce-app` returns *"git add of a directory
+is a claim about ownership of it"* — a message about a different session's
+mistake with `apps/ai/commerce`, which is the same mistake one commit later.
+Nothing is lost and nothing is wrong in the tree; the history simply does not
+explain the web surface, which is why this document is long.
 
-**Why it is uncommitted:** three other sessions have been working in this tree
-all day and committing freely, and nobody asked me to commit. `.env.example`,
-`turbo.json` and `pnpm-lock.yaml` also show as modified and are **not mine** —
-so a blanket `git commit -a` would sweep up work I did not do and cannot vouch
-for. A commit here should name paths explicitly:
+**The general lesson, and it is the one worth carrying out of a four-session
+day:** a staged index is shared mutable state between sessions in one working
+tree, and `git add` is not a private operation. Explicit paths protect you from
+what *you* sweep up. They do not protect you from somebody else committing while
+your index is loaded. Where several agents share a tree, the safe unit is
+`git commit` of named paths in one step — `git add … && git commit` as a single
+action, or `git commit -- <paths>` — never a stage that waits.
 
-```bash
-git add apps/web/commerce-app infra/commerce .github/workflows/deploy.yml infra/DEPLOYMENT.md
-```
-
-`pnpm-lock.yaml` has a 46-line addition that **is** mine — the new app's entry —
-but the file may also carry other sessions' changes, so check `git diff` on it
-before including it.
+**Not mine, and deliberately left alone** at the time of writing: `.env.example`,
+`turbo.json`, `docs/commerce/API.md`, `docs/commerce/ESTATE.md`, and the
+untracked `apps/ai/commerce/db/`, `apps/ai/commerce/src/db/`, `apps/api/`. See
+`NEXT.md` §8 — `apps/ai/commerce` is half committed, and that is the estate
+strand's to resolve rather than this one's.
