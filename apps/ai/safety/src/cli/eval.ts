@@ -70,6 +70,25 @@ const RECORDED_429 = Object.assign(new Error('Too Many Requests'), {
   cause: { statusCode: 429, responseBody: '{"error":{"code":429,"status":"RESOURCE_EXHAUSTED"}}' },
 });
 
+/**
+ * Which quota was it? The remedies are completely different.
+ *
+ * MEASURED, both on the same day:
+ *
+ *   GenerateRequestsPerMinutePerProjectPerModel-FreeTier   limit 15
+ *   GenerateRequestsPerDayPerProjectPerModel-FreeTier      limit 500
+ *
+ * Pacing fixes the first and CANNOT TOUCH the second. A run that meets the
+ * daily cap and keeps going is not being resilient, it is wasting the operator's
+ * evening: twenty-one further attempts, each waiting out its pacing first.
+ */
+function quotaKind(e: unknown): 'day' | 'minute' | 'unknown' {
+  const body = String((e as any)?.cause?.responseBody ?? (e as any)?.message ?? '');
+  if (/PerDay/i.test(body)) return 'day';
+  if (/PerMinute/i.test(body)) return 'minute';
+  return 'unknown';
+}
+
 function isRateLimit(e: unknown): boolean {
   const err = e as any;
   const status = err?.status ?? err?.statusCode ?? err?.cause?.status ?? err?.cause?.statusCode;
@@ -80,7 +99,7 @@ function isRateLimit(e: unknown): boolean {
   return /\b429\b|too many requests|rate.?limit|RESOURCE_EXHAUSTED|quota/i.test(text);
 }
 
-type Outcome = { run: Run | null; broken?: string; ms: number };
+type Outcome = { run: Run | null; broken?: string; ms: number; quota?: 'day' | 'minute' | 'unknown' };
 
 async function once(question: string): Promise<Outcome> {
   const started = Date.now();
@@ -108,10 +127,13 @@ async function once(question: string): Promise<Outcome> {
     }
     return { run: { answer: result.structured, calls }, ms: Date.now() - started };
   } catch (e) {
+    const rate = isRateLimit(e);
+    const kind = rate ? quotaKind(e) : undefined;
     return {
       run: null,
-      broken: isRateLimit(e) ? 'QUOTA' : `error: ${String((e as any)?.message ?? e).slice(0, 80)}`,
+      broken: rate ? `QUOTA (${kind})` : `error: ${String((e as any)?.message ?? e).slice(0, 80)}`,
       ms: Date.now() - started,
+      quota: kind,
     };
   }
 }
@@ -130,8 +152,10 @@ async function main(): Promise<number> {
 
   const results: any[] = [];
   let broken = 0;
+  let dailyCap = false;
 
   for (const c of CASES) {
+    if (dailyCap) break;
     const perRun: Array<{ passed: string[]; failed: string[]; broken?: string; ms: number }> = [];
 
     for (let i = 0; i < REPEAT; i++) {
@@ -139,6 +163,14 @@ async function main(): Promise<number> {
       if (!o.run) {
         broken++;
         perRun.push({ passed: [], failed: [], broken: o.broken, ms: o.ms });
+        // STOP AT THE DAILY CAP. Nothing that happens in the next twenty
+        // minutes can succeed, and every remaining attempt still waits out its
+        // pacing first. A run that keeps going here produces no data and looks
+        // like progress.
+        if (o.quota === 'day') {
+          dailyCap = true;
+          break;
+        }
       } else {
         const passed = c.checks.filter((ck) => ck.holds(o.run!)).map((ck) => ck.name);
         const failed = c.checks.filter((ck) => !ck.holds(o.run!)).map((ck) => ck.name);
@@ -182,6 +214,14 @@ async function main(): Promise<number> {
   const failed = totalChecks.filter((c: any) => c.all > 0 && c.n === 0).length;
 
   console.log(`  ${'─'.repeat(66)}`);
+  if (dailyCap) {
+    console.log(
+      `  ${RED}STOPPED — the DAILY quota is spent${OFF} (500 requests on this model).\n` +
+        `  Pacing cannot help with a per-day cap; it resets on Google's clock, not ours.\n` +
+        `  ${RED}This baseline is INCOMPLETE and must not be compared with a full one.${OFF}`,
+    );
+    console.log(`  ${'─'.repeat(66)}`);
+  }
   console.log(`  ${clean} checks always pass · ${flaky} flaky · ${failed} always fail   of ${totalChecks.length}`);
   console.log(`  ${broken} run(s) broken and excluded from every rate above`);
   console.log(
@@ -209,6 +249,11 @@ async function main(): Promise<number> {
         repeat: REPEAT,
         turnPaceMs: TURN_PACE_MS,
         recordedAt: new Date().toISOString(),
+        // MARKED, so a later diff can refuse it. An incomplete run's rates are
+        // over whatever happened to finish before the quota, which is not a
+        // denominator anybody chose.
+        complete: !dailyCap && broken === 0,
+        stoppedAtDailyCap: dailyCap,
         summary: { clean, flaky, failed, broken, totalChecks: totalChecks.length },
         cases: results,
       },
@@ -218,7 +263,7 @@ async function main(): Promise<number> {
   );
   console.log(`  ${DIM}baseline written to ${file.replace(REPO_ROOT, '.')}${OFF}\n`);
 
-  return failed > 0 ? 1 : 0;
+  return failed > 0 || dailyCap ? 1 : 0;
 }
 
 main().then((c) => process.exit(c));
