@@ -67,6 +67,15 @@ apps/web/commerce-app   @thornbury/commerce-app Thornbury Goods: `/` and `/steps
                                                 from yet, and three other sessions are
                                                 building the parts that would.
                                                 Port 3600, `pnpm commerce:dev`.
+                                                `docs/commerce/SURFACE.md` is its
+                                                handover: what is built, the
+                                                verbatim-quote maintenance
+                                                contract (`/steps` quotes another
+                                                package's source at real line
+                                                numbers and NOTHING in the build
+                                                catches drift), the palette
+                                                measurement, and what its author
+                                                would not defend.
 
 packages/uikit          @fde/uikit              Liftable into a customer's repo.
                                                 Controls, severity, motion, tokens.

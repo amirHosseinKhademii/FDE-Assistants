@@ -129,12 +129,18 @@ on:
       - 'apps/web/steering-app/**'
       - 'apps/web/pharma-app/**'
       - 'apps/web/safety-app/**'
+      - 'apps/web/commerce-app/**'
       - 'packages/**'
       - 'infra/veresk/Dockerfile'
       - 'infra/steering/Dockerfile'
       - 'infra/pharma/Dockerfile'
       - 'infra/safety/Dockerfile'
+      - 'infra/commerce/Dockerfile'
       - 'pnpm-lock.yaml'
+      # `apps/mcp/**` and `apps/api/**` are deliberately ABSENT: no image is
+      # built from either, so listing them would start a run that rebuilds four
+      # unrelated images. infra/commerce/DEPLOY.md says what has to be true
+      # before that changes.
       - '.github/workflows/deploy.yml'
 
 # Two runs of this racing each other would have them fighting over the same two
@@ -192,6 +198,17 @@ env:
   # question is the expensive kind of wrong.
   SAFETY_APP: safety-app
   SAFETY_REPO: docker.io/amir2575/calder-safety
+  # The fifth engagement, and the only one whose image needs NO secrets at all:
+  # two pages, no API route, no database, no model call. `safety-app` could say
+  # that until its desk landed, which is why this note names the thing that will
+  # end it — `/desk` at :3600, which brings a service token for the MCP server
+  # with it. Set on the container app when it exists, never in this workflow.
+  #
+  # THE MCP SERVER IS NOT DEPLOYED AND HAS NO JOB HERE. It is stdio-only until
+  # Step 7 gives it an HTTP transport, so there is no port for Container Apps to
+  # probe. infra/commerce/DEPLOY.md §"the MCP server" is the full answer.
+  COMMERCE_APP: commerce-app
+  COMMERCE_REPO: docker.io/amir2575/thornbury-commerce
   # The host — the firm's door and Meridian Pharma's pages.
   #
   # RENAMED FROM `pharma-app` ON 2026-09-13, which meant recreating it: Azure
@@ -818,6 +835,220 @@ jobs:
           done
 
       - run: echo "✅ **2c · safety deployed** — ${{ steps.smoke.outputs.url }}" >> "$GITHUB_STEP_SUMMARY"
+
+  # ── 1d ── the fifth engagement's image ──────────────────────────────────
+  commerce-build:
+    name: 1d · build commerce image
+    if: ${{ (inputs.scope || 'all') == 'all' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # The back-link to the firm, resolved rather than written down. Empty is
+      # the correct answer if the host has no ingress: `links.ts` scopes its dev
+      # fallback to `import.meta.env.DEV`, so an unset value renders the firm's
+      # name as text rather than as a link to a port on the reader's machine.
+      #
+      # THE LINK IS ONE-WAY. This app points at the firm; the firm has no
+      # Thornbury card, so there is no `VITE_COMMERCE_URL` anywhere and this job
+      # is deliberately NOT in the host's `needs:`. See infra/commerce/DEPLOY.md.
+      - name: Resolve the host's URL
+        run: |
+          fqdn=$(az containerapp show -n "$VERESK_APP" -g "$RG" \
+            --query "properties.configuration.ingress.fqdn" -o tsv 2>/dev/null || true)
+          if [ -n "$fqdn" ]; then
+            echo "resolved $VERESK_APP -> https://$fqdn"
+            echo "VERESK_URL=https://$fqdn" >> "$GITHUB_ENV"
+          else
+            echo "::warning::$VERESK_APP has no ingress — the back-link will render as plain text"
+            echo "VERESK_URL=" >> "$GITHUB_ENV"
+          fi
+
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/commerce/Dockerfile
+          push: true
+          tags: ${{ env.COMMERCE_REPO }}:sha-${{ github.sha }}
+          build-args: |
+            VITE_VERESK_URL=${{ env.VERESK_URL }}
+          cache-from: type=gha
+          # mode=min, NOT max — see the note in 1a.
+          cache-to: type=gha,mode=min,scope=commerce
+
+      - run: echo "✅ **1d · commerce image built** — \`${COMMERCE_REPO}:sha-${GITHUB_SHA}\`" >> "$GITHUB_STEP_SUMMARY"
+
+  # ── 2d ── the fifth engagement, live ────────────────────────────────────
+  commerce-deploy:
+    name: 2d · deploy commerce
+    needs: commerce-build
+    if: ${{ (inputs.scope || 'all') == 'all' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      url: ${{ steps.smoke.outputs.url }}
+    steps:
+      # Checked out only so the smoke test can read its assertion out of the
+      # source instead of having it typed into this file. See that step.
+      - uses: actions/checkout@v4
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # Created if it is not there — this app has never been stood up, so the
+      # FIRST run of this job takes the create branch. Every argument in it is
+      # the same as steering's and for the same reasons, which are written out
+      # there rather than repeated: ask the RESOURCE GROUP rather than the app,
+      # because `show` fails identically for "missing" and "may not read"; and
+      # derive the image name here rather than inheriting it, because a skipped
+      # build contributes no outputs and `--image ""` means "change nothing"
+      # and exits 0.
+      #
+      # NO SECRETS, AND UNLIKE SAFETY THAT IS STILL TRUE. Nothing on either page
+      # runs at request time: no API route, no database, no model call. When
+      # `/desk` lands it brings a service token for the MCP server, and it will
+      # be set ON THE CONTAINER APP rather than here, the same way the other
+      # four handle theirs.
+      - name: Create or update the app
+        run: |
+          image="${COMMERCE_REPO}:sha-${GITHUB_SHA}"
+          echo "IMAGE=$image" >> "$GITHUB_ENV"
+
+          if ! names=$(az containerapp list -g "$RG" --query "[].name" -o tsv 2>/tmp/az-err); then
+            echo "::error::cannot list container apps in $RG — the deploy identity needs Contributor on the RESOURCE GROUP, not on a single app. Azure said: $(cat /tmp/az-err)"
+            exit 1
+          fi
+
+          if printf '%s\n' "$names" | grep -qx "$COMMERCE_APP"; then
+            echo "updating $COMMERCE_APP -> $image"
+            az containerapp update -n "$COMMERCE_APP" -g "$RG" --image "$image" --output none
+          else
+            echo "creating $COMMERCE_APP -> $image"
+            az containerapp create \
+              --name "$COMMERCE_APP" --resource-group "$RG" --environment "$ENVIRONMENT" \
+              --image "$image" \
+              --target-port 8080 --ingress external \
+              --cpu 0.5 --memory 1.0Gi \
+              --min-replicas 0 --max-replicas 1 \
+              --output none
+          fi
+
+      # `az containerapp update` RETURNS BEFORE THE NEW REVISION SERVES, so
+      # assert the template carries the sha we just pushed AND that the active
+      # revision finished provisioning. Without this, curling straight after can
+      # hit the OLD revision, get a 200, and turn this job green having deployed
+      # nothing.
+      - name: Wait for the revision
+        run: |
+          for i in $(seq 1 40); do
+            state=$(az containerapp revision list -n "$COMMERCE_APP" -g "$RG" \
+              --query "[?properties.active] | [0].properties.provisioningState" -o tsv)
+            image=$(az containerapp show -n "$COMMERCE_APP" -g "$RG" \
+              --query "properties.template.containers[0].image" -o tsv)
+            echo "attempt $i — provisioning=$state image=$image"
+            if [ "$state" = "Provisioned" ] && [ "$image" = "$IMAGE" ]; then
+              echo "revision is provisioned and carries the expected sha"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::error::no active revision reached Provisioned with $IMAGE"
+          exit 1
+
+      - name: Smoke test
+        id: smoke
+        run: |
+          fqdn=$(az containerapp show -n "$COMMERCE_APP" -g "$RG" \
+            --query "properties.configuration.ingress.fqdn" -o tsv)
+          url="https://$fqdn"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+          # ── THE MARKER IS READ OUT OF THE SOURCE, NOT TYPED HERE ──────────
+          #
+          # The steering job records why at length: a typed marker went stale
+          # when a name changed and failed twelve green 200s in a row, reporting
+          # a deploy problem that did not exist.
+          #
+          # THIS APP HAS NO GENERATED FILE to read one out of — every figure on
+          # it was read at authoring time and written into a component. So the
+          # marker is the thing on the page that is DERIVED rather than written:
+          # a tab chip. `PHASES` in Steps.tsx declares which steps each phase
+          # holds, and `rangeOf()` turns that list into `4a–6`. If the array
+          # renders and the derivation runs, that string is on the page; if
+          # either breaks, no amount of 200 will produce it.
+          #
+          # ONE CHIP, NOT ALL SIX. The other five prove nothing the first does
+          # not, and each would be another chance for a quoting or locale bug in
+          # the one step whose whole job is to be able to fail. Safety's smoke
+          # test documents three bugs of exactly that family in a single step.
+          #
+          # The first phase is `holds: WIRE` — a reference, not a literal — so
+          # the grep for a literal list finds the SECOND phase first, which is
+          # the one this marker describes. That is load-bearing, not luck: a
+          # literal-only match is what keeps this from having to parse the file.
+          LINE=$(grep -oE "holds: \['[^]]*\]" apps/web/commerce-app/src/pages/Steps.tsx | head -1)
+          FIRST=$(printf '%s' "$LINE" | grep -oE "'[^']+'" | head -1 | tr -d "'")
+          LAST=$(printf '%s' "$LINE" | grep -oE "'[^']+'" | tail -1 | tr -d "'")
+
+          # Guarded HERE, with the reason, rather than twelve attempts later
+          # with the wrong one. An empty or single-element extraction would
+          # assemble a marker like `–` or `4a–4a`, and `grep -qa` on a dash
+          # matches almost any page — an assertion that cannot fail, on the step
+          # that exists to be able to.
+          if [ -z "$FIRST" ] || [ -z "$LAST" ] || [ "$FIRST" = "$LAST" ]; then
+            echo "::error::could not read a multi-step phase out of PHASES — got FIRST='$FIRST' LAST='$LAST' from '$LINE'"
+            exit 1
+          fi
+
+          # The en-dash is the SEPARATOR `rangeOf()` inserts, so it is typed
+          # here while both step numbers come from the source. It is a literal
+          # U+2013 rather than a shell escape: `printf '\u2013'` is not portable
+          # across the shells this has to run in, and the failure mode would be
+          # a marker containing the characters `\u2013`.
+          MARKER="$FIRST–$LAST"
+          echo "asserting /steps contains the tab chip $MARKER"
+
+          # Written to a file rather than captured: command substitution is not
+          # safe for arbitrary response bodies. --max-time is generous because
+          # min-replicas is 0 and the first request pays a cold start.
+          ok=
+          for i in $(seq 1 12); do
+            code=$(curl -s --max-time 180 -o /tmp/page.html -w '%{http_code}' "$url/")
+            echo "attempt $i — GET / -> $code"
+            if [ "$code" = "200" ] && grep -qa 'Thornbury Goods' /tmp/page.html; then ok=yes; break; fi
+            sleep 10
+          done
+          [ "$ok" = "yes" ] || { echo "::error::commerce never served its landing page"; exit 1; }
+
+          # `/steps` IS ASSERTED SEPARATELY AND ON ITS CONTENT, because it is
+          # the page that would break first: it is the only one importing
+          # @veresk/surface's Snippet, which carries a highlighter and four
+          # grammars, and it is the only one whose content is derived rather
+          # than written. A landing-only check would pass on an image whose
+          # second route never built.
+          code=$(curl -s --max-time 120 -o /tmp/steps.html -w '%{http_code}' "$url/steps")
+          echo "GET /steps -> $code"
+          [ "$code" = "200" ] || { echo "::error::/steps did not serve"; exit 1; }
+          grep -qa "$MARKER" /tmp/steps.html \
+            || { echo "::error::/steps served without the tab chip $MARKER — PHASES did not render"; exit 1; }
+
+      - run: echo "✅ **2d · commerce deployed** — ${{ steps.smoke.outputs.url }}" >> "$GITHUB_STEP_SUMMARY"
 
   # ── 3 ── the host's image, built after both engagements are live ─────────
   veresk-build:

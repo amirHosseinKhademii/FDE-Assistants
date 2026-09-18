@@ -196,6 +196,7 @@ from.
 | [`veresk/DEPLOY.md`](veresk/DEPLOY.md) | the firm's door — one page, no secrets |
 | [`pharma/DEPLOY.md`](pharma/DEPLOY.md) | the substantial one: secrets, identity, the free-tier arithmetic |
 | [`steering/DEPLOY.md`](steering/DEPLOY.md) | the bid desk |
+| [`commerce/DEPLOY.md`](commerce/DEPLOY.md) | the fifth engagement — the one where **three of four deployables cannot be deployed yet**, and the reasons are structural rather than scheduling. Read it for why the MCP server has no image and what unblocks one. |
 
 ---
 

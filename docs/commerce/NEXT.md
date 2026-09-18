@@ -277,6 +277,45 @@ apps/ai/commerce/src/{config,grounding}/        committed (the descriptor and
 The three other strands were reporting uncommitted work at the stop point. Their
 handovers say what.
 
+### ⚠ ONE HAZARD, AND IT IS MINE — read before cleaning the tree
+
+**`apps/ai/commerce` is HALF committed, and I caused it.** Commit `23202e6` used
+`git add apps/ai/commerce/src/config apps/ai/commerce/package.json` to land my
+`DocumentDomain` descriptor, and swept in two files belonging to the estate
+session that happened to sit in the same directories:
+
+```
+  TRACKED                                   NOT TRACKED
+  package.json          ← swept in          db/schema/*.sql        615 lines
+  src/config/connections.ts  ← swept in     db/world.fingerprint.json
+  src/config/commerce-documents.ts  (mine)   src/db/**            ~5,400 lines
+  src/grounding/source-probe.ts     (mine)   tsconfig.json
+```
+
+**The package therefore LOOKS committed and the thing that builds the estate is
+not.** A fresh clone gets a `package.json` declaring `db:create`, `db:migrate`,
+`db:seed` and `db:check`, and none of the code those scripts run. That is worse
+than either clean state, because the failure is at run time and reads like a
+broken script rather than a missing file.
+
+**Left for Byron rather than fixed**, because committing another session's
+~6,000 lines is not mine to do and they declined for the same reason. Two ways
+out, both one command:
+
+```bash
+# commit it — the estate becomes durable
+git add apps/ai/commerce && git commit
+
+# or un-sweep — the package goes back to consistently uncommitted
+git rm --cached apps/ai/commerce/package.json apps/ai/commerce/src/config/connections.ts
+```
+
+**The lesson, which is the reason this is written down rather than quietly
+fixed:** `git add <directory>` in a tree four sessions are writing to stages
+whatever else has landed there. I was adding two files and staged four. A
+`git add` of a *path* is a claim about ownership of that path, and in a shared
+tree that claim is usually false.
+
 **A NestJS API was left running on `:3610`** during this session and a
 `COMMERCE_SERVICE_TOKEN` was generated into `.env` (it was empty; the API is
 fail-closed, so `/health` returned 401 until it was set). The token is local and
