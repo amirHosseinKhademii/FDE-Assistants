@@ -142,11 +142,18 @@ the one above it is verifiable**.
 | 3.6 | fuse | RRF, arithmetic matching the formula on the page |
 | 3.6b | rerank | a delta against 3.7a, not a default |
 | 3.7 | measure | recall@6 against `WALKTHROUGH.md`, twice |
-| 4 | tools | five tools, then recall@6 re-measured THROUGH them — [`STAGE4.md`](STAGE4.md) |
-| 5 | contract | the schema, and coherence rejecting an unescalated conflict — [`STAGE5.md`](STAGE5.md) |
-| 6 | loop | `LOOP=mastra`, `LLM_PROVIDER=hosted` — planned in [`STAGE6.md`](STAGE6.md), not built |
-| 7 | evals | severity buckets separating wrong answers from quota failures |
-| 8 | page | a fourth surface, once there is something measured to show |
+| 4 | tools | **done** — five tools, recall@6 0.40 → 1.00 hand-routed. [`STAGE4.md`](STAGE4.md) |
+| 5 | contract | **done** — nine rules, 16 checks with controls. [`STAGE5.md`](STAGE5.md) |
+| 6 | loop | **done** — both Mastra and LangGraph reach Gemini. [`STAGE6.md`](STAGE6.md) |
+| 7 | evals | **done** — 28 of 28 decided across 3 runs; 0 of 3 judged. [`STAGE7.md`](STAGE7.md) |
+| 8 | page | the desk, the engine picker and seven tabs — the other session's |
+
+**This table said stage 6 was "planned, not built" for a day after it was
+finished.** Sixth instance of the same pattern in two days: a fact corrected in
+one file and left standing in its neighbour. The others were `ENGINES.md`'s
+heading, `PLAN.md` §8, `STAGE6.md` §3, the prompt naming `count_complaints`
+after the schema had widened, and two unrelated `3,026`s. **When a fact changes,
+grep for it.**
 
 **Stages 4 and 5 were one stage until 2026-09-17.** Splitting them is not
 cosmetic: a tool is a question you can ask the data, a contract is a shape an
