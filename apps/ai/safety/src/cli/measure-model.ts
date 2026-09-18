@@ -19,6 +19,20 @@
  * 26-of-28 beside 1.00 would be exactly the comparison the ceiling framing was
  * built to prevent.
  *
+ * ── IT REPEATS, AND THAT WAS LEARNED THE EMBARRASSING WAY ────────────────
+ *
+ * The first version ran each case ONCE and printed a single number. It said
+ * 0.50. The next run of the same code said 0.17 — REC-004 went from five of
+ * five to nothing, because the model answered from counts alone and retrieved
+ * no complaints at all.
+ *
+ * 0.50 had already been written into `INGESTION.md` as a measurement by then.
+ *
+ * This engagement has spent a whole stage saying that one run is a smoke test
+ * and not a number, and then published one. So this repeats like `safety:eval`
+ * does, reports the SPREAD rather than a point, and refuses to print a single
+ * headline figure when the runs disagree.
+ *
  * ── AND THE DOCUMENTS ARE TAKEN FROM WHAT THE TOOLS RETURNED ──────────────
  *
  * Not from the answer's citations. A model that cites a document it never
@@ -38,6 +52,17 @@ const DIM = '\x1b[2m';
 const OFF = '\x1b[0m';
 
 const TURN_PACE_MS = Number(process.env.TURN_PACE_MS ?? 4500);
+
+function repeatCount(): number {
+  const i = process.argv.indexOf('--repeat');
+  const fromFlag = i >= 0 ? Number(process.argv[i + 1]) : NaN;
+  if (Number.isFinite(fromFlag) && fromFlag > 0) return fromFlag;
+  const fromEnv = Number(process.env.EVAL_REPEAT);
+  if (Number.isFinite(fromEnv) && fromEnv > 0) return fromEnv;
+  return 3;
+}
+const REPEAT = repeatCount();
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 interface Retrieved {
   id: string;
@@ -98,40 +123,65 @@ async function main(): Promise<number> {
   }
 
   console.log('\nrecall@6, with the MODEL doing the routing');
-  console.log(`  ${DIM}the three retrieval cases, one run each. 4.5 called these tools by hand.`);
-  console.log(`  this is the same measurement with nobody helping.${OFF}\n`);
+  console.log(`  ${DIM}three retrieval cases × ${REPEAT} runs. 4.5 called these tools by hand.${OFF}\n`);
 
-  const results: CaseResult[] = [];
+  const perCase: Array<{ id: string; recalls: number[]; traces: string[] }> = [];
 
   for (const c of CASES) {
-    const r = await askSafety(c.question, { engine: resolved.engine, turnPaceMs: TURN_PACE_MS });
-    const docs = documentsFrom(r.calls);
-    const scored = scoreCase(c, docs, r.ms, false);
-    results.push(scored);
+    const recalls: number[] = [];
+    const traces: string[] = [];
+    let last: CaseResult | null = null;
 
-    const plain = PLAIN[c.id] ?? 0;
-    const delta = scored.recall - plain;
+    for (let i = 0; i < REPEAT; i++) {
+      const r = await askSafety(c.question, { engine: resolved.engine, turnPaceMs: TURN_PACE_MS });
+      const scored = scoreCase(c, documentsFrom(r.calls), r.ms, false);
+      recalls.push(scored.recall);
+      traces.push(r.calls.map((x) => x.name).join(' → ') || 'no tools called');
+      last = scored;
+      await sleep(2000);
+    }
+
+    perCase.push({ id: c.id, recalls, traces });
+    const lo = Math.min(...recalls);
+    const hi = Math.max(...recalls);
+    const spread = lo === hi ? `${lo.toFixed(2)}` : `${lo.toFixed(2)}–${hi.toFixed(2)}`;
+    const colour = lo === hi ? (lo === 1 ? GREEN : lo === 0 ? RED : YEL) : YEL;
+
     console.log(
-      `  ${scored.recall === 1 ? GREEN : scored.recall === 0 ? RED : YEL}${scored.recall.toFixed(2)}${OFF}  ${c.id}  ` +
-        `${DIM}plain ${plain.toFixed(2)} · ceiling ${(CEILING[c.id] ?? 1).toFixed(2)} · ` +
-        `${delta >= 0 ? '+' : ''}${delta.toFixed(2)} on plain${OFF}`,
+      `  ${colour}${spread.padEnd(11)}${OFF}${c.id}  ${DIM}plain ${(PLAIN[c.id] ?? 0).toFixed(2)} · ` +
+        `ceiling ${(CEILING[c.id] ?? 1).toFixed(2)} · runs ${recalls.map((x) => x.toFixed(2)).join(' ')}${OFF}`,
     );
-    console.log(`        ${DIM}${r.calls.map((x) => x.name).join(' → ') || 'no tools called'}${OFF}`);
-    for (const f of scored.found) console.log(`        ${GREEN}found${OFF}   ${f} at ${scored.positions[f]}`);
-    for (const m of scored.missing) console.log(`        ${RED}MISSING${OFF} ${m}`);
+    for (const t of [...new Set(traces)]) console.log(`        ${DIM}${t}${OFF}`);
+    if (last) for (const m of last.missing) console.log(`        ${RED}last run missed${OFF} ${m}`);
     console.log();
   }
 
-  const model = overallRecall(results);
+  // PER RUN, then averaged — so the spread is over whole runs rather than over
+  // cases. An average of averages would hide that one run scored 0.50 and
+  // another 0.17.
+  const runTotals = Array.from({ length: REPEAT }, (_, i) =>
+    perCase.reduce((a, c) => a + (c.recalls[i] ?? 0), 0) / perCase.length,
+  );
+  const lo = Math.min(...runTotals);
+  const hi = Math.max(...runTotals);
+
   console.log(`  ${'─'.repeat(64)}`);
   console.log(`  recall@${DEFAULT_K}`);
-  console.log(`    plain retrieval        ${DIM}0.40${OFF}`);
-  console.log(`    tools, called by hand  ${DIM}1.00${OFF}  ${DIM}a ceiling${OFF}`);
-  console.log(`    tools, called by the model   ${GREEN}${model.toFixed(2)}${OFF}`);
+  console.log(`    plain retrieval        ${DIM}0.40${OFF}  ${DIM}deterministic${OFF}`);
+  console.log(`    tools, called by hand  ${DIM}1.00${OFF}  ${DIM}a ceiling, deterministic${OFF}`);
   console.log(
-    `\n  ${DIM}${results.length} retrieval cases, ONE run each. The ceiling was also one run per case,\n` +
-      `  with the calls written by hand — so this says whether a model reaches what was\n` +
-      `  reachable, and nothing about how often.${OFF}\n`,
+    `    tools, called by the model   ${YEL}${lo.toFixed(2)} to ${hi.toFixed(2)}${OFF}` +
+      `  ${DIM}across ${REPEAT} runs: ${runTotals.map((x) => x.toFixed(2)).join(', ')}${OFF}`,
+  );
+
+  // NO SINGLE HEADLINE WHEN THE RUNS DISAGREE. A mean of 0.50 and 0.17 is 0.33,
+  // which is a number no run produced and which hides that the thing being
+  // measured moves by a factor of three.
+  console.log(
+    lo === hi
+      ? `\n  ${DIM}Every run agreed. ${REPEAT} runs, 3 cases.${OFF}\n`
+      : `\n  ${YEL}The runs disagree by ${(hi - lo).toFixed(2)}${OFF}, so there is no single number here.\n` +
+          `  ${DIM}Quote the range. A mean would be a figure no run produced.${OFF}\n`,
   );
   return 0;
 }

@@ -622,22 +622,28 @@ filter kind=recall, F-150, PRNDL component     → 20V197000, exactly
 > answer is a lookup, not a search.* Reached here independently, on a corpus
 > that shares nothing with it.
 
-### MEASURED 2026-09-18 — the model routes it at 0.50
+### MEASURED 2026-09-18 — and the first attempt published a single run
 
-The third number the ceiling framing was built for:
-
-```
-plain retrieval               0.40
-tools, called BY HAND         1.00     the ceiling
-tools, called BY THE MODEL    0.50
-```
-
-Per case, and this is where it stops being one number:
+**This section said `0.50` for about ten minutes.** That was one run. The next
+run of the same code, same question, same model, gave **0.17**:
 
 ```
-REC-001   0.50    found the campaign at 1, missed complaint 11353867
-REC-004   1.00    all five death complaints, positions 1-5
-REC-005   0.00    retrieved no complaints at all
+run 1    REC-001 0.50 · REC-004 1.00 · REC-005 0.00   →  0.50
+run 2    REC-001 0.50 · REC-004 0.00 · REC-005 0.00   →  0.17
+```
+
+REC-004 went from five of five to nothing, because the model answered from
+`count_complaints` alone and retrieved no complaints at all.
+
+> This engagement spent a whole stage establishing that one run is a smoke test
+> and not a number, and then published one. The harness now repeats and reports
+> a RANGE, and refuses to print a headline figure when the runs disagree — a
+> mean of 0.50 and 0.17 is 0.33, which is a number no run produced.
+
+```
+plain retrieval               0.40     deterministic
+tools, called BY HAND         1.00     the ceiling, deterministic
+tools, called BY THE MODEL    0.17 to 0.50 across two runs — needs repeating
 ```
 
 ### And two of the three shortfalls are the METRIC, not the model
@@ -660,9 +666,10 @@ names a different complaint.
 > recall metric scores what the key NAMED, not what a good answer would cite.**
 > Here it is, doing that twice out of three times.
 
-**So 0.50 is the honest headline and it is not a grade.** The gap between it and
-1.00 is partly a model reaching fewer of the named documents, and partly a
-metric that cannot tell a shortcut from a shortfall. Stage 7's answer checks —
+**So there is no single honest headline yet, and what exists is not a grade.**
+The gap to 1.00 is three things at once: a model reaching fewer of the named
+documents, a metric that cannot tell a shortcut from a shortfall, and run-to-run
+variance wide enough to swamp both. Stage 7's answer checks —
 26 of 28 — are the number that reflects whether the answers are any good, and
 the two must not be averaged.
 
