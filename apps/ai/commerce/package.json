@@ -1,0 +1,42 @@
+{
+  "name": "@thornbury/commerce",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Thornbury Goods — the fifth engagement. Stage S1: five sibling databases, real FKs inside, soft keys between, seeded deterministically. See docs/commerce/PLAN.md.",
+  "license": "UNLICENSED",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "db:create": "ts-node src/db/init/create.ts",
+    "db:migrate": "ts-node src/db/init/migrate.ts",
+    "db:seed": "ts-node src/db/seed/seed.ts",
+    "db:check": "ts-node src/db/init/check.ts",
+    "db:drop": "ts-node src/db/init/drop.ts",
+    "db:reset": "ts-node src/db/init/drop.ts --yes && ts-node src/db/init/create.ts && ts-node src/db/init/migrate.ts && ts-node src/db/seed/seed.ts && ts-node src/db/init/check.ts",
+    "env:check": "ts-node src/db/init/env-check.ts",
+    "world:check": "ts-node src/db/seed/world-check.ts",
+    "source:probe": "ts-node src/grounding/source-probe.ts"
+  },
+  "dependencies": {
+    "@fde/estate": "workspace:*",
+    "@fde/grounding": "workspace:*",
+    "dotenv": "^16.4.5",
+    "pg": "^8.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.3.1",
+    "@types/pg": "^8.23.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.1.3"
+  },
+  "main": "./dist/config/connections.js",
+  "exports": {
+    "./config": "./dist/config/connections.js",
+    "./rows": "./dist/db/schema/rows.js"
+  },
+  "files": [
+    "dist",
+    "db/schema",
+    "package.json"
+  ]
+}

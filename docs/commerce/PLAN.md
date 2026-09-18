@@ -303,8 +303,10 @@ storage layer, restated at the application layer.
 Two assumptions worth stating because the rest of the repo does not need them:
 
 - **Decorators.** `experimentalDecorators` and `emitDecoratorMetadata` in
-  `apps/api/commerce/tsconfig.json` only. No other package in this workspace
-  turns them on and none should have to.
+  `apps/api/commerce/tsconfig.json`. ~~No other package in this workspace turns
+  them on~~ — **wrong, corrected 2026-09-18**: `packages/guard/tsconfig.json`
+  already sets both. The accurate claim is that no other package *needs* them,
+  which is a weaker and checkable statement.
 - **One schema language.** DTOs are Zod, not `class-validator`, so the API's
   request shapes, the MCP tool `inputSchema`s and `ResolutionAnswerSchema` are
   all the same dialect. This is the argument `coverage-schema.ts` already makes
@@ -665,9 +667,36 @@ side of the boundary, not in the arguments. It is also why T5 (injected text
 asking for a refund) cannot reach another customer's data even if the model
 falls for it.
 
-☐ **`commerce:scope-check`** — asks for an out-of-scope order id through every
-read tool and asserts a structured miss, with the negative control that removing
-the session check makes it pass.
+> ### ▲▲ CORRECTED 2026-09-18 — "not found" and "out of scope" must NOT differ
+>
+> This plan told the API session two things that cannot both hold:
+> *(a)* `not_found` and `out_of_scope` must be different `cause` values, and
+> *(b)* an out-of-scope answer must never reveal that the record exists.
+>
+> **(a) destroys (b), and they were right to refuse it.** If a nonexistent order
+> returns `not_found` and a real order belonging to someone else returns
+> `out_of_scope`, then **the pair of answers is the disclosure.** A caller
+> varying one path parameter learns exactly which order ids are real without
+> ever reading a row — an enumeration oracle over Thornbury's entire order book,
+> which is worth more than any single order in it.
+>
+> **As built:** for any record the caller NAMES inside a case's scope — an order
+> id, a customer id, a case id — both states collapse to `out_of_scope` with
+> **byte-identical** `detail`. `commerce:api-scope-check` asserts the two are
+> indistinguishable, so giving them different text later turns the check red.
+>
+> `not_found` stays alive where there is nothing to enumerate: `thb_policy`
+> lookups. *"There is no SLA for that carrier and service level"* names no
+> customer and leaks nothing. **Keeping the value in use there is what makes its
+> absence on the customer-data paths a decision rather than an oversight.**
+>
+> The general rule, and it is not specific to this API: **a distinction that is
+> useful to a debugger is a side channel to an attacker.** Deciding which of
+> those a caller is cannot be done per-response; it is decided once, by shape.
+
+☑ **`commerce:api-scope-check`** — built by the API session. Asserts an
+out-of-scope id and a nonexistent id are indistinguishable, and that removing
+the session check turns it red.
 
 ---
 

@@ -1,7 +1,7 @@
 {
   "name": "claims-assistant",
   "private": true,
-  "description": "FDE practice #2 — Turborepo workspace. See README.md.",
+  "description": "FDE practice #2 \u2014 Turborepo workspace. See README.md.",
   "license": "UNLICENSED",
   "packageManager": "pnpm@9.15.9",
   "scripts": {
@@ -172,7 +172,17 @@
     "commerce:mcp-serve": "pnpm --filter @thornbury/commerce-mcp serve",
     "commerce:mcp-handshake": "pnpm --filter @thornbury/commerce-mcp handshake",
     "commerce:dev": "turbo run dev --filter=@thornbury/commerce-app",
-    "commerce:mcp-check": "pnpm --filter @thornbury/commerce-mcp check"
+    "commerce:mcp-check": "pnpm --filter @thornbury/commerce-mcp check",
+    "commerce:source-probe": "pnpm --filter @thornbury/commerce source:probe",
+    "commerce:api-dev": "pnpm --filter @thornbury/commerce-api dev",
+    "commerce:api-build": "pnpm --filter @thornbury/commerce-api build",
+    "commerce:api-generate": "pnpm --filter @thornbury/commerce-api generate",
+    "commerce:api-pull": "pnpm --filter @thornbury/commerce-api pull",
+    "commerce:api-check": "pnpm --filter @thornbury/commerce-api api-check",
+    "commerce:api-guard-check": "pnpm --filter @thornbury/commerce-api guard-check",
+    "commerce:api-scope-check": "pnpm --filter @thornbury/commerce-api scope-check",
+    "commerce:api-isolation-check": "pnpm --filter @thornbury/commerce-api isolation-check",
+    "commerce:sla-check": "pnpm --filter @thornbury/commerce-api sla-check"
   },
   "devDependencies": {
     "turbo": "^2.10.12"
