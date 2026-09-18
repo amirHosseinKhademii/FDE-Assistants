@@ -251,6 +251,57 @@ Two readings, and this run cannot distinguish them:
 show is why the two are reported apart: a combined score would have averaged a
 `no` and a `yes` about the same sentence into something meaningless.
 
+### Second run, after both fixes: 0 of 3, and every control passed
+
+```
+first run    VOID   REC-001      the judge accepted an answer written to fail
+             yes    REC-004
+             yes    REC-007
+
+second run   no     REC-001      all three controls passed
+             no     REC-004
+             no     REC-007
+```
+
+Two things changed between them: REC-001's rubric was sharpened after its own
+control failed, and the judge was told **which way to err** — yes only on a
+clear and explicit satisfaction, no when partial, implied or unsure.
+
+**The swing from 2-of-2 to 0-of-3 is large and it was caused by an instruction
+I wrote.** So the obvious suspicion is that the judge is now stuck on "no",
+which would be exactly as useless as being stuck on "yes".
+
+**The controls are the answer to that.** All three rubrics required the judge to
+*accept* a passing exemplar, and all three did. A judge answering no to
+everything cannot pass a control that demands a yes. It discriminates; it simply
+does not think these answers qualify.
+
+### Which is the interesting result
+
+```
+decided    26 of 28 checks         what can be mechanically verified
+judged      0 of 3                 what has to be read
+```
+
+The system is **mechanically excellent and editorially weak**. It cites, it
+escalates, every number carries the tool that produced it, it proves an absence
+rather than inferring it — and it does not explain *why* two numbers differ, or
+hold the line on allegation-versus-finding when writing prose.
+
+That is a coherent picture rather than a contradiction. Every mechanical check
+has a mechanism behind it: a contract rule, a tool result, a coherence check.
+**Nothing in this system makes an answer explain itself** — that was left to the
+prompt, and the prompt is read once at the start.
+
+> It is the same finding as REC-001's escalation, one level up. What a tool
+> result says at the moment of use, the system does. What a prompt asks for in
+> general, it does when it happens to.
+
+**One run each, and the judge is the same model being judged.** These numbers
+are provisional until repeated, and they must not be added to the 26.
+
+---
+
 ### And I claimed this was already answerable. It is not.
 
 The line here first read: *"a question the recorded tool calls and counts in the
