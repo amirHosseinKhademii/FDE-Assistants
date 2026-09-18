@@ -15,16 +15,21 @@
  * question answered well is the least this stage could have shown and still
  * been worth continuing.
  *
- * ── THE GAP IS THE WHOLE STAGE, AND IT IS THE PAYOFF OF TWO STAGES ────────
+ * ── THE GAP IS THE WHOLE STAGE, AND THE NUMBER HAS ARRIVED ────────────────
  *
- * 4.5 measured a CEILING of 1.00 with the tools called by hand. This stage finds
- * out how close a model gets to it, and it will be lower. The gap between them
- * is the only thing stage 6 actually measures.
+ * 4.5 measured a CEILING of 1.00 with the tools called by hand. A model doing
+ * the routing reaches 0.17 to 0.50 — A RANGE RATHER THAN A POINT, because the
+ * runs disagree and a mean would be 0.28, which nothing measured.
  *
- * WHICH IS WHY THE PAGE MUST NEVER SHOW STAGE 6'S NUMBER ALONE. Alone it says
- * "the system scores X". Beside 1.00 it says "X of what was reachable" — and
- * that is the sentence that says whether to fix the prompt or the tools. The
- * empty slot is drawn now so the number has nowhere to arrive except beside it.
+ * THE SLOT EARNED ITS KEEP TWICE BEFORE IT WAS FILLED. It refused a number
+ * nobody had, and then refused stage 7's 26-of-28, which is an answer score
+ * rather than a retrieval one. Both are large and good and about different
+ * things, which is exactly the confusion it was drawn to prevent.
+ *
+ * AND THE RANGE IS THE LEAST INTERESTING PART. Two of the three cases never
+ * move; all the spread is one of them. One of the stable ones scores zero while
+ * answering perfectly, because it proves an absence with an empty search and a
+ * measure of retrieved documents has nothing to count.
  *
  * ── AND THE DETERMINISM ENDS HERE ─────────────────────────────────────────
  *
@@ -79,6 +84,35 @@ const LOOP: readonly { n: string; what: string; detail?: string }[] = [
  * stage 5 was the same every time and checkable against a shell command.
  */
 const RUNS: readonly string[] = ['85.8s', '13.7s', '6.5s', '63.5s'];
+
+/**
+ * recall@6 with the model doing the routing, three runs.
+ *
+ * ── A RANGE, AND IT MUST NOT BECOME A POINT ───────────────────────────────
+ *
+ * The mean of 0.50, 0.17 and 0.17 is 0.28, which is a figure no run produced.
+ * The gap between the runs IS the result: a model that retrieves everything or
+ * nothing depending on the day.
+ *
+ * ── AND THE PER-CASE RECORD IS THE ACTUAL FINDING ─────────────────────────
+ *
+ * Two of the three cases never move. All the spread is one case, and there it is
+ * binary — it either calls the complaint search and gets all five, or answers
+ * from the count alone and retrieves nothing. Stage 7 measured that same
+ * behaviour from the opposite side at the same frequency, which is worth more
+ * than either measurement alone.
+ *
+ * ── TWO OF THE THREE SHORTFALLS ARE THE METRIC, NOT THE MODEL ─────────────
+ *
+ * The case scoring a stable 0.00 answers perfectly: it proves the absence with a
+ * search that returns nothing and never needs a complaint. It took the shorter,
+ * stronger route and a fixed-k metric charged it for that.
+ */
+const ROUTED: readonly { id: string; runs: readonly number[]; note: string }[] = [
+  { id: 'REC-001', runs: [0.5, 0.5, 0.5], note: 'stable — finds the campaign, then cites different evidence than the key names' },
+  { id: 'REC-004', runs: [1, 0, 0], note: 'all of the variance is here, and it is all or nothing' },
+  { id: 'REC-005', runs: [0, 0, 0], note: 'stable at zero — and its answer is right every time' },
+];
 
 /** The six steps, all of them done. */
 const STEPS: readonly { n: string; what: string; check: string; done?: boolean }[] = [
@@ -305,9 +339,10 @@ export function Stage6() {
         </Why>
       </Chapter>
 
-      {/* THE GAP. Drawn empty on purpose: the number has nowhere to arrive
-          except beside the ceiling it will be compared against. */}
-      <div className="cal-gap">
+      {/* THE GAP, FILLED — with a range rather than a number, because the runs
+          disagree and the disagreement is the result. A mean would be 0.28,
+          which nothing measured. */}
+      <div className="cal-gap" data-filled="true">
         <p className="cal-result-label">the only thing this stage measures</p>
         <div className="cal-result-arc">
           <div>
@@ -319,15 +354,40 @@ export function Stage6() {
           </span>
           <div>
             <p className="cal-result-cap">a model choosing them</p>
-            <p className="cal-gap-pending">not yet</p>
+            <p className="cal-gap-range">0.17–0.50</p>
+            <p className="cal-gap-runs">three runs · 0.50 · 0.17 · 0.17</p>
           </div>
           <p className="cal-result-ceiling">
-            <span>and it will be lower</span>
-            One number alone says “the system scores this much”. The two together
-            say “this much <em>of what was reachable</em>” — which is the sentence
-            that tells you whether to fix the asking or the tools.
+            <span>the spread is the result</span>
+            It is lower, and not for the reason it looks. Two of the three
+            questions never move — all of the gap is one of them, and there it
+            retrieves everything or nothing depending on the run.
           </p>
         </div>
+
+        <ul className="cal-routed">
+          {ROUTED.map((r) => (
+            <li key={r.id} data-stable={new Set(r.runs).size === 1}>
+              <span className="cal-routed-id">{r.id}</span>
+              <span className="cal-routed-runs">
+                {r.runs.map((v, i) => (
+                  <i key={i} data-hit={v > 0}>
+                    {v.toFixed(2)}
+                  </i>
+                ))}
+              </span>
+              <span className="cal-routed-note">{r.note}</span>
+            </li>
+          ))}
+        </ul>
+
+        <p className="cal-result-foot">
+          The last row is the metric rather than the model. That question's right
+          answer is “no recall covers this”, which it proves with a search that
+          comes back empty — it never needs a complaint, so a measure of
+          retrieved documents has nothing to count. It took the shorter,
+          stronger route and scored zero for it.
+        </p>
       </div>
 
       <Chapter

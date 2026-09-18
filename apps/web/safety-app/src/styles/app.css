@@ -1981,3 +1981,84 @@ body {
   line-height: 1.6;
   color: var(--color-ui-faint);
 }
+
+/* The slot, once a number arrived in it. A RANGE, drawn as a range — the runs
+   disagree and the disagreement is the finding, so there is no point figure
+   here to mistake for one. */
+.cal-gap[data-filled='true'] {
+  border-style: solid;
+  border-color: color-mix(in oklab, var(--color-cal-1) 30%, var(--color-ui-line));
+  background: color-mix(in oklab, var(--color-cal-1) 5%, var(--color-ui-surface));
+}
+
+.cal-gap-range {
+  margin-top: 0.125rem;
+  font-family: var(--font-mono);
+  font-size: 2.25rem;
+  line-height: 1.1;
+  color: var(--color-cal-1);
+}
+
+.cal-gap-runs {
+  margin-top: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.04em;
+  color: var(--color-ui-faint);
+}
+
+/* Per case, three runs each. The point of the block is that two rows never
+   change and one swings from everything to nothing. */
+.cal-routed {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1.125rem;
+  border-top: 1px solid color-mix(in oklab, var(--color-cal-1) 16%, var(--color-ui-line));
+  padding-top: 0.9375rem;
+}
+
+.cal-routed li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1rem;
+}
+
+.cal-routed-id {
+  width: 4.5rem;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-ui-dim);
+}
+
+.cal-routed-runs {
+  display: flex;
+  width: 9.5rem;
+  flex-shrink: 0;
+  gap: 0.5rem;
+}
+
+.cal-routed-runs i {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-style: normal;
+  color: var(--color-ui-faint);
+}
+
+.cal-routed-runs i[data-hit='true'] {
+  color: var(--color-cal-1);
+}
+
+/* The row that moves is the finding, so the stable ones step back rather than
+   the moving one being decorated. */
+.cal-routed li[data-stable='true'] .cal-routed-note {
+  color: var(--color-ui-faint);
+}
+
+.cal-routed-note {
+  flex: 1 1 18rem;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--color-ui-dim);
+}
