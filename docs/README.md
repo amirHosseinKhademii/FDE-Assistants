@@ -101,8 +101,8 @@ the dependency edges for each topic. Deliberately not a lesson plan.
 
 [`commerce/PLAN.md`](commerce/PLAN.md) — the plan. **The MCP server's protocol
 layer, the policy corpus, the five-database estate and the NestJS backend are
-built and green independently; nothing is wired end to end yet, and the desk is
-not started.** [`commerce/ESTATE.md`](commerce/ESTATE.md) is the estate as built —
+built and green independently, and the MCP-to-API wiring (86's Step 4b) is
+reported working; the desk is not started.** [`commerce/ESTATE.md`](commerce/ESTATE.md) is the estate as built —
 what exists, what the identifiers are, and the reserved `CAS-9xxxx` id block that
 survives a reseed. [`commerce/API.md`](commerce/API.md) is the backend as built —
 the seven routes, the answer envelope and the one property a consumer depends on
@@ -112,7 +112,9 @@ were invisible to a green local run.
 [`commerce/CORPUS.md`](commerce/CORPUS.md) is
 the corpus meta-document — read it before quoting anything in `commerce/corpus/`,
 and note §4: there is a question the corpus deliberately cannot answer, and
-writing the missing document would destroy the test. Thornbury Goods,
+writing the missing document would destroy the test. **[`commerce/NEXT.md`](commerce/NEXT.md) is the handover** — four sessions
+stopped together on 2026-09-18; §0 is the one-screen state, §4 is the biggest
+gap (no eval suite), §6 is the decisions nobody has taken. Thornbury Goods,
 a mid-size online retailer with its own last-mile fleet; the persona is a
 resolutions specialist answering *"my order arrived damaged."* Five Postgres
 databases (shop · wms · fleet · crm · policy) with real foreign keys inside each
