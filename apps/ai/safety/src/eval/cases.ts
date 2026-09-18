@@ -12,12 +12,19 @@
  * distinction and say why".
  *
  * A regex for the second kind measures the regex. So the second kind is NOT
- * SCORED HERE — `@fde/evals` has a classifier verifier for it and that is the
- * next step, but a judged score and a decided score must never be added
- * together.
+ * SCORED HERE — it is judged by `safety:judge`, and a judged score and a decided
+ * score must never be added together.
  *
- * Each case therefore carries its editorial checks as `unscored`, printed on
- * every run so their absence is visible rather than forgotten.
+ * This paragraph used to say `@fde/evals` "has a classifier verifier for it".
+ * IT DOES NOT — `verifyClassifier` verifies a SEVERITY classifier. The claim was
+ * corrected in `STAGE7.md` and left standing here, which is the seventh instance
+ * of that pattern in two days.
+ *
+ * The editorial ones live in `editorial.ts` — ONE definition, read by both this
+ * file's runner and the judge. They used to be written twice, once here as
+ * `unscored` strings and once there as rubric questions, which is the same
+ * drift hazard this engagement flagged when the component rule was found in two
+ * tools and then committed itself a day later.
  */
 import type { SafetyAnswer } from '../schema/safety-answer';
 import type { CallRecord } from '../agent/answer';
@@ -41,8 +48,6 @@ export interface EvalCase {
   id: string;
   question: string;
   checks: Check[];
-  /** Stated, never scored. See the header. */
-  unscored: string[];
 }
 
 const called = (r: Run, name: string) => r.calls.some((c) => c.name === name);
@@ -75,7 +80,6 @@ export const CASES: EvalCase[] = [
         why: 'whether a repair was actually carried out is recorded nowhere in this corpus',
       },
     ],
-    unscored: ['gives 103 for the recalled defect and 957 for other transmission faults, and says why the distinction matters'],
   },
   {
     id: 'REC-002',
@@ -90,7 +94,6 @@ export const CASES: EvalCase[] = [
       { name: 'cites the campaign', holds: (r) => !!r.answer?.campaigns.includes('20V197000'), why: 'the answer rests on it' },
       { name: 'does not escalate', holds: (r) => !r.answer?.escalate, why: 'the documents settle this one completely' },
     ],
-    unscored: [],
   },
   {
     id: 'REC-003',
@@ -108,7 +111,6 @@ export const CASES: EvalCase[] = [
         why: 'hedging on a recorded fact is wrong in the opposite direction',
       },
     ],
-    unscored: [],
   },
   {
     id: 'REC-004',
@@ -131,7 +133,6 @@ export const CASES: EvalCase[] = [
         why: 'the key requires at least one quoted verbatim with its number',
       },
     ],
-    unscored: ['declines to draw a conclusion about the cause — a complaint is an allegation, not a finding'],
   },
   {
     id: 'REC-005',
@@ -150,7 +151,6 @@ export const CASES: EvalCase[] = [
         why: 'there is no document to cite for something that does not exist',
       },
     ],
-    unscored: ['surfaces the volume of complaints as the reason it is worth a person looking'],
   },
   {
     id: 'REC-006',
@@ -167,7 +167,6 @@ export const CASES: EvalCase[] = [
     // THE CONTROL. This case and REC-003 fail together if anything makes the
     // system escalate on everything — the fix that turns one eval green and
     // another red. Insurance records the same pairing.
-    unscored: [],
   },
   {
     id: 'REC-007',
@@ -181,7 +180,6 @@ export const CASES: EvalCase[] = [
       },
       { name: 'does not escalate', holds: (r) => !r.answer?.escalate, why: 'the documents do settle this one' },
     ],
-    unscored: ['states WHY the distinction matters — same component is not the same defect'],
   },
   {
     id: 'REC-008',
@@ -195,6 +193,5 @@ export const CASES: EvalCase[] = [
       },
       { name: 'every number carries its tool', holds: (r) => !!r.answer && r.answer.counts.every((c) => !!c.from), why: 'counts, not readings' },
     ],
-    unscored: ['before + after is internally consistent with REC-001’s after-count'],
   },
 ];

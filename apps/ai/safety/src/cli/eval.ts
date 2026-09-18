@@ -33,6 +33,7 @@ import { recordingTools, validatorFor } from '../agent/answer';
 import { SafetyAnswerSchema, type SafetyAnswer } from '../schema/safety-answer';
 import { REPO_ROOT } from '../config/paths';
 import { CASES, type Run } from '../eval/cases';
+import { editorialFor } from '../eval/editorial';
 
 const GREEN = '\x1b[32m';
 const RED = '\x1b[31m';
@@ -225,7 +226,13 @@ async function main(): Promise<number> {
     console.log(`  ${worst}  ${c.id}   ${DIM}${usable.length}/${REPEAT} runs usable · ${(perRun.reduce((a, r) => a + r.ms, 0) / perRun.length / 1000).toFixed(0)}s avg${OFF}`);
     for (const l of lines) console.log(`        ${l.mark} ${l.name}  ${DIM}${l.n}/${l.all}${OFF}`);
     for (const r of perRun.filter((r) => r.broken)) console.log(`        ${RED}broken${OFF} ${r.broken}`);
-    for (const u of c.unscored) console.log(`        ${DIM}unscored · ${u}${OFF}`);
+    // PRINTED FROM THE ONE DEFINITION the judge also reads, so the two runners
+    // cannot describe the same property differently. `graded` says whether
+    // anything is actually checking it.
+    for (const e of editorialFor(c.id)) {
+      const graded = e.question ? 'judged by safety:judge' : 'NOT CHECKED BY ANYTHING';
+      console.log(`        ${DIM}editorial · ${e.summary}  [${graded}]${OFF}`);
+    }
     console.log();
 
     results.push({ id: c.id, runs: perRun, checks: lines.map(({ mark, ...rest }) => rest) });

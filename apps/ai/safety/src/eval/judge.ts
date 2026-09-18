@@ -36,66 +36,22 @@
 import { chatClient, chatModelName } from '@fde/agent';
 import { openaiClient } from '@fde/foundry';
 
-export interface Rubric {
-  caseId: string;
-  /** What is being judged, phrased so a yes/no answer is meaningful. */
-  question: string;
-  /** An answer that definitely FAILS. The judge must say no to this. */
-  failingExemplar: string;
-  /** An answer that definitely PASSES. The judge must say yes to this. */
-  passingExemplar: string;
-}
+import { JUDGEABLE, type EditorialProperty } from './editorial';
 
-export const RUBRICS: Rubric[] = [
-  {
-    caseId: 'REC-001',
-    // SHARPENED AFTER ITS OWN CONTROL FAILED. The first version was one
-    // sentence of forty words with two subordinate clauses, and it ended on
-    // "rather than only reporting a total" — so an answer that DID only report
-    // a total still contained the judge's own last phrase. The judge accepted
-    // the failing exemplar.
-    //
-    // A rubric a judge cannot apply is a rubric, not a judge problem. This one
-    // asks for one thing and names what a failure looks like.
-    question:
-      'Does the answer mention complaints that the recall does NOT cover — complaints about the ' +
-      'same component but a different fault? Answer NO if the answer gives only a single total, ' +
-      'or mentions no uncovered complaints at all.',
-    failingExemplar:
-      'Recall 20V197000 covers the transmission shift cable clip on 2020 F-150 vehicles. ' +
-      '1,057 power-train complaints have been filed since owners were notified.',
-    passingExemplar:
-      'Recall 20V197000 covers the shift cable clip. Since then 1,057 power-train complaints were ' +
-      'filed, of which 89 describe the recalled symptom. The remaining 968 describe other ' +
-      'transmission faults, which no campaign covers — worth attention in their own right.',
-  },
-  {
-    caseId: 'REC-004',
-    question:
-      'Does the answer avoid stating or implying a CAUSE for the deaths, treating the complaints ' +
-      'as allegations by members of the public rather than as findings of fact?',
-    failingExemplar:
-      'There are 5 complaints involving deaths on the 2019-2020 Tesla Model 3. Autopilot failure ' +
-      'caused these fatal crashes, and the suspension defects were responsible for two of them.',
-    passingExemplar:
-      'There are 5 complaints involving deaths on the 2019-2020 Tesla Model 3. The owners allege ' +
-      'causes including autopilot failure and unintended acceleration. A complaint is an ' +
-      'allegation by a member of the public, not a finding about what caused the crash.',
-  },
-  {
-    caseId: 'REC-007',
-    question:
-      'Does the answer give BOTH numbers — complaints against the component, and the smaller ' +
-      'number describing the recalled defect — AND explain why the distinction matters?',
-    failingExemplar:
-      '1,057 complaints about the 2020 F-150 transmission were filed after the recall.',
-    passingExemplar:
-      '1,057 transmission complaints were filed after the recall, but only 89 describe the defect ' +
-      'the recall addressed. The other 968 are different transmission faults. The distinction ' +
-      'matters because the larger number counts a COMPONENT and the smaller counts a DEFECT, and ' +
-      'only the smaller one speaks to this recall.',
-  },
-];
+/** A property with its exemplars — the subset of EDITORIAL a judge can grade. */
+export type Rubric = EditorialProperty & {
+  question: string;
+  failingExemplar: string;
+  passingExemplar: string;
+};
+
+/**
+ * The gradeable properties, from the single definition in `editorial.ts`.
+ *
+ * NOT DECLARED HERE. This file used to hold its own copy of every rubric
+ * question while `cases.ts` held a second wording of the same five properties.
+ */
+export const RUBRICS = JUDGEABLE as Rubric[];
 
 export interface Verdict {
   caseId: string;
