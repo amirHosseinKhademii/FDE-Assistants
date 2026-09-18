@@ -3,7 +3,8 @@
 *Index rebuilt 2026-09-14, when the docs were renamed for consistency. If you add
 a document, add a line here and follow the naming rules at the bottom.*
 
-There are three engagements in this repo and a shared toolkit underneath them.
+There are **three built engagements** in this repo, **two planned ones**
+(`safety/`, `commerce/`), and a shared toolkit underneath them all.
 Most confusion here has come from **not knowing which scope a document is
 about**, so that is how this index is organised.
 
@@ -29,7 +30,7 @@ they cover one question from a file on disk to a validated answer.
 | [`RETRIEVAL.md`](RETRIEVAL.md) | **R** — parse, chunk, embed, index, retrieve, fuse. Ends with a from-scratch appendix on vector databases and vector search. |
 | [`AUGMENTED-GENERATION.md`](AUGMENTED-GENERATION.md) | **A and G** — what is assembled into the context window, and what the answer contract forces back out. |
 | [`rag/`](rag/) | **Five patterns for when the pipeline above is not enough** — hybrid, corrective, agentic, graph, multimodal. One file each, plus [`README.md`](rag/README.md). Two are built here and measured; three are read out of other people's papers and say so, because every claim carries MEASURED HERE / CITED / PROPOSED. |
-| [`beyond-retrieval/`](beyond-retrieval/) | **Five things that are NOT retrieval** — context engineering, prompt injection, credentials and the trust boundary, multi-agent orchestration, LoRA fine-tuning. One file each, plus [`README.md`](beyond-retrieval/README.md). Starts where `rag/` stops: four are built here and measured, the fifth is cited. |
+| [`beyond-retrieval/`](beyond-retrieval/) | **Six things that are NOT retrieval** — context engineering, prompt injection, credentials and the trust boundary, [**MCP**](beyond-retrieval/MCP.md), multi-agent orchestration, LoRA fine-tuning. One file each, plus [`README.md`](beyond-retrieval/README.md). Starts where `rag/` stops: four are built here and measured, and two are not built — `MCP.md` reads its protocol claims off the SDK in `node_modules` and names the file for each, `FINETUNING.md` is cited. |
 | [`ENGINES.md`](ENGINES.md) | The two switches: `LOOP=sdk\|mastra\|langgraph` and `LLM_PROVIDER=azure\|bedrock`, and the engine × cloud matrix. |
 | [`BEDROCK.md`](BEDROCK.md) | The AWS estate, the translation nobody else writes, and the quota defect blocking it. |
 | [`FREE.md`](FREE.md) | **Running the whole thing for nothing**, after the Foundry model was deleted for cost. §0 is the whole measurement in one table: local inference tried on two GPUs and rejected, a free hosted tier that works. Also the disk trap, the cost log that priced a free run, Neon's idle hang, and what the deployed apps still need. |
@@ -46,10 +47,11 @@ they cover one question from a file on disk to a validated answer.
 | [`PATTERN-DATABASE-UI.md`](PATTERN-DATABASE-UI.md) | Showing a database on a page, as a reusable pattern. |
 | [`SECURITY-REVIEW.md`](SECURITY-REVIEW.md) | What a scan of the whole repo and its git history found, what was fixed, and the one exposure that is accepted rather than fixed. Dated — re-run it, don't trust it. |
 
-## The three engagements
+## The three built engagements
 
 Each engagement owns a folder. **The same three filenames mean the same thing in
-every folder**, which is the point of the renaming:
+every folder**, which is the point of the renaming. The two planned ones
+(`safety/`, `commerce/`) follow the same rules and are listed after this table:
 
 | | insurance | [`pharma/`](pharma/) | [`steering/`](steering/) |
 |---|---|---|---|
@@ -93,6 +95,20 @@ marked MEASURED or PROPOSED, and none of it is built yet ·
 [`LEARN-SOURCES.md`](steering/LEARN-SOURCES.md) **what in this folder teaches
 what** — a source catalogue for the `/learn` pages, with the measured figure and
 the dependency edges for each topic. Deliberately not a lesson plan.
+
+### commerce — the fifth engagement, PLANNED ONLY
+
+[`commerce/PLAN.md`](commerce/PLAN.md) — **nothing is built.** Thornbury Goods,
+a mid-size online retailer with its own last-mile fleet; the persona is a
+resolutions specialist answering *"my order arrived damaged."* Five Postgres
+databases (shop · wms · fleet · crm · policy) with real foreign keys inside each
+and soft keys between, a ~40-document policy corpus, **a NestJS backend with no
+AI in it**, and — the thing that makes this engagement different from the other
+four — **an MCP server between the model and every tool.** Read
+[`beyond-retrieval/MCP.md`](beyond-retrieval/MCP.md) first for the
+protocol; the plan's §6, §7 and §10 are what MCP breaks in this repo's existing
+machinery, how a write path is guarded when annotations cannot be trusted, and
+the measurement that decides whether the protocol was worth its cost.
 
 ### safety — the fourth engagement, PLANNED ONLY
 

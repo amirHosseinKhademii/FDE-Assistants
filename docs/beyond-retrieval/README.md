@@ -1,43 +1,57 @@
 # Beyond retrieval — the index of this folder
 
-*Written 2026-09-15. Five things that are not retrieval, each answering a
-problem that remains after the passage has been found.*
+*Written 2026-09-15. **Six** things that are not retrieval, each answering a
+problem that remains after the passage has been found. ([`MCP.md`](MCP.md) was
+added 2026-09-18 and took position 4 — see the note under the table.)*
 
 [`../rag/`](../rag/) is five ways to **find the right text**. This folder is
 what is left once you have it: what you put in the window, who is allowed to put
-things there, how many agents are doing it, and whether to change the model
-instead.
+things there, how the tools reach it, how many agents are doing it, and whether
+to change the model instead.
 
 ---
 
 ## Read in this order
 
-Not a dependency chain — a reading order. All five assume
+Not a dependency chain — a reading order. All six assume
 [`../RETRIEVAL.md`](../RETRIEVAL.md) and [`../rag/AGENTIC.md`](../rag/AGENTIC.md)
-(retrieval as a tool, the loop, the turn cap). Only `CREDENTIALS.md` genuinely
-leans on another document in this folder.
+(retrieval as a tool, the loop, the turn cap). Two now lean on another document
+in this folder: `CREDENTIALS.md` genuinely did already, and `MCP.md` is downstream
+of it.
 
 | | | the problem it answers | status |
 |---|---|---|---|
 | 1 | [`CONTEXT.md`](CONTEXT.md) | the window is read unevenly and degrades as it fills | **BUILT · MEASURED** |
 | 2 | [`INJECTION.md`](INJECTION.md) | the model cannot tell your instructions from its input | **BUILT · gaps recorded** |
 | 3 | [`CREDENTIALS.md`](CREDENTIALS.md) | the convenient implementation of every boundary fails open | **BUILT · REVIEWED** |
-| 4 | [`ORCHESTRATION.md`](ORCHESTRATION.md) | one agent, one window, is not always the shape | **BUILT · MEASURED** |
-| 5 | [`FINETUNING.md`](FINETUNING.md) | when to change the weights instead of the words | **not built · cited** |
+| 4 | [`MCP.md`](MCP.md) | the tool belongs to somebody else, so it needs a wire and a boundary | **not built · MEASURED off the SDK** |
+| 5 | [`ORCHESTRATION.md`](ORCHESTRATION.md) | one agent, one window, is not always the shape | **BUILT · MEASURED** |
+| 6 | [`FINETUNING.md`](FINETUNING.md) | when to change the weights instead of the words | **not built · cited** |
+
+> **Why `MCP.md` is 4 and not 6.** The ladder is a ladder of commitment, and
+> MCP's rung is *"the boundary is now real"* — which only means anything after
+> `CREDENTIALS.md` has established that the convenient version of every boundary
+> fails open. It sits before `ORCHESTRATION.md` because a second agent is a
+> bigger commitment than a second process. Its status line is unusual on purpose:
+> nothing here runs it, but its protocol claims were read off
+> `@modelcontextprotocol/{core,server}@2.0.0` in this workspace's `node_modules`
+> rather than recalled, and each one names the file it came from.
+> [`../commerce/PLAN.md`](../commerce/PLAN.md) is the engagement that would move
+> it to **BUILT**.
 
 ## The other two files
 
 | | |
 |---|---|
-| [`PLAN.md`](PLAN.md) | why these five, why this order, why four topics became five documents. |
+| [`PLAN.md`](PLAN.md) | why these five, why this order, why four topics became five documents. **Written before `MCP.md` existed — it argues a five-document folder and has not been revised.** |
 | [`NEXT.md`](NEXT.md) | the work queue — the brief for the `/learn` pages, with the chart signatures already verified. |
 
 ---
 
 ## Every claim carries one of three marks
 
-The same scheme as [`../rag/`](../rag/README.md), for the same reason: one of
-these five documents describes something this repo has never run.
+The same scheme as [`../rag/`](../rag/README.md), for the same reason: two of
+these six documents describe something this repo has never run.
 
 | mark | means | how to check it |
 |---|---|---|
