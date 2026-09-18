@@ -138,6 +138,20 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # JOBS DO NOT SHARE A FILESYSTEM, and this one learned that the hard way.
+      #
+      # The offline job runs `pnpm build`; this job started from a clean checkout
+      # where `packages/grounding/dist` did not exist, and every tool check died
+      # on "Cannot find module '@fde/grounding'". The checks are `ts-node` over
+      # source that imports the shared packages by name, so those packages have
+      # to be BUILT here too.
+      #
+      # `...` builds the domain package AND its dependencies — five tasks rather
+      # than the nineteen a bare `pnpm build` would run, because nothing in this
+      # job renders a web app.
+      - name: build what the checks import
+        run: pnpm build --filter=@calder/safety...
+
       # A SKIP THAT REPORTS SUCCESS IS THE FAILURE THIS REPO IS ABOUT.
       #
       # The first run of this workflow went green in sixteen seconds with every
@@ -224,6 +238,11 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
+
+      # Same reason as the tier above: `safety:run-all` is `ts-node` over source
+      # that imports the shared packages by name.
+      - name: build what the baseline imports
+        run: pnpm build --filter=@calder/safety...
 
       # Same rule as the tier above. This job is `continue-on-error`, so a
       # failure here marks the step red without failing the run — which is the
