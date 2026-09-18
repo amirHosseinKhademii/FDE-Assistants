@@ -251,9 +251,29 @@ Two readings, and this run cannot distinguish them:
 show is why the two are reported apart: a combined score would have averaged a
 `no` and a `yes` about the same sentence into something meaningless.
 
-The next thing worth doing is reading REC-007's actual answer against both — a
-question the recorded tool calls and counts in the baseline can now answer
-without spending a single request.
+### And I claimed this was already answerable. It is not.
+
+The line here first read: *"a question the recorded tool calls and counts in the
+baseline can now answer without spending a single request."*
+
+**No baseline carries those fields.** Call recording was added to the eval
+harness *after* the last baseline was taken, so the capability exists in code
+and has produced no data. Checking the file says `FIELD ABSENT` on all three
+runs.
+
+> Third time today a capability was described as available because it had been
+> built. Built is not measured, and a file is the cheapest possible way to find
+> out which.
+
+**Settling it costs one question**, not a baseline:
+
+```
+pnpm safety:ask "How many complaints about the 2020 F-150 transmission were filed after the recall?"
+```
+
+That prints the prose and the `counts` entries side by side. If the prose holds
+both numbers and `counts` holds one, the mechanical check is measuring
+bookkeeping. If the prose holds one, the judge was lenient.
 
 ---
 
