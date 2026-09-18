@@ -622,6 +622,52 @@ filter kind=recall, F-150, PRNDL component     → 20V197000, exactly
 > answer is a lookup, not a search.* Reached here independently, on a corpus
 > that shares nothing with it.
 
+### MEASURED 2026-09-18 — the model routes it at 0.50
+
+The third number the ceiling framing was built for:
+
+```
+plain retrieval               0.40
+tools, called BY HAND         1.00     the ceiling
+tools, called BY THE MODEL    0.50
+```
+
+Per case, and this is where it stops being one number:
+
+```
+REC-001   0.50    found the campaign at 1, missed complaint 11353867
+REC-004   1.00    all five death complaints, positions 1-5
+REC-005   0.00    retrieved no complaints at all
+```
+
+### And two of the three shortfalls are the METRIC, not the model
+
+**REC-005 scores 0.00 while answering perfectly.** Its stage-7 answer checks are
+`3/3` on all four, including *states it plainly* and *records the empty search as
+evidence*. The model called `find_recalls` twice, established that no recall
+covers the vehicle, and said so.
+
+It never retrieved a complaint — so recall@6 scores zero. But the complaints
+were only ever *corroboration*; the empty search is the **proof**. The model took
+the shorter, stronger route and the metric charged it for the difference.
+
+**REC-001 loses half for the same reason.** It reached for `complaints_citing`
+instead of `search_complaints`, retrieving the seven complaints that name the
+campaign — arguably the better evidence for "is the fix holding" — and the key
+names a different complaint.
+
+> `STAGE4.md` §4b predicted exactly this before the number existed: **a fixed-k
+> recall metric scores what the key NAMED, not what a good answer would cite.**
+> Here it is, doing that twice out of three times.
+
+**So 0.50 is the honest headline and it is not a grade.** The gap between it and
+1.00 is partly a model reaching fewer of the named documents, and partly a
+metric that cannot tell a shortcut from a shortfall. Stage 7's answer checks —
+26 of 28 — are the number that reflects whether the answers are any good, and
+the two must not be averaged.
+
+---
+
 ### And the number is flattered
 
 `0.40` is **n=3**, and REC-005 scored 1.00 against a bar of "return any one of
