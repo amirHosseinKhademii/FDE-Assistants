@@ -30,6 +30,43 @@ const TURN_PACE_MS = Number(process.env.TURN_PACE_MS ?? 4500);
  */
 const JUDGE_PACE_MS = Number(process.env.JUDGE_PACE_MS ?? 4500);
 
+/**
+ * How long the provider asked us to wait, in ms, or null.
+ *
+ * Gemini returns `RetryInfo.retryDelay` on every 429 — "28s", "42s" — and a
+ * PER-MINUTE limit is transient by definition. Reporting BROKEN and moving on
+ * throws away information the provider volunteered, and loses a verdict that
+ * waiting forty seconds would have produced.
+ *
+ * A PER-DAY limit is the opposite and must not be retried: it resets on
+ * Google's clock, and sleeping through it is worse than stopping.
+ */
+function retryAfterMs(e: unknown): number | null {
+  const body = String((e as any)?.cause?.responseBody ?? (e as any)?.message ?? '');
+  if (/PerDay/i.test(body)) return null;
+  const m = /"retryDelay"\s*:\s*"(\d+)s"/.exec(body) ?? /retry in ([\d.]+)s/i.exec(body);
+  return m ? Math.ceil(Number(m[1]) * 1000) + 2000 : null;
+}
+
+/**
+ * Run something, and wait out ONE transient rate limit rather than giving up.
+ *
+ * Once, not repeatedly: a second 429 after honouring the provider's own delay
+ * means the budget is genuinely gone, and a runner that keeps sleeping turns a
+ * quota failure into a hang.
+ */
+async function waitingOutOneLimit<T>(what: () => Promise<T>): Promise<T> {
+  try {
+    return await what();
+  } catch (e) {
+    const wait = retryAfterMs(e);
+    if (wait === null) throw e;
+    console.log(`  ${DIM}rate limited — waiting ${Math.round(wait / 1000)}s, as the provider asked${OFF}`);
+    await sleep(wait);
+    return what();
+  }
+}
+
 function isRateLimit(e: unknown): boolean {
   const err = e as any;
   const status = err?.status ?? err?.statusCode ?? err?.cause?.status ?? err?.cause?.statusCode;
@@ -63,7 +100,9 @@ async function main(): Promise<number> {
     // rule safety:eval enforces and this file was written without.
     let run;
     try {
-      run = await askSafety(c.question, { engine: resolved.engine, turnPaceMs: TURN_PACE_MS });
+      run = await waitingOutOneLimit(() =>
+        askSafety(c.question, { engine: resolved.engine, turnPaceMs: TURN_PACE_MS }),
+      );
     } catch (e) {
       console.log(
         `  ${RED}BROKEN${OFF} ${r.caseId}  ${isRateLimit(e) ? 'QUOTA — no verdict' : String((e as any)?.message).slice(0, 70)}\n`,
@@ -83,7 +122,7 @@ async function main(): Promise<number> {
     await sleep(JUDGE_PACE_MS);
     let v;
     try {
-      v = await judge(r, prose);
+      v = await waitingOutOneLimit(() => judge(r, prose));
     } catch (e) {
       console.log(
         `  ${RED}BROKEN${OFF} ${r.caseId}  ${isRateLimit(e) ? 'QUOTA during judging — no verdict' : String((e as any)?.message).slice(0, 70)}\n`,
