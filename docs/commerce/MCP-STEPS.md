@@ -8,8 +8,8 @@ stop, and says plainly what it is for.*
 **Who is doing what right now.** The five databases and the NestJS backend
 (`apps/backend`) are being built by two other sessions. This document is the
 third strand: the MCP server that sits between the model and everything they
-build. **Seven of the fourteen steps need neither of them** — 0 through 4a, plus
-5 and 6 — which is deliberate, and means we start now rather than waiting. The
+build. **Nine of the fourteen steps need neither of them** — 0 through 4a, plus
+5, 6, 7 and 8 — which is deliberate, and means we start now rather than waiting. The
 full dependency table is at the foot of this document.
 
 ---
@@ -331,6 +331,41 @@ the entire client. No `pg`, no connection string, no ORM. Point
 `COMMERCE_API_URL` at a local stub; the tool does not know the difference and
 that is the point.
 
+### ☑ DONE 2026-09-18 — six checks, and the control caught its own obsolescence
+
+```
+STEP 4a — THE BOUNDARY, against a stub the shape of the real API
+  ok  get_order reads a real order across the boundary
+  ok  the prior refund is in the payload, not hidden behind the order total
+  ok  get_order publishes NO parameters at all
+  ok  a case that does not own this order gets out_of_scope, not the order
+  ok  and the refusal says nothing about whether the record exists
+  ok  an unset service token refuses the call
+  ok  the cause is readable from structuredContent, not guessed from prose
+```
+
+**`get_order` takes no arguments.** Not a validated `orderId`, not an optional
+one — none. The order is fixed by the session before the model runs. A tool with
+an `orderId` parameter would let anything that can influence the model reach any
+order the service token can reach, and what can influence the model includes
+text a customer typed into a contact form (T5). The check asserts the published
+`inputSchema` has zero properties, so the property is visible in `tools/list`
+rather than asserted in a comment.
+
+**Two files carry the rest of the argument.** `src/api/client.ts` needs a base
+URL and a service token and nothing else — no connection string, no `pg`. That
+emptiness is the deliverable. And `register()` in `server.ts` sets
+`structuredContent` and `isError` from **one** place, so a tool author never
+writes the line that carries the cause and therefore cannot forget it.
+
+> **The control went red, and it was right to.** `tools/list publishes exactly
+> the tools we registered` asserted `tools.length === 1`. Registering `get_order`
+> turned it red — correctly, but it could only say *the number changed*, so the
+> obvious fix was to type a new number. **A check whose only repair is to update
+> its expectation teaches you to silence it.** It now asserts the *set* of
+> names, so an unexpected tool is reported by name and a missing one likewise —
+> which also happens to be what §7's write-path allowlist gates on.
+
 ## Step 4b · Point it at the real backend
 
 Swap the base URL for `:3610`. Nothing in the tool changes. If something does,
@@ -617,10 +652,10 @@ separate-deployable form to make the boundary visible, it is also the likely one
 |---|---|
 | **0 – 4a, 5, 6** | **nothing.** A stub stands in for the backend. |
 | 4b | the NestJS backend answering on `:3610` (*fde-assistants-11*) and the seeded estate behind it (*fde-assistants-2d*) |
-| 7 – 8 | nothing new |
+| 7 – 8 | **nothing.** Moving the transport onto HTTP and putting `requireBearerAuth` in front of it touches no database and no API — Step 8's check (unset the token, confirm everything is refused) positively *wants* no backend |
 | 9 | `docs/commerce/corpus/` written, and ingested |
 | 10 – 12 | everything above |
 
-**Seven of the fourteen steps depend on nobody** — including Step 6, which is the
+**Nine of the fourteen steps depend on nobody** — including Step 6, which is the
 most valuable one. That is not an accident of scheduling; it is what splitting
 Step 4 bought. We start at Step 0 and keep going until 4b actually blocks.

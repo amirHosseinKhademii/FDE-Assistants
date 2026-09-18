@@ -24,6 +24,8 @@ import { InMemoryTransport } from '@modelcontextprotocol/server';
 import { Client } from '@modelcontextprotocol/client';
 import { z } from 'zod';
 import { createServer } from './server';
+import { startOrderStub, STUB } from './stub/order-stub';
+import type { Outcome } from './api/outcome';
 
 // ── the harness ─────────────────────────────────────────────────────────────
 
@@ -110,15 +112,27 @@ async function probeHappyPath(): Promise<void> {
   await client.close();
 }
 
-/** CONTROL. The payload that lands in the model's context on every request. */
+/**
+ * CONTROL. The payload that lands in the model's context on every request.
+ *
+ * ASSERTS THE SET, NOT A COUNT. `tools.length === 1` was the first version and
+ * it went red the moment `get_order` was registered — correctly, but it could
+ * only say "the number changed", so the fix was to type a new number, which is
+ * a check that teaches you to silence it. Naming the tools means an unexpected
+ * one is reported BY NAME and a missing one likewise.
+ */
+const EXPECTED_TOOLS = ['get_order', 'ping'];
+
 async function probeToolsList(): Promise<void> {
   const client = await connected(createServer());
   const { tools } = await client.listTools();
+  const names = tools.map((t) => t.name).sort();
   check(
     'tools/list publishes exactly the tools we registered',
-    tools.length === 1 && tools[0]?.name === 'ping',
-    'this list IS the prompt the model reads. PLAN.md §10.1 measures its size ' +
-      'and its byte-stability, both of which start here',
+    names.join(',') === EXPECTED_TOOLS.join(','),
+    `published [${names.join(', ')}], expected [${EXPECTED_TOOLS.join(', ')}]. ` +
+      'This list IS the prompt the model reads — PLAN.md §10.1 measures its size ' +
+      'and its byte-stability, and §7 gates the write path on names from it',
   );
   await client.close();
 }
@@ -246,6 +260,123 @@ async function probeExtraFieldAccepted(): Promise<void> {
   await client.close();
 }
 
+// ── Step 4a: the boundary ───────────────────────────────────────────────────
+
+/** The outcome a tool put in structuredContent — the only place the cause survives. */
+function outcomeOf(result: { structuredContent?: unknown }): Outcome<any> {
+  return result.structuredContent as Outcome<any>;
+}
+
+interface Stub {
+  url: string;
+  close: () => void;
+}
+
+async function withStub(): Promise<Stub> {
+  const { server, url } = await startOrderStub();
+  return { url, close: () => server.close() };
+}
+
+function serverAgainst(url: string, caseId: string, token: string = STUB.token): McpServer {
+  return createServer({
+    api: { baseUrl: url, serviceToken: token },
+    session: { caseId, orderId: STUB.orderId },
+  });
+}
+
+/** The happy path, and the field T3 turns on. */
+async function probeGetOrder(stub: Stub): Promise<void> {
+  const client = await connected(serverAgainst(stub.url, STUB.caseId));
+  const result = await client.callTool({ name: 'get_order', arguments: {} });
+  const outcome = outcomeOf(result);
+  check(
+    'get_order reads a real order across the boundary',
+    outcome.ok === true && outcome.data.orderId === STUB.orderId,
+    'no database credential in this process — a base URL and a service token. ' +
+      'That emptiness is what PLAN.md §4.1 claims and this is where it becomes true',
+  );
+  check(
+    'the prior refund is in the payload, not hidden behind the order total',
+    outcome.ok === true && outcome.data.priorRefunds.length === 1 &&
+      (firstText(result) ?? '').includes('PRIOR REFUNDS: REF-700118'),
+    'T3: £22 already refunded on line L1 of a £208.96 order, which still reads ' +
+      'unrefunded at the order level. POL-DOA-002 §4.1 makes this the FIRST check',
+  );
+  await client.close();
+}
+
+/** THE SECURITY PROPERTY. The model cannot name an order, so it cannot ask for one. */
+async function probeNoOrderArgument(stub: Stub): Promise<void> {
+  const client = await connected(serverAgainst(stub.url, STUB.caseId));
+  const { tools } = await client.listTools();
+  const schema = tools.find((t) => t.name === 'get_order')?.inputSchema as
+    | { properties?: Record<string, unknown> }
+    | undefined;
+  check(
+    'get_order publishes NO parameters at all',
+    Object.keys(schema?.properties ?? {}).length === 0,
+    'the order is fixed by the session. A tool with an orderId parameter lets ' +
+      'anything that can influence the model reach any order the token can — and ' +
+      'that includes text a customer typed into a contact form (T5)',
+  );
+  await client.close();
+}
+
+/**
+ * Scope, AND the collapse that protects the order book.
+ *
+ * A record outside the case and a record that does not exist must answer
+ * IDENTICALLY. If they differed, varying one path parameter would enumerate
+ * Thornbury's orders without reading a row. PLAN.md §7.1.
+ */
+async function probeOutOfScope(stub: Stub): Promise<void> {
+  const client = await connected(serverAgainst(stub.url, 'CASE-SOMEONE-ELSE'));
+  const result = await client.callTool({ name: 'get_order', arguments: {} });
+  const outcome = outcomeOf(result);
+  check(
+    'a case that does not own this order gets out_of_scope, not the order',
+    outcome.ok === false && outcome.cause === 'out_of_scope',
+    `cause=${outcome.ok ? 'ok' : outcome.cause}. The API checks the header ` +
+      'independently — a check on our side of the wire is one an attacker is past',
+  );
+  check(
+    'and the refusal says nothing about whether the record exists',
+    outcome.ok === false && !/exist|unknown|no such/i.test(outcome.detail),
+    `detail="${outcome.ok ? '' : outcome.detail}". "Not found" and "not yours" ` +
+      'must be byte-identical or the PAIR of answers is the disclosure',
+  );
+  await client.close();
+}
+
+/** FAIL CLOSED. An unset token must refuse everything, not authenticate nothing. */
+async function probeNoToken(stub: Stub): Promise<void> {
+  const client = await connected(serverAgainst(stub.url, STUB.caseId, ''));
+  const result = await client.callTool({ name: 'get_order', arguments: {} });
+  const outcome = outcomeOf(result);
+  check(
+    'an unset service token refuses the call',
+    outcome.ok === false && result.isError === true,
+    'the obvious implementation allows everything when the variable is unset. ' +
+      '@fde/guard exists as a package because of that exact shape',
+  );
+  await client.close();
+}
+
+/** THE POINT OF THE ENVELOPE. The cause survives a boundary that erases causes. */
+async function probeCauseSurvives(stub: Stub): Promise<void> {
+  const client = await connected(serverAgainst(stub.url, 'CASE-SOMEONE-ELSE'));
+  const result = await client.callTool({ name: 'get_order', arguments: {} });
+  const text = firstText(result) ?? '';
+  check(
+    'the cause is readable from structuredContent, not guessed from prose',
+    outcomeOf(result).ok === false && typeof (outcomeOf(result) as any).cause === 'string' &&
+      !text.startsWith('Input validation error:'),
+    'isError:true alone cannot say whether the domain refused or the socket died. ' +
+      'Three causes share that shape, so the tool carries its own — PLAN.md §6.1',
+  );
+  await client.close();
+}
+
 /** The negative control for the HARNESS. A check() that cannot fail proves nothing. */
 function probeHarnessCanFail(): void {
   const before = failed;
@@ -278,6 +409,18 @@ async function main(): Promise<void> {
   console.log('\nWHAT THE PROTOCOL DOES NOT CARRY — PLAN.md §6.1');
   await probeCausesCollapse();
   await probeExtraFieldAccepted();
+
+  console.log('\nSTEP 4a — THE BOUNDARY, against a stub the shape of the real API');
+  const stub = await withStub();
+  try {
+    await probeGetOrder(stub);
+    await probeNoOrderArgument(stub);
+    await probeOutOfScope(stub);
+    await probeNoToken(stub);
+    await probeCauseSurvives(stub);
+  } finally {
+    stub.close();
+  }
 
   console.log('\nTHE HARNESS ITSELF');
   probeHarnessCanFail();

@@ -27,6 +27,10 @@
 import { McpServer } from '@modelcontextprotocol/server';
 import { StdioServerTransport } from '@modelcontextprotocol/server/stdio';
 import { z } from 'zod';
+import type { Tool } from './tools/types';
+import { buildGetOrder } from './tools/get-order';
+import { apiConfigFromEnv, type ApiConfig } from './api/client';
+import { sessionFromEnv, type Session } from './session';
 
 /** stderr, never stdout. See the header. */
 export function serverLog(...parts: unknown[]): void {
@@ -44,8 +48,37 @@ export const SERVER_INFO = { name: 'thornbury-commerce', version: '0.1.0' } as c
  * also chose its transport would make the protocol untestable, which is how you
  * end up with a protocol nobody tests.
  */
-export function createServer(): McpServer {
+/**
+ * Register a Thornbury tool, and set `structuredContent` and `isError` from ONE
+ * place.
+ *
+ * THIS FUNCTION IS WHY `Tool` SPLITS `run` FROM `render`. The cause has to ride
+ * in `structuredContent` because the protocol will not carry it — measured: a
+ * refusal, a throw and a schema violation all arrive as `isError: true` plus
+ * free text. If each tool set that itself, one tool would eventually forget,
+ * and the symptom of forgetting is a plumbing failure wearing a domain answer's
+ * clothes. Here it cannot be forgotten, because a tool author never writes it.
+ */
+export function register(server: McpServer, tool: Tool): void {
+  server.registerTool(tool.name, tool.config, async (args: Record<string, unknown>) => {
+    const outcome = await tool.run(args);
+    return {
+      content: [{ type: 'text' as const, text: tool.render(outcome) }],
+      structuredContent: outcome,
+      isError: !outcome.ok,
+    };
+  });
+}
+
+export interface ServerDeps {
+  api?: ApiConfig;
+  session?: Session;
+}
+
+export function createServer(deps: ServerDeps = {}): McpServer {
   const server = new McpServer(SERVER_INFO);
+  const api = deps.api ?? apiConfigFromEnv();
+  const session = deps.session ?? sessionFromEnv();
 
   server.registerTool(
     'ping',
@@ -66,6 +99,8 @@ export function createServer(): McpServer {
     },
     async () => ({ content: [{ type: 'text', text: 'pong' }] }),
   );
+
+  register(server, buildGetOrder(api, session));
 
   return server;
 }
