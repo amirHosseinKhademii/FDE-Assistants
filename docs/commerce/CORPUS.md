@@ -155,6 +155,41 @@ comment where RR-007 used to be, pointing back at this section.
 > **Only a check that knows an absence is load-bearing can protect one.** That
 > is why the defence lives in `db-check` and in this section, on both sides of
 > the boundary, each pointing at the other.
+>
+> ### ☑ A fourth species, found 2026-09-18 by asking a question
+>
+> Asking the estate session for *"a case id whose scope resolves to ORD-101414"*
+> turned out to be the check. **It did not exist.** Nor did a case for T2, T3,
+> T4, or five of the six T6 orders — only T5's, because those were planted by
+> hand. The rest got a case only if the ordinary-traffic loop's dice said so, and
+> for four traps they said no.
+>
+> So **four of six traps were unreachable through the product.** Perfectly
+> seeded, fully walkable by hand, and with no front door — the tools take no
+> order argument, the session carries the case, so no case means no way in. All
+> 46 checks were green, because every one of them asked about the ORDER and none
+> about the way in.
+>
+> | | |
+> |---|---|
+> | a check that cannot fail | passes forever, proves nothing |
+> | a column that cannot disagree | consistent with every answer anyone wants |
+> | an absence nothing is defending | every consistency check makes it worse |
+> | **a trap with no path to it** | **exists, is correct, and cannot be reached** |
+>
+> The estate session's generalisation, kept in their words because it is the
+> useful half: **a check that verifies a trap exists is not the same as a check
+> that verifies it can be REACHED, and the second is the one the product depends
+> on. Seeding is not the delivery mechanism.**
+>
+> There is nothing inconsistent about an order with no case — it is the ordinary
+> state of most orders — which is why every consistency measure was satisfied.
+>
+> One detail worth more than the fix: **T6-4 had a case purely by chance**, and
+> that is *worse* than having none. A front door that appears and disappears with
+> the dice means any test that finds it breaks on the next reseed with nothing to
+> point at. Trap cases now live in a reserved `CAS-9xxxx` block that ordinary
+> traffic skips, so an id can be hardcoded and survive a change in traffic volume.
 
 ---
 

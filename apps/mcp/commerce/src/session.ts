@@ -24,8 +24,25 @@ export interface Session {
   readonly orderId: string;
 }
 
+/**
+ * The default is T1's case, and the ids are hardcodable ON PURPOSE.
+ *
+ * `CAS-90001` sits in a RESERVED BLOCK (`CAS-9xxxx`) that the estate's
+ * ordinary-traffic loop skips, so it survives a change in traffic volume.
+ * Before that block existed, four of the six planted traps had no case at all —
+ * perfectly seeded, fully walkable by hand, and unreachable through the product,
+ * because these tools take no order argument and the session carries the case.
+ * Forty-six estate checks were green throughout: every one asked about the
+ * ORDER, none about the way in. See docs/commerce/CORPUS.md §4.
+ *
+ * CAS-90001 → ORD-101414: the delivery record is spotless and the driver's
+ * report for the route says the trolley tipped at stop 14. Reachable only by
+ * walking stops → routes → driver_reports. The customer's own message names no
+ * trolley, no route and no stop, so the walk is forced by the data rather than
+ * hinted at by the complaint.
+ */
 export function sessionFromEnv(): Session {
-  const caseId = process.env.COMMERCE_CASE_ID ?? 'CASE-STUB-0001';
+  const caseId = process.env.COMMERCE_CASE_ID ?? 'CAS-90001';
   const orderId = process.env.COMMERCE_ORDER_ID ?? 'ORD-101414';
   return { caseId, orderId };
 }
