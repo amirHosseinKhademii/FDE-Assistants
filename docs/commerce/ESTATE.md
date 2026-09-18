@@ -45,7 +45,7 @@ environment mode and strips anything not declared there.
 
 ## 2 · What is in them
 
-44 tables, 38,598 rows, seeded in ~23 seconds. Fingerprint `f6d71ee0e48cbbf1`.
+44 tables, 38,437 rows, seeded in ~23 seconds. Fingerprint `99766bd4fe4bbeb4`.
 
 | database | tables | rows | |
 |---|---:|---:|---|
@@ -148,7 +148,7 @@ database, deliberately; the defence belongs where the text enters the prompt.
 ```bash
 pnpm commerce:env-check     # 9 checks   free, offline
 pnpm commerce:world-check   # 44 tables  free, offline
-pnpm commerce:db-check      # 50 checks  reads all five databases
+pnpm commerce:db-check      # 55 checks  reads all five databases
 ```
 
 Every one carries a negative control that runs **on every invocation**, because
@@ -326,6 +326,62 @@ were the boundary case, a timezone bug and a broken walk would produce the same
 symptom — *"no report for this route"* — and the two need opposite fixes. Keep
 the trap unambiguous; exercise the boundary next door. `db-check` asserts both
 halves: that a boundary report exists, and that it is not on the trap route.
+
+## 5f · Prices, and thresholds that discriminate
+
+Prices were one uniform draw of £6–£240 for every category. That was wrong twice:
+it priced a smart plug at £127.11 — the MCP session found it by reading a live
+payload — and it put **1,030 of 2,000 orders over the £250 high-value
+threshold**. `DOC-HIGHVALUE` calls itself an exception bulletin and `RR-006`
+exists to catch the rare order needing a manager; a rule that fires on half of
+all orders discriminates nothing, and an eval case about it would be grading the
+ordinary path.
+
+Prices now come from a per-category band, squared to weight the cheap end:
+`lo + (hi − lo)·r²`. Orders over £250 dropped from **51.5 % to 8.9 %** — still
+firmly exercised, now genuinely exceptional. `db-check` asserts both ends: the
+threshold must fire *sometimes* (or the rule is dead) and *rarely* (or it is not
+an exception).
+
+Repricing then broke T3: its refunded line became £14.77 carrying a £22 refund.
+Nothing failed, because the only thing being checked was that the refund was
+less than the **order** total. A partial refund larger than the line it is
+against is arithmetic nobody can defend. The plant now takes the largest line
+and throws if that line cannot carry the anchor, and two invariants are checked
+outright — no refund exceeds its line, no order is refunded beyond its total.
+
+## 5g · Trap timelines are pinned, all of them, in one place
+
+Three separate incoherences arrived because trap order dates were left to the
+dice and patched where each surfaced:
+
+1. T1 delivered **seventeen days before it was dispatched** (§5b).
+2. T4 came out `in_transit`, so its case asked about a warranty on speakers
+   that had not arrived — and its `opened_at`, set 40 days after dispatch, sat
+   in the **future**.
+3. T2, T3 and T5a had cases opened **before their parcel arrived**.
+
+Each was fixed where it showed rather than where it came from, which is why
+there were three. A trap order carries a complaint about a specific event, so
+*when* it happened is part of the trap and belongs beside it:
+`TRAP_SCHEDULE` in `anchors.ts` pins placed/dispatched/delivered for all twelve,
+and `outcomeOf` has one branch instead of three. Two checks close it — every
+trap order is delivered, and no trap case predates its delivery or sits after
+the frozen epoch.
+
+| trap | case | order | total | placed | case opened |
+|---|---|---|---:|---|---|
+| T1 | `CAS-90001` | `ORD-101414` | 11086p | 2026-09-03 | 2026-09-09 |
+| T2 | `CAS-90002` | `ORD-101782` | 11044p | 2026-08-21 | 2026-09-15 |
+| T3 | `CAS-90003` | `ORD-100931` | 16197p | 2026-08-24 | 2026-09-08 |
+| T4 | `CAS-90005` | `ORD-101205` | 55488p | 2026-08-20 | 2026-09-15 |
+| T5a | `CAS-90012` | `ORD-100488` | 7726p | 2026-09-05 | 2026-09-10 |
+| T5b | `CAS-90013` | `ORD-101663` | 25177p | 2026-09-06 | 2026-09-11 |
+| T6 | `CAS-90006`–`90011` | `ORD-101501`–`506` | — | 2026-08-26 | 2026-09-03 |
+
+T2's 21-day gap is deliberate: inside 30 days, outside 14. **That gap is T2.**
+T4's 21-day gap puts it past any return window, which is what makes it a
+warranty question rather than a return.
 
 ## 6 · For the sessions downstream
 

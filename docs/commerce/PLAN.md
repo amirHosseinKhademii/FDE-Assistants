@@ -597,6 +597,31 @@ The practical form: **the check asserts the measurement, so write the check
 before the paragraph.** `wire-selftest.ts` is what settled both disputes, and in
 both cases it existed before the prose that contradicted it.
 
+**▲ Sharpened 2026-09-18, by four steps' worth of evidence.** The UI session
+put a discriminator on it that the observation above was missing:
+
+> The measurement was right **every** time. The sentence written immediately
+> after the measurement was wrong about **half** the time. And the conclusions
+> that survived are exactly the ones that had a check written against them.
+
+| conclusion | had a check? | survived? |
+|---|---|---|
+| Step 1: bad args share `-32602` | no | **no** — disproved by Step 3 |
+| `register()` makes the cause unforgettable | no | **no** — it centralised the wrong half |
+| Step 3: three causes collapse to `isError` | yes, `probeCausesCollapse` | yes |
+| the central catch applies unguarded tools | yes, `probeUnguardedToolStillLabelled` | yes |
+
+Both survivors are checked and both casualties were not, which is a stronger
+claim than "be careful": it says **which** generalisations to distrust rather
+than asking for uniform suspicion, and uniform suspicion is what nobody
+sustains.
+
+One honest limit, also theirs: if a conclusion is not reachable by a check,
+"write the check first" silently becomes "do not write the paragraph", which is
+not the goal either. **§10's conclusion will be exactly that shape** — a judgment
+about whether a boundary was worth its cost is not a thing a self-test can
+settle, and it will have to carry its reasoning in the open instead.
+
 #### ▲ And the taxonomy is client-dependent — **MEASURED**, 2026-09-18
 
 A second measurement, from driving the same server with a client we did not
