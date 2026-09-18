@@ -455,6 +455,23 @@ outcomes where there were two, and three of them are new:
 > that are not ours. Matching on prose is not a discriminator, it is a guess that
 > passes its own test.
 >
+> ### The rule this forces on every Thornbury tool — S5 precondition
+>
+> `structuredContent` must carry `cause` for **the domain refusal AND the
+> throw**, not just for `out_of_scope`. Otherwise "the tool said no" and "the
+> socket died" are indistinguishable to everything downstream, which is the
+> exact distinction `ToolCallRecord.cause` exists to preserve.
+>
+> And that has a consequence people miss: **a throw cannot label itself.** If a
+> handler raises, the SDK converts it and our code never runs, so there is
+> nowhere to set `structuredContent`. Therefore **every tool catches its own
+> exceptions and returns a structured outcome** — the same discipline
+> `registry.ts` already enforces in-process, moved into each handler because the
+> registry is no longer the thing catching.
+>
+> An exception that still escapes after that means the plumbing genuinely broke,
+> which restores `threw` as a signal that means something.
+
 > The one thing to take from this beyond MCP: **a boundary that serialises does
 > not preserve what your type system was preserving.** `cause` survived as long
 > as the tool was a function call in the same process. Putting a wire under it
@@ -508,6 +525,35 @@ comment already says it. MCP just makes it happen more often.
 discriminator names it. **Negative control:** swap two mappings and assert the
 check goes red. A check that has only ever passed is indistinguishable from one
 that cannot fail.
+
+#### ▲ A pattern in how this section kept being wrong
+
+Twice now, the same shape, caught by two different readers:
+
+```
+  Step 1  measured: an unknown tool is -32602, not -32601.          RIGHT
+          concluded: so bad arguments share that code and the two
+                     cannot be told apart.                          WRONG
+  Step 3  measured: refusal, throw and schema violation are all
+                    isError: true.                                  RIGHT
+          concluded: (still standing, and untested by anything)
+```
+
+**The measurement was right both times. The sentence written immediately after
+the measurement — before anything tested that sentence — was wrong both times.**
+Step 3 caught Step 1's. The UI session caught the version of Step 1's that had
+survived into two other documents and a handover message.
+
+Nothing has yet caught Step 3's conclusion, and the honest thing to say is that
+this is a reason to distrust it rather than evidence for it. The repo already
+has the vocabulary: *a red check is a hypothesis, not a verdict, and a green one
+is not proof.* The generalisation drawn from a measurement deserves the same
+suspicion as the measurement, and it rarely gets it, because it arrives wearing
+the measurement's authority.
+
+The practical form: **the check asserts the measurement, so write the check
+before the paragraph.** `wire-selftest.ts` is what settled both disputes, and in
+both cases it existed before the prose that contradicted it.
 
 #### ▲ And the taxonomy is client-dependent — **MEASURED**, 2026-09-18
 

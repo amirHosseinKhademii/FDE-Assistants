@@ -8,7 +8,7 @@ stop, and says plainly what it is for.*
 **Who is doing what right now.** The five databases and the NestJS backend
 (`apps/backend`) are being built by two other sessions. This document is the
 third strand: the MCP server that sits between the model and everything they
-build. **Seven of the thirteen steps need neither of them** — 0 through 4a, plus
+build. **Seven of the fourteen steps need neither of them** — 0 through 4a, plus
 5 and 6 — which is deliberate, and means we start now rather than waiting. The
 full dependency table is at the foot of this document.
 
@@ -389,8 +389,8 @@ Five failures, and the buckets they map to
 
 | make this happen | you should see | whose fault |
 |---|---|---|
-| call a tool that does not exist | JSON-RPC **`-32602`** — see the box | the **model** invented a capability |
-| call a real tool with bad arguments | JSON-RPC **`-32602`** — the same code | the **model** used it wrong |
+| call a tool that does not exist | JSON-RPC **`-32602`**, thrown | the **model** invented a capability |
+| call a real tool with bad arguments | **not** a JSON-RPC error — a returned `isError: true` | the **model** used it wrong |
 | a tool that ran and decided "no" | HTTP 200, `isError: true` | the **domain** — a legitimate answer |
 | a tool that throws | the server turns it into an error | **infrastructure** |
 | kill the server mid-call | nothing comes back | **infrastructure** |
@@ -407,11 +407,22 @@ Five failures, and the buckets they map to
 > `name` is one of its *parameters*, so a bad one is `INVALID_PARAMS`. `-32601`
 > is for a JSON-RPC method that does not exist at all.
 >
-> **The consequence is the whole point of Step 6.** "The model invented a tool"
-> and "the model used a real tool wrongly" arrive under the *same error code*.
-> You cannot tell them apart from the error. You can only tell them apart by
-> checking the name against the last `tools/list` — which the client is holding
-> anyway.
+> **▲▲ AND THE SENTENCE THAT FOLLOWED IT HERE WAS WRONG — corrected 2026-09-18.**
+>
+> This box originally concluded: *"the model invented a tool" and "the model used
+> a real tool wrongly" arrive under the same error code, so you can only tell
+> them apart by checking the name against the last `tools/list`.*
+>
+> **Step 3 measured it and they do not.** Bad arguments never reach the JSON-RPC
+> error channel at all — they come back as a returned result with
+> `isError: true` and a text block beginning `"Input validation error:"`. So
+> **`-32602` from a `tools/call` means exactly one thing: a tool name nobody
+> registered.** That channel is *cleaner* than Step 1 guessed, not muddier, and
+> the `tools/list` cross-check is belt-and-braces rather than the load-bearing
+> step this box claimed.
+>
+> The collapse is real. It is somewhere else, and it is worse — see the rows
+> below.
 >
 > Notice also how this would have failed *quietly*: both causes are model-blame,
 > so a check built on the wrong assumption would still have produced a
@@ -610,6 +621,6 @@ separate-deployable form to make the boundary visible, it is also the likely one
 | 9 | `docs/commerce/corpus/` written, and ingested |
 | 10 – 12 | everything above |
 
-**Seven of the twelve steps depend on nobody** — including Step 6, which is the
+**Seven of the fourteen steps depend on nobody** — including Step 6, which is the
 most valuable one. That is not an accident of scheduling; it is what splitting
 Step 4 bought. We start at Step 0 and keep going until 4b actually blocks.

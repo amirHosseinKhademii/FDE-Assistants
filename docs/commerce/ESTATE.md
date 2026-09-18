@@ -45,13 +45,13 @@ environment mode and strips anything not declared there.
 
 ## 2 · What is in them
 
-44 tables, 38,274 rows, seeded in 23 seconds.
+44 tables, 38,584 rows, seeded in ~23 seconds. Fingerprint `0816cf22516f25ff`.
 
 | database | tables | rows | |
 |---|---:|---:|---|
 | `thb_shop` | 9 | 9,783 | 200 users · 400 products · 815 variants · 2,000 orders · 3,986 lines · 116 refunds |
 | `thb_wms` | 7 | 11,583 | 3 warehouses · 2,000 packages · 1,537 pack photos · 284 manifests |
-| `thb_fleet` | 12 | 14,149 | 2,000 shipments · 143 routes · 1,011 stops · 7,440 scans · 61 driver reports |
+| `thb_fleet` | 12 | 14,459 | 2,000 shipments · 143 routes · ~1,000 stops · 7,440 scans · 61 driver reports · **126 deliveries genuinely late** |
 | `thb_crm` | 7 | 2,681 | 200 customers · 1,176 messages · 244 cases · 140 resolutions |
 | `thb_policy` | 9 | 78 | the rules, and the bank holidays |
 
@@ -119,7 +119,7 @@ flaw is its own named function.
 
 | | anchor | seeded in | what makes it a trap |
 |---|---|---|---|
-| **T1** | `ORD-101414` | `fleet.ts` — `reserveT1Round`, `plantT1DriverReport`, `plantT1CleanDeliveryRow` | Shipment is spotless: `DELIVERED`, `exception_code` NULL, photo POD. The driver's report on **`RTE-20260901-BRM-1`** says *"trolley tipped at stop 14, two parcels re-stacked"* — and the order is **stop 14 of 20** on that round. Reachable only by `order → shipment → stop → route → driver_reports`. |
+| **T1** | `ORD-101414` | `fleet.ts` — `reserveT1Round`, `plantT1DriverReport`, `plantT1CleanDeliveryRow`; `shop.ts` — `plantT1OwnFleet` | Shipment is spotless: `DELIVERED`, `exception_code` NULL, photo POD. The driver's report on **`RTE-20260908-BRM-1`** says *"trolley tipped at stop 14, two parcels re-stacked"* — and the order is **stop 14 of 20** on that round. Reachable only by `order → shipment → stop → route → driver_reports`. Placed 3 Sep, dispatched 4 Sep, delivered 8 Sep — no bank holiday, so T1 stays about a driver's report and not about date arithmetic. |
 | **T2** | `ORD-101782`, `PRD-0207` | `shop.ts` — `plantT2AmbiguousLamp`, and `policy.ts` | "Lumen smart desk lamp", filed `homeware` (30 days), reads as electronics (14 days). The published document says 30 for everything. **The document half is the corpus session's to write.** |
 | **T3** | `ORD-100931` | `shop.ts` — `plantT3PriorPartialRefund` | £22 already refunded against **line `ORD-100931-L1`** of a 2-line, £208.96 order. The *order* still looks unrefunded. 116 other refunds exist so it is not findable by counting. |
 | **T4** | `ORD-101205`, `PRD-0388` | `shop.ts` — `plantT4MarketplaceItem` | "Halewood HX-3 bookshelf speakers", sold by **Halewood Audio Ltd**. 1 of 400 products. Thornbury's policies are first-party only, so nothing in the corpus answers a warranty question about it. |
@@ -146,9 +146,9 @@ database, deliberately; the defence belongs where the text enters the prompt.
 ## 5 · The checks, and the fact that they can fail
 
 ```bash
-pnpm commerce:env-check     # 7 checks   free, offline
+pnpm commerce:env-check     # 9 checks   free, offline
 pnpm commerce:world-check   # 44 tables  free, offline
-pnpm commerce:db-check      # 42 checks  reads all five databases
+pnpm commerce:db-check      # 45 checks  reads all five databases
 ```
 
 Every one carries a negative control that runs **on every invocation**, because
@@ -161,6 +161,11 @@ credential sat in the code it was scanning.
 | `env-check` | points the URL at `vst_derived` (a Vantis **name**) and at another engagement's **host** — both must be refused. Two controls, because a name check and a host check each pass the other's failure. |
 | `world-check` | **sensitivity** — mutate one field, the sha must move. **stability** — reorder a row's keys, the sha must *not* move. Without the second, `stable()` could be plain `JSON.stringify` and the check would cry wolf at a diff that changed no value. |
 | `db-check` | plants `USR-9999` in a copy of `thb_crm.customers.user_ref`; the soft-key walk must catch its own plant. |
+
+`env-check` also covers **`assertOurs`** in both directions. That is the function
+handed to `dropDatabases`, which checks every name before dropping any — the
+guard on the only path with no undo — and until it was covered, nothing called
+it.
 
 **And they were sabotaged on purpose to prove it**, rather than only trusting
 the built-in controls:
@@ -183,6 +188,36 @@ green, and T1 simply did not exist. It now **throws**. A planted flaw that can
 fail to be planted without saying so is worse than no flaw at all, because the
 eval that depends on it goes green for the wrong reason.
 
+## 5b · Three defects the checks were written to catch, and did
+
+All three were live, all three were green under the original 42 checks, and each
+one is now a check of its own.
+
+1. **`shipments.promised_by` held the DELIVERY date, not the promise.** Every
+   delivered shipment certified itself as on time: `where delivered > promised_by`
+   returned zero rows and always would. `orders.promised_by` had the real
+   working-day due date, so the fleet's copy — the one `get_delivery` will
+   surface — was the one that lied. Now `OrderPlan.due` is computed once and
+   carried. *Check: "some shipments are genuinely late by their own promise."*
+2. **T1's order was delivered seventeen days before it was dispatched.**
+   `outcomeOf` pinned the delivery date so the round could be named, while the
+   dispatch stayed random. The scans were built from those timestamps, so the
+   evidence trail ran backwards. `reserveT1Round` did the same to every order it
+   borrowed. Now the whole T1 timeline is pinned and borrowing only takes
+   parcels already dispatched. *Check: "no parcel is delivered before it was
+   dispatched", "no scan precedes its own dispatch."*
+3. **Nothing in the estate was ever late.** Fixing (1) exposed it: every
+   delivered order arrived at or before its due date, so "was this late?" had
+   one possible answer. T6 means nothing unless some orders look late and *are* —
+   a penalty clause that can never trigger is decoration. 8 % of deliveries now
+   run 1–3 days over, giving 126 genuinely late against T6's six that only
+   appear to be.
+
+The pattern is worth naming: **each one was a column or a timestamp that could
+not disagree with the answer anybody wanted from it.** That is the same species
+of quiet wrong as a check that cannot fail, and it is invisible to row counts,
+to soft-key walks and to a fingerprint — all of which stayed green throughout.
+
 ## 6 · For the sessions downstream
 
 **Connect on the pooled endpoint**, database name swapped per system. No
@@ -198,3 +233,13 @@ exists to make impossible.
 
 The row-shape interfaces in `src/db/schema/rows.ts` are the **seed's** own, hand
 transcribed. Generate yours rather than importing them.
+
+### What has NOT been run
+
+`commerce:db-drop --yes` and `commerce:db-reset` are **untested**. Only the
+refusal path was exercised — `db-drop` without `--yes` prints what it would
+destroy and exits 1. Running the real thing would have pulled the estate out
+from under the backend session's `prisma db pull`, so it was left alone
+deliberately. The shared drop SQL itself is covered by `pnpm estate:check`,
+which drives `dropDatabases` with an injected client; what is untested is this
+package's wiring to it, not the statement.

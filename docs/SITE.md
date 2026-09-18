@@ -45,6 +45,28 @@ apps/web/safety-app     @calder/safety-app      Calder Safety: `/`, `/steps`,
                                                 sets none. `/desk` is what will end
                                                 that; see infra/safety/Dockerfile.
                                                 Port 3500, `pnpm safety:dev`.
+apps/web/commerce-app   @thornbury/commerce-app Thornbury Goods: `/` and `/steps`.
+                                                The fifth, added 2026-09-18. NO API
+                                                route, no database, no model call —
+                                                so `vite.config.ts` carries no
+                                                `ssr.external` list, and that absence
+                                                is a claim about the app rather than
+                                                an omission.
+                                                (The safety block above still says it
+                                                is the only such app. That went stale
+                                                when Calder's `/desk` and `/api/ask`
+                                                landed, which is the thing its own
+                                                `vite.config.ts` header now records.
+                                                Left rather than rewritten, because
+                                                the paragraph is an account of a
+                                                session and not an inventory.)
+                                                `/desk` and `/data-flow` are NOT built
+                                                here either — the determination they
+                                                would render (`docs/commerce/PLAN.md`
+                                                §8) has nothing behind it to answer
+                                                from yet, and three other sessions are
+                                                building the parts that would.
+                                                Port 3600, `pnpm commerce:dev`.
 
 packages/uikit          @fde/uikit              Liftable into a customer's repo.
                                                 Controls, severity, motion, tokens.

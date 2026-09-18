@@ -302,11 +302,15 @@ This is the part that breaks existing harness code, and it is why
 > invalid parameter is `INVALID_PARAMS`. `-32601` is reserved for a JSON-RPC
 > method the server does not implement at all.
 >
-> Why it matters more than a code number: an invented tool and a
-> badly-argued real tool arrive **under the same code**, so a discriminator that
-> splits them on the code alone cannot. Split them on whether the name is in the
-> last `tools/list` instead — the client already holds that list, which is the
-> only reason the distinction is recoverable at all.
+> **▲ This box first added: "an invented tool and a badly-argued real tool arrive
+> under the same code." That is wrong — corrected 2026-09-18 against a running
+> server.** Bad arguments never reach the JSON-RPC error channel; they return as
+> `isError: true`. So `-32602` from a `tools/call` means exactly one thing, an
+> unregistered tool name, and this channel is *cleaner* than the original
+> reasoning predicted.
+>
+> The distinction that genuinely cannot be recovered from the wire is one layer
+> down, in the `isError` results. See the box in the next section.
 >
 > This is exactly the class of thing this repo's `compliance:check` exists for.
 > *Do not trust a default, do not trust the docs, assert it on the wire* — this
