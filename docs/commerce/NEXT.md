@@ -277,44 +277,51 @@ apps/ai/commerce/src/{config,grounding}/        committed (the descriptor and
 The three other strands were reporting uncommitted work at the stop point. Their
 handovers say what.
 
-### ⚠ ONE HAZARD, AND IT IS MINE — read before cleaning the tree
+### ⚠ THE COMMIT STATE IS INCOHERENT, AND MY COMMITS DID IT
 
-**`apps/ai/commerce` is HALF committed, and I caused it.** Commit `23202e6` used
-`git add apps/ai/commerce/src/config apps/ai/commerce/package.json` to land my
-`DocumentDomain` descriptor, and swept in two files belonging to the estate
-session that happened to sit in the same directories:
+**Three of my commits used `git add <directory>` in a tree four sessions were
+writing to, and each swept in work I did not own.** The result is a HEAD that
+describes an engagement it does not contain.
+
+| what HEAD has | what HEAD does not have |
+|---|---|
+| `apps/ai/commerce/package.json` — declares `db:create`, `db:migrate`, `db:seed`, `db:check` | `apps/ai/commerce/db/**` and `src/db/**` — the ~6,000 lines those scripts run |
+| `apps/ai/commerce/src/config/connections.ts` | `apps/ai/commerce/tsconfig.json` |
+| 8 `commerce:api-*` scripts in the root `package.json` | **`apps/api/commerce` — 58 files, ZERO tracked** |
+| `docs/commerce/API.md`, `docs/commerce/ESTATE.md` — the other sessions' handovers | the packages both of them document |
+| an `apps/api/*` workspace glob | anything matching it |
 
 ```
-  TRACKED                                   NOT TRACKED
-  package.json          ← swept in          db/schema/*.sql        615 lines
-  src/config/connections.ts  ← swept in     db/world.fingerprint.json
-  src/config/commerce-documents.ts  (mine)   src/db/**            ~5,400 lines
-  src/grounding/source-probe.ts     (mine)   tsconfig.json
+  23202e6   git add apps/ai/commerce/src/config …   swept connections.ts, package.json
+  6b9d619   git add docs                            swept docs/commerce/API.md
+  a1178e6   git add docs                            swept docs/commerce/ESTATE.md
 ```
 
-**The package therefore LOOKS committed and the thing that builds the estate is
-not.** A fresh clone gets a `package.json` declaring `db:create`, `db:migrate`,
-`db:seed` and `db:check`, and none of the code those scripts run. That is worse
-than either clean state, because the failure is at run time and reads like a
-broken script rather than a missing file.
+**A fresh clone of master cannot run any of it.** The scripts exist, the
+packages do not, and the failure arrives at run time reading like a broken
+script rather than a missing file. That is worse than either clean state.
 
-**Left for Byron rather than fixed**, because committing another session's
-~6,000 lines is not mine to do and they declined for the same reason. Two ways
-out, both one command:
+Also uncommitted and named by the sessions that own them: `turbo.json` (the
+`globalEnv` entries and the build `inputs`/`outputs` — **must land with the API
+package**, because without `generated/**` declared as an output turbo caches a
+`dist/` that cannot run) and the `.env.example` `COMMERCE_*` block.
+
+**Left for Byron rather than fixed.** Committing three other sessions' work is
+not mine to do, and all three declined for the same reason: their standing
+instruction is to commit when the user asks, and a peer cannot grant that. One
+command settles it:
 
 ```bash
-# commit it — the estate becomes durable
-git add apps/ai/commerce && git commit
-
-# or un-sweep — the package goes back to consistently uncommitted
-git rm --cached apps/ai/commerce/package.json apps/ai/commerce/src/config/connections.ts
+git add apps/ai/commerce apps/api/commerce apps/web/commerce-app \
+        infra/commerce turbo.json .env.example .github/workflows/deploy.yml
+git commit
 ```
 
-**The lesson, which is the reason this is written down rather than quietly
-fixed:** `git add <directory>` in a tree four sessions are writing to stages
-whatever else has landed there. I was adding two files and staged four. A
-`git add` of a *path* is a claim about ownership of that path, and in a shared
-tree that claim is usually false.
+**The lesson, and it is the reason this is written down rather than quietly
+fixed:** `git add <path>` is a claim to own everything under that path. In a
+shared tree that claim is usually false, and it is false silently — nothing in
+the commit output distinguishes the two files you meant from the two you did
+not. Stage files, not directories, when you are not alone in the tree.
 
 **A NestJS API was left running on `:3610`** during this session and a
 `COMMERCE_SERVICE_TOKEN` was generated into `.env` (it was empty; the API is

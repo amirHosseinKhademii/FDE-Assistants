@@ -202,6 +202,20 @@ comment where RR-007 used to be, pointing back at this section.
 > |---|---|
 > | **a fix no data exercises** | **indistinguishable from a bug that was never there** |
 >
+> **▲ AND THE FIX WAS ITSELF THE BUG — found the same day, by the data.** The
+> backend replaced the UTC window with a London-day window. The estate session
+> then seeded the five boundary reports, and **the London window dropped all
+> five while the UTC window it replaced had kept them.** The root cause was
+> upstream of both: `driver_reports.route_id` is a real foreign key, so every
+> date window was **redundant** — and a redundant filter can only ever drop
+> evidence, never add it. The filter is now the FK alone and `londonDayRange` is
+> deleted.
+>
+> This makes the species sharper, not weaker. The fix was unwitnessed **and
+> wrong**, and reasoning produced both the bug and its plausible repair. Only
+> data settled it. *"The regression test was a memory"* turns out to understate
+> it: the memory was of a fix that made things worse.
+>
 > Five reports are now filed at 23:30 UTC = 00:30 the next day in London, and
 > the placement is the design: **none is on T1's route.** A timezone bug and a
 > broken walk produce the *same symptom* — "no report for this route" — and need
