@@ -201,6 +201,62 @@ second model pass whose only job is to look for ambiguity.
 
 ---
 
+## 7c · The editorial checks, judged — and what the control caught
+
+First run, 2026-09-18:
+
+```
+VOID   REC-001   the judge failed its own control
+yes    REC-004   avoids stating a cause
+yes    REC-007   gives both numbers and explains the distinction
+```
+
+**The control did its job on its first outing.** REC-001's judge ACCEPTED an
+exemplar written to fail — an answer that reports only a total and never
+mentions the complaints no campaign covers. A judge that lenient would have
+reported the real answer as passing, and there would have been no way to tell
+that from the system being good.
+
+Its verdict is discarded rather than reported. `2 of 2`, with the third VOID,
+is the honest shape.
+
+### And the control described itself backwards
+
+The line it printed was *"rejected the bad exemplar"* — which is correct
+behaviour — when the judge had in fact **accepted** it. The message was composed
+from two conditionals and both branches were inverted.
+
+> A control that reports its own result incorrectly is worse than no control,
+> because it is trusted. Fixed, and spelled out rather than composed.
+
+### The disagreement worth keeping
+
+REC-007 is scored by both systems, and they disagree:
+
+```
+mechanical   "reports more than one number"    0 of 3
+judged       "gives both numbers and explains why"   yes
+```
+
+Two readings, and this run cannot distinguish them:
+
+1. **The mechanical check tests `counts.length >= 2`.** An answer that states
+   both numbers in prose while filing only one in `counts` fails it and
+   satisfies the judge. If so the mechanical check is measuring bookkeeping
+   rather than the property, and it is the check that needs changing.
+2. **The judge is lenient**, as it demonstrably was on REC-001 minutes earlier
+   with the same model.
+
+**Nothing here resolves that**, and picking one would be a guess. What it does
+show is why the two are reported apart: a combined score would have averaged a
+`no` and a `yes` about the same sentence into something meaningless.
+
+The next thing worth doing is reading REC-007's actual answer against both — a
+question the recorded tool calls and counts in the baseline can now answer
+without spending a single request.
+
+---
+
 ## 8 · What stage 7 does NOT do
 
 - **No prompt tuning inside the loop.** Three prompt edits were already made

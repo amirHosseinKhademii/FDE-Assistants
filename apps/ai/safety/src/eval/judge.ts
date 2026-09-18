@@ -129,13 +129,25 @@ export async function judge(rubric: Rubric, answer: string): Promise<Verdict> {
   const controlled = rejectsBad && acceptsGood;
 
   if (!controlled) {
+    // SPELLED OUT RATHER THAN COMPOSED. The first version built this sentence
+    // from two conditionals and INVERTED BOTH BRANCHES: it reported "rejected
+    // the bad exemplar" — which is correct behaviour — when the judge had in
+    // fact ACCEPTED it. The control fired correctly and then described itself
+    // backwards, so the one line a reader had to act on was the wrong way round.
+    //
+    // A control that reports its own result incorrectly is worse than no
+    // control, because it is trusted.
+    const faults: string[] = [];
+    if (!rejectsBad) faults.push('ACCEPTED an answer that does not satisfy the property');
+    if (!acceptsGood) faults.push('REJECTED an answer that plainly does');
+
     return {
       caseId: rubric.caseId,
       passes: null,
       controlled: false,
       why:
-        `judge failed its own control — ${rejectsBad ? 'accepted' : 'rejected'} the ` +
-        `${rejectsBad ? 'good' : 'bad'} exemplar. Its verdict on the real answer is discarded.`,
+        `judge failed its own control: it ${faults.join(' and it ')}. ` +
+        'Its verdict on the real answer is discarded.',
     };
   }
 
