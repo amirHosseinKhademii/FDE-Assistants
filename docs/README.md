@@ -3,8 +3,9 @@
 *Index rebuilt 2026-09-14, when the docs were renamed for consistency. If you add
 a document, add a line here and follow the naming rules at the bottom.*
 
-There are **three built engagements** in this repo, **two planned ones**
-(`safety/`, `commerce/`), and a shared toolkit underneath them all.
+There are **three built engagements** in this repo, one **partly built**
+(`commerce/`), one **planned** (`safety/`), and a shared toolkit underneath them
+all.
 Most confusion here has come from **not knowing which scope a document is
 about**, so that is how this index is organised.
 
@@ -51,7 +52,7 @@ they cover one question from a file on disk to a validated answer.
 
 Each engagement owns a folder. **The same three filenames mean the same thing in
 every folder**, which is the point of the renaming. The two planned ones
-(`safety/`, `commerce/`) follow the same rules and are listed after this table:
+(`commerce/`, `safety/`) follow the same rules and are listed after this table:
 
 | | insurance | [`pharma/`](pharma/) | [`steering/`](steering/) |
 |---|---|---|---|
@@ -107,7 +108,9 @@ writing the missing document would destroy the test. Thornbury Goods,
 a mid-size online retailer with its own last-mile fleet; the persona is a
 resolutions specialist answering *"my order arrived damaged."* Five Postgres
 databases (shop · wms · fleet · crm · policy) with real foreign keys inside each
-and soft keys between, a ~40-document policy corpus, **a NestJS backend with no
+and soft keys between, a **twelve**-document policy corpus (not the forty the
+plan first guessed — `CORPUS.md` §5 argues why a count is a measurement and not a
+target), **a NestJS backend with no
 AI in it**, and — the thing that makes this engagement different from the other
 four — **an MCP server between the model and every tool.** Read
 [`beyond-retrieval/MCP.md`](beyond-retrieval/MCP.md) first for the
