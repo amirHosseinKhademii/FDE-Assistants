@@ -640,11 +640,51 @@ REC-004 went from five of five to nothing, because the model answered from
 > a RANGE, and refuses to print a headline figure when the runs disagree — a
 > mean of 0.50 and 0.17 is 0.33, which is a number no run produced.
 
+Repeated properly — three runs, three cases:
+
 ```
-plain retrieval               0.40     deterministic
-tools, called BY HAND         1.00     the ceiling, deterministic
-tools, called BY THE MODEL    0.17 to 0.50 across two runs — needs repeating
+plain retrieval               0.40           deterministic
+tools, called BY HAND         1.00           the ceiling, deterministic
+tools, called BY THE MODEL    0.17 to 0.50   runs: 0.50, 0.17, 0.17
 ```
+
+### And the range is misleading, because the model is stable
+
+Per case, across those three runs:
+
+```
+REC-001   0.50  0.50  0.50     stable
+REC-004   1.00  0.00  0.00     ALL of the variance is here
+REC-005   0.00  0.00  0.00     stable
+```
+
+**Two of the three cases never move.** The entire spread comes from REC-004, and
+there it is binary: either the model calls `search_complaints` and retrieves all
+five death complaints, or it answers from `count_complaints` alone and retrieves
+nothing.
+
+That is the same behaviour stage 7 measured from the other side — REC-004's
+*cites at least one complaint by ODI number* scored **1 of 3**. Two independent
+measurements, one behaviour, the same frequency.
+
+### What is left once the artefacts are named
+
+```
+REC-005   0.00 stable, and its ANSWER checks are 3/3 on all four.
+                It proves the absence with find_recalls and never needs a
+                complaint. The metric charges it for a shortcut.
+
+REC-001   0.50 stable. It finds the campaign every time and reaches for
+                complaints_citing rather than the complaint the key names —
+                arguably better evidence, scored as a miss.
+
+REC-004   the only genuine retrieval shortfall: sometimes it reports a
+          count without fetching a single example to quote.
+```
+
+> So the honest sentence is not "the model reaches 0.17 to 0.50 of the ceiling".
+> It is: **one case retrieves nothing about a third of the time, and the other
+> two are stable — one of them scored zero for answering efficiently.**
 
 ### And two of the three shortfalls are the METRIC, not the model
 
