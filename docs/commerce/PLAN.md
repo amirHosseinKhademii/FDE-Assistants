@@ -411,11 +411,32 @@ outcomes where there were two, and three of them are new:
 
 | proposed `cause` | how it arrives on the wire | blame |
 |---|---|---|
-| `unknown_tool` | JSON-RPC `-32601` METHOD_NOT_FOUND, or no such tool locally | **model** — it invented a capability |
-| `invalid_args` | JSON-RPC `-32602` INVALID_PARAMS, or the server's pre-dispatch input validation | **model** — it called a real tool wrongly |
+| `unknown_tool` | JSON-RPC `-32602`, **and** the name is absent from the last `tools/list` | **model** — it invented a capability |
+| `invalid_args` | JSON-RPC `-32602`, and the name **is** in `tools/list` — the server's pre-dispatch input validation rejected the arguments | **model** — it called a real tool wrongly |
 | `tool_error` | HTTP 200, a `CallToolResult` with `isError: true` | **domain** — the tool ran and refused |
 | `threw` | the tool implementation raised | **infrastructure** |
 | `transport` | dead socket, closed session, server restarted, timeout | **infrastructure** |
+
+> **▲ CORRECTED 2026-09-18, against a running server.** This table first said
+> `unknown_tool` arrives as `-32601 METHOD_NOT_FOUND`. **It does not.** A real
+> `tools/call` naming a tool that does not exist returns
+> `{ code: -32602, message: "Tool no_such_tool not found" }`, because
+> `tools/call` *is* a method the server implements and `name` is one of its
+> parameters. `-32601` is for a JSON-RPC method the server does not have, which
+> the model has no way to ask for.
+>
+> **So the two model-blame causes are indistinguishable by error code**, and the
+> discriminator has to consult state the client already holds: the tool names
+> from the last `tools/list`. In `tools/list` → the model used a real tool
+> wrongly. Absent → the model invented one.
+>
+> Worth dwelling on, because it is the section's own thesis turned on the
+> section: had `cause-check` been written from the table as first drafted, it
+> would have **passed** — every invented tool filed as `invalid_args` is still a
+> model-blame bucket, so the totals would look right and only the diagnosis
+> would be wrong. A check that agrees with a wrong assumption is the failure
+> mode `README.md` § *"Every failure so far has been ours, not the model's"*
+> already documents three times.
 
 `isError` is an optional boolean on `CallToolResult` (**MEASURED** —
 `@modelcontextprotocol/core/dist/auth-BWdKR39I.d.mts`, the `isError:

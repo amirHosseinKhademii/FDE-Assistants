@@ -160,7 +160,17 @@
     "safety:run-all": "pnpm --filter @calder/safety run-all",
     "safety:eval": "pnpm --filter @calder/safety eval",
     "safety:measure-model": "pnpm --filter @calder/safety measure-model",
-    "safety:judge": "pnpm --filter @calder/safety judge"
+    "safety:judge": "pnpm --filter @calder/safety judge",
+    "commerce:db-create": "pnpm --filter @thornbury/commerce db:create",
+    "commerce:db-migrate": "pnpm --filter @thornbury/commerce db:migrate",
+    "commerce:db-seed": "pnpm --filter @thornbury/commerce db:seed",
+    "commerce:db-check": "pnpm --filter @thornbury/commerce db:check",
+    "commerce:db-drop": "pnpm --filter @thornbury/commerce db:drop",
+    "commerce:db-reset": "pnpm --filter @thornbury/commerce db:reset",
+    "commerce:env-check": "pnpm --filter @thornbury/commerce env:check",
+    "commerce:world-check": "pnpm --filter @thornbury/commerce world:check",
+    "commerce:mcp-serve": "pnpm --filter @thornbury/commerce-mcp serve",
+    "commerce:mcp-handshake": "pnpm --filter @thornbury/commerce-mcp handshake"
   },
   "devDependencies": {
     "turbo": "^2.10.12"

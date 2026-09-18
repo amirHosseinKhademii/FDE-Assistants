@@ -8,7 +8,9 @@ stop, and says plainly what it is for.*
 **Who is doing what right now.** The five databases and the NestJS backend
 (`apps/backend`) are being built by two other sessions. This document is the
 third strand: the MCP server that sits between the model and everything they
-build. Steps 1–6 need neither of them, which is deliberate — you can start now.
+build. **Seven of the thirteen steps need neither of them** — 0 through 4a, plus
+5 and 6 — which is deliberate, and means we start now rather than waiting. The
+full dependency table is at the foot of this document.
 
 ---
 
@@ -69,10 +71,16 @@ Nothing touches a database. The point is to see the handshake work.
 
 | | | why this and not something else |
 |---|---|---|
-| `@modelcontextprotocol/server` **2.0.0** | the MCP server SDK | **v2, not v1.** v1 is the old single `@modelcontextprotocol/sdk` package (now 1.30.0). v2 split into `core` / `server` / `client` and implements the **2026-07-28** spec. It is already in this repo's `node_modules` as a transitive dependency. |
+| `@modelcontextprotocol/server` **2.0.0** | the MCP server SDK | **v2, not v1.** v1 is the old single `@modelcontextprotocol/sdk` package (now 1.30.0). v2 split into `core` / `server` / `client` and implements the **2026-07-28** spec. |
 | **Zod 4** | the tool's input schema | it is what this whole workspace already speaks — one schema language from the API's DTOs to the tool arguments to the answer contract. The SDK accepts any Standard Schema, so this is our choice, not its requirement. Its peer dep is `zod ^4.2.0`; we are on 4.5.4. |
 | **stdio transport** | how it is reached | the server runs as a subprocess and talks over its own stdin/stdout. No ports, no HTTP, no auth to get wrong. We move to HTTP in Step 7, once everything else works. |
 | **TypeScript + `tsx`/`ts-node`** | running it | matches every other package here. |
+
+> **This is an install, not an import.** `@modelcontextprotocol/{core,server,client}@2.0.0`
+> are already in this workspace's `node_modules` — but as a *transitive*
+> dependency of something else, which means nothing can import them by name.
+> Step 1 begins by creating `apps/mcp/commerce` and adding `server` and `zod` as
+> **direct** dependencies. Expect `pnpm install` before the first line runs.
 
 **What it looks like:**
 
@@ -98,9 +106,52 @@ await server.connect(new StdioServerTransport());
 
 **What you will see:** nothing. It waits on stdin. That is correct and it is
 confusing the first time — a stdio server is not a service you visit, it is a
-program something else spawns. Step 2 is how we look at it.
+program something else spawns.
 
-**Stop here and check:** it starts without throwing.
+**So Step 1 ships a second file: `src/cli/handshake.ts`.** It spawns the server
+and speaks **raw JSON-RPC** at it — deliberately not the client SDK, which hides
+the handshake, and the handshake is the only part of Step 1 worth seeing. The
+framing is one JSON object per line, verified rather than assumed:
+
+```
+require('@modelcontextprotocol/server').serializeMessage({...})
+  -> '{"jsonrpc":"2.0","id":1,"method":"ping"}\n'
+```
+
+```bash
+pnpm --filter @thornbury/commerce-mcp handshake
+```
+
+### ☑ DONE 2026-09-18 — and it corrected two things in this document
+
+```
+→ initialize    { protocolVersion: "2026-07-28", capabilities: {} }
+← result        { protocolVersion: "2025-11-25",
+                  capabilities: { tools: { listChanged: true } } }
+→ tools/list
+← result        1 tool · inputSchema { type: "object", properties: {} }
+→ tools/call    { name: "ping" }
+← result        { content: [ { type: "text", text: "pong" } ] }
+→ tools/call    { name: "no_such_tool" }
+← error         { code: -32602, message: "Tool no_such_tool not found" }
+```
+
+Two of those lines are corrections, not confirmations:
+
+1. **We asked for `2026-07-28` and were given `2025-11-25`** — no error, no
+   warning. `LATEST_PROTOCOL_VERSION` in this SDK is `2025-11-25`, and
+   `2026-07-28` is a *separate* era reached through the HTTP handler, not
+   through `initialize`. Step 7 is now where that gets settled.
+   [`../beyond-retrieval/MCP.md`](../beyond-retrieval/MCP.md) §1.2 carries the
+   correction.
+2. **An unknown tool is `-32602`, not `-32601`** — see Step 6.
+
+Neither would have been found by reading the SDK more carefully. Both took
+twenty minutes of a server actually existing, which is the argument for Step 1
+being a step at all.
+
+**Stop here and check:** you can point at the line where the server named a
+protocol version — and notice it is not the one you asked for.
 
 ---
 
@@ -150,12 +201,30 @@ milliseconds.
 
 ---
 
-## Step 4 · The first real tool — and the boundary appears
+## Step 4a · The first tool that crosses the boundary — against a stub
 
-**Goal.** `get_order` returns a real order, by calling the NestJS backend.
+**Goal.** `get_order` behaves exactly as it finally will, but the thing it calls
+is a ten-line stub returning one hand-written order.
+
+**Why do it this way first.** This is the step where the architecture becomes
+real, and it is the last one that depends on nobody. Waiting for two other
+sessions to finish before you can write the tool that *proves the boundary* has
+it backwards. Everything the boundary teaches — no database credential, a
+service token in a header, scope taken from the session — is fully learnable
+against a stub, and Step 6's failure taxonomy needs no real data at all.
+
+It is also the same instinct as `PLAN.md` §6.2, applied one layer up: put the
+seam where the thing under test stops, not where the system does.
 
 **The tech:** `fetch`, a base URL, and a **service token** in a header. That is
-the entire client. No `pg`, no connection string, no ORM.
+the entire client. No `pg`, no connection string, no ORM. Point
+`COMMERCE_API_URL` at a local stub; the tool does not know the difference and
+that is the point.
+
+## Step 4b · Point it at the real backend
+
+Swap the base URL for `:3610`. Nothing in the tool changes. If something does,
+the stub was lying and it is better to find that out here.
 
 **This is the step where the architecture becomes true.** Look at what the MCP
 server's environment now contains:
@@ -210,11 +279,34 @@ Five failures, and the buckets they map to
 
 | make this happen | you should see | whose fault |
 |---|---|---|
-| call a tool that does not exist | JSON-RPC `-32601` | the **model** invented a capability |
-| call a real tool with bad arguments | JSON-RPC `-32602` | the **model** used it wrong |
+| call a tool that does not exist | JSON-RPC **`-32602`** — see the box | the **model** invented a capability |
+| call a real tool with bad arguments | JSON-RPC **`-32602`** — the same code | the **model** used it wrong |
 | a tool that ran and decided "no" | HTTP 200, `isError: true` | the **domain** — a legitimate answer |
 | a tool that throws | the server turns it into an error | **infrastructure** |
 | kill the server mid-call | nothing comes back | **infrastructure** |
+
+> **The first row surprised us, and it is the best thing Step 1 produced.**
+> Step 1's handshake ends with a deliberate call to `no_such_tool`. It does
+> **not** return `-32601 METHOD_NOT_FOUND` as this document originally predicted:
+>
+> ```
+> ← error   { "code": -32602, "message": "Tool no_such_tool not found" }
+> ```
+>
+> Obvious in hindsight. `tools/call` **is** a method the server implements;
+> `name` is one of its *parameters*, so a bad one is `INVALID_PARAMS`. `-32601`
+> is for a JSON-RPC method that does not exist at all.
+>
+> **The consequence is the whole point of Step 6.** "The model invented a tool"
+> and "the model used a real tool wrongly" arrive under the *same error code*.
+> You cannot tell them apart from the error. You can only tell them apart by
+> checking the name against the last `tools/list` — which the client is holding
+> anyway.
+>
+> Notice also how this would have failed *quietly*: both causes are model-blame,
+> so a check built on the wrong assumption would still have produced a
+> right-looking total. Only the diagnosis would have been wrong, and nothing
+> would have flagged it.
 
 **Why this matters and is not pedantry.** The existing harness
 (`packages/agent/src/core/tool.types.ts`) knows only two of these —
@@ -402,11 +494,12 @@ separate-deployable form to make the boundary visible, it is also the likely one
 
 | step | needs |
 |---|---|
-| 0 – 3 | nothing. Start now. |
-| 4 – 5 | the NestJS backend answering on `:3610` (*fde-assistants-11*) |
-| 4 – 5 | the seeded estate behind it (*fde-assistants-2d*) |
+| **0 – 4a, 5, 6** | **nothing.** A stub stands in for the backend. |
+| 4b | the NestJS backend answering on `:3610` (*fde-assistants-11*) and the seeded estate behind it (*fde-assistants-2d*) |
+| 7 – 8 | nothing new |
 | 9 | `docs/commerce/corpus/` written, and ingested |
 | 10 – 12 | everything above |
 
-Steps 0–3 are a self-contained afternoon and depend on no one. That is where we
-start.
+**Seven of the twelve steps depend on nobody** — including Step 6, which is the
+most valuable one. That is not an accident of scheduling; it is what splitting
+Step 4 bought. We start at Step 0 and keep going until 4b actually blocks.

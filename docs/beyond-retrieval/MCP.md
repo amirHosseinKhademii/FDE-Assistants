@@ -10,11 +10,13 @@ and the file and symbol are named so you can re-read it rather than trust it.
 fact.
 
 > The versions this was read against, on 2026-09-18:
-> `@modelcontextprotocol/{core,server,client}` **2.0.0**, already present in this
-> workspace's `node_modules` as a transitive dependency. The v2 line implements
-> the **2026-07-28** spec revision and replaces the monolithic
-> `@modelcontextprotocol/sdk` package, which is on **1.30.0** (**MEASURED** —
-> the v2 `README.md` warning, and `npm view`).
+> `@modelcontextprotocol/{core,server,client}` **2.0.0**. The v2 line replaces
+> the monolithic `@modelcontextprotocol/sdk` package, which is on **1.30.0**
+> (**MEASURED** — `npm view`). Its README says it implements the **2026-07-28**
+> spec, and **§1.2 is the correction to that** — the version a stdio server
+> actually negotiates is `2025-11-25`. The README describes the package; it does
+> not describe the default. That gap is the first thing this document got wrong,
+> and it got caught by running a handshake rather than by reading more carefully.
 
 ---
 
@@ -100,25 +102,55 @@ implements it.** None of this repo's three loop engines is an MCP client at all.
 
 ### 1.2 · Two protocol eras, and the SDK knows both
 
-Date-shaped strings in the v2 bundles, with their occurrence counts
-(**MEASURED** — `grep -rhoE '20(25|26)-[0-9]{2}-[0-9]{2}'` over
-`core/dist/*.mjs` and `server/dist/*.mjs`, 2026-09-18):
+**CORRECTED 2026-09-18, on the wire.** This section first said "v2 implements
+the 2026-07-28 spec" on the authority of the package README, and a real stdio
+handshake says something more complicated. The README is not wrong; it is
+describing the package, not the default negotiation.
+
+What the runtime constants actually hold (**MEASURED** — `node -e` against
+`@modelcontextprotocol/server@2.0.0`):
 
 ```
-  145  2026-07-28     the modern revision
-   61  2025-11-25     the previous one, still served
-    2  2025-03-26
-    1  2026-07-17  ┐  one occurrence each, and NOT protocol revisions —
-    1  2026-07-15  ┤  they do not appear in the version-negotiation paths.
-    1  2025-06-18  ┘  Listed because dropping them silently would be exactly
-                      the badge failure this document is about.
+LATEST_PROTOCOL_VERSION             2025-11-25
+DEFAULT_NEGOTIATED_PROTOCOL_VERSION 2025-03-26
+SUPPORTED_PROTOCOL_VERSIONS         2025-11-25, 2025-06-18, 2025-03-26,
+                                    2024-11-05, 2024-10-07
 ```
 
-Treat the first three as the versions in play and the last three as noise until
-someone reads the surrounding code; the honest state is "counted, not
-explained." The SDK
-classifies inbound traffic and can either serve the old era statelessly or
-reject it outright: `createMcpHandler`'s `legacy` option is
+**`2026-07-28` is not in that list.** It lives in its own constants —
+`MODERN_PROTOCOL_VERSION` and `MODERN_WIRE_REVISION` (**MEASURED** — a scan for
+version assignments across `server/dist/*.mjs` and `core/dist/*.mjs` returns
+exactly four, and those two are the 2026 pair).
+
+So there are genuinely **two eras**, and `SUPPORTED_PROTOCOL_VERSIONS` describes
+only the older one:
+
+| era | reached by | negotiated how |
+|---|---|---|
+| **2025** | `Server` / `McpServer` + an `initialize` exchange | the version list above |
+| **2026-07-28** | the `createMcpHandler` HTTP path | a `_meta` envelope carrying `io.modelcontextprotocol/protocolVersion` — the runtime's own error strings say a request without it *"is missing the required `_meta` envelope for protocol revision 2026-07-28"* |
+
+**What this was proved by, and it is the whole argument for proving things.** A
+real stdio handshake asking for `2026-07-28` came back:
+
+```
+→ initialize   { protocolVersion: "2026-07-28", capabilities: {}, ... }
+← result       { protocolVersion: "2025-11-25", capabilities: { tools: {...} } }
+```
+
+Asked for the modern revision; got the 2025 one, with no error and no warning.
+A document that trusted the README would have been confidently wrong, and
+nothing would have said so.
+
+**Open, and deliberately not guessed:** whether `createMcpHandler` negotiates
+`2026-07-28` in practice, and what a client must send to get it. That is settled
+by running it, not by reading more of the bundle —
+[`../commerce/MCP-STEPS.md`](../commerce/MCP-STEPS.md) Step 7 is where it gets
+settled.
+
+What *is* already clear is that the SDK classifies inbound traffic by era and
+lets you choose what to do with the old one. `createMcpHandler`'s `legacy` option
+is
 `'stateless' | 'reject'`, and in `'reject'` mode *"legacy-classified requests are
 rejected with the unsupported-protocol-version error naming the endpoint's
 supported revisions"* (**MEASURED** — `CreateMcpHandlerOptions`, same file).
@@ -238,8 +270,9 @@ This is the part that breaks existing harness code, and it is why
 
 ```
   ┌─ JSON-RPC error ────────────────────────────────────────────────┐
-  │  -32601 METHOD_NOT_FOUND   no such tool                         │  the MODEL
+  │  -32602 INVALID_PARAMS     no such tool  ⚠ see below            │  the MODEL
   │  -32602 INVALID_PARAMS     arguments failed the schema          │  the MODEL
+  │  -32601 METHOD_NOT_FOUND   no such JSON-RPC METHOD              │  the MODEL
   │  -32603 INTERNAL_ERROR     the server broke                     │  INFRA
   │  -32021 MissingRequiredClientCapability  (2026-07-28)           │  YOUR CLIENT
   │  -32022 UnsupportedProtocolVersion       (2026-07-28)           │  VERSIONING
@@ -253,6 +286,32 @@ This is the part that breaks existing harness code, and it is why
   │  socket died, session gone, server restarted, timed out          │  INFRA
   └─────────────────────────────────────────────────────────────────┘
 ```
+
+> ### ⚠ An unknown TOOL is not an unknown METHOD — **MEASURED on the wire**
+>
+> The obvious mapping is wrong, and it is wrong in the direction that costs you
+> most. Calling a tool that does not exist returns:
+>
+> ```
+> → tools/call   { name: "no_such_tool", arguments: {} }
+> ← error        { code: -32602, message: "Tool no_such_tool not found" }
+> ```
+>
+> **`-32602`, not `-32601`.** And that is coherent once you see it: `tools/call`
+> *is* a method the server has, and `name` is one of its **parameters**. An
+> invalid parameter is `INVALID_PARAMS`. `-32601` is reserved for a JSON-RPC
+> method the server does not implement at all.
+>
+> Why it matters more than a code number: an invented tool and a
+> badly-argued real tool arrive **under the same code**, so a discriminator that
+> splits them on the code alone cannot. Split them on whether the name is in the
+> last `tools/list` instead — the client already holds that list, which is the
+> only reason the distinction is recoverable at all.
+>
+> This is exactly the class of thing this repo's `compliance:check` exists for.
+> *Do not trust a default, do not trust the docs, assert it on the wire* — this
+> page asserted `-32601` from reasoning and the wire said otherwise within
+> twenty minutes of a server existing.
 
 Error constants and both 2026-07-28 error-data shapes are **MEASURED**
 (`PARSE_ERROR`/`INVALID_REQUEST`/`METHOD_NOT_FOUND`/`INVALID_PARAMS`/

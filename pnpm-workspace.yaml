@@ -52,13 +52,35 @@
 # The root is a workspace root and nothing else: no src, no dependencies of its
 # own, scripts that delegate.
 packages:
-  # THREE GLOBS, AND THE SPLIT IS THE POINT.
+  # FOUR GLOBS, AND THE SPLIT IS THE POINT.
   #
   #   apps/web/*        a deployable surface: TanStack Start, a vite.config.ts,
   #                     a port, an entry in .github/workflows/deploy.yml
   #   apps/ai/*         an engagement's own judgement and its CLIs — the agent
   #                     loops, the tools, the prompts, the schemas, the evals.
   #                     No port. Imported BY the surface next door.
+  #   apps/api/*        THE CUSTOMER'S OWN BACKEND, and the newest kind. A port,
+  #                     a database credential, and NO AI IN IT ANYWHERE — no
+  #                     model call, no embedding, no prompt, no @fde/agent. That
+  #                     is not an omission, it is the point: the fifth engagement
+  #                     puts an agent in front of an API a retailer would already
+  #                     have, so the API has to be written as one that predates
+  #                     us. If something AI-shaped is imported here, it is in the
+  #                     wrong package. The glob reads `apps/api/*` and not
+  #                     `apps/backend` so the convention holds at
+  #                     apps/<kind>/<engagement> and a sixth engagement has
+  #                     somewhere to go.
+  #   apps/mcp/*        THE PROTOCOL LAYER, and the reason the fifth engagement
+  #                     exists at all. An MCP server per engagement: it owns the
+  #                     tool definitions and the retrieval index, and it holds NO
+  #                     business-database credential — it reaches the estate only
+  #                     through apps/api/* with a service token. That emptiness
+  #                     is the deliverable. Inside the API it would be one more
+  #                     module in a process already holding five database pools,
+  #                     and "the MCP server has no credential" would be a
+  #                     sentence nobody could check. Separate, it is structural.
+  #                     See docs/commerce/PLAN.md §4.1 for the argument, and
+  #                     §10 for the measurement that decides whether it paid.
   #   packages/*        what is left is what transfers: every @fde/*, plus
   #                     @veresk/surface, which is this site's own shared parts.
   #   packages/providers/*
@@ -82,5 +104,7 @@ packages:
   # customer's vocabulary.
   - 'apps/web/*'
   - 'apps/ai/*'
+  - 'apps/api/*'
+  - 'apps/mcp/*'
   - 'packages/*'
   - 'packages/providers/*'

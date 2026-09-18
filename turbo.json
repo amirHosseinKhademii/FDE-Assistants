@@ -1,5 +1,5 @@
 {
-  "//": "globalEnv exists because Turbo 2 runs tasks in STRICT ENVIRONMENT MODE: variables not declared here are stripped before the task starts. The fail-closed guard read an empty API_KEY and correctly allowed the request, while the operator had set one \u2014 the guard was right and the environment lied to it. Anything the app reads from process.env belongs in this list.",
+  "//": "globalEnv exists because Turbo 2 runs tasks in STRICT ENVIRONMENT MODE: variables not declared here are stripped before the task starts. The fail-closed guard read an empty API_KEY and correctly allowed the request, while the operator had set one — the guard was right and the environment lied to it. Anything the app reads from process.env belongs in this list.",
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "build": {
@@ -88,7 +88,9 @@
     "LOCAL_OPENAI_BASE_URL",
     "OPENAI_API_KEY",
     "EVAL_PACE_MS",
-    "FIXTURE_MODE"
+    "FIXTURE_MODE",
+    "ECOMMERCE_DB_URL",
+    "ECOMMERCE_DB_DIRECT_URL"
   ],
   "globalDependencies": [
     ".env"
