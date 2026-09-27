@@ -612,6 +612,13 @@ body {
   font-size: 0.85em;
 }
 
+/* A name in the first column is the row's label: never break it mid-word
+   ("get_orde / r"). The table scrolls sideways before it does that. */
+.thb-table td:first-child code {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
 /* ── THE WIRE: one JSON-RPC message, drawn as itself ───────────────────────
    A message carries an arrow and takes its colour from which way it went —
    teal for what we sent, sky for what came back — so the turn-taking reads

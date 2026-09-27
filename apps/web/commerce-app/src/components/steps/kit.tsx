@@ -144,7 +144,7 @@ export function Step({
   );
 }
 
-function Part({ label, children }: { label: string; children: ReactNode }) {
+export function Part({ label, children }: { label: string; children: ReactNode }) {
   return (
     <section className="thb-part">
       <h4 className="thb-label" data-tone="quiet">

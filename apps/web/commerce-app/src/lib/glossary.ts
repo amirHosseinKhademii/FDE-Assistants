@@ -41,7 +41,7 @@ export const GLOSSARY = {
   tool: {
     word: 'tool',
     is: 'A function the model is allowed to ask for, described by a name, a sentence and the inputs it takes.',
-    here: 'get_order is the first one. The plan has search_policy and propose_resolution after it.',
+    here: 'get_order was the first. get_delivery, get_contact_history and get_policy_rules followed; search_policy and propose_resolution are still to come.',
   },
   fde: {
     word: 'forward-deployed engineer (FDE)',
@@ -132,6 +132,11 @@ export const GLOSSARY = {
     is: 'A fixed list of the only things permitted. Anything not on it is refused.',
     here: 'The list of tool names the assistant may call without a person approving.',
   },
+  trap: {
+    word: 'trap',
+    is: 'A case planted in the test data on purpose, where the obvious answer is wrong — so a test can tell whether the assistant noticed.',
+    here: 'Thornbury’s data hides six, called T1 to T6: a driver’s note that contradicts a clean delivery record, a lamp filed under the wrong category, an earlier refund, a marketplace seller, instructions hidden in a customer’s message, and a deadline that crosses a bank holiday.',
+  },
   confusedDeputy: {
     word: 'confused deputy',
     is: 'A program with more power than its caller that can be tricked into using that power on the caller’s behalf.',
@@ -149,7 +154,7 @@ export type TermKey = keyof typeof GLOSSARY;
 export const GLOSSARY_ORDER: TermKey[] = [
   'agent', 'loop', 'tool', 'fde', 'mcp', 'host', 'client', 'server', 'jsonrpc', 'stdio',
   'handshake', 'inspector', 'stub', 'boundary', 'serviceToken', 'schema', 'structuredContent',
-  'isError', 'outputSchema', 'rag', 'embedding', 'allowlist', 'confusedDeputy', 'promptInjection',
+  'isError', 'outputSchema', 'trap', 'rag', 'embedding', 'allowlist', 'confusedDeputy', 'promptInjection',
 ];
 
 export const termId = (key: TermKey) => `term-${key}`;

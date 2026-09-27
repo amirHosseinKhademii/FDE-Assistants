@@ -410,9 +410,10 @@ function Status() {
           </strong>{' '}
           A server exists and answers; a debugger somebody else wrote can drive
           it; automated checks hold it to its behaviour without starting
-          anything; one tool, <code>get_order</code>, reads a real order from
-          Thornbury’s real API — holding a service token and no database
-          password; every answer it gives is checked against a declared shape;
+          anything; four tools read the order, its delivery, the customer’s
+          history and the configured rules from Thornbury’s real API — holding a
+          service token and no database password; every answer is checked
+          against a declared shape;
           and every way that connection can break is labelled with whose problem
           it is. Nothing reaches a policy document or an AI model
           yet, and there is no screen for Iris.
@@ -425,8 +426,9 @@ function Status() {
           plain function call, not more. The step that was meant to be a one-line
           address change returned “success” with every field empty. Breaking the
           backend on purpose found nine of fourteen failures blamed on the wrong
-          thing. And the protocol’s own output check turned out to throw away the
-          label saying whose mistake it was.
+          thing. The protocol’s own output check turned out to throw away the
+          label saying whose mistake it was. And working every planted trap by
+          hand found ten defects that every automated check had passed.
         </p>
       </div>
 
