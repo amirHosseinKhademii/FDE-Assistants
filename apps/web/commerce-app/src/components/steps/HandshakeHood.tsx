@@ -159,8 +159,8 @@ function TheServer() {
     <HoodSection title="the server — one tool, no database, no credential">
       <Figure caption="registering a tool" from="measured" source="quoted whole, comments and all">
         <Code
-          path="apps/mcp/commerce/src/server.ts:92–108"
-          startLine={92}
+          path="apps/mcp/commerce/src/server.ts:97–113"
+          startLine={97}
           mark={[14, 15, 16]}
           lines={[
             "export function createServer(deps: ServerDeps = {}): McpServer {",
@@ -221,12 +221,17 @@ function TheServer() {
         source="apps/mcp/commerce/src/server.ts · quoted whole"
       >
         <Code
-          path="apps/mcp/commerce/src/server.ts:63–85"
+          path="apps/mcp/commerce/src/server.ts:63–90"
           startLine={63}
-          mark={[15, 18, 19]}
+          mark={[5, 20, 23, 24]}
           lines={[
             "export function register(server: McpServer, tool: Tool): void {",
-            "  server.registerTool(tool.name, tool.config, async (args: Record<string, unknown>) => {",
+            "  // STEP 5: the shape is published AND enforced, and both come from one place.",
+            "  // `outputSchema` goes out in tools/list; `conforming()` checks every result",
+            "  // against it BEFORE the SDK does \u2014 because the SDK's own check, measured,",
+            "  // throws the whole result away on a mismatch, cause and all.",
+            "  const outputSchema = outcomeSchema(tool.data);",
+            "  server.registerTool(tool.name, { ...tool.config, outputSchema }, async (args: Record<string, unknown>) => {",
             "    // THE CATCH LIVES HERE, NOT IN THE TOOL \u2014 corrected 2026-09-18.",
             "    //",
             "    // It was `tool.run(args)` bare, with each tool calling `guarded()` itself.",
@@ -240,7 +245,7 @@ function TheServer() {
             "    // it. `probeUnguardedToolStillLabelled` is the negative control: it registers",
             "    // a tool that throws and never calls `guarded`, and requires the cause to",
             "    // arrive anyway.",
-            "    const outcome = await guarded(() => tool.run(args));",
+            "    const outcome = conforming(tool.name, await guarded(() => tool.run(args)), outputSchema);",
             "    return {",
             "      content: [{ type: 'text' as const, text: tool.render(outcome) }],",
             "      structuredContent: outcome,",

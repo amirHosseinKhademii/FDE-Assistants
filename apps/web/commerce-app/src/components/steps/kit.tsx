@@ -1,136 +1,208 @@
 /**
- * The small set of parts the steps page is drawn with.
+ * The parts a step on `/steps` is built from.
  *
- * ── IT IS CALDER'S KIT, WITH ONE AXIS CHANGED, AND THAT IS THE POINT ──────
+ * ── ONE SHAPE, FOURTEEN TIMES ──────────────────────────────────────────────
  *
- * `apps/web/safety-app/src/components/steps/kit.tsx` is the same hundred lines
- * and its header carries the argument for why a page like this needs its own
- * kit rather than `/learn`'s 2,352-line one. What is copied is the discipline:
- * every figure says where its numbers came from, because that is the only thing
- * on a page like this a reader cannot recover for themselves.
+ * Every step is the same five parts in the same order:
  *
- * WHAT IS NOT COPIED IS THE VOCABULARY. Calder's four provenances are
- * `measured` / `worked` / `target` / `pending`, which fit a pipeline that counts
- * things. This engagement counts almost nothing yet — it reads a protocol — so
- * it uses the three words `docs/commerce/PLAN.md` already badges every claim in
- * that document with, unchanged:
+ *   in plain words     what the step does, with no jargon left unexplained
+ *   why it matters     what would go wrong without it
+ *   the code           real, highlighted, and labelled with where it came from
+ *   what we learned    for a finished step — every one so far corrected the
+ *                      plan. For a planned step, what it WILL check, drawn
+ *                      dashed, because a lesson that has not happened yet must
+ *                      not look like one that has.
+ *   words to know      each one a link down to the glossary
  *
- *   measured    read off this machine. Either out of the SDK's own `.d.mts`
- *               files, or produced by running the thing being described and
- *               keeping the output. The strongest thing on the page.
- *   cited       it comes from a document and the document is named. True, but
- *               true because somebody else wrote it down.
- *   proposed    this plan's design. NOT RUN. Twelve of the fourteen steps are
- *               here, and a page that let them look like the other two would be
- *               lying in the most expensive direction available.
+ * A reader who has read one step knows where to look in the other thirteen.
+ * That is the whole design argument for a fixed shape over fourteen bespoke
+ * layouts, and it is why `Step` takes the parts as props rather than children.
  *
- * ONE MORE THAN CALDER HAS, AND IT EARNS ITS PLACE:
+ * ── WHERE EVERY FIGURE CAME FROM ───────────────────────────────────────────
  *
- *   corrected   measured, AND it contradicts what this repo's own documents
- *               said before the measurement. There are two — the protocol
- *               version that came back lower than the one asked for, and the
- *               error code for a tool that does not exist. Filing those as
- *               plain `measured` would lose the only thing that makes them
- *               worth the page: somebody wrote the other answer down first.
+ * The page is half built and half planned, and the difference between "we ran
+ * this and kept the output" and "this is what we intend to write" is the one
+ * thing a reader cannot recover for themselves. So every figure carries a
+ * badge. The words changed in the redesign — the old ones were the plan's own
+ * shorthand — but the four categories are the same:
+ *
+ *   measured    Real output         read off this machine, or produced by
+ *                                   running the thing
+ *   corrected   Real output — it    measured, AND it contradicted what the
+ *               changed our plan    plan had written down
+ *   cited       From the docs       it comes from a named document or spec
+ *   proposed    Planned, not        this plan's design. The DEFAULT, so a
+ *               built yet           figure nobody labelled reads as unbuilt
+ *                                   rather than as done.
  */
 import type { ReactNode } from 'react';
+import { GLOSSARY, termId, type TermKey } from '../../lib/glossary';
+import { NEEDS, NEXT, isDone } from '../../lib/progress';
 
-export type Provenance = 'measured' | 'cited' | 'proposed' | 'corrected';
+export type Provenance = 'measured' | 'cited' | 'proposed' | 'corrected' | 'excerpt';
 
-const BADGE: Record<Provenance, { text: string; tone: string }> = {
-  measured: { text: 'measured here', tone: 'text-thb-1 border-thb-1/40' },
-  cited: { text: 'cited', tone: 'text-ui-dim border-ui-line' },
-  proposed: { text: 'proposed — not run', tone: 'text-ui-faint border-ui-line border-dashed' },
-  corrected: { text: 'measured — corrects the plan', tone: 'text-thb-2 border-thb-2/50' },
+const BADGE: Record<Provenance, { text: string; tone: 'done' | 'next' | 'planned' | 'quiet' }> = {
+  measured: { text: 'Real output', tone: 'done' },
+  corrected: { text: 'Real output — it changed our plan', tone: 'next' },
+  cited: { text: 'From the docs', tone: 'quiet' },
+  proposed: { text: 'Planned, not built yet', tone: 'planned' },
+  // Real code, shortened for the page. No line numbers on purpose: the files
+  // it comes from are still being edited, and a gutter would promise that
+  // "line 146" says this when next week it may not. See SURFACE.md §2.
+  excerpt: { text: 'Shortened from the real code', tone: 'quiet' },
 };
 
-/** What a step needs before it can start. MCP-STEPS.md's dependency table. */
-export type Needs = 'nobody' | 'the API' | 'the corpus' | 'everything above';
+export type StepState = 'done' | 'next' | 'planned' | 'idea';
 
-/**
- * One of the fourteen.
- *
- * THE NUMBER AND THE TITLE ARE THE HEADING, because `Step 6 · Break it on
- * purpose` is how the source document refers to it and how the next person will
- * search for it. The one-line `plain` under it is the version for somebody who
- * will not read the rest of the step, and it is written first on purpose.
- *
- * `needs` IS IN THE HEADER RATHER THAN THE BODY. It is the question a reader of
- * a half-built plan actually has — can this start, or is it waiting on someone?
- * — and putting it beside the title means the answer is available without
- * reading the step.
- */
+export function stateOf(n: string): StepState {
+  if (n === '0') return 'idea';
+  if (isDone(n)) return 'done';
+  if (n === NEXT) return 'next';
+  return 'planned';
+}
+
+const STATE_TEXT: Record<StepState, string> = {
+  done: 'Done',
+  next: 'Up next',
+  planned: 'Planned',
+  idea: 'Background',
+};
+
 export function Step({
   n,
   title,
-  plain,
-  needs,
   done,
-  children,
+  plain,
+  why,
+  code,
+  learned,
+  terms = [],
+  hood,
 }: {
   n: string;
   title: string;
-  plain: string;
-  needs: Needs;
-  /** The date it was finished, where it has been. */
+  /** The date the step's ☑ landed in MCP-STEPS.md. Shown only if `DONE` agrees. */
   done?: string;
-  children: ReactNode;
+  plain: ReactNode;
+  why: ReactNode;
+  code?: ReactNode;
+  /** What we found (a finished step) or what it will check (a planned one). */
+  learned?: ReactNode;
+  terms?: TermKey[];
+  hood?: ReactNode;
 }) {
+  const state = stateOf(n);
+  const needs = NEEDS[n];
+  const finished = state === 'done';
+
   return (
-    <section className="thb-step lift-in" id={`step-${n}`}>
-      <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <span
-          className="font-mono text-[0.6875rem] tracking-[0.08em] uppercase"
-          style={{ color: done ? 'var(--color-thb-1)' : 'var(--color-ui-faint)' }}
-        >
-          step {n}
+    <article className="thb-step" id={`step-${n}`} data-state={state} aria-labelledby={`step-${n}-title`}>
+      <header className="thb-step-head">
+        <span className="thb-step-n" aria-hidden>
+          {finished ? '✓' : n}
         </span>
-        <h3 className="font-mono text-lg leading-snug font-medium tracking-tight text-ui-fg md:text-xl">
+        <h3 className="thb-step-title" id={`step-${n}-title`}>
+          <span className="sr-only">Step {n}: </span>
           {title}
         </h3>
-        <span className="ml-auto flex items-center gap-2">
-          {done && (
-            <span className="rounded-full border border-thb-1/40 px-2 py-px font-mono text-[0.5625rem] tracking-[0.06em] text-thb-1 uppercase">
-              done {done}
+        <p className="thb-step-meta">
+          <span className="thb-pill" data-tone={state === 'idea' ? 'quiet' : state}>
+            Step {n} · {STATE_TEXT[state]}
+            {finished && done ? `, ${formatDate(done)}` : ''}
+          </span>
+          {state !== 'idea' && (
+            <span className="thb-pill" data-tone="quiet">
+              {needs === 'nobody'
+                ? finished
+                  ? 'Built on a laptop'
+                  : 'Can be built on a laptop'
+                : finished
+                  ? `Needed ${needs}`
+                  : `Waits for ${needs}`}
             </span>
           )}
-          <NeedsChip needs={needs} />
-        </span>
+        </p>
       </header>
 
-      <p className="mt-3 max-w-[64ch] leading-relaxed text-ui-dim">{plain}</p>
+      <div className="thb-step-body">
+        <Part label="In plain words">{typeof plain === 'string' ? <p>{plain}</p> : plain}</Part>
+        <Part label="Why it matters">{typeof why === 'string' ? <p>{why}</p> : why}</Part>
+        {code && (
+          <Part label={finished ? 'The code, and what it printed' : state === 'idea' ? 'The picture' : 'What it will look like'}>
+            <div className="grid gap-5">{code}</div>
+          </Part>
+        )}
+        {learned && (
+          <Lesson planned={!finished} title={state === 'idea' ? 'Check yourself' : undefined}>
+            {learned}
+          </Lesson>
+        )}
+        {terms.length > 0 && <Terms keys={terms} />}
+        {hood}
+      </div>
+    </article>
+  );
+}
 
-      <div className="mt-6 grid gap-6">{children}</div>
+function Part({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <section className="thb-part">
+      <h4 className="thb-label" data-tone="quiet">
+        {label}
+      </h4>
+      {children}
     </section>
   );
 }
 
-/**
- * Whether this step is blocked on somebody else.
- *
- * SEVEN OF FOURTEEN ARE FREE, and that is the single most load-bearing fact in
- * `MCP-STEPS.md` — it is why this strand started while two other sessions were
- * still building the databases and the API. The chip is lit for a step that
- * needs nobody and plain for one that waits, so the ratio is visible by
- * scanning rather than by counting.
- */
-function NeedsChip({ needs }: { needs: Needs }) {
-  const free = needs === 'nobody';
+/** "2026-09-18" → "18 Sep 2026". Fixed format so the server and the browser agree. */
+function formatDate(iso: string): string {
+  const [y, m, d] = iso.split('-').map(Number);
+  const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][m - 1];
+  return `${d} ${month} ${y}`;
+}
+
+export function Lesson({
+  planned = false,
+  title,
+  children,
+}: {
+  planned?: boolean;
+  title?: string;
+  children: ReactNode;
+}) {
   return (
-    <span className="thb-needs" data-free={free}>
-      {free ? 'needs nobody' : `needs ${needs}`}
-    </span>
+    <aside className="thb-lesson" data-planned={planned}>
+      <h4 className="thb-label" data-tone={planned ? 'quiet' : 'wire'}>
+        <LightIcon />
+        {title ?? (planned ? 'What this step will check' : 'What we learned')}
+      </h4>
+      {children}
+    </aside>
   );
 }
 
-/**
- * A figure, and where it came from.
- *
- * THE BADGE IS NOT DECORATION. On a page describing a build that is two steps
- * into fourteen, the difference between "we ran this and kept the output" and
- * "this is what we intend to write" is the entire difference between a record
- * and a plan.
- */
+function LightIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V17h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z" />
+    </svg>
+  );
+}
+
+export function Terms({ keys }: { keys: TermKey[] }) {
+  return (
+    <p className="thb-terms">
+      <span>Words to know:</span>
+      {keys.map((k) => (
+        <a key={k} href={`#${termId(k)}`} className="thb-term">
+          {GLOSSARY[k].word}
+        </a>
+      ))}
+    </p>
+  );
+}
+
 export function Figure({
   caption,
   from = 'proposed',
@@ -139,104 +211,96 @@ export function Figure({
 }: {
   caption: string;
   from?: Provenance;
-  /** The command, the file, or the document that produced it. */
   source?: string;
   children: ReactNode;
 }) {
   const badge = BADGE[from];
   return (
-    <figure className="min-w-0">
-      <figcaption className="flex flex-wrap items-center gap-x-3 gap-y-1 pb-2.5">
-        <span className="font-mono text-[0.6875rem] tracking-[0.06em] text-ui-faint uppercase">
-          {caption}
-        </span>
-        <span
-          className={`rounded-full border px-2 py-px font-mono text-[0.5625rem] tracking-[0.06em] uppercase ${badge.tone}`}
-        >
+    <figure className="thb-fig min-w-0">
+      <figcaption className="thb-fig-cap">
+        <span>{sentence(caption)}</span>
+        <span className="thb-pill" data-tone={badge.tone}>
           {badge.text}
         </span>
-        {source && <span className="font-mono text-[0.625rem] text-ui-faint">{source}</span>}
+        {source && <span className="thb-fig-src">{source}</span>}
       </figcaption>
       {children}
     </figure>
   );
 }
 
-/**
- * A block of literal text with no file behind it.
- *
- * WHEN TO USE THIS AND WHEN TO USE `Code` / `Data`. `@veresk/surface`'s `Code`
- * and `Data` are the site's code block: VS Code's own grammars, and a header
- * naming the file so a reader can go and check it. Anything quoting a real file
- * gets one of those. This is for the rest — an arrow diagram, a shape drawn in
- * characters, and above all CODE THAT DOES NOT EXIST YET. Twelve of these
- * fourteen steps are unwritten; giving their snippets a path would be inventing
- * provenance for a file nobody can open.
- */
+/** Captions were written lower-case for an uppercase label; print them as sentences. */
+function sentence(s: string): string {
+  return s.length ? s[0].toUpperCase() + s.slice(1) : s;
+}
+
 export function Raw({ children, tone }: { children: ReactNode; tone?: string }) {
   return (
-    <pre
-      className="overflow-x-auto rounded-lg border border-ui-line bg-ui-surface p-3.5 font-mono text-[0.6875rem] leading-relaxed text-ui-dim"
-      style={tone ? { borderColor: tone } : undefined}
-    >
+    <pre className="thb-raw" style={tone ? { borderColor: tone } : undefined}>
       {children}
     </pre>
   );
 }
 
-/**
- * The reason behind a decision, set apart from the description of it.
- *
- * WHY IT IS A DIFFERENT SHAPE. Everything else on this page says what happens.
- * This says why it was chosen over the obvious alternative, which is the part a
- * reader is being asked to agree or disagree with — and on this engagement more
- * than the others, because §10 of the plan may yet conclude the whole thing was
- * not worth its cost.
- */
+/** A small table: a header row, then rows of cells. Cells may hold inline code. */
+export function Table({ head, rows }: { head: string[]; rows: ReactNode[][] }) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="thb-table">
+        <thead>
+          <tr>
+            {head.map((h) => (
+              <th key={h} scope="col">
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, i) => (
+            <tr key={i}>
+              {row.map((cell, j) => (
+                <td key={j}>{cell}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/** A sentence under a figure: what to notice in it. */
+export function Note({ children }: { children: ReactNode }) {
+  return <p className="thb-note">{children}</p>;
+}
+
+/** Kept for the "under the hood" dialogs, which still use it for an aside. */
 export function Because({ children }: { children: ReactNode }) {
   return (
-    <p className="max-w-[66ch] border-l-2 border-thb-2/50 py-1 pl-4 text-[0.9375rem] leading-relaxed text-ui-dim">
+    <p className="max-w-[66ch] border-l-2 border-thb-2/50 py-1 pl-4 text-[1rem] leading-relaxed text-ui-dim">
       {children}
     </p>
   );
 }
 
-/** One JSON-RPC message, with the direction it travelled. */
 export interface WireLine {
   dir: 'out' | 'in';
-  /** The message, already formatted. Line breaks are kept as written. */
   body: string;
-  /** A fragment of `body` the prose above is pointing at. */
   mark?: string;
 }
 
 /**
- * A conversation between two programs, drawn as itself.
- *
- * ── WHY THIS IS NOT A `Code` BLOCK ────────────────────────────────────────
- *
- * `Data` would render these as pretty JSON and lose the only thing that makes a
- * protocol trace different from a file: a trace has TURNS. Which side spoke, in
- * what order, and which message answers which. Syntax colour cannot say any of
- * that, and an arrow in the gutter says all of it.
- *
- * THE HIGHLIGHT IS A STRING MATCH, NOT A LINE NUMBER, because the interesting
- * fragment here is mid-line — `"protocolVersion":"2025-11-25"` sits inside a
- * result object — and a line index would point at the wrong thing the moment
- * anybody reformats the capture.
+ * JSON-RPC messages, drawn as themselves. Each row says in words which way it
+ * went — "we sent" / "it replied" — rather than relying on an arrow, which a
+ * newcomer has to decode and a screen reader reads as "right arrow".
  */
 export function Wire({ lines }: { lines: WireLine[] }) {
   return (
-    <div className="rounded-lg border border-ui-line bg-ui-surface px-3.5 py-2">
+    <div className="thb-wire-box">
       {lines.map((line, i) => (
         <div key={i} className="thb-wire" data-dir={line.dir}>
-          <span className="thb-wire-dir" aria-hidden>
-            {line.dir === 'out' ? '→' : '←'}
-          </span>
-          {/* The visually-hidden word is what a screen reader gets instead of an
-              arrow glyph, which it would otherwise read as "right arrow" or skip
-              entirely — and the direction is the whole information here. */}
-          <span className="sr-only">{line.dir === 'out' ? 'sent' : 'received'}</span>
+          <span className="thb-wire-dir">{line.dir === 'out' ? 'We sent' : 'It replied'}</span>
           <span className="thb-wire-body">{highlight(line.body, line.mark)}</span>
         </div>
       ))}
@@ -244,7 +308,6 @@ export function Wire({ lines }: { lines: WireLine[] }) {
   );
 }
 
-/** Split a message around the fragment the prose is pointing at. */
 function highlight(body: string, mark?: string): ReactNode {
   if (!mark) return body;
   const at = body.indexOf(mark);

@@ -10,6 +10,17 @@ front-end doc and must be read before touching any app ·
 [`../../infra/commerce/DEPLOY.md`](../../infra/commerce/DEPLOY.md) is the
 deployment record, including the decisions **not** to build things.
 
+> **Redesigned 2026-09-27** at Byron's request ("more user friendly … plain
+> explanation for someone who landed on MCP and agentic and FDE stuff"). What
+> changed: a softer slate + teal/sky palette (§5), Atkinson Hyperlegible type,
+> `/steps` rewritten for newcomers — a primer (agent · MCP · FDE), a "who holds
+> what" diagram shared with the landing (`components/BigPicture.tsx`), a
+> clickable list of all fourteen steps, every step in the same five parts (in
+> plain words · why it matters · the code · what we learned · words to know),
+> and a glossary (`lib/glossary.ts`). Build progress now lives in ONE file,
+> `lib/progress.ts`, read by both pages (§3). Steps 5 and 6 landed the same day
+> and are written up in past tense.
+
 ---
 
 ## 1 · What exists, and what deliberately does not
@@ -52,8 +63,8 @@ Three blocks in
 `src/components/steps/HandshakeHood.tsx` are verbatim excerpts:
 
 ```
-apps/mcp/commerce/src/server.ts:92–108        createServer + the ping tool
-apps/mcp/commerce/src/server.ts:63–85         register(), and the central catch
+apps/mcp/commerce/src/server.ts:97–113        createServer + the ping tool
+apps/mcp/commerce/src/server.ts:63–90         register(), the output check, and the central catch
 apps/mcp/commerce/src/cli/handshake.ts:100–121  the initialize exchange
 ```
 
@@ -73,8 +84,8 @@ calls *"a small lie in the one component whose entire job is being checkable."*
 python3 - <<'PY'
 import pathlib, json, re
 hood = pathlib.Path('apps/web/commerce-app/src/components/steps/HandshakeHood.tsx').read_text()
-for path, a, b in [('apps/mcp/commerce/src/server.ts', 92, 108),
-                   ('apps/mcp/commerce/src/server.ts', 63, 85),
+for path, a, b in [('apps/mcp/commerce/src/server.ts', 97, 113),
+                   ('apps/mcp/commerce/src/server.ts', 63, 90),
                    ('apps/mcp/commerce/src/cli/handshake.ts', 100, 121)]:
     real = pathlib.Path(path).read_text().splitlines()[a-1:b]
     blk = hood.split(f'path="{path}:{a}–{b}"')[1]
@@ -84,6 +95,12 @@ for path, a, b in [('apps/mcp/commerce/src/server.ts', 92, 108),
     print(f'{path}:{a}-{b}  {"MATCH" if q == real else "MISMATCH"}')
 PY
 ```
+
+**It broke a third time on 2026-09-27**, when Step 5 put the output check into
+`register()` and pushed `createServer` down five lines; both blocks were
+re-extracted by script from the file, not hand-edited. The other code on
+`/steps` is shown WITHOUT line numbers ("Shortened from the real code") for
+exactly this reason — only `HandshakeHood.tsx` makes the line-number promise.
 
 **It should be a `commerce:quotes-check` script and it is not.** That is the
 single biggest thing I would fix next, and §6 says why it did not happen.
@@ -124,7 +141,14 @@ why the phase statuses stayed true when `DONE` grew across a phase boundary.
 items, for exactly the reason this exists. That is fixed now — but the fix does
 not make the next literal safe.
 
-**When a step's ☑ lands in `MCP-STEPS.md`, add it to `DONE` and nothing else.**
+**Since the redesign, `DONE` lives in `src/lib/progress.ts`**, beside `NEEDS`
+(what each step waits for) and `NEXT` (derived). Both pages import it — the
+landing used to type "Five of the fourteen steps have run" as a literal, which
+went stale the day step 6 landed.
+
+**When a step's ☑ lands in `MCP-STEPS.md`, add it to `DONE` in
+`lib/progress.ts`, then move that step's copy on `/steps` from future to past
+tense.** The counts move on their own; the tense cannot.
 
 ---
 
@@ -150,37 +174,30 @@ corrected something previously written down, and filing those as plain
 
 ---
 
-## 5 · The palette, and the one thing that did not clear
+## 5 · The palette (redesigned 2026-09-27)
 
-Two accent tokens and no more, in `src/styles/app.css`:
-
-```
---color-thb-1  #e0b184  brass   OURS      — the MCP server, the index, the client
---color-thb-2  #c2775a  copper  THE WIRE  — the protocol crossing itself
-```
-
-**The customer's five systems get no colour at all** and are drawn in the neutral
-`--ui-*` greys. That is the truthful drawing: Thornbury's databases are not ours
-to paint, and a house palette over them would claim an ownership the whole
-architecture spends its time denying. Every other engagement colours *its
-systems*; this one colours *sides of a line*, which is why two tokens suffice
-where pharma needs six.
-
-Measured with CIEDE2000 rather than chosen by eye, because `SITE.md` records a
-palette that shipped **failing** at ΔE 6.8 against a floor of 15:
+The brass/copper-on-near-black palette was replaced because it was hard to read
+for the page's actual reader. Tokens, all in `src/styles/app.css`, and only
+there — `@fde/uikit` and `@veresk/surface` are untouched; the app re-points the
+shared `--color-ui-*` names for itself:
 
 ```
-thb-1 ↔ thb-2                      ΔE 18.0   clears
-thb-1 vs. Vantis' orange #fb923c   ΔE 12.8   DOES NOT CLEAR
-thb-2 vs. Vantis' red    #f87171   ΔE 13.9   DOES NOT CLEAR
+--color-ui-bg     #121826  slate, not near-black, so page / card / code differ
+--color-ui-dim    #b3bdcc  body text, 9.3:1 on the page
+--color-ui-faint  #8390a5  5.5:1 — the old faint (#5f6878) was 3.2:1 and failed AA
+--color-thb-1     #3cc6b8  teal  WHAT WE BUILT — and "done"
+--color-thb-2     #7db7ff  sky   THE PROTOCOL — messages, links, "what we learned"
 ```
 
-Recorded rather than hidden. The floor governs hues adjacent **in one figure**,
-and these never are — different customer, different origin, differently shaped
-palette. Calder's stylesheet makes the same admission about its own indigo. A
-reader crossing between the two deployments in one sitting is who that note is
-for, and if somebody decides it is not good enough, the stylesheet comment is
-the thing to argue with.
+**Thornbury's own systems still get no colour** — drawn in the neutral greys,
+because the architecture is about not owning them.
+
+Measured with CIEDE2000, as `SITE.md` requires: **teal ↔ sky ΔE 28.5**, clearing
+the floor of 15. The same calculation gives 18.0 for the old brass/copper pair,
+which is what this section used to record — so the method agrees with the
+record. Type: Atkinson Hyperlegible Next and Mono (Google Fonts, loaded in
+`routes/__root.tsx`), chosen because it separates I/l/1 and O/0 on a page full of
+identifiers like `4b` and `-32602`.
 
 ---
 
@@ -200,7 +217,11 @@ Bluntly, and in order of how much they would annoy me to inherit.
    not have enough behind them to be worth a dialog — but that is my judgement
    and somebody could reasonably want the shape uniform.
 
-3. **Dialog bodies were never clicked.** They mount on click, so SSR, typecheck
+3. **~~Dialog bodies were never clicked.~~ Closed 2026-09-27.** All five were
+   opened in headless Chrome over the DevTools protocol: each opens, moves
+   focus inside, locks page scroll, closes on Escape and returns focus to its
+   button, with no console errors. Original note kept below.
+   **Dialog bodies were never clicked.** They mount on click, so SSR, typecheck
    and screenshots all skip them. I exercised each one by temporarily rendering
    it inline and restoring — which proves they render, and does **not** prove
    `OriginDialog`'s open/close animation, focus handling or scroll lock work on

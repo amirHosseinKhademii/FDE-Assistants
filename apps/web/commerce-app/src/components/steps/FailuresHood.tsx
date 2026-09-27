@@ -3,8 +3,12 @@
  *
  * ── THE MOST VALUABLE STEP ON THE PAGE, AND IT NEEDS NOBODY ────────────────
  *
- * Nothing in step 6 touches a database, an API or a model. It is a handful of
- * deliberate failures and a table you write yourself. It is also the step that
+ * THIS PANEL IS THE PROTOCOL HALF. It needs nothing: a handful of deliberate
+ * failures over the in-memory transport, and a table you write yourself. When
+ * step 6 actually ran (2026-09-27) the defects were all in the OTHER half — the
+ * backend misbehaving, driven by `commerce:mcp-break` against the API — and the
+ * step itself on `/steps` carries that table. `WhatTheRunAdded` below says so,
+ * so a reader of this panel does not think it is the whole step. It is also the step that
  * decides whether every failure this engagement ever records points at the
  * right person — and the existing machinery gets it wrong by default, in a way
  * the compiler will not mention.
@@ -80,12 +84,28 @@ const FAILURES = [
 export function FailuresHood() {
   return (
     <>
+      <WhatTheRunAdded />
       <FiveFailures />
       <TheCollapse />
       <TheFlattening />
       <TheSilentWidening />
       <TheRule />
     </>
+  );
+}
+
+function WhatTheRunAdded() {
+  return (
+    <HoodSection title="this panel is half of step 6">
+      <HoodText>
+        Below is the <strong>protocol</strong> half: how MCP itself reports six
+        kinds of failure, measured offline. When step 6 ran on 27 September
+        2026, it also broke <strong>Thornbury’s backend</strong> on purpose —
+        switched off, silent, cut off mid-answer, the wrong token — and that is
+        where every defect was: nine of fourteen checks failed at first. That
+        table, and the fix, are on the step itself.
+      </HoodText>
+    </HoodSection>
   );
 }
 
@@ -126,9 +146,9 @@ BAD ARGS         isError=true  text="Input validation error: … received number
         return <em>structurally</em>, by catching one of them; MCP flattens that
         to a boolean before it reaches us.
       </HoodText>
-      <Figure caption="so the tool carries what the protocol will not" from="proposed">
+      <Figure caption="so the tool carries what the protocol will not" from="measured" source="apps/mcp/commerce/src/api/outcome.ts">
         <Raw>
-          {`every Thornbury tool, from step 5 onward, returns its own outcome:
+          {`every Thornbury tool returns its own outcome:
 
   structuredContent: { ok: false, cause: 'out_of_scope' }
 
@@ -226,7 +246,7 @@ function FiveFailures() {
 
 function TheCollapse() {
   return (
-    <HoodSection title="−32602 is cleaner than step 1 predicted">
+    <HoodSection title="−32602 was cleaner than step 1 predicted — until step 5">
       <HoodText>
         Step 1 called a tool that does not exist, got{' '}
         <code>−32602 INVALID_PARAMS</code> rather than the{' '}
@@ -261,6 +281,16 @@ MEASURED    unknown tool     -32602
         note in <code>MCP-STEPS.md</code> step 1 still carries the superseded
         version. A discriminator written from it would go looking for a
         distinction that is not where it was told to look.
+      </HoodText>
+      <HoodText>
+        <strong>And step 5 took the “one thing only” back.</strong> Once a tool
+        declares an output schema, a client that has listed the tools also
+        answers <code>−32602</code> when a server’s result breaks that schema. So{' '}
+        <code>−32602</code> has two meanings again: a tool name nobody registered,
+        or a known tool whose output broke its own promise. Our server cannot
+        produce the second — it checks its output first — but a server we do not
+        control can. Telling them apart means checking the name against the last{' '}
+        <code>tools/list</code>, which step 10’s client now has to do.
       </HoodText>
       <HoodText>
         The collapse is real. It is one section down, it involves three failures

@@ -54,14 +54,19 @@ export function Hood({
       <button
         type="button"
         onClick={open}
-        className="group flex w-full items-center gap-4 rounded-lg border border-ui-line bg-ui-surface px-4 py-3.5 text-left transition-colors hover:border-thb-2/50"
+        className="group flex w-full items-center gap-4 rounded-xl border border-ui-line-lit bg-ui-raised px-4 py-3.5 text-left transition-colors hover:border-thb-2/60"
       >
-        <span className="shrink-0 font-mono text-[0.6875rem] tracking-[0.08em] text-thb-2 uppercase">
-          under the hood
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-thb-2/12 text-thb-2" aria-hidden>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m16 18 6-6-6-6M8 6l-6 6 6 6" />
+          </svg>
         </span>
-        <span className="min-w-0 flex-1 text-[0.875rem] text-ui-dim">{blurb}</span>
-        <span className="shrink-0 font-mono text-sm text-ui-faint transition-colors group-hover:text-ui-fg">
-          open →
+        <span className="min-w-0 flex-1">
+          <span className="block text-[0.9375rem] font-semibold text-ui-fg">Under the hood</span>
+          <span className="block text-[0.9375rem] leading-snug text-ui-dim">{blurb}</span>
+        </span>
+        <span className="shrink-0 text-sm font-semibold text-thb-2 transition-colors group-hover:text-ui-fg">
+          Open
         </span>
       </button>
 
@@ -73,8 +78,8 @@ export function Hood({
           onClose={() => setFrom(null)}
           header={
             <>
-              <p className="font-mono text-sm text-ui-fg">{title}</p>
-              <p className="mt-0.5 text-[0.75rem] text-ui-faint">{sub}</p>
+              <p className="text-[1rem] font-semibold text-ui-fg">{title}</p>
+              <p className="mt-0.5 text-[0.875rem] text-ui-faint">{sub}</p>
             </>
           }
         >
@@ -89,7 +94,7 @@ export function Hood({
 export function HoodSection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="mt-9 first:mt-0">
-      <h4 className="font-mono text-[0.6875rem] tracking-[0.08em] text-thb-1 uppercase">{title}</h4>
+      <h4 className="text-[1.0625rem] font-bold text-ui-fg">{title.length ? title[0].toUpperCase() + title.slice(1) : title}</h4>
       <div className="mt-3.5 grid gap-4">{children}</div>
     </section>
   );
@@ -97,5 +102,5 @@ export function HoodSection({ title, children }: { title: string; children: Reac
 
 /** A paragraph inside a panel, held to a readable measure. */
 export function HoodText({ children }: { children: ReactNode }) {
-  return <p className="max-w-[64ch] text-[0.875rem] leading-relaxed text-ui-dim">{children}</p>;
+  return <p className="thb-hood-text max-w-[66ch] text-[1rem] leading-[1.7] text-ui-dim">{children}</p>;
 }

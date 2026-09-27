@@ -55,6 +55,9 @@ export interface PhaseTab {
   status: string;
   /** False for a phase with nothing finished behind it. */
   built: boolean;
+  /** How many of `holds` have run, and how many can — step 0 is reading, not building. */
+  done: number;
+  total: number;
   content: ReactNode;
 }
 
@@ -89,7 +92,7 @@ export function PhaseTabs({
 
   return (
     <section className="lift-in" style={{ animationDelay: '140ms' }}>
-      <div role="tablist" aria-label="the phases of the build" className="thb-tabs">
+      <div role="tablist" aria-label="Phases of the build" className="thb-tabs">
         {tabs.map((tab, i) => (
           <button
             key={tab.id}
@@ -106,11 +109,16 @@ export function PhaseTabs({
             onKeyDown={(e) => onKey(e, i)}
             className="thb-tab"
           >
-            <span className="thb-tab-n" aria-hidden>
-              {rangeOf(tab.holds)}
+            <span className="thb-tab-n">
+              {tab.holds.length > 1 ? 'Steps' : 'Step'} {rangeOf(tab.holds)}
             </span>
             <span className="thb-tab-label">{tab.label}</span>
-            <span className="thb-tab-status">{tab.status}</span>
+            <span className="thb-tab-status">
+              <span>{tab.status}</span>
+              <span className="thb-meter" aria-hidden>
+                <span style={{ width: `${(tab.done / tab.total) * 100}%` }} />
+              </span>
+            </span>
           </button>
         ))}
       </div>
@@ -180,54 +188,44 @@ export function PhaseHead({
   waits,
 }: {
   title: string;
-  /** Two or three words: what exists. */
   status: string;
   what: ReactNode;
-  /** What has to happen before this phase can start, in order. Omitted when nothing does. */
   waits?: string[];
 }) {
-  const done = waits === undefined;
   return (
     <section className="lift-in">
-      <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-        <h2 className="font-mono text-lg leading-snug font-medium tracking-tight text-ui-fg md:text-xl">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <h2 className="text-[1.5rem] leading-tight font-bold tracking-tight text-ui-fg md:text-[1.75rem]">
           {title}
         </h2>
-        <span
-          className={
-            done
-              ? 'rounded-full border border-thb-1/40 px-2.5 py-0.5 font-mono text-[0.625rem] tracking-[0.06em] text-thb-1 uppercase'
-              : 'rounded-full border border-dashed border-ui-line px-2.5 py-0.5 font-mono text-[0.625rem] tracking-[0.06em] text-ui-faint uppercase'
-          }
-        >
+        <span className="thb-pill" data-tone={waits === undefined ? 'done' : 'planned'}>
           {status}
         </span>
       </div>
 
-      <div className="mt-4 max-w-[64ch] leading-relaxed text-ui-dim">{what}</div>
+      <div className="thb-prose mt-4">{what}</div>
 
       {waits && waits.length > 0 && <Waits items={waits} />}
     </section>
   );
 }
 
-/** What has to happen first, numbered, because the order is the whole content. */
 function Waits({ items }: { items: string[] }) {
   return (
-    <>
-      <h3 className="mt-8 font-mono text-[0.6875rem] tracking-[0.08em] text-thb-2 uppercase">
-        what has to happen first
+    <div className="mt-6 rounded-xl border border-dashed border-ui-line-lit px-4 py-3.5">
+      <h3 className="thb-label" data-tone="quiet">
+        Before this phase can start
       </h3>
-      <ol className="mt-4 grid gap-2.5">
-        {items.map((item, i) => (
-          <li key={item} className="flex items-baseline gap-4">
-            <span className="w-4 shrink-0 text-right font-mono text-[0.75rem] text-ui-faint">
-              {i + 1}
+      <ul className="mt-2 grid gap-1.5">
+        {items.map((item) => (
+          <li key={item} className="flex gap-3 text-[1rem] leading-relaxed text-ui-dim">
+            <span aria-hidden className="text-ui-faint">
+              •
             </span>
-            <span className="max-w-[58ch] text-[0.875rem] leading-relaxed text-ui-dim">{item}</span>
+            <span className="max-w-[64ch]">{item}</span>
           </li>
         ))}
-      </ol>
-    </>
+      </ul>
+    </div>
   );
 }
