@@ -41,6 +41,9 @@ export const DESCRIPTION =
   'date counted in working days and how many working days late the delivery was. ' +
   'Takes no arguments: the order is fixed by the case.';
 
+/** End a line with a full stop unless its last quoted text already did. */
+const sentence = (s: string): string => (/[.!?]["”]?$/.test(s) ? s : `${s}.`);
+
 /** The instant the parcel was delivered, if it was — the LAST delivered event. */
 function deliveredAt(d: DeliveryResponse): string | undefined {
   return d.deliveryEvents.filter((e) => e.status.toUpperCase() === 'DELIVERED').at(-1)?.occurredAt;
@@ -66,11 +69,11 @@ function summarise(d: Delivery): string {
     `Shipment ${s.id} by ${d.carrier.name} (${d.carrier.code}, ${d.carrier.kind}), ${s.serviceLevel} service; ` +
       `dispatched ${s.dispatchedAt}, promised by ${s.promisedBy}, status ${s.status}.`,
     `Scans: ${d.scans.map((x) => `${x.scanType} at ${x.location} ${x.scannedAt}`).join('; ') || 'none'}.`,
-    `Delivery events: ${
+    sentence(`Delivery events: ${
       d.deliveryEvents
         .map((e) => `${e.status} ${e.occurredAt}${e.exceptionCode ? ` exception ${e.exceptionCode}` : ''}${e.notes ? ` — "${e.notes}"` : ''}`)
         .join('; ') || 'none'
-    }.`,
+    }`),
     d.proofOfDelivery
       ? `Proof of delivery: ${d.proofOfDelivery.kind}, captured ${d.proofOfDelivery.capturedAt}.`
       : 'Proof of delivery: none recorded.',
@@ -96,7 +99,7 @@ function summarise(d: Delivery): string {
             .join('\n')
       : 'Driver reports for that route and day: none filed.',
     d.depotIncidents.length
-      ? `Depot incidents: ${d.depotIncidents.map((x) => `${x.id} ${x.occurredOn} ${x.kind} — "${x.body}"`).join('; ')}.`
+      ? sentence(`Depot incidents: ${d.depotIncidents.map((x) => `${x.id} ${x.occurredOn} ${x.kind} — "${x.body}"`).join('; ')}`)
       : 'Depot incidents: none.',
     slaLine(d.sla),
   );

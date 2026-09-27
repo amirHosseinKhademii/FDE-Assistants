@@ -87,7 +87,7 @@ function summarise(p: PolicyRules): string {
         .join('; ') || 'none'
     }.`,
     `Category overrides: ${
-      p.categoryOverrides.map((o) => `${o.citation} ${o.overrideKind}=${o.valueText} — ${o.note}`).join('; ') || 'none'
+      p.categoryOverrides.map((o) => `${o.citation} ${o.overrideKind}=${o.valueText} — ${o.note.replace(/\.$/, '')}`).join('; ') || 'none'
     }.`,
   ];
   return lines.join('\n');
