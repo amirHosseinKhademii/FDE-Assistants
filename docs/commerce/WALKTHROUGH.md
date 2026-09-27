@@ -56,8 +56,9 @@ re-read, not assumed.
 
 ### Decided on 2026-09-27, and landing now
 
-Byron took four of §F's findings the same day. project-a-26 is making the
-changes, and this key is written to the **intended** state. Where it cannot be
+Byron took five of §F's findings the same day. The decisions were relayed by
+project-a-26, which is making the changes, and this key is written to the
+**intended** state. Where it cannot be
 checked yet, the eval case carries a `pending` entry saying what lands and what
 changes when it does.
 
@@ -594,7 +595,9 @@ policy_versions PV-CARRIER-NDX-2025-04 (summary, unpublished):
 That summary does not say *whose* bank holidays. Northgate §2's rule, the
 delivery address's jurisdiction, would be the natural reading, but it is
 Northgate's rule. **For these six it makes no difference:** every address is in
-England, and so is the depot. For England & Wales the calendar is the gov.uk one:
+England, and so is the depot (`DEP-NDX`, *"Nexdrop national hub"*, Rugby, CV23
+0WA; MEASURED from `thb_fleet.depots`). For England & Wales the calendar is the
+gov.uk one:
 **Mon 31 Aug 2026 is the summer bank holiday.**
 
 ### The arithmetic (DERIVED first, then compared)
