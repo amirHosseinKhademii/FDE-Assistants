@@ -21,23 +21,48 @@
  *
  * ── AND THE CAVEAT IS THE SAME SHAPE AS 4.5'S CEILING ─────────────────────
  *
- * No model has produced an answer here yet. The fixtures are written by hand, so
- * this proves the CONTRACT works, not that the system does.
+ * At stage 5 no model had produced an answer. The fixtures are written by hand,
+ * so this proves the CONTRACT works, not that the system does. That stays true
+ * of stage 5 and is framed as history: stage 6 has since put real answers from
+ * gemini-3.5-flash-lite through the contract, and stage 7 scored them.
+ *
+ * ── CORRECTED 2026-09-27, AGAINST THE CODE AND GIT ────────────────────────
+ *
+ * - SEVEN FIELDS AND SIX RULES were stage 5's. Stage 6 added an eighth field,
+ *   `searches_that_found_nothing`, and rules 7–9, each after reading a real
+ *   answer (`safety-answer.ts`, STAGE6.md). The panel shows both, with six
+ *   framed as where stage 5 closed.
+ * - 13 CHECKS was the count at commit 8d92e28, when stage 5 closed.
+ *   `pnpm safety:schema` prints 20 today — rules 7–9 each with a control, and a
+ *   REC-005 accepting case. The listing is that output, run on 2026-09-27.
+ * - "Its own control fired first" was wrong: in `packages/schema/src/verify.ts`
+ *   the description walk reports first and the stripped-description control
+ *   runs after it. Reworded to what the control does.
+ * - The three code blocks carried line numbers (`:89`, `:216–223`,
+ *   `:147–149`) that had drifted to 134, 298 and 220. They are marked as
+ *   excerpts without line numbers now, because the file keeps moving.
+ * - The second time rule 4 misfired — on "April 27, 2020", in stage 6 — is
+ *   added beside the first.
+ *
+ * Restyled the same day for the `/steps` redesign: the shared trigger,
+ * sentence-case labels, 1rem body text, mono only for code and output.
  */
 import { useCallback, useState } from 'react';
-import { Mono, OriginDialog, originOf } from '@fde/uikit';
+import { OriginDialog, originOf } from '@fde/uikit';
 import type { Origin } from '@fde/uikit';
 import { Code, Data } from '@veresk/surface';
+import type { ReactNode } from 'react';
+import { HoodButton, HoodSection, HoodText } from './Hood';
 
 /** The first run: the rules were fine and the control was not. */
 const FIRST_RUN: readonly { what: string; ok: boolean }[] = [
-  { what: 'rule 1 · no answer and no escalation', ok: true },
-  { what: 'rule 2 · an answer with nothing behind it', ok: true },
-  { what: 'rule 3 · an unresolved conflict, silently decided', ok: true },
-  { what: 'rule 4 · a number that came from nowhere', ok: true },
-  { what: 'rule 5 · concluding that the remedy failed', ok: true },
-  { what: 'rule 6 · a campaign cited after the search found none', ok: true },
-  { what: 'control · a correct answer must be accepted', ok: false },
+  { what: 'Rule 1 · no answer and no escalation', ok: true },
+  { what: 'Rule 2 · an answer with nothing behind it', ok: true },
+  { what: 'Rule 3 · an unresolved conflict, silently decided', ok: true },
+  { what: 'Rule 4 · a number that came from nowhere', ok: true },
+  { what: 'Rule 5 · concluding that the remedy failed', ok: true },
+  { what: 'Rule 6 · a campaign cited after the search found none', ok: true },
+  { what: 'Control · a correct answer must be accepted', ok: false },
 ];
 
 export function ContractModal() {
@@ -49,22 +74,10 @@ export function ContractModal() {
 
   return (
     <>
-      <button
-        type="button"
+      <HoodButton
+        blurb="The shape every answer must arrive in, the rules that check it, and the test that failed because it should have passed."
         onClick={open}
-        className="group flex w-full items-center gap-4 rounded-lg border border-ui-line bg-ui-surface px-4 py-3.5 text-left transition-colors hover:border-cal-2/50"
-      >
-        <span className="font-mono text-[0.6875rem] tracking-[0.08em] text-cal-2 uppercase">
-          under the hood
-        </span>
-        <span className="min-w-0 flex-1 text-[0.875rem] text-ui-dim">
-          Inside the contract — the schema, the six rules, and the test that
-          failed was the one that should have passed
-        </span>
-        <span className="font-mono text-sm text-ui-faint transition-colors group-hover:text-ui-fg">
-          open →
-        </span>
-      </button>
+      />
 
       {from && <ContractPanel from={from} onClose={() => setFrom(null)} />}
     </>
@@ -76,57 +89,59 @@ function ContractPanel({ from, onClose }: { from: Origin; onClose: () => void })
     <OriginDialog
       from={from}
       label="Inside the answer contract"
-      tone="var(--color-cal-2)"
+      tone="var(--color-cal-sky)"
       onClose={onClose}
       header={
         <>
-          <p className="font-mono text-sm text-ui-fg">Inside the answer contract</p>
-          <p className="mt-0.5 text-[0.75rem] text-ui-faint">
-            stage 5 · built · 13 checks, including both controls
+          <p className="text-[1rem] font-semibold text-ui-fg">Inside the answer contract</p>
+          <p className="mt-0.5 text-[0.875rem] text-ui-faint">
+            Stage 5 · built · 13 checks when it closed, 20 now
           </p>
         </>
       }
     >
       <div className="sticky -top-3.5 z-20 -mx-5 -mt-3.5 mb-7 border-b border-ui-line bg-ui-bg px-5 pt-3.5 pb-4">
-        <p className="pb-2.5 font-mono text-[0.625rem] tracking-[0.08em] text-ui-faint uppercase">
-          the first run · every rule passed, the control did not
+        <p className="cal-label pb-2.5" data-tone="quiet">
+          The first run: every rule passed, and the control did not
         </p>
         <div className="grid gap-1">
           {FIRST_RUN.map((r) => (
-            <div key={r.what} className="flex items-baseline gap-3 font-mono text-[0.75rem]">
+            <div key={r.what} className="flex items-baseline gap-3 text-[0.9375rem]">
               <span
-                className="w-12 shrink-0"
-                style={{ color: r.ok ? 'var(--color-ui-faint)' : 'var(--color-cal-2)' }}
+                className={`w-12 shrink-0 font-mono text-[0.875rem] ${
+                  r.ok ? 'text-ui-faint' : 'font-semibold text-ui-fg'
+                }`}
               >
                 {r.ok ? 'ok' : 'FAIL'}
               </span>
-              <span className={r.ok ? 'text-ui-dim' : 'text-ui-fg'}>{r.what}</span>
+              <span className={r.ok ? 'text-ui-dim' : 'font-semibold text-ui-fg'}>{r.what}</span>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="grid gap-9 pb-2">
-        <section>
-          <H>What it is, plainly</H>
-          <P>
-            Up to now the machine could <em>find</em> things. It still could not{' '}
-            <em>say</em> anything. This is the rules for saying it.
-          </P>
+      <div className="pb-2 [&_.snip-frame]:my-1">
+        <HoodSection title="What it is, plainly">
+          <HoodText>
+            Up to this stage the machine could <em>find</em> things. It still
+            could not <em>say</em> anything. This is the rules for saying it.
+          </HoodText>
           <Key>
             Ask a model a question and you get prose. Prose cannot be checked.
             You cannot tell which sentence came from a document and which one the
             model supplied because it sounded right.
           </Key>
-          <P>So the answer comes back as separate boxes instead.</P>
+          <HoodText>So the answer comes back as separate boxes instead.</HoodText>
           <Data
-            path="what an answer has to arrive as"
+            path="What an answer has to arrive as"
+            note="Eight boxes"
             mark={[3]}
             lines={[
               'the answer          in plain words',
               'which recalls       it rests on',
               'citations           every claim, tied to the document behind it',
               'counts              every NUMBER, tied to the tool call that produced it',
+              'found nothing       every search whose EMPTY result the answer rests on',
               'unverified          things said with no document behind them',
               'conflicts           documents that disagree',
               'escalate            when a person needs to look',
@@ -137,15 +152,20 @@ function ContractPanel({ from, onClose }: { from: Origin; onClose: () => void })
             engagements have no equivalent for, and it is the only defence
             against a confident wrong number.
           </Why>
-        </section>
+          <Why>
+            Stage 5 closed with seven boxes. The fifth was added in stage 6, when
+            a correct answer — no recall covers this vehicle — had no document to
+            cite for an absence, and invented a citation that was a sentence
+            rather than a document. An absence is evidence too; it just has a
+            query behind it instead of a page.
+          </Why>
+        </HoodSection>
 
-        <section>
-          <H>The schema itself</H>
+        <HoodSection title="The schema itself">
           <Code
-            path="apps/ai/safety/src/schema/safety-answer.ts:89"
-            note="four of the seven fields"
+            path="apps/ai/safety/src/schema/safety-answer.ts"
+            note="Excerpt · four of the eight fields"
             lang="typescript"
-            startLine={89}
             mark={[15]}
             lines={[
               'export const SafetyAnswerSchema = z.strictObject({',
@@ -169,27 +189,26 @@ function ContractPanel({ from, onClose }: { from: Origin; onClose: () => void })
               "      'Every number that appears in your answer, with the tool call that produced it. ' +",
               "        'A number not listed here is a number you invented.',",
               '    ),',
-              '});',
             ]}
           />
           <Key>
-            Every <Mono>.describe()</Mono> string is sent to the model as part of
+            Every <code>.describe()</code> string is sent to the model as part of
             the schema. They are the only instruction it gets about what a field
             means — prompt text, not documentation.
           </Key>
           <Why>
             Which is why a check fails when one goes missing. Two had already
             gone missing on the first run, nested a level deeper than the prose
-            written for them, and the check found them. Its own control fired
-            first: it proved it could detect a stripped description before
-            reporting that any were absent.
+            written for them, and the check found them. It carries its own
+            control as well: it strips a description from a copy of the schema
+            and must notice the gap — so a check that has quietly gone blind
+            cannot report a pass.
           </Why>
-        </section>
+        </HoodSection>
 
-        <section>
-          <H>The six rules, in plain words</H>
+        <HoodSection title="The rules, in plain words">
           <Data
-            path="what gets rejected when the shape is right and the answer is wrong"
+            path="What gets rejected when the shape is right and the answer is wrong"
             mark={[3]}
             lines={[
               '1   you cannot say nothing AND not ask for help',
@@ -198,14 +217,26 @@ function ContractPanel({ from, onClose }: { from: Origin; onClose: () => void })
               '4   every number must come from a tool',
               '5   never say the fix failed',
               '6   if we searched for a recall and found none, do not cite a different one',
+              '',
+              'added in stage 6, each after reading a real answer:',
+              '7   if the answer rests on "none", record the search that found none',
+              '8   do not escalate or decline before calling a single tool',
+              "9   a number's caption is the tool's own words, not a paraphrase",
             ]}
           />
           <Why>
-            The first three came from the engagement before this one. The last
-            three came from this data. Rule 5 is a legal distinction rather than
-            a stylistic one: complaints filed after a recall are allegations by
-            members of the public, and the vehicle may never have had the repair
-            done.
+            Stage 5 closed with six. The first three came from the engagement
+            before this one; the next three came from this data. Rule 5 is a
+            legal distinction rather than a stylistic one: complaints filed after
+            a recall are allegations by members of the public, and the vehicle
+            may never have had the repair done.
+          </Why>
+          <Why>
+            The last three were each written after a real answer showed the gap:
+            a correct “no recall” that cited a sentence instead of a document
+            (7); a run that met the hardest question with no tool calls at all
+            and an escalation — safe, and useless (8); and a caption that made 6
+            transmission complaints read like the 351 power-train ones (9).
           </Why>
           <Key>
             Rule 4 exists because 1,057 and 103 are both true of this corpus and
@@ -214,9 +245,9 @@ function ContractPanel({ from, onClose }: { from: Origin; onClose: () => void })
             to be provenance.
           </Key>
           <Code
-            path="apps/ai/safety/src/schema/safety-answer.ts:216–223"
+            path="apps/ai/safety/src/schema/safety-answer.ts"
+            note="Excerpt · rule 4"
             lang="typescript"
-            startLine={216}
             mark={[1]}
             lines={[
               '    const declared = new Set(v.counts.map((c) => c.value));',
@@ -229,17 +260,17 @@ function ContractPanel({ from, onClose }: { from: Origin; onClose: () => void })
               '    }',
             ]}
           />
-        </section>
+        </HoodSection>
 
-        <section>
-          <H>And then the control case failed</H>
-          <P>
+        <HoodSection title="And then the control case failed">
+          <HoodText>
             Every rule-specific test passed. The one that failed was the one
-            asserting a <span className="text-ui-fg">correct</span> answer is
+            asserting a{' '}
+            <strong className="font-semibold text-ui-fg">correct</strong> answer is
             accepted.
-          </P>
+          </HoodText>
           <Data
-            path="the failure"
+            path="The failure"
             mark={[1]}
             lines={[
               'FAIL  a correct REC-001 answer',
@@ -249,8 +280,8 @@ function ContractPanel({ from, onClose }: { from: Origin; onClose: () => void })
           <Key>
             150. From “F-150”. A word boundary treats a hyphen as a break, so the
             scanner found the 150 inside the truck's name and rule 4 demanded to
-            know which tool call produced it. <Mono>10-speed</Mono> does it too.
-            So does <Mono>Model 3</Mono>.
+            know which tool call produced it. <code>10-speed</code> does it too.
+            So does <code>Model 3</code>.
           </Key>
           <Why>
             So rule 4 was rejecting correct answers — and the reason that matters
@@ -261,7 +292,7 @@ function ContractPanel({ from, onClose }: { from: Origin; onClose: () => void })
             built for.
           </Why>
           <Data
-            path="what the run actually told us"
+            path="What the run actually told us"
             mark={[2]}
             lines={[
               'the six rule tests      all passed',
@@ -274,9 +305,9 @@ function ContractPanel({ from, onClose }: { from: Origin; onClose: () => void })
             contract rejected every real answer the system could ever produce.
           </Why>
           <Code
-            path="apps/ai/safety/src/schema/safety-answer.ts:147–149"
+            path="apps/ai/safety/src/schema/safety-answer.ts"
+            note="Excerpt · inside countLikeNumbers"
             lang="typescript"
-            startLine={147}
             mark={[1]}
             lines={[
               '    // VEHICLE AND PART DESIGNATORS, which are names that happen to contain digits',
@@ -285,18 +316,25 @@ function ContractPanel({ from, onClose }: { from: Origin; onClose: () => void })
             ]}
           />
           <Why>
-            The accepting fixture now carries <Mono>10-speed</Mono> so the same
+            The accepting fixture now carries <code>10-speed</code> so the same
             thing cannot come back unnoticed.
           </Why>
-        </section>
+          <Why>
+            It bit a second time in stage 6, on a real answer rather than a
+            fixture: “April 27, 2020” yielded 27, and the model{' '}
+            <em>obeyed</em> — it filed a count captioned “27 — day of the month
+            owners were notified”. That rule did not reject a good answer; it
+            pushed one into carrying a nonsense field, which is harder to notice.
+            Dates written out in words are stripped now as well.
+          </Why>
+        </HoodSection>
 
-        <section>
-          <H>Why rule 6 is checked apart from the other five</H>
-          <P>
+        <HoodSection title="Why rule 6 is checked apart from the rest">
+          <HoodText>
             An answer citing a campaign is perfectly coherent on its own. It is
             only wrong if the tool that looked for covering recalls came back
             empty — which is one of the questions in the answer key exactly.
-          </P>
+          </HoodText>
           <Key>
             So it is not a property of the answer. It needs the tool result
             beside it, and folding it in with the others would have meant
@@ -306,12 +344,18 @@ function ContractPanel({ from, onClose }: { from: Origin; onClose: () => void })
             And a model that will reach for an unrelated campaign will also tick
             a box saying it did not.
           </Why>
-        </section>
+          <Why>
+            Rules 7, 8 and 9 joined it for the same reason. Each needs to know
+            what the tools actually did — whether a search came back empty, how
+            many tools ran, what each count said it had counted — so all four
+            are checked against the record of the calls, not against the answer
+            alone.
+          </Why>
+        </HoodSection>
 
-        <section>
-          <H>Three ways of being wrong, reported apart</H>
+        <HoodSection title="Three ways of being wrong, reported apart">
           <Data
-            path="what a rejection says"
+            path="What a rejection says"
             lines={[
               'did not parse      what came back is not JSON',
               'wrong shape        it is JSON, and a required field is missing',
@@ -323,14 +367,13 @@ function ContractPanel({ from, onClose }: { from: Origin; onClose: () => void })
             says what to do next. And nothing is ever quietly repaired — a
             repaired answer is a failure you stopped counting.
           </Why>
-        </section>
+        </HoodSection>
 
-        <section>
-          <H>The checks</H>
+        <HoodSection title="The checks">
           <Data
             path="pnpm safety:schema"
-            note="13 of 13 · both controls included"
-            mark={[0, 9, 11]}
+            note="20 of 20, run 2026-09-27 · 13 of 13 when stage 5 closed (8d92e28)"
+            mark={[10, 12, 14, 16, 18]}
             lines={[
               'ok  a correct REC-001 answer',
               'ok  not JSON at all',
@@ -339,50 +382,64 @@ function ContractPanel({ from, onClose }: { from: Origin; onClose: () => void })
               'ok  rule 3 · an unresolved conflict, silently decided',
               'ok  rule 4 · a number that came from nowhere',
               'ok  rule 5 · concluding that the remedy failed',
+              'ok  rule 2 · an answer resting only on an absence is ACCEPTED',
               'ok  a year is not a count',
               'ok  rule 6 · a campaign cited after find_recalls returned nothing',
-              'ok  control: rule 6 stays quiet when the search found something',
+              'ok  control: rule 6 stays quiet when the search found something, and when nothing is cited',
+              'ok  rule 7 · an absence asserted with no record of the search that established it',
+              'ok  control: rule 7 stays quiet when the search IS recorded, and when nothing was empty',
+              'ok  rule 8 · escalating or declining without calling a single tool',
+              'ok  control: rule 8 stays quiet when tools ran, and when nothing was escalated',
+              "ok  rule 9 · a number captioned in the model's words rather than the tool's",
+              "ok  control: rule 9 accepts the tool's own wording, and is inert when there is none",
               'ok  every field carries a description',
               'ok  control: a stripped description IS detected',
               'ok  the correct answer trips no coherence rule',
             ]}
           />
           <Why>
-            The three marked are the controls. Each one asserts that a check can
-            stay quiet when it should, or can fail when it should — a check
-            nobody has watched fail is a check taken on faith.
+            The five marked are the controls by name. Four more do the same job
+            without the label — the correct answer, the answer resting on an
+            absence, the year that is not a count, and the clean pass at the end.
+            Each asserts that a check can stay quiet when it should, or can fail
+            when it should. A check nobody has watched fail is a check taken on
+            faith.
           </Why>
-        </section>
+        </HoodSection>
 
-        <section>
-          <H>And no model has written an answer here yet</H>
+        <HoodSection title="At this stage, no model had written an answer">
           <Key>
-            The fixtures are written by hand. This proves the contract works, not
+            The fixtures are written by hand. They prove the contract works, not
             that the system does.
           </Key>
           <Why>
-            Which is the same shape of caveat as the tools' ceiling one stage
-            earlier. The part that chooses which tool to call comes next, and
-            scoring real answers comes after that.
+            The same shape of caveat as the tools' ceiling one stage earlier. What
+            came next: stage 6 put real answers through the contract — from
+            Google's gemini-3.5-flash-lite, reached over a hosted
+            OpenAI-compatible endpoint — and reading them found most of the
+            faults in the checking rather than in the model: rule 4 on written
+            dates, a box the schema lacked, and three rules it had not thought
+            of.
           </Why>
-        </section>
+          <Why>
+            Stage 7 then ran all eight questions three times each. 28 of 28
+            decided checks — the kind a rule like these can settle — are
+            reported beside 0 of 3 judged ones, which have to be read, and the
+            two are never added. The judged zero is not a broken judge: every
+            control passed.
+          </Why>
+        </HoodSection>
       </div>
     </OriginDialog>
   );
 }
 
-function H({ children }: { children: React.ReactNode }) {
-  return <h3 className="mb-3 font-mono text-[0.9375rem] text-ui-fg">{children}</h3>;
+/** The point — restyled on `/steps` by the `cal-key` rule in app.css. */
+function Key({ children }: { children: ReactNode }) {
+  return <p className="cal-key">{children}</p>;
 }
 
-function P({ children }: { children: React.ReactNode }) {
-  return <p className="max-w-[66ch] text-[0.875rem] leading-relaxed text-ui-dim">{children}</p>;
-}
-
-function Key({ children }: { children: React.ReactNode }) {
-  return <p className="cal-key mt-3.5">{children}</p>;
-}
-
-function Why({ children }: { children: React.ReactNode }) {
-  return <p className="cal-why mt-3.5">{children}</p>;
+/** A reason, set in the margin — the `cal-why` rule. */
+function Why({ children }: { children: ReactNode }) {
+  return <p className="cal-why">{children}</p>;
 }

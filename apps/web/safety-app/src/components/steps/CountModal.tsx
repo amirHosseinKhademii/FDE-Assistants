@@ -23,11 +23,38 @@
  * agree — 103, 93, 89. The number depends entirely on a predicate nobody wrote
  * down. So the check asserts the ARITHMETIC and asserts no total at all, and
  * the panel says why rather than quietly printing one of the three.
+ *
+ * ── CORRECTED 2026-09-27, AFTER STAGES 6 AND 7 HAD RUN ────────────────────
+ *
+ * The last section said the measurement was hand-routed "because there is no
+ * model yet", and that this tool "is not in that number at all: none of the
+ * three retrieval cases wants a count". The first is history now (stage 6 put a
+ * model in the loop), and the second was wrong twice over: REC-001 and REC-004
+ * are both counting questions, and with a model routing, REC-004's retrieval
+ * fell to zero in two runs of three because it answered from this tool alone
+ * (INGESTION.md, "MEASURED 2026-09-18"). Two of stage 7's four fixes live in
+ * this tool — the "narrowed nothing" guard (REC-007) and the "a count is not a
+ * quotation" note (REC-004) — and the panel now shows the first and names the
+ * second. The returned object gained `describes` in stage 6; shown. The checks
+ * listing is `pnpm safety:count`'s own output, re-run on 2026-09-27.
+ *
+ * THE 89 PHRASE KEEPS "rollaway", DELIBERATELY. The tool's doc comment
+ * (`count-complaints.tool.ts`, the "GOOGLE SYNTAX" block) shows the OR phrase
+ * without it; the self-test that actually produces the 89 (`cli/count.ts`,
+ * the partition check) and the schema fixture both use
+ * `park or prndl or rollaway or "shift cable"`. Re-run 2026-09-27: 89. The
+ * comment is the one that drifted, and this panel quotes what ran.
+ *
+ * Restyled the same day for the `/steps` redesign: the shared trigger,
+ * sentence-case labels, 1rem body text, the kit's `Table`.
  */
 import { useCallback, useState } from 'react';
-import { Mono, OriginDialog, originOf } from '@fde/uikit';
+import { OriginDialog, originOf } from '@fde/uikit';
 import type { Origin } from '@fde/uikit';
 import { Data } from '@veresk/surface';
+import type { ReactNode } from 'react';
+import { HoodButton, HoodSection, HoodText } from './Hood';
+import { Table } from './kit';
 
 /** Each figure, by three routes that share no code with each other. */
 const AGREEMENTS = [
@@ -38,10 +65,12 @@ const AGREEMENTS = [
 
 /** The three predicates for "describes the recalled defect", and they disagree. */
 const PREDICATES = [
-  { whose: "the answer key's", n: 103 },
-  { whose: 'an earlier attempt', n: 93 },
-  { whose: 'this phrase', n: 89 },
+  { whose: "The answer key's", n: 103 },
+  { whose: 'An earlier attempt', n: 93 },
+  { whose: 'This phrase', n: 89 },
 ] as const;
+
+const n = (x: number) => x.toLocaleString('en-GB');
 
 export function CountModal() {
   const [from, setFrom] = useState<Origin | null>(null);
@@ -52,22 +81,10 @@ export function CountModal() {
 
   return (
     <>
-      <button
-        type="button"
+      <HoodButton
+        blurb="Why counting is its own tool, checked three ways, and why a zero has to say which kind of zero it is."
         onClick={open}
-        className="group flex w-full items-center gap-4 rounded-lg border border-ui-line bg-ui-surface px-4 py-3.5 text-left transition-colors hover:border-cal-1/50"
-      >
-        <span className="font-mono text-[0.6875rem] tracking-[0.08em] text-cal-1 uppercase">
-          under the hood
-        </span>
-        <span className="min-w-0 flex-1 text-[0.875rem] text-ui-dim">
-          Inside <Mono>count_complaints</Mono> — three routes to one number, and
-          why a zero has to say which kind it is
-        </span>
-        <span className="font-mono text-sm text-ui-faint transition-colors group-hover:text-ui-fg">
-          open →
-        </span>
-      </button>
+      />
 
       {from && <CountPanel from={from} onClose={() => setFrom(null)} />}
     </>
@@ -79,65 +96,49 @@ function CountPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
     <OriginDialog
       from={from}
       label="Inside count_complaints"
-      tone="var(--color-cal-1)"
+      tone="var(--color-cal-sky)"
       onClose={onClose}
       header={
         <>
-          <p className="font-mono text-sm text-ui-fg">Inside count_complaints</p>
-          <p className="mt-0.5 text-[0.75rem] text-ui-faint">
-            stage 4.4 · built, and checked three ways
+          <p className="text-[1rem] font-semibold text-ui-fg">
+            Inside <span className="font-mono">count_complaints</span>
+          </p>
+          <p className="mt-0.5 text-[0.875rem] text-ui-faint">
+            Step 4.4 · built, and checked three ways
           </p>
         </>
       }
     >
       <div className="sticky -top-3.5 z-20 -mx-5 -mt-3.5 mb-7 border-b border-ui-line bg-ui-bg px-5 pt-3.5 pb-4">
-        <p className="pb-2.5 font-mono text-[0.625rem] tracking-[0.08em] text-ui-faint uppercase">
-          every number, by three routes that share no code
+        <p className="cal-label pb-2.5" data-tone="quiet">
+          Every number, by three routes that share no code
         </p>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[30rem] border-collapse font-mono text-[0.75rem]">
-            <thead>
-              <tr className="text-[0.5625rem] tracking-[0.08em] text-ui-faint uppercase">
-                <th className="pb-1.5 text-left font-normal">question</th>
-                <th className="pb-1.5 text-right font-normal">the tool</th>
-                <th className="pb-1.5 text-right font-normal">a shell pipeline</th>
-                <th className="pb-1.5 text-right font-normal">read by hand</th>
-              </tr>
-            </thead>
-            <tbody>
-              {AGREEMENTS.map((a) => (
-                <tr key={a.q} className="border-t border-ui-line/60">
-                  <td className="py-1.5 text-ui-dim">{a.what}</td>
-                  {[0, 1, 2].map((i) => (
-                    <td
-                      key={i}
-                      className="py-1.5 text-right"
-                      style={{ color: i === 0 ? 'var(--color-cal-1)' : 'var(--color-ui-dim)' }}
-                    >
-                      {a.n.toLocaleString('en-GB')}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Table
+          head={['Question', 'The tool', 'A shell pipeline', 'Read by hand']}
+          numeric={[1, 2, 3]}
+          rows={AGREEMENTS.map((a) => [a.what, n(a.n), n(a.n), n(a.n)])}
+        />
       </div>
 
-      <div className="grid gap-9 pb-2">
-        <section>
-          <H>What it does</H>
-          <P>It returns a number. Never a passage.</P>
+      <div className="pb-2 [&_.snip-frame]:my-1">
+        <HoodSection title="What it does">
+          <HoodText>
+            It returns a number — never a passage. You describe which complaints
+            you mean (the vehicle, the part, the dates) and it tells you how many
+            there are, together with exactly what it counted.
+          </HoodText>
           <Data
-            path="one filter in, one number out"
+            path="One filter in, one number out"
+            mark={[4, 5]}
             lines={[
               'count_complaints({ make: "FORD", model: "F-150",',
               '                   component: "POWER TRAIN",',
               '                   filed_after: "2020-04-27" })',
               '',
-              '  →  { count: 1057, filter: { ...the question it answered } }',
+              '  →  { count: 1057,',
+              '       describes: "complaints: FORD, F-150, component POWER TRAIN, filed on or after 2020-04-27",',
+              '       filter: { ...the question it answered }, note: "..." }',
             ]}
-            mark={[4]}
           />
           <Why>
             Three of the eight questions in the answer key want a number. No six
@@ -151,12 +152,11 @@ function CountPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             A system reporting 1,057 has done the arithmetic correctly and
             answered a different question.
           </Key>
-        </section>
+        </HoodSection>
 
-        <section>
-          <H>Why the number comes back carrying its filter</H>
+        <HoodSection title="Why the number comes back carrying its filter">
           <Data
-            path="a number is not a fact until it says what it counted"
+            path="A number is not a fact until it says what it counted"
             mark={[1]}
             lines={[
               '"1,057"                                                        not a fact',
@@ -164,20 +164,30 @@ function CountPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             ]}
           />
           <Why>
-            The contract in the next stage has a rule that any number appearing
+            The answer contract (stage 5) has a rule that any number appearing
             in the prose must also appear in the list of counts — which is only
             checkable if a count carries the question it answered.
           </Why>
-        </section>
+          <Why>
+            Since stage 6 it carries its own caption too, in{' '}
+            <code>describes</code>. A model asked to restate what it had counted
+            put “power-train complaints” over 6 transmission complaints — the
+            power-train figure is 351. The number, the tool and the filter were
+            all right, and the sentence a person reads was wrong by a factor of
+            sixty. So the tool writes the caption, and the contract compares it
+            word for word.
+          </Why>
+        </HoodSection>
 
-        <section>
-          <H>And a zero has to say which kind of zero it is</H>
-          <P>
-            Search phrases treat spaces as <span className="text-ui-fg">and</span>
-            , so a phrase of several words can be impossible to satisfy at once.
-          </P>
+        <HoodSection title="And a zero has to say which kind of zero it is">
+          <HoodText>
+            Search phrases treat spaces as{' '}
+            <strong className="font-semibold text-ui-fg">and</strong>, so a phrase
+            of several words can be impossible to satisfy at once.
+          </HoodText>
           <Data
-            path="the same five words, two ways"
+            path="The same five words, two ways"
+            note="The two phrases pnpm safety:count runs"
             mark={[1, 4]}
             lines={[
               '"park prndl rollaway shift cable"',
@@ -193,12 +203,12 @@ function CountPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             corpus about vehicles that roll away, reading the first as the second
             is a false all-clear.
           </Key>
-          <P>
+          <HoodText>
             So when a phrase narrows a non-empty set to nothing, the tool says
             so in the result rather than returning a bare number.
-          </P>
+          </HoodText>
           <Data
-            path="what it returns instead of 0"
+            path="What it returns instead of 0"
             lines={[
               'NO complaints matched "park prndl rollaway shift cable", but 1,057 match',
               'the filter alone. Spaces in a phrase mean AND, so several terms together',
@@ -211,10 +221,42 @@ function CountPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             replaced with a working one, so the guard is exercised on every run.
             A guard nobody has watched fail is a guard taken on faith.
           </Why>
-        </section>
+        </HoodSection>
 
-        <section>
-          <H>The partition, and the gap in it</H>
+        <HoodSection title="And, later, a narrowing that narrowed nothing">
+          <HoodText>
+            The zero was the failure this step predicted. A model found the
+            opposite one during stage 7's baselines: it counted the transmission
+            component, then “narrowed” it with a phrase that included the word{' '}
+            <em>transmission</em>.
+          </HoodText>
+          <Data
+            path="What a real run did"
+            note="As recorded in count-complaints.tool.ts"
+            mark={[1, 2]}
+            lines={[
+              'filter    F-150 · POWER TRAIN:AUTOMATIC TRANSMISSION · after the recall      6',
+              'matching  "shift or linkage or cable or prndl or gear or park or transmission"   6',
+              'answer    "6 complaints, all of which matched the defect-related terms"',
+            ]}
+          />
+          <Key>
+            Both counts were right, and the sentence built on them was a
+            tautology dressed as an analysis — a component count wearing a
+            defect's clothes, which is the exact trap this tool exists to avoid.
+          </Key>
+          <Why>
+            So whenever a phrase is given, the tool now fetches the un-narrowed
+            count as well, and says so plainly when the two are equal. It was one
+            of stage 7's four fixes, none of them a change to the prompt, and the
+            question it was aimed at (REC-007) went from reporting both numbers
+            in 0 of 3 runs to 3 of 3. Another of the four lives here too: a count
+            now says it is not a quotation, and points at the tool that fetches
+            examples.
+          </Why>
+        </HoodSection>
+
+        <HoodSection title="The partition, and the gap in it">
           <Data
             path="F-150 power-train complaints filed after the recall"
             mark={[2]}
@@ -229,22 +271,18 @@ function CountPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             itself a finding — and it is the shape of the real answer to the
             F-150 question.
           </Why>
-          <P>
+          <HoodText>
             But the middle number is not settled.{' '}
-            <span className="text-ui-fg">
+            <strong className="font-semibold text-ui-fg">
               Three predicates for “describes the recalled defect” exist and none
-              of them agree
-            </span>
-            .
-          </P>
-          <div className="cal-panel grid gap-2">
-            {PREDICATES.map((p) => (
-              <div key={p.whose} className="flex items-baseline gap-4 font-mono text-[0.75rem]">
-                <span className="w-44 shrink-0 text-ui-dim">{p.whose}</span>
-                <span className="text-ui-fg">{p.n}</span>
-              </div>
-            ))}
-          </div>
+              of them agree.
+            </strong>
+          </HoodText>
+          <Table
+            head={['Whose predicate', 'Complaints']}
+            numeric={[1]}
+            rows={PREDICATES.map((p) => [p.whose, String(p.n)])}
+          />
           <Key>
             An answer key must record the predicate, not only the answer. A
             number without the question that produced it cannot be reproduced,
@@ -257,15 +295,14 @@ function CountPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             asserts no total at all. Asserting a number nobody can reproduce
             would make the check a fiction.
           </Why>
-        </section>
+        </HoodSection>
 
-        <section>
-          <H>One builder, one meaning of “the complaints matching this filter”</H>
-          <P>
+        <HoodSection title="One builder, one meaning of “the complaints matching this filter”">
+          <HoodText>
             The predicate is not written twice. This tool imports the same
             builder the search uses, so the count and the examples are guaranteed
             to describe the same set because they are the same query.
-          </P>
+          </HoodText>
           <Why>
             Two tools building the same predicate separately could drift, and the
             drift would be invisible in the worst way: an answer stating a total
@@ -277,21 +314,22 @@ function CountPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             join multiplies rows — 21,747 of the 70,194 complaints name more than
             one component — and this is the tool whose entire output is a number.
           </Why>
-        </section>
+        </HoodSection>
 
-        <section>
-          <H>The checks</H>
+        <HoodSection title="The checks">
           <Data
             path="pnpm safety:count"
-            note="7 of 7 · every number also checked by a shell pipeline over the raw file"
-            mark={[4]}
+            note="7 of 7, run 2026-09-27 · every number also checked by awk over the raw file"
+            mark={[7]}
             lines={[
-              'ok  Tesla Model 3 complaints involving a death        5 · 5 · 5',
-              'ok  Odyssey forward-collision complaints           400 · 400 · 400',
-              'ok  F-150 power train, after the recall         1,057 · 1,057 · 1,057',
-              'ok  narrowing by defect gives a strictly smaller number',
-              'ok  a zero from an impossible phrase says so, instead of reading as',
-              '    an all-clear',
+              'ok  REC-004 · Tesla Model 3 complaints involving a death',
+              '      tool 5 · awk 5 · answer key 5',
+              'ok  REC-005 · Odyssey forward-collision complaints',
+              '      tool 400 · awk 400 · answer key 400',
+              'ok  REC-001 · F-150 power-train complaints filed after the recall',
+              '      tool 1,057 · awk 1,057 · answer key 1,057',
+              'ok  REC-001 · narrowing by defect gives a strictly smaller number than the component',
+              'ok  a zero produced by an impossible phrase says so, instead of reading as an all-clear',
               'ok  the count is returned WITH the filter that produced it',
               'ok  a filter matching nothing counts zero',
             ]}
@@ -302,39 +340,46 @@ function CountPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             rather than imported — importing them would make the check agree by
             construction, which is the thing it exists to test.
           </Why>
-        </section>
+        </HoodSection>
 
-        <section>
-          <H>And the measurement has since happened</H>
+        <HoodSection title="Where this tool shows up in the measurements">
           <Key>
-            recall@6 went 0.40 to 1.00 over the three retrieval cases. Five
-            tools looking good in isolation was not the claim; running them
-            together was, and it is now run.
+            recall@6 scores which <em>documents</em> came back, so a count never
+            appears in it directly — even though two of its three cases, REC-001
+            and REC-004, are counting questions. This tool is checked by its own
+            arithmetic, three ways.
           </Key>
           <Why>
-            With the tools called by hand, because there is no model yet — so it
-            is a ceiling on what is reachable rather than a score. This tool is
-            not in that number at all: none of the three retrieval cases wants a
-            count. It is checked by its own arithmetic, three ways.
+            With the tools called by hand (step 4.5), recall@6 went from 0.40 to
+            1.00 over those three cases — a ceiling on what is reachable, not a
+            score, and one of the three (REC-005) was already at 1.00 because its
+            right answer is an empty result. At that stage no model had been
+            asked anything.
           </Why>
-        </section>
+          <Why>
+            With a model choosing the tools (stage 6), three runs gave 0.17 to
+            0.50 — a range, because the runs disagree — and this tool is behind
+            most of the spread: in two runs of three the model answered REC-004
+            from the count alone and fetched no complaint to quote. That is the
+            reason for the “a count is not a quotation” note above.
+          </Why>
+          <Why>
+            Stage 7 scores the answers rather than the documents: 28 of 28
+            decided checks, reported beside 0 of 3 judged ones and never added to
+            them. The judged zero is not a broken judge — every control passed.
+          </Why>
+        </HoodSection>
       </div>
     </OriginDialog>
   );
 }
 
-function H({ children }: { children: React.ReactNode }) {
-  return <h3 className="mb-3 font-mono text-[0.9375rem] text-ui-fg">{children}</h3>;
+/** The point — restyled on `/steps` by the `cal-key` rule in app.css. */
+function Key({ children }: { children: ReactNode }) {
+  return <p className="cal-key">{children}</p>;
 }
 
-function P({ children }: { children: React.ReactNode }) {
-  return <p className="max-w-[66ch] text-[0.875rem] leading-relaxed text-ui-dim">{children}</p>;
-}
-
-function Key({ children }: { children: React.ReactNode }) {
-  return <p className="cal-key mt-3.5">{children}</p>;
-}
-
-function Why({ children }: { children: React.ReactNode }) {
-  return <p className="cal-why mt-3.5">{children}</p>;
+/** A reason, set in the margin — the `cal-why` rule. */
+function Why({ children }: { children: ReactNode }) {
+  return <p className="cal-why">{children}</p>;
 }

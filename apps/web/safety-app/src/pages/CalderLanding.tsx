@@ -104,7 +104,7 @@ function Header() {
       </Link>
 
       <Link to="/steps" className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
-        How it would work
+        How it works
       </Link>
 
       <Link to="/data-flow" className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
@@ -565,7 +565,7 @@ function Onward() {
           to="/steps"
           className="font-mono text-sm text-cal-2 transition-colors hover:text-ui-fg"
         >
-          How it would work, in seven stages →
+          How it works, in seven stages →
         </Link>
         <span className="font-mono text-sm text-ui-faint">
           The desk is not built yet — the answer contract is written after the

@@ -49,7 +49,7 @@ export function DataFlow() {
         </Link>
         <span className="text-sm text-ui-faint">Where the data goes</span>
         <Link to="/steps" className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
-          How it would work
+          How it works
         </Link>
         {VERESK ? (
           <a href={VERESK} className="text-sm text-ui-dim transition-colors hover:text-ui-fg">

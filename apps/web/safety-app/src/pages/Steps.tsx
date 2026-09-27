@@ -1,1357 +1,1346 @@
 /**
- * The seven stages, and all seven now run.
+ * How it works — the build, one step at a time, for somebody new to all of it.
  *
- * ── IT IS A RECORD NOW, AND USED NOT TO BE ─────────────────────────────────
+ * ── THE REDESIGN OF 2026-09-27, AND WHO IT IS FOR ──────────────────────────
  *
- * This page opened as a proposal with one stage built, and the tab bar existed
- * to keep the difference between specified and built visible. There is no
- * not-built state left to encode. What survives is the older discipline: every
- * number says where it came from. Three provenances, and the kit badges each
- * one: `measured` (out of the NHTSA files, or produced by
- * running the thing described), `worked` (carried through by hand in the source
- * document), `target` (somebody else's measurement, quoted as the bar).
+ * This page used to be written for the people building it: monospace headings,
+ * 11px uppercase labels, and the plan's own shorthand ("3.6 · FUSE"). It was
+ * accurate and it was hard going for the reader it now has to serve — somebody
+ * who arrived from a link about search, agents or evals and has read none of
+ * `docs/safety/`. It now follows the design of Thornbury Goods' `/steps`
+ * (`apps/web/commerce-app/src/pages/Steps.tsx`), ported rather than imported —
+ * each deployment keeps its own parts. In order, the page:
  *
- * THE ONE THAT WOULD BE A LIE WITHOUT ITS BADGE is recall@6 0.813 in stage 3.7.
- * That is Vantis Steering's measurement on a corpus somebody here wrote. On a
- * page about Calder it would read as Calder's, and it is not — it is the number
- * this pipeline has to clear.
+ *   1. says what was built and for whom, in two paragraphs;
+ *   2. explains the three ideas you need first — search-then-answer, a model
+ *      that asks for tools, and an answer key written before any code;
+ *   3. draws the one picture that matters: who holds what, and where the
+ *      complaints leave our machines;
+ *   4. lists every step, so the shape is visible before any detail;
+ *   5. then the steps themselves, each in the same five parts (see `kit.tsx`);
+ *   6. and a glossary, which every step's "words to know" links into.
  *
- * ── ONE COMPLAINT, ALL SEVEN STAGES ────────────────────────────────────────
+ * ── WHAT DID NOT CHANGE: EVERY NUMBER SAYS WHERE IT CAME FROM ──────────────
+ *
+ * Plain language has one failure mode on a page like this: it drops the caveat
+ * to make the sentence shorter. So every figure still carries its provenance
+ * badge, and the numbers that are only honest with their caveat attached keep
+ * it in the same sentence — 0.40 with n = 3, 1.00 with "hand-routed", 0.17–0.50
+ * as a range, 28 of 28 beside 0 of 3. The one that would be a lie without its
+ * badge is recall@6 0.813 in step 3.7: Vantis Steering's measurement on a
+ * corpus somebody here wrote, quoted as the bar, never as Calder's.
+ *
+ * ── ONE COMPLAINT, ALL THE WAY THROUGH ─────────────────────────────────────
  *
  * ODI `11353867` — a 2020 Ford F-150 whose gear display disagreed with its
- * gearbox — is a tab-separated line in stage 3.1 and the passage that wins the
- * fusion in stage 3.6. Seven abstractions are hard to hold; one thing happening
- * seven times is not, so it is named in every stage rather than only the first.
+ * gearbox — is a tab-separated line in step 3.1 and a passage fighting for a
+ * slot in 3.7. Twenty-nine abstractions are hard to hold; one thing happening
+ * twenty-nine times is not.
  *
  * ── THE ARITHMETIC IN 3.6 IS COMPUTED, NOT TYPED ───────────────────────────
  *
- * It is the page's hero figure and the margin is 0.8%. `rrf()` runs the formula
- * the paragraph beside it describes, so the two cannot drift apart and a reader
- * who checks the sum finds it right.
+ * `rrf()` runs the formula the paragraph beside it describes, so the table and
+ * the formula cannot drift apart.
  *
- * Source: `docs/safety/INGESTION.md`, written 2026-09-17.
+ * Where each stage lives: stages 1–3 are in this file; 4–7 are
+ * `components/steps/Stage4.tsx`–`Stage7.tsx`. Step names and counts come from
+ * `lib/steps.ts`, and the words from `lib/glossary.ts`.
  */
-import { Mono } from '@fde/uikit';
+import { useCallback, useState } from 'react';
 import { Link } from '@tanstack/react-router';
-import { Aurora } from '@veresk/surface';
-import { Code, Data } from '@veresk/surface';
-import { BeforeAfter, Because, Figure, Raw, Stage } from '../components/steps/kit';
+import { Aurora, Code, Data } from '@veresk/surface';
+import { BeforeAfter, Figure, Note, Numbers, Raw, Step, Table } from '../components/steps/kit';
+import { PhaseHead, PhaseTabs } from '../components/steps/Tabs';
+import type { PhaseTab } from '../components/steps/Tabs';
+import { BigPicture } from '../components/steps/BigPicture';
+import { ParserModal } from '../components/steps/ParserModal';
 import { ChunkerModal } from '../components/steps/ChunkerModal';
 import { EmbedModal } from '../components/steps/EmbedModal';
 import { IndexModal } from '../components/steps/IndexModal';
 import { FuseModal, SearchModal } from '../components/steps/SearchModal';
-import { MeasureModal } from '../components/steps/MeasureModal';
 import { RerankModal } from '../components/steps/RerankModal';
+import { MeasureModal } from '../components/steps/MeasureModal';
 import { Stage4 } from '../components/steps/Stage4';
 import { Stage5 } from '../components/steps/Stage5';
 import { Stage6 } from '../components/steps/Stage6';
 import { Stage7 } from '../components/steps/Stage7';
-import { Done, StepTabs } from '../components/steps/Tabs';
-import type { StepTab } from '../components/steps/Tabs';
-import { ParserModal } from '../components/steps/ParserModal';
 import { AURORA } from '../lib/aurora';
 import { ROWS, UNITS } from '../lib/estate.generated';
 import { VERESK } from '../lib/links';
+import { GLOSSARY, GLOSSARY_ORDER, termId } from '../lib/glossary';
+import { ALL_STEPS, STAGES, STAGE_OF, TITLES, WHEN, inWords } from '../lib/steps';
 
 /** The complaint this page follows, start to finish. */
 const SPINE = '11353867';
 
-/**
- * Reciprocal Rank Fusion, as the page describes it.
- *
- * `k = 60` is the convention from the original paper; its job is to stop the
- * top slot dominating, which is the whole reason the loser here is the passage
- * that ranked first on keywords.
- */
-/** Every document in the estate, so a share of it can be stated rather than felt. */
-const TOTAL_DOCS = UNITS.complaints + UNITS.recalls + UNITS.investigations;
+/** Investigations are the only documents the chunker cuts: 114 in, 222 out. */
+const INVESTIGATION_PASSAGES = 222;
 
+/** Every passage in the index — complaints and recalls whole, investigations cut. */
+const PASSAGES = UNITS.complaints + UNITS.recalls + INVESTIGATION_PASSAGES;
+
+/** Every document in the corpus, before chunking. */
+const DOCUMENTS = UNITS.complaints + UNITS.recalls + UNITS.investigations;
+
+/**
+ * Reciprocal Rank Fusion, as step 3.6 describes it. `k = 60` is the convention
+ * from the original paper; its job is to stop the top slot dominating.
+ */
 const K = 60;
 const rrf = (...ranks: number[]) => ranks.reduce((sum, r) => sum + 1 / (K + r), 0);
 
+const n = (x: number) => x.toLocaleString('en-GB');
+
+/** Counted from `STAGES`, not typed: "seven stages, none built" was once true too. */
+const ALL_STAGES_LABEL = `${ALL_STEPS.length} steps in ${inWords(STAGES.length)} stages, all built`;
+
+/**
+ * THE SEVEN STAGES, IN DEPENDENCY ORDER. `STAGES` (lib/steps.ts) holds the ids,
+ * names and step lists; this adds only what each tab renders.
+ */
+const CONTENT: Record<string, React.ReactNode> = {
+  corpus: <PhaseData />,
+  key: <PhaseKey />,
+  grounding: <PhaseSearch />,
+  tools: <Stage4 />,
+  contract: <Stage5 />,
+  loop: <Stage6 />,
+  evals: <Stage7 />,
+};
+
+const PHASES: PhaseTab[] = STAGES.map((s) => ({ ...s, content: CONTENT[s.id] }));
+
 export function Steps() {
+  const [active, setActive] = useState(PHASES[0].id);
+  const goToStep = useGoToStep(setActive);
+
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="cal-howto relative min-h-screen overflow-hidden">
       <Aurora tones={AURORA} muted />
-
-      <nav className="relative z-10 mx-auto flex max-w-5xl flex-wrap items-center gap-x-4 gap-y-3 px-5 py-5 sm:px-6 sm:py-6">
-        <Link to="/" className="font-medium tracking-tight">
-          Calder Safety
-        </Link>
-        <Link to="/desk" className="text-sm text-ui-dim transition-colors hover:text-ui-fg sm:ml-auto">
-          Ask it
-        </Link>
-        <span className="text-sm text-ui-faint">How it would work</span>
-        <Link to="/data-flow" className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
-          Where the data goes
-        </Link>
-        {VERESK ? (
-          <a href={VERESK} className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
-            Veresk
-          </a>
-        ) : (
-          <span className="text-sm text-ui-faint">Veresk</span>
-        )}
-      </nav>
-
-      <main className="relative z-10 mx-auto max-w-5xl px-5 pb-24 sm:px-6">
-        <Head />
-        <StepTabs tabs={TABS} />
-        <Onward />
+      <Nav />
+      <main className="relative z-10 mx-auto max-w-6xl px-5 pb-24 sm:px-6">
+        <Hero onGo={goToStep} />
+        <Primer />
+        <section className="mt-20" aria-labelledby="picture-title">
+          <h2 id="picture-title" className="text-[1.75rem] leading-tight font-bold tracking-tight text-ui-fg">
+            The big picture: who holds what
+          </h2>
+          <p className="mt-2 max-w-[66ch] text-[1.0625rem] leading-relaxed text-ui-dim">
+            The data travels left to right. The important part is the dashed line
+            near the end — the one place where what the public wrote leaves
+            machines we control.
+          </p>
+          <BigPicture passages={PASSAGES} />
+        </section>
+        <Roadmap onGo={goToStep} />
+        <section className="mt-20" aria-labelledby="steps-title">
+          <h2 id="steps-title" className="text-[1.75rem] leading-tight font-bold tracking-tight text-ui-fg">
+            The steps
+          </h2>
+          <p className="mt-2 mb-6 max-w-[64ch] text-[1.0625rem] leading-relaxed text-ui-dim">
+            Grouped into {inWords(STAGES.length)} stages. Each step is laid out the
+            same way: what it does in plain words, why it matters, the code and
+            what it printed, and what we learned doing it.
+          </p>
+          <PhaseTabs tabs={PHASES} active={active} onActivate={setActive} />
+        </section>
+        <Glossary />
+        <Limits />
       </main>
-
-      <footer className="relative z-10 mx-auto max-w-5xl border-t border-ui-line px-5 py-10 text-sm text-ui-faint sm:px-6">
-        Written before the code, and kept up with it since. All seven parts are
-        built, and the ones that can be measured have been.
-      </footer>
+      <Footer />
     </div>
   );
 }
 
 /**
- * THE SIX PARTS, IN DEPENDENCY ORDER, of which three exist.
+ * Open the stage a step lives in, then scroll to the step.
  *
- * The order is not a preference and not a plan somebody could rearrange. You
- * cannot write an answer key for a corpus you have not surveyed, or a contract
- * before the key, or evals before there is something to score. Reading the bar
- * left to right is reading the sequence.
- *
- * ONE AND TWO ARE SHORT ON PURPOSE. They are done, they took days rather than
- * weeks, and a reader arriving at the first tab should be able to follow the
- * sequence without being handed the whole of stage 3. What each one cost to get
- * through is in `docs/safety/` and not here.
- *
- * WHAT EACH EMPTY TAB SAYS came from the list this page used to carry as "what
- * is deliberately not here yet". That list was right and was in the wrong
- * place: each row is a whole part of the build rather than a footnote to the
- * part that exists.
+ * WHY THE `requestAnimationFrame`. Only the active panel is rendered, so the
+ * step being scrolled to DOES NOT EXIST at the moment the tab is switched.
+ * Waiting a frame lets React commit the new panel first; without it the scroll
+ * silently does nothing.
  */
-const TABS: StepTab[] = [
-  {
-    id: 'corpus',
-    label: 'The corpus',
-    stage: '1',
-    status: 'surveyed',
-    built: true,
-    content: (
-      <Done
-        title="Find out what the data actually is"
-        status="done"
-        what={
-          <>
-            <p>
-              Before anything is built, get the files onto disk and describe
-              them — how many records, what shape, what is missing, and what is
-              in them that nobody expected. Nothing is parsed, embedded or
-              stored at this stage. It exists so the next one is taken with open
-              eyes.
-            </p>
-            <p className="mt-3.5">
-              Model years 2019 and 2020, every make and model, nationwide. Three
-              tab-delimited downloads from a US government server: what people
-              filed, what manufacturers admitted, and what the regulator went on
-              to ask.
-            </p>
-          </>
-        }
-        facts={[
-          { value: UNITS.complaints.toLocaleString('en-GB'), label: 'complaints' },
-          { value: UNITS.recalls.toLocaleString('en-GB'), label: 'recall campaigns' },
-          { value: String(UNITS.investigations), label: 'investigations' },
-        ]}
-        note={
-          <>
-            The most useful thing it turned up is that the counts are not the
-            row counts. NHTSA writes one row per component, so{' '}
-            {ROWS.complaints.toLocaleString('en-GB')} rows are{' '}
-            {UNITS.complaints.toLocaleString('en-GB')} filings — and every figure
-            quoted from the rows would be 44% too high. That is the first
-            modelling decision, and it was made by counting rather than by
-            assuming.
-          </>
-        }
-      />
-    ),
-  },
-  {
-    id: 'key',
-    label: 'The answer key',
-    stage: '2',
-    status: 'written by hand',
-    built: true,
-    content: (
-      <Done
-        title="Write the answers down before anything can grade itself"
-        status="done"
-        what={
-          <>
-            <p>
-              Pick a handful of real questions, go and find the answers by hand
-              in the raw files, and write them down — which filings answer it,
-              and what a correct reply would say. No code is involved and none
-              of it is generated.
-            </p>
-            <p className="mt-3.5">
-              It comes second for a reason.{' '}
-              <span className="text-ui-fg">
-                A system that produces its own answer key scores itself
-              </span>
-              , and everything after this point is measured against what is
-              written here.
-            </p>
-          </>
-        }
-        note={
-          <>
-            It is also what makes stage 3.7 possible at all. “Did search find the
-            right thing?” is not a question anybody can answer without having
-            already decided what the right thing is — and deciding that{' '}
-            <em>after</em> seeing the results is how a pipeline comes to score
-            well on a test it wrote for itself.
-          </>
-        }
-      />
-    ),
-  },
-  {
-    id: 'grounding',
-    label: 'Grounding',
-    stage: '3',
-    status: 'built · measured',
-    built: true,
-    content: <Grounding />,
-  },
-  {
-    id: 'tools',
-    label: 'The tools',
-    stage: '4',
-    status: 'built · measured',
-    built: true,
-    content: <Stage4 />,
-  },
-  {
-    id: 'contract',
-    label: 'The contract',
-    stage: '5',
-    status: 'built · wired in',
-    built: true,
-    content: <Stage5 />,
-  },
-  {
-    id: 'loop',
-    label: 'The loop',
-    stage: '6',
-    status: 'built · all eight asked',
-    built: true,
-    content: <Stage6 />,
-  },
-  {
-    id: 'evals',
-    label: 'Evals',
-    stage: '7',
-    status: 'four baselines',
-    built: true,
-    content: <Stage7 />,
-  },
-];
+function useGoToStep(setActive: (id: string) => void) {
+  return useCallback(
+    (step: string) => {
+      const stage = STAGE_OF.get(step);
+      if (!stage) return;
+      setActive(stage);
+      requestAnimationFrame(() => {
+        document.getElementById(`step-${step}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    },
+    [setActive],
+  );
+}
 
-/** Everything under the first tab: the shape, the seven stages, the patterns. */
-function Grounding() {
+function Nav() {
+  return (
+    <nav className="relative z-10 mx-auto flex max-w-6xl flex-wrap items-center gap-x-5 gap-y-3 px-5 py-5 sm:px-6 sm:py-6">
+      <Link to="/" className="flex items-center gap-3 font-semibold tracking-tight">
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-cal-1/15 text-cal-1 ring-1 ring-cal-1/30" aria-hidden>
+          <ShieldGlyph />
+        </span>
+        Calder Safety
+      </Link>
+      <Link to="/desk" className="text-[0.9375rem] text-ui-dim transition-colors hover:text-ui-fg sm:ml-auto">
+        Ask it
+      </Link>
+      <span
+        aria-current="page"
+        className="text-[0.9375rem] font-semibold text-ui-fg underline decoration-cal-1 decoration-2 underline-offset-[6px]"
+      >
+        How it works
+      </span>
+      <Link to="/data-flow" className="text-[0.9375rem] text-ui-dim transition-colors hover:text-ui-fg">
+        Where the data goes
+      </Link>
+      {VERESK ? (
+        <a href={VERESK} className="text-[0.9375rem] text-ui-dim transition-colors hover:text-ui-fg">
+          Veresk
+        </a>
+      ) : (
+        <span className="text-[0.9375rem] text-ui-faint">Veresk</span>
+      )}
+    </nav>
+  );
+}
+
+function ShieldGlyph() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      <path d="m9 12 2 2 4-4" />
+    </svg>
+  );
+}
+
+/* ── THE TOP ────────────────────────────────────────────────────────────── */
+
+function Hero({ onGo }: { onGo: (step: string) => void }) {
+  return (
+    <section className="pt-8 pb-4 md:pt-14">
+      <h1 className="lift-in max-w-[24ch] text-[2.25rem] leading-[1.12] font-bold tracking-tight text-ui-fg sm:text-[3rem]">
+        How we built Calder’s recall assistant, step by step
+      </h1>
+
+      <div className="lift-in cal-prose mt-6 max-w-[66ch]" style={{ animationDelay: '80ms' }}>
+        <p>
+          Calder Safety is a fictional firm whose analysts look after vehicle
+          fleets. The question they keep asking is{' '}
+          <em>“is this a known defect with a fix, and is the fix holding?”</em> —
+          and answering it means reading hundreds of complaints that members of
+          the public have filed with the US government, by hand.
+        </p>
+        <p>
+          We built an assistant that reads that public record for them: it finds
+          the recall, finds the complaints, counts them properly and says what the
+          two do and don’t settle. <strong>Unlike our other projects, nobody here
+          wrote this data</strong> — it is {n(ROWS.complaints + ROWS.recalls + ROWS.investigations)}{' '}
+          real rows, typos and all. This page walks through how it was built, with
+          the real code and what each step taught us.
+        </p>
+      </div>
+
+      <div className="lift-in mt-8 max-w-xl" style={{ animationDelay: '140ms' }}>
+        <p className="flex flex-wrap items-baseline justify-between gap-2 text-[0.9375rem]">
+          <span className="font-semibold text-ui-fg">{ALL_STAGES_LABEL}</span>
+          <button type="button" onClick={() => onGo(ALL_STEPS[0])} className="cal-a text-[0.9375rem]">
+            Start at step 1
+          </button>
+        </p>
+        {/* ONE PIP PER STEP, grouped by stage. Every one is lit because every
+            one has run; what the bar shows is SHAPE — one step against eight —
+            which is the thing the stage names alone do not say. */}
+        <div className="mt-2.5 flex gap-2" role="img" aria-label={ALL_STAGES_LABEL}>
+          {STAGES.map((s) => (
+            <div key={s.id} className="flex flex-1 gap-[3px]" style={{ flexGrow: s.holds.length }}>
+              {s.holds.map((step) => (
+                <span key={step} title={`Step ${step}: ${TITLES[step]}`} className="h-2 flex-1 rounded-[3px] bg-cal-1" />
+              ))}
+            </div>
+          ))}
+        </div>
+        <p className="mt-2 text-[0.875rem] text-ui-faint">
+          One bar per step, grouped by stage. Select a step below to jump to it.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function Primer() {
+  return (
+    <section className="mt-16" aria-labelledby="primer-title">
+      <h2 id="primer-title" className="text-[1.75rem] leading-tight font-bold tracking-tight text-ui-fg">
+        New to this? Three ideas first
+      </h2>
+      <div className="mt-6 grid gap-4 md:grid-cols-3">
+        <div className="cal-card">
+          <h3>Search first, then answer</h3>
+          <p>
+            A language model hasn’t read NHTSA’s files, and if you ask it anyway it
+            will answer from memory — confidently. So we search the files first and
+            hand it the few passages that matter, and it answers from those, citing
+            each one. That pattern is called <strong>RAG</strong>, and stage 3 is
+            the search half of it.
+          </p>
+          {VERESK && (
+            <p>
+              <a className="cal-a" href={`${VERESK}/learn/retrieval`}>
+                More on retrieval
+              </a>
+            </p>
+          )}
+        </div>
+        <div className="cal-card">
+          <h3>A model that asks for tools</h3>
+          <p>
+            The model can’t open the database. What it can do is <em>ask</em>:
+            “count the complaints for a 2020 F-150”. Our code runs that, hands back
+            the result, and the model asks again or answers. That back-and-forth is{' '}
+            <strong>the loop</strong>. The model decides what it needs; our code
+            decides what it gets.
+          </p>
+          {VERESK && (
+            <p>
+              <a className="cal-a" href={`${VERESK}/learn/loop`}>
+                More on the loop
+              </a>
+            </p>
+          )}
+        </div>
+        <div className="cal-card">
+          <h3>An answer key, written first</h3>
+          <p>
+            Before any code, a person answered eight real questions by reading the
+            raw files. Every number on this page is measured against those
+            answers. A system that writes its own answer key grades itself — so
+            this one came second in the build, straight after looking at the data.
+          </p>
+          {VERESK && (
+            <p>
+              <a className="cal-a" href={`${VERESK}/learn/answer-key`}>
+                More on answer keys
+              </a>
+            </p>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** Every step, grouped by stage. Buttons, not links: see `useGoToStep`. */
+function Roadmap({ onGo }: { onGo: (step: string) => void }) {
+  return (
+    <section className="mt-20" aria-labelledby="road-title">
+      <h2 id="road-title" className="text-[1.75rem] leading-tight font-bold tracking-tight text-ui-fg">
+        All {ALL_STEPS.length} steps at a glance
+      </h2>
+      <p className="mt-2 max-w-[66ch] text-[1.0625rem] leading-relaxed text-ui-dim">
+        In the order they had to be built — each one needed the one before it to
+        be checkable first. Select any step to jump to it.
+      </p>
+      <div className="cal-road mt-8">
+        {STAGES.map((s) => (
+          <div key={s.id} className="cal-road-phase">
+            <p className="cal-label">
+              Stage {s.stage} · {s.label}
+            </p>
+            {s.holds.map((step) => (
+              <button key={step} type="button" className="cal-road-step" onClick={() => onGo(step)}>
+                <span className="cal-dot" aria-hidden>
+                  {step}
+                </span>
+                <span>
+                  <span className="sr-only">Step {step}: </span>
+                  {TITLES[step]}
+                </span>
+              </button>
+            ))}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ── STAGE 1 · THE DATA ─────────────────────────────────────────────────── */
+
+function PhaseData() {
   return (
     <>
-      <Shape />
-      <div className="mt-16 grid gap-16">
-        <Parse />
-        <Chunk />
-        <Embed />
-        <Index />
-        <Retrieve />
-        <Fuse />
-        <Rerank />
-        <Measure />
+      <PhaseHead
+        stage="1"
+        title="The data: find out what it actually is"
+        what={
+          <p>
+            Before anything is built, get the files onto disk and describe them.
+            Model years 2019 and 2020, every make and model, nationwide: three
+            downloads from a US government server — what people filed, what
+            manufacturers admitted, and what the regulator went on to ask. Nothing
+            is parsed, embedded or stored in this stage. It exists so the next ones
+            are taken with open eyes.
+          </p>
+        }
+        result={
+          <p>
+            {n(UNITS.complaints)} complaints, {n(UNITS.recalls)} recall campaigns
+            and {UNITS.investigations} investigations — counted per filing, not per
+            row, because the rows overstate it by 44%.
+          </p>
+        }
+      />
+      <div className="mt-10 grid gap-8">
+        <Step
+          n="1"
+          title={TITLES['1']}
+          plain="Download NHTSA’s three files and describe them before touching them: how many records there are, what one line looks like, what is missing, and what is in there that nobody expected. No code that changes anything — only counting."
+          why="Every later number on this page is a count of something. If you don’t know what one line of the file is, every count you quote is wrong by however far lines and records differ — and nothing will warn you."
+          codeLabel="What we counted"
+          code={
+            <>
+              <Figure caption="The three files: lines against records" source="pnpm safety:estate · lib/estate.generated.ts">
+                <Table
+                  head={['Source', 'Lines in the file', 'Actual records', 'One record is']}
+                  numeric={[1, 2]}
+                  rows={[
+                    ['Complaints', n(ROWS.complaints), n(UNITS.complaints), 'one person’s filing about one vehicle'],
+                    ['Recalls', n(ROWS.recalls), n(UNITS.recalls), 'one campaign by a manufacturer'],
+                    ['Investigations', n(ROWS.investigations), n(UNITS.investigations), 'one case the regulator opened'],
+                  ]}
+                />
+                <Note>
+                  NHTSA writes one line per <strong>component</strong> a complaint
+                  names, so a complaint that mentions the engine, the electrics and
+                  the brakes is three lines.
+                </Note>
+              </Figure>
+              <Figure caption="Checked without a parser" source="docs/safety/CORPUS.md §3">
+                <Code
+                  path="terminal — straight from the file, no parser involved"
+                  lang="bash"
+                  lines={[
+                    "awk -F'\\t' '{c[NF]++} END {for (n in c) print n, c[n]}' CMPL_SLICE.tsv",
+                    '  51 fields: 100980 lines          # every line, no exceptions',
+                  ]}
+                />
+              </Figure>
+            </>
+          }
+          learned={
+            <>
+              <p>
+                <strong>The counts are not the line counts.</strong>{' '}
+                {n(ROWS.complaints)} lines are {n(UNITS.complaints)} filings, so every
+                figure quoted from lines would be 44% too high. That was the first
+                modelling decision, and it was made by counting rather than by
+                assuming.
+              </p>
+              <p>
+                <strong>And the obvious way to read the file is wrong.</strong> 708
+                lines contain an odd number of double quotes, because people type
+                things like <code>THE "SERVICE ENGINE" LIGHT CAME ON</code>. A
+                standard CSV reader treats a quote as the start of a quoted field and
+                keeps reading — across line breaks — until it finds another, merging
+                records together. So the files are split on tabs with quoting
+                switched off, and every count has a no-parser check beside it.
+              </p>
+            </>
+          }
+          terms={['nhtsa', 'corpus', 'odi', 'campaign']}
+        />
       </div>
-      <NotYet />
+    </>
+  );
+}
+
+/* ── STAGE 2 · THE ANSWER KEY ───────────────────────────────────────────── */
+
+function PhaseKey() {
+  return (
+    <>
+      <PhaseHead
+        stage="2"
+        title="The answer key: write the answers down first"
+        what={
+          <p>
+            Eight questions a fleet analyst would actually ask, answered by a person
+            reading the raw files — before any search, model or code existed.
+            Everything from stage 3 onwards is measured against what is written
+            here.
+          </p>
+        }
+        result={
+          <p>
+            Eight hand-worked answers in <code>docs/safety/WALKTHROUGH.md</code>,
+            including two that exist to catch a system that plays safe.
+          </p>
+        }
+      />
+      <div className="mt-10 grid gap-8">
+        <Step
+          n="2"
+          title={TITLES['2']}
+          plain="Pick eight real questions, find each answer by hand in the raw files, and write it down: which filings answer it, and what a correct reply must and must not say. No code is involved and none of it is generated."
+          why={
+            <p>
+              A system that produces its own answer key scores itself. “Did search
+              find the right thing?” can’t be answered by anyone who hasn’t already
+              decided what the right thing is — and deciding that <em>after</em>{' '}
+              seeing the results is how a system comes to score well on a test it
+              wrote for itself.
+            </p>
+          }
+          codeLabel="What the key holds"
+          code={
+            <>
+              <Figure caption="The flagship question, worked by hand" from="worked" source="docs/safety/WALKTHROUGH.md · REC-001">
+                <p className="mb-3 max-w-[66ch] text-[1rem] leading-relaxed text-ui-fg">
+                  “We run 2020 F-150s. Is the transmission park problem a known
+                  defect, and is the fix holding?”
+                </p>
+                <Table
+                  head={['What the files say', 'Count']}
+                  numeric={[1]}
+                  lit={[1]}
+                  rows={[
+                    ['F-150 power-train complaints filed after the recall (27 Apr 2020)', '1,057'],
+                    ['…describing the recalled symptom — park, roll-away, gear display', '103 · unverified'],
+                    ['…describing a different power-train problem', '957 · unverified'],
+                  ]}
+                />
+                <Note>
+                  The right answer is <strong>103, and 1,057 is the trap</strong>: a
+                  system that reports it has matched on the <em>component</em> and
+                  called it the <em>defect</em>. The key itself marks 103 and 957 as
+                  unverified — they were counted before a correction and haven’t been
+                  re-derived from a stated rule, and the key says so rather than
+                  inventing a replacement.
+                </Note>
+              </Figure>
+              <Figure caption="Eight questions, eight different shapes" from="cited" source="docs/safety/WALKTHROUGH.md">
+                <Table
+                  head={['Case', 'What it tests']}
+                  rows={[
+                    ['REC-001', 'A known defect — and whether the fix is holding. Punishes the obvious answer.'],
+                    ['REC-002', 'A pure lookup by recall number. Must not search.'],
+                    ['REC-003', 'A disagreement between records that is already a field in the data.'],
+                    ['REC-004', 'Deaths: must be surfaced, and must not be editorialised.'],
+                    ['REC-005', 'Absence: no recall covers it, and “no” is the right answer.'],
+                    ['REC-006', 'The control: a clean fact that must NOT be escalated to a person.'],
+                    ['REC-007', 'The same component is not the same defect.'],
+                    ['REC-008', 'A date question, with three date formats in play.'],
+                  ]}
+                />
+              </Figure>
+            </>
+          }
+          learned={
+            <>
+              <p>
+                <strong>Working it by hand found a mistake before any code ran.</strong>{' '}
+                Three numbers in the first draft were line counts, not complaint
+                counts — Tesla Model 3 complaints involving a death went from 12 to
+                5. Each corrected figure was then confirmed twice, by a shell
+                command over the raw file and by a query over the loaded index.
+              </p>
+              <p>
+                <strong>Two questions are there to catch a system that plays safe.</strong>{' '}
+                REC-005’s right answer is “no recall covers this”, and REC-006 must
+                answer a clean fact without escalating. A test made only of hard
+                questions is passed by a system that escalates everything.
+              </p>
+            </>
+          }
+          terms={['answerKey', 'control', 'campaign']}
+        />
+      </div>
+    </>
+  );
+}
+
+/* ── STAGE 3 · SEARCH ───────────────────────────────────────────────────── */
+
+function PhaseSearch() {
+  return (
+    <>
+      <PhaseHead
+        stage="3"
+        title="Search: from a line in a file to the passage that answers"
+        what={
+          <p>
+            Eight steps that turn 1.5 GB of tab-separated text into something a
+            question can search. Four happen once, offline; three happen every time
+            somebody asks; the last measures whether any of it worked. One
+            complaint — <code>ODI {SPINE}</code>, a 2020 Ford F-150 whose gear
+            display disagreed with its gearbox — is followed through all of them.
+          </p>
+        }
+        result={
+          <p>
+            recall@6 of <strong>0.40</strong>, over three hand-answered cases — and
+            the reason it is that low is the most useful finding of the whole
+            engagement: the questions were filters, not searches.
+          </p>
+        }
+      />
+
+      <SearchShape />
+
+      <div className="mt-10 grid gap-8">
+        <Step31 />
+        <Step32 />
+        <Step33 />
+        <Step34 />
+        <Step35 />
+        <Step36 />
+        <Step36b />
+        <Step37 />
+      </div>
+
       <Patterns />
     </>
   );
 }
 
-function Head() {
-  return (
-    <section className="pt-8 pb-12 md:pt-12">
-      {/* COUNTED FROM `TABS`, not typed. "seven stages · none of them built"
-          was true for about a day and then was not, twice over: the stages have
-          run, and there are four parts of the build rather than one. */}
-      <p className="lift-in font-mono text-[0.6875rem] tracking-[0.08em] text-cal-1 uppercase">
-        {TABS.length} parts · {TABS.filter((t) => t.built).length} of them built
-      </p>
-
-      <h1 className="lift-in title-spectrum mt-4 max-w-3xl font-mono text-[1.6rem] leading-[1.1] font-semibold tracking-tighter sm:text-[2.25rem]">
-        From a line in a file to an answer
-      </h1>
-
-      <p
-        className="lift-in mt-5 max-w-[62ch] leading-relaxed text-ui-dim"
-        style={{ animationDelay: '90ms' }}
-      >
-        Seven parts, in the order they have to be built. The third is here in
-        full — one complaint, <Mono>ODI {SPINE}</Mono>, a 2020 Ford F-150 whose
-        gear display disagreed with its gearbox, followed from a tab-separated
-        line in a 1.5 GB file to the passage that answers a question about it.
-        The fourth is built and measured, the fifth is the shape an answer has
-        to arrive in, the sixth is a model actually being asked, and the seventh
-        asks all eight three times over and scores what comes back.
-      </p>
-    </section>
-  );
-}
-
 /**
- * The shape of the whole thing: four stages that happen once and three that
- * happen every time somebody asks. The split is the single most useful thing on
- * the page for anybody deciding what this costs to run.
+ * Four steps that happen once and three that happen every time somebody asks.
+ * The split is the single most useful thing in this stage for anybody deciding
+ * what it costs to run.
  */
-/*
- * NO TOP BORDER ON THIS SECTION. The tab bar above already ends in a rule, and
- * two a few pixels apart read as a mistake rather than as a division.
- */
-function Shape() {
-  const once = [
-    ['3.1', 'parse', 'lines → documents'],
-    ['3.2', 'chunk', 'documents → passages'],
-    ['3.3', 'embed', 'passages → 384 numbers'],
-    ['3.4', 'index', 'into one Postgres table'],
+function SearchShape() {
+  const groups = [
+    {
+      title: 'Once, offline',
+      note: 'Runs on a laptop, costs nothing, and nobody is waiting for it.',
+      steps: ['3.1', '3.2', '3.3', '3.4'],
+    },
+    {
+      title: 'Every question',
+      note: 'Runs while somebody waits, so this is where time and money go.',
+      steps: ['3.5', '3.6', '3.6b'],
+    },
+    {
+      title: 'On demand',
+      note: 'Grades the search against the answer key.',
+      steps: ['3.7'],
+    },
   ];
-  const each = [
-    ['3.5', 'retrieve', 'two arms, in parallel'],
-    ['3.6', 'fuse', 'one ranked list'],
-    ['3.6b', 'rerank', 'read the top 50 properly'],
-    ['3.7', 'measure', 'did we find the right one?'],
-  ];
-
   return (
-    <section className="lift-in grid gap-8 md:grid-cols-2">
-      {[
-        { title: 'once, offline', rows: once, tone: 'var(--color-cal-1)', note: 'Runs on a laptop, costs nothing, and nobody is waiting for it.' },
-        { title: 'every question', rows: each, tone: 'var(--color-cal-2)', note: 'Runs while somebody watches, so this is where latency and money live.' },
-      ].map((group) => (
-        <div key={group.title}>
-          <p
-            className="font-mono text-[0.6875rem] tracking-[0.08em] uppercase"
-            style={{ color: group.tone }}
-          >
-            {group.title}
-          </p>
-          <ol className="mt-4 grid gap-2.5">
-            {group.rows.map(([n, verb, does]) => (
-              <li key={n} className="flex items-baseline gap-3">
-                <a
-                  href={`#stage-${n}`}
-                  className="font-mono text-[0.75rem] text-ui-faint transition-colors hover:text-ui-fg"
-                >
-                  {n}
+    <section className="lift-in mt-8 grid gap-4 md:grid-cols-3">
+      {groups.map((g) => (
+        <div key={g.title} className="cal-card">
+          <h3>{g.title}</h3>
+          <ol className="mt-3 grid gap-1.5">
+            {g.steps.map((s) => (
+              <li key={s} className="flex items-baseline gap-3 text-[0.9375rem]">
+                <a href={`#step-${s}`} className="cal-a shrink-0 font-mono text-[0.875rem]">
+                  {s}
                 </a>
-                <span className="w-20 shrink-0 font-mono text-sm text-ui-fg">{verb}</span>
-                <span className="text-[0.8125rem] text-ui-dim">{does}</span>
+                <span className="text-ui-dim">{TITLES[s]}</span>
               </li>
             ))}
           </ol>
-          <p className="mt-4 max-w-[46ch] text-[0.8125rem] leading-relaxed text-ui-faint">
-            {group.note}
-          </p>
+          <p>{g.note}</p>
         </div>
       ))}
     </section>
   );
 }
 
-function Parse() {
+function Step31() {
   return (
-    <Stage
+    <Step
       n="3.1"
-      verb="PARSE — lines into documents"
-      when="once, offline"
-      plain="The file has no header row, so a column means something only because of its position. Parsing is deciding what a document is, and which fields are text and which are labels."
-    >
-      <BeforeAfter
-        before={
-          <Figure caption="one raw line, tabs shown as ⇥">
-            <Data
-              path="CMPL_SLICE.tsv — ODI 11353867"
-              lines={[
-                '1690864⇥11353867⇥Ford Motor Company⇥FORD⇥F-150⇥2020⇥N⇥',
-                '20200906⇥N⇥0⇥0⇥POWER TRAIN⇥SPRING⇥TX⇥1FTEW1E43LF⇥',
-                '20200908⇥20200908⇥2800⇥1⇥THE GEAR WILL NOT GO INTO PARK',
-                'AND ALLOW ME TO START. ALSO, THE DISPLAY INDICATES I AM',
-                'IN THE WRONG GEAR DISPLAY SHOWS NEUTRAL BUT TRUCK IS IN',
-                'DRIVE, DISPLAY SHOWS REVERSE BUT THE...',
-              ]}
-            />
-          </Figure>
-        }
-        after={
-          <Figure caption="one document" from="worked">
-            <Data
-              path="documents.json — the shape it will take"
-              lang="json"
-              note="docs/safety/INGESTION.md §3.1"
-              mark={[2]}
-              lines={[
-                '{',
-                '  "id": "11353867",',
-                '  "text": "2020 FORD F-150 | POWER TRAIN | filed 2020-09-08\\nTHE GEAR WILL NOT GO INTO PARK…",',
-                '  "meta": {',
-                '    "odino": "11353867",  "make": "FORD",  "model": "F-150",',
-                '    "year": 2020,         "filed": "2020-09-08",',
-                '    "components": ["POWER TRAIN"],',
-                '    "crash": false, "fire": false, "deaths": 0,',
-                '    "miles": 2800, "state": "TX", "vin11": "1FTEW1E43LF"',
-                '  }',
-                '}',
-              ]}
-            />
-          </Figure>
-        }
-      />
-
-      <Figure
-        caption="one person, written five times"
-        source={`ODI 11341276 · ${ROWS.complaints.toLocaleString('en-GB')} rows are ${UNITS.complaints.toLocaleString('en-GB')} complaints`}
-      >
-        <Raw>{`11341276  STRUCTURE:BODY                                    ┐
+      title={TITLES['3.1']}
+      when={WHEN['3.1']}
+      plain="The complaint file is one long list of lines, with fields separated by tabs and no header row — a column means something only because of its position. Parsing turns each line into a document: the words the person wrote, plus labels like make, model and year kept to one side."
+      why="What you put in the text is what search can find; what you keep as a label is what you can filter on. Get that split wrong and either a question about a 2020 F-150 finds nothing, or every complaint matches a question about deaths."
+      code={
+        <>
+          <BeforeAfter
+            before={
+              <Figure caption="one raw line, tabs shown as ⇥">
+                <Data
+                  path={`CMPL_SLICE.tsv — ODI ${SPINE}`}
+                  lines={[
+                    '1690864⇥11353867⇥Ford Motor Company⇥FORD⇥F-150⇥2020⇥N⇥',
+                    '20200906⇥N⇥0⇥0⇥POWER TRAIN⇥SPRING⇥TX⇥1FTEW1E43LF⇥',
+                    '20200908⇥20200908⇥2800⇥1⇥THE GEAR WILL NOT GO INTO PARK',
+                    'AND ALLOW ME TO START. ALSO, THE DISPLAY INDICATES I AM',
+                    'IN THE WRONG GEAR DISPLAY SHOWS NEUTRAL BUT TRUCK IS IN',
+                    'DRIVE, DISPLAY SHOWS REVERSE BUT THE...',
+                  ]}
+                />
+              </Figure>
+            }
+            after={
+              <Figure caption="the document it becomes" from="worked" source="INGESTION.md §3.1">
+                <Data
+                  path="documents.json — one document"
+                  lang="json"
+                  mark={[2]}
+                  lines={[
+                    '{',
+                    '  "id": "11353867",',
+                    '  "text": "2020 FORD F-150 | POWER TRAIN | filed 2020-09-08\\nTHE GEAR WILL NOT GO INTO PARK…",',
+                    '  "meta": {',
+                    '    "odino": "11353867",  "make": "FORD",  "model": "F-150",',
+                    '    "year": 2020,         "filed": "2020-09-08",',
+                    '    "components": ["POWER TRAIN"],',
+                    '    "crash": false, "fire": false, "deaths": 0,',
+                    '    "miles": 2800, "state": "TX", "vin11": "1FTEW1E43LF"',
+                    '  }',
+                    '}',
+                  ]}
+                />
+              </Figure>
+            }
+          />
+          <Figure caption="One person, written five times" source={`ODI 11341276 · ${n(ROWS.complaints)} lines are ${n(UNITS.complaints)} complaints`}>
+            <Raw>{`11341276  STRUCTURE:BODY                                    ┐
 11341276  ELECTRICAL SYSTEM                                 │  ONE complaint
 11341276  POWER TRAIN                                       │  written FIVE times
 11341276  ENGINE                                            │
 11341276  FORWARD COLLISION AVOIDANCE: AUTOMATIC EMERGENCY  ┘`}</Raw>
-      </Figure>
-
-      <Because>
-        NHTSA writes one row per component. Without collapsing them, that one
-        person's story takes <span className="text-ui-fg">five of the six</span>{' '}
-        result slots and crowds out four other people — and every count quoted
-        anywhere is 44% too high.
-      </Because>
-
-      <Because>
-        The header line{' '}
-        <Mono>2020 FORD F-150 | POWER TRAIN | filed 2020-09-08</Mono> is added on
-        purpose. The narrative never says “F-150”, so a question about a 2020
-        F-150 transmission would match nothing without it.{' '}
-        <span className="text-ui-fg">What you put in the text is what can be found.</span>{' '}
-        Metadata is the opposite: <Mono>deaths: 0</Mono> is filtered on, never
-        searched, because “deaths 0” in the text would make every complaint match
-        a question about fatalities.
-      </Because>
-
-      <ParserModal />
-    </Stage>
+            <Note>
+              So lines are grouped by their complaint number into one document, and
+              the five components become a list inside it.
+            </Note>
+          </Figure>
+        </>
+      }
+      learned={
+        <>
+          <p>
+            <strong>Without the grouping, one person would take five of the six
+            result slots</strong> and crowd out four other people — and every count
+            quoted anywhere would be 44% too high.
+          </p>
+          <p>
+            <strong>The first line of the text is added on purpose.</strong>{' '}
+            <code>2020 FORD F-150 | POWER TRAIN | filed 2020-09-08</code> isn’t in
+            the file’s narrative — the person never wrote “F-150” — so without it a
+            question about a 2020 F-150 would match nothing. Labels work the other
+            way round: <code>deaths: 0</code> is filtered on and never searched,
+            because “deaths 0” in the text would make every complaint match a
+            question about fatalities.
+          </p>
+        </>
+      }
+      terms={['parse', 'odi', 'filter']}
+      hood={<ParserModal />}
+    />
   );
 }
 
-function Chunk() {
+function Step32() {
   const untouched = UNITS.complaints + UNITS.recalls;
-  const inTotal = untouched + UNITS.investigations;
-
   return (
-    <Stage
+    <Step
       n="3.2"
-      verb="CHUNK — the stage that mostly declines to run"
-      when="once, offline"
-      plain="Search returns pieces, not whole files, so a long document has to be cut up. The chunker's job is to decide where — and its real job on this corpus is to decide where not to."
-    >
-      <Figure caption="what went in, and what came out" source="@fde/grounding, over the real stage 3.1 output">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[34rem] border-collapse text-[0.8125rem]">
-            <thead>
-              <tr className="font-mono text-[0.625rem] tracking-[0.08em] text-ui-faint uppercase">
-                <th className="pb-2 text-left font-normal">source</th>
-                <th className="pb-2 text-right font-normal">in</th>
-                <th className="pb-2 text-right font-normal">out</th>
-                <th className="pb-2 pl-6 text-left font-normal">what happened</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                { source: 'complaints', n: UNITS.complaints, out: UNITS.complaints, cut: false },
-                { source: 'recalls', n: UNITS.recalls, out: UNITS.recalls, cut: false },
-                { source: 'investigations', n: UNITS.investigations, out: 222, cut: true },
-              ].map((r) => (
-                <tr key={r.source} className="border-t border-ui-line">
-                  <td className="py-2.5 font-mono text-ui-fg">{r.source}</td>
-                  <td className="py-2.5 text-right font-mono text-ui-dim">
-                    {r.n.toLocaleString('en-GB')}
-                  </td>
-                  <td
-                    className="py-2.5 text-right font-mono"
-                    style={{ color: r.cut ? 'var(--color-cal-2)' : 'var(--color-ui-dim)' }}
-                  >
-                    {r.out.toLocaleString('en-GB')}
-                  </td>
-                  <td
-                    className="py-2.5 pl-6 font-mono"
-                    style={{ color: r.cut ? 'var(--color-cal-2)' : 'var(--color-ui-faint)' }}
-                  >
-                    {r.cut ? 'cut' : 'untouched'}
-                  </td>
-                </tr>
-              ))}
-              <tr className="border-t border-ui-line">
-                <td className="py-2.5 font-mono text-ui-faint">total</td>
-                <td className="py-2.5 text-right font-mono text-ui-fg">
-                  {inTotal.toLocaleString('en-GB')}
-                </td>
-                <td className="py-2.5 text-right font-mono text-ui-fg">
-                  {(untouched + 222).toLocaleString('en-GB')}
-                </td>
-                <td className="py-2.5 pl-6 font-mono text-ui-faint">
-                  +{222 - UNITS.investigations} passages, from {UNITS.investigations} documents
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </Figure>
-
-      <Because>
-        <span className="text-ui-fg">
-          {((untouched / inTotal) * 100).toFixed(2)}% of the corpus passes through
-          untouched.
-        </span>{' '}
-        That is the stage, and the reason is not that complaints are short — one
-        in nine runs past the 1,200-character default and is left alone anyway. A
-        complaint is one person's account of one incident, and cutting it splits
-        the symptom from the circumstance: the second piece of{' '}
-        <Mono>{SPINE}</Mono> loses the word PARK, and “piece 2 of complaint{' '}
-        {SPINE}” is not a thing anybody can look up. An ODI number is.
-      </Because>
-
-      <Because>
-        <span className="text-ui-fg">Which demotes this stage, and that is the part worth taking away.</span>{' '}
-        Where you cut normally decides what can be found, which is why chunking
-        is usually the highest-leverage step in the whole pipeline. Here it
-        touches {UNITS.investigations} documents out of{' '}
-        {inTotal.toLocaleString('en-GB')}.
-      </Because>
-
-      <Because>
-        So the leverage moves <em>upstream</em>, to stage 3.1. The line that
-        decides whether a question about a 2020 F-150 finds this complaint is the
-        header the parser prepends, not a cut the chunker makes — the narrative
-        itself never says “F-150”. On this corpus{' '}
-        <span className="text-ui-fg">the parser is the highest-leverage file</span>
-        , and a pipeline tuned by fiddling with chunk sizes would be tuning the
-        one stage that has almost nothing to do.
-      </Because>
-
-      <Because>
-        And nothing new was written to get here. The chunker is the shared one,
-        used by two other engagements unchanged — the claim that shared code
-        transfers, tested for the first time against a corpus nobody wrote for
-        us, passing quietly.
-      </Because>
-
-      <ChunkerModal />
-    </Stage>
+      title={TITLES['3.2']}
+      when={WHEN['3.2']}
+      plain="Search returns pieces, not whole files, so long documents normally get cut into passages. On this data the chunker’s real job is deciding where not to cut."
+      why={
+        <p>
+          A complaint is one person’s account of one incident. Cut it, and the
+          second piece of <code>{SPINE}</code> loses the word PARK — and “piece 2
+          of complaint {SPINE}” isn’t something anybody can look up. An ODI number
+          is.
+        </p>
+      }
+      code={
+        <Figure caption="What went in, and what came out" source="@fde/grounding, over the real output of step 3.1">
+          <Table
+            head={['Source', 'Documents in', 'Passages out', 'What happened']}
+            numeric={[1, 2]}
+            lit={[2]}
+            rows={[
+              ['Complaints', n(UNITS.complaints), n(UNITS.complaints), 'left whole'],
+              ['Recalls', n(UNITS.recalls), n(UNITS.recalls), 'left whole'],
+              ['Investigations', n(UNITS.investigations), n(INVESTIGATION_PASSAGES), 'cut'],
+              ['Total', n(DOCUMENTS), n(PASSAGES), `+${INVESTIGATION_PASSAGES - UNITS.investigations} passages, all from investigations`],
+            ]}
+          />
+          <Note>
+            <strong>{((untouched / DOCUMENTS) * 100).toFixed(2)}% of the corpus passes
+            through untouched</strong> — and not because complaints are short: one
+            in nine runs past the 1,200-character default and is left whole anyway.
+          </Note>
+        </Figure>
+      }
+      learned={
+        <>
+          <p>
+            <strong>That demotes this step, and that is the lesson.</strong> Where
+            you cut normally decides what can be found, which is why chunking is
+            usually the highest-leverage step in the whole pipeline. Here it touches{' '}
+            {UNITS.investigations} documents out of {n(DOCUMENTS)}.
+          </p>
+          <p>
+            So the leverage moves upstream, to step 3.1: whether a question about a
+            2020 F-150 finds this complaint is decided by the line the parser adds,
+            not by a cut. Tuning chunk sizes here would be tuning the one step with
+            almost nothing to do.
+          </p>
+          <p>
+            And nothing new was written. The chunker is the shared one, used by two
+            other projects unchanged — the claim that shared code transfers, tested
+            for the first time on data nobody wrote for us, passing quietly.
+          </p>
+        </>
+      }
+      terms={['chunk', 'corpus']}
+      hood={<ChunkerModal />}
+    />
   );
 }
 
-function Embed() {
+function Step33() {
   const sims = [
     { q: 'F-150 will not go into park, transmission shift', v: 0.8504, near: true },
     { q: 'windscreen wiper motor failure', v: 0.5703, near: false },
   ];
-
   return (
-    <Stage
+    <Step
       n="3.3"
-      verb="EMBED — words into numbers"
-      when="once, offline"
-      plain="A computer cannot compare meanings. An embedding model turns a piece of text into a list of numbers — 384 of them here — arranged so that texts meaning similar things get similar lists."
-    >
-      <Figure caption={`bge-small, run for complaint ${SPINE}`} source="384 dims · first 6 shown">
-        <Data
-          path="615 characters in, 384 numbers out"
-          mark={[3]}
-          lines={[
-            '2020 FORD F-150 | POWER TRAIN | filed 2020-09-08',
-            'THE GEAR WILL NOT GO INTO PARK AND ALLOW ME TO START…',
-            '',
-            '-0.0357, -0.0272, 0.0568, 0.0164, -0.0230, 0.0981   … 378 more',
-          ]}
-        />
-      </Figure>
-
-      <Figure caption="two questions, against that one vector" source="cosine similarity, −1 to 1">
-        <ul className="grid gap-4">
-          {sims.map((s) => (
-            <li key={s.q}>
-              <div className="flex flex-wrap items-baseline justify-between gap-x-4">
-                <span className="font-mono text-[0.8125rem] text-ui-dim">“{s.q}”</span>
-                <span
-                  className="font-mono text-sm"
-                  style={{ color: s.near ? 'var(--color-cal-1)' : 'var(--color-ui-faint)' }}
-                >
-                  {s.v.toFixed(4)}
-                </span>
-              </div>
-              {/* THE BAR RUNS THE FULL −1…1 RANGE, with a tick at zero, because
-                  cosine similarity does not start at nothing. Drawn as a
-                  fraction of its own maximum, 0.5570 would look like "about
-                  two thirds as good"; against the real axis it is plainly
-                  above the middle, which is what it is. */}
-              <div className="relative mt-1.5 h-[3px] w-full rounded-full bg-ui-line">
-                <div
-                  className="h-[3px] rounded-full"
-                  style={{
-                    width: `${((s.v + 1) / 2) * 100}%`,
-                    background: s.near ? 'var(--color-cal-1)' : 'var(--color-cal-3)',
-                  }}
-                />
-                <span
-                  aria-hidden
-                  className="absolute top-[-3px] left-1/2 h-[9px] w-px bg-ui-faint/60"
-                />
-              </div>
-              <div className="mt-1 flex justify-between font-mono text-[0.5625rem] text-ui-faint">
-                <span>−1</span>
-                <span>0</span>
-                <span>1</span>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </Figure>
-
-      <Because>
-        The model was never told these are about cars — the numbers carry the
-        meaning. It runs <span className="text-ui-fg">on this machine</span>: a
-        130 MB model, no network, no key, which is why{' '}
-        {UNITS.complaints.toLocaleString('en-GB')} people's accounts of crashes,
-        fires and 53 deaths never leave the building. Measured on the sibling
-        corpus, local scored recall@k 0.813 against the paid model's 0.813 — so
-        this is a decision about the data that costs no accuracy to make.
-      </Because>
-
-      <Because>
-        <span className="text-ui-fg">
-          And this is the stage where the corpus taught the machinery something.
-        </span>{' '}
-        The model pads every text in a batch to the longest one in that batch, so
-        sorting the passages by length before batching is{' '}
-        <span className="text-ui-fg">58% faster for identical vectors</span> —
-        and the real run came in at 36.6 minutes, 22% under the projection,
-        because sorting all 73,442 makes every batch more uniform than sorting a
-        sample does. That belongs in{' '}
-        <Mono>@fde/grounding</Mono> rather than here, because it is not
-        safety-specific — and it is invisible at 555 chunks, which is why three
-        engagements went past it. The first corpus nobody wrote for us is the
-        first one big enough to find it.
-      </Because>
-
-      <Because>
-        The vectors are written as NDJSON — one record a line, flushed every
-        4,000 and resumable from whatever is on disk. 641 MB on disk against 108
-        MB in memory, because a float serialises as{' '}
-        <Mono>0.019854292273521423</Mono>: twenty characters of double precision
-        out of a model that computed a float32.
-      </Because>
-
-      <EmbedModal />
-    </Stage>
+      title={TITLES['3.3']}
+      when={WHEN['3.3']}
+      plain="A computer can’t compare meanings. An embedding model turns a piece of text into a list of numbers — 384 of them here — arranged so that texts meaning similar things get similar lists. Then “similar” is just arithmetic."
+      why="It’s what lets “gearbox shows the wrong gear” find “display indicates I am in the wrong gear” with no words in common. And where the model runs is a decision about people’s data: this step touches every complaint, so a hosted embedder would mean sending all of them to somebody else to read."
+      code={
+        <>
+          <Figure caption={`bge-small, run on complaint ${SPINE}`} source="384 numbers · first 6 shown">
+            <Data
+              path="615 characters in, 384 numbers out"
+              mark={[3]}
+              lines={[
+                '2020 FORD F-150 | POWER TRAIN | filed 2020-09-08',
+                'THE GEAR WILL NOT GO INTO PARK AND ALLOW ME TO START…',
+                '',
+                '-0.0357, -0.0272, 0.0568, 0.0164, -0.0230, 0.0981   … 378 more',
+              ]}
+            />
+          </Figure>
+          <Figure caption="Two questions, compared against that one list" source="cosine similarity, from −1 to 1">
+            <ul className="grid gap-5">
+              {sims.map((s) => (
+                <li key={s.q}>
+                  <div className="flex flex-wrap items-baseline justify-between gap-x-4">
+                    <span className="text-[0.9375rem] text-ui-dim">“{s.q}”</span>
+                    <span className="font-mono text-[0.9375rem]" style={{ color: s.near ? 'var(--color-cal-1)' : 'var(--color-ui-faint)' }}>
+                      {s.v.toFixed(4)}
+                    </span>
+                  </div>
+                  {/* THE BAR RUNS THE FULL −1…1 RANGE, with a tick at zero,
+                      because cosine similarity does not start at nothing. Drawn
+                      as a fraction of its own maximum, 0.57 would look like
+                      "about two thirds as good". */}
+                  <div className="relative mt-2 h-1.5 w-full rounded-full bg-ui-line">
+                    <div
+                      className="h-1.5 rounded-full"
+                      style={{ width: `${((s.v + 1) / 2) * 100}%`, background: s.near ? 'var(--color-cal-1)' : 'var(--color-ui-line-lit)' }}
+                    />
+                    <span aria-hidden className="absolute -top-1 left-1/2 h-3.5 w-px bg-ui-faint" />
+                  </div>
+                  <div className="mt-1 flex justify-between font-mono text-[0.8125rem] text-ui-faint">
+                    <span>−1</span>
+                    <span>0</span>
+                    <span>1</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <Note>
+              The model was never told these are about cars. The numbers carry the
+              meaning.
+            </Note>
+          </Figure>
+        </>
+      }
+      learned={
+        <>
+          <p>
+            <strong>It runs on this machine</strong>: a 130 MB model, no network,
+            no key — so {n(UNITS.complaints)} people’s accounts of crashes, fires and
+            53 deaths are never sent anywhere to be embedded. It costs no accuracy
+            that we know of: on a sibling project (Vantis Steering’s corpus, not
+            this one) the local model scored the same as the paid one.
+          </p>
+          <p>
+            <strong>And this data taught the shared code something.</strong> The
+            model pads every text in a batch to the longest one in it, so sorting
+            passages by length before batching is <strong>58% faster for identical
+            numbers</strong>. The real run took 36.6 minutes, 22% under the
+            projection. It was invisible at the 555 passages of earlier projects —
+            this is the first corpus big enough to show it.
+          </p>
+        </>
+      }
+      terms={['embedding', 'cosine']}
+      hood={<EmbedModal />}
+    />
   );
 }
 
-function Index() {
+function Step34() {
   return (
-    <Stage
+    <Step
       n="3.4"
-      verb="INDEX — where the passages live"
-      when="once, offline"
-      plain="One Postgres table. Each row is one passage and carries two searchable forms of the same text — which is the entire hybrid idea, sitting in a schema."
-    >
-      <Figure
-        caption="the whole store"
-        from="pending"
-        source="Neon eu-central-1 · empty, and `vector` not installed yet"
-      >
-        <Code
-          path="the whole store — one table"
-          lang="sql"
-          note="not created yet"
-          mark={[3, 4]}
-          lines={[
-            'CREATE TABLE complaint_chunks (',
-            '  id         uuid PRIMARY KEY,',
-            '  content    text,        -- the passage, for reading and quoting',
-            '  vector     vector(384), -- for MEANING   (3.5, arm A)',
-            '  content_ts tsvector,    -- for KEYWORDS  (3.5, arm B)',
-            '  metadata   jsonb        -- for FILTERING (make, year, deaths…)',
-            ');',
-          ]}
-        />
-      </Figure>
-
-      <Because>
-        <Mono>vector</Mono> and <Mono>content_ts</Mono> are two different indexes
-        over <span className="text-ui-fg">the same words</span>, and they are
-        both there because they fail at different things. Everything stage 3.5
-        does is asking them both and stage 3.6 is deciding who was right.
-      </Because>
-
-      <Because>
-        <span className="text-ui-fg">
-          This is the first stage that leaves this machine
-        </span>
-        , which makes it the first that can fail for reasons unrelated to our
-        code. And the whole stage turns on one method call:{' '}
-        <Mono>addVectors</Mono> inserts what stage 3.3 made, while{' '}
-        <Mono>addDocuments</Mono> would recompute all of it — 36.6 minutes, with
-        no error, nothing that looks wrong, and the same row count either way.
-      </Because>
-
-      <Because>
-        It ran in 1.1 minutes, and{' '}
-        <span className="text-ui-fg">
-          the storage came in at more than twice what was predicted
-        </span>{' '}
-        — 295 MB rather than 140, which is 58% of the free tier rather than 27%.
-        The estimate extrapolated 2,002 bytes a row from the sibling engagement,
-        and that measurement predates the full-text column.{' '}
-        <Mono>content_ts</Mono> and its index are 69 MB, a quarter of the table.
-      </Because>
-
-      <Because>
-        Which corrects something this page has implied twice.{' '}
-        <Mono>vector</Mono> and <Mono>content_ts</Mono> being two indexes over
-        the same words is true, and it left the impression that the second is
-        free.{' '}
-        <span className="text-ui-fg">The keyword arm has a price</span>, and this
-        is the first corpus here big enough to show it.
-      </Because>
-
-      <IndexModal />
-    </Stage>
+      title={TITLES['3.4']}
+      when={WHEN['3.4']}
+      plain="Every passage goes into one Postgres table. Each row holds the passage in two searchable forms — its 384 numbers, for meaning, and its indexed words, for keywords — plus its labels, for filtering. That one table is the whole “hybrid” idea, sitting in a database."
+      why="The two searchable forms fail at different things, which is why both are there. And this is the first step that leaves the laptop — the table lives on a hosted database — so it’s the first that can fail for reasons that have nothing to do with our code."
+      code={
+        <>
+          <Figure caption="The whole store — one table" from="excerpt" source="packages/grounding/src/store.ts + hybrid.ts">
+            <Code
+              path="document_chunks — its columns"
+              lang="sql"
+              mark={[3, 5]}
+              lines={[
+                '-- one row per passage',
+                'id         uuid',
+                'content    text        -- the words, for reading and quoting',
+                'vector     vector      -- 384 numbers, for MEANING (step 3.5, first arm)',
+                'metadata   jsonb       -- for FILTERING (make, year, deaths…)',
+                "content_ts tsvector GENERATED ALWAYS AS (to_tsvector('english', content)) STORED",
+                '                       -- for KEYWORDS  (step 3.5, second arm)',
+              ]}
+            />
+          </Figure>
+          <Figure caption="The load" source="docs/safety/INDEX.md">
+            <Numbers
+              items={[
+                { value: n(PASSAGES), label: 'rows written' },
+                { value: '1.1 min', label: 'the first load, using the numbers step 3.3 already made (a later reload took 1.2)' },
+                { value: '287 MB', label: 'the table and its indexes — predicted ~140' },
+                { value: '318 MB', label: 'what the host bills, of a 512 MB free tier' },
+              ]}
+            />
+          </Figure>
+        </>
+      }
+      learned={
+        <>
+          <p>
+            <strong>Storage came in at twice the prediction.</strong> The estimate
+            extrapolated bytes per row from a sibling project, and that measurement
+            predated the keyword column: <code>content_ts</code> and its index are
+            about a quarter of the table. The keyword arm has a price, and this is
+            the first corpus here big enough to show it.
+          </p>
+          <p>
+            <strong>The whole step turns on one method call.</strong>{' '}
+            <code>addVectors</code> inserts the numbers step 3.3 already made;{' '}
+            <code>addDocuments</code> would quietly recompute all of them — 36.6
+            minutes, no error, and the same row count either way.
+          </p>
+          <p>
+            And there are three different answers to “how big is it”: Postgres
+            says 295 MB for the database, but the host bills 318 MB, and the quota
+            is read from the billed one.
+          </p>
+        </>
+      }
+      terms={['pgvector', 'keyword', 'hybrid']}
+      hood={<IndexModal />}
+    />
   );
 }
 
-function Retrieve() {
+function Step35() {
   const armA = ['11416775', '19V620000', '20V425000'];
   const armB = ['11592935', '20V197000', '11624180'];
-
   return (
-    <Stage
+    <Step
       n="3.5"
-      verb="RETRIEVE — two arms, because one is not enough"
-      when="every question"
-      plain="Ask both, independently, at the same time. One arm matches meaning and the other matches words, and on this corpus neither is optional."
-    >
-      <Figure caption="the two arms, as they are built" source="apps/ai/safety/src/grounding/search.ts">
-        <div className="grid gap-5 sm:grid-cols-2">
-          {[
-            {
-              name: 'arm A — meaning',
-              sub: 'pgvector cosine over vector(384), bge-small',
-              tone: 'var(--color-cal-1)',
-              good: 'Matches “gearbox shows the wrong gear” to “display indicates I am in the wrong gear”, with no shared words.',
-            },
-            {
-              name: 'arm B — keywords',
-              sub: 'ts_rank over content_ts + its GIN index',
-              tone: 'var(--color-cal-2)',
-              good: 'Matches what arm A is worst at — a campaign number, a fault code, an ODI reference.',
-            },
-          ].map((arm) => (
-            <div key={arm.name} className="rounded-lg border border-ui-line bg-ui-surface p-4">
-              <p
-                className="font-mono text-[0.6875rem] tracking-[0.06em] uppercase"
-                style={{ color: arm.tone }}
-              >
-                {arm.name}
-              </p>
-              <p className="mt-0.5 font-mono text-[0.625rem] text-ui-faint">{arm.sub}</p>
-              <p className="mt-3 text-[0.8125rem] leading-relaxed text-ui-dim">{arm.good}</p>
-            </div>
-          ))}
-        </div>
-      </Figure>
-
-      <Because>
-        Each arm is asked for <Mono>k × 4</Mono>, so a six-result question
-        fetches 24 from each and fuses 48. A passage ranked 20th on meaning and
-        2nd on keywords{' '}
-        <span className="text-ui-fg">has to be in the lists before fusion</span>{' '}
-        — fetching six from each would throw it away before the step that would
-        have promoted it.
-      </Because>
-
-      <Because>
-        This corpus is made of what arm A is worst at: <Mono>20V197000</Mono>,{' '}
-        <Mono>{SPINE}</Mono>, <Mono>P0219A</Mono>, <Mono>PRNDL</Mono>. Ask a
-        vector index for a campaign number and it returns things that{' '}
-        <em>look like</em> campaign numbers. The keyword arm returns that
-        campaign.
-      </Because>
-
-      <Figure
-        caption="two ranked lists, for “recall 20V197000”"
-        source="6 results in 1,474 ms"
-      >
-        <div className="grid gap-5 sm:grid-cols-2">
-          {[
-            { name: 'arm A — meaning', list: armA, tone: 'var(--color-cal-1)' },
-            { name: 'arm B — keywords', list: armB, tone: 'var(--color-cal-2)' },
-          ].map((arm) => (
-            <div key={arm.name} className="rounded-lg border border-ui-line bg-ui-surface p-4">
-              <p
-                className="font-mono text-[0.6875rem] tracking-[0.06em] uppercase"
-                style={{ color: arm.tone }}
-              >
-                {arm.name}
-              </p>
-              <ol className="mt-3 grid gap-1.5">
-                {arm.list.map((id, i) => (
-                  <li key={id} className="flex items-baseline gap-3 font-mono text-[0.8125rem]">
-                    <span className="text-ui-faint">{i + 1}.</span>
-                    <span className={id === '20V197000' ? 'text-ui-fg' : 'text-ui-dim'}>{id}</span>
-                    {id === '20V197000' && (
-                      <span className="text-[0.625rem] text-ui-faint">← the campaign asked for</span>
-                    )}
-                  </li>
-                ))}
-              </ol>
-            </div>
-          ))}
-        </div>
-      </Figure>
-
-      <Because>
-        Two lists that share no entries at all — which is what the next stage
-        exists to resolve.
-      </Because>
-
-      <SearchModal />
-    </Stage>
+      title={TITLES['3.5']}
+      when={WHEN['3.5']}
+      plain="Every question is asked two ways at once. One arm matches meaning, using the numbers from step 3.3; the other matches the actual words, using the keyword index. Each returns its own ranked list."
+      why={
+        <p>
+          This corpus is full of what meaning-search is worst at:{' '}
+          <code>20V197000</code>, <code>{SPINE}</code>, <code>P0219A</code>,{' '}
+          <code>PRNDL</code>. Ask a meaning index for a recall number and it
+          returns things that <em>look like</em> recall numbers. The keyword arm
+          returns that recall.
+        </p>
+      }
+      code={
+        <>
+          <Figure caption="The two arms, as built" from="cited" source="apps/ai/safety/src/grounding/search.ts">
+            <Table
+              head={['Arm', 'How it searches', 'What it is good at']}
+              rows={[
+                ['Meaning', 'Nearest numbers, over the vector column', 'Matching “gearbox shows the wrong gear” to “display indicates I am in the wrong gear”, with no shared words'],
+                ['Keywords', 'Postgres full-text rank, over content_ts', 'A recall number, a fault code, an ODI reference'],
+              ]}
+            />
+          </Figure>
+          <Figure caption="Two ranked lists, for “recall 20V197000”" source="6 results in 1,474 ms">
+            <Table
+              head={['Rank', 'Meaning arm', 'Keyword arm']}
+              lit={[1]}
+              rows={armA.map((a, i) => [
+                String(i + 1),
+                <code key="a">{a}</code>,
+                <span key="b">
+                  <code>{armB[i]}</code>
+                  {armB[i] === '20V197000' && <span className="ml-2 text-ui-faint">← the recall asked for</span>}
+                </span>,
+              ])}
+            />
+            <Note>
+              Two lists that share <strong>no entries at all</strong> — which is
+              what the next step exists to resolve.
+            </Note>
+          </Figure>
+        </>
+      }
+      learned={
+        <p>
+          <strong>Each arm is asked for four times as many as the question
+          needs</strong> — 24 each for a six-result question. A passage ranked 20th
+          on meaning and 2nd on keywords has to be in the lists <em>before</em>{' '}
+          they’re merged; fetching six from each would throw it away before the
+          step that would have promoted it.
+        </p>
+      }
+      terms={['hybrid', 'keyword', 'embedding']}
+      hood={<SearchModal />}
+    />
   );
 }
 
 /**
- * The hero figure.
- *
- * EVERY NUMBER IN IT IS COMPUTED BY `rrf()` FROM THE RANKS BESIDE IT, so the
- * table cannot drift from the formula printed above it and a reader who checks
- * the arithmetic finds it right.
- *
- * THE RESULTS ARE THE REAL ONES. `search.ts` was run against the loaded index
- * for "recall 20V197000"; these six are what came back, with their arms and
- * their ranks. The scores below are normalised to the top hit, which is how the
- * tool prints them — the raw sums are `1/(60+rank)` per arm, added.
+ * EVERY SCORE IN THE TABLE IS COMPUTED BY `rrf()` from the ranks beside it,
+ * normalised to the top hit the way the tool prints them. The results are the
+ * real ones `search.ts` returned for "recall 20V197000".
  */
-function Fuse() {
+function Step36() {
   const rows = [
-    { id: '11416775', a: 1, b: null, what: '2020 Lincoln Corsair' },
-    { id: '11592935', a: null, b: 1, what: '2020 Ford Ranger' },
-    { id: '19V620000', a: 2, b: null, what: 'a campaign' },
-    { id: '20V197000', a: null, b: 2, what: 'the campaign asked for' },
-    { id: '20V425000', a: 3, b: null, what: 'a campaign' },
+    { id: '11416775', a: 1, b: null, what: '2020 Lincoln Corsair complaint' },
+    { id: '11592935', a: null, b: 1, what: '2020 Ford Ranger complaint' },
+    { id: '19V620000', a: 2, b: null, what: 'a different recall' },
+    { id: '20V197000', a: null, b: 2, what: 'the recall asked for' },
+    { id: '20V425000', a: 3, b: null, what: 'a different recall' },
     { id: '11624180', a: null, b: 3, what: 'a complaint' },
-  ].map((r) => ({
-    ...r,
-    total: rrf(...([r.a, r.b].filter((n): n is number => n !== null))),
-  }));
+  ].map((r) => ({ ...r, total: rrf(...[r.a, r.b].filter((x): x is number => x !== null)) }));
   const top = Math.max(...rows.map((r) => r.total));
 
   return (
-    <Stage
+    <Step
       n="3.6"
-      verb="FUSE — two lists that do not share a scale"
-      when="every question"
-      plain="Arm A gives a similarity like 0.80. Arm B gives a keyword relevance like 0.41. They are different units, and adding them is like adding a temperature to a price. So the scores are thrown away and the positions are used instead."
-    >
-      <Figure caption={`reciprocal rank fusion · 1 / (${K} + rank), summed across the arms`}>
-        <Raw>{`score = 1/(${K} + rank in arm A) + 1/(${K} + rank in arm B)`}</Raw>
-      </Figure>
-
-      <Because>
-        The {K} is a convention from the original paper and its job is to stop
-        the top slot dominating.{' '}
-        <span className="text-ui-fg">
-          A passage both arms like beats one that either arm loves
-        </span>{' '}
-        — which is the right instinct, made arithmetic.
-      </Because>
-
-      <Figure
-        caption="what came back for “recall 20V197000”"
-        source="pnpm safety:search · 6 of 48 fused"
-      >
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[38rem] border-collapse font-mono text-[0.8125rem]">
-            <thead>
-              <tr className="text-[0.625rem] tracking-[0.08em] text-ui-faint uppercase">
-                <th className="pb-2 text-left font-normal">passage</th>
-                <th className="pb-2 text-right font-normal">meaning</th>
-                <th className="pb-2 text-right font-normal">keywords</th>
-                <th className="pb-2 text-right font-normal">score</th>
-                <th className="pb-2 pl-5 text-left font-normal" />
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => {
-                const asked = r.id === '20V197000';
-                return (
-                  <tr key={r.id} className="border-t border-ui-line">
-                    <td className={`py-2.5 ${asked ? 'text-ui-fg' : 'text-ui-dim'}`}>{r.id}</td>
-                    <td className="py-2.5 text-right text-ui-dim">
-                      {r.a === null ? <span className="text-ui-faint">·</span> : r.a}
-                    </td>
-                    <td className="py-2.5 text-right text-ui-dim">
-                      {r.b === null ? <span className="text-ui-faint">·</span> : r.b}
-                    </td>
-                    <td
-                      className="py-2.5 text-right"
-                      style={{ color: asked ? 'var(--color-cal-2)' : 'var(--color-ui-dim)' }}
-                    >
-                      {(r.total / top).toFixed(4)}
-                    </td>
-                    <td className="py-2.5 pl-5 text-[0.6875rem] text-ui-faint">{r.what}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </Figure>
-
-      <Because>
-        <span className="text-ui-fg">
-          Every one of the six was found by one arm only.
-        </span>{' '}
-        The dots are not missing data — they are an arm that did not return that
-        passage at all. So the scores pair off exactly, and fusion, whose whole
-        mechanism is rewarding agreement, has nothing to agree about: it
-        interleaves the two lists rather than reordering them.
-      </Because>
-
-      <Because>
-        And <Mono>20V197000</Mono>, the literal campaign number in the question,
-        comes back fourth of six. It is not first in its own arm either — keyword
-        rank 1 went to a complaint reading{' '}
-        <Mono>“ford is recalling certain 2020 ranger and f-15…”</Mono>, because{' '}
-        <Mono>to_tsquery('english')</Mono> matches the common word{' '}
-        <em>recall</em> across thousands of documents.
-      </Because>
-
-      <Because>
-        On the queries run so far, that is the pattern — and if it holds across
-        the eval set, fusion cannot promote what neither arm ranked highly. One
-        query is a smoke test and not a scorecard, so stage 3.7 is what settles
-        it.{' '}
-        <span className="text-ui-fg">
-          The same fuser fails the opposite way on the sibling engagement
-        </span>
-        : there the arms mostly agree, so a single-arm hit gets buried by
-        corroborated ones — two of its eight cases. Same code, two corpora,
-        opposite failure modes, and the argument for a reranker in both.
-      </Because>
-
-      <FuseModal />
-    </Stage>
+      title={TITLES['3.6']}
+      when={WHEN['3.6']}
+      plain="The meaning arm scores in similarity, like 0.80; the keyword arm in relevance, like 0.41. They’re different units — adding them is like adding a temperature to a price. So the scores are thrown away and positions are used instead: each passage gets 1 ÷ (60 + its rank) from each list, added up."
+      why={`A passage both arms like beats one that either arm loves — the right instinct, made arithmetic. The ${K} is a convention from the original paper, and its job is to stop the top slot dominating.`}
+      code={
+        <>
+          <Figure caption="Reciprocal rank fusion" from="cited" source="Cormack et al., 2009 · @fde/grounding">
+            <Raw>{`score = 1/(${K} + rank in the meaning arm) + 1/(${K} + rank in the keyword arm)`}</Raw>
+          </Figure>
+          <Figure caption="What came back for “recall 20V197000”" source="pnpm safety:search · 6 of 48 merged">
+            <Table
+              head={['Passage', 'Meaning rank', 'Keyword rank', 'Score', 'What it is']}
+              numeric={[1, 2, 3]}
+              lit={[3]}
+              rows={rows.map((r) => [
+                <code key="id">{r.id}</code>,
+                r.a === null ? '·' : String(r.a),
+                r.b === null ? '·' : String(r.b),
+                (r.total / top).toFixed(4),
+                r.what,
+              ])}
+            />
+            <Note>
+              A dot means that arm didn’t return the passage at all. Scores are
+              shown relative to the top hit, the way the tool prints them.
+            </Note>
+          </Figure>
+        </>
+      }
+      learned={
+        <>
+          <p>
+            <strong>Every one of the six was found by one arm only</strong>, so the
+            scores pair off exactly and fusion — whose whole mechanism is rewarding
+            agreement — had nothing to agree about. It interleaved the two lists
+            rather than reordering them.
+          </p>
+          <p>
+            And <code>20V197000</code>, the literal recall number asked for, came
+            back fourth. It isn’t first in its own arm either: keyword rank 1 went
+            to a complaint reading <em>“ford is recalling certain 2020 ranger and
+            f-15…”</em>, because keyword search matches the common word{' '}
+            <em>recall</em> across thousands of documents.
+          </p>
+          <p>
+            The same code fails the opposite way on a sibling project, where the
+            arms mostly agree and a single-arm hit gets buried under corroborated
+            ones. Same code, two corpora, opposite failures — and in both, the
+            argument for a reranker. One query is a smoke test, not a score; step
+            3.7 is what settles it.
+          </p>
+        </>
+      }
+      terms={['rrf', 'hybrid']}
+      hood={<FuseModal />}
+    />
   );
 }
 
-function Measure() {
+function Step36b() {
   return (
-    <Stage
-      n="3.7"
-      verb="MEASURE — did we find what we already knew?"
-      when="every question"
-      plain="The answers were written by hand first, before any of this existed. So the only question worth asking at this stage is whether the document we already know is right comes back in the top six."
-    >
-      <Figure
-        caption="recall@6"
-        from="pending"
-        source="docs/safety/WALKTHROUGH.md — the answer key"
-      >
-        <Raw>{`recall@6  =  how many known-right DOCUMENTS were in the top 6
-             ─────────────────────────────────────────────────
-             how many known-right documents there are
-
-REC-001   "is the F-150 park problem fixed?"
-          is ODI 11353867 in the top 6?`}</Raw>
-      </Figure>
-
-      <Because>
-        <span className="text-ui-fg">Documents, not passages</span>, and the
-        distinction decides the number. The answer key names things a person can
-        look up — <Mono>ODI {SPINE}</Mono>, campaign <Mono>20V197000</Mono> —
-        while the index holds passages, and one investigation can be{' '}
-        <Mono>RQ24011#0</Mono> and <Mono>RQ24011#1</Mono>. Left alone, one
-        document could occupy two of the six slots and identical retrieval would
-        score differently depending on how the chunker happened to cut. So hits
-        are deduplicated by document before anything is counted.
-      </Because>
-
-      <Figure caption="two numbers, one variable" source="apps/ai/safety/src/cli/measure.ts">
-        <Raw>{`pnpm safety:measure                 3.7a  hybrid alone      the baseline
-RERANK=local pnpm safety:measure    3.7b  the same, reranked`}</Raw>
-      </Figure>
-
-      <Because>
-        Same questions, same corpus,{' '}
-        <span className="text-ui-fg">same code path</span> — search reads{' '}
-        <Mono>RERANK</Mono> from the environment rather than taking a flag,
-        precisely so the harness cannot call something different and report it as
-        a different pipeline. Turn the reranker on from the start and you learn
-        one number, which cannot answer whether it helped or whether the chunking
-        was simply fine.
-      </Because>
-
-      <Figure caption="three cases, and each is a different shape of question" from="worked" source="docs/safety/WALKTHROUGH.md · n=3">
-        <div className="grid gap-4">
-          {[
-            {
-              id: 'REC-001',
-              q: 'We run 2020 F-150s. Is the transmission park problem a known defect, and is the fix holding?',
-              needs: 'campaign 20V197000 and ODI 11353867, both in the top 6 · scored out of 2',
-              why: 'Either alone gives a wrong answer. The campaign alone says “fixed”; the complaint alone says “unknown defect”.',
-            },
-            {
-              id: 'REC-004',
-              q: 'Are there any complaints involving a death on the 2019–2020 Tesla Model 3?',
-              needs: 'as many of the 5 death complaints as 6 slots allow · scored out of 5',
-              why: 'A plain recall question with a known set of right answers, and more of them than there are slots.',
-            },
-            {
-              id: 'REC-005',
-              q: 'Is there a recall for the forward-collision braking on the 2019–2020 Honda Odyssey?',
-              needs: 'at least one Odyssey forward-collision complaint, and no recall mis-cited',
-              why: 'THE NEGATIVE CASE. No campaign covers it — verified, zero. So there is no document to find, and scoring it 0 would punish retrieval for being right while scoring it 1 would reward it for nothing.',
-              negative: true,
-            },
-          ].map((c) => (
-            <div
-              key={c.id}
-              className="rounded-lg border border-ui-line bg-ui-surface p-4"
-              style={c.negative ? { borderColor: 'color-mix(in oklab, var(--color-cal-2) 40%, var(--color-ui-line))' } : undefined}
-            >
-              <p
-                className="font-mono text-[0.6875rem] tracking-[0.06em] uppercase"
-                style={{ color: c.negative ? 'var(--color-cal-2)' : 'var(--color-cal-1)' }}
-              >
-                {c.id}
-              </p>
-              <p className="mt-2 max-w-[62ch] text-[0.875rem] leading-relaxed text-ui-fg/90">
-                “{c.q}”
-              </p>
-              <p className="mt-2.5 font-mono text-[0.6875rem] text-ui-faint">{c.needs}</p>
-              <p className="mt-2.5 max-w-[62ch] text-[0.8125rem] leading-relaxed text-ui-dim">
-                {c.why}
-              </p>
-            </div>
-          ))}
-        </div>
-      </Figure>
-
-      <Because>
-        What retrieval owes the model on the negative case is{' '}
-        <span className="text-ui-fg">the evidence for the absence</span> — the
-        400 complaints showing owners reporting the problem with no campaign
-        behind it. That is what lets an answer say “no recall covers this, and
-        here is why it is still worth your time”. The run also reports any recall
-        document that came back, because citing a loosely-related campaign is
-        exactly how this question gets answered wrongly.
-      </Because>
-
-      <Because>
-        <span className="text-ui-fg">n = 3.</span> Three cases, each worth a
-        third — enough to tell “works” from “does not”, and nowhere near enough
-        to rank two chunking strategies against each other. It is said here
-        because a number printed without its denominator gets quoted without it.
-      </Because>
-
-      <Figure caption="what came back" source="pnpm safety:measure · n=3 · docs/safety/evals/">
-        <div className="flex flex-wrap items-baseline gap-x-12 gap-y-4">
-          {[
-            { k: '3.7a', v: '0.40', how: 'hybrid alone' },
-            { k: '3.7b', v: '0.40', how: 'the same run, reranked' },
-          ].map((n) => (
-            <div key={n.k}>
-              <p className="font-mono text-[0.625rem] tracking-[0.06em] text-ui-faint uppercase">
-                {n.k} · {n.how}
-              </p>
-              <p className="mt-1 font-mono text-3xl text-ui-fg">{n.v}</p>
-            </div>
-          ))}
-        </div>
-      </Figure>
-
-      <Because>
-        <span className="text-ui-fg">
-          The same number twice, and that is the result rather than a
-          disappointment.
-        </span>{' '}
-        The reranker did work — it moved one hit from 36th to 1st and another
-        from 3rd to 1st. The score did not budge, because the documents the
-        answer key names were sitting at ranks 93, 121, 1,169, 1,239, 2,271 and
-        3,026. The reranker was handed the top 50. Not one of them was in it.
-      </Because>
-
-      <Because>
-        So it reordered a pile that did not contain the answer, perfectly.{' '}
-        <span className="text-ui-fg">A reranker reorders; it cannot fetch.</span>{' '}
-        The diagnosis is not “found it, ranked it badly” — it is “never found
-        it”, and no reranker fixes that, nor would a better one.
-      </Because>
-
-      <Because>
-        The reason is in the questions.{' '}
-        <Mono>2020 F-150</Mono>, <Mono>Tesla Model 3</Mono>,{' '}
-        <Mono>involving a death</Mono> are structured fields already sitting in
-        the database — make, model, year, death count — and search is treating
-        them as words.{' '}
-        <span className="text-ui-fg">
-          These are filters wearing the clothes of questions.
-        </span>{' '}
-        The F-150 one matches 54,541 documents on ordinary vocabulary alone, and
-        the right answer drowns. Filter first and the same corpus returns exactly
-        the five Tesla complaints, and moves {SPINE} from rank 3,026 to rank 8.
-      </Because>
-
-      <Because>
-        Which says what to build next, and it is not a better model. The machine
-        needs to read “2020 F-150” as a{' '}
-        <span className="text-ui-fg">filter rather than a phrase</span> — a tool
-        it can call with structured arguments. That is the lesson the insurance
-        engagement already carries in <Mono>get_policyholder</Mono>, reached
-        again here on a completely different corpus:{' '}
-        <span className="text-ui-fg">
-          a question with one exact answer is a lookup, not a search.
-        </span>
-      </Because>
-
-      <Because>
-        And <span className="text-ui-fg">0.40 is flattered.</span> REC-005 scored
-        1.00 against a bar of “return any one of 400 documents”, which is nearly
-        impossible to fail; the two hard cases scored 0.00 and 0.20. With n=3
-        that is enough to say retrieval alone tops out here, and not enough for
-        anything finer.
-      </Because>
-
-      <MeasureModal />
-
-      <Figure caption="a number from elsewhere" from="target" source="Vantis Steering, docs/steering/evals/RETRIEVAL.md">
-        <div className="flex flex-wrap items-baseline gap-x-8 gap-y-3">
-          <span className="font-mono text-2xl text-ui-dim">0.813</span>
-          <span className="max-w-[48ch] text-[0.8125rem] leading-relaxed text-ui-dim">
-            measured on the sibling engagement, on a corpus somebody here wrote,
-            counted over its own units.{' '}
-            <span className="text-ui-fg">
-              It is deliberately not set beside the 0.40 above.
-            </span>{' '}
-            A different corpus with an unconfirmed denominator, placed next to
-            ours, would measure the counting rule rather than the retrieval — and
-            the comparison a reader would draw from the two numbers side by side
-            is one neither of them supports.
-          </span>
-        </div>
-      </Figure>
-
-      <Because>
-        Before: we believe search works, because the results look plausible.
-        After: a number, and we know which passages it misses{' '}
-        <span className="text-ui-fg">by name</span>. That is the whole point of
-        measuring before improving — change the chunker and you can say whether
-        it helped, instead of admiring the output.
-      </Because>
-    </Stage>
-  );
-}
-
-/**
- * What is deliberately not being built. It is a section rather than a caveat
- * for the same reason the landing gives the refusal one: the order is the
- * argument, and a reader who skips it will assume the missing pieces were
- * forgotten rather than sequenced.
- */
-/**
- * Why the reranker is a second number rather than a default.
- *
- * THIS SECTION USED TO SAY IT WAS MISSING and it is built now — but built and
- * ON are different things, and the difference is the whole argument. It is
- * optional, off unless `RERANK=local` is set, and stage 3.7 reports the
- * pipeline with and without it. A reranker turned on from the start gives you
- * one number, which cannot answer whether it helped.
- */
-function NotYet() {
-  return (
-    <section className="lift-in mt-20 border-t border-ui-line pt-10">
-      <h2 className="font-mono text-lg leading-snug font-medium tracking-tight text-ui-fg md:text-xl">
-        The reranker is built and off
-      </h2>
-      <p className="mt-4 max-w-[64ch] leading-relaxed text-ui-dim">
-        <Mono>RERANK=local</Mono> is the only thing that changes between the two
-        numbers stage 3.7 reports. Measure the plain pipeline first or you
-        cannot say what the reranker bought — and on the sibling engagement it
-        bought 0.813 → 0.938, which is exactly the size of gain worth knowing
-        rather than assuming.
-      </p>
-      <p className="mt-4 max-w-[64ch] leading-relaxed text-ui-dim">
-        The other three things this page used to list here — the answer
-        contract, the loop and the evals — are not missing from grounding. They
-        are the rest of the build, and they have tabs of their own above.
-      </p>
-    </section>
-  );
-}
-
-/**
- * 3.6b — the optional second pass.
- *
- * IT SITS BETWEEN FUSE AND MEASURE because that is where it runs, and because
- * the thing it is for only makes sense after a reader has seen two lists being
- * interleaved: a reordering step is worth having when the order is the problem,
- * and worth nothing when it is not.
- */
-function Rerank() {
-  return (
-    <Stage
+    <Step
       n="3.6b"
-      verb="RERANK — reading, instead of remembering"
-      when="every question"
-      plain="Everything so far compares two summaries made separately: the passage was turned into numbers long before the question existed. A reranker reads the question and one passage together and says how well one answers the other — much better judgement, far too slow to run on everything."
-    >
-      <Figure caption="so it runs on 50, not on 73,442" source="off unless RERANK=local">
-        <Raw>{`cheap search finds 50 candidates     fast, indexed, a bit blunt
+      title={TITLES['3.6b']}
+      when={WHEN['3.6b']}
+      plain="Everything so far compares two summaries made separately — each passage was turned into numbers long before the question existed. A reranker reads the question and one passage together and judges how well one answers the other. Much better judgement, far too slow to run on everything, so it runs on the top fifty."
+      why="Fifty, not six, because the whole value is promoting something the first pass ranked below the cut. It is also a diagnostic: if it helps, the problem was “found it, ranked it badly”; if it doesn’t, the problem was “never found it”, and no amount of re-reading fixes that."
+      code={
+        <Figure caption="Where it sits" from="cited" source="off unless RERANK=local">
+          <Raw>{`cheap search finds 50 candidates     fast, indexed, a bit blunt
 the reranker reads all 50 properly   slow, no index, sharp
 keep the best 6                      what the model sees`}</Raw>
-      </Figure>
+        </Figure>
+      }
+      learned={
+        <>
+          <p>
+            <strong>It worked exactly as intended, and the score didn’t move.</strong>{' '}
+            It promoted one hit from 36th to 1st and another from 3rd to 1st — and
+            step 3.7’s number stayed where it was, because the documents that
+            mattered were never among the fifty it was handed.{' '}
+            <strong>A reranker reorders; it cannot fetch.</strong>
+          </p>
+          <p>
+            So it is built and switched off. <code>RERANK=local</code> is the only
+            thing that changes between the two numbers step 3.7 reports — measure
+            the plain pipeline first, or you can’t say what the reranker bought.
+          </p>
+        </>
+      }
+      terms={['reranker']}
+      hood={<RerankModal />}
+    />
+  );
+}
 
-      <Because>
-        50 and not 6, deliberately. The whole value is promoting something the
-        first pass ranked <span className="text-ui-fg">below the cut</span> —
-        rerank only what you would have shown anyway and you have measured
-        nothing.
-      </Because>
-
-      <Because>
-        <span className="text-ui-fg">
-          And a reranker cannot find anything. It can only reorder what it was
-          handed.
-        </span>{' '}
-        If the right passage is not among those 50, no amount of re-reading puts
-        it in the top 6 — which makes it a diagnostic as much as a fix. If it
-        helps, the problem was “found it, ranked it badly”. If it does not, the
-        problem was “never found it”, and the answer is better chunking or a
-        wider pool rather than a smarter scorer.
-      </Because>
-
-      <Because>
-        <span className="text-ui-fg">
-          Which is what happened when it was measured.
-        </span>{' '}
-        It promoted a hit from 36th to 1st and another from 3rd to 1st — working
-        exactly as intended — and stage 3.7's number did not move, because the
-        documents that mattered were never in the fifty. That is the ceiling
-        above, arriving as a measurement rather than as an argument.
-      </Because>
-
-      <RerankModal />
-    </Stage>
+function Step37() {
+  return (
+    <Step
+      n="3.7"
+      title={TITLES['3.7']}
+      when={WHEN['3.7']}
+      plain="The answers were written by hand in stage 2, before any of this existed. So the only question worth asking here is: does the document we already know is right come back in the top six?"
+      why={
+        <>
+          <p>
+            Before: we believe search works, because the results look plausible.
+            After: a number, and we know which documents it misses by name. Measure
+            before improving, or you can’t say whether a change helped.
+          </p>
+          <p>
+            <strong>It counts documents, not passages</strong>, because the answer
+            key names things a person can look up — <code>ODI {SPINE}</code>,
+            recall <code>20V197000</code> — and one investigation can be two
+            passages. Left alone, one document could take two of the six slots, and
+            the same search would score differently depending on where the chunker
+            happened to cut.
+          </p>
+        </>
+      }
+      code={
+        <>
+          <Figure caption="The measure" from="cited" source="docs/safety/INGESTION.md">
+            <Raw>{`recall@6  =  how many known-right DOCUMENTS were in the top 6
+             ─────────────────────────────────────────────────
+             how many known-right documents there are`}</Raw>
+          </Figure>
+          <Figure caption="Three cases, each a different shape of question" from="worked" source="docs/safety/WALKTHROUGH.md · n = 3">
+            <Table
+              head={['Case', 'The question', 'What must come back']}
+              rows={[
+                ['REC-001', 'Is the 2020 F-150 park problem a known defect, and is the fix holding?', `Recall 20V197000 and ODI ${SPINE} — either alone gives a wrong answer. Out of 2.`],
+                ['REC-004', 'Any complaints involving a death on the 2019–2020 Tesla Model 3?', 'As many of the 5 death complaints as six slots allow. Out of 5.'],
+                ['REC-005', 'Is there a recall for forward-collision braking on the 2019–2020 Honda Odyssey?', 'None exists — verified. So: any one of the 400 Odyssey complaints as evidence of the absence, and no recall cited by mistake.'],
+              ]}
+            />
+          </Figure>
+          <Figure caption="What came back" source="pnpm safety:measure · n = 3 · docs/safety/evals/">
+            <Numbers
+              items={[
+                { value: '0.40', label: 'search alone' },
+                { value: '0.40', label: 'the same run, reranked (RERANK=local)' },
+              ]}
+            />
+          </Figure>
+          <Figure caption="A number from somewhere else" from="target" source="Vantis Steering · docs/steering/evals/RETRIEVAL.md">
+            <Numbers items={[{ value: '0.813', label: 'recall@6 on a sibling project’s corpus, which somebody here wrote' }]} />
+            <Note>
+              <strong>Deliberately not set beside the 0.40 above.</strong> A
+              different corpus, counted by its own rule, placed next to ours would
+              measure the counting rule rather than the search — and the comparison
+              a reader would draw is one neither number supports.
+            </Note>
+          </Figure>
+        </>
+      }
+      learned={
+        <>
+          <p>
+            <strong>The same number twice, and that is the result.</strong> The
+            documents the key names were sitting at ranks 93, 121, 1,169, 1,239,
+            2,271 and 3,026. The reranker was handed the top 50. Not one of them was
+            in it.
+          </p>
+          <p>
+            <strong>The reason is in the questions.</strong> “2020 F-150”, “Tesla
+            Model 3” and “involving a death” are fields already in the database —
+            make, model, year, deaths — and search was treating them as words. These
+            are <strong>filters wearing the clothes of questions</strong>. Filter
+            first and the same corpus returns exactly the five Tesla complaints, and
+            moves <code>{SPINE}</code> from rank 3,026 to rank 8.
+          </p>
+          <p>
+            Which says what to build next, and it isn’t a better model: tools the
+            model can call with structured arguments. A question with one exact
+            answer is a lookup, not a search — stage 4.
+          </p>
+          <p>
+            <strong>And 0.40 is flattered.</strong> REC-005 scored 1.00 against a
+            bar that is nearly impossible to fail; the two hard cases scored 0.00
+            and 0.20. With n = 3 that is enough to say search alone tops out here,
+            and not enough for anything finer.
+          </p>
+        </>
+      }
+      terms={['recallAtK', 'filter', 'answerKey']}
+      hood={<MeasureModal />}
+    />
   );
 }
 
 /**
  * The five ways to retrieve, and which of them this corpus actually exercises.
- *
- * IT IS ON THIS PAGE RATHER THAN IN `/learn` because the interesting column is
- * the last one — what each pattern is worth HERE — and that is a statement
- * about this corpus, not about the pattern. `/learn` already teaches the five;
- * this says which two stopped being theoretical when the data got real.
+ * It is here rather than in `/learn` because the interesting column is what
+ * each pattern is worth ON THIS DATA.
  */
 function Patterns() {
-  const rows = [
-    {
-      name: 'hybrid',
-      status: 'built, measured',
-      here: 'The core. Campaign numbers and fault codes are exactly what dense search misses.',
-      live: true,
-    },
-    {
-      name: 'corrective',
-      status: 'narrower here',
-      here: 'Worth building and small, and its meaning here is not the textbook one. The generic version — grade the results, re-retrieve if poor — would have judged REC-001’s results junk and fetched the same junk again, because the query was never the problem. Here every correction is a FILTER correction: an empty recall list means widen the component before concluding none exists; a count of zero means the filter is wrong, not the corpus.',
-      live: true,
-    },
-    {
-      name: 'agentic',
-      status: 'stages 4 and 5',
-      here: 'Not an extra to schedule for later. A model choosing between five tools and calling one after another IS agentic retrieval — so it is not a pattern this engagement might adopt, it is what stages 4 and 5 are.',
-      live: true,
-    },
-    {
-      name: 'graph',
-      status: 'measured · one hop',
-      here: 'Real, and shallower than the documented version. The investigation → recall link resolves 14 times. The edge that works is owners typing a campaign number into their own complaint: 5,361 complaints name one, 563 resolve to a recall we hold. One hop is a lookup — no graph store, no node embeddings, one more tool.',
-      live: true,
-    },
-    {
-      name: 'multimodal',
-      status: 'not applicable',
-      here: 'There are no images in this slice. The earlier note here said recall documents are PDFs; the corpus is flat files, so it was wrong and is gone.',
-      live: false,
-    },
-  ];
-
   return (
-    <section className="lift-in mt-16 border-t border-ui-line pt-10">
-      <h2 className="font-mono text-lg leading-snug font-medium tracking-tight text-ui-fg md:text-xl">
-        Five ways to retrieve, and which two this corpus makes real
-      </h2>
-      <p className="mt-3 max-w-[64ch] leading-relaxed text-ui-dim">
-        The patterns are the same five the firm teaches. What changes on real
-        data is which of them stop being an argument — and after stage 3.7,
-        three of the five have measured answers rather than opinions.
+    <section className="lift-in mt-14" aria-labelledby="patterns-title">
+      <h3 id="patterns-title" className="text-[1.3125rem] font-bold text-ui-fg">
+        Five ways to search, and which ones this data made real
+      </h3>
+      <p className="mt-2 mb-5 max-w-[66ch] text-[1rem] leading-relaxed text-ui-dim">
+        The same five patterns the firm teaches. What changes on real data is
+        which of them stop being an argument.
       </p>
-
-      <ul className="mt-7 grid gap-4">
-        {rows.map((r) => (
-          <li
-            key={r.name}
-            className="grid gap-x-5 gap-y-1 border-t border-ui-line pt-3 md:grid-cols-[8rem_9rem_1fr]"
-          >
-            <span
-              className="font-mono text-sm"
-              style={{ color: r.live ? 'var(--color-cal-1)' : 'var(--color-ui-dim)' }}
-            >
-              {r.name}
-            </span>
-            <span className="font-mono text-[0.6875rem] tracking-[0.06em] text-ui-faint uppercase">
-              {r.status}
-            </span>
-            <span className="max-w-[56ch] text-[0.8125rem] leading-relaxed text-ui-dim">
-              {r.here}
-            </span>
-          </li>
-        ))}
-      </ul>
+      <Figure caption="The five patterns, here" from="cited" source="docs/safety/INGESTION.md · docs/rag/">
+        <Table
+          head={['Pattern', 'Status here', 'What it means on this corpus']}
+          rows={[
+            ['Hybrid', 'Built, measured', 'The core. Recall numbers and fault codes are exactly what meaning-search misses.'],
+            ['Corrective', 'Narrower here', 'Not the textbook “grade the results, search again”: that would have re-fetched the same junk for REC-001, because the query was never the problem. Here every correction is a filter correction — an empty recall list means widen the component before concluding none exists.'],
+            ['Agentic', 'Stages 4 and 6', 'A model choosing between five tools and calling one after another IS agentic search. It isn’t an extra to schedule; it is what the next stages are.'],
+            ['Graph', 'Measured · one hop', 'Real and shallower than the textbook. Owners type recall numbers into their own complaints: 5,361 complaints name one, 563 resolve to a recall we hold. One hop is a lookup — one more tool, no graph database.'],
+            ['Multimodal', 'Not applicable', 'There are no images in these files. An earlier note said recall documents are PDFs; they are flat text, so it was wrong and is gone.'],
+          ]}
+        />
+      </Figure>
     </section>
   );
 }
 
-function Onward() {
+/* ── THE FOOT ───────────────────────────────────────────────────────────── */
+
+function Glossary() {
   return (
-    <section className="lift-in mt-14">
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-        <Link
-          to="/data-flow"
-          className="font-mono text-sm text-cal-1 transition-colors hover:text-ui-fg"
-        >
-          Where the data goes →
-        </Link>
-        <Link to="/" className="font-mono text-sm text-ui-dim transition-colors hover:text-ui-fg">
-          ← back to the question
-        </Link>
-      </div>
+    <section className="mt-20" aria-labelledby="gloss-title">
+      <h2 id="gloss-title" className="text-[1.75rem] leading-tight font-bold tracking-tight text-ui-fg">
+        Words used on this page
+      </h2>
+      <p className="mt-2 mb-6 max-w-[66ch] text-[1.0625rem] leading-relaxed text-ui-dim">
+        What each term means in general, and what it means on this data.
+      </p>
+      <dl className="cal-gloss">
+        {GLOSSARY_ORDER.map((key) => {
+          const t = GLOSSARY[key];
+          return (
+            <div key={key} id={termId(key)}>
+              <dt>{t.word}</dt>
+              <dd>{t.is}</dd>
+              {'here' in t && t.here && <dd>Here: {t.here}</dd>}
+            </div>
+          );
+        })}
+      </dl>
     </section>
+  );
+}
+
+/**
+ * What it still cannot do. Every stage is built, so this is not a list of
+ * unbuilt steps — it is the three limits the build measured, each of which a
+ * reader could otherwise assume had been solved.
+ */
+function Limits() {
+  return (
+    <section className="mt-20 rounded-2xl border border-dashed border-ui-line-lit p-6 sm:p-8" aria-labelledby="limits-title">
+      <h2 id="limits-title" className="text-[1.375rem] font-bold text-ui-fg">
+        What it still can’t do
+      </h2>
+      <ul className="cal-prose mt-3 grid gap-3">
+        <li>
+          <p>
+            <strong>Say whether a fix was carried out on your vehicle.</strong> NHTSA
+            publishes recalls and complaints, not repair records per vehicle. The
+            answer key’s control question (REC-006) exists to check the assistant
+            says so instead of guessing.
+          </p>
+        </li>
+        <li>
+          <p>
+            <strong>Reliably explain itself.</strong> Every mechanical check passes;
+            the checks that need a person-like reading of the answer do not (stage
+            7). What a tool result says, the system does. What a prompt asks for in
+            general, it does when it happens to.
+          </p>
+        </li>
+        <li>
+          <p>
+            <strong>Route as well as a person.</strong> With the tools chosen by hand
+            the right documents are all reachable; with the model choosing, fewer
+            come back, and the number moves from run to run (stage 6).
+          </p>
+        </li>
+      </ul>
+      <p className="mt-5 flex flex-wrap gap-x-6 gap-y-2">
+        <Link to="/desk" className="cal-a">
+          Ask it a question
+        </Link>
+        <Link to="/data-flow" className="cal-a">
+          Where the data goes
+        </Link>
+        <Link to="/" className="cal-a">
+          Back to the Calder overview
+        </Link>
+      </p>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="relative z-10 mx-auto max-w-6xl border-t border-ui-line px-5 py-10 text-[0.9375rem] text-ui-faint sm:px-6">
+      Calder Safety and its analysts are fictional. The NHTSA data is real and
+      public, and every figure marked “Real output” was produced by running the
+      code on it.
+    </footer>
   );
 }

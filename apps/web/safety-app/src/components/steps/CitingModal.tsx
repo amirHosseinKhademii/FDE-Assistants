@@ -19,26 +19,41 @@
  * check rather than an opinion: a complaint the vehicle filter misses is found
  * here.
  *
- * ── AND THE WARNING IT CARRIED FORWARD STILL STANDS ───────────────────────
+ * ── THE METRIC PUNISHES CALLING IT — PREDICTED AT 4.5, MEASURED AT 6 ──────
  *
- * 4.5 has run: recall@6 went 0.40 to 1.00, and this tool is NOT part of that
- * number. NOT BECAUSE IT DOES NOT HELP — because calling it would have LOWERED
- * the score. VERIFIED: none of the seven is the one complaint REC-001 names, and
- * six slots are all there are, so seven results by reference push the named
- * target out. The metric rewards retrieving what the key NAMED, and the key
- * names one supporting complaint rather than every complaint a good answer
- * would cite.
+ * 4.5 routed the tools BY HAND and recall@6 went 0.40 to 1.00 over three cases:
+ * a ceiling, not a score, and REC-005 was already 1.00 with an empty result as
+ * its rightness. This tool was NOT called there — not because it does not help,
+ * but because calling it would have LOWERED the score. VERIFIED: none of the
+ * seven is the one complaint REC-001 names, and six slots are all there are.
+ *
+ * Stage 6 then let a model route, and the prediction came true: REC-001 reached
+ * for this tool and scored 0.50 on all three runs — the campaign every time,
+ * the named complaint never (INGESTION.md, "MEASURED 2026-09-18"). The panel
+ * says so beside the model-routed range, 0.17 to 0.50, which is never averaged.
+ * Scoring the answer rather than the retrieval is stage 7, and the panel now
+ * says that stage exists rather than "is a later stage".
  *
  * The warning is the other half. Any score over this corpus is partly a measure
  * of how good NHTSA's own data entry is, not only of how good the filters are,
  * and the F-250 SD row is the proof that those are different things. That was
  * written here before the number arrived, which is the only time such a thing
  * is worth writing.
+ *
+ * ── CORRECTED AND RESTYLED 2026-09-27 ─────────────────────────────────────
+ *
+ * The two comparison cards were labelled in cal-2 and cal-1 side by side —
+ * ΔE 11, too close to carry two meanings — and are neutral now. "How it looks
+ * up" quoted the substring match as data; it is now the real two queries from
+ * `complaints-citing.tool.ts`, as an excerpt. The shared trigger, sentence-case
+ * labels and 1rem body text are the `/steps` redesign.
  */
 import { useCallback, useState } from 'react';
-import { Mono, OriginDialog, originOf } from '@fde/uikit';
+import { OriginDialog, originOf } from '@fde/uikit';
 import type { Origin } from '@fde/uikit';
-import { Data } from '@veresk/surface';
+import { Code, Data } from '@veresk/surface';
+import type { ReactNode } from 'react';
+import { HoodButton, HoodSection, HoodText } from './Hood';
 
 /**
  * The seven complaints that name campaign 20V197000 in their own narrative.
@@ -57,6 +72,20 @@ const CITING: { id: string; filed: string; odd?: boolean }[] = [
   { id: '11659797', filed: 'EXPEDITION' },
 ];
 
+/** Two ways of reaching a complaint. Neutral on purpose: neither is the "right" one. */
+const REACH = [
+  {
+    name: 'Reaches by attribute',
+    sub: 'search_complaints',
+    rows: ['Fast', 'Precise', 'Trusts the metadata'],
+  },
+  {
+    name: 'Reaches by reference',
+    sub: 'complaints_citing',
+    rows: ['Narrow', 'Immune to a mislabelled field', 'Finds what the filter misses'],
+  },
+] as const;
+
 export function CitingModal() {
   const [from, setFrom] = useState<Origin | null>(null);
   const open = useCallback(
@@ -66,22 +95,10 @@ export function CitingModal() {
 
   return (
     <>
-      <button
-        type="button"
+      <HoodButton
+        blurb="How looking for a recall's own number in complaints finds one the vehicle filter cannot see."
         onClick={open}
-        className="group flex w-full items-center gap-4 rounded-lg border border-ui-line bg-ui-surface px-4 py-3.5 text-left transition-colors hover:border-cal-1/50"
-      >
-        <span className="font-mono text-[0.6875rem] tracking-[0.08em] text-cal-1 uppercase">
-          under the hood
-        </span>
-        <span className="min-w-0 flex-1 text-[0.875rem] text-ui-dim">
-          Inside <Mono>complaints_citing</Mono> — evidence by reference, and the
-          one complaint the filter cannot see
-        </span>
-        <span className="font-mono text-sm text-ui-faint transition-colors group-hover:text-ui-fg">
-          open →
-        </span>
-      </button>
+      />
 
       {from && <CitingPanel from={from} onClose={() => setFrom(null)} />}
     </>
@@ -93,30 +110,30 @@ function CitingPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
     <OriginDialog
       from={from}
       label="Inside complaints_citing"
-      tone="var(--color-cal-1)"
+      tone="var(--color-cal-sky)"
       onClose={onClose}
       header={
         <>
-          <p className="font-mono text-sm text-ui-fg">Inside complaints_citing</p>
-          <p className="mt-0.5 text-[0.75rem] text-ui-faint">
-            stage 4.4b · built, and checked against the raw file
+          <p className="text-[1rem] font-semibold text-ui-fg">
+            Inside <span className="font-mono">complaints_citing</span>
+          </p>
+          <p className="mt-0.5 text-[0.875rem] text-ui-faint">
+            Step 4.4b · built, and checked against the raw file
           </p>
         </>
       }
     >
       <div className="sticky -top-3.5 z-20 -mx-5 -mt-3.5 mb-7 border-b border-ui-line bg-ui-bg px-5 pt-3.5 pb-4">
-        <p className="pb-2.5 font-mono text-[0.625rem] tracking-[0.08em] text-ui-faint uppercase">
-          the seven complaints that name campaign 20V197000 themselves
+        <p className="cal-label pb-2.5" data-tone="quiet">
+          The seven complaints that name campaign 20V197000 themselves
         </p>
         <div className="grid gap-1">
           {CITING.map((c) => (
-            <div key={c.id} className="flex items-baseline gap-4 font-mono text-[0.75rem]">
+            <div key={c.id} className="flex flex-wrap items-baseline gap-x-4 font-mono text-[0.875rem]">
               <span className={c.odd ? 'text-ui-fg' : 'text-ui-dim'}>{c.id}</span>
-              <span style={{ color: c.odd ? 'var(--color-cal-1)' : 'var(--color-ui-faint)' }}>
-                {c.filed}
-              </span>
+              <span className={c.odd ? 'font-semibold text-cal-1' : 'text-ui-faint'}>{c.filed}</span>
               {c.odd && (
-                <span className="text-[0.625rem] text-ui-faint">
+                <span className="font-sans text-[0.875rem] text-ui-faint">
                   ← the recall does not cover this model
                 </span>
               )}
@@ -125,14 +142,15 @@ function CitingPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
         </div>
       </div>
 
-      <div className="grid gap-9 pb-2">
-        <section>
-          <H>What it does</H>
-          <P>
+      <div className="pb-2 [&_.snip-frame]:my-1">
+        <HoodSection title="What it does">
+          <HoodText>
             It finds the complaints where the owner{' '}
-            <span className="text-ui-fg">typed the recall number into their own
-            narrative</span>.
-          </P>
+            <strong className="font-semibold text-ui-fg">
+              typed the recall number into their own description of the problem
+            </strong>
+            . Nothing is matched by meaning; it looks for the number itself.
+          </HoodText>
           <Key>
             Not evidence by similarity. Evidence by reference. The person filing
             had the campaign in front of them.
@@ -140,21 +158,20 @@ function CitingPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
           <Why>
             Which matters because the F-150 question's trap is that 1,057
             complaints share a <em>component</em> with the recall and only some
-            describe the actual defect. These seven are neither — and it still
-            does not prove the remedy failed, which is a claim no document here
-            supports, but it is the strongest material the corpus offers on
+            describe the actual defect. These seven are neither — and they still
+            do not prove the remedy failed, which is a claim no document here
+            supports, but they are the strongest material the corpus offers on
             whether the fix is holding.
           </Why>
-        </section>
+        </HoodSection>
 
-        <section>
-          <H>The one that does not belong</H>
-          <P>
+        <HoodSection title="The one that does not belong">
+          <HoodText>
             The recall covers an Expedition, an F-150 and a Ranger. One of the
-            seven is filed as an <Mono>F-250 SD</Mono>.
-          </P>
+            seven is filed as an <code>F-250 SD</code>.
+          </HoodText>
           <Data
-            path="complaint 11618838 — the structured field, and the first line of the text"
+            path="Complaint 11618838 — the structured field, and the first line of the text"
             mark={[1]}
             lines={[
               'model field   F-250 SD',
@@ -170,36 +187,17 @@ function CitingPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             Measured rate: 1 of the 177 complaints whose text says “owns a 2020
             Ford F-150” is filed under a different model. Small, and not zero.
           </Why>
-        </section>
+        </HoodSection>
 
-        <section>
-          <H>Which is why this is not a duplicate of the search</H>
+        <HoodSection title="Which is why this is not a duplicate of the search">
           <div className="grid gap-3 sm:grid-cols-2">
-            {[
-              {
-                name: 'reaches by attribute',
-                sub: 'search_complaints',
-                rows: ['fast', 'precise', 'trusts the metadata'],
-                tone: 'var(--color-cal-2)',
-              },
-              {
-                name: 'reaches by reference',
-                sub: 'complaints_citing',
-                rows: ['narrow', 'immune to a mislabelled field', 'finds what the filter misses'],
-                tone: 'var(--color-cal-1)',
-              },
-            ].map((c) => (
+            {REACH.map((c) => (
               <div key={c.sub} className="rounded-lg border border-ui-line bg-ui-surface p-4">
-                <p
-                  className="font-mono text-[0.6875rem] tracking-[0.06em] uppercase"
-                  style={{ color: c.tone }}
-                >
-                  {c.name}
-                </p>
-                <p className="mt-0.5 font-mono text-[0.625rem] text-ui-faint">{c.sub}</p>
+                <p className="text-[0.9375rem] font-semibold text-ui-fg">{c.name}</p>
+                <p className="mt-0.5 font-mono text-[0.8125rem] text-ui-faint">{c.sub}</p>
                 <ul className="mt-3 grid gap-1.5">
                   {c.rows.map((r) => (
-                    <li key={r} className="text-[0.8125rem] text-ui-dim">
+                    <li key={r} className="text-[0.9375rem] text-ui-dim">
                       {r}
                     </li>
                   ))}
@@ -216,12 +214,11 @@ function CitingPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             opinion now: <em>a complaint the vehicle filter misses is found here,
             by reference</em>.
           </Why>
-        </section>
+        </HoodSection>
 
-        <section>
-          <H>The graph nobody designed</H>
+        <HoodSection title="The graph nobody designed">
           <Data
-            path="two links between a complaint or an investigation and a recall"
+            path="Two links between a complaint or an investigation and a recall"
             mark={[3]}
             lines={[
               'the documented link — investigations to recalls',
@@ -235,16 +232,18 @@ function CitingPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             node embeddings. The edge that was documented barely resolves; the
             edge that works is the one nobody designed.
           </Why>
-        </section>
+        </HoodSection>
 
-        <section>
-          <H>The measurement would punish calling this tool</H>
-          <P>
-            4.5 re-ran the answer key through the tools and recall@6 went from
-            0.40 to 1.00. This tool was not called.
-          </P>
+        <HoodSection title="The measurement punishes calling this tool — and did">
+          <HoodText>
+            Step 4.5 re-ran the answer key with the tools called by hand, and
+            recall@6 over the three retrieval cases went from 0.40 to 1.00 — a
+            ceiling on what is reachable, not a score, and one of the three
+            (REC-005) was already at 1.00 because its right answer is an empty
+            result. This tool was not called.
+          </HoodText>
           <Data
-            path="why it was left out"
+            path="Why it was left out"
             mark={[2]}
             lines={[
               'the complaint that question names        11353867',
@@ -258,16 +257,27 @@ function CitingPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             evidence would cost you the number.
           </Key>
           <Why>
+            Stage 6 turned that from a prediction into a measurement. With a
+            model choosing the tools, REC-001 reached for this tool rather than
+            the search — and scored{' '}
+            <strong className="font-semibold text-ui-fg">0.50 on all three runs</strong>
+            : the campaign every time, the complaint the key names never.
+            Arguably the better evidence, scored as a miss. (Across all three
+            cases the model-routed runs span 0.17 to 0.50 — a range, not an
+            average.)
+          </Why>
+          <Why>
             That is a limit of recall@6, not of the tool. The measure rewards
             retrieving what the answer key <em>named</em>, and the key names one
             supporting complaint rather than every complaint a good answer would
-            cite. Scoring the answer instead of the retrieval is a later stage,
-            and this is the reason it has to exist.
+            cite. Scoring the answer instead of the retrieval is what stage 7
+            does: 28 of 28 decided checks, reported beside 0 of 3 judged ones and
+            never added to them — and the judged zero is not a broken judge,
+            since every control passed.
           </Why>
-        </section>
+        </HoodSection>
 
-        <section>
-          <H>And the warning it carried forward still stands</H>
+        <HoodSection title="And the warning it carried forward still stands">
           <Key>
             Any score over this corpus is partly a measure of how good NHTSA's
             own data entry is — not only of how good the filters are.
@@ -278,24 +288,23 @@ function CitingPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             It was written here before the number arrived, which is the only time
             such a thing is worth writing.
           </Why>
-        </section>
+        </HoodSection>
 
-        <section>
-          <H>Two things worth recording that produced nothing</H>
-          <P>
+        <HoodSection title="Two things worth recording that produced nothing">
+          <HoodText>
             The recall's remedy text ends “Ford's number for this recall is
             20S18”, so owners might quote that instead of the campaign number.
-          </P>
+          </HoodText>
           <Data
-            path="how many complaints name the manufacturer's own reference"
+            path="How many complaints name the manufacturer's own reference"
             mark={[1]}
-            lines={['complaints naming 20V197000     7', "complaints naming 20S18         0"]}
+            lines={['complaints naming 20V197000     7', 'complaints naming 20S18         0']}
           />
           <Why>
             Not built, and kept as a permanent check.{' '}
-            <span className="text-ui-fg">
+            <strong className="font-semibold text-ui-fg">
               An idea that measures to nothing is worth recording
-            </span>
+            </strong>
             , or somebody rebuilds it later.
           </Why>
           <Why>
@@ -304,14 +313,27 @@ function CitingPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             and the test was wrong, so the replacement campaign is verified
             inside the check rather than assumed.
           </Why>
-        </section>
+        </HoodSection>
 
-        <section>
-          <H>How it looks up</H>
-          <Data
-            path="a substring match, and an existence check before it"
+        <HoodSection title="How it looks up">
+          <Code
+            path="apps/ai/safety/src/tools/complaints-citing.tool.ts"
+            note="Excerpt · an existence check, then a substring match"
+            lang="typescript"
+            mark={[8]}
             lines={[
-              "where metadata->>'kind' = 'complaint' and content like '%' || $1 || '%'",
+              '    const { rows: exists } = await client.query(',
+              "      `select 1 from ${TABLE} where metadata->>'kind'='recall' and metadata->>'id'=$1 limit 1`,",
+              '      [id],',
+              '    );',
+              '    const campaignExists = exists.length > 0;',
+              '',
+              '    const { rows } = await client.query(',
+              '      `select metadata, content from ${TABLE}',
+              "        where metadata->>'kind' = 'complaint' and content like '%' || $1 || '%'",
+              "        order by metadata->>'filed'`,",
+              '      [id],',
+              '    );',
             ]}
           />
           <Why>
@@ -320,24 +342,25 @@ function CitingPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             the same distinction the recall lookup draws between a typo and an
             absence.
           </Why>
-        </section>
+          <Why>
+            And its note now says what the corpus cannot: a complaint is an
+            allegation, no repair completions are recorded here, and whether the
+            fix is working should be escalated to a person. This is the tool most
+            likely to be reached for when somebody asks whether a fix is holding,
+            so the fact sits where it will be read at that moment.
+          </Why>
+        </HoodSection>
       </div>
     </OriginDialog>
   );
 }
 
-function H({ children }: { children: React.ReactNode }) {
-  return <h3 className="mb-3 font-mono text-[0.9375rem] text-ui-fg">{children}</h3>;
+/** The point — restyled on `/steps` by the `cal-key` rule in app.css. */
+function Key({ children }: { children: ReactNode }) {
+  return <p className="cal-key">{children}</p>;
 }
 
-function P({ children }: { children: React.ReactNode }) {
-  return <p className="max-w-[66ch] text-[0.875rem] leading-relaxed text-ui-dim">{children}</p>;
-}
-
-function Key({ children }: { children: React.ReactNode }) {
-  return <p className="cal-key mt-3.5">{children}</p>;
-}
-
-function Why({ children }: { children: React.ReactNode }) {
-  return <p className="cal-why mt-3.5">{children}</p>;
+/** A reason, set in the margin — the `cal-why` rule. */
+function Why({ children }: { children: ReactNode }) {
+  return <p className="cal-why">{children}</p>;
 }

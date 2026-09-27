@@ -19,18 +19,40 @@
  * The numerals in the code are BUTTONS — press one and its section is brought
  * up and marked, so "which line am I reading about" is never a memory task.
  *
- * ── NOTHING HERE HAS RUN ───────────────────────────────────────────────────
+ * THE SKELETON IS A SKETCH, AND SAYS SO. It is PARSE.md's shape of the parser,
+ * not the file — the real write happens in `cli/parse.ts`, and the real loop
+ * trims and counts. Every section underneath quotes the real code.
  *
- * This is a specification written before the code, so the implementation has
- * something already agreed to match. The only measured numbers in it are the
- * corpus counts, which come from `estate.generated.ts` rather than being typed
- * — the parser's own output does not exist to be quoted.
+ * ── IT HAS RUN, AND EVERY QUOTE IS FROM THE FILE ───────────────────────────
+ *
+ * This panel was first written as a specification, before the code, and said
+ * so ("nothing here has run"). That stopped being true on 2026-09-17: stage 3.1
+ * is `apps/ai/safety/src/grounding/parse.ts`, and `pnpm safety:parse` has run.
+ * Re-checked on 2026-09-27:
+ *
+ *   - every `Code` block is quoted from `grounding/parse.ts`, with its doc
+ *     comments trimmed. The earlier blocks were PARSE.md's draft code under a
+ *     path that did not exist (`src/parse.ts`) and had drifted from the file —
+ *     `type Doc`, a merge that `return`ed, a header built by one template string;
+ *   - the run's output is rebuilt from `cli/parse.ts`'s own format strings,
+ *     which print FOUR checks, not the three PARSE.md drafted. Every value in it
+ *     was checked against `documents.json` and against `awk` over the raw slice;
+ *   - "42 real instances" of investigation → recall is corrected by
+ *     INGESTION.md's graph measurement: 42 name a campaign, 14 resolve to one
+ *     this slice holds.
+ *
+ * The corpus counts still come from `estate.generated.ts` rather than being
+ * typed, so the page and this panel cannot disagree about them.
  */
 import { useCallback, useRef, useState } from 'react';
-import { Mono, OriginDialog, originOf } from '@fde/uikit';
+import { OriginDialog, originOf } from '@fde/uikit';
 import type { Origin } from '@fde/uikit';
 import { Code, Data } from '@veresk/surface';
 import { ROWS, UNITS } from '../../lib/estate.generated';
+import { HoodButton } from './Hood';
+import { Because } from './kit';
+
+const n = (x: number) => x.toLocaleString('en-GB');
 
 /**
  * The five lines, as segments, so a numeral can be a button.
@@ -72,26 +94,11 @@ export function ParserModal() {
 
   return (
     <>
-      <button
-        type="button"
+      <HoodButton
+        blurb="Inside the parser: the whole thing in five lines, then each line explained"
         onClick={open}
-        className="group flex w-full items-center gap-4 rounded-lg border border-ui-line bg-ui-surface px-4 py-3.5 text-left transition-colors hover:border-cal-1/50"
-      >
-        <span className="font-mono text-[0.6875rem] tracking-[0.08em] text-cal-1 uppercase">
-          under the hood
-        </span>
-        <span className="min-w-0 flex-1 text-[0.875rem] text-ui-dim">
-          Inside the parser — the whole thing in five lines, then each line
-          explained
-        </span>
-        <span className="font-mono text-sm text-ui-faint transition-colors group-hover:text-ui-fg">
-          open →
-        </span>
-      </button>
-
-      {from && (
-        <ParserPanel from={from} onClose={() => setFrom(null)} />
-      )}
+      />
+      {from && <ParserPanel from={from} onClose={() => setFrom(null)} />}
     </>
   );
 }
@@ -116,9 +123,9 @@ function ParserPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
    * see. Rects rather than `offsetTop`, because the scroller is not a
    * positioned ancestor.
    */
-  const go = useCallback((n: number) => {
-    setActive(n);
-    const target = sections.current[n];
+  const go = useCallback((k: number) => {
+    setActive(k);
+    const target = sections.current[k];
     if (!target) return;
     const scroller = target.closest<HTMLElement>('[data-dialog-scroll]');
     if (!scroller) {
@@ -134,14 +141,14 @@ function ParserPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
     <OriginDialog
       from={from}
       label="Inside the parser"
-      tone="var(--color-cal-1)"
+      tone="var(--color-cal-sky)"
       onClose={onClose}
       header={
         <>
-          <p className="font-mono text-sm text-ui-fg">Inside the parser</p>
-          <p className="mt-0.5 text-[0.75rem] text-ui-faint">
-            stage 3.1 · {ROWS.complaints.toLocaleString('en-GB')} lines in,{' '}
-            {UNITS.complaints.toLocaleString('en-GB')} documents out
+          <p className="text-[1rem] font-semibold text-ui-fg">Inside the parser</p>
+          <p className="mt-0.5 text-[0.875rem] text-ui-faint">
+            Stage 3.1 · {n(ROWS.complaints)} complaint lines in, {n(UNITS.complaints)} documents
+            out
           </p>
         </>
       }
@@ -158,186 +165,284 @@ function ParserPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
         ref={sticky}
         className="sticky -top-3.5 z-20 -mx-5 -mt-3.5 mb-7 border-b border-ui-line bg-ui-bg px-5 pt-3.5 pb-3"
       >
-        <p className="pb-2 font-mono text-[0.625rem] tracking-[0.08em] text-ui-faint uppercase">
-          the whole parser · press a number to jump
+        <p className="cal-label pb-2" data-tone="quiet">
+          The whole parser, sketched — press a number to jump to the real code for it
         </p>
-        <pre className="overflow-x-auto rounded-lg border border-ui-line bg-[var(--snip-bg)] p-3.5 font-mono text-[0.6875rem] leading-[1.7] text-ui-dim">
-          {SKELETON.map((row, i) => (
-            <div key={i} className="flex items-baseline gap-3 whitespace-pre">
-              <span className="w-5 shrink-0 text-right">
-                {row.n ? (
-                  <button
-                    type="button"
-                    onClick={() => go(row.n!)}
-                    aria-label={`explain line ${row.n}: ${LINE_NOTE[row.n]}`}
-                    className={`rounded px-1 transition-colors ${
-                      active === row.n
-                        ? 'bg-cal-1/25 text-ui-fg'
-                        : 'text-cal-1 hover:bg-cal-1/15'
-                    }`}
-                  >
-                    {row.n}
-                  </button>
-                ) : null}
-              </span>
-              <span className={row.n ? 'text-ui-fg' : ''}>{row.code || ' '}</span>
-              {row.n && (
-                <span className="ml-auto pl-6 text-ui-faint">{LINE_NOTE[row.n]}</span>
-              )}
-            </div>
-          ))}
+        <pre className="overflow-x-auto rounded-lg border border-ui-line bg-[var(--snip-bg)] px-3.5 py-3 font-mono text-[0.8125rem] leading-[1.6] text-ui-dim">
+          {SKELETON.map((row, i) =>
+            row.code === '' ? (
+              <div key={i} className="h-2" aria-hidden />
+            ) : (
+              <div key={i} className="flex items-baseline gap-3 whitespace-pre">
+                <span className="w-6 shrink-0 text-right">
+                  {row.n ? (
+                    <button
+                      type="button"
+                      onClick={() => go(row.n!)}
+                      aria-label={`Explain line ${row.n}: ${LINE_NOTE[row.n]}`}
+                      className={`rounded px-1 font-semibold transition-colors ${
+                        active === row.n
+                          ? 'bg-cal-sky/25 text-ui-fg'
+                          : 'text-cal-sky hover:bg-cal-sky/15'
+                      }`}
+                    >
+                      {row.n}
+                    </button>
+                  ) : null}
+                </span>
+                <span className={row.n ? 'text-ui-fg' : ''}>{row.code}</span>
+                {row.n && (
+                  <span className="ml-auto pl-6 font-sans text-ui-faint">{LINE_NOTE[row.n]}</span>
+                )}
+              </div>
+            ),
+          )}
         </pre>
       </div>
 
       <div className="grid gap-9 pb-2">
-        <Sect n={1} title="A Map, because the file is not sorted" refs={sections} active={active}>
-          <P>
-            Rows for one complaint are adjacent in practice and not guaranteed to
-            be. A <Mono>Map</Mono> keyed by <Mono>ODINO</Mono> does not care:
-            first sighting creates the document, every later one adds its
-            component.
-          </P>
-          <Code
-            path="apps/ai/safety/src/parse.ts — what a document is"
-            lines={[
-              'type Doc = {',
-              '  id: string;',
-              '  text: string;',
-              '  meta: { odino: string; make: string; model: string; year: number;',
-              '          filed: string; components: string[];',
-              '          crash: boolean; fire: boolean; injuries: number; deaths: number;',
-              '          miles: number | null; state: string; vin11: string };',
-              '};',
-            ]}
-          />
-          <Aside>
-            {UNITS.complaints.toLocaleString('en-GB')} objects is about 60 MB in
-            memory. A database at this stage would mean nobody could open the
-            output in a text editor, which is the entire point of stage 3.1.
-          </Aside>
-        </Sect>
+        <div className="grid gap-4">
+          <p className="cal-hood-text">
+            NHTSA publishes its complaints as one enormous text file with no header
+            row. The slice used here is {n(ROWS.complaints)} lines, each cut into
+            51 columns by tab characters, where a column means something only
+            because of its position. The parser reads it a line at a time, glues together the
+            lines that describe the same complaint, and writes out{' '}
+            {n(UNITS.complaints)} records — each with{' '}
+            <span className="text-ui-fg">text to search</span> and{' '}
+            <span className="text-ui-fg">labelled fields to filter on</span>.
+          </p>
+          <p className="cal-hood-text">
+            The recall and investigation files go through the same treatment, so{' '}
+            {n(UNITS.complaints + UNITS.recalls + UNITS.investigations)} documents
+            come out in all. Nothing is embedded, stored or sent anywhere: the
+            output is a plain file somebody can open and read.
+          </p>
+        </div>
 
-        <Sect n={2} title="One line at a time, not all at once" refs={sections} active={active}>
+        <Sect k={1} title="A Map, because the file is not sorted" refs={sections} active={active}>
+          <p className="cal-hood-text">
+            Rows for one complaint are next to each other in practice, and nothing
+            in the format promises it. A <code>Map</code> keyed by the complaint
+            number, <code>ODINO</code>, does not care about order: the first
+            sighting creates the document, and every later one adds its component.
+          </p>
           <Code
-            path="apps/ai/safety/src/parse.ts — the reader"
-            mark={[3]}
+            path="apps/ai/safety/src/grounding/parse.ts"
+            note="What a complaint becomes · comments trimmed"
             lines={[
-              'async function* lines(path: string) {',
-              '  const rl = createInterface({',
-              "    input: createReadStream(path, { encoding: 'utf8' }),",
-              '    crlfDelay: Infinity,          // treat \\r\\n as one break',
-              '  });',
-              '  for await (const line of rl) if (line.length) yield line;',
+              'export interface ComplaintDoc {',
+              '  id: string;',
+              "  kind: 'complaint';",
+              '  text: string;',
+              '  meta: {',
+              '    odino: string;',
+              '    manufacturer: string;',
+              '    make: string;',
+              '    model: string;',
+              '    year: number | null;',
+              '    filed: string | null;',
+              '    failed: string | null;',
+              '    components: string[];',
+              '    crash: boolean;',
+              '    fire: boolean;',
+              '    injuries: number;',
+              '    deaths: number;',
+              '    miles: number | null;',
+              '    state: string;',
+              '    vin11: string;',
+              '  };',
               '}',
             ]}
           />
-          <P>
+          <Because>
+            {n(UNITS.complaints)} objects is about 60 MB in memory. A database at
+            this stage would mean nobody could open the output in a text editor,
+            which is the entire point of stage 3.1.
+          </Because>
+        </Sect>
+
+        <Sect k={2} title="One line at a time, not all at once" refs={sections} active={active}>
+          <Code
+            path="apps/ai/safety/src/grounding/parse.ts"
+            note="The reader"
+            mark={[5]}
+            lines={[
+              'async function* lines(path: string): AsyncGenerator<string> {',
+              '  const rl = createInterface({',
+              "    input: createReadStream(path, { encoding: 'utf8' }),",
+              '    // These files are Windows-origin. Without this a stray \\r rides along on',
+              "    // the last field's value and compares unequal to everything.",
+              '    crlfDelay: Infinity,',
+              '  });',
+              '  for await (const line of rl) if (line.length > 0) yield line;',
+              '}',
+            ]}
+          />
+          <p className="cal-hood-text">
             The slice is 79 MB and would load fine. The full file is 1.5 GB and
             would not. Streaming costs nothing here and means the same code
             survives the slice widening, which is still on the table.
-          </P>
-          <P>
-            The marked line is not decoration. These files are Windows-origin,
-            and a stray <Mono>\r</Mono> left on the end of field 51 becomes part
+          </p>
+          <p className="cal-hood-text">
+            The marked line is not decoration. These files come from Windows, and
+            a stray <code>\r</code> left on the end of the last field becomes part
             of its value without anything complaining.
-          </P>
+          </p>
         </Sect>
 
         <Sect
-          n={3}
-          title="split by tab — and deliberately not a CSV library"
+          k={3}
+          title="Split by tab — and deliberately not a CSV library"
           refs={sections}
           active={active}
         >
-          <P>
-            NHTSA's file characteristics say <em>“TAB delimited”</em> and name no
-            quote character, so the rule is: split on tab, and treat{' '}
-            <Mono>"</Mono> as an ordinary letter.
-          </P>
-          <P>
-            <span className="text-ui-fg">
-              A CSV reader with quote handling on would not do that.
-            </span>{' '}
-            708 of the {ROWS.complaints.toLocaleString('en-GB')} lines carry an
-            odd number of double quotes, because people write{' '}
-            <Mono>THE "SERVICE ENGINE" LIGHT CAME ON</Mono>. At an unbalanced
-            quote such a reader keeps consuming — newlines included — and merges
-            records that the file keeps separate.
-          </P>
+          <p className="cal-hood-text">
+            NHTSA's own description of the file says <em>“TAB delimited”</em> and
+            names no quote character, so the rule is: split on tab, and treat{' '}
+            <code>"</code> as an ordinary letter.
+          </p>
+          <p className="cal-hood-text">
+            <span className="text-ui-fg">A CSV reader with quote handling on would not do that.</span>{' '}
+            708 of the {n(ROWS.complaints)} lines carry an odd number of double
+            quotes, because people write{' '}
+            <code>THE "SERVICE ENGINE" LIGHT CAME ON</code>. At an unbalanced quote
+            such a reader keeps consuming — newlines included — and merges records
+            that the file keeps separate.
+          </p>
           <Code
-            path="apps/ai/safety/src/parse.ts — the split"
+            path="apps/ai/safety/src/grounding/parse.ts"
+            note="The split, inside parseComplaints"
             mark={[0]}
             lines={[
               "const f = line.split('\\t');",
-              'if (f.length !== 51) { ragged++; continue; }   // never fires; kept anyway',
-            ]}
-          />
-          <Aside>
-            The guard should never fire — every one of the{' '}
-            {ROWS.complaints.toLocaleString('en-GB')} lines has exactly 51
-            fields. It stays because a guard that never fires is cheap, and a
-            silently short row would shift every field after the gap.
-          </Aside>
-          <P>
-            The column numbers are transcribed from the data dictionary, which is{' '}
-            <span className="text-ui-fg">1-indexed while JavaScript is 0-indexed</span>
-            , so every constant is the dictionary's minus one — and an
-            off-by-one there would not error. Narratives would simply start
-            arriving in <Mono>MILES</Mono>.
-          </P>
-        </Sect>
-
-        <Sect n={4} title="Merging the repeats" refs={sections} active={active}>
-          <Code
-            path="apps/ai/safety/src/parse.ts — the merge"
-            lines={[
-              'const existing = byOdi.get(odi);',
-              'if (existing) {',
-              '  if (!existing.meta.components.includes(comp)) existing.meta.components.push(comp);',
-              '  return;                        // narrative already captured — it is identical',
+              'if (f.length !== EXPECTED_FIELDS) {',
+              '  report.ragged++;',
+              '  continue;',
               '}',
             ]}
           />
+          <Because>
+            The guard should never fire — every one of the {n(ROWS.complaints)}{' '}
+            lines has exactly 51 fields, and <code>EXPECTED_FIELDS</code> is 51. It
+            stays because a guard that never fires is cheap, and a silently short
+            row would shift every field after the gap.
+          </Because>
+          <p className="cal-hood-text">
+            The column numbers are copied from NHTSA's data dictionary, which{' '}
+            <span className="text-ui-fg">counts from 1 while JavaScript counts from 0</span>
+            , so every constant is the dictionary's number minus one — and an
+            off-by-one there would not error. Narratives would simply start
+            arriving in <code>MILES</code>.
+          </p>
+          <Code
+            path="apps/ai/safety/src/grounding/parse.ts"
+            note="The columns used, named once"
+            lines={[
+              'const F = {',
+              '  ODINO: 1,',
+              '  MFR: 2,',
+              '  MAKE: 3,',
+              '  MODEL: 4,',
+              '  YEAR: 5,',
+              '  CRASH: 6,',
+              '  FAILDATE: 7,',
+              '  FIRE: 8,',
+              '  INJURED: 9,',
+              '  DEATHS: 10,',
+              '  COMPDESC: 11,',
+              '  CITY: 12,',
+              '  STATE: 13,',
+              '  VIN: 14,',
+              '  LDATE: 16,',
+              '  MILES: 17,',
+              '  CDESCR: 19,',
+              '} as const;',
+            ]}
+          />
+        </Sect>
+
+        <Sect k={4} title="Merging the repeats" refs={sections} active={active}>
+          <p className="cal-hood-text">
+            NHTSA writes <span className="text-ui-fg">one row per component</span>,
+            so a complaint that names five parts of the car appears five times,
+            with the same account each time.
+          </p>
           <Data
             path="CMPL_SLICE.tsv — ODI 11341276, as filed"
-            note="one person, five rows"
+            note="One person, five rows"
             lines={[
               '11341276  STRUCTURE:BODY',
               '11341276  ELECTRICAL SYSTEM',
               '11341276  POWER TRAIN',
               '11341276  ENGINE',
-              '11341276  FORWARD COLLISION AVOIDANCE: AUTOMATIC EMERGENCY',
+              '11341276  FORWARD COLLISION AVOIDANCE: AUTOMATIC EMERGENCY BRAKING',
             ]}
           />
-          <Aside>
+          <Code
+            path="apps/ai/safety/src/grounding/parse.ts"
+            note="The merge"
+            mark={[7, 8]}
+            lines={[
+              'const odino = f[F.ODINO].trim();',
+              'const component = f[F.COMPDESC].trim();',
+              'const existing = byOdi.get(odino);',
+              '',
+              'if (existing) {',
+              '  report.merged++;',
+              '  if (component && !existing.meta.components.includes(component)) {',
+              '    existing.meta.components.push(component);',
+              "    existing.text = buildText(existing.meta, narrativeOf.get(odino) ?? '');",
+              '  }',
+              '  continue;',
+              '}',
+            ]}
+          />
+          <p className="cal-hood-text">
+            The first row's account is kept and the components are collected.
+            Because the line at the top of the text lists the components, the text
+            is rebuilt each time a new one arrives — so the merged complaint reads{' '}
+            <code>2019 GMC ACADIA | STRUCTURE:BODY, ELECTRICAL SYSTEM, …</code>{' '}
+            with all five.
+          </p>
+          <Because>
             Without this, that one person takes five of the six result slots and
-            crowds out four others — and every count published anywhere is 44%
-            too high.
-          </Aside>
+            crowds out four others — and every count published anywhere is 44% too
+            high: {n(ROWS.complaints)} rows are {n(UNITS.complaints)} complaints.
+          </Because>
         </Sect>
 
         <Sect
-          n={5}
+          k={5}
           title="Building the text — the highest-leverage line in the pipeline"
           refs={sections}
           active={active}
         >
           <Code
-            path="apps/ai/safety/src/parse.ts — the header line"
-            mark={[0]}
+            path="apps/ai/safety/src/grounding/parse.ts"
+            note="The header line"
+            mark={[2, 3, 4, 8]}
             lines={[
-              "const header = `${year} ${make} ${model} | ${components.join(', ')} | filed ${filed}`;",
-              'doc.text = `${header}\\n${narrative}`;',
+              "function buildText(meta: ComplaintDoc['meta'], narrative: string): string {",
+              '  const head = [',
+              "    [meta.year, meta.make, meta.model].filter(Boolean).join(' '),",
+              "    meta.components.join(', '),",
+              '    meta.filed ? `filed ${meta.filed}` : null,',
+              '  ]',
+              '    .filter(Boolean)',
+              "    .join(' | ');",
+              '  return `${head}\\n${narrative.trim()}`;',
+              '}',
             ]}
           />
-          <P>
-            <span className="text-ui-fg">The narrative never says “F-150”.</span>{' '}
-            It says <em>“THE GEAR WILL NOT GO INTO PARK…”</em>. Without the
-            header, a question about a 2020 F-150 transmission matches nothing on
-            the meaning arm.
-          </P>
+          <p className="cal-hood-text">
+            <span className="text-ui-fg">The account never says “F-150”.</span> It
+            says <em>“THE GEAR WILL NOT GO INTO PARK…”</em>. Without the line on
+            top, a question about a 2020 F-150 transmission matches nothing on the
+            meaning side of search, however good the model is.
+          </p>
           <Data
-            path="what the text becomes — ODI 11353867"
+            path="documents.json — ODI 11353867, the text it became"
             lines={[
               '2020 FORD F-150 | POWER TRAIN | filed 2020-09-08',
               'THE GEAR WILL NOT GO INTO PARK AND ALLOW ME TO START. ALSO, THE',
@@ -346,129 +451,148 @@ function ParserPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             ]}
             mark={[0]}
           />
-          <Aside>
-            Stage 3.2 barely runs on this corpus — 114 investigations get
-            chunked and nothing else does. So the parser, not the chunker,
-            decides what can be found, and it comes down to that one string
-            concatenation.
-          </Aside>
-          <P>
-            And note what is <em>not</em> in the text. <Mono>deaths</Mono>,{' '}
-            <Mono>crash</Mono> and <Mono>miles</Mono> stay in <Mono>meta</Mono>:
+          <Because>
+            Stage 3.2 barely runs on this corpus — only the 114 investigations get
+            cut up, and nothing else does. So the parser, not the chunker, decides
+            what can be found, and it comes down to that one string concatenation.
+            Recalls and investigations get the same treatment: their text opens
+            with the campaign or case number, the component and the vehicles.
+          </Because>
+          <p className="cal-hood-text">
+            And note what is <em>not</em> in the text. <code>deaths</code>,{' '}
+            <code>crash</code> and <code>miles</code> stay in <code>meta</code>:
             writing “deaths 0” into the text would make every complaint match a
             question about fatalities.
-          </P>
+          </p>
         </Sect>
 
         <Sect title="Dates, converted once, in one function" refs={sections} active={active}>
           <Code
-            path="apps/ai/safety/src/parse.ts — one date function"
+            path="apps/ai/safety/src/grounding/parse.ts"
+            note="One date function"
             lines={[
-              'function isoDate(raw: string): string | null {',
-              '  if (!/^\\d{8}$/.test(raw)) return null;',
-              '  const [y, m, d] = [raw.slice(0, 4), raw.slice(4, 6), raw.slice(6)];',
-              '  return `${y}-${m}-${d}`;',
+              'export function isoDate(raw: string): string | null {',
+              '  const s = raw.trim();',
+              '  if (!/^\\d{8}$/.test(s)) return null;',
+              '  return `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6)}`;',
               '}',
             ]}
           />
-          <P>
-            The flat files use <Mono>YYYYMMDD</Mono>; the complaints API uses{' '}
-            <Mono>MM/DD/YYYY</Mono> and the recalls API <Mono>DD/MM/YYYY</Mono> —
-            one agency, three formats. Everything becomes{' '}
-            <Mono>YYYY-MM-DD</Mono> at the boundary so nothing downstream has to
-            know what shape it arrived in.
-          </P>
-          <P>
-            It returns <Mono>null</Mono> rather than throwing, because a missing
+          <p className="cal-hood-text">
+            The files use <code>YYYYMMDD</code>; NHTSA's complaints API uses{' '}
+            <code>MM/DD/YYYY</code> and its recalls API <code>DD/MM/YYYY</code> —
+            one agency, three formats. Everything becomes <code>YYYY-MM-DD</code>{' '}
+            at the boundary, so nothing downstream has to know what shape it
+            arrived in. Eval case REC-008 exists to catch this going wrong, because
+            a misread date shifts every before-and-after answer and nothing errors.
+          </p>
+          <p className="cal-hood-text">
+            It returns <code>null</code> rather than throwing, because a missing
             incident date is normal — people do not always remember when it
             happened — and is not a parse failure.
-          </P>
+          </p>
         </Sect>
 
         <Sect title="Numbers that are sometimes not numbers" refs={sections} active={active}>
           <Code
-            path="apps/ai/safety/src/parse.ts — blank is not zero"
-            mark={[0]}
+            path="apps/ai/safety/src/grounding/parse.ts"
+            note="Blank is not zero"
+            mark={[2]}
             lines={[
-              "const int = (s: string) => (/^\\d+$/.test(s) ? Number(s) : null);",
-              "const yn  = (s: string) => s.trim().toUpperCase() === 'Y';",
+              'function int(raw: string): number | null {',
+              '  const s = raw.trim();',
+              '  return /^\\d+$/.test(s) ? Number(s) : null;',
+              '}',
+              '',
+              'function yn(raw: string): boolean {',
+              "  return raw.trim().toUpperCase() === 'Y';",
+              '}',
             ]}
           />
-          <P>
-            <Mono>MILES</Mono> is blank in two rows out of three.{' '}
+          <p className="cal-hood-text">
+            <code>MILES</code> is blank in two rows out of three.{' '}
             <span className="text-ui-fg">
-              <Mono>Number("")</Mono> is <Mono>0</Mono>
+              <code>Number("")</code> is <code>0</code>
             </span>
             , which would quietly turn “we do not know the mileage” into “zero
-            miles” — a fact about a vehicle that nobody stated. Hence the regex
-            before the conversion.
-          </P>
+            miles” — a fact about a vehicle that nobody stated. Hence the pattern
+            check before the conversion.
+          </p>
         </Sect>
 
-        <Sect title="The three checks, printed at the end" refs={sections} active={active}>
+        <Sect title="The four checks, printed at the end" refs={sections} active={active}>
           <Data
-            path="pnpm safety:parse — 2026-09-17"
-            note="it has run"
-            mark={[1]}
+            path="pnpm safety:parse — the run of 2026-09-17"
+            note="Rebuilt from cli/parse.ts's own format strings"
+            mark={[8, 9]}
             lines={[
-              'complaints       100,980 lines →  70,194 documents   (30,786 merged, 0 ragged)',
-              'recalls           44,791 lines →   3,026 documents   (41,765 merged, 0 ragged)',
-              'investigations     1,631 lines →     114 documents   (1,517 merged, 0 ragged)',
+              ...(['complaints', 'recalls', 'investigations'] as const).map(
+                (k) =>
+                  `${k.padEnd(15)} ${n(ROWS[k]).padStart(8)} lines → ${n(UNITS[k]).padStart(7)} documents   (${n(ROWS[k] - UNITS[k])} merged, 0 ragged)`,
+              ),
               '',
-              'raw file says (awk, no parser): 100,980 lines, 51 fields on every one   ✓',
-              'ODI 11353867 present: yes — "2020 FORD F-150 | POWER TRAIN | filed 2020-09-08…"',
+              `${n(UNITS.complaints + UNITS.recalls + UNITS.investigations)} documents total, in 0.9s`,
               '',
-              '73,334 documents in 0.9s',
+              'ok    every row had the 51 fields CMPL.txt declares',
+              '      no short rows — nothing was silently shifted into the wrong column',
+              'ok    the raw file agrees, checked by awk with no parser in the path',
+              `      awk says 51 fields × ${n(ROWS.complaints)}; the parser read ${n(ROWS.complaints)} lines`,
+              'ok    ODI 11353867 is present and reads correctly (eval case REC-001)',
+              '      2020 FORD F-150, filed 2020-09-08',
+              'ok    investigations carry the recall they led to (the graph edge, already in the data)',
+              `      42 of ${UNITS.investigations} name a CAMPNO — e.g. DP22005 → 22V063000`,
             ]}
           />
-          <Aside>
-            The marked line is the one that matters: it compares the parser's
-            count against <Mono>awk</Mono> over the raw file — a different tool,
+          <Because>
+            The marked check is the one that matters: it compares the parser's
+            count against <code>awk</code> over the raw file — a different tool,
             with no parser in the path.{' '}
-            <span className="text-ui-fg">
-              A parser confirming its own output proves nothing.
-            </span>
-          </Aside>
-          <P>
-            The three counts came back equal to the ones the estate page had
-            already measured from the same files by a different route. That
-            agreement is the point: two programs that never saw each other
-            reached the same {UNITS.complaints.toLocaleString('en-GB')}.
-          </P>
+            <span className="text-ui-fg">A parser confirming its own output proves nothing.</span>
+          </Because>
+          <p className="cal-hood-text">
+            The counts came back equal to the ones the estate page had already
+            measured from the same files by a different route. That agreement is
+            the point: two programs that never saw each other reached the same{' '}
+            {n(UNITS.complaints)}.
+          </p>
         </Sect>
 
-        <Sect title="The edge nobody had to infer" refs={sections} active={active}>
-          <P>
+        <Sect title="The link nobody had to infer" refs={sections} active={active}>
+          <p className="cal-hood-text">
             Investigations carry a field the other two sources do not:{' '}
-            <Mono>CAMPNO</Mono>, documented as{' '}
-            <em>“the recall campaign initiated as a result of the
-            investigation”</em>. 42 of the 114 fill it in.
-          </P>
+            <code>CAMPNO</code>, documented as{' '}
+            <em>“the recall campaign initiated as a result of the investigation”</em>
+            . 42 of the {UNITS.investigations} fill it in.
+          </p>
           <Data
             path="INV_SLICE.tsv — field 9, where it is set"
             note="42 of 114"
             lines={['DP22005  →  22V063000']}
           />
-          <Aside>
-            That is a regulator writing down that this enquiry produced that
-            recall — a link between two documents, sitting in the file with
-            nothing to infer and no model involved, which is why the parser
-            asserts it as a check rather than mentioning it in a comment. It also
-            gives the estate a relationship worth drawing: investigation →
-            recall → complaints about the same component, before and after the
-            remedy. That is the whole product in one line, and 42 real instances
-            of it exist.
-          </Aside>
+          <Because>
+            That is a regulator writing down that this enquiry produced that recall
+            — a link between two documents, sitting in the file with nothing to
+            infer and no model involved, which is why the command checks for it
+            (the fourth check above).
+          </Because>
+          <p className="cal-hood-text">
+            <span className="text-ui-fg">It turned out shallower than it looked.</span>{' '}
+            When the links were counted later, only 14 of those 42 campaigns are in
+            the recall slice this engagement holds. The more useful link was one
+            nobody planned: owners typing a campaign number into their own
+            complaint, which reaches 563 campaigns — and for REC-001 turns up seven
+            complaints naming its recall directly.
+          </p>
         </Sect>
 
         <Sect title="What it does not do" refs={sections} active={active}>
-          <P>
-            No embedding, no database, no network, no model. One file in, one
+          <p className="cal-hood-text">
+            No embedding, no database, no network, no model. Three files in, one
             file out, and the file it writes is plain JSON somebody can open and
             read. That is the point of stopping here:{' '}
-            {UNITS.complaints.toLocaleString('en-GB')} documents get looked at
-            before anything is built on top of them.
-          </P>
+            {n(UNITS.complaints + UNITS.recalls + UNITS.investigations)} documents
+            get looked at before anything is built on top of them.
+          </p>
         </Sect>
       </div>
     </OriginDialog>
@@ -478,60 +602,48 @@ function ParserPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
 /**
  * One section, and the mark that says it is the one you asked for.
  *
- * `n` is optional: the last four sections explain the parser without belonging
- * to a numbered line, so they carry a rule instead of a numeral rather than
- * being given a number the code does not have.
+ * `k` is optional: the later sections explain the parser without belonging to
+ * a numbered line, so they carry a dot instead of a numeral rather than being
+ * given a number the code does not have.
  */
 function Sect({
-  n,
+  k,
   title,
   refs,
   active,
   children,
 }: {
-  n?: number;
+  k?: number;
   title: string;
   refs: React.MutableRefObject<Record<number, HTMLElement | null>>;
   active: number | null;
   children: React.ReactNode;
 }) {
-  const lit = n !== undefined && active === n;
+  const lit = k !== undefined && active === k;
   return (
     <section
       ref={(el) => {
-        if (n !== undefined) refs.current[n] = el;
+        if (k !== undefined) refs.current[k] = el;
       }}
-      className="scroll-mt-28"
     >
       <h3 className="flex items-baseline gap-3">
         <span
-          className={`shrink-0 font-mono text-[0.6875rem] transition-colors ${
-            lit ? 'text-ui-fg' : 'text-ui-faint'
+          className={`w-6 shrink-0 text-right text-[0.9375rem] font-semibold tabular-nums transition-colors ${
+            lit ? 'text-cal-sky' : 'text-ui-faint'
           }`}
+          aria-hidden={k === undefined}
         >
-          {n ?? '·'}
+          {k ?? '·'}
         </span>
         <span
-          className={`font-mono text-[0.9375rem] transition-colors ${
-            lit ? 'text-cal-1' : 'text-ui-fg'
+          className={`text-[1.0625rem] font-bold transition-colors ${
+            lit ? 'text-cal-sky' : 'text-ui-fg'
           }`}
         >
           {title}
         </span>
       </h3>
-      <div className="mt-3 grid gap-3.5 pl-[1.4rem]">{children}</div>
+      <div className="mt-3.5 grid gap-4 sm:pl-9">{children}</div>
     </section>
-  );
-}
-
-function P({ children }: { children: React.ReactNode }) {
-  return <p className="max-w-[66ch] text-[0.875rem] leading-relaxed text-ui-dim">{children}</p>;
-}
-
-function Aside({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="max-w-[64ch] border-l-2 border-cal-2/50 py-0.5 pl-3.5 text-[0.875rem] leading-relaxed text-ui-dim">
-      {children}
-    </p>
   );
 }

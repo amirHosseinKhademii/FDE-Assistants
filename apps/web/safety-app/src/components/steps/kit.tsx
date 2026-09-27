@@ -1,97 +1,179 @@
 /**
- * The small set of parts the seven stages are drawn with.
+ * The parts a step on `/steps` is built from.
  *
- * ── WHY THIS IS NOT THE `/learn` KIT ───────────────────────────────────────
+ * ── ONE SHAPE, TWENTY-NINE TIMES ───────────────────────────────────────────
  *
- * `veresk-app` has a 2,352-line lesson kit — steps, glossary terms, run-it
- * blocks, nine chart types. Four of its twelve exports would be used here, it
- * lives on a different deployment, and lifting it into `@veresk/surface` to
- * share four of them is a refactor of somebody else's active work for no gain.
- * So this is the hundred lines this page needs and nothing else.
+ * Since the redesign of 2026-09-27 — which ports Thornbury Goods' `/steps`
+ * (`apps/web/commerce-app/src/components/steps/kit.tsx`) — every step is the
+ * same five parts in the same order:
  *
- * ── WHAT IS BORROWED IS THE DISCIPLINE, NOT THE CODE ───────────────────────
+ *   in plain words     what the step does, with no jargon left unexplained
+ *   why it matters     what would go wrong without it
+ *   the code           real, highlighted, labelled with where it came from
+ *   what we learned    what running it taught us — nearly every step on this
+ *                      engagement corrected something the plan had written down
+ *   words to know      each one a link down to the glossary
  *
- * `/learn` badges every figure with where its numbers came from: measured here,
- * measured elsewhere, a drawing, or a proposal. That distinction is the only
- * thing on a page like this that a reader cannot recover for themselves, and it
- * is the one this page most needs — NOTHING HAS BEEN INGESTED. Stage 3.1 has
- * not run. So every figure is one of four things and each says which:
+ * A reader who has read one step knows where to look in the other twenty-eight.
+ * That is the whole design argument for a fixed shape over bespoke layouts, and
+ * it is why `Step` takes the parts as props rather than children.
  *
- *   measured    read out of the NHTSA files, or produced by running the thing
- *               being described. The default, and most of the page.
- *   worked      an example carried through by hand in `docs/safety/INGESTION.md`
- *               — real inputs, arithmetic anybody can check, not a pipeline run.
- *   target      somebody else's measurement, quoted as the bar to clear. The
- *               dangerous one: 0.813 is Vantis Steering's recall@6 and would
- *               read as Calder's unless it is labelled.
- *   pending     a definition or a shape with no number in it yet, because the
- *               thing that would produce one has not been run. A figure with
- *               nothing in it is the easiest kind to mistake for a result.
+ * ── WHERE EVERY FIGURE CAME FROM ───────────────────────────────────────────
+ *
+ * The badge is not decoration. The difference between "we ran this and kept the
+ * output" and "this is somebody else's number, quoted as the bar" is the one
+ * thing a reader cannot recover for themselves. The four original categories
+ * survive the redesign unchanged in meaning; only the words on the badge moved
+ * from the plan's shorthand to plain English, and two were added for code:
+ *
+ *   measured    Real output          read out of the NHTSA files, or produced
+ *                                    by running the thing. THE DEFAULT, so a
+ *                                    figure nobody labelled is a claim that it
+ *                                    was run — label anything that was not.
+ *   worked      Worked by hand       carried through by a person in the source
+ *                                    document; arithmetic anybody can check.
+ *   target      Not ours — the bar   somebody else's measurement, quoted as the
+ *                                    thing to clear. THE DANGEROUS ONE: 0.813 is
+ *                                    Vantis Steering's recall@6 and reads as
+ *                                    Calder's unless it says otherwise.
+ *   pending     No number yet        a definition or a shape with no result in it.
+ *   excerpt     Shortened from the   real code, cut down for the page. No line
+ *               real code            numbers: a gutter promises the file says
+ *                                    this at that line, and the files move.
+ *   cited       From the docs        stated in a named document or spec.
  */
 import type { ReactNode } from 'react';
+import { GLOSSARY, termId, type TermKey } from '../../lib/glossary';
+import type { When } from '../../lib/steps';
 
-const BADGE: Record<Provenance, { text: string; tone: string }> = {
-  measured: { text: 'measured', tone: 'text-cal-1 border-cal-1/40' },
-  worked: { text: 'worked by hand', tone: 'text-cal-2 border-cal-2/40' },
-  target: { text: 'not ours — the bar', tone: 'text-ui-faint border-ui-line' },
-  pending: { text: 'no number yet', tone: 'text-ui-faint border-ui-line border-dashed' },
+export type Provenance = 'measured' | 'worked' | 'target' | 'pending' | 'excerpt' | 'cited';
+
+const BADGE: Record<Provenance, { text: string; tone: 'done' | 'learn' | 'pending' | 'quiet' }> = {
+  measured: { text: 'Real output', tone: 'done' },
+  worked: { text: 'Worked by hand', tone: 'learn' },
+  target: { text: 'Not ours — the bar to clear', tone: 'quiet' },
+  pending: { text: 'No number yet', tone: 'pending' },
+  excerpt: { text: 'Shortened from the real code', tone: 'quiet' },
+  cited: { text: 'From the docs', tone: 'quiet' },
 };
 
-export type Provenance = 'measured' | 'worked' | 'target' | 'pending';
+const WHEN_TEXT: Record<When, string> = {
+  'once, offline': 'Runs once, offline',
+  'every question': 'Runs on every question',
+  'on demand': 'Run on demand',
+};
 
-/**
- * One of the seven.
- *
- * THE NUMBER AND THE VERB ARE THE HEADING, because `3.6 · FUSE` is how the
- * source document refers to it and how the next person will search for it. The
- * one-line `plain` under it is the version for somebody who will not read the
- * rest of the stage, and it is written first on purpose.
- */
-export function Stage({
+export function Step({
   n,
-  verb,
-  plain,
+  title,
   when,
-  children,
+  plain,
+  why,
+  code,
+  codeLabel = 'The code, and what it printed',
+  learned,
+  learnedTitle = 'What we learned',
+  terms = [],
+  hood,
 }: {
   n: string;
-  verb: string;
-  plain: string;
-  /** Offline and once, or every time somebody asks. */
-  when: 'once, offline' | 'every question';
-  children: ReactNode;
+  title: string;
+  /** Offline and once, on every question, or when somebody runs it. */
+  when?: When;
+  plain: ReactNode;
+  why: ReactNode;
+  code?: ReactNode;
+  /** What the figures are, when they are not code — "What we counted". */
+  codeLabel?: string;
+  learned?: ReactNode;
+  learnedTitle?: string;
+  terms?: TermKey[];
+  /** An "under the hood" press — see `Hood.tsx`. */
+  hood?: ReactNode;
 }) {
-  const query = when === 'every question';
   return (
-    <section className="stage lift-in scroll-mt-8" id={`stage-${n}`}>
-      <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <span
-          className="font-mono text-[0.6875rem] tracking-[0.08em] uppercase"
-          style={{ color: query ? 'var(--color-cal-2)' : 'var(--color-cal-1)' }}
-        >
+    <article className="cal-step" id={`step-${n}`} aria-labelledby={`step-${n}-title`}>
+      <header className="cal-step-head">
+        <span className="cal-step-n" aria-hidden>
           {n}
         </span>
-        <h2 className="font-mono text-lg leading-snug font-medium tracking-tight text-ui-fg md:text-xl">
-          {verb}
-        </h2>
-        <span className="ml-auto font-mono text-[0.625rem] tracking-[0.08em] text-ui-faint uppercase">
-          {when}
-        </span>
+        <h3 className="cal-step-title" id={`step-${n}-title`}>
+          <span className="sr-only">Step {n}: </span>
+          {title}
+        </h3>
+        <p className="cal-step-meta">
+          <span className="cal-pill" data-tone="done">
+            Step {n} · Built
+          </span>
+          {when && <span className="cal-pill">{WHEN_TEXT[when]}</span>}
+        </p>
       </header>
 
-      <p className="mt-3 max-w-[64ch] leading-relaxed text-ui-dim">{plain}</p>
+      <div className="cal-step-body">
+        <Part label="In plain words">{typeof plain === 'string' ? <p>{plain}</p> : plain}</Part>
+        <Part label="Why it matters">{typeof why === 'string' ? <p>{why}</p> : why}</Part>
+        {code && (
+          <Part label={codeLabel}>
+            <div className="grid gap-6">{code}</div>
+          </Part>
+        )}
+        {learned && <Lesson title={learnedTitle}>{learned}</Lesson>}
+        {terms.length > 0 && <Terms keys={terms} />}
+        {hood}
+      </div>
+    </article>
+  );
+}
 
-      <div className="mt-6 grid gap-6">{children}</div>
+function Part({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <section className="cal-part">
+      <h4 className="cal-label" data-tone="quiet">
+        {label}
+      </h4>
+      {children}
     </section>
+  );
+}
+
+export function Lesson({ title = 'What we learned', children }: { title?: string; children: ReactNode }) {
+  return (
+    <aside className="cal-lesson">
+      <h4 className="cal-label" data-tone="learn">
+        <LightIcon />
+        {title}
+      </h4>
+      {typeof children === 'string' ? <p>{children}</p> : children}
+    </aside>
+  );
+}
+
+function LightIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V17h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z" />
+    </svg>
+  );
+}
+
+export function Terms({ keys }: { keys: TermKey[] }) {
+  return (
+    <p className="cal-terms">
+      <span>Words to know:</span>
+      {keys.map((k) => (
+        <a key={k} href={`#${termId(k)}`} className="cal-term">
+          {GLOSSARY[k].word}
+        </a>
+      ))}
+    </p>
   );
 }
 
 /**
  * A figure, and where its numbers came from.
  *
- * THE BADGE IS NOT DECORATION. On a page describing a pipeline that has not
- * been built, the difference between "we counted this" and "this is the number
- * we are aiming at" is the entire difference between a record and a plan.
+ * SAME PROPS AS BEFORE THE REDESIGN, and the same default (`measured`), so every
+ * existing call site keeps its meaning without being edited.
  */
 export function Figure({
   caption,
@@ -107,56 +189,109 @@ export function Figure({
 }) {
   const badge = BADGE[from];
   return (
-    <figure className="min-w-0">
-      <figcaption className="flex flex-wrap items-center gap-x-3 gap-y-1 pb-2.5">
-        <span className="font-mono text-[0.6875rem] tracking-[0.06em] text-ui-faint uppercase">
-          {caption}
-        </span>
-        <span
-          className={`rounded-full border px-2 py-px font-mono text-[0.5625rem] tracking-[0.06em] uppercase ${badge.tone}`}
-        >
+    <figure className="cal-fig min-w-0">
+      <figcaption className="cal-fig-cap">
+        <span>{sentence(caption)}</span>
+        <span className="cal-pill" data-tone={badge.tone === 'quiet' ? undefined : badge.tone}>
           {badge.text}
         </span>
-        {source && <span className="font-mono text-[0.625rem] text-ui-faint">{source}</span>}
+        {source && <span className="cal-fig-src">{source}</span>}
       </figcaption>
       {children}
     </figure>
   );
 }
 
+/** Captions were written lower-case for an uppercase label; print them as sentences. */
+function sentence(s: string): string {
+  return s.length ? s[0].toUpperCase() + s.slice(1) : s;
+}
+
 /**
- * A block of literal text with no file behind it.
+ * A block of literal text with no file behind it — an arrow diagram, a
+ * hand-worked sum, a shape drawn in characters.
  *
- * ── WHEN TO USE THIS AND WHEN TO USE `Code` / `Data` ───────────────────────
+ * Anything quoting a real file gets `Code` / `Data` from `@veresk/surface`
+ * instead: VS Code's own grammars, and a header naming the file. Giving a
+ * diagram a path would be inventing provenance.
  *
- * `@veresk/surface`'s `Code` and `Data` are the site's code block: VS Code's
- * own grammars, and a header naming the file so a reader can go and check it.
- * Anything quoting a real file gets one of those. This is for the rest — an
- * arrow diagram, a hand-worked sum, a shape drawn in characters. Giving those a
- * path would be inventing provenance; giving them syntax colour would be
- * inventing a grammar they do not have.
- *
- * IT SCROLLS SIDEWAYS RATHER THAN WRAPPING, for the same reason as the others:
- * these mean something by their layout, and re-flowing them to fit a column
- * destroys the thing being shown.
+ * IT SCROLLS SIDEWAYS RATHER THAN WRAPPING: these mean something by their
+ * layout, and re-flowing them to fit a column destroys the thing being shown.
  */
 export function Raw({ children, tone }: { children: ReactNode; tone?: string }) {
   return (
-    <pre
-      className="overflow-x-auto rounded-lg border border-ui-line bg-ui-surface p-3.5 font-mono text-[0.6875rem] leading-relaxed text-ui-dim"
-      style={tone ? { borderColor: tone } : undefined}
-    >
+    <pre className="cal-raw" style={tone ? { borderColor: tone } : undefined}>
       {children}
     </pre>
   );
 }
 
+/** A small table: a header row, then rows of cells. Cells may hold inline code. */
+export function Table({
+  head,
+  rows,
+  numeric = [],
+  lit,
+}: {
+  head: string[];
+  rows: ReactNode[][];
+  /** Column indexes to set right-aligned in the mono face. */
+  numeric?: number[];
+  /** Row indexes to pick out — the one the figure is about. */
+  lit?: number[];
+}) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="cal-table">
+        <thead>
+          <tr>
+            {head.map((h, j) => (
+              <th key={`${h}-${j}`} scope="col" style={numeric.includes(j) ? { textAlign: 'right' } : undefined}>
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, i) => (
+            <tr key={i} data-lit={lit?.includes(i) || undefined}>
+              {row.map((cell, j) => (
+                <td key={j} data-num={numeric.includes(j) || undefined}>
+                  {cell}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/** A few big numbers side by side, each saying what it counts. */
+export function Numbers({ items }: { items: { value: string; label: ReactNode }[] }) {
+  return (
+    <div className="cal-numbers">
+      {items.map((item, i) => (
+        <div key={i}>
+          <p className="cal-number-v">{item.value}</p>
+          <p className="cal-number-l">{item.label}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** A sentence under a figure: what to notice in it. */
+export function Note({ children }: { children: ReactNode }) {
+  return <p className="cal-fignote">{children}</p>;
+}
+
 /**
  * Two states of the same thing, side by side.
  *
- * ONE COLUMN ON A PHONE, and in that order — before above after — because the
- * arrow between them is horizontal on a wide screen and vertical on a narrow
- * one, and a reader who scrolls past the "after" first has learnt nothing.
+ * ONE COLUMN ON A PHONE, and in that order — before above after — because a
+ * reader who scrolls past the "after" first has learnt nothing.
  */
 export function BeforeAfter({
   before,
@@ -170,17 +305,15 @@ export function BeforeAfter({
   afterLabel?: string;
 }) {
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className="grid gap-5 lg:grid-cols-2">
       <div className="min-w-0">
-        <p className="pb-2 font-mono text-[0.625rem] tracking-[0.08em] text-ui-faint uppercase">
-          {beforeLabel}
+        <p className="cal-label pb-2" data-tone="quiet">
+          {sentence(beforeLabel)}
         </p>
         {before}
       </div>
       <div className="min-w-0">
-        <p className="pb-2 font-mono text-[0.625rem] tracking-[0.08em] uppercase" style={{ color: 'var(--color-cal-1)' }}>
-          {afterLabel}
-        </p>
+        <p className="cal-label pb-2">{sentence(afterLabel)}</p>
         {after}
       </div>
     </div>
@@ -190,14 +323,10 @@ export function BeforeAfter({
 /**
  * The reason behind a decision, set apart from the description of it.
  *
- * WHY IT IS A DIFFERENT SHAPE. Everything else on this page says what happens.
- * This says why it was chosen over the obvious alternative, which is the part a
- * reader is being asked to agree or disagree with before the code exists.
+ * Everything else says what happens; this says why it was chosen over the
+ * obvious alternative. Kept with the same props through the redesign because
+ * the step files and several "under the hood" panels use it.
  */
 export function Because({ children }: { children: ReactNode }) {
-  return (
-    <p className="max-w-[66ch] border-l-2 border-cal-2/50 py-1 pl-4 text-[0.9375rem] leading-relaxed text-ui-dim">
-      {children}
-    </p>
-  );
+  return <p className="cal-because">{children}</p>;
 }

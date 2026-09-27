@@ -261,7 +261,7 @@ export function Desk() {
         </Link>
         <span className="text-sm text-ui-faint sm:ml-auto">Ask it</span>
         <Link to="/steps" className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
-          How it would work
+          How it works
         </Link>
         <Link to="/data-flow" className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
           Where the data goes

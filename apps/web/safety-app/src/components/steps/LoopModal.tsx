@@ -1,5 +1,5 @@
 /**
- * Inside the loop — stages 6.1 and 6.2, and the first time a model is asked.
+ * Inside the loop — stage 6, and the first time a model is asked.
  *
  * ── THE MISCONCEPTION IS THE THING WORTH REMOVING ─────────────────────────
  *
@@ -22,28 +22,65 @@
  * Stage 3.5 measured that SEARCHING for the campaign returns it at position 4.
  * So a model that searched instead of looking up would still produce a mostly
  * correct answer — the text would read fine and the method would be wrong. The
- * tool-call record is the only place that difference is visible, and nothing
- * else on this site checks a method rather than an output.
+ * tool-call record is the only place that difference is visible. It was the
+ * first check here of a method rather than an output, and stage 7 kept it.
  *
- * ── AND ONE GREEN RUN IS A SMOKE TEST ─────────────────────────────────────
+ * ── AND ONE GREEN RUN IS A SMOKE TEST — WHICH THE STAGE THEN PROVED ───────
  *
- * The same question can now give two answers and neither is a bug. No number
- * from here belongs beside 4.5's ceiling until every question runs with repeats.
+ * The same question can give two answers and neither is a bug. When the
+ * model-routed recall@6 was first published it was one run, 0.50; the next run
+ * of the same code gave 0.17. Repeated, it is 0.17 to 0.50 over three runs —
+ * a RANGE, never averaged — and it only ever appears beside 4.5's 1.00, which
+ * is a hand-routed CEILING over three cases, one of them (REC-005) already 1.00
+ * because its rightness is an empty result.
+ *
+ * ── CORRECTED 2026-09-27 ──────────────────────────────────────────────────
+ *
+ * This panel was written at 6.2, with "one question answered, four steps to go"
+ * and "four of the six steps are not built". Stage 6 finished (6.1–6.4 built,
+ * 6.5 folded into 6.3's gate, 6.6's pacing at commit 2a46d8e: 8 answered, 0
+ * quota failures, 37 tool calls, 842 s) and stage 7
+ * scored it; the closing section now says what happened, from STAGE6.md,
+ * STAGE7.md and INGESTION.md. Also against the code:
+ *
+ * - `ask.ts` no longer passes `validate: validateSafetyAnswer`. It passes
+ *   `validatorFor(calls)`, which adds the rules that need the recorded tool
+ *   calls, and it wraps the registry with `recordingTools`. The quote is the
+ *   current block, as an excerpt without line numbers (it had moved 23 lines).
+ * - "Only one of the three [engines] reaches this model" was wrong: Mastra and
+ *   LangGraph both do; the Agents SDK refuses a non-Azure provider by design
+ *   (`agent/engines.ts`, STAGE6.md §3).
+ * - The model is named: gemini-3.5-flash-lite, the id recorded in every
+ *   baseline, on a hosted OpenAI-compatible endpoint.
+ * - The registry excerpt's highlight pointed at `return {` and `}`; it now
+ *   points at `args: unknown` and the error message, which the prose is about.
+ *
+ * Restyled the same day for the `/steps` redesign: the shared trigger,
+ * sentence-case labels, 1rem body text, the kit's `Table`.
  */
 import { useCallback, useState } from 'react';
-import { Mono, OriginDialog, originOf } from '@fde/uikit';
+import { OriginDialog, originOf } from '@fde/uikit';
 import type { Origin } from '@fde/uikit';
 import { Code, Data } from '@veresk/surface';
+import type { ReactNode } from 'react';
+import { HoodButton, HoodSection, HoodText } from './Hood';
+import { Table } from './kit';
 
-/** Six arguments, and each one is a stage of this engagement arriving. */
+/** Seven arguments, and each one is a stage of this engagement arriving. */
 const ARGS: readonly { arg: string; is: string }[] = [
-  { arg: 'choice', is: 'which engine — only one of the three reaches this model' },
-  { arg: 'client()', is: 'which cloud, read from the environment' },
-  { arg: 'model', is: 'named explicitly, never defaulted' },
-  { arg: 'registry', is: "stage 4's five tools" },
-  { arg: 'question', is: "the fleet manager's own words" },
-  { arg: 'responseFormat', is: "stage 5's schema" },
-  { arg: 'validate', is: "stage 5's six rules" },
+  {
+    arg: 'choice',
+    is: 'Which engine. Two of the three reach this model — Mastra and LangGraph; the OpenAI Agents SDK refuses it by design',
+  },
+  { arg: 'client()', is: 'Which cloud, read from the environment' },
+  { arg: 'model', is: 'Named explicitly, never defaulted — gemini-3.5-flash-lite in every measured run' },
+  { arg: 'registry', is: "Stage 4's five tools, wrapped so that every call is recorded" },
+  { arg: 'question', is: "The fleet analyst's own words" },
+  { arg: 'responseFormat', is: "Stage 5's schema" },
+  {
+    arg: 'validate',
+    is: "All nine rules — stage 5's six and three added here — checked against the recorded calls",
+  },
 ];
 
 export function LoopModal() {
@@ -55,22 +92,10 @@ export function LoopModal() {
 
   return (
     <>
-      <button
-        type="button"
+      <HoodButton
+        blurb="The code that hands a question to the model, and the check that looks at which tools it used rather than what it wrote."
         onClick={open}
-        className="group flex w-full items-center gap-4 rounded-lg border border-ui-line bg-ui-surface px-4 py-3.5 text-left transition-colors hover:border-cal-2/50"
-      >
-        <span className="font-mono text-[0.6875rem] tracking-[0.08em] text-cal-2 uppercase">
-          under the hood
-        </span>
-        <span className="min-w-0 flex-1 text-[0.875rem] text-ui-dim">
-          Inside the loop — the code that sends it, and the check that looks at
-          which tools it used rather than what it wrote
-        </span>
-        <span className="font-mono text-sm text-ui-faint transition-colors group-hover:text-ui-fg">
-          open →
-        </span>
-      </button>
+      />
 
       {from && <LoopPanel from={from} onClose={() => setFrom(null)} />}
     </>
@@ -82,40 +107,45 @@ function LoopPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
     <OriginDialog
       from={from}
       label="Inside the loop"
-      tone="var(--color-cal-2)"
+      tone="var(--color-cal-sky)"
       onClose={onClose}
       header={
         <>
-          <p className="font-mono text-sm text-ui-fg">Inside the loop</p>
-          <p className="mt-0.5 text-[0.75rem] text-ui-faint">
-            stages 6.1 and 6.2 · one question answered, four steps to go
+          <p className="text-[1rem] font-semibold text-ui-fg">Inside the loop</p>
+          <p className="mt-0.5 text-[0.875rem] text-ui-faint">
+            Stage 6 · built · then run three times over and scored in stage 7
           </p>
         </>
       }
     >
       <div className="sticky -top-3.5 z-20 -mx-5 -mt-3.5 mb-7 border-b border-ui-line bg-ui-bg px-5 pt-3.5 pb-4">
-        <p className="pb-2.5 font-mono text-[0.625rem] tracking-[0.08em] text-ui-faint uppercase">
-          the whole of stage 6, in one sentence
+        <p className="cal-label pb-2" data-tone="quiet">
+          The whole of stage 6, in one sentence
         </p>
-        <p className="max-w-[54ch] font-mono text-[0.9375rem] leading-relaxed text-ui-fg sm:text-base">
+        <p className="max-w-[54ch] text-[1.0625rem] leading-relaxed font-semibold text-ui-fg">
           The model is not doing the work. It is deciding what work to ask for.
         </p>
       </div>
 
-      <div className="grid gap-9 pb-2">
-        <section>
-          <H>What the model can and cannot do</H>
+      <div className="pb-2 [&_.snip-frame]:my-1">
+        <HoodSection title="What the model can and cannot do">
+          <HoodText>
+            This is where a model is finally asked a question. Everything before
+            it — the tools, the answer contract — runs without one. The model is
+            Google's gemini-3.5-flash-lite, reached over a hosted endpoint that
+            speaks OpenAI's chat format.
+          </HoodText>
           <Key>
             It never touches the database. No connection, no credentials, no way
             to run anything. All it can do is produce text.
           </Key>
-          <P>
+          <HoodText>
             So it is allowed to produce one very specific kind of text: a
             request. Our code reads the request, runs the tool, and hands back
             what came out.
-          </P>
+          </HoodText>
           <Data
-            path="one turn"
+            path="One turn"
             mark={[1, 3]}
             lines={[
               'we send      the question, the rules, and five tools with their arguments',
@@ -130,20 +160,23 @@ function LoopPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             choosing — which is why it is last, and why it is the first one that
             can be wrong in a way no check catches.
           </Why>
-        </section>
+        </HoodSection>
 
-        <section>
-          <H>The call itself</H>
+        <HoodSection title="The call itself">
           <Code
-            path="apps/ai/safety/src/cli/ask.ts:64–72"
+            path="apps/ai/safety/src/cli/ask.ts"
+            note="Excerpt"
             lang="typescript"
-            startLine={64}
-            mark={[1, 2, 3]}
+            mark={[5, 6, 7]}
             lines={[
+              '  const { tools, calls } = recordingTools(SAFETY_TOOLS);',
+              '  const registry = new ToolRegistry(tools);',
+              '  const started = Date.now();',
+              '',
               '  const result = await runLoop<SafetyAnswer>(choice, client(), model, registry, question, {',
               '    system: SAFETY_SYSTEM_PROMPT,',
               '    responseFormat: SafetyAnswerSchema,',
-              '    validate: validateSafetyAnswer,',
+              '    validate: validatorFor(calls),',
               "    agentName: 'calder-safety',",
               '    onEvent: (e: any) => {',
               "      if (e.type === 'tool_call') console.log(`  ${DIM}→ ${e.name}(${JSON.stringify(e.args)})${OFF}`);",
@@ -151,35 +184,42 @@ function LoopPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
               '  });',
             ]}
           />
-          <P>Seven things go in, and each one is a stage of this engagement arriving.</P>
-          <div className="cal-panel grid gap-2">
-            {ARGS.map((a) => (
-              <div key={a.arg} className="flex flex-wrap items-baseline gap-x-4 gap-y-0.5">
-                <span className="w-36 shrink-0 font-mono text-[0.75rem] text-ui-dim">{a.arg}</span>
-                <span className="text-[0.8125rem] text-ui-dim">{a.is}</span>
-              </div>
-            ))}
-          </div>
+          <HoodText>
+            Seven things go in, and each one is a stage of this engagement
+            arriving.
+          </HoodText>
+          <Table
+            head={['What goes in', 'What it is']}
+            rows={ARGS.map((a) => [<code key={a.arg}>{a.arg}</code>, a.is])}
+          />
           <Key>
             The whole engagement, in one function call. The tools came from stage
             4, the shape and the rules from stage 5, and none of them had to
-            change to be handed to a model.
+            change to be handed to a model — though several changed once a
+            model's answers could be read.
           </Key>
-        </section>
+          <Why>
+            The validator is the clearest case. It began as stage 5's six rules;
+            it is now <code>validatorFor(calls)</code>, which runs nine — rules
+            7 to 9 were added in this stage, each after reading a real answer.
+            Four of the nine (6 to 9) need to see what the tools actually
+            returned — whether a search came back empty, how many tools ran, what
+            each count said it counted — and the answer alone cannot tell them.
+          </Why>
+        </HoodSection>
 
-        <section>
-          <H>6.1 does not test the tools. It tests the seam.</H>
-          <P>
+        <HoodSection title="6.1 does not test the tools. It tests the seam.">
+          <HoodText>
             The five tools already worked — stage 4 proved it. But stage 4 called
-            them <span className="text-ui-fg">as code</span>, where the compiler
-            guaranteed the arguments were right.
-          </P>
+            them <strong className="font-semibold text-ui-fg">as code</strong>,
+            where the compiler guaranteed the arguments were right.
+          </HoodText>
           <Key>
             A model guarantees nothing. It sends a name and a blob of JSON, and
             both can be wrong.
           </Key>
           <Data
-            path="three things that have to work in that gap"
+            path="Three things that have to work in that gap"
             mark={[1]}
             lines={[
               'reach a tool by name        a string lookup, not an import',
@@ -188,10 +228,10 @@ function LoopPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             ]}
           />
           <Code
-            path="packages/agent/src/core/registry.ts:24–39"
+            path="packages/agent/src/core/registry.ts"
+            note="Excerpt"
             lang="typescript"
-            startLine={24}
-            mark={[6, 15]}
+            mark={[0, 13]}
             lines={[
               '  async dispatch(name: string, args: unknown): Promise<ToolCallRecord> {',
               '    const started = Date.now();',
@@ -212,7 +252,7 @@ function LoopPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             ]}
           />
           <Why>
-            Note <Mono>args: unknown</Mono>. That is the honest type — it came
+            Note <code>args: unknown</code>. That is the honest type — it came
             from a language model. And the error names the tools that do exist,
             so the model can correct itself rather than guessing twice.
           </Why>
@@ -222,16 +262,15 @@ function LoopPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             becomes a message the model can read instead of a crash three layers
             down.
           </Key>
-        </section>
+        </HoodSection>
 
-        <section>
-          <H>And 6.2's check is a negative</H>
-          <P>
+        <HoodSection title="And 6.2's check is a negative">
+          <HoodText>
             The question names a campaign number. So the check is not only that
             the right answer came back.
-          </P>
+          </HoodText>
           <Data
-            path="what the tool-call record has to show"
+            path="What the tool-call record has to show"
             mark={[1]}
             lines={[
               'get_recall           was called          ✓',
@@ -246,18 +285,18 @@ function LoopPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
           </Key>
           <Why>
             The tool-call record is the only place that difference is visible.
-            Nothing else on this site checks a <em>method</em> rather than an
-            output, and a model that searches for a number it was handed has
+            It was the first check on this site of a <em>method</em> rather than
+            an output, and a model that searches for a number it was handed has
             misunderstood the whole tool layer — worth catching on question one
-            rather than question eight.
+            rather than question eight. Stage 7 kept it as one of its decided
+            checks.
           </Why>
-        </section>
+        </HoodSection>
 
-        <section>
-          <H>The first free-form run</H>
+        <HoodSection title="The first free-form run">
           <Data
-            path="“are there complaints about deaths on the Tesla Model 3?”"
-            note="unedited"
+            path="“Are there complaints about deaths on the Tesla Model 3?”"
+            note="Unedited"
             mark={[1, 2]}
             lines={[
               '→ count_complaints({"make":"TESLA","model":"MODEL 3","min_deaths":1})',
@@ -275,9 +314,9 @@ function LoopPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
               'cite    ODI 11473666   ...veered across lanes',
             ]}
           />
-          <P>Four things went right, and each one was designed for.</P>
+          <HoodText>Four things went right, and each one was designed for.</HoodText>
           <Data
-            path="and where each was specified"
+            path="And where each was specified"
             lines={[
               'it counted with the counting tool   the tool description says to, and says',
               '                                    that counting search results is wrong',
@@ -302,38 +341,55 @@ function LoopPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
             The 5 is also the corrected number. It was 12 in the answer key until
             it turned out to be a count of rows.
           </Why>
-        </section>
+          <Why>
+            Later runs did not always make the second call. Repeated, the model
+            sometimes answered the same case (REC-004) from the count alone, with
+            nothing to quote — which is exactly why one good run could not be the
+            result.
+          </Why>
+        </HoodSection>
 
-        <section>
-          <H>One green run is a smoke test</H>
+        <HoodSection title="One green run is a smoke test">
           <Key>
-            The same question can now give two different answers and neither is a
-            bug. Nothing here belongs beside the ceiling until every question
-            runs, with repeats.
+            The same question can give two different answers, and neither is a
+            bug. So no single run belongs beside the ceiling; a number is only
+            reported once every question has run with repeats.
           </Key>
           <Why>
-            Four of the six steps are not built. One question was answered well,
-            which is the least this stage could have shown and still been worth
-            continuing.
+            The stage proved it on itself. The model-routed recall@6 was first
+            published from one run, at 0.50, and the next run of the same code
+            gave 0.17. Repeated, it is{' '}
+            <strong className="font-semibold text-ui-fg">0.17 to 0.50</strong> over
+            three runs (0.50, 0.17, 0.17) — a range, because the runs disagree,
+            and never an average.
           </Why>
-        </section>
+          <Why>
+            Beside it sits step 4.5's 1.00: the same three cases with the tools
+            called by hand, which makes it a ceiling on what is reachable, not a
+            score — and one of those cases, REC-005, was already at 1.00 because
+            its right answer is an empty result.
+          </Why>
+          <Why>
+            Stage 6 closed with pacing (6.6): all eight questions answered in one
+            pass, no quota failures, 37 tool calls and 842 seconds under the free
+            tier's rate limit — on the second attempt, because the first hit the
+            quota and its detector printed a pass. Stage 7 then ran every
+            question three times — 28 of 28 decided checks, reported beside 0 of
+            3 judged ones and never added to them. The judged zero is not a
+            broken judge: every control passed.
+          </Why>
+        </HoodSection>
       </div>
     </OriginDialog>
   );
 }
 
-function H({ children }: { children: React.ReactNode }) {
-  return <h3 className="mb-3 font-mono text-[0.9375rem] text-ui-fg">{children}</h3>;
+/** The point — restyled on `/steps` by the `cal-key` rule in app.css. */
+function Key({ children }: { children: ReactNode }) {
+  return <p className="cal-key">{children}</p>;
 }
 
-function P({ children }: { children: React.ReactNode }) {
-  return <p className="max-w-[66ch] text-[0.875rem] leading-relaxed text-ui-dim">{children}</p>;
-}
-
-function Key({ children }: { children: React.ReactNode }) {
-  return <p className="cal-key mt-3.5">{children}</p>;
-}
-
-function Why({ children }: { children: React.ReactNode }) {
-  return <p className="cal-why mt-3.5">{children}</p>;
+/** A reason, set in the margin — the `cal-why` rule. */
+function Why({ children }: { children: ReactNode }) {
+  return <p className="cal-why">{children}</p>;
 }

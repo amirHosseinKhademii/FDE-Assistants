@@ -7,8 +7,8 @@
  * This one's is a two-line diff, because the whole stage turns on picking the
  * right method off an object:
  *
- *     addVectors(vectors, documents)   insert what we already made
- *     addDocuments(documents)          recompute all of it, silently
+ *     addVectors(vectors, docs)   insert what we already made
+ *     addDocuments(docs)          recompute all of it, silently
  *
  * `@fde/grounding`'s `ingestDocuments` calls the second, and is right to — it
  * is for callers who have documents and no vectors. Here it would throw away
@@ -22,12 +22,38 @@
  * nothing to do with our code — so the hazards section is not padding, it is
  * the new half of the stage.
  *
- * Source: `docs/safety/INDEX.md`.
+ * ── CORRECTED 2026-09-27 AGAINST THE CODE AND INDEX.md ─────────────────────
+ *
+ *   - THE TABLE AS IT IS CREATED. The SQL used to show `vector vector(384)`.
+ *     `openStore` passes no dimension to `PGVectorStore.initialize`, so the
+ *     column is created UNCONSTRAINED — which is exactly why check 2 exists,
+ *     and the old SQL contradicted the panel's own argument for it. The block
+ *     now quotes the three places that build the table, including the
+ *     `metadata->>'id'` index `loadIntoStore` adds for stage 4;
+ *   - THE SIZES are INDEX.md's: 287 MB of table, 295 reported by Postgres, 318
+ *     billed by Neon, so 194 MB of real headroom rather than 217. This panel
+ *     carried 296 and 319 — what the reload's own printout read a little later
+ *     (commit a2280e5), a megabyte either way. The page follows the document.
+ *     The "actual" row of the prediction table said 295 for "table + indexes";
+ *     that figure is 287;
+ *   - THE CHECKS are `cli/index-cli.ts`'s five, in its order and its words, so
+ *     "the one with history" is check 2 again, as in INDEX.md;
+ *   - THE STREAMING CODE is quoted from `index-store.ts` rather than paraphrased;
+ *   - "no vector index … and nothing else" gains the lookup index, and "before
+ *     stage 3.5's numbers land" is past: 3.5 and 3.7 ran without one.
+ *
+ * The load time is the reload's, 147 batches in 1.2 minutes with five checks
+ * green; the first load, with four checks, took 1.1.
+ *
+ * Sources: `docs/safety/INDEX.md`, `apps/ai/safety/src/grounding/index-store.ts`,
+ * `apps/ai/safety/src/cli/index-cli.ts`.
  */
 import { useCallback, useRef, useState } from 'react';
-import { Mono, OriginDialog, originOf } from '@fde/uikit';
+import { OriginDialog, originOf } from '@fde/uikit';
 import type { Origin } from '@fde/uikit';
 import { Code, Data } from '@veresk/surface';
+import { HoodButton } from './Hood';
+import { Because } from './kit';
 
 const PASSAGES = 73442;
 const MB_ON_DISK = 641;
@@ -37,15 +63,15 @@ const NEON_FREE_MB = 512;
  * PREDICTED AND ACTUAL, and the gap is the finding.
  *
  * 2,002 bytes a row was extrapolated from the sibling engagement, and that
- * measurement predates the full-text column. The real table is more than twice
- * the prediction because `content_ts` and its GIN index were never counted —
- * 69 MB, a quarter of the table, and the price of the keyword arm.
+ * measurement predates the full-text column. The real table is about twice the
+ * prediction because `content_ts` and its GIN index were never counted — 69 MB,
+ * a quarter of the table, and the price of the keyword arm.
  */
 const STORAGE = {
   predictedBytesPerRow: 2002,
   actualBytesPerRow: 4100,
   predictedMb: 140,
-  actualMb: 295,
+  actualMb: 287,
 } as const;
 
 /**
@@ -56,28 +82,41 @@ const STORAGE = {
  * BILLS, and it is the largest of the three — so a quota read off either of the
  * first two leaves you thinking there is more headroom than there is.
  *
- * It needs `create extension neon`, which is why nobody reads it by default and
- * why the number on this page was 295 for a while.
+ * It needs `create extension neon`, which is why nobody reads it by default.
+ * Figures are `docs/safety/INDEX.md`'s.
  */
 const SIZES = [
-  { fn: "pg_total_relation_size('document_chunks')", mb: 287, is: 'table + indexes' },
-  { fn: 'pg_database_size(current_database())', mb: 296, is: 'what Postgres reports' },
-  { fn: 'pg_cluster_size()', mb: 319, is: 'WHAT NEON BILLS — the quota' },
+  { fn: "pg_total_relation_size('document_chunks')", mb: 287, is: 'the table and its indexes' },
+  { fn: 'pg_database_size(current_database())', mb: 295, is: 'what Postgres reports' },
+  { fn: 'pg_cluster_size()', mb: 318, is: 'WHAT NEON BILLS — the quota' },
 ] as const;
 
-const BILLED_MB = 319;
+const BILLED_MB = 318;
+const DB_MB = 295;
 
-/** The real table, broken down. `heap 112 MB · indexes 20 MB` of a 287 MB total. */
+/** The real table, column by column. */
 const BREAKDOWN = [
-  { what: 'vector', mb: 108, note: '384 × 4 bytes = 1,536/row, exactly as expected' },
+  { what: 'vector', mb: 108, note: '384 × 4 bytes = 1,536 a row, exactly as expected' },
   { what: 'content', mb: 44, note: 'the passages themselves' },
   { what: 'metadata', mb: 31, note: 'make, year, severity — what filtering reads' },
   { what: 'content_ts', mb: 52, note: 'NOT COUNTED in the estimate' },
   { what: 'fts GIN index', mb: 17, note: 'nor this' },
 ] as const;
 
+const BREAKDOWN_MB = BREAKDOWN.reduce((a, b) => a + b.mb, 0);
+
+const n = (x: number) => x.toLocaleString('en-GB');
+
 const KEYS = ['line', 'table', 'stream', 'outside', 'checks'] as const;
 type Key = (typeof KEYS)[number];
+
+const LABELS: Record<Key, string> = {
+  line: 'Why that line matters',
+  table: 'The table',
+  stream: 'Streamed in',
+  outside: 'Leaving the machine',
+  checks: 'The checks',
+};
 
 export function IndexModal() {
   const [from, setFrom] = useState<Origin | null>(null);
@@ -87,23 +126,10 @@ export function IndexModal() {
 
   return (
     <>
-      <button
-        type="button"
+      <HoodButton
+        blurb="Inside the index: the one method call that would quietly redo stage 3.3, and what changes once the data leaves this machine"
         onClick={open}
-        className="group flex w-full items-center gap-4 rounded-lg border border-ui-line bg-ui-surface px-4 py-3.5 text-left transition-colors hover:border-cal-2/50"
-      >
-        <span className="font-mono text-[0.6875rem] tracking-[0.08em] text-cal-2 uppercase">
-          under the hood
-        </span>
-        <span className="min-w-0 flex-1 text-[0.875rem] text-ui-dim">
-          Inside the index — the one method call that would quietly redo stage
-          3.3, and the hazards of leaving the machine
-        </span>
-        <span className="font-mono text-sm text-ui-faint transition-colors group-hover:text-ui-fg">
-          open →
-        </span>
-      </button>
-
+      />
       {from && <IndexPanel from={from} onClose={() => setFrom(null)} />}
     </>
   );
@@ -132,13 +158,13 @@ function IndexPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
     <OriginDialog
       from={from}
       label="Inside the index"
-      tone="var(--color-cal-2)"
+      tone="var(--color-cal-sky)"
       onClose={onClose}
       header={
         <>
-          <p className="font-mono text-sm text-ui-fg">Inside the index</p>
-          <p className="mt-0.5 text-[0.75rem] text-ui-faint">
-            stage 3.4 · {MB_ON_DISK} MB on disk → one Postgres table
+          <p className="text-[1rem] font-semibold text-ui-fg">Inside the index</p>
+          <p className="mt-0.5 text-[0.875rem] text-ui-faint">
+            Stage 3.4 · a {MB_ON_DISK} MB file on disk into one Postgres table
           </p>
         </>
       }
@@ -149,274 +175,329 @@ function IndexPanel({ from, onClose }: { from: Origin; onClose: () => void }) {
         ref={sticky}
         className="sticky -top-3.5 z-20 -mx-5 -mt-3.5 mb-7 border-b border-ui-line bg-ui-bg px-5 pt-3.5 pb-3"
       >
-        <p className="pb-2 font-mono text-[0.625rem] tracking-[0.08em] text-ui-faint uppercase">
-          the whole stage, in the choice of one method
+        <p className="cal-label pb-2" data-tone="quiet">
+          The whole stage, in the choice of one method
         </p>
-        <pre className="overflow-x-auto rounded-lg border border-ui-line bg-[var(--snip-bg)] p-3.5 font-mono text-[0.6875rem] leading-[1.8]">
+        <pre className="overflow-x-auto rounded-lg border border-ui-line bg-[var(--snip-bg)] px-3.5 py-3 font-mono text-[0.8125rem] leading-[1.8]">
           <div className="flex gap-3 whitespace-pre">
-            <span style={{ color: 'var(--color-cal-1)' }}>✓</span>
-            <span className="text-ui-fg">
-              await store.addVectors(vectors, documents);
+            <span className="text-cal-1" aria-label="right">
+              ✓
             </span>
-            <span className="ml-auto pl-6 text-ui-faint">insert what we made</span>
+            <span className="text-ui-fg">await store.addVectors(vectors, docs);</span>
+            <span className="ml-auto pl-6 font-sans text-ui-faint">insert what we made</span>
           </div>
-          <div className="flex gap-3 whitespace-pre opacity-70">
-            <span className="text-ui-faint">✗</span>
-            <span className="text-ui-dim">await store.addDocuments(documents);</span>
-            <span className="ml-auto pl-6 text-ui-faint">re-embeds — 36.6 min, silently</span>
+          <div className="flex gap-3 whitespace-pre">
+            <span className="text-ui-faint" aria-label="wrong">
+              ✗
+            </span>
+            <span className="text-ui-dim line-through decoration-ui-faint/60">
+              await store.addDocuments(docs);
+            </span>
+            <span className="ml-auto pl-6 font-sans text-ui-faint">re-embeds — 36.6 min, silently</span>
           </div>
         </pre>
 
         <div className="flex flex-wrap gap-1.5 pt-2.5">
-          {(
-            [
-              ['line', 'why that line matters'],
-              ['table', 'the table'],
-              ['stream', 'streamed in'],
-              ['outside', 'leaving the machine'],
-              ['checks', 'the checks'],
-            ] as const
-          ).map(([k, label]) => (
+          {KEYS.map((k) => (
             <button
               key={k}
               type="button"
               onClick={() => go(k)}
-              className={`rounded-full border px-2.5 py-0.5 font-mono text-[0.625rem] transition-colors ${
+              className={`rounded-full border px-3 py-0.5 text-[0.8125rem] transition-colors ${
                 active === k
-                  ? 'border-cal-2 bg-cal-2/20 text-ui-fg'
-                  : 'border-ui-line text-ui-faint hover:border-cal-2/50 hover:text-ui-fg'
+                  ? 'border-cal-sky bg-cal-sky/20 text-ui-fg'
+                  : 'border-ui-line-lit text-ui-dim hover:border-cal-sky/60 hover:text-ui-fg'
               }`}
             >
-              {label}
+              {LABELS[k]}
             </button>
           ))}
         </div>
       </div>
 
       <div className="grid gap-9 pb-2">
+        <div className="grid gap-4">
+          <p className="cal-hood-text">
+            Stage 3.3 left {n(PASSAGES)} lists of numbers in a file. Finding the
+            one closest to a question means comparing it against all of them —
+            fine once, hopeless for every question anybody asks.
+          </p>
+          <p className="cal-hood-text">
+            This stage moves each passage and its numbers into{' '}
+            <span className="text-ui-fg">one row of one database table</span>, so
+            the same row can be searched two ways: by meaning, using the numbers,
+            and by keyword, using the words. It is also the first stage that sends
+            anything off this machine.
+          </p>
+        </div>
+
         <Sect k="line" title="Why one method call is the whole stage" refs={sections} active={active}>
-          <P>
-            <Mono>@fde/grounding</Mono>'s <Mono>ingestDocuments</Mono> calls{' '}
-            <Mono>addDocuments</Mono>, which embeds as it inserts. That is
-            correct, and it is correct for the callers it was written for: they
-            have documents and no vectors.
-          </P>
-          <P>
-            Here we have {PASSAGES.toLocaleString('en-GB')} vectors that cost
-            36.6 minutes to produce. Calling <Mono>addDocuments</Mono> would
-            compute every one of them a second time.
-          </P>
-          <Aside>
+          <p className="cal-hood-text">
+            The shared package's <code>ingestDocuments</code> calls{' '}
+            <code>addDocuments</code>, which works out each passage's numbers as
+            it inserts it. That is correct for the callers it was written for:
+            they have documents and no numbers yet.
+          </p>
+          <p className="cal-hood-text">
+            Here we have {n(PASSAGES)} sets of numbers that took 36.6 minutes to
+            produce. Calling <code>addDocuments</code> would compute every one of
+            them a second time.
+          </p>
+          <Because>
             <span className="text-ui-fg">
-              And it would not error, would not look wrong, and would be
-              invisible in the row count.
+              And it would not error, would not look wrong, and would be invisible
+              in the row count.
             </span>{' '}
             The table would end up with exactly the right number of exactly the
             right rows. The only evidence would be thirty-six minutes on a clock
-            nobody was watching — which is the same shape as a green check
-            covering an assertion that never ran.
-          </Aside>
+            nobody was watching — the same shape as a green check covering an
+            assertion that never ran.
+          </Because>
         </Sect>
 
         <Sect k="table" title="One table, two indexes over the same words" refs={sections} active={active}>
           <Code
-            path="the whole store"
+            path="document_chunks — the statements that build it, from three places"
             lang="sql"
-            mark={[3, 4]}
+            mark={[5, 9, 10, 11]}
             lines={[
-              'CREATE TABLE document_chunks (',
-              '  id        uuid PRIMARY KEY,',
-              '  content   text,          -- the passage, for reading and quoting',
-              '  vector    vector(384),   -- for MEANING   → 3.5 arm A',
-              '  metadata  jsonb          -- for FILTERING → make, year, deaths',
+              '-- 1. PGVectorStore.initialize, called by openStore (packages/grounding/src/store.ts)',
+              'CREATE TABLE IF NOT EXISTS document_chunks (',
+              '  "id" uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,',
+              '  "content" text,',
+              '  "metadata" jsonb,',
+              '  "vector" vector',
               ');',
               '',
-              'ALTER TABLE document_chunks ADD COLUMN content_ts tsvector',
-              "  GENERATED ALWAYS AS (to_tsvector('english', content)) STORED;",
+              '-- 2. ensureFullTextIndex (packages/grounding/src/hybrid.ts)',
+              'alter table document_chunks add column if not exists content_ts tsvector',
+              "  generated always as (to_tsvector('english', content)) stored;",
+              'create index if not exists document_chunks_fts_idx on document_chunks using gin (content_ts);',
               '',
-              'CREATE INDEX document_chunks_fts_idx ON document_chunks USING gin (content_ts);',
+              "-- 3. loadIntoStore, for stage 4's exact lookups (apps/ai/safety/src/grounding/index-store.ts)",
+              "create index if not exists document_chunks_id_idx on document_chunks ((metadata->>'id'));",
             ]}
           />
-          <Aside>
-            <Mono>content_ts</Mono> is a <span className="text-ui-fg">generated
-            column, not a trigger</span>. Postgres recomputes it whenever{' '}
-            <Mono>content</Mono> changes, so it cannot drift out of step with the
-            text it describes. A trigger can be dropped; a generated column
-            cannot be forgotten.
-          </Aside>
-          <P>
-            This one table is the entire hybrid idea. <Mono>vector</Mono> and{' '}
-            <Mono>content_ts</Mono> are two indexes over the <em>same</em> words,
+          <p className="cal-hood-text">
+            Four columns: the passage itself, its labels as JSON, its 384 numbers,
+            and — added afterwards — <code>content_ts</code>, the same words broken
+            into a form keyword search can use.
+          </p>
+          <Because>
+            <code>content_ts</code> is a{' '}
+            <span className="text-ui-fg">generated column, not a trigger</span>.
+            Postgres recomputes it whenever <code>content</code> changes, so it
+            cannot drift out of step with the text it describes. A trigger can be
+            dropped; a generated column cannot be forgotten.
+          </Because>
+          <Because>
+            <span className="text-ui-fg">Note that the vector column has no size.</span>{' '}
+            <code>openStore</code> passes no dimension, so Postgres will accept a
+            row of 1,536 numbers beside rows of 384 and fail only later, at query
+            time, somewhere else. That is why the second check below exists.
+          </Because>
+          <p className="cal-hood-text">
+            This one table is the entire hybrid idea. <code>vector</code> and{' '}
+            <code>content_ts</code> are two indexes over the <em>same</em> words,
             kept because they fail at different things — and this corpus is full
-            of what the vector arm is worst at: <Mono>20V197000</Mono>,{' '}
-            <Mono>11353867</Mono>, <Mono>P0219A</Mono>, <Mono>PRNDL</Mono>.
-          </P>
+            of what the meaning side is worst at: <code>20V197000</code>,{' '}
+            <code>11353867</code>, <code>P0219A</code>, <code>PRNDL</code>.
+          </p>
         </Sect>
 
         <Sect k="stream" title="Streamed in, because 641 MB will not fit in a string" refs={sections} active={active}>
-          <P>
-            <Mono>JSON.parse(readFileSync(…))</Mono> on a {MB_ON_DISK} MB file
-            builds the whole thing as one string on the way in, and{' '}
-            <span className="text-ui-fg">V8 caps a string at 512 MB</span>. The
-            same ceiling applies writing it, which is why stage 3.3 emits NDJSON
-            in the first place.
-          </P>
+          <p className="cal-hood-text">
+            Reading the whole {MB_ON_DISK} MB file in one go builds it as a single
+            string on the way in, and{' '}
+            <span className="text-ui-fg">the JavaScript engine caps a string at 512 MB</span>
+            . The same ceiling applies when writing it, which is why stage 3.3
+            writes one record per line in the first place.
+          </p>
           <Code
-            path="line by line, in batches"
-            mark={[2]}
+            path="apps/ai/safety/src/grounding/index-store.ts"
+            note="One record a line"
+            mark={[6]}
             lines={[
-              'for await (const line of lines(VECTORS_NDJSON)) {',
-              '  batch.push(JSON.parse(line));',
-              '  if (batch.length === 500) await flush();',
+              'async function* records(path: string): AsyncGenerator<VectorRecord> {',
+              '  const rl = createInterface({',
+              "    input: createReadStream(path, { encoding: 'utf8' }),",
+              '    crlfDelay: Infinity,',
+              '  });',
+              '  for await (const line of rl) {',
+              '    if (line.trim()) yield JSON.parse(line) as VectorRecord;',
+              '  }',
               '}',
             ]}
           />
-          <Aside>
-            NDJSON is not tidier than JSON — it is a file you can read a piece
-            at a time, in both directions. That is the whole reason stage 3.3
-            writes it and this one can read it.
-          </Aside>
+          <Code
+            path="apps/ai/safety/src/grounding/index-store.ts"
+            note="Inside loadIntoStore · comments trimmed · BATCH is 500"
+            mark={[6, 15]}
+            lines={[
+              'for await (const rec of records(path)) {',
+              '  vectors.push(rec.vector);',
+              '  docs.push(',
+              '    new Document({',
+              '      pageContent: rec.text,',
+              '      metadata: {',
+              '        chunkId: rec.id,',
+              '        id: rec.id,',
+              '        documentId: rec.documentId,',
+              '        kind: rec.kind,',
+              '        startLine: rec.startLine,',
+              '        ...rec.meta,',
+              '      },',
+              '    }),',
+              '  );',
+              '  if (vectors.length >= BATCH) await flush();',
+              '}',
+              'await flush();',
+            ]}
+          />
+          <Because>
+            One record a line is not tidier than one big JSON array — it is a file
+            you can read a piece at a time, in both directions. That is the whole
+            reason stage 3.3 writes it that way and this one can read it. The
+            marked <code>chunkId</code> line is the one the checks come back to.
+          </Because>
         </Sect>
 
         <Sect k="outside" title="The first stage that leaves this machine" refs={sections} active={active}>
-          <P>
+          <p className="cal-hood-text">
             Everything before this ran on one laptop against files.{' '}
-            <span className="text-ui-fg">
-              This one opens a connection
-            </span>
-            , which makes it the first that can fail for reasons that have
-            nothing to do with our code.
-          </P>
+            <span className="text-ui-fg">This one opens a connection</span>, which
+            makes it the first that can fail for reasons that have nothing to do
+            with our code.
+          </p>
           <Data
-            path="storage — predicted, then measured"
-            note="the prediction was 2.1x out"
+            path="Storage — predicted, then measured"
+            note="Out by a factor of two"
             mark={[3]}
             lines={[
               `                       predicted        actual`,
-              `per row            ${String(STORAGE.predictedBytesPerRow).padStart(6)} bytes   ~${String(STORAGE.actualBytesPerRow).padStart(5)} bytes`,
+              `per row            ${n(STORAGE.predictedBytesPerRow).padStart(6)} bytes   ~${n(STORAGE.actualBytesPerRow).padStart(5)} bytes`,
               `table + indexes    ${String(STORAGE.predictedMb).padStart(6)} MB      ${String(STORAGE.actualMb).padStart(6)} MB`,
               `what Neon bills                     ${String(BILLED_MB).padStart(6)} MB   → ${Math.round((BILLED_MB / NEON_FREE_MB) * 100)}% of the free tier`,
             ]}
           />
-          <P>
+          <p className="cal-hood-text">
             And <span className="text-ui-fg">three numbers describe this table</span>,
             of which only the last is the bill.
-          </P>
+          </p>
           <Data
-            path="ask the right function"
-            note="pg_cluster_size needs `create extension neon`"
+            path="Ask the right function"
+            note="docs/safety/INDEX.md · pg_cluster_size needs `create extension neon`"
             mark={[2]}
             lines={SIZES.map((x) => `${x.fn.padEnd(44)}${String(x.mb).padStart(4)} MB   ${x.is}`)}
           />
-          <Aside>
+          <Because>
             A quota read off either of the first two leaves you believing in
-            headroom that is not there — 216 MB rather than the real{' '}
-            {NEON_FREE_MB - BILLED_MB} MB. The one that bills is the one nobody
+            headroom that is not there — {NEON_FREE_MB - DB_MB} MB rather than the
+            real {NEON_FREE_MB - BILLED_MB} MB. The one that bills is the one nobody
             reads by default, because it needs an extension installed before it
             answers at all.
-          </Aside>
-          <P>
+          </Because>
+          <p className="cal-hood-text">
             The prediction came from the sibling engagement's 2,002 bytes a row,
             and{' '}
-            <span className="text-ui-fg">
-              that measurement predates the full-text column
-            </span>
+            <span className="text-ui-fg">that measurement predates the full-text column</span>
             . The real table says where it went:
-          </P>
+          </p>
           <Data
-            path="the table, broken down"
-            note="287 MB · heap 112 · indexes 20"
+            path="The table, column by column"
+            note={`${BREAKDOWN_MB} of the ${STORAGE.actualMb} MB`}
             mark={[3, 4]}
-            lines={BREAKDOWN.map(
-              (b) => `${b.what.padEnd(16)}${String(b.mb).padStart(4)} MB   ${b.note}`,
-            )}
+            lines={BREAKDOWN.map((b) => `${b.what.padEnd(16)}${String(b.mb).padStart(4)} MB   ${b.note}`)}
           />
-          <Aside>
-            <span className="text-ui-fg">
-              The keyword arm costs 69 MB — a quarter of the table.
-            </span>{' '}
-            This panel has been saying that <Mono>vector</Mono> and{' '}
-            <Mono>content_ts</Mono> are two indexes over the same words, which is
-            true, and leaving the impression that the second one is free, which
-            is not. The hybrid design has a price and this is the first corpus
-            here big enough to see it.
-          </Aside>
-          <Aside>
-            <span className="text-ui-fg">And there is no vector index.</span>{' '}
-            The table carries <Mono>document_chunks_pkey</Mono> and the full-text
-            GIN index and nothing else — <Mono>openStore</Mono> creates neither
-            HNSW nor IVFFlat, so the meaning arm is a sequential scan over{' '}
-            {PASSAGES.toLocaleString('en-GB')} rows. Workable at this size and
-            worth knowing before stage 3.5's numbers land: if the dense arm is
-            slow, that is why, and it is a property of the store rather than of
-            the corpus. Adding one costs storage that is now 58% spent, so the
-            right order is to measure 3.5 without it and let the number decide —
-            the same argument as the reranker being a delta rather than a
-            default.
-          </Aside>
+          <Because>
+            <span className="text-ui-fg">The keyword side costs 69 MB — a quarter of the table.</span>{' '}
+            This panel has been saying that <code>vector</code> and{' '}
+            <code>content_ts</code> are two indexes over the same words, which is
+            true, and leaving the impression that the second one is free, which is
+            not. The hybrid design has a price, and this is the first corpus here
+            big enough to see it.
+          </Because>
+          <Because>
+            <span className="text-ui-fg">And there is no vector index.</span> The
+            table carries its primary key, the full-text index and — since stage 4
+            — the index on <code>metadata-&gt;&gt;'id'</code> for exact lookups,
+            and nothing else. <code>openStore</code> creates neither HNSW nor
+            IVFFlat, so the meaning side reads all {n(PASSAGES)} rows on every
+            question. Stages 3.5 and 3.7 ran that way. Adding one costs storage
+            that is now {Math.round((BILLED_MB / NEON_FREE_MB) * 100)}% spent by
+            what Neon bills — and, because the column has no fixed size, a rewrite
+            of the whole column first, since pgvector will not index a column
+            whose size it does not know. So it stays an option to measure rather
+            than a default — the same argument as the reranker being a
+            before-and-after rather than a habit.
+          </Because>
 
-          <P>
-            Two hazards come with the connection and both are already guarded.
-            Neon suspends an idle connection, and a pooler that stops answering
-            without a FIN leaves the process waiting forever —{' '}
-            <Mono>PG_OPTIONS</Mono> sets <Mono>keepAlive</Mono> and timeouts
-            after that cost an hour on the sibling engagement. And a partial load
-            looks exactly like a complete one: die at row 40,000 and the table
-            has 40,000 rows and no error anywhere.
-          </P>
-          <Aside>
+          <p className="cal-hood-text">
+            Two hazards come with the connection and both are guarded. Neon
+            suspends an idle connection, and a pooler that stops answering without
+            closing the socket leaves the process waiting forever —{' '}
+            <code>PG_OPTIONS</code> sets <code>keepAlive</code> and timeouts after
+            that cost an hour on the sibling engagement. And a partial load looks
+            exactly like a complete one: die at row 40,000 and the table has 40,000
+            rows and no error anywhere.
+          </p>
+          <Because>
             A third arrived with the reload.{' '}
             <span className="text-ui-fg">
-              <Mono>DELETE</Mono> does not return the space
+              <code>DELETE</code> does not return the space
             </span>{' '}
-            — it marks 73,442 rows dead and autovacuum decides when, so a reload
-            would want a second 287 MB against a 512 MB ceiling. It is{' '}
-            <Mono>TRUNCATE</Mono> now, and the loader reads{' '}
-            <Mono>pg_cluster_size()</Mono> afterwards and{' '}
-            <em>refuses to start</em> if the space has not come back. A load that
-            runs out of room halfway looks exactly like a dropped connection.
-          </Aside>
+            — it marks {n(PASSAGES)} rows dead and autovacuum decides when, so a
+            reload would want a second 287 MB against a 512 MB ceiling. It is{' '}
+            <code>TRUNCATE</code> now, and the loader reads{' '}
+            <code>pg_cluster_size()</code> afterwards and <em>refuses to start</em>{' '}
+            if the space has not come back. A load that runs out of room halfway
+            looks exactly like a dropped connection.
+          </Because>
         </Sect>
 
         <Sect k="checks" title="The checks, and the one with history" refs={sections} active={active}>
-          <Code
-            path="pnpm safety:index — all five green"
-            lang="text"
-            note="it has run — 147 batches, 1.2 min"
-            mark={[2, 6]}
+          <Data
+            path="pnpm safety:index — the reload, all five green"
+            note="Names and order from cli/index-cli.ts · the first load took 1.1 min"
+            mark={[4, 10]}
             lines={[
-              `${PASSAGES.toLocaleString('en-GB')} rows in document_chunks, in 1.2 min`,
+              `${n(PASSAGES)} rows in 147 batches, 1.2 min`,
               '',
-              'ok  the row count matches the file, counted with wc -l and not by the loader',
-              'ok  ODI 11353867 is in the table, 615 characters intact',
-              'ok  content_ts is populated on every row',
-              'ok  one dimension group: 384. Not two.',
-              'ok  73,442 present, 73,442 distinct chunkIds, of 73,442 rows',
+              'ok    every line in the file became a row, counted by wc -l and not by the loader',
+              `      wc -l says ${n(PASSAGES)}; the table holds ${n(PASSAGES)}`,
+              'ok    one dimension group, 384 — not two',
+              `      384 dims × ${n(PASSAGES)}`,
+              'ok    ODI 11353867 is in the table with its text intact',
+              '      615 chars',
+              'ok    content_ts is populated — the keyword arm has something to search',
+              `      ${n(PASSAGES)} of ${n(PASSAGES)} rows`,
+              'ok    every row carries a distinct chunkId — what fusion deduplicates on',
+              `      ${n(PASSAGES)} present, ${n(PASSAGES)} distinct, of ${n(PASSAGES)} rows`,
             ]}
           />
-          <Aside>
-            <span className="text-ui-fg">The last one has history.</span>{' '}
-            <Mono>PGVectorStore</Mono> creates an <em>unconstrained</em>{' '}
-            <Mono>vector</Mono> column, so rows of different dimensions insert
+          <Because>
+            <span className="text-ui-fg">The second check has history.</span> The
+            vector column has no fixed size, so rows of different sizes insert
             happily and fail only at query time, somewhere else, later. Insurance
-            hit it when <Mono>EMBEDDINGS</Mono> changed underneath an existing
-            index; pharma hit it again on the deployed app with{' '}
-            <Mono>different vector dimensions 1536 and 384</Mono>. One group, or
+            hit it when its embedding model changed underneath an existing index;
+            pharma hit it again on the deployed app with{' '}
+            <code>different vector dimensions 1536 and 384</code>. One group, or
             the load is wrong.
-          </Aside>
-          <Aside>
-            And the first uses <Mono>wc -l</Mono> rather than the loader's own
-            tally — the same rule as stage 3.1's <Mono>awk</Mono> cross-check.{' '}
-            <span className="text-ui-fg">
-              A loader confirming its own row count proves nothing.
-            </span>
-          </Aside>
-          <Aside>
+          </Because>
+          <Because>
+            The first check uses <code>wc -l</code> rather than the loader's own
+            tally — the same rule as stage 3.1's <code>awk</code> cross-check.{' '}
+            <span className="text-ui-fg">A loader confirming its own row count proves nothing.</span>
+          </Because>
+          <Because>
             The fifth is newer than the rest and exists because of what stage 3.6
-            found: it asks <span className="text-ui-fg">Postgres, in SQL</span>,
-            whether every row carries a distinct <Mono>chunkId</Mono>. The loader
-            writes that field and is not consulted about whether it did.
-          </Aside>
+            found: search uses <code>chunkId</code> to tell passages apart, and
+            without it 174 different complaints with the same opening line were
+            merged into one result. So the check asks{' '}
+            <span className="text-ui-fg">Postgres, in SQL</span>, whether every
+            row carries a distinct one. The loader writes that field and is not
+            consulted about whether it did.
+          </Because>
         </Sect>
       </div>
     </OriginDialog>
@@ -442,28 +523,15 @@ function Sect({
       ref={(el) => {
         refs.current[k] = el;
       }}
-      className="scroll-mt-28"
     >
       <h3
-        className={`font-mono text-[0.9375rem] transition-colors ${
-          lit ? 'text-cal-2' : 'text-ui-fg'
+        className={`text-[1.0625rem] font-bold transition-colors ${
+          lit ? 'text-cal-sky' : 'text-ui-fg'
         }`}
       >
         {title}
       </h3>
-      <div className="mt-3 grid gap-3.5">{children}</div>
+      <div className="mt-3.5 grid gap-4">{children}</div>
     </section>
-  );
-}
-
-function P({ children }: { children: React.ReactNode }) {
-  return <p className="max-w-[66ch] text-[0.875rem] leading-relaxed text-ui-dim">{children}</p>;
-}
-
-function Aside({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="max-w-[64ch] border-l-2 border-cal-2/50 py-0.5 pl-3.5 text-[0.875rem] leading-relaxed text-ui-dim">
-      {children}
-    </p>
   );
 }

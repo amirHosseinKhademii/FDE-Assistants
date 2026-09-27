@@ -165,425 +165,6 @@ body {
   color: var(--color-ui-dim);
 }
 
-/* ── THE FOUR PARTS, AS TABS ────────────────────────────────────────────────
-   A text strip with an underline was the first version and it read as a menu:
-   four labels of different lengths, nothing to tell you they were peers, and
-   the only signal of state a two-pixel line most of the way down.
-
-   SO EACH ONE IS A CARD WITH A NUMERAL. The stage number is the thing that
-   makes them distinct from each other at a glance — 3, 4, 5, 6, in order — and
-   it does the work the labels were being asked to do alone. The card gives the
-   state somewhere to live: a background, a border, and a top edge that lights.
-
-   AND THE ACTIVE ONE JOINS THE PANEL BELOW IT. Its bottom border is erased and
-   its background is the panel's, so the pair reads as one surface with a tab
-   attached rather than as a button that happens to be above some text. That is
-   the whole reason this is a card and not a pill.
-
-   BUILT AND UNBUILT ARE DIFFERENT SHAPES, NOT DIFFERENT SHADES. Three of the
-   four have nothing behind them yet, and a reader should see that before they
-   read a word: solid border against dashed, and a numeral that is lit against
-   one that is outlined.
-   ────────────────────────────────────────────────────────────────────────── */
-/* ── THE SHADES THE ROW AND ITS PANEL ARE MADE OF ───────────────────────────
-   The first version mixed the page's background with WHITE, which is how you
-   get grey — and grey is the one colour this page does not have. Everything
-   here is near-black with a blue cast, and a neutral card sitting on it reads
-   as a different material rather than as the same surface lifted.
-
-   So each shade is the surface mixed with THE ENGAGEMENT'S OWN INDIGO, at a few
-   percent. It is not enough to look coloured; it is enough to stop looking
-   grey, which is the difference being aimed at.
-   ────────────────────────────────────────────────────────────────────────── */
-.cal-tabs,
-.cal-tabpanel {
-  --tab-rest: color-mix(in oklab, var(--color-cal-1) 5%, #0a0c12);
-  --tab-hover: color-mix(in oklab, var(--color-cal-1) 9%, #0d0f15);
-  --tab-edge: color-mix(in oklab, var(--color-cal-1) 18%, var(--color-ui-line));
-
-  /* THE TWO VALUES THE JOIN DEPENDS ON, and they are shared rather than
-     matched by eye. `--tab-on` is what the active card is filled with AND what
-     the panel's gradient starts at, so the seam between them has nothing to
-     see. `--panel-base` is where that gradient lands. Setting them separately
-     put a visible step across the join, which is exactly the thing the card
-     shape exists to avoid. */
-  --tab-on: color-mix(in oklab, var(--color-cal-1) 9%, var(--color-ui-surface));
-  --panel-base: color-mix(in oklab, var(--color-cal-1) 4%, var(--color-ui-surface));
-
-}
-
-.cal-tabs {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.5rem;
-}
-
-@media (min-width: 40rem) {
-  .cal-tabs {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-/* SIX ACROSS ONLY WHEN SIX FIT. The labels are short enough at 64rem — the
-   container's width — and below that they wrap into three and then two, where
-   the cards stop being attached to the panel and keep their own borders. */
-@media (min-width: 56rem) {
-  .cal-tabs {
-    grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: 0;
-    /* STRETCH, NOT END. One label wraps to two lines and the others do not, and
-       bottom-aligning six cards of two different heights makes the row look
-       like something failed rather than like a row. Equal height, and the
-       status line sits at the bottom of each. */
-    align-items: stretch;
-  }
-}
-
-.cal-tab {
-  position: relative;
-  display: grid;
-  /* The numeral and the label take what they need; the status is pushed to the
-     bottom so it lines up across cards of different label heights. */
-  grid-template-rows: auto auto 1fr;
-  gap: 0.375rem;
-  padding: 0.875rem 0.75rem 1rem;
-  text-align: left;
-  border: 1px solid var(--tab-edge);
-  border-radius: 0.75rem;
-  background: var(--tab-rest);
-  transition:
-    background 220ms ease,
-    border-color 220ms ease;
-}
-
-@media (min-width: 56rem) {
-  .cal-tab {
-    border-radius: 0.75rem 0.75rem 0 0;
-    /* Collapse the shared edge so four cards read as one row of four rather
-       than as four separate things that happen to be adjacent. */
-    margin-inline-start: -1px;
-  }
-  .cal-tab:first-child {
-    margin-inline-start: 0;
-  }
-}
-
-.cal-tab:hover {
-  background: var(--tab-hover);
-}
-
-/* Not built: dashed, unfilled, and on a cooler edge — the three that are done
-   carry the indigo and the three that are not carry none of it. */
-.cal-tab[data-built='false'] {
-  border-style: dashed;
-  border-color: var(--color-ui-line);
-  background: transparent;
-}
-
-.cal-tab[data-built='false']:hover {
-  background: color-mix(in oklab, var(--color-cal-3) 7%, transparent);
-}
-
-/* THE ACTIVE ONE IS THE PANEL'S TOP EDGE. Raised a pixel so it overlaps the
-   rule below the row, and its own bottom border removed, so the card and the
-   content under it are one shape. */
-.cal-tab[aria-selected='true'] {
-  z-index: 1;
-  border-color: color-mix(in oklab, var(--color-cal-1) 50%, var(--color-ui-line));
-  background: var(--tab-on);
-}
-
-@media (min-width: 56rem) {
-  .cal-tab[aria-selected='true'] {
-    margin-bottom: -1px;
-    padding-bottom: calc(1rem + 1px);
-    border-bottom-color: var(--tab-on);
-  }
-}
-
-/* The lit top edge, in the customer's own ramp. It is the only place on this
-   page the three source colours appear together, which is why it is a gradient
-   rather than a single accent. */
-.cal-tab[aria-selected='true']::before {
-  content: '';
-  position: absolute;
-  inset-inline: 0.75rem;
-  top: -1px;
-  height: 2px;
-  border-radius: 2px;
-  background: linear-gradient(
-    90deg,
-    var(--color-cal-1),
-    var(--color-cal-2),
-    var(--color-cal-3)
-  );
-}
-
-.cal-tab-n {
-  display: flex;
-  height: 1.5rem;
-  width: 1.5rem;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid color-mix(in oklab, var(--color-ui-line) 80%, transparent);
-  border-radius: 0.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--color-ui-faint);
-  transition:
-    color 220ms ease,
-    border-color 220ms ease,
-    background 220ms ease;
-}
-
-.cal-tab[aria-selected='true'] .cal-tab-n {
-  border-color: transparent;
-  background: color-mix(in oklab, var(--color-cal-1) 22%, transparent);
-  color: var(--color-ui-fg);
-}
-
-.cal-tab-label {
-  font-family: var(--font-mono);
-  font-size: 0.9375rem;
-  line-height: 1.2;
-  color: var(--color-ui-dim);
-  transition: color 220ms ease;
-}
-
-.cal-tab[aria-selected='true'] .cal-tab-label,
-.cal-tab:hover .cal-tab-label {
-  color: var(--color-ui-fg);
-}
-
-.cal-tab[data-built='false'] .cal-tab-label {
-  color: var(--color-ui-faint);
-}
-
-/* THE STATUS LINE IS WHERE BUILT AND UNBUILT SEPARATE when neither is active.
-   The border style says it too, but a dashed edge at this size is a detail a
-   reader finds rather than notices — "SURVEYED" in the estate's own colour
-   against "NOT WRITTEN" in grey is the thing they see. */
-.cal-tab-status {
-  align-self: end;
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: color-mix(in oklab, var(--color-cal-2) 72%, var(--color-ui-faint));
-  transition: color 220ms ease;
-}
-
-.cal-tab[data-built='false'] .cal-tab-status {
-  color: var(--color-ui-faint);
-}
-
-.cal-tab[aria-selected='true'] .cal-tab-status {
-  color: var(--color-cal-1);
-}
-
-/* And the numeral of a finished stage carries a hairline of the same colour,
-   so the row reads 1-2-3 lit and 4-5-6 outlined before any word is read. */
-.cal-tab[data-built='true'] .cal-tab-n {
-  border-color: color-mix(in oklab, var(--color-cal-2) 40%, transparent);
-  color: var(--color-ui-dim);
-}
-
-/* THE PANEL IS LIT FROM THE TAB IT HANGS OFF, which is the other half of them
-   being one surface. A flat fill reads as a box that happens to be under a
-   button; a gradient that fades over the first few hundred pixels reads as the
-   tab's own light falling into it. It fades to the same value the tab carries,
-   so the join has no seam.
-
-   On a narrow screen the cards are a grid and nothing is attached to anything,
-   so the panel keeps its own border on all four sides. */
-.cal-tabpanel {
-  border: 1px solid color-mix(in oklab, var(--color-cal-1) 18%, var(--color-ui-line));
-  border-radius: 0.75rem;
-  background: linear-gradient(180deg, var(--tab-on) 0, var(--panel-base) 16rem);
-  padding: 1.75rem 1.25rem 2rem;
-}
-
-@media (min-width: 56rem) {
-  .cal-tabpanel {
-    border-top-color: color-mix(in oklab, var(--color-cal-1) 50%, var(--color-ui-line));
-    /* BOTH TOP CORNERS SQUARE, so the panel's top is one straight line however
-       far along the row the active card is. Rounding the left one assumed the
-       first tab was the active one, and looked arbitrary the moment it was not. */
-    border-radius: 0 0 0.75rem 0.75rem;
-    padding: 2.5rem 2rem 2.75rem;
-  }
-}
-
-/* ── THE FIVE TOOLS ─────────────────────────────────────────────────────────
-   The first version put the signature, the rule and the provenance badge on one
-   flex row, and at five tools with names like `search_complaints({ ...filters,
-   query })` that row wrapped differently on every card — so the list read as
-   five boxes of text rather than as five things of the same kind.
-
-   EACH ONE IS NUMBERED, in the same language as the tabs above. 4.1 through
-   4.4b is how the build order refers to them and how the step table below lists
-   them; using it here means a reader can match a card to a step without
-   counting. The numeral also gives the header a fixed left edge, which is what
-   the wrapping was destroying.
-
-   THE STATUS IS ONE BADGE, TOP RIGHT, and it says one of three things: built,
-   from the plan, or from the measurement. Three states on a single axis rather
-   than a rule chip and a provenance chip competing for the same line.
-   ────────────────────────────────────────────────────────────────────────── */
-.cal-tool {
-  display: grid;
-  grid-template-columns: 2.5rem minmax(0, 1fr);
-  gap: 0 1rem;
-  padding: 1.25rem 1.25rem 1.375rem;
-  border: 1px solid var(--color-ui-line);
-  border-radius: 0.75rem;
-  background: color-mix(in oklab, var(--color-cal-1) 3%, var(--color-ui-bg));
-}
-
-/* Built carries the engagement's colour down its left edge — the same signal
-   the tab cards use, so "this one exists" reads the same everywhere. */
-.cal-tool[data-built='true'] {
-  border-color: color-mix(in oklab, var(--color-cal-1) 32%, var(--color-ui-line));
-  background: color-mix(in oklab, var(--color-cal-1) 6%, var(--color-ui-surface));
-}
-
-.cal-tool-n {
-  grid-row: 1 / span 2;
-  display: flex;
-  height: 1.75rem;
-  width: 2.5rem;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid color-mix(in oklab, var(--color-ui-line) 80%, transparent);
-  border-radius: 0.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  color: var(--color-ui-faint);
-}
-
-.cal-tool[data-built='true'] .cal-tool-n {
-  border-color: transparent;
-  background: color-mix(in oklab, var(--color-cal-1) 22%, transparent);
-  color: var(--color-ui-fg);
-}
-
-.cal-tool-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.25rem 0.875rem;
-}
-
-.cal-tool-sig {
-  font-family: var(--font-mono);
-  font-size: 0.9375rem;
-  color: var(--color-ui-fg);
-}
-
-.cal-tool-badge {
-  margin-inline-start: auto;
-  flex: none;
-  border: 1px solid var(--color-ui-line);
-  border-radius: 999px;
-  padding: 0.0625rem 0.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.5625rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-ui-faint);
-}
-
-.cal-tool-badge[data-kind='built'] {
-  border-color: color-mix(in oklab, var(--color-cal-1) 45%, transparent);
-  color: var(--color-cal-1);
-}
-
-.cal-tool-badge[data-kind='measured'] {
-  border-color: color-mix(in oklab, var(--color-cal-2) 40%, transparent);
-  color: var(--color-cal-2);
-}
-
-/* The rule sits under the signature rather than beside it — it is a property of
-   the tool, not a second name for it. */
-.cal-tool-rule {
-  grid-column: 2;
-  margin-top: 0.125rem;
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-cal-2);
-}
-
-.cal-tool-body {
-  grid-column: 2;
-  margin-top: 0.875rem;
-  display: grid;
-  gap: 0.875rem;
-}
-
-/* ── A LONG TAB NEEDS A SPINE ───────────────────────────────────────────────
-   Stage 4's panel is the longest thing on this site: five tools, a contract,
-   six rules, eight build steps and two arguments. As one column of headings and
-   paragraphs it read as uniform density — nothing to land on, nothing to skip
-   to, and no way to tell an argument from a figure from a caveat.
-
-   SO IT HAS NUMBERED CHAPTERS, in the same language as the tabs and the tools.
-   A rule, a numeral, a heading, and a one-line summary under it: the summary is
-   the part that makes the numeral worth having, because it lets a reader decide
-   whether to read the chapter without reading it.
-   ────────────────────────────────────────────────────────────────────────── */
-.cal-chapter {
-  margin-top: 3.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--color-ui-line);
-}
-
-.cal-chapter-head {
-  display: flex;
-  align-items: baseline;
-  gap: 0.875rem;
-}
-
-.cal-chapter-n {
-  flex: none;
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  letter-spacing: 0.1em;
-  color: color-mix(in oklab, var(--color-cal-1) 70%, var(--color-ui-faint));
-}
-
-.cal-chapter-title {
-  font-family: var(--font-mono);
-  font-size: 1.0625rem;
-  line-height: 1.35;
-  letter-spacing: -0.01em;
-  color: var(--color-ui-fg);
-}
-
-.cal-chapter-sub {
-  margin-top: 0.5rem;
-  margin-inline-start: 2.375rem;
-  max-width: 60ch;
-  font-size: 0.8125rem;
-  line-height: 1.6;
-  color: var(--color-ui-faint);
-}
-
-.cal-chapter-body {
-  margin-top: 1.5rem;
-  margin-inline-start: 2.375rem;
-  display: grid;
-  gap: 1.25rem;
-}
-
-@media (max-width: 44rem) {
-  .cal-chapter-sub,
-  .cal-chapter-body {
-    margin-inline-start: 0;
-  }
-}
-
 /* ── THREE KINDS OF CALLOUT, AND THEY LOOK DIFFERENT ────────────────────────
    Everything used to be a cal-2 left border, so a conclusion, a reason and an
    unresolved question were drawn identically. They are not the same thing to a
@@ -634,209 +215,6 @@ body {
   border-radius: 0.625rem;
   background: color-mix(in oklab, var(--color-cal-1) 3%, var(--color-ui-bg));
   padding: 1.125rem 1.25rem;
-}
-
-/* ── LIT MEANS BUILT, EVERYWHERE ON THIS PAGE ───────────────────────────────
-   These cards briefly used their background to say where a tool CAME FROM —
-   planned, rebuilt, or added by the measurement. It read as a bug, and it was
-   one: the tab bar above uses fill and colour to mean "this exists", so a tool
-   that was built came out dimmer than two that are not, and the page contradicted
-   itself one element apart.
-
-   SO THE BACKGROUND SAYS BUILT AND THE BADGE SAYS ORIGIN. One signal, one
-   meaning, and origin is a word rather than a colour — which is also the only
-   way it survives a reader who arrives at this card without having read
-   anything above it.
-   ────────────────────────────────────────────────────────────────────────── */
-.cal-tool-badge[data-kind='added'] {
-  border-color: color-mix(in oklab, var(--color-cal-1) 50%, transparent);
-  color: var(--color-cal-1);
-}
-
-.cal-tool-badge[data-kind='rebuilt'] {
-  border-color: color-mix(in oklab, var(--color-cal-2) 50%, transparent);
-  color: var(--color-cal-2);
-}
-
-/* What the plan called it, when the plan called it something else. Plain text:
-   a strike-through said "this is wrong" when the point is "this changed", and
-   with no key on the page it was just a cryptic mark. */
-.cal-tool-was {
-  grid-column: 2;
-  margin-top: 0.25rem;
-  max-width: 60ch;
-  font-size: 0.75rem;
-  line-height: 1.55;
-  color: var(--color-ui-faint);
-}
-
-
-/* ── STAGE 4.5'S RESULT ─────────────────────────────────────────────────────
-   The stage's payoff, and the one number on this site most likely to be
-   quoted out of context.
-
-   THE CEILING NOTE IS INSIDE THE ARC, not below it. 1.00 and "a ceiling, not a
-   score" have to survive being cropped, screenshotted or skimmed together —
-   a qualifier in a following paragraph is a qualifier that gets left behind. */
-.cal-result {
-  margin-top: 1.75rem;
-  border: 1px solid color-mix(in oklab, var(--color-cal-1) 30%, var(--color-ui-line));
-  border-radius: 0.875rem;
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in oklab, var(--color-cal-1) 10%, var(--color-ui-surface)) 0,
-      color-mix(in oklab, var(--color-cal-1) 4%, var(--color-ui-surface)) 100%
-    );
-  padding: 1.25rem 1.375rem 1.125rem;
-}
-
-.cal-result-label {
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-ui-faint);
-}
-
-.cal-result-arc {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.5rem 1.5rem;
-  margin-top: 0.875rem;
-}
-
-.cal-result-cap {
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-ui-faint);
-}
-
-.cal-result-was,
-.cal-result-now {
-  margin-top: 0.125rem;
-  font-family: var(--font-mono);
-  font-size: 2.25rem;
-  line-height: 1.1;
-}
-
-.cal-result-was {
-  color: var(--color-ui-dim);
-}
-
-.cal-result-now {
-  color: var(--color-cal-1);
-}
-
-.cal-result-arrow {
-  font-family: var(--font-mono);
-  font-size: 1.5rem;
-  color: var(--color-ui-faint);
-}
-
-/* Dashed and alongside the number, because it qualifies rather than concludes. */
-.cal-result-ceiling {
-  flex: 1 1 22rem;
-  align-self: stretch;
-  border: 1px dashed color-mix(in oklab, var(--color-cal-2) 50%, var(--color-ui-line));
-  border-radius: 0.625rem;
-  padding: 0.75rem 0.9375rem;
-  font-size: 0.8125rem;
-  line-height: 1.6;
-  color: var(--color-ui-dim);
-}
-
-.cal-result-ceiling span {
-  display: block;
-  margin-bottom: 0.3125rem;
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-cal-2);
-}
-
-.cal-result-cases {
-  display: grid;
-  gap: 0.375rem;
-  margin-top: 1.125rem;
-  border-top: 1px solid color-mix(in oklab, var(--color-cal-1) 16%, var(--color-ui-line));
-  padding-top: 0.875rem;
-}
-
-.cal-result-cases li {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.25rem 1rem;
-  font-size: 0.8125rem;
-}
-
-/* The case that did NOT move is dimmed, never hidden. */
-.cal-result-cases li[data-still='true'] {
-  opacity: 0.62;
-}
-
-.cal-result-id {
-  width: 4.5rem;
-  flex-shrink: 0;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--color-ui-dim);
-}
-
-.cal-result-move {
-  width: 6.5rem;
-  flex-shrink: 0;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--color-ui-fg);
-}
-
-.cal-result-cases li[data-still='true'] .cal-result-move {
-  color: var(--color-ui-dim);
-}
-
-.cal-result-what {
-  color: var(--color-ui-dim);
-}
-
-.cal-result-foot {
-  margin-top: 0.875rem;
-  max-width: 64ch;
-  font-size: 0.8125rem;
-  line-height: 1.65;
-  color: var(--color-ui-faint);
-}
-
-/* The landing page's variant: a question rather than a case identifier, so the
-   first column is prose and wide instead of mono and narrow. */
-.cal-result-asked li {
-  gap: 0.25rem 1rem;
-}
-
-.cal-result-q {
-  flex: 1 1 24rem;
-  min-width: 0;
-  color: var(--color-ui-fg);
-}
-
-.cal-result-asked .cal-result-move {
-  width: 7.5rem;
-  color: var(--color-cal-1);
-}
-
-.cal-result-asked li[data-still='true'] .cal-result-q {
-  color: var(--color-ui-dim);
-}
-
-.cal-result-asked .cal-result-what {
-  flex: 1 1 18rem;
-  font-size: 0.8125rem;
-  color: var(--color-ui-faint);
 }
 
 /* ── THE PLAIN EXPLANATION, ON THE DOOR ─────────────────────────────────────
@@ -949,203 +327,6 @@ body {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-cal-2);
-}
-
-/* The plain-words block a tab opens with, before any detail. Larger than body
-   text and unornamented: it is the version somebody reads if they read nothing
-   else on the tab. */
-.cal-plain {
-  margin-top: 1.5rem;
-  border-radius: 0.75rem;
-  border: 1px solid color-mix(in oklab, var(--color-cal-2) 22%, var(--color-ui-line));
-  background: color-mix(in oklab, var(--color-cal-2) 6%, var(--color-ui-surface));
-  padding: 1.125rem 1.25rem;
-  max-width: 68ch;
-  font-size: 0.9375rem;
-  line-height: 1.7;
-  color: var(--color-ui-dim);
-}
-
-/* ── A STAGE THAT IS PLANNED AND NOT BUILT ──────────────────────────────────
-   Dashed everywhere, because the difference between "specified" and "built" is
-   the one this site is most careful about and the one most easily lost. */
-.cal-dashed {
-  border-style: dashed;
-  background: transparent;
-}
-
-/* The gap stage 6 exists to measure. Same frame as 4.5's result, deliberately —
-   they are two halves of one comparison — but dashed and with the second number
-   drawn as an empty slot, so the figure is incomplete rather than pending. */
-.cal-gap {
-  margin-top: 1.75rem;
-  border: 1px dashed color-mix(in oklab, var(--color-cal-2) 40%, var(--color-ui-line));
-  border-radius: 0.875rem;
-  background: color-mix(in oklab, var(--color-cal-2) 4%, var(--color-ui-surface));
-  padding: 1.25rem 1.375rem 1.125rem;
-}
-
-.cal-gap-pending {
-  margin-top: 0.125rem;
-  font-family: var(--font-mono);
-  font-size: 2.25rem;
-  line-height: 1.1;
-  color: color-mix(in oklab, var(--color-ui-faint) 70%, transparent);
-}
-
-/* ── HOW THE LOOP WORKS ─────────────────────────────────────────────────────
-   The plain walkthrough. Solid rather than dashed, because unlike the rest of
-   this tab it describes something that has actually run. */
-.cal-loop {
-  margin-top: 1.75rem;
-  border: 1px solid color-mix(in oklab, var(--color-cal-1) 26%, var(--color-ui-line));
-  border-radius: 0.875rem;
-  background: color-mix(in oklab, var(--color-cal-1) 5%, var(--color-ui-surface));
-  padding: 1.25rem 1.375rem 1.125rem;
-}
-
-.cal-loop-lead {
-  max-width: 62ch;
-  font-size: 0.9375rem;
-  line-height: 1.65;
-  color: var(--color-ui-dim);
-}
-
-.cal-loop-lead:first-of-type {
-  margin-top: 0.875rem;
-}
-
-.cal-loop-steps {
-  display: grid;
-  gap: 0.5rem;
-  margin-top: 1.25rem;
-  border-top: 1px solid color-mix(in oklab, var(--color-cal-1) 16%, var(--color-ui-line));
-  padding-top: 1rem;
-}
-
-.cal-loop-steps li {
-  display: flex;
-  gap: 0.875rem;
-}
-
-.cal-loop-n {
-  display: flex;
-  height: 1.375rem;
-  width: 1.375rem;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  background: color-mix(in oklab, var(--color-cal-1) 18%, transparent);
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  color: var(--color-cal-1);
-}
-
-.cal-loop-what {
-  font-size: 0.875rem;
-  line-height: 1.5;
-  color: var(--color-ui-fg);
-}
-
-.cal-loop-detail {
-  margin-top: 0.125rem;
-  max-width: 60ch;
-  font-size: 0.8125rem;
-  line-height: 1.6;
-  color: var(--color-ui-faint);
-}
-
-/* The sentence the stage reduces to. */
-.cal-loop-punch {
-  margin-top: 1.25rem;
-  border-inline-start: 3px solid var(--color-cal-1);
-  padding: 0.25rem 0 0.25rem 1rem;
-  max-width: 52ch;
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  line-height: 1.55;
-  color: var(--color-ui-fg);
-}
-
-/* ── WHAT CLOSES THE WALK ───────────────────────────────────────────────────
-   The walkthrough indents its own text past a rail, so a conclusion using the
-   ordinary key/why widths sat at a third left edge with the panel below it at a
-   fourth. Four left edges in one section is what "the design is off" looks
-   like.
-
-   So the closing block spans the full content width, sits under a rule, and
-   lines its right edge up with the panel beneath it. Two statements, equal
-   weight, side by side once there is room. */
-.cal-after {
-  display: grid;
-  gap: 0.875rem;
-  margin-top: 1.75rem;
-  border-top: 1px solid color-mix(in oklab, var(--color-cal-1) 14%, var(--color-ui-line));
-  padding-top: 1.5rem;
-}
-
-@media (min-width: 62rem) {
-  .cal-after {
-    grid-template-columns: 1fr 1fr;
-    gap: 1.25rem;
-  }
-}
-
-.cal-after-a,
-.cal-after-b {
-  border-radius: 0.625rem;
-  padding: 1rem 1.125rem;
-  font-size: 0.9375rem;
-  line-height: 1.65;
-}
-
-/* The measurement. Filled, because it is a statement about what happened. */
-.cal-after-a {
-  border: 1px solid color-mix(in oklab, var(--color-cal-1) 34%, var(--color-ui-line));
-  background: color-mix(in oklab, var(--color-cal-1) 8%, var(--color-ui-surface));
-  color: var(--color-ui-fg);
-}
-
-/* The admission. Outlined in the second tone, because it is a different KIND of
-   claim — what the page refuses to say, rather than what it measured. */
-.cal-after-b {
-  border: 1px solid color-mix(in oklab, var(--color-cal-2) 30%, var(--color-ui-line));
-  background: color-mix(in oklab, var(--color-cal-2) 4%, var(--color-ui-surface));
-  color: var(--color-ui-dim);
-}
-
-/* Four timings from one afternoon, all correct. The figure IS the argument for
-   why one green run is not a score, so it wants no ornament. */
-.cal-spread {
-  margin-top: 1.75rem;
-  border: 1px solid color-mix(in oklab, var(--color-cal-2) 24%, var(--color-ui-line));
-  border-radius: 0.875rem;
-  background: color-mix(in oklab, var(--color-cal-2) 4%, var(--color-ui-surface));
-  padding: 1.25rem 1.375rem 1.125rem;
-}
-
-.cal-spread-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.75rem 2.25rem;
-  margin-top: 0.875rem;
-}
-
-.cal-spread-t {
-  font-family: var(--font-mono);
-  font-size: 1.75rem;
-  line-height: 1.1;
-  color: var(--color-ui-fg);
-}
-
-.cal-spread-note {
-  margin-top: 1rem;
-  max-width: 64ch;
-  font-size: 0.9375rem;
-  line-height: 1.65;
-  color: var(--color-ui-dim);
 }
 
 /* ── THE DESK ───────────────────────────────────────────────────────────────
@@ -1642,158 +823,6 @@ body {
   color: var(--color-ui-faint);
 }
 
-/* ── THE BRAIN ──────────────────────────────────────────────────────────────
-   Four columns: asked, decided, asked for, read. The arms between them carry a
-   pulse left to right, and the captions carry the same order statically so the
-   sequence survives reduced motion. */
-.cal-brain {
-  display: grid;
-  gap: 0.75rem;
-  margin-top: 1.75rem;
-  align-items: start;
-}
-
-@media (min-width: 60rem) {
-  .cal-brain {
-    grid-template-columns: minmax(0, 1fr) 2rem minmax(0, 1fr) 2rem minmax(0, 1.35fr) 2rem minmax(0, 1fr);
-    gap: 0.5rem;
-  }
-}
-
-.cal-brain-col {
-  display: grid;
-  gap: 0.5rem;
-  align-content: start;
-}
-
-.cal-brain-cap {
-  margin-bottom: 0.125rem;
-  font-family: var(--font-mono);
-  font-size: 0.5625rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--color-ui-faint);
-}
-
-/* The connecting arm. Horizontal on wide screens, vertical when stacked. */
-.cal-brain-arm {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 1.5rem;
-}
-
-.cal-brain-arm span {
-  display: block;
-  border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    color-mix(in oklab, var(--color-cal-1) 55%, transparent),
-    transparent
-  );
-  height: 1px;
-  width: 100%;
-}
-
-@media (min-width: 60rem) {
-  .cal-brain-arm {
-    min-height: 4rem;
-    margin-top: 1.25rem;
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .cal-brain-arm span {
-    animation: cal-pulse 2.6s ease-in-out infinite;
-  }
-  .cal-brain > .cal-brain-arm:nth-of-type(2) span {
-    animation-delay: 0.3s;
-  }
-  .cal-brain > .cal-brain-arm:nth-of-type(3) span {
-    animation-delay: 0.6s;
-  }
-}
-
-@keyframes cal-pulse {
-  0%,
-  100% {
-    opacity: 0.35;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-.cal-node {
-  display: block;
-  width: 100%;
-  border: 1px solid var(--color-ui-line);
-  border-radius: 0.625rem;
-  background: var(--color-ui-surface);
-  padding: 0.625rem 0.75rem;
-  text-align: left;
-  transition:
-    border-color 0.15s,
-    background-color 0.15s;
-}
-
-.cal-node:hover,
-.cal-node[data-open='true'] {
-  border-color: color-mix(in oklab, var(--color-cal-1) 50%, var(--color-ui-line));
-  background: color-mix(in oklab, var(--color-cal-1) 8%, var(--color-ui-surface));
-}
-
-/* Provenance, and only at the outer columns. A question has no source; a
-   finding does. */
-.cal-node[data-tone='recalls'] {
-  border-inline-start: 3px solid color-mix(in oklab, var(--color-cal-1) 70%, transparent);
-}
-
-.cal-node[data-tone='complaints'] {
-  border-inline-start: 3px solid color-mix(in oklab, var(--color-cal-2) 70%, transparent);
-}
-
-.cal-node-l {
-  display: block;
-  font-size: 0.875rem;
-  line-height: 1.35;
-  color: var(--color-ui-fg);
-}
-
-.cal-node-l--mono {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-}
-
-.cal-node-s {
-  display: block;
-  margin-top: 0.1875rem;
-  font-size: 0.75rem;
-  line-height: 1.45;
-  color: var(--color-ui-faint);
-}
-
-.cal-brain-one {
-  margin-top: 0.375rem;
-  font-family: var(--font-mono);
-  font-size: 0.5625rem;
-  line-height: 1.6;
-  letter-spacing: 0.04em;
-  color: var(--color-ui-faint);
-}
-
-.cal-brain-detail {
-  margin-top: 1.25rem;
-  max-width: 68ch;
-  border-inline-start: 3px solid var(--color-cal-1);
-  padding: 0.25rem 0 0.25rem 1rem;
-  font-size: 0.9375rem;
-  line-height: 1.7;
-  color: var(--color-ui-dim);
-}
-
 /* ── THE ASK MAP ────────────────────────────────────────────────────────────
    `FlowMap` styles nothing by `kind` — what kinds exist is this product's
    vocabulary, so the widths live with the map that declares them.
@@ -1882,285 +911,918 @@ body {
   color: var(--color-ui-fg);
 }
 
-/* ── THREE BASELINES ────────────────────────────────────────────────────────
-   Twenty-eight marks per row, one per check, in the order clean / flaky /
-   failed / broken. The bar is the figure: a reader sees the flaky block shrink
-   without reading a number, and flaky is drawn as its own state rather than as
-   a paler pass — it is not a softer kind of passing. */
-.cal-base {
-  margin-top: 1.75rem;
-  border: 1px solid color-mix(in oklab, var(--color-cal-1) 26%, var(--color-ui-line));
-  border-radius: 0.875rem;
-  background: color-mix(in oklab, var(--color-cal-1) 5%, var(--color-ui-surface));
-  padding: 1.25rem 1.375rem 1.125rem;
+/* ══ HOW IT WORKS — `/steps`, redesigned 2026-09-27 ═══════════════════════════
+   The same design as Thornbury Goods' `/steps` (apps/web/commerce-app), ported
+   rather than imported: each deployment keeps its own stylesheet, and the
+   commerce app is still being edited by another session.
+
+   WHAT CHANGED, and it is all about reading. The first version of this page was
+   monospace headings and 11px uppercase labels on near-black — faithful to the
+   house style and hard going for the person it has to serve: somebody who
+   arrived from a link about search, agents or evals and has never read the plan.
+
+   1. A SOFTER DARK. Slate (#121826) rather than near-black, so page, cards and
+      code are three visibly different surfaces.
+   2. CONTRAST THAT PASSES. Body text #b3bdcc is 9.3:1 on the page; the "faint"
+      grey is 5.5:1. The old faint was 3.2:1 and failed WCAG AA.
+   3. ONE TYPE FAMILY BUILT FOR LEGIBILITY. Atkinson Hyperlegible Next and its
+      Mono sibling. The letters that get confused — I l 1, O 0 — are drawn to be
+      told apart, which matters on a page full of `11353867` and `20V197000`.
+
+   ── SCOPED TO THIS PAGE, NOT THE APP ──────────────────────────────────────
+   The landing page, the desk and the data-flow page were not part of the
+   redesign, so the re-pointed tokens apply only while a `.cal-howto` element is
+   on the page. `:root:has()` rather than a wrapper class, because every "under
+   the hood" dialog is portalled to <body> by `OriginDialog` — a wrapper would
+   restyle the page and leave every dialog in the old palette. The fonts are
+   loaded by the `/steps` route's own head, for the same reason.
+   ────────────────────────────────────────────────────────────────────────── */
+@theme {
+  /* ── THE SECOND ACCENT, AND WHY IT IS NOT --color-cal-2 ──────────────────
+     This page needs two colours that mean two things: indigo (--color-cal-1)
+     for WHAT WAS BUILT — a stage, a finished step, a phase — and a second one
+     for WHAT WE LEARNED, links and focus. The obvious second is cal-2, and it
+     fails: #818cf8 ↔ #a5b4fc is CIEDE2000 ΔE 11.3, under SITE.md's floor of 15.
+     Same hue, two lightnesses, and a reader cannot hold them apart.
+
+     Sky clears it: #818cf8 ↔ #7dd3fc is ΔE 23.1. Contrast on the page: indigo
+     5.9:1, sky 10.6:1. (Measured with the same CIEDE2000 formula that gives
+     Thornbury's teal ↔ sky pair the 28.5 its stylesheet records.)
+
+     cal-1..3 keep their meanings — the three sources — everywhere else. */
+  --color-cal-sky: #7dd3fc;
 }
 
-.cal-base-rows {
-  display: grid;
-  gap: 0.875rem;
-  margin-top: 1rem;
+:root:has(.cal-howto) {
+  --font-sans: 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Atkinson Hyperlegible Mono', ui-monospace, 'SF Mono', monospace;
+  --font-ui-sans: var(--font-sans);
+  --font-ui-mono: var(--font-mono);
+  --default-font-family: var(--font-sans);
+  --default-mono-font-family: var(--font-mono);
+
+  --color-ui-bg: #121826;
+  --color-ui-surface: #19212f;
+  --color-ui-raised: #1f2939;
+  --color-ui-line: #2a3448;
+  --color-ui-line-lit: #3a4760;
+  --color-ui-fg: #e6ebf2;
+  --color-ui-dim: #b3bdcc;
+  --color-ui-faint: #8390a5;
+
+  /* Code: darker than the page, so it reads as an editor inset into it. The
+     TOKEN colours are VS Code's own and are not touched. */
+  --snip-bg: #0e1420;
+  --snip-mark: rgba(125, 211, 252, 0.09);
+  --snip-accent: var(--color-cal-1);
 }
 
-.cal-base-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem 1rem;
+:root:has(.cal-howto) body {
+  font-family: var(--font-sans);
+  background-image:
+    radial-gradient(60rem 30rem at 8% -12%, rgba(129, 140, 248, 0.08), transparent 60%),
+    radial-gradient(52rem 26rem at 96% 0%, rgba(125, 211, 252, 0.06), transparent 60%);
 }
 
-.cal-base-when {
-  width: 11rem;
-  flex-shrink: 0;
+:root:has(.cal-howto) ::selection {
+  background: color-mix(in oklab, var(--color-cal-sky) 35%, transparent);
+}
+
+:root:has(.cal-howto) :where(a, button, [role='tab'], summary):focus-visible {
+  outline: 2px solid var(--color-cal-sky);
+  outline-offset: 3px;
+  border-radius: 0.375rem;
+}
+
+/* Code a little larger than the shared default: Atkinson Hyperlegible Mono
+   sets small for its size, and here the code is read, not glanced at. */
+:root:has(.cal-howto) .snip pre {
+  font-size: 0.875rem;
+}
+
+:root:has(.cal-howto) .snip-head {
+  font-size: 0.8125rem;
+}
+
+/* Inline code in prose. */
+.cal-prose code,
+.cal-step code,
+.cal-card code,
+.cal-gloss code,
+.cal-hood-text code,
+.cal-because code,
+:root:has(.cal-howto) .ui-dialog-body p code {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--color-ui-dim);
+  font-size: 0.9em;
+  padding: 0.0625rem 0.3125rem;
+  border-radius: 0.3125rem;
+  background: color-mix(in oklab, var(--color-ui-raised) 80%, transparent);
+  color: var(--color-ui-fg);
+  overflow-wrap: anywhere;
 }
 
-.cal-base-when span {
-  display: block;
-  margin-top: 0.125rem;
-  font-size: 0.625rem;
+/* ── LABELS ─────────────────────────────────────────────────────────────────
+   Sentence case, in the text face, a little smaller and bolder than the body.
+   The tracked-out uppercase monospace labels were the hardest thing on the old
+   page to read, and there was one above nearly every block. */
+.cal-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--color-cal-1);
+}
+
+.cal-label[data-tone='learn'] {
+  color: var(--color-cal-sky);
+}
+
+.cal-label[data-tone='quiet'] {
   color: var(--color-ui-faint);
 }
 
-.cal-base-bar {
-  display: flex;
-  min-width: 14rem;
-  flex: 1 1 16rem;
-  gap: 2px;
+/* ── THE STAGES, AS TABS ────────────────────────────────────────────────────
+   Seven stages, each a card in a row. The active card's bottom edge is erased
+   so card and panel read as one surface rather than a button above some text. */
+.cal-phases {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
 }
 
-.cal-base-bar i {
-  height: 1.375rem;
-  flex: 1 1 0;
-  border-radius: 1px;
+@media (min-width: 40rem) {
+  .cal-phases {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
-.cal-base-bar i[data-s='clean'] {
+@media (min-width: 64rem) {
+  .cal-phases {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0;
+    align-items: stretch;
+  }
+}
+
+.cal-phase {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: 0.375rem;
+  padding: 0.875rem 0.875rem 1rem;
+  text-align: left;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.875rem;
+  background: var(--color-ui-surface);
+  transition:
+    background 200ms ease,
+    border-color 200ms ease;
+}
+
+@media (min-width: 64rem) {
+  /* NO BOTTOM EDGE ON THE ROW: the tabs sit straight on the panel, so there is
+     no line between the stage you picked and what it shows. */
+  .cal-phase {
+    border-radius: 0.875rem 0.875rem 0 0;
+    border-bottom-width: 0;
+    margin-inline-start: -1px;
+  }
+  .cal-phase:first-child {
+    margin-inline-start: 0;
+  }
+}
+
+.cal-phase:hover {
+  background: var(--color-ui-raised);
+}
+
+.cal-phase[aria-selected='true'] {
+  z-index: 1;
+  border-color: color-mix(in oklab, var(--color-cal-1) 55%, var(--color-ui-line));
+  background: var(--color-ui-raised);
+}
+
+.cal-phase[aria-selected='true']::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0.875rem;
+  top: -1px;
+  height: 3px;
+  border-radius: 3px;
   background: var(--color-cal-1);
 }
 
-.cal-base-bar i[data-s='flaky'] {
-  background: color-mix(in oklab, var(--color-cal-2) 45%, transparent);
-}
-
-.cal-base-bar i[data-s='failed'] {
-  background: color-mix(in oklab, var(--color-ui-faint) 55%, transparent);
-}
-
-/* A run lost to the quota is not a failed check. Hollow, so it reads as absent
-   rather than as wrong. */
-.cal-base-bar i[data-s='broken'] {
-  background: transparent;
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-ui-faint) 60%, transparent);
-}
-
-.cal-base-n {
-  width: 5rem;
-  flex-shrink: 0;
-  text-align: right;
-  font-family: var(--font-mono);
-  font-size: 1.25rem;
-  color: var(--color-cal-1);
-}
-
-.cal-base-n span {
-  display: block;
-  font-size: 0.5625rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-ui-faint);
-}
-
-.cal-base-foot {
-  margin-top: 1rem;
-  max-width: 64ch;
-  border-top: 1px solid color-mix(in oklab, var(--color-cal-1) 16%, var(--color-ui-line));
-  padding-top: 0.875rem;
+.cal-phase-n {
   font-size: 0.8125rem;
-  line-height: 1.6;
+  font-weight: 600;
   color: var(--color-ui-faint);
 }
 
-/* The slot, once a number arrived in it. A RANGE, drawn as a range — the runs
-   disagree and the disagreement is the finding, so there is no point figure
-   here to mistake for one. */
-.cal-gap[data-filled='true'] {
-  border-style: solid;
-  border-color: color-mix(in oklab, var(--color-cal-1) 30%, var(--color-ui-line));
-  background: color-mix(in oklab, var(--color-cal-1) 5%, var(--color-ui-surface));
+.cal-phase-label {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--color-ui-dim);
 }
 
-.cal-gap-range {
-  margin-top: 0.125rem;
-  font-family: var(--font-mono);
-  font-size: 2.25rem;
-  line-height: 1.1;
+.cal-phase[aria-selected='true'] .cal-phase-label,
+.cal-phase:hover .cal-phase-label {
+  color: var(--color-ui-fg);
+}
+
+.cal-phase-status {
+  align-self: end;
+  display: grid;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
   color: var(--color-cal-1);
 }
 
-.cal-gap-runs {
-  margin-top: 0.25rem;
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  letter-spacing: 0.04em;
-  color: var(--color-ui-faint);
+/* How many steps the stage holds, as a row of pips — one per step. Every one
+   is lit, because every one has run; the row is there to show SIZE, which is
+   the thing that differs between stages (one step against eight). */
+.cal-pips {
+  display: flex;
+  gap: 3px;
 }
 
-/* Per case, three runs each. The point of the block is that two rows never
-   change and one swings from everything to nothing. */
-.cal-routed {
+.cal-pips > span {
+  flex: 1;
+  max-width: 1.5rem;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--color-cal-1);
+}
+
+.cal-phasepanel {
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.875rem;
+  background: linear-gradient(180deg, var(--color-ui-raised) 0, var(--color-ui-bg) 22rem);
+  padding: 1.5rem 1rem 2rem;
+}
+
+@media (min-width: 40rem) {
+  .cal-phasepanel {
+    padding: 2rem 1.75rem 2.5rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  .cal-phasepanel {
+    border-top-width: 0;
+    border-radius: 0 0 0.875rem 0.875rem;
+    padding: 2.5rem 2.25rem 2.75rem;
+  }
+}
+
+/* ── A STEP ─────────────────────────────────────────────────────────────────
+   Every step is the same five parts in the same order — in plain words, why it
+   matters, the code, what we learned, words to know — so a reader who has done
+   one knows where to look in the next twenty-eight. */
+.cal-step {
+  scroll-margin-top: 1.5rem;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 1rem;
+  background: var(--color-ui-surface);
+  padding: 1.25rem 1rem 1.5rem;
+}
+
+@media (min-width: 40rem) {
+  .cal-step {
+    padding: 1.75rem 1.75rem 2rem;
+  }
+}
+
+.cal-step-head {
   display: grid;
-  gap: 0.5rem;
-  margin-top: 1.125rem;
-  border-top: 1px solid color-mix(in oklab, var(--color-cal-1) 16%, var(--color-ui-line));
-  padding-top: 0.9375rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.25rem 1rem;
+  align-items: start;
 }
 
-.cal-routed li {
+/* The step's own number, in a lit ring. Not a tick: on this page every step
+   has run, so a tick would say nothing, and `3.6b` is how the documents, the
+   code and the next person all refer to it. */
+.cal-step-n {
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  min-width: 2.75rem;
+  height: 2.75rem;
+  padding-inline: 0.375rem;
+  border-radius: 999px;
+  border: 2px solid var(--color-cal-1);
+  background: color-mix(in oklab, var(--color-cal-1) 16%, transparent);
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: var(--color-ui-fg);
+}
+
+.cal-step-title {
+  font-size: 1.3125rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.005em;
+  color: var(--color-ui-fg);
+}
+
+.cal-step-meta {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.25rem 1rem;
+  gap: 0.375rem 0.5rem;
+  align-items: center;
 }
 
-.cal-routed-id {
-  width: 4.5rem;
-  flex-shrink: 0;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
+.cal-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-ui-line-lit);
+  padding: 0.125rem 0.625rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
   color: var(--color-ui-dim);
+  white-space: nowrap;
 }
 
-.cal-routed-runs {
-  display: flex;
-  width: 9.5rem;
-  flex-shrink: 0;
-  gap: 0.5rem;
-}
-
-.cal-routed-runs i {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-style: normal;
-  color: var(--color-ui-faint);
-}
-
-.cal-routed-runs i[data-hit='true'] {
+.cal-pill[data-tone='done'] {
+  border-color: color-mix(in oklab, var(--color-cal-1) 55%, transparent);
+  background: color-mix(in oklab, var(--color-cal-1) 12%, transparent);
   color: var(--color-cal-1);
 }
 
-/* The row that moves is the finding, so the stable ones step back rather than
-   the moving one being decorated. */
-.cal-routed li[data-stable='true'] .cal-routed-note {
+.cal-pill[data-tone='learn'] {
+  border-color: color-mix(in oklab, var(--color-cal-sky) 55%, transparent);
+  color: var(--color-cal-sky);
+}
+
+.cal-pill[data-tone='pending'] {
+  border-style: dashed;
   color: var(--color-ui-faint);
 }
 
-.cal-routed-note {
-  flex: 1 1 18rem;
-  font-size: 0.8125rem;
-  line-height: 1.55;
-  color: var(--color-ui-dim);
-}
-
-/* ── THE TWO NUMBERS ────────────────────────────────────────────────────────
-   One box, two halves, one footer. They are never added and never separated:
-   28 of 28 is the most quotable figure here and the least honest alone, so the
-   layout makes quoting it in isolation take deliberate effort. */
-.cal-two {
+.cal-step-body {
   display: grid;
-  gap: 1rem;
-  margin-top: 1.75rem;
-  border: 1px solid color-mix(in oklab, var(--color-cal-1) 28%, var(--color-ui-line));
-  border-radius: 0.875rem;
-  background: color-mix(in oklab, var(--color-cal-1) 5%, var(--color-ui-surface));
-  padding: 1.25rem 1.375rem 1.125rem;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
 }
 
-@media (min-width: 48rem) {
-  .cal-two {
-    grid-template-columns: 1fr 1fr;
-    gap: 1.25rem 2rem;
+@media (min-width: 40rem) {
+  .cal-step-body {
+    padding-left: 3.75rem;
   }
 }
 
-.cal-two-cap {
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.cal-part > h4 {
+  margin-bottom: 0.375rem;
+}
+
+.cal-part p,
+.cal-prose p {
+  max-width: 68ch;
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim);
+}
+
+.cal-part p + p,
+.cal-prose p + p {
+  margin-top: 0.75rem;
+}
+
+.cal-part strong,
+.cal-prose strong,
+.cal-lesson strong,
+.cal-because strong {
+  color: var(--color-ui-fg);
+  font-weight: 600;
+}
+
+/* WHAT WE LEARNED. The part of each step that is worth the visit — nearly
+   every one corrected something the plan had written down — so it is the one
+   block with a fill. */
+.cal-lesson {
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in oklab, var(--color-cal-sky) 35%, transparent);
+  background: color-mix(in oklab, var(--color-cal-sky) 6%, transparent);
+  padding: 1rem 1.125rem 1.125rem;
+}
+
+.cal-lesson > h4 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.cal-lesson p {
+  max-width: 66ch;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim);
+}
+
+.cal-lesson p + p {
+  margin-top: 0.625rem;
+}
+
+/* A reason set apart from the description — the part a reader is being asked
+   to agree or disagree with. */
+.cal-because {
+  max-width: 68ch;
+  border-left: 2px solid color-mix(in oklab, var(--color-cal-sky) 50%, transparent);
+  padding: 0.25rem 0 0.25rem 1rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim);
+}
+
+/* Words to know — each one jumps to its glossary entry. */
+.cal-terms {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
   color: var(--color-ui-faint);
 }
 
-.cal-two-n {
-  margin-top: 0.25rem;
+.cal-term {
+  border-radius: 999px;
+  border: 1px solid var(--color-ui-line-lit);
+  padding: 0.125rem 0.625rem;
+  color: var(--color-ui-dim);
+  transition:
+    color 160ms ease,
+    border-color 160ms ease;
+}
+
+.cal-term:hover {
+  border-color: var(--color-cal-sky);
+  color: var(--color-ui-fg);
+}
+
+/* ── A FIGURE: a caption, where it came from, and the thing itself ─────────── */
+.cal-fig-cap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem 0.625rem;
+  padding-bottom: 0.625rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-ui-fg);
+}
+
+.cal-fig-src {
   font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--color-ui-faint);
+}
+
+.cal-fig .snip-frame {
+  margin: 0;
+}
+
+.cal-raw {
+  overflow-x: auto;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-ui-line);
+  background: var(--snip-bg, var(--color-ui-surface));
+  padding: 0.875rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: #d4dae3;
+  white-space: pre;
+}
+
+.cal-raw mark {
+  background: color-mix(in oklab, var(--color-cal-sky) 26%, transparent);
+  color: var(--color-ui-fg);
+  border-radius: 0.1875rem;
+  padding: 0.0625rem 0.1875rem;
+}
+
+/* A small table for "this → that" figures. Real rows wrap on a phone; aligned
+   spaces in a <pre> did not. */
+.cal-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  font-size: 0.9375rem;
+}
+
+.cal-table th,
+.cal-table td {
+  padding: 0.625rem 0.875rem;
+  text-align: left;
+  vertical-align: top;
+  border-top: 1px solid var(--color-ui-line);
+  line-height: 1.55;
+}
+
+.cal-table thead th {
+  border-top: 0;
+  background: var(--color-ui-raised);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-ui-faint);
+}
+
+.cal-table td {
+  color: var(--color-ui-dim);
+}
+
+.cal-table td:first-child {
+  color: var(--color-ui-fg);
+}
+
+.cal-table td[data-num] {
+  font-family: var(--font-mono);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.cal-table tr[data-lit='true'] td {
+  background: color-mix(in oklab, var(--color-cal-1) 9%, transparent);
+  color: var(--color-ui-fg);
+}
+
+.cal-table td code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  /* AN IDENTIFIER NEVER BREAKS. The prose rule above lets inline code wrap
+     anywhere, which in a narrow first column split \`20V197000\` into
+     "20V197" over "000" — a number nobody can look up. The table scrolls
+     sideways on a phone instead. */
+  overflow-wrap: normal;
+  white-space: nowrap;
+}
+
+/* A few big numbers in a row, each with what it counts. */
+.cal-numbers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2.5rem;
+}
+
+.cal-number-v {
   font-size: 2rem;
+  font-weight: 700;
   line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--color-ui-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.cal-number-l {
+  margin-top: 0.25rem;
+  max-width: 22ch;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--color-ui-faint);
+}
+
+/* A sentence under a figure, saying what to notice in it. */
+.cal-fignote {
+  margin-top: 0.625rem;
+  max-width: 68ch;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--color-ui-faint);
+}
+
+.cal-fignote strong {
+  color: var(--color-ui-dim);
+  font-weight: 600;
+}
+
+/* ── THE BIG PICTURE: who holds what, and where the data leaves ─────────────
+   Five boxes in the order a question's data travels. Ours are outlined in
+   indigo, everybody else's are grey, and the line where the complaints leave
+   our machines is drawn as a line. On a phone the row becomes a column and the
+   arrows turn to point down. */
+.cal-map {
+  display: grid;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+@media (min-width: 64rem) {
+  .cal-map {
+    grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr auto 1fr;
+    gap: 0;
+  }
+}
+
+.cal-node {
+  display: grid;
+  align-content: start;
+  gap: 0.375rem;
+  border-radius: 0.875rem;
+  border: 1px solid var(--color-ui-line-lit);
+  background: var(--color-ui-surface);
+  padding: 0.875rem 1rem 1rem;
+}
+
+.cal-node[data-side='ours'] {
+  border-color: color-mix(in oklab, var(--color-cal-1) 60%, transparent);
+  background: color-mix(in oklab, var(--color-cal-1) 7%, var(--color-ui-surface));
+}
+
+.cal-node[data-side='person'] {
+  border-style: dashed;
+  background: transparent;
+}
+
+.cal-node-name {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--color-ui-fg);
+}
+
+.cal-node-who {
+  font-size: 0.8125rem;
+  color: var(--color-ui-faint);
+}
+
+.cal-node[data-side='ours'] .cal-node-who {
   color: var(--color-cal-1);
 }
 
-/* The judged half is the second tone rather than a dimmer first — it is a
-   different KIND of measurement, not a lesser one. */
-.cal-two-half[data-weak='true'] .cal-two-n {
-  color: var(--color-cal-2);
-}
-
-.cal-two-s {
-  margin-top: 0.4375rem;
-  max-width: 40ch;
-  font-size: 0.8125rem;
-  line-height: 1.6;
+.cal-node-holds {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
   color: var(--color-ui-dim);
 }
 
-.cal-two-foot {
-  border-top: 1px solid color-mix(in oklab, var(--color-cal-1) 16%, var(--color-ui-line));
-  padding-top: 0.875rem;
-  max-width: 66ch;
-  font-size: 0.8125rem;
-  line-height: 1.6;
-  color: var(--color-ui-faint);
+.cal-arrow {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.125rem;
+  padding: 0.125rem 0;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  text-align: center;
+  color: var(--color-cal-sky);
 }
 
-@media (min-width: 48rem) {
-  .cal-two-foot {
-    grid-column: 1 / -1;
+.cal-arrow-head {
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
+.cal-arrow-head::before {
+  content: '↓';
+}
+
+@media (min-width: 64rem) {
+  .cal-arrow {
+    width: 5.25rem;
+    padding: 0 0.25rem;
+  }
+  .cal-arrow-head::before {
+    content: '→';
   }
 }
 
-/* An editorial property, and what grades it. */
-.cal-judged {
+.cal-arrow[data-line='true'] {
+  position: relative;
+}
+
+@media (min-width: 64rem) {
+  .cal-arrow[data-line='true']::after {
+    content: '';
+    position: absolute;
+    top: -0.75rem;
+    bottom: -0.75rem;
+    left: 50%;
+    border-left: 2px dashed color-mix(in oklab, var(--color-ui-fg) 35%, transparent);
+    z-index: -1;
+  }
+}
+
+/* The label sits ON the line, not under it: this one is three lines long, and
+   a dashed rule struck through its words read as a rendering fault. */
+.cal-arrow[data-line='true'] > span:last-child {
+  position: relative;
+  background: var(--color-ui-bg);
+  padding-block: 0.25rem;
+}
+
+.cal-map-key {
   display: flex;
-  align-items: baseline;
-  gap: 0.875rem;
-  border: 1px dashed color-mix(in oklab, var(--color-cal-2) 38%, var(--color-ui-line));
-  border-radius: 0.625rem;
-  padding: 0.625rem 0.875rem;
-}
-
-.cal-judged span {
-  width: 4.5rem;
-  flex-shrink: 0;
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-cal-2);
-}
-
-/* Graded by nothing at all. Fainter, because it is not a result. */
-.cal-judged[data-state='ungraded'] {
-  border-color: color-mix(in oklab, var(--color-ui-faint) 35%, transparent);
-}
-
-.cal-judged[data-state='ungraded'] span,
-.cal-judged[data-state='ungraded'] p {
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  font-size: 0.875rem;
   color: var(--color-ui-faint);
 }
 
-.cal-judged p {
-  font-size: 0.875rem;
-  line-height: 1.55;
+.cal-swatch {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-right: 0.375rem;
+  vertical-align: -0.0625rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--color-ui-line-lit);
+  background: var(--color-ui-surface);
+}
+
+.cal-swatch[data-side='ours'] {
+  border-color: var(--color-cal-1);
+  background: color-mix(in oklab, var(--color-cal-1) 20%, var(--color-ui-surface));
+}
+
+/* ── THE ROADMAP: every step, grouped by stage, each a button ─────────────── */
+.cal-road {
+  display: grid;
+  gap: 1.5rem 1.25rem;
+}
+
+@media (min-width: 40rem) {
+  .cal-road {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 64rem) {
+  .cal-road {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.cal-road-phase > p {
+  margin-bottom: 0.5rem;
+}
+
+.cal-road-step {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: 0.625rem;
+  align-items: center;
+  width: 100%;
+  padding: 0.375rem 0.5rem;
+  margin-inline: -0.5rem;
+  border-radius: 0.5rem;
+  text-align: left;
+  font-size: 0.9375rem;
+  line-height: 1.35;
   color: var(--color-ui-dim);
+  transition: background 160ms ease;
+}
+
+.cal-road-step:hover {
+  background: var(--color-ui-surface);
+  color: var(--color-ui-fg);
+}
+
+.cal-dot {
+  display: grid;
+  place-items: center;
+  height: 1.75rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--color-cal-1);
+  background: color-mix(in oklab, var(--color-cal-1) 16%, transparent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-ui-fg);
+}
+
+/* ── PRIMER CARDS and the glossary ────────────────────────────────────────── */
+.cal-card {
+  border-radius: 1rem;
+  border: 1px solid var(--color-ui-line);
+  background: var(--color-ui-surface);
+  padding: 1.25rem 1.25rem 1.375rem;
+}
+
+.cal-card h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-ui-fg);
+}
+
+.cal-card p {
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--color-ui-dim);
+}
+
+.cal-gloss {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--color-ui-line);
+}
+
+@media (min-width: 48rem) {
+  .cal-gloss {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 2.5rem;
+  }
+}
+
+.cal-gloss > div {
+  scroll-margin-top: 1.5rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--color-ui-line);
+}
+
+.cal-gloss > div:target {
+  background: color-mix(in oklab, var(--color-cal-sky) 8%, transparent);
+  box-shadow:
+    -0.75rem 0 0 color-mix(in oklab, var(--color-cal-sky) 8%, transparent),
+    0.75rem 0 0 color-mix(in oklab, var(--color-cal-sky) 8%, transparent);
+}
+
+.cal-gloss dt {
+  font-weight: 700;
+  color: var(--color-ui-fg);
+}
+
+.cal-gloss dd {
+  margin-top: 0.25rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-ui-dim);
+}
+
+.cal-gloss dd + dd {
+  color: var(--color-ui-faint);
+}
+
+/* A plain text link inside prose. */
+.cal-a {
+  color: var(--color-cal-sky);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--color-cal-sky) 40%, transparent);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 160ms ease;
+}
+
+.cal-a:hover {
+  text-decoration-color: var(--color-cal-sky);
+}
+
+/* Paragraphs inside an "under the hood" dialog, held to a readable measure. */
+.cal-hood-text {
+  max-width: 66ch;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim);
+}
+
+/* ── THE OLDER CALLOUTS, RE-DRAWN ON THIS PAGE ONLY ─────────────────────────
+   `cal-key`, `cal-why`, `cal-open` and `cal-panel` are used inside the "under
+   the hood" dialogs, and the desk still uses its own classes, so the originals
+   above stay as they are and these override them only while `/steps` is open.
+   Same meanings, the redesign's sizes and colours:
+     cal-key    the point — drawn like "What we learned", sky and filled
+     cal-why    a reason — a rule in the margin, like `Because`
+     cal-open   still open — dashed, never filled
+     cal-panel  a figure that is not code — a surface card */
+:root:has(.cal-howto) .cal-key {
+  max-width: 66ch;
+  border: 1px solid color-mix(in oklab, var(--color-cal-sky) 35%, transparent);
+  border-radius: 0.75rem;
+  background: color-mix(in oklab, var(--color-cal-sky) 6%, transparent);
+  padding: 1rem 1.125rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--color-ui-fg);
+}
+
+:root:has(.cal-howto) .cal-why {
+  max-width: 66ch;
+  border-inline-start: 2px solid color-mix(in oklab, var(--color-cal-sky) 50%, transparent);
+  padding: 0.25rem 0 0.25rem 1rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim);
+}
+
+:root:has(.cal-howto) .cal-open {
+  max-width: 66ch;
+  border: 1px dashed var(--color-ui-line-lit);
+  border-radius: 0.75rem;
+  padding: 0.875rem 1.125rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim);
+}
+
+:root:has(.cal-howto) .cal-panel {
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.75rem;
+  background: var(--color-ui-surface);
+  padding: 1.125rem 1.25rem;
 }
