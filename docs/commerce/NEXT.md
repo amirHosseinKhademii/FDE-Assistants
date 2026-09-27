@@ -9,7 +9,9 @@ in §1.*
 is done, what is not, and what the next person needs to know before touching it.
 
 > **2026-09-27 — picked up again, three sessions.** This session (MCP strand):
-> Steps 6 and 5 done (in that order), Step 7 paused by Byron. A second session is working the hand-worked answer
+> Steps 6 and 5 done (in that order), Step 7 paused by Byron. **Then the three
+> missing read tools, and the fixes the answer key forced — see §9.** The answer
+> key itself is committed (`37e35ac`, re-measured at `c21f625`). A second session is working the hand-worked answer
 > key and eval cases (`WALKTHROUGH.md`, `evals/cases.jsonl` — §4's gap). A third
 > is redesigning `apps/web/commerce-app`. **The policy index (§0 "NOT BUILT",
 > Step 9's prerequisite) was offered to a session and declined — it is
@@ -25,14 +27,16 @@ is done, what is not, and what the next person needs to know before touching it.
   BUILT AND GREEN                                    WHERE
   ─────────────────────────────────────────────────────────────────────────
   MCP server, steps 0–6 of 14                        apps/mcp/commerce
-    25 offline checks   pnpm commerce:mcp-check      (no ports, no db, ~2s)
-     5 live checks      pnpm commerce:mcp-round-trip (needs :3610 up — incl.
-                        all 13 trap cases through a listing client)
+    tools: get_order · get_delivery · get_contact_history · get_policy_rules
+    27 offline checks   pnpm commerce:mcp-check      (no ports, no db, ~2s)
+    13 live checks      pnpm commerce:mcp-round-trip (needs :3610 up — all 13
+                        trap cases × every tool through a listing client, each
+                        trap asserted against the hand-worked answer key)
     16 live checks      pnpm commerce:mcp-break      (needs :3610 up — Step 6)
      1 demo             pnpm commerce:mcp-live
 
   Policy corpus, 12 documents                        docs/commerce/corpus/
-    10 checks           pnpm commerce:source-probe   (offline)
+    13 checks           pnpm commerce:source-probe   (offline)
     81 chunks, 0 orphaned table rows even at 120 chars
 
   Estate, 5 Neon databases    ┐
@@ -45,9 +49,12 @@ is done, what is not, and what the next person needs to know before touching it.
   the judgment layer          prompt · ResolutionAnswerSchema · coherence
                               rules · severity buckets — PLAN.md §8 specifies
                               all four, none is written
-  the eval suite              twelve planted traps, no graded suite. THE
-                              BIGGEST GAP — see §4
-  embeddings / search_policy  the corpus is written and never ingested
+  the eval RUNNER             the answer key and 18 cases exist (§4); nothing
+                              runs them — it needs the judgment layer and
+                              Step 10's client first
+  embeddings / search_policy  the corpus is written and never ingested. The
+                              index is UNCLAIMED — a session declined it
+  propose_resolution          writes rows; belongs with Step 11's allowlist
 ```
 
 **To pick this up:** `pnpm commerce:mcp-check` needs nothing and proves the
@@ -142,6 +149,16 @@ would also have bought." That is a real result and publishing it is the point.
 ---
 
 ## 4 · The biggest gap, stated plainly
+
+> **▲ HALF CLOSED 2026-09-27.** The answer key exists: `docs/commerce/WALKTHROUGH.md`
+> (every trap worked by hand from live data) plus `evals/cases.jsonl` and
+> `evals/README.md` — **18 cases**, 13 trap (T1 ×1, T2 ×1, T3 ×2, T4 ×1, T5 ×2,
+> T6 ×6) and 5 clean-answer controls, every check carrying a §11.1 bucket. It
+> found ten defects in the estate, corpus and API; §9 is what happened to each.
+> Its own stated gaps: nothing yet requires the answer "late", and T4 tolerates
+> one citation (POL-RET-001 Rev 3 §7) as a decision Byron can overrule. **What
+> is still missing is anything that RUNS it** — the judgment layer (PLAN §8) and
+> Step 10's client come first. The text below is the 2026-09-18 state.
 
 **There is no eval suite, and twelve planted traps have nothing grading them.**
 
@@ -262,6 +279,7 @@ repeat it) and misleading to an operator.
 |---|---|
 | **PII across the boundary** | `/orders/:id` returns `customer.email` and `customer.fullName`. The MCP layer parses them so the contract is honest, and does **not** render them into the prose the model reads — but `structuredContent` is the model's context either way. Two sessions agree the narrow answer is probably "parse, do not forward"; *probably* is not good enough for a data-residency decision. `docs/steering/DATA-RESIDENCY.md` is the precedent for the format. **Byron's call.** *Since Step 5 the published `outputSchema` of `get_order` names both fields too — it is the literal statement of what leaves the tool, so the answer to this row changes that schema as well as the API.* |
 | **the env prefix** | §5.5 — and the two sessions that recorded a view **disagree**, which is why it needs deciding rather than defaulting. The estate session: unify to `COMMERCE_DATABASE_URL`, because it is inconsistent with all four siblings (`PHARMA_`/`STEERING_`/`SAFETY_DATABASE_URL`) on two axes at once. The web session: **keep them different on purpose and say why at the definition** — `ECOMMERCE_DB_URL` creates and drops five databases, `COMMERCE_API_*` is a token holding no database access at all, §4.1's whole argument is that those must never sit in one process, and a shared prefix invites the copy-paste that puts them there. Their compromise if unified: rename the estate credential to say what it is, `COMMERCE_ESTATE_ADMIN_URL`, rather than making it look like a peer of the service token. |
+| **what leaves the tools, beyond the customer** | Decided at the tool layer 2026-09-27, recorded here so it can be overruled: `get_delivery` does **not** pass on the driver's `fullName` or `licenceNo`, or the proof of delivery's `recipientName` (no trap needs them; the schema strips them), nor the API's `calendarDaysLateIfNaive` (the wrong answer printed next to the right one). `get_contact_history` treats the customer's `displayName` and `email` exactly as `get_order` does — parsed, not rendered — so it does not pre-empt the row above. |
 | **tool-input strictness** | Zod objects are not strict by default and the SDK does not make them so — an undeclared argument is silently accepted. `coverage-schema.ts` uses `z.strictObject` for the answer contract; tool inputs crossing a trust boundary arguably deserve the same. Recorded as behaviour, not endorsed. |
 
 A line from the estate session worth keeping whoever answers the first one:
@@ -396,3 +414,45 @@ disposable. Bring the API back with:
 ```bash
 pnpm --filter @thornbury/commerce-api dev
 ```
+
+---
+
+## 9 · 2026-09-27 — the answer key's ten findings, and what happened to each
+
+The answer-key session (`project-a-c9`) worked every trap by hand from live data
+before anything could grade itself, and found ten defects that every existing
+check had been green over. **Each strand's checks compared that strand with
+itself; none read one strand against another.** Byron took three decisions on
+them; this session implemented those and the fixes they needed.
+
+| # | finding | what happened | where it is proven |
+|---|---|---|---|
+| F1 | the corpus's carrier contracts (Northgate, Pelham) name carriers the estate does not have; every T6 order went by Nexdrop | **Decision 1 — documents follow data.** Rewritten as `CON-CAR-NEXDROP-2025` and `CON-CAR-PARCELANE-2025`, every value matching `carrier_sla`. Both count WORKING days: the estate has no calendar-day clock, so Pelham's calendar-day clause went. **T6 now tests working days against naive subtraction — the carrier-clock contrast is gone because nothing in the data backed it.** T6's prose half is `CON-CAR-NEXDROP-2025#2` | `commerce:source-probe` 13 (three new checks read each contract against `carrier_sla`; sabotage-verified) |
+| F2 | `/policy/rules` dropped every `any` row | fixed in the API; its check had accepted `null` | `commerce:api-check` 62 — API.md §0 |
+| F3 | T5a's message complained about a lamp not on its order | **Decision 3 — the message was wrong** (no suggestion had been offered; the order is the record, and the frame is the fragile line). Now names the photo frame | `db-check` 56, new T5 check |
+| F4 | `promised_by` a working day early on 65 shipments | seed fixed; only the DATE moved | `api-check`, new promise assertion; ESTATE.md §0 |
+| F5 | 82 Nexdrop `next_day` shipments have no SLA row | **open** — `get_delivery` returns the delivery with `sla` labelled `not_found` | — |
+| F6 | no address outside England & Wales; jurisdiction never exercised | **open** | — |
+| F7 | no tool reached `/policy/sla` | `get_delivery` folds the working-day verdict in | `commerce:mcp-round-trip` T6 ×6 |
+| F8 | config and corpus disagreed in unplanted places | **Decision 2 — make them agree, except the planted T2 conflict.** DOA §3, GDW §3/§4 (+ new §4.4), BUL-HV, FRD §3/§5 aligned to the rows. c9's seven scored clauses kept their meaning; no Revision Id bumped. **Three places where the DATA disagrees with itself are left open**: PV-HIGHVALUE says items, RR-006 says orders; AT-REFUND-MGR caps a manager at £250 while RR-006 makes >£250 a manager decision (no one can approve it — the prose says escalate); several documents' Effective dates differ from `policy_versions` | CORPUS.md §2 ▲ |
+| F9 | stale prose in ESTATE.md and PLAN.md | **open**, listed in ESTATE.md §0 | — |
+| F10 | ordinary traffic too incoherent for clean controls | **open** — c9 proposes a reserved `CAS-8xxxx` control block, including a T6 mirror that IS late | — |
+
+**The three read tools** (`get_delivery`, `get_contact_history`, `get_policy_rules`)
+were in PLAN.md §5.1 and in none of the fourteen steps; without them the
+assistant could reach one trap of six. They are registered through `register()`
+(output schema, labelled causes), the two customer-data ones take no arguments
+(asserted), and `commerce:mcp-round-trip` sends all 13 trap cases through every
+tool as a listing client and checks each trap against the hand-worked key.
+Sabotage-verified: filtering the customer's text, letting driver PII through the
+schema, giving `get_delivery` an `orderId`, and asking the SLA without the
+delivery instant each turn exactly one check red. **Still not built:**
+`search_policy` (the index is unclaimed and needs a decision on where it lives)
+and `propose_resolution` (it writes rows; it belongs with Step 11's allowlist).
+
+> **⚠ A CREDENTIAL WAS EXPOSED IN A TRANSCRIPT.** While reconciling the corpus, a
+> worker session printed the live `ECOMMERCE_DB_DIRECT_URL` — password included —
+> into its own tool output. It is in a local session transcript only; no file in
+> the repo contains it. **Rotating that Neon role's password is recommended** —
+> it is the estate's admin credential, the one that creates and drops all five
+> databases. Byron's call; nothing here has been rotated.

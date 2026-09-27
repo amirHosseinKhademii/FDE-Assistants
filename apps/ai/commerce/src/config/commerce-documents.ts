@@ -195,10 +195,18 @@ export const COMMERCE_DOCUMENTS: DocumentDomain = {
       category: (fields.get('category') ?? '').toLowerCase().trim() || null,
 
       /**
-       * Which carrier's contract this is, or null. The lateness question is not
-       * answerable without it: Northgate counts WORKING days and Pelham counts
-       * CALENDAR days, so the same parcel is due on different dates depending
-       * on which contract it travelled under. A filter, not a footnote.
+       * Which carrier's contract this is, or null — the ESTATE's carrier id
+       * (`thb_fleet.carriers.carrier_id`, e.g. `CAR-NDX`), so a shipment's
+       * carrier joins to its contract without a mapping table. The lateness
+       * question is not answerable without it: Nexdrop's standard service is 3
+       * working days and Parcelane's is 4, so the same parcel is due on
+       * different dates depending on which contract it travelled under. A
+       * filter, not a footnote.
+       *
+       * ▲ 2026-09-27. This said "Northgate counts WORKING days and Pelham counts
+       * CALENDAR days". Neither carrier existed in the estate, and the estate
+       * has no calendar-day clock at all, so the contracts were rewritten to
+       * the estate's carriers — see CORPUS.md §2.
        */
       carrier: text(fields.get('carrier')),
     };

@@ -5,6 +5,23 @@ const Money = z.int();
 const Instant = z.string();
 const CivilDate = z.string();
 
+/**
+ * `GET /case` — the scope a request carries, read back.
+ *
+ * ADDED 2026-09-27 for the MCP server, which holds no database credential and
+ * so has no other way from a case to its customer: the CRM customer id is not
+ * the shop's `userId`, and the two are joined only by a soft key the API owns.
+ * It returns exactly what `ScopeService.resolve` already decided for the header
+ * on this request — nothing a caller could not already reach through the
+ * scoped routes, and nothing about any other case.
+ */
+export const CaseScopeResponse = z.strictObject({
+  caseId: z.string(),
+  customerId: z.string(),
+  orderRef: z.string().nullable(),
+});
+export type CaseScopeResponse = z.infer<typeof CaseScopeResponse>;
+
 export const CustomerIdParam = z.strictObject({
   id: z.string().min(1).max(64),
 });

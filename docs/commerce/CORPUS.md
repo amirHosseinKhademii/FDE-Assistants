@@ -16,8 +16,8 @@
 ## 1 · Everything here is fabricated
 
 **Thornbury Goods does not exist.** No policy in `corpus/` was ever published,
-no procedure was ever followed, no contract was ever signed, and Northgate
-Logistics and Pelham Carriers are not companies. Every document carries a
+no procedure was ever followed, no contract was ever signed, and Nexdrop
+Logistics and Parcelane UK are not companies. Every document carries a
 `FABRICATED` banner in its own text rather than in a wrapper, so a chunk that
 escapes into a context window carries the warning with it.
 
@@ -45,8 +45,26 @@ the number is twelve and not the forty the plan guessed at.
 | `note-elec-2022-retired.md` | retired guidance | **wrong, and retired for being wrong.** Kept because old case notes quote it |
 | `pol-doa-002-rev-1.md` | damaged-on-arrival procedure | the core of the assistant's job. §4.4 is the route walk |
 | `std-dep-004-rev-2.md` | depot and route incident reporting | explains *why* a damaged parcel has a clean delivery record |
-| `con-car-northgate-2024.md` | carrier contract | SLA in **working days**, jurisdiction-dependent bank holidays |
-| `con-car-pelham-2023.md` | carrier contract | SLA in **calendar days** — deliberately not the same definition |
+| `con-car-nexdrop-2025.md` | carrier contract, `CAR-NDX` | SLA in **working days**, jurisdiction-dependent bank holidays — **T6's prose half**: every T6 order went by Nexdrop |
+| `con-car-parcelane-2025.md` | carrier contract, `CAR-PCL` | the same definition and **different numbers** — 4 working days standard against Nexdrop's 3 |
+
+> **▲ 2026-09-27 — the two contracts were for carriers that do not exist in the
+> estate.** They were `con-car-northgate-2024.md` (`CARR-NGT`, working days) and
+> `con-car-pelham-2023.md` (`CARR-PLM`, **calendar** days). The estate's
+> contracted carriers are Nexdrop and Parcelane, every T6 order went by Nexdrop,
+> and the estate has **no calendar-day clock anywhere** — `carrier_sla` counts
+> working days for every carrier. So T6's document half did not exist, and the
+> calendar-day contrast was a trap with no data behind it: ungradable, and a
+> source of unplanted conflict for every ordinary Parcelane shipment. Found by
+> the answer-key session working T6 by hand; decided by Byron — **documents
+> follow data**. Both contracts were rewritten to the estate's carriers and
+> `carrier_sla` rows (day counts, penalty rates and caps, effective dates). The
+> carriers-differ lesson survives in the only form the data backs — different
+> **day counts** — and the POD clauses ("photographs on all residential" / "no
+> photographs") went, because both carriers capture a photo or a signature.
+> `commerce:source-probe` now reads every contract against `buildPolicy()`'s
+> `carrier_sla` and fails on a facet, a day count or a clock the estate does not
+> have.
 | `pol-gdw-003-rev-2.md` | goodwill and approval thresholds | who may release money, and that approval is a **person** |
 | `bul-hv-2025-01.md` | high-value verification | extra evidence above £400, and is careful to change no entitlement |
 | `pol-frd-005-rev-1.md` | repeat claims | history is a reason to look, never a reason to refuse |
@@ -87,11 +105,17 @@ answer contract exists to prevent.
 refunds the *first* evidence step; `pol-gdw-003-rev-2.md` §4.1 makes any outcome
 on an already-refunded line a team-leader approval whatever the amount.
 
-**T6 · working days versus calendar days.** The two carrier contracts define the
-clock differently **on purpose**, and `con-car-pelham-2023.md` §2 shows the same
-Friday collection falling due on different days by carrier. Northgate §2 adds
-the second-order trap: the bank-holiday jurisdiction is the **delivery address**,
-not the depot, and Scotland, England & Wales and Northern Ireland differ.
+**T6 · working days versus subtracting dates.** `con-car-nexdrop-2025.md` §2
+defines the working day and warns that lateness "cannot be done by subtracting
+dates" — the six T6 orders were collected the Thursday before the August bank
+holiday, look late by calendar arithmetic, and are not. §2 adds the second-order
+trap: the bank-holiday jurisdiction is the **delivery address**, not the depot,
+and Scotland, England & Wales and Northern Ireland differ.
+`con-car-parcelane-2025.md` §2 shows the same Friday collection falling due on
+different days by carrier, because the day counts differ.
+
+*(Before 2026-09-27 this trap was "working days versus calendar days", across two
+contracts for carriers the estate never used — see the ▲ note in §2.)*
 
 **T5 (injection) and T4 (absence) have no document.** T5 lives in a
 `contact_messages` row. T4 is §4 below.
@@ -287,7 +311,23 @@ contradict each other.
 ## 7 · Status
 
 ☑ Twelve documents written, 2026-09-18.
-☐ Not yet ingested — no `DocumentDomain` descriptor exists for this corpus yet.
+☑ 2026-09-27 — **reconciled with the estate's configuration** (Byron's
+   decision: documents follow data). The two carrier contracts were rewritten as
+   Nexdrop and Parcelane (§2's ▲ note), and four unplanted disagreements between
+   the prose and `thb_policy` were aligned to the rows: the damage window
+   (POL-DOA-002 §3 → the 48-hour fast track of RR-001/RR-002), the approval
+   table and goodwill ceilings (POL-GDW-003 §3–§4 → `approval_thresholds`,
+   `goodwill_limits`, plus a §4.4 for RR-006), the high-value threshold
+   (BUL-HV-2025-01 → over £250, RR-006 / PV-HIGHVALUE) and the serial trigger
+   (POL-FRD-005 §3/§5 → four claims, RR-008). **No revision id was bumped** —
+   the answer key cites `POL-GDW-003 Rev 2#4.1`-style ids, and a bump would break
+   them silently. **The planted T2 conflict and the T4 absence were not
+   touched.** Clauses the answer key scores kept their meaning; every change is
+   listed in the handover for that day.
+☑ A `DocumentDomain` descriptor exists (`apps/ai/commerce/src/config/commerce-documents.ts`),
+   and `commerce:source-probe` checks it — 13 checks, three of them reading the
+   carrier contracts against the seed's `carrier_sla`.
+☐ Not yet ingested.
 ☐ `commerce:corpus-check` not written. It must assert the document count, the
    chunk count, **and that no file in `corpus/` is a meta-document** — the last
    being the check that would have caught pharma's 75→80.

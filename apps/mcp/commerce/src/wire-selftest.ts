@@ -121,7 +121,7 @@ async function probeHappyPath(): Promise<void> {
  * a check that teaches you to silence it. Naming the tools means an unexpected
  * one is reported BY NAME and a missing one likewise.
  */
-const EXPECTED_TOOLS = ['get_order', 'ping'];
+const EXPECTED_TOOLS = ['get_contact_history', 'get_delivery', 'get_order', 'get_policy_rules', 'ping'];
 
 async function probeToolsList(): Promise<void> {
   const client = await connected(createServer());
@@ -306,19 +306,42 @@ async function probeGetOrder(stub: Stub): Promise<void> {
   await client.close();
 }
 
-/** THE SECURITY PROPERTY. The model cannot name an order, so it cannot ask for one. */
+/**
+ * THE SECURITY PROPERTY. The model cannot name an order, so it cannot ask for one.
+ *
+ * Extended 2026-09-27 to EVERY tool that reads customer data. get_delivery and
+ * get_contact_history reach further than get_order does — the route, the
+ * driver's reports, every message the customer ever sent — so the property
+ * matters more for them, not less.
+ */
+const CUSTOMER_DATA_TOOLS = ['get_order', 'get_delivery', 'get_contact_history'];
+
 async function probeNoOrderArgument(stub: Stub): Promise<void> {
   const client = await connected(serverAgainst(stub.url, STUB.caseId));
   const { tools } = await client.listTools();
-  const schema = tools.find((t) => t.name === 'get_order')?.inputSchema as
-    | { properties?: Record<string, unknown> }
+  const withParams = CUSTOMER_DATA_TOOLS.filter((name) => {
+    const schema = tools.find((t) => t.name === name)?.inputSchema as
+      | { properties?: Record<string, unknown> }
+      | undefined;
+    return !schema || Object.keys(schema.properties ?? {}).length > 0;
+  });
+  check(
+    `the customer-data tools (${CUSTOMER_DATA_TOOLS.join(', ')}) publish NO parameters at all`,
+    withParams.length === 0,
+    `${withParams.length ? `PARAMETERS ON: ${withParams.join(', ')}. ` : ''}The case is fixed by the session. ` +
+      'A tool with an orderId or customerId parameter lets anything that can influence the ' +
+      'model reach any record the token can — and that includes text a customer typed ' +
+      'into a contact form (T5)',
+  );
+  const rules = tools.find((t) => t.name === 'get_policy_rules')?.inputSchema as
+    | { properties?: Record<string, unknown>; required?: string[] }
     | undefined;
   check(
-    'get_order publishes NO parameters at all',
-    Object.keys(schema?.properties ?? {}).length === 0,
-    'the order is fixed by the session. A tool with an orderId parameter lets ' +
-      'anything that can influence the model reach any order the token can — and ' +
-      'that includes text a customer typed into a contact form (T5)',
+    '…and get_policy_rules, which reads no customer data, takes the question as arguments',
+    ['category', 'channel', 'valuePence'].every((k) => rules?.required?.includes(k)) &&
+      !Object.keys(rules?.properties ?? {}).some((k) => /order|customer|case/i.test(k)),
+    `required=[${rules?.required?.join(', ')}]. Policy rows are nobody's record, so there is ` +
+      'no confused deputy — and T2 needs the model to ask about a category the product is not filed under',
   );
   await client.close();
 }
@@ -439,6 +462,15 @@ async function probeOutputSchemaIsObjectRooted(stub: Stub): Promise<void> {
     schema?.type === 'object' && schema.oneOf?.length === 2,
     `root type=${schema?.type}, oneOf=${schema?.oneOf?.length}. The failure half is ` +
       'the one that carries the cause — a success-only schema would leave it undeclared',
+  );
+  const unrooted = tools
+    .filter((t) => t.name !== 'ping')
+    .filter((t) => (t.outputSchema as { type?: string } | undefined)?.type !== 'object')
+    .map((t) => t.name);
+  check(
+    '…and so does every other Thornbury tool',
+    unrooted.length === 0,
+    unrooted.length ? `NOT object-rooted: ${unrooted.join(', ')}` : 'register() publishes it for every tool, so none can be added without one',
   );
   const result = await client.callTool({ name: 'get_order', arguments: {} });
   const sc = result.structuredContent as Record<string, unknown> | undefined;

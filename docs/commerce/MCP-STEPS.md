@@ -687,6 +687,18 @@ asserts — `probeRefusalIsNotSuccess`.)*
 
 ---
 
+> **▲ BETWEEN THE STEPS, 2026-09-27 — the read tools these fourteen never
+> scheduled.** Step 4 built `get_order`; Step 9 builds `search_policy`. Nothing
+> here ever built `get_delivery`, `get_contact_history` or `get_policy_rules`,
+> which PLAN.md §5.1 lists — and without them the assistant could reach one trap
+> of six. They are built now, on the Step 5/6 machinery (`register()`, published
+> output schemas, labelled causes), and `commerce:mcp-round-trip` sends all 13
+> trap cases through every tool as a listing client, checking each trap against
+> the hand-worked answer key. `get_delivery` also carries the carrier SLA verdict,
+> because no planned tool reached `/policy/sla` — found by the answer-key session.
+> Deliberately **not a numbered step**: the surface derives its progress from
+> these numbers. Detail: NEXT.md §9.
+
 ## Step 7 · Move it onto HTTP
 
 **Goal.** The server becomes a service on `:3620` instead of a subprocess.

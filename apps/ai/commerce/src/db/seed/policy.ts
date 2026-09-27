@@ -80,7 +80,11 @@ export function buildPolicy(): Policy {
     // The rule T3 turns on. A second refund against a line that already has one
     // is never automatic, whatever the amounts.
     { rule_id: 'RR-005', code: 'RR-PRIOR-REFUND', applies_to: 'any', condition: 'the order line already carries a refund of any amount', outcome: 'refer to a human; do not auto-approve a further refund', requires_approval: true, effective_from: '2025-02-01' },
-    { rule_id: 'RR-006', code: 'RR-HIGH-VALUE', applies_to: 'order value over 25000 pence', outcome: 'manager decision', condition: 'any refund on an order over £250', requires_approval: true, effective_from: '2026-04-15' },
+    // ▲ CORRECTED 2026-09-27: `applies_to` held the prose 'order value over
+    // 25000 pence'. It is the column a category filter matches on (a category,
+    // or `any`), so this row could never be returned by any query. The value
+    // threshold is already stated in `condition`, where it belongs.
+    { rule_id: 'RR-006', code: 'RR-HIGH-VALUE', applies_to: 'any', outcome: 'manager decision', condition: 'any refund on an order over £250', requires_approval: true, effective_from: '2026-04-15' },
     // RR-007 IS DELIBERATELY ABSENT, AND MUST STAY ABSENT. DO NOT ADD IT BACK.
     //
     // It existed for one afternoon as `RR-MARKETPLACE` — "the item was sold by

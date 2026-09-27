@@ -78,6 +78,38 @@ export function holidaySet(jurisdiction = 'england-and-wales'): Set<string> {
 
 const isoOf = (d: Date): string => d.toISOString().slice(0, 10);
 
+const LONDON = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Europe/London', year: 'numeric', month: '2-digit', day: '2-digit',
+});
+
+/** The civil date in London that an instant falls on, as `YYYY-MM-DD`. */
+export function londonIso(d: Date): string {
+  return LONDON.format(d);
+}
+
+/**
+ * `n` working days after `from`, counted on the LONDON calendar — and keeping
+ * `from`'s time of day, so the instant a delivery outcome is drawn against
+ * does not move.
+ *
+ * ▲ ADDED 2026-09-27. `addWorkingDays` counts on UTC dates, so a parcel
+ * dispatched at 23:00Z in summer — already 00:00 the NEXT day in London — was
+ * counted from the day before, and its `promised_by` landed one working day
+ * earlier than `/policy/sla`, which converts to the London date first (the
+ * API's `working-days.ts`). 65 shipments disagreed; no trap order did. Found by
+ * the answer-key session. For every dispatch whose London and UTC dates agree,
+ * this returns exactly what `addWorkingDays(from, n)` did — and for the rest it
+ * can return a DIFFERENT INSTANT (a Friday 23:00Z dispatch is a Saturday in
+ * London), which is why shop.ts uses it for the promised DATE only and keeps
+ * `addWorkingDays` for the instant outcomes are drawn against. Measured: using
+ * it for both moved 13 tables of the world fingerprint.
+ */
+export function addLondonWorkingDays(from: Date, n: number, holidays: Set<string>): Date {
+  const day = new Date(`${londonIso(from)}T00:00:00Z`);
+  const offset = from.getTime() - day.getTime();
+  return new Date(addWorkingDays(day, n, holidays).getTime() + offset);
+}
+
 /** Saturday or Sunday, or in the holiday set. */
 export function isWorkingDay(d: Date, holidays: Set<string>): boolean {
   const dow = d.getUTCDay();

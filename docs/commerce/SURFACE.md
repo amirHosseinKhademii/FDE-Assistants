@@ -63,8 +63,8 @@ Three blocks in
 `src/components/steps/HandshakeHood.tsx` are verbatim excerpts:
 
 ```
-apps/mcp/commerce/src/server.ts:97–113        createServer + the ping tool
-apps/mcp/commerce/src/server.ts:63–90         register(), the output check, and the central catch
+apps/mcp/commerce/src/server.ts:100–116       createServer + the ping tool
+apps/mcp/commerce/src/server.ts:66–93         register(), the output check, and the central catch
 apps/mcp/commerce/src/cli/handshake.ts:100–121  the initialize exchange
 ```
 
@@ -84,8 +84,8 @@ calls *"a small lie in the one component whose entire job is being checkable."*
 python3 - <<'PY'
 import pathlib, json, re
 hood = pathlib.Path('apps/web/commerce-app/src/components/steps/HandshakeHood.tsx').read_text()
-for path, a, b in [('apps/mcp/commerce/src/server.ts', 97, 113),
-                   ('apps/mcp/commerce/src/server.ts', 63, 90),
+for path, a, b in [('apps/mcp/commerce/src/server.ts', 100, 116),
+                   ('apps/mcp/commerce/src/server.ts', 66, 93),
                    ('apps/mcp/commerce/src/cli/handshake.ts', 100, 121)]:
     real = pathlib.Path(path).read_text().splitlines()[a-1:b]
     blk = hood.split(f'path="{path}:{a}–{b}"')[1]
@@ -98,7 +98,10 @@ PY
 
 **It broke a third time on 2026-09-27**, when Step 5 put the output check into
 `register()` and pushed `createServer` down five lines; both blocks were
-re-extracted by script from the file, not hand-edited. The other code on
+re-extracted by script from the file, not hand-edited. The same day three
+read tools were registered above `createServer` and everything shifted +3 with
+identical content — a renumber, verified by diffing HEAD's ranges against the
+new ones before touching the page. The other code on
 `/steps` is shown WITHOUT line numbers ("Shortened from the real code") for
 exactly this reason — only `HandshakeHood.tsx` makes the line-number promise.
 

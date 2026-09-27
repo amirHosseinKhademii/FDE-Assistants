@@ -36,6 +36,33 @@ the live Neon estate.** `pnpm build` 23/23, `pnpm typecheck` 38/38,
 `pnpm leak:check` PASS. The estate is fde-assistants-2d's and is reached at
 fingerprint `99766bd4fe4bbeb4`.
 
+> **▲ 2026-09-27 — three changes, all driven by the answer-key session reading
+> the estate independently of this code.** `api-check` is now **62** assertions.
+>
+> 1. **`GET /policy/rules` dropped rows, and its check could not notice.** It
+>    matched `channel` exactly while every `return_windows` row is `channel =
+>    'any'` (the vocabulary `05-policy.sql` documents), and matched `applies_to`
+>    against `'all'` while every rule says `'any'` — so no real caller got a
+>    return window or a refund rule, T2's row half and T3's RR-005 included. The
+>    assertion guarding it began `returnWindow === null ||`, so it passed for
+>    every query. Now: `channel IN (asked, 'any')`, an exact-channel row winning;
+>    `applies_to IN (category, 'any')`; and three assertions that require a
+>    window for `web`, RW-ELECTRONICS 14, and RR-005. Each reverted fix turns its
+>    own assertions red.
+> 2. **An eighth route, `GET /case`.** Reads back the scope `x-case-id` already
+>    resolves to — case, CRM customer, order. The MCP server holds no database
+>    credential and the CRM customer id is not the shop's `userId`, so this is
+>    its only way to the customer whose history `get_contact_history` may read.
+>    No parameter; behind the global guard (asserted: no token → 401).
+> 3. **Every promise the estate records is the one this API computes** — a new
+>    assertion comparing `promised_by` with `slaDueDate` for every shipment that
+>    has an SLA row. It was red at 65 before the estate was reseeded
+>    (`99766bd4fe4bbeb4` → `d397af6cbfdc649f`, see ESTATE.md §0) and green after;
+>    82 shipments with no SLA row are counted and reported, not hidden.
+>
+> Not fixed, noted: `exceedsThreshold` takes the FIRST threshold for an action,
+> and `refund` has two (AT-REFUND £75 adviser, AT-REFUND-MGR £250 manager).
+
 ### ⚠ NOT COMMITTED, and the repo is inconsistent because of it
 
 This is the most losable thing here and it is worse than "some files are dirty".

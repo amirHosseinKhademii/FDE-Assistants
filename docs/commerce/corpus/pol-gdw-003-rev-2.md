@@ -23,25 +23,34 @@ destroys the only number that tells us how often we are actually at fault.
 
 | Situation | Ceiling |
 |---|---|
-| Delivery late against the applicable contract | £10 or 10% of order value, whichever is greater |
+| Delivery late against the applicable contract | £10 or 10% of order value, whichever is greater, up to the tier ceiling below |
 | Delivery experience poor but on time | £10 |
-| Damage claimed, evidence silent, item value under £50 | full item value |
-| Damage claimed, evidence silent, item value £50 or over | escalate — no ceiling applies without approval |
+| Damage claimed, evidence silent, item value under £75 | full item value |
+| Damage claimed, evidence silent, item value £75 or over | escalate — no ceiling applies without approval |
 | Repeat contact on the same order | £15 in addition to any other outcome |
 
 A gesture is offered once per order. A second gesture on the same order is an
 escalation regardless of amount.
 
+**The tier ceiling.** A gesture never exceeds **£15** for a standard customer or
+**£30** for a priority customer, and needs approval above **£10** (standard) or
+**£20** (priority). **The two damage rows are not gestures** — "full item value"
+there is a refund under POL-DOA-002 §6, decided on the evidence (§2), and the
+tier ceiling does not apply to it.
+
 ## 4. Approval thresholds — who may release money
 
-| Amount | Approved by |
+| Refund amount | Approved by |
 |---|---|
-| Up to £50 | the specialist handling the case |
-| £50.01 – £250 | a team leader |
-| £250.01 – £1,000 | the care manager |
-| Over £1,000 | care manager and a commercial signatory |
+| Up to £75 | the specialist handling the case (approval level `adviser`) |
+| £75.01 – £250 | a team leader (approval level `manager`) |
+| Over £250 | above every approval level on this desk — escalate |
 
-Three rules that override the table:
+The specialist may also approve a goodwill gesture up to **£20**, within the tier
+ceiling in §3, and a replacement up to **£150**. Above those, a replacement or a
+gesture is escalated like a refund over £250.
+
+Four rules that override the table:
 
 **4.1** Any outcome on an order line that has **already had a refund** requires a
 team leader, whatever the amount. A duplicate refund is the failure this rule
@@ -54,6 +63,10 @@ right, that decision has an owner.
 **4.3** **Approval is a person, not a status.** The approving individual is named
 on the case. "System approved", "auto-approved" and an unattributed tick are not
 approvals, and a resolution carrying one is not complete.
+
+**4.4** Any refund on an order worth **more than £250** requires a team leader,
+whatever the refund amount — the high-value rule, and see BUL-HV-2025-01 for the
+verification it adds.
 
 ## 5. What may never be offered
 

@@ -153,7 +153,7 @@ function buildShipments(plans: OrderPlan[], wms: Wms): Fleet['shipments'] {
     // THE PROMISE, NOT THE OUTCOME. This was `p.delivered_at`, which made every
     // delivered shipment on time by construction — `where delivered > promised_by`
     // returned zero rows and always would.
-    promised_by: iso(p.due),
+    promised_by: p.promised_on, // the London date — see `promised_on` in shop.ts
     status: p.status === 'returned' ? 'returned' : p.status === 'delivered' ? 'delivered' : 'in_transit',
   }));
 }

@@ -155,20 +155,39 @@ export class PolicyService {
     );
   }
 
-  private findReturnWindow(query: PolicyRulesQuery, now: Date) {
-    return this.db.returnWindow.findFirst({
-      where: { category: query.category, channel: query.channel, ...currentlyEffective(now) },
+  /**
+   * The caller's channel, OR a row that applies to every channel.
+   *
+   * ▲ CORRECTED 2026-09-27. This matched `channel` EXACTLY, and every
+   * `return_windows` row in the estate is `channel = 'any'` — the vocabulary
+   * `05-policy.sql` documents (`any | web | phone`). So a real caller asking
+   * for `web`, `phone` or `app` got `returnWindow: null` for every category,
+   * and T2's row half was unreachable. `api-check` passed throughout because
+   * its assertion accepted `null`. Found by the answer-key session reading the
+   * estate independently of this code.
+   *
+   * An exact-channel row, if one is ever added, wins over `any`.
+   */
+  private async findReturnWindow(query: PolicyRulesQuery, now: Date) {
+    const rows = await this.db.returnWindow.findMany({
+      where: { category: query.category, channel: { in: [query.channel, 'any'] }, ...currentlyEffective(now) },
       orderBy: { effectiveFrom: 'desc' },
     });
+    return rows.find((r) => r.channel === query.channel) ?? rows[0] ?? null;
   }
 
   /**
-   * `applies_to` holds a category OR the literal `all`, so a rule that governs
+   * `applies_to` holds a category OR the literal `any`, so a rule that governs
    * everything is not silently dropped by a category filter.
+   *
+   * ▲ CORRECTED 2026-09-27. This comment and the filter said `all`; the estate
+   * says `any` on every row. So RR-001…RR-008 — T3's RR-005 among them — never
+   * came back for a real category. `any` is the word the rows use, so it is the
+   * word this matches; there is no second spelling to keep in sync.
    */
   private findRefundRules(query: PolicyRulesQuery, now: Date) {
     return this.db.refundRule.findMany({
-      where: { appliesTo: { in: [query.category, 'all'] }, effectiveFrom: { lte: now } },
+      where: { appliesTo: { in: [query.category, 'any'] }, effectiveFrom: { lte: now } },
       orderBy: { effectiveFrom: 'desc' },
     });
   }

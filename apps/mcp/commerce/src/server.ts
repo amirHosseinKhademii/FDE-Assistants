@@ -29,6 +29,9 @@ import { StdioServerTransport } from '@modelcontextprotocol/server/stdio';
 import { z } from 'zod';
 import type { Tool } from './tools/types';
 import { buildGetOrder } from './tools/get-order';
+import { buildGetDelivery } from './tools/get-delivery';
+import { buildGetContactHistory } from './tools/get-contact-history';
+import { buildGetPolicyRules } from './tools/get-policy-rules';
 import { apiConfigFromEnv, type ApiConfig } from './api/client';
 import { sessionFromEnv, type Session } from './session';
 import { conforming, guarded, outcomeSchema } from './api/outcome';
@@ -120,6 +123,12 @@ export function createServer(deps: ServerDeps = {}): McpServer {
   );
 
   register(server, buildGetOrder(api, session));
+  // The read tools PLAN.md §5.1 lists and the fourteen steps never scheduled —
+  // added 2026-09-27. `search_policy` (needs the index) and `propose_resolution`
+  // (writes; belongs with Step 11's allowlist) are deliberately not here yet.
+  register(server, buildGetDelivery(api, session));
+  register(server, buildGetContactHistory(api, session));
+  register(server, buildGetPolicyRules(api, session));
 
   return server;
 }

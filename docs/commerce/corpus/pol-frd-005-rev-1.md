@@ -23,7 +23,7 @@ anything.
 
 Any of the following on an account, within a rolling 12 months:
 
-- three or more damage claims
+- four or more damage claims
 - two or more claims for items not received where delivery was confirmed
 - a claim on more than 40% of orders placed, with at least four orders
 - any claim following a refused claim within 30 days
@@ -50,6 +50,10 @@ history was reviewed.
 Where §4 produces a concern, **escalate with the concern stated.** Do not refuse
 on this desk and do not communicate the concern to the customer. An accusation
 made by implication is still an accusation, and it is not this desk's to make.
+
+**Four or more damage claims in the rolling 12 months is a referral whatever §4
+finds:** the claim goes to Fraud and is never auto-approved. It is still decided
+on its own evidence, and it is still never refused for its history (§2).
 
 ## 6. What must never happen
 

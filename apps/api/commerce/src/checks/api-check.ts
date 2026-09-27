@@ -34,7 +34,7 @@ import { CRM_CLIENT, type CrmClient } from '../crm/crm.client';
 import { FLEET_CLIENT, type FleetClient } from '../fleet/fleet.client';
 import { POLICY_CLIENT, type PolicyClient } from '../policy/policy.client';
 import { UK_BANK_HOLIDAYS, COVERED_YEARS } from '../common/calendar/uk-bank-holidays';
-import { civilDate, londonCivilDate } from '../common/calendar/working-days';
+import { civilDate, londonCivilDate, slaDueDate } from '../common/calendar/working-days';
 import { SERVICE_TOKEN_HEADER, CASE_ID_HEADER } from '../config/env';
 import { estateBaseUrl } from '../config/estate';
 import { Checks, cannotRun } from './harness';
@@ -373,6 +373,31 @@ async function checkHistory(base: string, fixture: Fixture): Promise<void> {
   );
 }
 
+async function checkCaseScope(base: string, fixture: Fixture): Promise<void> {
+  checks.section('GET /case — the scope a request carries, read back');
+  const { status, body } = await get(base, '/case', headers(fixture));
+  checks.assert('answers 200', status === 200, 'reachable');
+  checks.assert(
+    'names the case, its CRM customer and its order — the ones the header resolves to',
+    body?.ok === true && body.data.caseId === fixture.caseId &&
+      body.data.customerId === fixture.customerId && body.data.orderRef === fixture.orderRef,
+    `got ${JSON.stringify(body?.data)}. The MCP server holds no database credential, ` +
+      'so this is its only way from a case to the customer whose history it may read',
+  );
+  const noCase = await get(base, '/case', { [SERVICE_TOKEN_HEADER]: TOKEN });
+  checks.assert(
+    'no case header is invalid_request, not somebody else\'s scope',
+    noCase.body?.ok === false && noCase.body?.cause === 'invalid_request',
+    'the header IS the question; without it there is nothing to read back',
+  );
+  const noToken = await get(base, '/case', headers(fixture, false));
+  checks.assert(
+    'the global guard covers it — no token is 401',
+    noToken.status === 401,
+    'APP_GUARD, not per-controller: a new route cannot be added outside it by forgetting',
+  );
+}
+
 async function checkScopeIsEnforced(base: string, fixture: Fixture): Promise<void> {
   checks.section('SCOPE, OVER REAL HTTP');
   const outOfScope = await get(base, '/orders/ORD-DEFINITELY-NOT-THIS-CASE', headers(fixture));
@@ -404,11 +429,31 @@ async function checkPolicy(base: string, fixture: Fixture): Promise<void> {
   checks.assert('returns an answer', body?.ok === true, 'a rules query always answers');
   if (body?.ok !== true) return;
 
+  // ▲ 2026-09-27. This assertion used to begin `returnWindow === null ||`, so it
+  // passed for every query while the service matched `channel` exactly and
+  // every row said `any` — no real channel ever got a window. A check that
+  // accepts the empty answer cannot notice that the answer is always empty.
   checks.assert(
-    'the rows come back with re-findable citations',
-    body.data.returnWindow === null ||
-      /^rule:[a-z_]+:.+/.test(body.data.returnWindow.citation),
-    'PLAN.md §8 fixes `rule:<TABLE>:<ID>` so an auditor can re-find anything asserted',
+    'a REAL channel gets a return window, with a re-findable citation',
+    body.data.returnWindow !== null &&
+      /^rule:return_windows:.+/.test(body.data.returnWindow.citation),
+    `got ${JSON.stringify(body.data.returnWindow)?.slice(0, 80)}. Rows are channel='any'; ` +
+      'a caller asks for web, phone or app. PLAN.md §8 fixes `rule:<TABLE>:<ID>`',
+  );
+  checks.assert(
+    'electronics on web is RW-ELECTRONICS, 14 days — T2\'s row half',
+    body.data.returnWindow?.windowDays === 14 &&
+      body.data.returnWindow?.citation === 'rule:return_windows:RW-ELECTRONICS',
+    'the one row that disagrees with the published 30 days; unreachable, T2 has no conflict to find',
+  );
+  const homeware = await get(base, '/policy/rules?category=homeware&channel=web&valuePence=4500', headers(fixture));
+  checks.assert(
+    'a real category gets the refund rules that apply to any category — RR-005 among them',
+    Array.isArray(homeware.body?.data?.refundRules) &&
+      homeware.body.data.refundRules.some((r: any) => r.citation === 'rule:refund_rules:RR-005'),
+    `got [${(homeware.body?.data?.refundRules ?? []).map((r: any) => r.code).join(', ')}]. ` +
+      "Rows say applies_to='any'; the service used to match 'all' and returned none. " +
+      'RR-005 is the rule T3 turns on',
   );
   const rejected = await get(
     base,
@@ -648,6 +693,52 @@ async function checkNoDriverReportIsLost(
 }
 
 /**
+ * EVERY PROMISE THE ESTATE RECORDS IS THE ONE THIS API COMPUTES.
+ *
+ * ADDED 2026-09-27. `promised_by` (the seed's arithmetic) and `/policy/sla`'s
+ * `dueOn` (this API's) are two answers to one question, and once `get_delivery`
+ * shows the model both, any disagreement between them is an unplanted conflict
+ * sitting in front of T6. They disagreed on 65 shipments: the seed counted from
+ * the UTC date of a 23:00Z summer dispatch, which is already the next day in
+ * London. Found by the answer-key session; nothing checked it, because each
+ * side's own checks only ever compared a side with itself.
+ *
+ * Shipments whose carrier and service level have NO `carrier_sla` row are
+ * counted and reported, not failed — that gap is recorded separately (Nexdrop
+ * next_day), and a check that silently skips them would hide how many there are.
+ */
+async function checkPromisesAgreeWithSla(app: INestApplication): Promise<void> {
+  checks.section('promised_by in the estate == dueOn from this API, for every shipment');
+  const fleet = app.get<FleetClient>(FLEET_CLIENT);
+  const policy = app.get<PolicyClient>(POLICY_CLIENT);
+  const [shipments, slas] = await Promise.all([
+    fleet.shipment.findMany({
+      select: { shipmentId: true, carrierId: true, serviceLevel: true, dispatchedAt: true, promisedBy: true },
+    }),
+    policy.carrierSla.findMany(),
+  ]);
+  const days = new Map(slas.map((s) => [`${s.carrierRef}|${s.serviceLevel}`, s.workingDays]));
+  let compared = 0;
+  let noSla = 0;
+  const wrong: string[] = [];
+  for (const s of shipments) {
+    const n = days.get(`${s.carrierId}|${s.serviceLevel}`);
+    if (n === undefined) { noSla++; continue; }
+    compared++;
+    const expected = slaDueDate(s.dispatchedAt, n);
+    const actual = civilDate(s.promisedBy);
+    if (expected !== actual) wrong.push(`${s.shipmentId} ${s.dispatchedAt.toISOString()} promised ${actual}, API ${expected}`);
+  }
+  checks.assert(
+    `all ${compared} shipments with an SLA row promise the date /policy/sla computes`,
+    compared > 0 && wrong.length === 0,
+    wrong.length === 0
+      ? `${noSla} shipment(s) have no carrier_sla row and were not compared — reported, not hidden`
+      : `${wrong.length} disagree, e.g. ${wrong.slice(0, 3).join(' · ')}`,
+  );
+}
+
+/**
  * THE HOLIDAY TABLE EXISTS TWICE, AND THE TWO MUST AGREE.
  *
  * `src/common/calendar/uk-bank-holidays.ts` is a committed data file, on purpose:
@@ -799,12 +890,14 @@ async function main(): Promise<void> {
     await checkOrder(base, fixture);
     await checkDelivery(base, walk);
     await checkHistory(base, fixture);
+    await checkCaseScope(base, fixture);
     await checkScopeIsEnforced(base, fixture);
     await checkPolicy(base, fixture);
     await checkSla(base, fixture);
     await checkPropose(base, fixture, app);
     await checkNoDriverReportIsLost(app, base, walk);
     await checkBankHolidaysAgree(app);
+    await checkPromisesAgreeWithSla(app);
   } finally {
     await app.close();
   }

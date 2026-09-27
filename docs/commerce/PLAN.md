@@ -371,6 +371,13 @@ Seven tools. The split down the middle is the design.
 | `search_policy` | hybrid search over the prose corpus, `@fde/grounding`, **no score cutoff** | deciding "the answer isn't in the corpus" is reading comprehension and belongs to the model, not a threshold. T4 depends on this |
 | `get_policy_rules` | the **rows**: window, refund rule, goodwill limit, approval threshold for this category / channel / order value | policy-as-configuration. The other half of T2 |
 
+> **▲ Built 2026-09-27** — `get_delivery`, `get_contact_history`, `get_policy_rules`
+> (NEXT.md §9). Two things differ from this table. **`get_delivery` also returns
+> the carrier SLA verdict** (due date in working days, how late): no tool here
+> reached `/policy/sla`, so the model could only judge T6 by subtracting dates —
+> the wrong answer. And **`get_contact_history` includes every message**, verbatim
+> and labelled by author, because T5 lives in them.
+
 ### 5.2 · Write tools
 
 | tool | what it does | status |

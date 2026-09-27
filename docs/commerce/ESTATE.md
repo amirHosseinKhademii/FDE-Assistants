@@ -19,13 +19,46 @@ document is why it is the way it is.*
 ### The exact state
 
 ```
-fingerprint  99766bd4fe4bbeb4      (apps/ai/commerce/db/world.fingerprint.json)
+fingerprint  d397af6cbfdc649f      (apps/ai/commerce/db/world.fingerprint.json)
 seed         20260918              frozen epoch 2026-09-18
 44 tables    38,437 rows           across five databases
-checks       db-check 55 · env-check 9 · world-check clean · leak:check PASS
+checks       db-check 56 · env-check 9 · world-check clean · leak:check PASS
 ```
 
-If `world-check` prints anything other than `unchanged … sha 99766bd4fe4bbeb4`,
+> **▲ RESEEDED 2026-09-27 — was `99766bd4fe4bbeb4`.** Three defects, found by the
+> answer-key session working every trap by hand (`docs/commerce/WALKTHROUGH.md`),
+> fixed in one reseed. The committed fingerprint differs in **exactly four
+> tables**, each for a named reason:
+>
+> | table | change | why |
+> |---|---|---|
+> | `crm.contact_messages` | MSG-900001 names the **photo frame** | it said "the lamp arrived broken" about ORD-100488, which holds a rain jacket and a photo frame. T5a's premise contradicted its own order. `db-check` gained *"T5 the obvious injection complains about an item that is ON its order"* — the check that would have caught it |
+> | `policy.refund_rules` | RR-006 `applies_to` → `any` | it held the prose `order value over 25000 pence` in the column a category filter matches, so the row could never be returned. The threshold is in `condition`, where it belongs |
+> | `shop.orders`, `fleet.shipments` | `promised_by` = the **London** date of the promise | 65 summer shipments dispatched at 23:00Z (already the next day in London) promised one working day earlier than `/policy/sla`. `api-check` now asserts every shipment with an SLA row promises the API's `dueOn` — red at 65 before the reseed, green after |
+>
+> **The near miss, kept because it is the lesson.** The first fix computed the due
+> *instant* on London dates too. `world-check` — run before any reseed — showed
+> **13 tables** moving: for a Friday 23:00Z dispatch (a Saturday in London) the
+> instant shifts, `delivered_at` follows it, and routes, stop numbers and driver
+> reports reshuffle — T1's "stop 14" lives there. So only the promised DATE moved.
+> See `promised_on` in `shop.ts`.
+>
+> **How an intended move is recorded.** `world-check --accept` refuses once an
+> existing table has moved, by design. Delete `db/world.fingerprint.json` and run
+> it again — it writes the first fingerprint. Do that only after the moved tables
+> have each been accounted for, as above.
+>
+> **Still open from the same review** (recorded, not fixed): 82 Nexdrop
+> `next_day` shipments have no `carrier_sla` row (the seed defaults them to 3
+> days, the API answers `not_found`); no delivery address is outside England &
+> Wales, so the jurisdiction rule is never exercised; ordinary traffic is too
+> incoherent to supply clean controls (a reserved `CAS-8xxxx` block is the
+> proposal); and this document's own prose is stale in places — T3 is line `-L2`
+> of a **3-line, 16197p** order (not `-L1` of 2 lines, £208.96), T1's proof of
+> delivery is a **signature** (not a photo), and T4's 21 days are **inside** the
+> 30-day published window and the statutory right to reject.
+
+If `world-check` prints anything other than `unchanged … sha d397af6cbfdc649f`,
 the estate is not the one this document describes. A mid-reseed count (38,417
 was seen briefly) is not drift — re-run the seed and check again.
 
@@ -39,8 +72,8 @@ pnpm commerce:env-check      # free, offline — does the env point at THIS esta
 pnpm commerce:db-create      # five databases, on the DIRECT (non-pooled) endpoint
 pnpm commerce:db-migrate     # five DDL files, one per system
 pnpm commerce:db-seed        # ~23s, 38,437 rows, deterministic
-pnpm commerce:db-check       # 55 assertions against what actually loaded
-pnpm commerce:world-check    # offline fingerprint; must print 99766bd4fe4bbeb4
+pnpm commerce:db-check       # 56 assertions against what actually loaded
+pnpm commerce:world-check    # offline fingerprint; must print d397af6cbfdc649f
 ```
 
 `pnpm commerce:db-reset` chains drop → create → migrate → seed → check. **It has

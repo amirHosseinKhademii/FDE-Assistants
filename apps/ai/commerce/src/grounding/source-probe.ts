@@ -12,13 +12,15 @@
  * `Audiance:`: every one of these is a string typed by hand in a markdown file
  * twelve times.
  *
- * Offline. Reads twelve files, writes nothing, connects to nothing.
+ * Offline. Reads twelve files and the seed's own policy rows (`buildPolicy()`,
+ * pure), writes nothing, connects to nothing.
  *
  *   pnpm commerce:source-probe
  */
 import { fileDocumentSource, type SourceDocument } from '@fde/grounding';
 import { resolve } from 'node:path';
 import { COMMERCE_DOCUMENTS } from '../config/commerce-documents';
+import { buildPolicy } from '../db/seed/policy';
 
 const REPO_ROOT = resolve(__dirname, '..', '..', '..', '..', '..');
 const CORPUS_DIR =
@@ -136,7 +138,77 @@ function retirementAndCarrierChecks(docs: SourceDocument[]): Check[] {
       carriers.length === 2,
       'T6 — both carrier contracts carry a carrier facet',
       carriers.map((d) => `${facetsOf(d).carrier}`).join(', ') +
-        '. Lateness is unanswerable without it: one counts working days, one calendar days',
+        '. Lateness is unanswerable without it: the carriers promise different numbers of working days',
+    ],
+  ];
+}
+
+/**
+ * THE CONTRACTS AGREE WITH THE ESTATE — the check that did not exist when they
+ * did not.
+ *
+ * ▲ ADDED 2026-09-27. The corpus shipped with contracts for Northgate (`CARR-NGT`)
+ * and Pelham (`CARR-PLM`). The estate's carriers are Nexdrop (`CAR-NDX`) and
+ * Parcelane (`CAR-PCL`), and every T6 order went by Nexdrop — so T6's prose half
+ * did not exist, and ten green checks here said nothing about it, because every
+ * one of them asked whether a banner PARSED and none asked whether it was TRUE.
+ *
+ * Read against `buildPolicy()` — the seed's own `carrier_sla` rows, offline,
+ * so this still touches no database. Three properties:
+ *   1. every carrier facet names a carrier that has SLA rows;
+ *   2. every contracted carrier with SLA rows has a contract;
+ *   3. every service the contract commits to matches its SLA row's working
+ *      days, and it commits to no service the estate has no row for.
+ * Plus the plant that caused it: a "calendar day" commitment, a clock the estate
+ * does not have.
+ */
+function contractsMatchEstateChecks(docs: SourceDocument[]): Check[] {
+  const sla = buildPolicy().carrier_sla;
+  const OWN_FLEET = 'CAR-THB'; // the own fleet has SLA rows and, correctly, no carriage contract
+  const contracted = [...new Set(sla.map((r) => r.carrier_ref))].filter((c) => c !== OWN_FLEET).sort();
+  const contracts = docs.filter((d) => facetsOf(d).carrier !== null);
+  const facets = contracts.map((d) => String(facetsOf(d).carrier)).sort();
+
+  // `| Standard | `standard` | delivered within **3 working days** of collection |`
+  const COMMITMENT = /^\|[^|]*\|\s*`([a-z_]+)`\s*\|[^|]*\*\*(\d+) working days?\*\*/gm;
+  const mismatches: string[] = [];
+  for (const d of contracts) {
+    const carrier = String(facetsOf(d).carrier);
+    const promised = [...d.body.matchAll(COMMITMENT)].map((m) => ({ level: m[1]!, days: Number(m[2]) }));
+    if (promised.length === 0) mismatches.push(`${d.documentId}: no working-day commitment parsed`);
+    for (const p of promised) {
+      const row = sla.find((r) => r.carrier_ref === carrier && r.service_level === p.level);
+      if (!row) mismatches.push(`${d.documentId}: ${p.level} has no ${carrier} SLA row`);
+      else if (row.working_days !== p.days)
+        mismatches.push(`${d.documentId}: ${p.level} says ${p.days}, ${row.sla_id} says ${row.working_days}`);
+    }
+    for (const r of sla.filter((s) => s.carrier_ref === carrier)) {
+      if (!promised.some((p) => p.level === r.service_level))
+        mismatches.push(`${d.documentId}: ${r.sla_id} (${r.service_level}) is not in the contract`);
+    }
+  }
+  const calendar = contracts.filter((d) => /calendar days?\b/i.test(d.body)).map((d) => d.documentId);
+
+  return [
+    [
+      facets.join(',') === contracted.join(','),
+      'every contract names an estate carrier, and every contracted carrier has one',
+      `contracts [${facets.join(', ')}], carrier_sla [${contracted.join(', ')}]. A facet that ` +
+        'names no estate carrier is a contract no shipment can travel under',
+    ],
+    [
+      mismatches.length === 0,
+      'every service commitment matches its carrier_sla row, both ways',
+      mismatches.length === 0
+        ? 'working days per service level agree with the seed, and no row is missing from a contract'
+        : mismatches.join(' | '),
+    ],
+    [
+      calendar.length === 0,
+      'no contract commits in CALENDAR days — the estate has no such clock',
+      calendar.length === 0
+        ? 'working days only, which is the only clock carrier_sla and /policy/sla compute'
+        : `found in ${calendar.join(', ')}`,
     ],
   ];
 }
@@ -164,6 +236,7 @@ async function main(): Promise<void> {
     ...bannerChecks(docs),
     ...conflictChecks(docs),
     ...retirementAndCarrierChecks(docs),
+    ...contractsMatchEstateChecks(docs),
   ];
   const failed = report(checks);
 

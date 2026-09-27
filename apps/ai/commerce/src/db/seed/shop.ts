@@ -16,7 +16,7 @@
  * and is in `fleet.ts`; T5 needs a customer's own words and is in `contact.ts`.
  */
 import { ANCHORS, TRAP_SCHEDULE } from './anchors';
-import { holidaySet, addWorkingDays } from './calendar';
+import { holidaySet, addWorkingDays, addLondonWorkingDays, londonIso } from './calendar';
 import { EPOCH, SEED, STREAM, addDays, addHours, iso, makeHelpers, pad, ts, type Helpers } from './rng';
 import type { Policy, Shop } from '../schema/rows';
 
@@ -117,6 +117,12 @@ export interface OrderPlan {
    * the worst possible column to have quietly made self-consistent.
    */
   due: Date;
+  /**
+   * The promise as a LONDON civil date — what `promised_by` holds in both
+   * `thb_shop.orders` and `thb_fleet.shipments`, and what `/policy/sla` returns
+   * as `dueOn`. Deliberately NOT derived from `due`: see where it is computed.
+   */
+  promised_on: string;
   delivered_at: Date | null;
   status: string;
   fragile: boolean;
@@ -490,7 +496,23 @@ function buildOrders(h: Helpers, policy: Policy, base: CustomerBase, cat: Catalo
 
   for (let i = 0; i < 2000; i++) {
     const spec = pinTrapTimeline(plantT6BankHolidayOrders(plantT1OwnFleet(draftOrderSpec(h, i, base))));
-    const due = addWorkingDays(spec.dispatched_at, slaDays(spec.carrier, spec.service_level), holidays);
+    // TWO VALUES, ON PURPOSE — ▲ 2026-09-27.
+    //
+    // `due` is the instant every delivery OUTCOME is drawn against, and it is
+    // left exactly as it was: counted on UTC dates. Computing it on the London
+    // calendar was tried first and moved 13 tables — for a Friday 23:00Z
+    // dispatch (already Saturday in London) the two calendars disagree on the
+    // instant, delivered_at shifts, and routes, stop numbers and driver reports
+    // reshuffle behind it: T1's "stop 14" lives there. `commerce:world-check`
+    // caught it before anything was reseeded.
+    //
+    // `promised_on` is the DATE the customer was promised, and that is what was
+    // wrong: 65 shipments dispatched at 23:00Z in summer had a promised_by one
+    // working day earlier than `/policy/sla`, which counts on London dates. So
+    // only the date moves, and nothing downstream reads it.
+    const n = slaDays(spec.carrier, spec.service_level);
+    const due = addWorkingDays(spec.dispatched_at, n, holidays);
+    const promised_on = londonIso(addLondonWorkingDays(spec.dispatched_at, n, holidays));
     const { status, delivered_at } = outcomeOf(h, spec, due);
 
     let subtotal = 0;
@@ -517,7 +539,8 @@ function buildOrders(h: Helpers, policy: Policy, base: CustomerBase, cat: Catalo
       channel: h.pick(['web', 'web', 'web', 'app', 'phone']),
       status, subtotal_pence: subtotal, shipping_pence: shipping,
       total_pence: subtotal + shipping, delivery_address_id: spec.place.id,
-      service_level: spec.service_level, promised_by: iso(due),
+      // The LONDON date of the promise — see `addLondonWorkingDays`.
+      service_level: spec.service_level, promised_by: promised_on,
       // Filled in by `linkShipments` once the fleet has minted the ids. Null
       // rather than guessed — a soft key invented on both sides of the boundary
       // is the one failure the boundary exists to prevent.
@@ -536,7 +559,7 @@ function buildOrders(h: Helpers, policy: Policy, base: CustomerBase, cat: Catalo
       postcode: spec.place.postcode, address_line: spec.place.line,
       carrier: spec.carrier, service_level: spec.service_level,
       placed_at: spec.placed_at, dispatched_at: spec.dispatched_at,
-      due, delivered_at, status, fragile, items,
+      due, promised_on, delivered_at, status, fragile, items,
     });
   }
 

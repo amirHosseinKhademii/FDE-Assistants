@@ -23,7 +23,7 @@
       "system": "shop",
       "table": "orders",
       "rows": 2000,
-      "sha": "33b4182ed218bb96"
+      "sha": "a94b7ad2ad475bc3"
     },
     {
       "system": "shop",
@@ -155,7 +155,7 @@
       "system": "fleet",
       "table": "shipments",
       "rows": 2000,
-      "sha": "7abacc570d745bd2"
+      "sha": "dce16810dd49b2ec"
     },
     {
       "system": "fleet",
@@ -185,7 +185,7 @@
       "system": "crm",
       "table": "contact_messages",
       "rows": 1179,
-      "sha": "eb5e3a26bff86150"
+      "sha": "755130222187a8f7"
     },
     {
       "system": "crm",
@@ -257,7 +257,7 @@
       "system": "policy",
       "table": "refund_rules",
       "rows": 7,
-      "sha": "eafcb45f1022c6ce"
+      "sha": "0c15b2cada65f4b9"
     },
     {
       "system": "policy",
@@ -266,5 +266,5 @@
       "sha": "145988512e4bee79"
     }
   ],
-  "sha": "99766bd4fe4bbeb4"
+  "sha": "d397af6cbfdc649f"
 }

@@ -18,10 +18,14 @@ use, or to an item that never arrived.
 
 ## 3. The window
 
-A damage claim should be raised within 30 days of delivery. **A claim raised
-later is not thereby refused** — damage concealed by packaging can go unnoticed
-for weeks, and the statutory position in REF-LAW-UK-2024 §3 does not expire when
-our window does. A late claim is weighed, not dismissed.
+Damage reported **within 48 hours of delivery** is decided on the fast track:
+replace or refund in full, with no approval beyond the specialist's own
+(POL-GDW-003 §4), and no return required for an item under £75. Damage reported
+**after 48 hours** needs evidence, is at the specialist's discretion, and
+requires approval. **A claim raised later is not thereby refused** — damage
+concealed by packaging can go unnoticed for weeks, and the statutory position in
+REF-LAW-UK-2024 §2–§3 does not expire when our window does. A late claim is
+weighed, not dismissed.
 
 ## 4. The evidence, and the order to gather it
 

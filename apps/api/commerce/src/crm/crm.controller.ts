@@ -1,16 +1,17 @@
-/** `GET /customers/:id/history` and `POST /resolutions`. */
+/** `GET /case`, `GET /customers/:id/history` and `POST /resolutions`. */
 import { Body, Controller, Get, Headers, Param, Post } from '@nestjs/common';
 import { CrmService } from './crm.service';
 import { ScopeService } from '../scope/scope.service';
 import {
+  CaseScopeResponse,
   CustomerIdParam,
   ProposeResolutionBody,
   type CustomerHistoryResponse,
   type ProposeResolutionResponse,
 } from './crm.dto';
-import { zodPipe } from '../common/zod';
+import { shapeResponse, zodPipe } from '../common/zod';
 import { CASE_ID_HEADER } from '../config/env';
-import { outOfScope, type Outcome } from '../common/outcome';
+import { outOfScope, succeed, type Outcome } from '../common/outcome';
 
 @Controller()
 export class CrmController {
@@ -18,6 +19,18 @@ export class CrmController {
     private readonly crm: CrmService,
     private readonly scope: ScopeService,
   ) {}
+
+  /**
+   * The case this request is scoped to — its customer and its order — read
+   * back from the `x-case-id` header. See `CaseScopeResponse` for why it exists.
+   * No parameter: the header IS the question, so there is nothing to enumerate.
+   */
+  @Get('case')
+  async currentCase(@Headers(CASE_ID_HEADER) caseId?: string): Promise<Outcome<CaseScopeResponse>> {
+    const scope = await this.scope.resolve(caseId);
+    if (!scope.ok) return scope;
+    return succeed(shapeResponse(CaseScopeResponse, scope.data, 'GET /case'));
+  }
 
   @Get('customers/:id/history')
   async history(
