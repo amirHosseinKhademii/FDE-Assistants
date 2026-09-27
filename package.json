@@ -176,6 +176,7 @@
     "commerce:source-probe": "pnpm --filter @thornbury/commerce source:probe",
     "commerce:mcp-live": "pnpm --filter @thornbury/commerce-mcp live",
     "commerce:mcp-round-trip": "pnpm --filter @thornbury/commerce-mcp round-trip",
+    "commerce:mcp-break": "pnpm --filter @thornbury/commerce-mcp break",
     "commerce:api-dev": "pnpm --filter @thornbury/commerce-api dev",
     "commerce:api-build": "pnpm --filter @thornbury/commerce-api build",
     "commerce:api-generate": "pnpm --filter @thornbury/commerce-api generate",

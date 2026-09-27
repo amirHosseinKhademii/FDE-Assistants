@@ -19,13 +19,13 @@
  *
  *   pnpm commerce:mcp-check
  */
-import { McpServer } from '@modelcontextprotocol/server';
+import { McpServer, Server } from '@modelcontextprotocol/server';
 import { InMemoryTransport } from '@modelcontextprotocol/server';
 import { Client } from '@modelcontextprotocol/client';
 import { z } from 'zod';
 import { createServer, register } from './server';
 import { startOrderStub, STUB } from './stub/order-stub';
-import type { Outcome } from './api/outcome';
+import { ok, type Outcome } from './api/outcome';
 
 // ── the harness ─────────────────────────────────────────────────────────────
 
@@ -156,7 +156,8 @@ async function probeUnknownToolCode(): Promise<void> {
     'an unknown TOOL is -32602, not -32601',
     code === -32602,
     `got ${code}. -32601 is for a JSON-RPC METHOD that does not exist, which the ` +
-      'model cannot ask for. PLAN.md §6.1 depends on this staying true',
+      'model cannot ask for. PLAN.md §6.1 depends on this staying true — and since ' +
+      'Step 5, -32602 is NOT the only thing it can mean: see probeLyingServer',
   );
   await client.close();
 }
@@ -391,6 +392,7 @@ async function probeUnguardedToolStillLabelled(): Promise<void> {
   register(server, {
     name: 'forgets_to_guard',
     config: { title: 'Forgets', description: 'Throws, unguarded.', inputSchema: z.object({}) },
+    data: z.object({}),
     run: async () => {
       throw new Error('the author forgot to catch');
     },
@@ -408,6 +410,195 @@ async function probeUnguardedToolStillLabelled(): Promise<void> {
       'half that cannot be recovered after the fact',
   );
   await client.close();
+}
+
+// ── Step 5: typed results ───────────────────────────────────────────────────
+//
+// Every check below was a scratch measurement first (2026-09-27). They are
+// here so the measurements outlive the session that made them: three of them
+// pin SDK behaviour this package's design depends on, and one of them is the
+// design itself.
+
+/**
+ * PIN. The union goes out object-rooted, and nothing is re-nested.
+ *
+ * On the 2025 era — which is what stdio and InMemoryTransport negotiate
+ * (`2025-11-25`, measured) — the SDK wraps `structuredContent` as `{result: …}`
+ * when the advertised schema's root is not `type: "object"`. A success/failure
+ * union looks like exactly that. If a later SDK publishes it as a bare `oneOf`,
+ * `ok` and `cause` move one level down and every reader silently misses them.
+ */
+async function probeOutputSchemaIsObjectRooted(stub: Stub): Promise<void> {
+  const client = await connected(serverAgainst(stub.url, STUB.caseId));
+  const { tools } = await client.listTools();
+  const schema = tools.find((t) => t.name === 'get_order')?.outputSchema as
+    | { type?: string; oneOf?: unknown[] }
+    | undefined;
+  check(
+    'get_order publishes an outputSchema: object-rooted, both halves of the envelope',
+    schema?.type === 'object' && schema.oneOf?.length === 2,
+    `root type=${schema?.type}, oneOf=${schema?.oneOf?.length}. The failure half is ` +
+      'the one that carries the cause — a success-only schema would leave it undeclared',
+  );
+  const result = await client.callTool({ name: 'get_order', arguments: {} });
+  const sc = result.structuredContent as Record<string, unknown> | undefined;
+  check(
+    '…and structuredContent arrives un-nested, ok at the top level',
+    sc?.ok === true && !('result' in (sc ?? {})),
+    `keys=[${Object.keys(sc ?? {}).join(', ')}]. A {result: …} wrap here means the SDK ` +
+      'treated the root as non-object, and every reader of .ok and .cause is now wrong',
+  );
+  await client.close();
+}
+
+/**
+ * MEASURED SDK BEHAVIOUR — the reason register() checks first.
+ *
+ * A plain `registerTool` with an `outputSchema`, whose handler returns a success
+ * that breaks it. The SDK notices, and replaces the ENTIRE result: our
+ * structuredContent, cause and all, is gone, and what arrives is free text.
+ */
+async function probeSdkDropsCauseOnBadSuccess(): Promise<void> {
+  const server = new McpServer({ name: 'plant-bad-output', version: '0.0.0' });
+  server.registerTool(
+    'bad_output',
+    { description: 'Declares a number, returns a string.', inputSchema: z.object({}), outputSchema: z.object({ n: z.number() }) },
+    async () => ({ content: [{ type: 'text', text: 'hi' }], structuredContent: { n: 'not a number' } as any }),
+  );
+  const client = await connected(server);
+  const result = await client.callTool({ name: 'bad_output', arguments: {} });
+  check(
+    'the SDK\'s own output check ERASES structuredContent on a mismatch',
+    result.isError === true && result.structuredContent === undefined &&
+      (firstText(result) ?? '').startsWith('Output validation error:'),
+    `isError=${result.isError}, structuredContent=${JSON.stringify(result.structuredContent)}. ` +
+      'Recorded, not endorsed: left to the SDK, a bug in our tool reaches the model ' +
+      'as prose with no cause — the blind spot Step 6 closed at the API boundary',
+  );
+  await client.close();
+}
+
+/** MEASURED SDK BEHAVIOUR. An isError result is never output-checked — so a label survives. */
+async function probeErrorResultsSkipValidation(): Promise<void> {
+  const server = new McpServer({ name: 'plant-labelled-error', version: '0.0.0' });
+  server.registerTool(
+    'says_no',
+    { description: 'Declares a number, refuses.', inputSchema: z.object({}), outputSchema: z.object({ n: z.number() }) },
+    async () => ({
+      content: [{ type: 'text', text: 'no' }],
+      structuredContent: { ok: false, cause: 'out_of_scope', detail: 'x' } as any,
+      isError: true,
+    }),
+  );
+  const client = await connected(server);
+  const result = await client.callTool({ name: 'says_no', arguments: {} });
+  check(
+    'an isError result passes the output check untouched, structuredContent intact',
+    result.isError === true && outcomeOf(result)?.ok === false &&
+      (outcomeOf(result) as { cause?: string }).cause === 'out_of_scope',
+    'both the server and the client skip output validation when isError is set. ' +
+      'This is what lets register() convert a bad success into a LABELLED failure ' +
+      'the SDK will then leave alone',
+  );
+  await client.close();
+}
+
+/**
+ * THE DESIGN. The same mistake, through register(), arrives labelled.
+ *
+ * STEP 5's own stop-check — "break the handler's return shape on purpose and
+ * watch the server reject it" — with the part the step did not ask for: the
+ * rejection has to say whose it was.
+ */
+async function probeBadSuccessLabelled(): Promise<void> {
+  const server = new McpServer({ name: 'plant-bad-output-registered', version: '0.0.0' });
+  register(server, {
+    name: 'bad_output',
+    config: { title: 'Bad output', description: 'Declares a number, returns a string.', inputSchema: z.object({}) },
+    data: z.object({ n: z.number() }),
+    run: async () => ok({ n: 'not a number' } as any),
+    render: (o) => (o.ok ? 'fine' : `failed: ${o.detail}`),
+  });
+  const client = await connected(server);
+  const result = await client.callTool({ name: 'bad_output', arguments: {} });
+  const outcome = outcomeOf(result) as { ok?: boolean; cause?: string; detail?: string } | undefined;
+  check(
+    'a success that breaks its own declared shape arrives as invalid_output, LABELLED',
+    result.isError === true && outcome?.ok === false && outcome.cause === 'invalid_output' &&
+      /\bn\b/.test(outcome.detail ?? ''),
+    `structuredContent=${JSON.stringify(outcome)}. register() checks before the SDK ` +
+      'does, so the SDK never sees a mismatch it could erase. Remove conforming() ' +
+      'from register() and this is the check that goes red',
+  );
+  await client.close();
+}
+
+/**
+ * MEASURED CLIENT BEHAVIOUR — and a correction to a claim in four documents.
+ *
+ * A server that advertises one output shape and returns another. Our server
+ * cannot do this (register() and then the SDK both check first); a server we
+ * do not control can. What the CLIENT does depends on whether it listed tools
+ * before calling: if it did, it throws -32602; if it did not, it accepts the
+ * mismatch silently.
+ *
+ * So once any tool declares an outputSchema, -32602 from tools/call has TWO
+ * meanings — an unknown tool name, or a server whose output broke its own
+ * advertised schema — and the structural way to tell them apart is whether the
+ * name is in the last tools/list. Step 10's client must also ALWAYS list before
+ * calling, or its output check switches off without a word.
+ */
+function lyingServer(): Server {
+  const server = new Server({ name: 'plant-liar', version: '0.0.0' }, { capabilities: { tools: {} } });
+  server.setRequestHandler('tools/list', async () => ({
+    tools: [{
+      name: 'liar',
+      description: 'Advertises a number, returns a string.',
+      inputSchema: { type: 'object' as const, properties: {} },
+      outputSchema: { type: 'object' as const, properties: { n: { type: 'number' } }, required: ['n'] },
+    }],
+  }));
+  server.setRequestHandler('tools/call', async () => ({
+    content: [{ type: 'text' as const, text: 'hi' }],
+    structuredContent: { n: 'a string' },
+  }));
+  return server;
+}
+
+async function probeLyingServer(): Promise<void> {
+  const listed = await connected(lyingServer() as unknown as McpServer);
+  await listed.listTools();
+  let code: number | undefined;
+  let message = '';
+  try {
+    await listed.callTool({ name: 'liar', arguments: {} });
+  } catch (e) {
+    code = errorCodeOf(e);
+    message = String((e as Error)?.message);
+  }
+  check(
+    'a KNOWN tool whose output breaks its advertised schema is ALSO -32602',
+    code === -32602 && /does not match the tool's output schema/.test(message),
+    `code=${code}, "${message.slice(0, 90)}". So -32602 no longer means only "no such ` +
+      'tool": the name-in-tools/list cross-check is load-bearing again for Step 10',
+  );
+  await listed.close();
+
+  const unlisted = await connected(lyingServer() as unknown as McpServer);
+  let accepted = false;
+  try {
+    const r = await unlisted.callTool({ name: 'liar', arguments: {} });
+    accepted = (r.structuredContent as { n?: unknown })?.n === 'a string';
+  } catch {
+    accepted = false;
+  }
+  check(
+    '…but a client that never listed tools accepts the same mismatch SILENTLY',
+    accepted,
+    'the client validates against the schema it cached from tools/list. No list, ' +
+      'no cache, no check — and no warning that the check is off',
+  );
+  await unlisted.close();
 }
 
 /** The negative control for the HARNESS. A check() that cannot fail proves nothing. */
@@ -452,6 +643,13 @@ async function main(): Promise<void> {
     await probeNoToken(stub);
     await probeCauseSurvives(stub);
     await probeUnguardedToolStillLabelled();
+
+    console.log('\nSTEP 5 — TYPED RESULTS: the shape published, and enforced where the cause survives');
+    await probeOutputSchemaIsObjectRooted(stub);
+    await probeSdkDropsCauseOnBadSuccess();
+    await probeErrorResultsSkipValidation();
+    await probeBadSuccessLabelled();
+    await probeLyingServer();
   } finally {
     stub.close();
   }

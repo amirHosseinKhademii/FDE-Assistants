@@ -8,6 +8,15 @@ in §1.*
 **Read [`PLAN.md`](PLAN.md) for what the engagement is.** This file is only what
 is done, what is not, and what the next person needs to know before touching it.
 
+> **2026-09-27 — picked up again, three sessions.** This session (MCP strand):
+> Steps 6 and 5 done (in that order), Step 7 paused by Byron. A second session is working the hand-worked answer
+> key and eval cases (`WALKTHROUGH.md`, `evals/cases.jsonl` — §4's gap). A third
+> is redesigning `apps/web/commerce-app`. **The policy index (§0 "NOT BUILT",
+> Step 9's prerequisite) was offered to a session and declined — it is
+> unclaimed.** Steps 5 and 6 were committed on 2026-09-27 at Byron's request,
+> scoped to this strand's paths; the surface session's `/steps` update for them
+> is its own and was left for it.
+
 ---
 
 ## 0 · The handover, in one screen
@@ -15,9 +24,11 @@ is done, what is not, and what the next person needs to know before touching it.
 ```
   BUILT AND GREEN                                    WHERE
   ─────────────────────────────────────────────────────────────────────────
-  MCP server, steps 0–4b of 14                       apps/mcp/commerce
-    18 offline checks   pnpm commerce:mcp-check      (no ports, no db, ~2s)
-     4 live checks      pnpm commerce:mcp-round-trip (needs :3610 up)
+  MCP server, steps 0–6 of 14                        apps/mcp/commerce
+    25 offline checks   pnpm commerce:mcp-check      (no ports, no db, ~2s)
+     5 live checks      pnpm commerce:mcp-round-trip (needs :3610 up — incl.
+                        all 13 trap cases through a listing client)
+    16 live checks      pnpm commerce:mcp-break      (needs :3610 up — Step 6)
      1 demo             pnpm commerce:mcp-live
 
   Policy corpus, 12 documents                        docs/commerce/corpus/
@@ -107,10 +118,11 @@ with tests. Inside the NestJS app the same sentence would be unverifiable.
 ```
   ☑ 0   the idea                        ☑ 4a  get_order against a stub
   ☑ 1   ping over stdio                 ☑ 4b  …against the live API
-  ☑ 2   the inspector                   ◐ 5   typed results — LARGELY DONE by
-  ☑ 3   InMemoryTransport tests               4b's schema work; what remains is
-                                              outputSchema on the tool itself
-  ☐ 6   break it against the LIVE backend rather than the stub.  NEEDS NOBODY
+  ☑ 2   the inspector                   ☑ 5   typed results — 2026-09-27. The
+  ☑ 3   InMemoryTransport tests               SDK's own output check ERASES the
+                                              cause; register() checks first
+  ☑ 6   break it against the LIVE backend — 2026-09-27. 9 of 14
+        causes were mislabelled at the API boundary; see MCP-STEPS
   ☐ 7   HTTP transport, :3620.                                   NEEDS NOBODY
   ☐ 8   bearer auth + the fail-closed test.                      NEEDS NOBODY
   ☐ 9   search_policy — needs embeddings and an ingested corpus
@@ -119,7 +131,7 @@ with tests. Inside the NestJS app the same sentence would be unverifiable.
   ☐ 12  THE MEASUREMENT — §10 of the plan. Not optional, not last-if-time
 ```
 
-**Steps 6, 7 and 8 need nobody and are the obvious next move.** Step 7 also
+**Steps 7 and 8 need nobody and are the obvious next move.** Step 7 also
 settles an open question: whether `createMcpHandler` negotiates the 2026-07-28
 protocol era, which stdio does not — see §5.4.
 
@@ -148,7 +160,7 @@ the corpus, which both now exist, and on nothing that is in flight.
 
 ---
 
-## 5 · Five things that will bite whoever picks this up
+## 5 · Six things that will bite whoever picks this up
 
 ### 5.1 · The protocol erases three of the five failure causes
 
@@ -167,7 +179,10 @@ unforgettable. **Do not "simplify" a discriminator to key on wire shape** — th
 mapping from cause to shape is many-to-one and `probeCausesCollapse` asserts it.
 
 Also: an unknown *tool* is `-32602`, not `-32601`. `tools/call` is a method the
-server has; `name` is one of its parameters.
+server has; `name` is one of its parameters. **And since Step 5 it is not the only
+thing `-32602` means:** a known tool whose output breaks its advertised schema is
+also `-32602` at a client that has listed tools. Check the name against the last
+`tools/list` — MCP-STEPS Step 5.
 
 ### 5.2 · `register()` catches, and that is load-bearing
 
@@ -219,13 +234,33 @@ One engagement, two prefixes. It has tripped up two sessions and Byron once.
 session reads the first two and a half-applied rename is worse than a confusing
 one.
 
+### 5.6 · A transfer failing is not the tool throwing — and the causes are now eight
+
+Added 2026-09-27, by Step 6. `fetch()` and `res.json()` *throw*, so before Step
+6 a dead port, a hang and a cut-off body all reached `guarded()` and were filed
+as `threw` — "our code raised". `getJson` now catches the transfer itself and
+labels it `upstream_unavailable`, with a **15s timeout** (there was none; the
+reasoning for 15 is in `client.ts`). A seventh cause, **`unauthorized`**, covers
+a 401 and an unset token, which had been `upstream_unavailable` and
+`invalid_request` respectively. Step 5 added an eighth, **`invalid_output`**: our
+tool returned a success that breaks its own declared shape. `CAUSES` in
+`outcome.ts` is now a runtime list, because the published `outputSchema` names
+every value. **If you add a tool, do not re-introduce a bare
+`fetch`** — go through `getJson`, and `commerce:mcp-break` will say if the label
+is wrong.
+
+**One defect found and left for the API's owner:** the 401 body reads
+`"x-api-key does not match"`, but this API's header is `x-service-token`. The
+text is `@fde/guard`'s own, hardcoded. Harmless to the MCP layer (which does not
+repeat it) and misleading to an operator.
+
 ---
 
 ## 6 · Open decisions nobody has taken
 
 | | |
 |---|---|
-| **PII across the boundary** | `/orders/:id` returns `customer.email` and `customer.fullName`. The MCP layer parses them so the contract is honest, and does **not** render them into the prose the model reads — but `structuredContent` is the model's context either way. Two sessions agree the narrow answer is probably "parse, do not forward"; *probably* is not good enough for a data-residency decision. `docs/steering/DATA-RESIDENCY.md` is the precedent for the format. **Byron's call.** |
+| **PII across the boundary** | `/orders/:id` returns `customer.email` and `customer.fullName`. The MCP layer parses them so the contract is honest, and does **not** render them into the prose the model reads — but `structuredContent` is the model's context either way. Two sessions agree the narrow answer is probably "parse, do not forward"; *probably* is not good enough for a data-residency decision. `docs/steering/DATA-RESIDENCY.md` is the precedent for the format. **Byron's call.** *Since Step 5 the published `outputSchema` of `get_order` names both fields too — it is the literal statement of what leaves the tool, so the answer to this row changes that schema as well as the API.* |
 | **the env prefix** | §5.5 — and the two sessions that recorded a view **disagree**, which is why it needs deciding rather than defaulting. The estate session: unify to `COMMERCE_DATABASE_URL`, because it is inconsistent with all four siblings (`PHARMA_`/`STEERING_`/`SAFETY_DATABASE_URL`) on two axes at once. The web session: **keep them different on purpose and say why at the definition** — `ECOMMERCE_DB_URL` creates and drops five databases, `COMMERCE_API_*` is a token holding no database access at all, §4.1's whole argument is that those must never sit in one process, and a shared prefix invites the copy-paste that puts them there. Their compromise if unified: rename the estate credential to say what it is, `COMMERCE_ESTATE_ADMIN_URL`, rather than making it look like a peer of the service token. |
 | **tool-input strictness** | Zod objects are not strict by default and the SDK does not make them so — an undeclared argument is silently accepted. `coverage-schema.ts` uses `z.strictObject` for the answer contract; tool inputs crossing a trust boundary arguably deserve the same. Recorded as behaviour, not endorsed. |
 
@@ -263,7 +298,8 @@ go red.
 
 ## 8 · State of the tree at the stop point
 
-All MCP-strand work is **committed**. Last commit `a1178e6`.
+*As of 2026-09-18.* All MCP-strand work was **committed** at `a1178e6`. Steps 5
+and 6 were committed on 2026-09-27 — see the note under the title.
 
 ```
 apps/mcp/commerce/**          committed
@@ -277,7 +313,11 @@ apps/ai/commerce/src/{config,grounding}/        committed (the descriptor and
 The three other strands were reporting uncommitted work at the stop point. Their
 handovers say what.
 
-### ⚠ THE COMMIT STATE IS INCOHERENT, AND MY COMMITS DID IT
+### ⚠ THE COMMIT STATE WAS INCOHERENT, AND MY COMMITS DID IT
+
+> **RESOLVED by `725ec3c` (2026-09-18),** which committed the three other
+> strands' work with scoped paths. A fresh clone of `master` now contains every
+> package its scripts name. What follows is kept for the rules, not the state.
 
 **Three of my commits used `git add <directory>` in a tree four sessions were
 writing to, and each swept in work I did not own.** The result is a HEAD that

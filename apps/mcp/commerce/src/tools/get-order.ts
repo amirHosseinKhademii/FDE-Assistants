@@ -63,6 +63,9 @@ export function buildGetOrder(cfg: ApiConfig, session: Session): Tool {
       // names; this is documentation. PLAN.md §7.
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true },
     },
+    // The SAME schema the inbound parse uses, so what the API is checked against
+    // and what the tool promises cannot drift apart. `register()` publishes it.
+    data: OrderResponseSchema,
     // No try/catch and no `guarded()` here ON PURPOSE. `register()` wraps every
     // tool body, so a throw is labelled whether or not a tool author remembers.
     // Wrapping again here would hide where the guarantee actually lives.

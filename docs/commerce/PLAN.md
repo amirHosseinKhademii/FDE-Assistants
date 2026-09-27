@@ -425,6 +425,14 @@ outcomes where there were two, and three of them are new:
 | `threw` | a **returned result**, `isError: true`, text = the exception message | **infrastructure** |
 | `transport` | nothing comes back | **infrastructure** |
 
+> **▲ The name check in row 1 is not optional — MEASURED 2026-09-27, Step 5.**
+> Once a tool declares an `outputSchema`, `-32602` also arrives for a **known**
+> tool whose output broke its advertised schema (the client throws it, if it has
+> listed tools). Same code, different owner: the server, not the model. "Absent
+> from the last `tools/list`" is what separates them. Our own server cannot
+> produce the second — `register()` labels a bad output `invalid_output` first —
+> but a server we do not control can. `probeLyingServer` asserts both halves.
+
 > ### These five are a taxonomy of CAUSES, not of wire shapes
 >
 > Stated first because everything under it depends on it, and because the

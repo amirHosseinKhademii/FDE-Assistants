@@ -22,7 +22,7 @@ interface ApiEnvelope<T> {
   detail?: string;
 }
 
-const CAUSES: readonly string[] = [
+const API_CAUSES: readonly string[] = [
   'out_of_scope',
   'not_found',
   'invalid_request',
@@ -37,13 +37,30 @@ const CAUSES: readonly string[] = [
  * shape `@fde/guard` exists to name.
  */
 function narrowCause(raw: string | undefined): Cause {
-  return CAUSES.includes(raw ?? '') ? (raw as Cause) : 'upstream_unavailable';
+  return API_CAUSES.includes(raw ?? '') ? (raw as Cause) : 'upstream_unavailable';
 }
 
 export interface ApiConfig {
   readonly baseUrl: string;
   readonly serviceToken: string;
+  /** Per request, body included. Absent means `DEFAULT_TIMEOUT_MS`, never "none". */
+  readonly timeoutMs?: number;
 }
+
+/**
+ * `fetch()` HAS NO DEFAULT TIMEOUT. A socket that accepts and never answers —
+ * Neon waking from idle, a proxy that lost its upstream — hangs the tool call
+ * forever, and the model turn waiting on it. Measured in Step 6; FREE.md found
+ * the same on the model endpoint.
+ *
+ * WHY 15 SECONDS, from two measured bounds rather than a round number. Above:
+ * the MCP client gives up on a request after 60s (`DEFAULT_REQUEST_TIMEOUT_MSEC`
+ * in `@modelcontextprotocol/client` 2.0.0), and if it gets there first the call
+ * dies UNLABELLED — so ours must fire well inside that. Below: `/health` from
+ * cold took ~2.2s per pool on 2026-09-27, so a first request after idle needs
+ * room to be slow without being called dead.
+ */
+export const DEFAULT_TIMEOUT_MS = 15_000;
 
 export function apiConfigFromEnv(): ApiConfig {
   return {
@@ -52,6 +69,7 @@ export function apiConfigFromEnv(): ApiConfig {
     // succeeds unauthenticated — `packages/guard` exists because the obvious
     // implementation gets this backwards.
     serviceToken: process.env.COMMERCE_SERVICE_TOKEN ?? '',
+    timeoutMs: DEFAULT_TIMEOUT_MS,
   };
 }
 
@@ -67,6 +85,37 @@ function headers(cfg: ApiConfig, session: Session): Record<string, string> {
 /** A 5xx means plumbing — a property the backend session guarantees on its side. */
 function isPlumbing(status: number): boolean {
   return status >= 500;
+}
+
+/** The API's envelope, recognised by its one required field. */
+function isEnvelope(body: unknown): body is ApiEnvelope<unknown> {
+  return typeof body === 'object' && body !== null && typeof (body as { ok?: unknown }).ok === 'boolean';
+}
+
+/**
+ * The API's 400: `{error, problems: [{field, rule, message}]}` (API.md §3).
+ * Field and rule are kept because they are the only part that says WHICH
+ * argument was wrong; the API already leaves out the offending value.
+ */
+function contractProblems(body: unknown): string | undefined {
+  const problems = (body as { problems?: unknown })?.problems;
+  if (!Array.isArray(problems)) return undefined;
+  return problems
+    .slice(0, 4)
+    .map((p: { field?: unknown; rule?: unknown }) => `${String(p?.field)}: ${String(p?.rule)}`)
+    .join('; ');
+}
+
+/**
+ * Why the transfer failed, in words that send the reader to the right place.
+ * `fetch` puts the useful part — ECONNREFUSED, "other side closed" — on
+ * `cause`, and says only "fetch failed" on the error itself.
+ */
+function transferFailure(e: unknown, path: string, timeoutMs: number): string {
+  const err = e as { name?: string; message?: string; cause?: { code?: string; message?: string } };
+  if (err?.name === 'TimeoutError') return `no answer for ${path} within ${timeoutMs}ms`;
+  const why = err?.cause?.code ?? err?.cause?.message ?? err?.message ?? String(e);
+  return `could not complete ${path}: ${why}`;
 }
 
 /**
@@ -85,16 +134,59 @@ export async function getJson<T>(
   schema: ZodType<T>,
 ): Promise<Outcome<T>> {
   if (!cfg.serviceToken) {
-    return fail('invalid_request', 'COMMERCE_SERVICE_TOKEN is not set; refusing to call the API.');
+    return fail('unauthorized', 'COMMERCE_SERVICE_TOKEN is not set; refusing to call the API.');
   }
 
-  const res = await fetch(`${cfg.baseUrl}${path}`, { headers: headers(cfg, session) });
+  // THE TRANSFER, BODY INCLUDED, IS ONE STEP AND IS CAUGHT AS ONE. A refused
+  // connection rejects `fetch`; a response cut off mid-body rejects the read;
+  // a hang is ended by the signal, which covers both. All three are the
+  // upstream failing. Left to `guarded()` they were labelled `threw` — "the
+  // tool itself raised" — which points at this package when the fault is a
+  // process that is not running. Measured in Step 6, `commerce:mcp-break`.
+  const timeoutMs = cfg.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  let res: Response;
+  let text: string;
+  try {
+    res = await fetch(`${cfg.baseUrl}${path}`, {
+      headers: headers(cfg, session),
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    text = await res.text();
+  } catch (e) {
+    return fail('upstream_unavailable', transferFailure(e, path, timeoutMs));
+  }
 
   if (isPlumbing(res.status)) {
     return fail('upstream_unavailable', `the API answered ${res.status} for ${path}`);
   }
 
-  const body = (await res.json()) as ApiEnvelope<unknown>;
+  // 401 carries `{error, reason}`, never the envelope. Its `reason` is NOT
+  // passed on: the API reuses @fde/guard, whose text names an `x-api-key`
+  // header this API does not use, and repeating it would send the reader to
+  // look for the wrong header. Ours names the variable that is actually wrong.
+  if (res.status === 401) {
+    return fail('unauthorized', `the API refused our service token for ${path} — check COMMERCE_SERVICE_TOKEN`);
+  }
+
+  let body: unknown;
+  try {
+    body = JSON.parse(text);
+  } catch {
+    return fail('malformed_response', `${path} answered ${res.status} with a body that is not JSON`);
+  }
+
+  const problems = res.status === 400 ? contractProblems(body) : undefined;
+  if (problems !== undefined) {
+    return fail('invalid_request', `${path} did not match the API's contract — ${problems}`);
+  }
+
+  // Anything else without the envelope is the API and this client disagreeing
+  // about the contract — a route that is not there, a status nobody documented.
+  // Filing it as `upstream_unavailable` says "try again later", which never works.
+  if (!isEnvelope(body)) {
+    return fail('malformed_response', `${path} answered ${res.status} with a body that is not the API's envelope`);
+  }
+
   if (!body.ok || body.data === undefined) {
     return fail(narrowCause(body.cause), body.detail ?? `the API refused ${path}`);
   }

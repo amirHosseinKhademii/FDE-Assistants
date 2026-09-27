@@ -456,6 +456,85 @@ of confusing the model three turns later.
 **Stop here and check:** break the handler's return shape on purpose and watch
 the server reject it.
 
+### ☑ DONE 2026-09-27 — the server does reject it, and throws the cause away doing so
+
+Half of this was already done: `structuredContent` has carried the outcome since
+4a, and 4b made the boundary **parse** what comes in. What was missing was the
+tool **declaring** what goes out. `register()` now wraps each tool's `data`
+schema in the outcome envelope, publishes it as `outputSchema`, and checks every
+result against it. Seven checks in `commerce:mcp-check`, each one a scratch
+measurement first:
+
+```
+  MEASURED (SDK 2.0.0)                                          what it means here
+  ───────────────────────────────────────────────────────────────────────────────────────
+  bad success, plain registerTool   isError:true, NO structuredContent,   the SDK's check
+                                    "Output validation error: …"          ERASES the cause
+  isError result, wrong shape       passes untouched, label intact        both sides skip it
+  success/failure union published   {type:"object", oneOf:[2]} —          safe — and pinned,
+                                    nothing re-nested on 2025-11-25       not assumed
+  lying server, client LISTED first -32602 "does not match the tool's     -32602 now has TWO
+                                    output schema"                        meanings
+  lying server, client never listed accepted SILENTLY                     no list, no check
+```
+
+**The step's own check passes and is not enough.** Break the shape and the
+server does reject it — by replacing the whole result with prose. A bug in our
+own tool would reach the model with no cause: the blind spot Step 6 had just
+closed at the API boundary, reopened one layer up. So `register()` checks
+**first**, via `conforming()`, and a mismatch becomes `invalid_output` — an
+**eighth cause**, ours: the payload already passed the inbound parse, so the
+fault is in what the tool did with it. Not `threw` (nothing raised, and Step 6
+made that word mean exactly that); not `malformed_response` (that is the API's
+contract breaking). Once the result is `isError`, the SDK leaves it alone.
+
+**Both halves are published, not just the success.** The SDK only validates
+successes, so a success-only schema would pass every check and leave the half
+that carries the cause undeclared. A union *looks* like a non-object root, and
+on the 2025 era the SDK re-nests `structuredContent` under `{result: …}` for
+those — which would move `ok` and `cause` out from under every reader. It does
+not happen, because the SDK publishes this union as `{type: "object", oneOf}`.
+**That is one SDK version's behaviour, so a check pins it.**
+
+`Tool.data` is **required**: optional would mean the first tool that forgot it
+shipped untyped, silently. It caught the existing unguarded-tool plant on the
+first compile.
+
+**Verified by sabotage:**
+
+```
+  register() stops checking output      → 1 red: the labelled invalid_output check
+  outputSchema not published            → 1 red: the object-rooted check
+  schema publishes the success only     → 3 red — including out_of_scope: every
+                                          legitimate REFUSAL became invalid_output
+```
+
+The third is the argument for both halves in one line: a success-only schema is
+not merely incomplete, it turns every domain answer into our bug.
+
+**And against live data, not just the stub.** Every check above that calls
+`get_order` runs against the stub — and a client that has listed tools does not
+use Zod: it checks the **published JSON Schema** with its own validator. The
+stub's `promisedBy` is a timestamp where the live API sends a bare date, and its
+one order cannot vary the way the trap orders do (T3's prior refunds, T4's
+marketplace seller). So `commerce:mcp-round-trip` now sends **all 13 reserved
+trap cases** through the whole path — `createServer`, `listTools` first, then
+`get_order` — and asserts no throw, `ok: true`, the right order. **13 of 13,
+first run.** Pair one case with the wrong order and it goes red naming the case.
+Had any failed, every successful `get_order` would have reached Step 10 as
+`-32602`.
+
+> **The finding that reaches beyond this step.** Once any tool declares an
+> output schema, **`-32602` from `tools/call` has two meanings** — an unknown
+> tool name, or a server whose output broke its own advertised schema. Our
+> server cannot produce the second (it checks twice first); a server we do not
+> control can. The structural way to tell them apart is **whether the name is in
+> the last `tools/list`** — the cross-check the Step 6 box below had downgraded
+> to belt-and-braces, and which Step 10's discriminator now needs. And Step
+> 10's client must **always list before calling**: the client's output check
+> reads a schema it cached from `tools/list`, and without one it switches off
+> without a word.
+
 ---
 
 ## Step 6 · Break it on purpose — the most valuable step here
@@ -500,6 +579,14 @@ Five failures, and the buckets they map to
 > the `tools/list` cross-check is belt-and-braces rather than the load-bearing
 > step this box claimed.
 >
+> **▲▲ TRUE UNTIL STEP 5, AND NOT AFTER — qualified 2026-09-27.** Once a tool
+> declares an `outputSchema`, a client that has listed tools also throws
+> `-32602` when a **known** tool's output breaks its advertised schema
+> (*"Structured content does not match the tool's output schema"*). So there are
+> two meanings again, and the `tools/list` cross-check is load-bearing again —
+> the name is in the list for one and absent for the other. Asserted by
+> `probeLyingServer`. See Step 5's ☑ box.
+>
 > The collapse is real. It is somewhere else, and it is worse — see the rows
 > below.
 >
@@ -526,6 +613,77 @@ answer into a protocol failure and you lose the distinction forever.
 
 **Stop here and check:** five deliberate failures, five recorded outcomes, in a
 table you wrote yourself.
+
+### ☑ DONE 2026-09-27 — the protocol was right; the boundary behind it was not
+
+The five rows above were already measured, offline, by `commerce:mcp-check` —
+Step 3 produced every one. What that suite cannot reach, by design, is the
+**backend** misbehaving, and that is where all the defects were.
+`pnpm commerce:mcp-break` (`src/break-live.ts`, needs `:3610`) drives `get_order`
+into each failure, run exactly as `register()` runs it, and asserts the cause it
+**should** land as. Its first run was the measurement — **9 of 14 red:**
+
+```
+  make this happen                          landed as (BEFORE)        should be               owner
+  ────────────────────────────────────────────────────────────────────────────────────────────────────
+  live API, the session's own order         ok                        ok                      — control
+  live API, another case's order            out_of_scope              out_of_scope            domain
+  live API, a case id naming no case        invalid_request           invalid_request         our wiring
+  live API, WRONG service token (401)       upstream_unavailable  ✗   unauthorized            our config
+  our token UNSET                           invalid_request       ✗   unauthorized            our config
+  dead port (ECONNREFUSED)                  threw                 ✗   upstream_unavailable    infrastructure
+  accepts, never answers                    HUNG FOREVER          ✗   upstream_unavailable    infrastructure
+  200, body cut off mid-write               threw                 ✗   upstream_unavailable    infrastructure
+  200, complete, not JSON                   threw                 ✗   malformed_response      contract
+  404 from Nest, no envelope                upstream_unavailable  ✗   malformed_response      contract
+  the API's real 400 {error, problems}      upstream_unavailable  ✗   invalid_request + field contract
+  MCP server SIGKILLed mid-call (stdio)     rejected, 10ms, CONNECTION_CLOSED — already right
+```
+
+**Every ✗ had the blame roughly right and the diagnosis wrong,** which is the
+failure PLAN.md §6.1 warned a totals-based check cannot see. `threw` says "the
+tool's own code raised" and sends the reader into this package, when the fault
+was a process that was not running. `upstream_unavailable` on a 401 says "try
+the network" while the token sits wrong in `.env`. And `invalid_request` for an
+unset token is the API's word for a request that broke its contract — the
+**model's** kind of mistake as soon as a tool takes arguments — so it would have
+blamed the model for our configuration.
+
+**Why the protocol suite never saw any of it:** `fetch()` and `res.json()`
+*throw*, and `guarded()` — correctly, and by design — turns any throw into
+`threw`. The transfer failing and our code failing were the same event to it.
+
+The fixes, all in `api/client.ts`:
+
+1. **The transfer is caught as one step, body included,** and labelled
+   `upstream_unavailable`. That leaves `threw` meaning what it says.
+2. **A timeout — `AbortSignal.timeout`, 15s.** `fetch` has none by default.
+   Fifteen is set by two measured bounds: the MCP client gives up at **60s**
+   (`DEFAULT_REQUEST_TIMEOUT_MSEC`), and if it gets there first the call dies
+   *unlabelled*; and a cold call is slow — `/health` took ~2.2s per pool, and a
+   warm `/orders/ORD-101414` ~0.58s. **The probe proved the lower bound by
+   flaking:** its first version gave every call a 1s timeout, and the control
+   went red on the first run after idle.
+3. **`unauthorized`, a seventh cause,** for a 401 and for an unset token. Ours,
+   not the API's vocabulary — the API says it with a bare `{error, reason}`.
+4. **Each non-envelope status is read for what it is:** 400 → `invalid_request`
+   *keeping the field and rule*; non-JSON or no envelope → `malformed_response`;
+   the API's own 503 ("no token configured on *its* side") stays
+   `upstream_unavailable` — our token may be fine, and it is refusing everyone.
+
+**Verified by sabotage.** Each fix was removed in turn and the suite re-run:
+every removal turned exactly its own check red and nothing else. Also added: the
+**schema-drift control** that `round-trip.ts` claims and does not have — its
+"negative control" plants an `out_of_scope` refusal, not drift. The new one
+serves Step 4a's real flat order behind `ok: true`; skip the parse and it goes
+red. *(The mislabelled one in `round-trip.ts` was renamed at Step 5 to what it
+asserts — `probeRefusalIsNotSuccess`.)*
+
+> **Found on the way and NOT fixed here — it is the API's.** The 401 body says
+> `"reason": "x-api-key does not match"`. This API's header is
+> `x-service-token`; the text comes from `@fde/guard`, which the API reuses and
+> which hardcodes its own header name. An operator following that message looks
+> for a header that does not exist. `client.ts` deliberately does not repeat it.
 
 ---
 
@@ -694,7 +852,8 @@ separate-deployable form to make the boundary visible, it is also the likely one
 
 | step | needs |
 |---|---|
-| **0 – 4a, 5, 6** | **nothing.** A stub stands in for the backend. |
+| **0 – 4a, 5** | **nothing.** A stub stands in for the backend. |
+| 6 | **half and half — corrected 2026-09-27.** The protocol half needs nothing (`commerce:mcp-check`, offline). The boundary half needs the API on `:3610` (`commerce:mcp-break`), **and every defect Step 6 found was in that half.** "Needs nothing" was true of the part that had already passed |
 | 4b | the NestJS backend answering on `:3610` (*fde-assistants-11*) and the seeded estate behind it (*fde-assistants-2d*) |
 | 7 – 8 | **nothing.** Moving the transport onto HTTP and putting `requireBearerAuth` in front of it touches no database and no API — Step 8's check (unset the token, confirm everything is refused) positively *wants* no backend |
 | 9 | `docs/commerce/corpus/` written, and ingested |

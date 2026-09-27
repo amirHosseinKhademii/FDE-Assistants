@@ -309,6 +309,14 @@ This is the part that breaks existing harness code, and it is why
 > unregistered tool name, and this channel is *cleaner* than the original
 > reasoning predicted.
 >
+> **▲ Qualified 2026-09-27: one thing only until a tool declares an
+> `outputSchema`.** After that, a client that has listed tools also throws
+> `-32602` when a registered tool's structured output breaks the schema it
+> advertised — so the name has to be checked against the last `tools/list` to
+> tell the two apart. Measured in `apps/mcp/commerce`
+> (`probeLyingServer`, `pnpm commerce:mcp-check`); written up in
+> `docs/commerce/MCP-STEPS.md` Step 5.
+>
 > The distinction that genuinely cannot be recovered from the wire is one layer
 > down, in the `isError` results. See the box in the next section.
 >

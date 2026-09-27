@@ -31,7 +31,7 @@ import type { Tool } from './tools/types';
 import { buildGetOrder } from './tools/get-order';
 import { apiConfigFromEnv, type ApiConfig } from './api/client';
 import { sessionFromEnv, type Session } from './session';
-import { guarded } from './api/outcome';
+import { conforming, guarded, outcomeSchema } from './api/outcome';
 
 /** stderr, never stdout. See the header. */
 export function serverLog(...parts: unknown[]): void {
@@ -61,7 +61,12 @@ export const SERVER_INFO = { name: 'thornbury-commerce', version: '0.1.0' } as c
  * clothes. Here it cannot be forgotten, because a tool author never writes it.
  */
 export function register(server: McpServer, tool: Tool): void {
-  server.registerTool(tool.name, tool.config, async (args: Record<string, unknown>) => {
+  // STEP 5: the shape is published AND enforced, and both come from one place.
+  // `outputSchema` goes out in tools/list; `conforming()` checks every result
+  // against it BEFORE the SDK does — because the SDK's own check, measured,
+  // throws the whole result away on a mismatch, cause and all.
+  const outputSchema = outcomeSchema(tool.data);
+  server.registerTool(tool.name, { ...tool.config, outputSchema }, async (args: Record<string, unknown>) => {
     // THE CATCH LIVES HERE, NOT IN THE TOOL — corrected 2026-09-18.
     //
     // It was `tool.run(args)` bare, with each tool calling `guarded()` itself.
@@ -75,7 +80,7 @@ export function register(server: McpServer, tool: Tool): void {
     // it. `probeUnguardedToolStillLabelled` is the negative control: it registers
     // a tool that throws and never calls `guarded`, and requires the cause to
     // arrive anyway.
-    const outcome = await guarded(() => tool.run(args));
+    const outcome = conforming(tool.name, await guarded(() => tool.run(args)), outputSchema);
     return {
       content: [{ type: 'text' as const, text: tool.render(outcome) }],
       structuredContent: outcome,

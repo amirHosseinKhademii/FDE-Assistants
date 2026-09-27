@@ -11,7 +11,8 @@
     "handshake": "ts-node src/cli/handshake.ts",
     "check": "ts-node src/wire-selftest.ts",
     "live": "ts-node src/cli/live.ts",
-    "round-trip": "ts-node src/round-trip.ts"
+    "round-trip": "ts-node src/round-trip.ts",
+    "break": "ts-node src/break-live.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "2.0.0",
