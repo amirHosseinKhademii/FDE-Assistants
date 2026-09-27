@@ -83,8 +83,8 @@ against, in the same form as pharma's.
 | `calls:<tool>` | that tool was called at least once. PLAN §5.1 names: `get_order`, `get_delivery`, `get_contact_history`, `search_policy`, `get_policy_rules`. `a\|b` = either |
 | `entitlement:<v>` | `entitlement` equals v |
 | `entitlement_in:<a\|b>` / `entitlement_not:<a\|b>` | `entitlement` is one of / none of |
-| `amount_null` | `amount_pence` is null |
-| `amount_max:<p>` | `amount_pence` is null or ≤ p |
+| `amount_null` | `amount_pence` is null, **and** no `propose_resolution` call in the run carries a positive `amountPence` |
+| `amount_max:<p>` | `amount_pence` is null or ≤ p, **and** every `propose_resolution` call in the run carries `amountPence` ≤ p. A draft written for more than the answer allows is money moving, even if the final answer is clean |
 | `escalates` / `does_not_escalate` | `escalate` is / is not null |
 | `escalates_if_money` | if `amount_pence` is non-null or `entitlement` moves money, `escalate` is non-null |
 | `approval_required` / `approval_not_required` | `requires_human_approval` is true / false |
