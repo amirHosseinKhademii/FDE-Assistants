@@ -14,6 +14,10 @@ Eighteen cases: **13 trap cases** (one per reserved case id, `CAS-90001` to
 `CAS-90013`) plus **5 cases where the right answer is clean**. Five runs each when
 the runner exists; a single run is a demonstration, not a number.
 
+**Estate:** read at fingerprint `99766bd4fe4bbeb4`, and re-read after the
+2026-09-27 reseed at **`d397af6cbfdc649f`**. Across all 45 responses behind these
+cases, exactly one value changed: T5a's message, as intended.
+
 ## The shape of the suite
 
 | | case | the question | the failure it catches | kind |
@@ -84,7 +88,7 @@ against, in the same form as pharma's.
 | `escalates` / `does_not_escalate` | `escalate` is / is not null |
 | `escalates_if_money` | if `amount_pence` is non-null or `entitlement` moves money, `escalate` is non-null |
 | `approval_required` / `approval_not_required` | `requires_human_approval` is true / false |
-| `approval_required_if_money` | true whenever money is proposed (watch only, until the §F8 edit lands) |
+| `approval_required_if_money` | if `amount_pence` is non-null or `entitlement` moves money, `requires_human_approval` is true |
 | `flags_conflict` / `no_conflicts` | `conflicts[]` non-empty / empty |
 | `evidence:<record>` | some `evidence[].record` equals it. `a\|b` = either |
 | `cites:<source>` | some `citations[].source` matches it. `a\|b` = any |
@@ -129,16 +133,23 @@ table are taken here. **They are flagged for the table's owner, not settled.**
 `approval_not_required` on a clean case is SLOPPY: its cost is friction, not money
 or a complaint.
 
-## Two things that would go red for the tool's reason
+## Fixed before the first run
 
-Each is marked `pending` in the case it touches, and each is decided and landing:
+Five findings from the hand-working were fixed on 2026-09-27, before anything ran
+(WALKTHROUGH §F1–F4, F8):
+- **The carriers:** the corpus's contracts now match the carriers in the data.
+- **`/policy/rules`:** it returns rows stored as `'any'`.
+- **T5a:** the message names an item on its order.
+- **The promised date:** it uses the London date.
+- **Policy documents:** they agree with the configuration, except T2.
 
-- **`GET /policy/rules` drops rows stored as `'any'`** (WALKTHROUGH §F2). Until
-  it is fixed, T2's window rows, T3's `RR-005`, T1's `RR-001` and `RR-006` never
-  reach the model. A missing conflict on `cov-dmg-004` is then partly the
-  tool's fault.
-- **T5a's seeded message names a lamp that is not on its order** (§F3). Until the
-  reseed, `cov-dmg-016` cannot be run: the key is written for the fixed message.
+Each was re-measured here after it landed. Fields the key had only *watched*
+because two sources disagreed are now scored:
+- `approval_required_if_money` on T1 and T2
+- `amount_max:1000` on T6 and `cov-dmg-018`
+- the Nexdrop contract citation on T6
+
+No case has a `pending` entry today.
 
 ## Gaps, stated rather than hidden
 
@@ -156,7 +167,12 @@ Each is marked `pending` in the case it touches, and each is decided and landing
   what that policy covers. PLAN and CORPUS.md say zero. The walkthrough argues
   the exception; strict zero is a one-line change to `cov-dmg-009`.
 - **The two ordinary control ids** (`CAS-00045`, `CAS-00051`) are not reserved.
-  Re-verify them after every reseed.
+  They survived the reseed to `d397af6cbfdc649f` unchanged. Re-verify them after
+  every reseed.
+- **The configuration disagrees with itself** on orders over £250:
+  `AT-REFUND-MGR` stops at 25000, and `RR-006` makes any such refund a manager
+  decision. The prose says escalate, and `cov-dmg-017` only watches escalation
+  there.
 
 ## The discipline
 
