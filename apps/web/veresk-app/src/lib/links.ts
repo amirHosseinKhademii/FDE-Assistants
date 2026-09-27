@@ -49,3 +49,16 @@ export const STEERING = url(import.meta.env.VITE_STEERING_URL as string | undefi
  * guess about something that might exist.
  */
 export const SAFETY = url(import.meta.env.VITE_SAFETY_URL as string | undefined, 3500);
+
+/**
+ * Thornbury Goods — the MCP build, told step by step on its `/steps` page.
+ *
+ * THE FIRST LINK THE FIRM HAS AHEAD OF THE PIPELINE. The deploy job sets no
+ * `VITE_COMMERCE_URL` on purpose (`deploy.yml`, "THE LINK IS ONE-WAY"), so a
+ * production build contains `null` here and the nav renders nothing for it —
+ * the `url()` rule above, working as designed — while a dev build points at
+ * :3600. Making it live when deployed is a pipeline change, not an edit here:
+ * put `commerce-deploy` in the host's `needs:` and pass its resolved URL as
+ * `VITE_COMMERCE_URL`, the way `VITE_SAFETY_URL` is passed.
+ */
+export const COMMERCE = url(import.meta.env.VITE_COMMERCE_URL as string | undefined, 3600);

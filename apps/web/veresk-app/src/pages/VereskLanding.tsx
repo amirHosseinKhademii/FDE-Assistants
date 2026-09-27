@@ -38,7 +38,7 @@ import { FlowMap } from '@fde/uikit';
 import type { FlowEdge, FlowNode, FlowStage } from '@fde/uikit';
 import { Aurora } from '@veresk/surface';
 import { AURORA } from '../lib/aurora';
-import { PHARMA, SAFETY, STEERING } from '../lib/links';
+import { COMMERCE, PHARMA, SAFETY, STEERING } from '../lib/links';
 import { BoxIcon } from '@fde/uikit';
 import { CaseGlyph, PackageGlyph } from '../components/flow/veresk-glyphs';
 import { hueOf, lessonsIn, MAP, TOTALS, TRACKS } from '../lib/learn/lessons';
@@ -158,7 +158,7 @@ export function VereskLanding() {
         </span>
         <span className="font-medium tracking-tight">Veresk</span>
         {/* A TYPED LINK, and the only one in this nav. `/learn` is served by
-            this application; the two engagements are separate deployments on
+            this application; the engagements are separate deployments on
             separate origins and have to be plain anchors. The difference is
             invisible until one of them is deployed — see `lib/links.ts`. */}
         <Link to="/learn" className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
@@ -178,6 +178,13 @@ export function VereskLanding() {
         {STEERING && (
           <a href={STEERING} className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
             Vantis Steering
+          </a>
+        )}
+        {/* Null in a production build until the pipeline passes a URL — see
+            `COMMERCE` in lib/links.ts. */}
+        {COMMERCE && (
+          <a href={COMMERCE} className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
+            Thornbury Goods
           </a>
         )}
       </nav>

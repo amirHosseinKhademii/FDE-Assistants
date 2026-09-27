@@ -856,9 +856,12 @@ jobs:
       # fallback to `import.meta.env.DEV`, so an unset value renders the firm's
       # name as text rather than as a link to a port on the reader's machine.
       #
-      # THE LINK IS ONE-WAY. This app points at the firm; the firm has no
-      # Thornbury card, so there is no `VITE_COMMERCE_URL` anywhere and this job
-      # is deliberately NOT in the host's `needs:`. See infra/commerce/DEPLOY.md.
+      # THE LINK IS ONE-WAY IN PRODUCTION. This app points at the firm. The
+      # firm's nav names `VITE_COMMERCE_URL` (veresk-app `lib/links.ts`, since
+      # 2026-09-27) but nothing here sets it and infra/veresk/Dockerfile has no
+      # ARG for it, so the link renders in dev only. This job is deliberately NOT
+      # in the host's `needs:`; making the link live means adding it there, the
+      # ARG, and a build-arg. See infra/commerce/DEPLOY.md.
       - name: Resolve the host's URL
         run: |
           fqdn=$(az containerapp show -n "$VERESK_APP" -g "$RG" \
