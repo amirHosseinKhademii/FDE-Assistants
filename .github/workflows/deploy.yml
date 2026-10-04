@@ -1146,13 +1146,14 @@ jobs:
             revisions=$(az containerapp revision list -n commerce-api -g "$RG" \
               --query "[].properties | [0]" -o json)
             echo "attempt $i — checking latest revision"
-            if echo "$revisions" | jq -e '.runningReplicas > 0' > /dev/null 2>&1; then
-              echo "✅ latest revision has running replicas"
+            # Accept either running replicas, or a healthy revision scaled to zero
+            if echo "$revisions" | jq -e '(.runningReplicas > 0) or (.healthState == "Healthy" and .runningState != "Unknown")' > /dev/null 2>&1; then
+              echo "✅ latest revision is healthy and provisioned"
               exit 0
             fi
             sleep 5
           done
-          echo "::error::no running replicas for latest revision"
+          echo "::error::latest revision is not healthy or not provisioned"
           exit 1
 
       - run: echo "✅ **2e · commerce-api deployed** — internal ingress only" >> "$GITHUB_STEP_SUMMARY"
@@ -1230,13 +1231,14 @@ jobs:
             revisions=$(az containerapp revision list -n commerce-mcp -g "$RG" \
               --query "[].properties | [0]" -o json)
             echo "attempt $i — checking latest revision"
-            if echo "$revisions" | jq -e '.runningReplicas > 0' > /dev/null 2>&1; then
-              echo "✅ latest revision has running replicas"
+            # Accept either running replicas, or a healthy revision scaled to zero
+            if echo "$revisions" | jq -e '(.runningReplicas > 0) or (.healthState == "Healthy" and .runningState != "Unknown")' > /dev/null 2>&1; then
+              echo "✅ latest revision is healthy and provisioned"
               exit 0
             fi
             sleep 5
           done
-          echo "::error::no running replicas for latest revision"
+          echo "::error::latest revision is not healthy or not provisioned"
           exit 1
 
       - run: echo "✅ **2f · commerce-mcp deployed** — internal ingress only" >> "$GITHUB_STEP_SUMMARY"
