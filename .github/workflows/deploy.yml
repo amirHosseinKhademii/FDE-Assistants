@@ -1001,11 +1001,10 @@ jobs:
           # the one step whose whole job is to be able to fail. Safety's smoke
           # test documents three bugs of exactly that family in a single step.
           #
-          # The first phase is `holds: WIRE` — a reference, not a literal — so
-          # the grep for a literal list finds the SECOND phase first, which is
-          # the one this marker describes. That is load-bearing, not luck: a
-          # literal-only match is what keeps this from having to parse the file.
-          LINE=$(grep -oE "holds: \['[^]]*\]" apps/web/commerce-app/src/pages/Steps.tsx | head -1)
+          # BOUNDARY is the second phase. Extract it from the variable definition
+          # (const BOUNDARY = ['4a', '4b', '5', '6']) since PHASES now reference
+          # the variable rather than inline the array.
+          LINE=$(grep -oE "const BOUNDARY = \['[^]]*\]" apps/web/commerce-app/src/pages/Steps.tsx)
           FIRST=$(printf '%s' "$LINE" | grep -oE "'[^']+'" | head -1 | tr -d "'")
           LAST=$(printf '%s' "$LINE" | grep -oE "'[^']+'" | tail -1 | tr -d "'")
 
