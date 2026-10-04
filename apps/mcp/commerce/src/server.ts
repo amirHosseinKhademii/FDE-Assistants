@@ -32,6 +32,8 @@ import { buildGetOrder } from './tools/get-order';
 import { buildGetDelivery } from './tools/get-delivery';
 import { buildGetContactHistory } from './tools/get-contact-history';
 import { buildGetPolicyRules } from './tools/get-policy-rules';
+import { buildProposeResolution } from './tools/propose-resolution';
+import { buildSearchPolicy, kbConfigFromEnv, type KbConfig } from './tools/search-policy';
 import { apiConfigFromEnv, type ApiConfig } from './api/client';
 import { sessionFromEnv, type Session } from './session';
 import { conforming, guarded, outcomeSchema } from './api/outcome';
@@ -95,6 +97,8 @@ export function register(server: McpServer, tool: Tool): void {
 export interface ServerDeps {
   api?: ApiConfig;
   session?: Session;
+  /** The read-only policy index (Step 9). Unset: `search_policy` refuses, labelled. */
+  kb?: KbConfig;
 }
 
 export function createServer(deps: ServerDeps = {}): McpServer {
@@ -124,11 +128,16 @@ export function createServer(deps: ServerDeps = {}): McpServer {
 
   register(server, buildGetOrder(api, session));
   // The read tools PLAN.md §5.1 lists and the fourteen steps never scheduled —
-  // added 2026-09-27. `search_policy` (needs the index) and `propose_resolution`
-  // (writes; belongs with Step 11's allowlist) are deliberately not here yet.
+  // added 2026-09-27.
   register(server, buildGetDelivery(api, session));
   register(server, buildGetContactHistory(api, session));
   register(server, buildGetPolicyRules(api, session));
+  // Step 9. The only database this process can reach, and only to read one table.
+  register(server, buildSearchPolicy(deps.kb ?? kbConfigFromEnv()));
+  // The one write, and it writes a DRAFT (PLAN.md §5.2). `issue_refund` is
+  // defined in tools/issue-refund.ts and deliberately NOT registered here: it
+  // exists so Step 11's guard has something real to refuse.
+  register(server, buildProposeResolution(api, session));
 
   return server;
 }

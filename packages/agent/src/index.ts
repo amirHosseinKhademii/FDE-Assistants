@@ -63,6 +63,7 @@ export {
   type ItemOutcome,
 } from './core/fanout';
 export { ToolRegistry } from './core/registry';
+export { mcpTools, type McpToolClient, type McpToolsOptions, type McpToolsResult } from './mcp/tools';
 export type { Tool, ToolSchema, ToolCallRecord } from './core/tool.types';
 
 export {

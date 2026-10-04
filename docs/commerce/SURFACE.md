@@ -63,8 +63,8 @@ Three blocks in
 `src/components/steps/HandshakeHood.tsx` are verbatim excerpts:
 
 ```
-apps/mcp/commerce/src/server.ts:100–116       createServer + the ping tool
-apps/mcp/commerce/src/server.ts:66–93         register(), the output check, and the central catch
+apps/mcp/commerce/src/server.ts:104–120       createServer + the ping tool
+apps/mcp/commerce/src/server.ts:68–95         register(), the output check, and the central catch
 apps/mcp/commerce/src/cli/handshake.ts:100–121  the initialize exchange
 ```
 
@@ -84,8 +84,8 @@ calls *"a small lie in the one component whose entire job is being checkable."*
 python3 - <<'PY'
 import pathlib, json, re
 hood = pathlib.Path('apps/web/commerce-app/src/components/steps/HandshakeHood.tsx').read_text()
-for path, a, b in [('apps/mcp/commerce/src/server.ts', 100, 116),
-                   ('apps/mcp/commerce/src/server.ts', 66, 93),
+for path, a, b in [('apps/mcp/commerce/src/server.ts', 104, 120),
+                   ('apps/mcp/commerce/src/server.ts', 68, 95),
                    ('apps/mcp/commerce/src/cli/handshake.ts', 100, 121)]:
     real = pathlib.Path(path).read_text().splitlines()[a-1:b]
     blk = hood.split(f'path="{path}:{a}–{b}"')[1]

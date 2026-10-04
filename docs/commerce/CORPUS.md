@@ -327,7 +327,22 @@ contradict each other.
 ☑ A `DocumentDomain` descriptor exists (`apps/ai/commerce/src/config/commerce-documents.ts`),
    and `commerce:source-probe` checks it — 13 checks, three of them reading the
    carrier contracts against the seed's `carrier_sla`.
-☐ Not yet ingested.
-☐ `commerce:corpus-check` not written. It must assert the document count, the
-   chunk count, **and that no file in `corpus/` is a meta-document** — the last
-   being the check that would have caught pharma's 75→80.
+☑ 2026-09-27 — **ingested.** 12 documents → **83 chunks** (the 81 in §0 above
+   predates the carrier rewrite) into `policy_chunks_local` in its own database,
+   `thb_kb`, on the commerce Neon project — NOT one of the five, and untouched by
+   `commerce:db-reset`. bge-small, 384 dimensions, local. Built with
+   `pnpm commerce:kb-build`; read by the MCP side ONLY through the read-only role
+   `thb_kb_reader` (`COMMERCE_KB_URL`), which `pnpm commerce:kb-check` proves
+   cannot write and cannot read the estate.
+☑ `pnpm commerce:corpus-check` — the document count (12), **no meta-document in
+   `corpus/`**, the index holding exactly the chunks the folder produces, no
+   indexed chunk from a document no longer on disk (a stale Northgate passage
+   would still be citable), and the documents table fingerprinting the same as the
+   folder. Sabotaged: a README planted in the folder turns four checks red; a
+   stale Northgate chunk planted in the index turns two red.
+☑ `pnpm commerce:retrieval-eval` — **the §5 gate now has a number: 15/16 cases,
+   recall@6 0.938, MRR 0.690**, plus the T4 absence asserted separately. The one
+   miss is the clause cov-dmg-009 tolerates, `POL-RET-001 Rev 3#7`, which no
+   warranty question reaches — the corpus never says "warranty". See
+   [`evals/RETRIEVAL.md`](evals/RETRIEVAL.md) for what the number does and does not
+   license.

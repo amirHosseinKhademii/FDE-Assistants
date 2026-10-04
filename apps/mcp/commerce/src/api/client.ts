@@ -133,6 +133,33 @@ export async function getJson<T>(
   path: string,
   schema: ZodType<T>,
 ): Promise<Outcome<T>> {
+  return callApi(cfg, session, 'GET', path, schema);
+}
+
+/**
+ * The one write. Same pipeline as `getJson` — the timeout, the transfer caught
+ * as one step, every status read for what it is (Step 6) — because a write that
+ * failed must be labelled at least as carefully as a read that did. Added with
+ * `propose_resolution`, 2026-09-27.
+ */
+export async function postJson<T>(
+  cfg: ApiConfig,
+  session: Session,
+  path: string,
+  body: unknown,
+  schema: ZodType<T>,
+): Promise<Outcome<T>> {
+  return callApi(cfg, session, 'POST', path, schema, body);
+}
+
+async function callApi<T>(
+  cfg: ApiConfig,
+  session: Session,
+  method: 'GET' | 'POST',
+  path: string,
+  schema: ZodType<T>,
+  payload?: unknown,
+): Promise<Outcome<T>> {
   if (!cfg.serviceToken) {
     return fail('unauthorized', 'COMMERCE_SERVICE_TOKEN is not set; refusing to call the API.');
   }
@@ -148,7 +175,9 @@ export async function getJson<T>(
   let text: string;
   try {
     res = await fetch(`${cfg.baseUrl}${path}`, {
-      headers: headers(cfg, session),
+      method,
+      headers: payload === undefined ? headers(cfg, session) : { ...headers(cfg, session), 'content-type': 'application/json' },
+      body: payload === undefined ? undefined : JSON.stringify(payload),
       signal: AbortSignal.timeout(timeoutMs),
     });
     text = await res.text();

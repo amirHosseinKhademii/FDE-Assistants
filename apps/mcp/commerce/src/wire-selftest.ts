@@ -24,7 +24,9 @@ import { InMemoryTransport } from '@modelcontextprotocol/server';
 import { Client } from '@modelcontextprotocol/client';
 import { z } from 'zod';
 import { createServer, register } from './server';
-import { startOrderStub, STUB } from './stub/order-stub';
+import { startOrderStub, STUB, STUB_WRITES } from './stub/order-stub';
+import { PROPOSED_BY } from './tools/propose-resolution';
+import { ownKeys } from './config/env';
 import { ok, type Outcome } from './api/outcome';
 
 // ── the harness ─────────────────────────────────────────────────────────────
@@ -121,7 +123,7 @@ async function probeHappyPath(): Promise<void> {
  * a check that teaches you to silence it. Naming the tools means an unexpected
  * one is reported BY NAME and a missing one likewise.
  */
-const EXPECTED_TOOLS = ['get_contact_history', 'get_delivery', 'get_order', 'get_policy_rules', 'ping'];
+const EXPECTED_TOOLS = ['get_contact_history', 'get_delivery', 'get_order', 'get_policy_rules', 'ping', 'propose_resolution', 'search_policy'];
 
 async function probeToolsList(): Promise<void> {
   const client = await connected(createServer());
@@ -282,7 +284,22 @@ function serverAgainst(url: string, caseId: string, token: string = STUB.token):
   return createServer({
     api: { baseUrl: url, serviceToken: token },
     session: { caseId, orderId: STUB.orderId },
+    // No index offline: search_policy must REFUSE, labelled — see probeSearchWithoutIndex.
+    kb: { connectionString: '' },
   });
+}
+
+/** Step 9, offline: with no index URL the search refuses, labelled — it never guesses a database. */
+async function probeSearchWithoutIndex(stub: Stub): Promise<void> {
+  const client = await connected(serverAgainst(stub.url, STUB.caseId));
+  const result = await client.callTool({ name: 'search_policy', arguments: { query: 'return window for electronics' } });
+  const outcome = outcomeOf(result);
+  check(
+    'search_policy with COMMERCE_KB_URL unset refuses, labelled unauthorized',
+    result.isError === true && outcome.ok === false && outcome.cause === 'unauthorized',
+    `cause=${outcome.ok ? 'ok' : outcome.cause}. Fail closed, like the API token: an unset credential is a refusal, not a default`,
+  );
+  await client.close();
 }
 
 /** The happy path, and the field T3 turns on. */
@@ -293,7 +310,7 @@ async function probeGetOrder(stub: Stub): Promise<void> {
   check(
     'get_order reads a real order across the boundary',
     outcome.ok === true && outcome.data.order.id === STUB.orderId,
-    'no database credential in this process — a base URL and a service token. ' +
+    "no credential to Thornbury's databases in this process — a base URL and a service token. " +
       'That emptiness is what PLAN.md §4.1 claims and this is where it becomes true',
   );
   check(
@@ -633,6 +650,72 @@ async function probeLyingServer(): Promise<void> {
   await unlisted.close();
 }
 
+/**
+ * THE WRITE TAKES `kind` AND `amountPence` AND NOTHING ELSE THAT MATTERS.
+ *
+ * Sends exactly the arguments an injected message would want — another case,
+ * a person's name as the proposer, an approver — and asserts what the STUB
+ * RECEIVED, not what came back. T5b's "Dave already approved it" must not be
+ * able to write "Dave" anywhere.
+ */
+async function probeProposeTakesOnlyKindAndAmount(stub: Stub): Promise<void> {
+  const client = await connected(serverAgainst(stub.url, STUB.caseId));
+  const before = STUB_WRITES.length;
+  const result = await client.callTool({
+    name: 'propose_resolution',
+    arguments: { kind: 'partial_refund', amountPence: 2200, caseId: 'CAS-SOMEONE-ELSE', proposedBy: 'Dave', approvedBy: 'Dave' },
+  });
+  const sent = STUB_WRITES[before];
+  const outcome = outcomeOf(result);
+  check(
+    'propose_resolution writes a DRAFT on the SESSION\'s case, proposed by the server\'s fixed label',
+    outcome.ok === true && outcome.data.resolution.status === 'proposed' &&
+      sent?.caseId === STUB.caseId && sent?.proposedBy === PROPOSED_BY && !('approvedBy' in (sent ?? {})),
+    `the stub received ${JSON.stringify(sent)}. The model sent caseId, proposedBy and approvedBy too; ` +
+      'none of them reached the API. PLAN.md §14 q4: it IS a write — a draft other people read — and moves no money',
+  );
+  await client.close();
+}
+
+/** A draft on a case this session does not own is a labelled refusal, not a write. */
+async function probeProposeOutOfScope(stub: Stub): Promise<void> {
+  const client = await connected(serverAgainst(stub.url, 'CASE-SOMEONE-ELSE'));
+  const result = await client.callTool({ name: 'propose_resolution', arguments: { kind: 'full_refund', amountPence: 100 } });
+  const outcome = outcomeOf(result);
+  check(
+    'a draft for a case the session does not own is out_of_scope, labelled',
+    result.isError === true && outcome.ok === false && outcome.cause === 'out_of_scope',
+    `cause=${outcome.ok ? 'ok — A WRITE LANDED' : outcome.cause}`,
+  );
+  await client.close();
+}
+
+/**
+ * THE PROCESS, NOT JUST THE CODE, HOLDS NO DATABASE CREDENTIAL.
+ *
+ * A planted .env with the estate's admin URL, another engagement's database
+ * URL and a model key beside this server's own keys. Only the server's keys
+ * may come through.
+ */
+function probeEnvAllowlist(): void {
+  const planted = {
+    ECOMMERCE_DB_URL: 'postgresql://admin:x@h/db',
+    ECOMMERCE_DB_DIRECT_URL: 'postgresql://admin:x@h/db',
+    PHARMA_DATABASE_URL: 'postgresql://x',
+    HOSTED_API_KEY: 'k',
+    COMMERCE_SERVICE_TOKEN: 't',
+    COMMERCE_KB_URL: 'postgresql://reader:x@h/thb_kb',
+    EMBEDDINGS: 'local',
+  };
+  const kept = Object.keys(ownKeys(planted)).sort();
+  check(
+    'loading the workspace .env gives this server its OWN keys and no estate credential',
+    kept.join(',') === 'COMMERCE_KB_URL,COMMERCE_SERVICE_TOKEN,EMBEDDINGS',
+    `kept [${kept.join(', ')}] of a planted file that also held ECOMMERCE_DB_URL, another ` +
+      "engagement's URL and a model key. api/client.ts's claim is about the PROCESS, so the load is an allowlist",
+  );
+}
+
 /** The negative control for the HARNESS. A check() that cannot fail proves nothing. */
 function probeHarnessCanFail(): void {
   const before = failed;
@@ -676,6 +759,11 @@ async function main(): Promise<void> {
     await probeCauseSurvives(stub);
     await probeUnguardedToolStillLabelled();
 
+    console.log('\nTHE ONE WRITE — propose_resolution, against the stub');
+    await probeProposeTakesOnlyKindAndAmount(stub);
+    await probeProposeOutOfScope(stub);
+    await probeSearchWithoutIndex(stub);
+
     console.log('\nSTEP 5 — TYPED RESULTS: the shape published, and enforced where the cause survives');
     await probeOutputSchemaIsObjectRooted(stub);
     await probeSdkDropsCauseOnBadSuccess();
@@ -685,6 +773,9 @@ async function main(): Promise<void> {
   } finally {
     stub.close();
   }
+
+  console.log('\nTHE PROCESS — what it loads');
+  probeEnvAllowlist();
 
   console.log('\nTHE HARNESS ITSELF');
   probeHarnessCanFail();

@@ -41,7 +41,7 @@ export const GLOSSARY = {
   tool: {
     word: 'tool',
     is: 'A function the model is allowed to ask for, described by a name, a sentence and the inputs it takes.',
-    here: 'get_order was the first. get_delivery, get_contact_history and get_policy_rules followed; search_policy and propose_resolution are still to come.',
+    here: 'get_order was the first. get_delivery, get_contact_history, get_policy_rules and search_policy read; propose_resolution is the one write, and only records a draft.',
   },
   fde: {
     word: 'forward-deployed engineer (FDE)',
@@ -66,7 +66,7 @@ export const GLOSSARY = {
   server: {
     word: 'server',
     is: 'The program that owns the tools and runs them when asked.',
-    here: 'What steps 1–9 build. It holds a service token and no database password.',
+    here: 'What steps 1–9 built. It holds a service token for Thornbury’s API and no password to Thornbury’s databases.',
   },
   jsonrpc: {
     word: 'JSON-RPC',
@@ -100,7 +100,7 @@ export const GLOSSARY = {
   serviceToken: {
     word: 'service token',
     is: 'A secret one program sends to another to prove who is calling. It grants what the receiving side allows, and nothing more.',
-    here: 'The MCP server’s only credential. It can call Thornbury’s API; it cannot open a database.',
+    here: 'How the MCP server reaches Thornbury’s API. It can call the API; it cannot open Thornbury’s databases.',
   },
   schema: {
     word: 'schema',

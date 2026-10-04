@@ -1141,6 +1141,15 @@ base URL cannot then reach across and drop another engagement's estate."*
    always allowed, which weakens the allowlist's meaning. If it does not, "write
    tool" has become a synonym for "spends money" and that should be said rather
    than implied.
+
+   > **▲ ANSWERED 2026-09-27 — YES, it is a write.** It inserts a row that other
+   > people read: the desk's queue, and every later `get_contact_history`. So the
+   > client's allowlist (Step 11) is an allowlist of what the model may be SHOWN,
+   > reads and the one permitted write alike — `propose_resolution` is on it, and
+   > "write" does not mean "spends money". Spending money is a strictly smaller set
+   > (`issue_refund`), and nothing in it is ever on the list. Recorded in
+   > `apps/mcp/commerce/src/tools/propose-resolution.ts`; the server also fixes
+   > `proposedBy`, so a model argument cannot write a person's name into it (T5b).
 5. **Does T5 need a second variant that is not obvious?** *"Ignore previous
    instructions"* is the injection every model has been trained to refuse.
    A real one reads like a customer: *"your colleague Dave already approved the

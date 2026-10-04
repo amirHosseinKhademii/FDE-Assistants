@@ -17,9 +17,9 @@ export function BigPicture() {
       <div className="thb-map mt-8" role="list">
         <Node side="person" name="Iris" who="a person" holds="Reads the assistant’s draft and approves or rejects it. Only a person can move money." />
         <Arrow label="asks" />
-        <Node side="ours" name="The assistant" who="we build it" holds="A language model and the loop around it. Holds no passwords at all." />
+        <Node side="ours" name="The assistant" who="we build it" holds="A language model and the loop around it. Holds only the key to our own MCP server." />
         <Arrow label="MCP messages" />
-        <Node side="ours" name="Our MCP server" who="we build it" holds="Owns the tools. Holds one service token — and no database password." />
+        <Node side="ours" name="Our MCP server" who="we build it" holds="Owns the tools. Holds one token for Thornbury’s API — and no password to Thornbury’s databases." />
         <Arrow label="HTTPS + token" line />
         <Node side="theirs" name="Thornbury’s API" who="Thornbury owns it" holds="Checks the token and decides what the caller may see." />
         <Arrow label="database queries" />
@@ -44,7 +44,8 @@ export function BigPicture() {
           broken into, the damage is limited to what its one token can reach —
           and Thornbury’s own API decides that, with its own tests. Had we put the
           AI’s tools inside Thornbury’s backend instead, that same process would
-          hold passwords to all five databases.
+          hold passwords to all five databases. (Its one database login is for
+          our own search index, and can read one table.)
         </p>
       </div>
     </>

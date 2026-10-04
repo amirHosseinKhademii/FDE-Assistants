@@ -11,13 +11,11 @@ is done, what is not, and what the next person needs to know before touching it.
 > **2026-09-27 — picked up again, three sessions.** This session (MCP strand):
 > Steps 6 and 5 done (in that order), Step 7 paused by Byron. **Then the three
 > missing read tools, and the fixes the answer key forced — see §9.** The answer
-> key itself is committed (`37e35ac`, re-measured at `c21f625`). A second session is working the hand-worked answer
-> key and eval cases (`WALKTHROUGH.md`, `evals/cases.jsonl` — §4's gap). A third
-> is redesigning `apps/web/commerce-app`. **The policy index (§0 "NOT BUILT",
-> Step 9's prerequisite) was offered to a session and declined — it is
-> unclaimed.** Steps 5 and 6 were committed on 2026-09-27 at Byron's request,
-> scoped to this strand's paths; the surface session's `/steps` update for them
-> is its own and was left for it.
+> key itself is committed (`37e35ac`, re-measured at `c21f625`, `78972d4`). A
+> third session is redesigning `apps/web/commerce-app`. **Later the same day,
+> Steps 7–11 and `propose_resolution` — see §10.** Everything through Step 11
+> is built and green; Step 12 (the measurement) and the judgment layer are what
+> is left.
 
 ---
 
@@ -26,18 +24,28 @@ is done, what is not, and what the next person needs to know before touching it.
 ```
   BUILT AND GREEN                                    WHERE
   ─────────────────────────────────────────────────────────────────────────
-  MCP server, steps 0–6 of 14                        apps/mcp/commerce
+  MCP server, steps 0–11 of 14                       apps/mcp/commerce
     tools: get_order · get_delivery · get_contact_history · get_policy_rules
-    27 offline checks   pnpm commerce:mcp-check      (no ports, no db, ~2s)
-    13 live checks      pnpm commerce:mcp-round-trip (needs :3610 up — all 13
-                        trap cases × every tool through a listing client, each
-                        trap asserted against the hand-worked answer key)
-    16 live checks      pnpm commerce:mcp-break      (needs :3610 up — Step 6)
-     1 demo             pnpm commerce:mcp-live
+           · search_policy · propose_resolution (a DRAFT) — issue_refund
+           defined, never registered
+    stdio, and HTTP on :3620 (pnpm commerce:mcp-serve-http) — bearer
+           COMMERCE_MCP_TOKEN, x-case-id per request, 2026-07-28 only
+    31 offline checks   pnpm commerce:mcp-check      (no ports, no db, ~2s)
+    14 checks           pnpm commerce:mcp-http-check (ports, stub — Steps 7–8)
+    21 live checks      pnpm commerce:mcp-round-trip (needs :3610 — 13 trap
+                        cases × every tool, stdio AND HTTP, + the index)
+    16 live checks      pnpm commerce:mcp-break      (needs :3610 — Step 6)
+  MCP client (Step 10)                               packages/agent/src/mcp
+    13 offline checks   pnpm mcp-adapter:check
+  The gate (Step 11), and one question through the loop  apps/ai/commerce/src/agent
+    13 live checks      pnpm commerce:guard-check    (spawns the server)
+     1 smoke            pnpm commerce:ask-mcp        (a model call, free tier)
+  Policy index (Step 9)                              thb_kb, read-only role
+    pnpm commerce:kb-check · commerce:corpus-check · commerce:retrieval-eval
+    83 chunks · recall@6 0.912 over 17 cases (+1 absence) — see §10
 
   Policy corpus, 12 documents                        docs/commerce/corpus/
     13 checks           pnpm commerce:source-probe   (offline)
-    81 chunks, 0 orphaned table rows even at 120 chars
 
   Estate, 5 Neon databases    ┐
   NestJS API on :3610         ├─ other sessions; see their handovers
@@ -45,22 +53,21 @@ is done, what is not, and what the next person needs to know before touching it.
 
   NOT BUILT
   ─────────────────────────────────────────────────────────────────────────
-  steps 5–14                  see §3 for what each needs
+  step 12                     THE MEASUREMENT — every prerequisite now exists
   the judgment layer          prompt · ResolutionAnswerSchema · coherence
                               rules · severity buckets — PLAN.md §8 specifies
                               all four, none is written
-  the eval RUNNER             the answer key and 18 cases exist (§4); nothing
-                              runs them — it needs the judgment layer and
-                              Step 10's client first
-  embeddings / search_policy  the corpus is written and never ingested. The
-                              index is UNCLAIMED — a session declined it
-  propose_resolution          writes rows; belongs with Step 11's allowlist
+  the eval RUNNER             the answer key and 18 cases exist (§4); the
+                              client exists (Step 10); nothing runs them until
+                              the judgment layer does
 ```
 
-**To pick this up:** `pnpm commerce:mcp-check` needs nothing and proves the
-protocol layer. `pnpm commerce:source-probe` needs nothing and proves the
-corpus. Between them that is 28 checks and about four seconds, and if both are
-green the two strands documented here are intact.
+**To pick this up:** `pnpm commerce:mcp-check` (31) and `pnpm commerce:source-probe`
+(13) need nothing — no build, no ports, no database; `search_policy`'s index
+module is loaded lazily, so a fresh clone runs them. `commerce:mcp-http-check`
+(14) needs ports only. Everything else needs the API on `:3610`, and
+`commerce:guard-check` / `commerce:ask-mcp` also need `pnpm build` first (they
+import `@fde/agent` and `@thornbury/commerce` from their built `dist/`).
 
 ---
 
@@ -109,8 +116,12 @@ text a customer typed into a contact form, which is planted flaw T5 sitting in
 `thb_crm` right now. A check asserts the published `inputSchema` has zero
 properties, so the property lives in `tools/list` and not in a comment.
 
-**The MCP server holds no database credential.** Look at `client.ts` and at what
-it does not import. If this process is compromised the damage is bounded by what
+**The MCP server holds no credential to Thornbury's databases.** Look at
+`client.ts` and at what it does not import. *(Precise since Step 9: it holds
+exactly one database login — `thb_kb_reader`, read-only, to OUR index, which
+`commerce:kb-check` proves cannot write — and since Step 10 its process loads
+only its own `COMMERCE_*` keys, so the estate's admin URL is not even in its
+environment.)* If this process is compromised the damage is bounded by what
 one token reaches, which is a sentence about the API's authorization — a thing
 with tests. Inside the NestJS app the same sentence would be unverifiable.
 
@@ -130,17 +141,16 @@ with tests. Inside the NestJS app the same sentence would be unverifiable.
                                               cause; register() checks first
   ☑ 6   break it against the LIVE backend — 2026-09-27. 9 of 14
         causes were mislabelled at the API boundary; see MCP-STEPS
-  ☐ 7   HTTP transport, :3620.                                   NEEDS NOBODY
-  ☐ 8   bearer auth + the fail-closed test.                      NEEDS NOBODY
-  ☐ 9   search_policy — needs embeddings and an ingested corpus
-  ☐ 10  the MCP client in packages/agent/src/mcp/
-  ☐ 11  the write-path allowlist
+  ☑ 7   HTTP transport, :3620        ┐ 2026-09-27, together — 7 alone
+  ☑ 8   bearer auth + fail-closed    ┘ is an open door
+  ☑ 9   search_policy over thb_kb, read-only role — 2026-09-27
+  ☑ 10  the MCP client, packages/agent/src/mcp/ — 2026-09-27
+  ☑ 11  the write-path allowlist — 2026-09-27
   ☐ 12  THE MEASUREMENT — §10 of the plan. Not optional, not last-if-time
 ```
 
-**Steps 7 and 8 need nobody and are the obvious next move.** Step 7 also
-settles an open question: whether `createMcpHandler` negotiates the 2026-07-28
-protocol era, which stdio does not — see §5.4.
+**Step 12 is the obvious next move, and nothing blocks it.** §5.4's question is
+answered: the HTTP handler negotiates 2026-07-28 — when the client opts in.
 
 **Step 12 is the one that justifies the engagement** and the honest expected
 answer is "MCP cost us latency and tokens and bought a boundary a NestJS module
@@ -456,3 +466,57 @@ and `propose_resolution` (it writes rows; it belongs with Step 11's allowlist).
 > the repo contains it. **Rotating that Neon role's password is recommended** —
 > it is the estate's admin credential, the one that creates and drops all five
 > databases. Byron's call; nothing here has been rotated.
+
+---
+
+## 10 · 2026-09-27, later — Steps 7–11, and the decisions taken on the way
+
+Byron: "do the still-open stuff". The write-ups are in MCP-STEPS.md, one ☑ box
+per step; this is what the next person needs and what Byron should confirm.
+
+**Decisions made here — each can be overruled:**
+
+| decision | taken | why, and what overruling costs |
+|---|---|---|
+| `legacy` on the HTTP server | **`reject`** — 2026-07-28 only | one era to test. MEASURED cost: the SDK client's default and inspector 2.7.0 are refused over HTTP (stdio unaffected). Overrule with `legacy: 'stateless'`; `commerce:mcp-http-check` pins it |
+| where the index lives | **`thb_kb`, a sixth database on the commerce Neon project**, read by **`thb_kb_reader`** (SELECT on one table) | the estate's admin credential never reaches the MCP process. A separate Neon project would isolate it further; it would need an account change |
+| new variables | **`COMMERCE_MCP_TOKEN`** (inbound bearer, NOT the API's token), **`COMMERCE_MCP_PORT`** (3620), **`COMMERCE_KB_URL`** (the reader) | all `COMMERCE_*`, the MCP process's prefix — §5.5's open split is untouched |
+| `propose_resolution` | the model supplies `kind` + `amountPence` only; the case is the session's; **`proposedBy` is fixed by the server** | the API stores it as free text — a model argument is how T5b's "Dave approved it" writes "Dave". The answer key now also bounds every draft's AMOUNT (`78972d4`) |
+| PLAN §14 q4 | **YES, it is a write** — so the allowlist is of what the model SEES | "write" ≠ "spends money"; `issue_refund` is the money, never listed, never registered |
+| failure causes in `@fde/agent` | **mapped into the existing two** (`unknown_tool`, `threw`) | no change to the eval runners that read them; PLAN §6.1's five-way union waits for a consumer |
+| tool-input strictness | the existing default (`z.object`) | the query and body are built from declared fields only, so an undeclared argument never reaches the API. §6's row stays open |
+
+**Things that will bite:**
+
+- **The MCP process loads ONLY its own keys from `.env`** (`COMMERCE_*` +
+  `EMBEDDINGS`). It used to load the whole file — the estate admin URL included,
+  unread. A tool needing a new variable must use `COMMERCE_*` or be added to
+  `ownKeys` in `config/env.ts` on purpose; `commerce:mcp-check` asserts the filter.
+- **Any client of the HTTP server must pin `versionNegotiation`** — the SDK
+  default cannot connect. `apps/ai/commerce/src/agent/mcp-client.ts` does.
+- **`tools.snapshot.json` pins the tools block.** Changing a tool's description,
+  input schema or annotations turns `commerce:guard-check` red until someone
+  reviews it and runs `pnpm commerce:guard-check --accept`. That is the point:
+  a description is prompt text.
+- **Retrieval reproduces T2's trap.** The natural electronics-return question
+  returns only 14-day sources; the current published policy needs
+  `audience: published`. MEASURED, recorded as `ret-t2-005`, not tuned. The
+  defence belongs to the judgment layer (the answer contract, or a second search).
+- **`pnpm install` removed 71 orphaned packages** that were in no lockfile; the
+  workspace typecheck (39/39) and every suite passed afterwards.
+- **`@fde/grounding`'s `openStore` gained `readOnly`** — skips the DDL a reader
+  cannot run. The default is unchanged for the other engagements.
+- **New infrastructure on Byron's Neon account**: database `thb_kb` and role
+  `thb_kb_reader` (created by `commerce:kb-provision`). The reader can CONNECT to
+  the estate databases — PostgreSQL grants CONNECT to every role by default — but
+  reading them is refused; `kb-check` asserts the refusal. Revoking CONNECT on the
+  five would close that too; it is not done.
+- **Two new secrets were written to `.env`** (gitignored, never printed):
+  `COMMERCE_MCP_TOKEN` and `COMMERCE_KB_URL`. `.env.example` has placeholders.
+- **A missing `tools.snapshot.json` is RED**, not re-pinned — the first version
+  pinned itself when absent and compared against what it had just written.
+- **`guard-check` cleans up by the server's fixed proposer label**, before and
+  after its one write — not by what the response said, which a malformed
+  response would leave empty (sabotaged: the row is still deleted).
+- **The first `search_policy` loads the embedding model in the MCP process**
+  (2.3s first, ~1.9s warm, mostly Neon). Step 12 must separate that from protocol cost.

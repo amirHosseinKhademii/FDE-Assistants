@@ -159,8 +159,8 @@ function TheServer() {
     <HoodSection title="the server — one tool, no database, no credential">
       <Figure caption="registering a tool" from="measured" source="quoted whole, comments and all">
         <Code
-          path="apps/mcp/commerce/src/server.ts:100–116"
-          startLine={100}
+          path="apps/mcp/commerce/src/server.ts:104–120"
+          startLine={104}
           mark={[14, 15, 16]}
           lines={[
             "export function createServer(deps: ServerDeps = {}): McpServer {",
@@ -221,8 +221,8 @@ function TheServer() {
         source="apps/mcp/commerce/src/server.ts · quoted whole"
       >
         <Code
-          path="apps/mcp/commerce/src/server.ts:66–93"
-          startLine={66}
+          path="apps/mcp/commerce/src/server.ts:68–95"
+          startLine={68}
           mark={[5, 20, 23, 24]}
           lines={[
             "export function register(server: McpServer, tool: Tool): void {",

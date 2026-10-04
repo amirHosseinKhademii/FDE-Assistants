@@ -22,7 +22,7 @@
  */
 
 /** The steps that have actually run. Checked against MCP-STEPS.md's ☑ marks. */
-export const DONE: readonly string[] = ['1', '2', '3', '4a', '4b', '5', '6'];
+export const DONE: readonly string[] = ['1', '2', '3', '4a', '4b', '5', '6', '7', '8', '9', '10', '11'];
 
 /** Every step, in order. Step 4 was split into 4a and 4b, which is why this is not 0–12. */
 export const ALL_STEPS: readonly string[] = [

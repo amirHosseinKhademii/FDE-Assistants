@@ -738,6 +738,83 @@ one that actually catches bugs — **unset the token variable entirely and confi
 everything is refused, not allowed.** The obvious implementation of a guard
 fails open; `packages/guard` exists in this repo precisely to name that bug.
 
+### ☑ DONE 2026-09-27 — Steps 7 and 8, together, because 7 alone is an open door
+
+`src/http.ts`. An HTTP listener serving a customer's orders and messages to
+anyone who can reach the port is worse than no Step 7, so the transport and the
+lock landed in one file, and **`server.ts` did not change**: `createServer({ api,
+session })` already separated building from transport, so HTTP is one more caller
+of it — one server per request, which is what `createMcpHandler`'s factory wants.
+A request has to get past four gates, each with its own status:
+
+```
+  Host / Origin not loopback              403   the SDK's own validation, in front
+  COMMERCE_MCP_TOKEN unset                503   EVERY request — fail closed
+  bearer not this server's                401   incl. the API's own service token
+  x-case-id missing or unknown            400   NEVER defaulted
+```
+
+**The Step 7 question, answered by running it** (§5.4 of NEXT.md): the HTTP
+handler DOES negotiate `2026-07-28` — **when the client opts in.** The SDK
+client's default is the 2025 handshake:
+
+```
+  server legacy   client versionNegotiation     result
+  reject          'legacy'  (the SDK DEFAULT)   REFUSED  -32022 Unsupported protocol version
+  reject          'auto' or { pin }             2026-07-28, modern
+  stateless       'legacy'                      2025-11-25, legacy
+  stateless       'auto' or { pin }             2026-07-28, modern
+  inspector 2.7.0 --cli over HTTP               2025 → refused under reject, works under stateless
+```
+
+**`legacy: 'reject'` is kept, and its cost is measured rather than assumed**:
+the inspector is refused over HTTP (it still works over stdio, which is how
+Step 2 used it), and Step 10's client MUST pin `versionNegotiation` or it cannot
+connect at all. One era, one behaviour to test. Overrule it by passing `legacy:
+'stateless'` — the check that pins it will say so.
+
+**The case, per request.** Over stdio one process is one case; over HTTP it
+arrives with each request, from the AUTHENTICATED caller — a model can choose
+tool arguments, not HTTP headers — and rides into the factory inside
+`AuthInfo.extra`. The ORDER is resolved from it by the API's new `GET /case`, so
+`session.ts`'s "resolved from the case, not chosen" is now literally true.
+**The trap it refuses:** `sessionFromEnv()` defaults to CAS-90001 so the stdio
+demos work; reused here, a request with no case header would be served T1's
+customer's data.
+
+**The inbound secret is not the API's.** `COMMERCE_MCP_TOKEN` is what the desk
+presents here; `COMMERCE_SERVICE_TOKEN` is what this server presents to the API.
+The API's token presented here is refused — with a static secret, that IS the
+wrong-audience test. Compared in constant time (the same three lines as
+`@fde/guard`'s).
+
+`pnpm commerce:mcp-http-check` — 14 checks, offline (the stub grew `GET /case`).
+It also re-measures Step 5 on the MODERN era, which Step 5 never saw: every
+output schema object-rooted, `structuredContent` un-nested, and `-32602` for a
+known tool whose output breaks its schema. And `commerce:mcp-round-trip` now
+sends all 13 trap cases over HTTP on 2026-07-28 with ONLY the case header — every
+order `GET /case` resolved is the one ESTATE.md §0 names.
+
+**Verified by sabotage — and one check failed its own:** the classic fail-open
+(skip the check when the secret is unset), no Host validation, and `legacy:
+'stateless'` each turned exactly their check red. **Defaulting a missing case did
+NOT, first time**: the check asserted only `400`, from a raw 2025-shaped request —
+and `legacy: 'reject'` answers THAT with a 400 before the case gate is reached.
+Two refusals, one status. It now asserts the REASON and asks as a real modern
+client, and goes red on the plant.
+
+> **▲ And the write, since it shares the machinery — `propose_resolution`.** The
+> model supplies `kind` and `amountPence` and nothing else that matters: the
+> case is the session's, and `proposedBy` is FIXED by the server, because the
+> API stores it as free text and a model argument is how T5b's "Dave already
+> approved it" would write "Dave" into the record. `commerce:mcp-check` sends
+> `caseId`, `proposedBy` and `approvedBy` anyway and asserts what the stub
+> RECEIVED. `issue_refund` is defined (`tools/issue-refund.ts`) and **not
+> registered**, so Step 11's guard has something real to refuse. **PLAN §14 q4 —
+> "is propose_resolution a write at all?" — YES**: a draft other people read.
+> So the allowlist is of state changes, and "spends money" is a smaller set
+> nothing in which is ever allowed.
+
 ---
 
 ## Step 9 · The RAG tool
@@ -766,6 +843,42 @@ would have to pick a side, and picking is the failure.
 **Stop here and check:** ask about something genuinely not in the corpus and see
 what comes back — top-k junk, which is correct.
 
+### ☑ DONE 2026-09-27 — and the search reproduces T2's trap by itself
+
+**The index** (built by a worker session; `apps/ai/commerce/src/grounding/`):
+database `thb_kb` on the commerce Neon project — a sixth database, not one of
+the estate's five, and `db-reset` leaves it alone — table `policy_chunks_local`,
+384-dimension local embeddings, **83 chunks from 12 documents**. **This server
+reads it as `thb_kb_reader`**, a role that can SELECT one table: `commerce:kb-check`
+proves INSERT, CREATE TABLE and CREATE TEMP are refused (`42501`), and that the
+ingest and the query name the same table and dimension. `COMMERCE_KB_URL` is the
+only database credential this process holds, and it cannot change anything.
+`CREATE ROLE … LOGIN PASSWORD` works over SQL on this Neon project — MEASURED.
+
+**The tool** returns six passages, no cutoff, each carrying its citation in the
+answer key's exact shape (`policy:CON-CAR-NEXDROP-2025#2`), its **audience**
+(published / internal) and **status** (current / superseded / retired). Either
+can be a filter the database applies. With `COMMERCE_KB_URL` unset it refuses,
+labelled `unauthorized`. The embedding model loads in THIS process on the first
+query: **2.3s first, ~1.9s warm** — mostly Neon round trips, and Step 12 must not
+read the difference as protocol cost.
+
+The stop-check, run: a third-party-seller warranty question (T4, which no
+document covers) returns **six** passages, `BUL-HV-2025-01#3` first — the junk is
+correct. T6's question returns `CON-CAR-NEXDROP-2025#2` first.
+
+> **▲ MEASURED — the finding.** For the T2 question an adviser would actually
+> type — *"how long does a customer have to return an electronics item"* — the
+> top six are **all** 14-day electronics sources: `POL-RET-001 Rev 2`
+> (superseded), `BUL-RET-2025-03` (internal), `NOTE-ELEC-2022` (retired). The
+> **current published** Rev 3 — 30 days, every category — is not among them;
+> asking for `audience: published` reaches it (`#3`). Retrieval reproduces T2's
+> trap on its own: the labels are right, so a careful reader sees its only
+> published hit is superseded, and a naive one answers 14 days. The retrieval
+> eval had not caught it because each of its T2 queries NAMES the document it
+> expects; `ret-t2-005` is the natural question, kept as a miss (recall@6 0.938
+> → **0.912**), not tuned away.
+
 ---
 
 ## Step 10 · Write the client
@@ -791,6 +904,41 @@ build rather than the protocol's to provide.
 
 **Stop here and check:** one question, through the real loop, answered from the
 MCP server.
+
+### ☑ DONE 2026-09-27 — the loop never knew the tools were in another process
+
+`packages/agent/src/mcp/tools.ts` — `mcpTools(client, { allow, infrastructureCauses })`.
+It takes a client **by shape** (`listTools`, `callTool`), so `@fde/agent` gained
+no SDK dependency and every behaviour is testable offline with a fake
+(`pnpm mcp-adapter:check`, 13). It **lists first** — which is also what switches
+the SDK client's own output check on (Step 5) — converts each published JSON
+Schema into the Zod object the three engines already consume
+(`z.fromJSONSchema`), and **maps failures into the registry's EXISTING two
+causes**, so the two eval runners that read `cause === 'threw'` did not change:
+a server label that means infrastructure is thrown (recorded `threw`, label in
+the message); a domain answer is returned for the model to read; a rejection —
+transport, or `-32602` for a LISTED tool — is `threw`; a name the model invents
+is the registry's own `unknown_tool`. Widening the union (PLAN §6.1's five-way
+discriminator) is left for when a consumer needs it.
+
+This engagement's client (`apps/ai/commerce/src/agent/mcp-client.ts`) holds the
+MCP URL, the inbound token and a case id — not the API's token, not a database
+credential — and **pins `versionNegotiation`**, without which it cannot connect
+to a `legacy: 'reject'` server at all.
+
+**The stop-check, run** (`pnpm commerce:ask-mcp`, mastra + gemini-3.5-flash-lite,
+CAS-90003): *"What was ordered on this case, and has any part of it already been
+refunded?"* → one `get_order` over MCP → the three lines, and **"a prior partial
+refund (REF-000130) of £22.00 … against the Hensley oxford shirt (ORD-100931-L2)"**
+— the answer key's T3 fact, line L2. A smoke test, not a scorecard: the system
+text is two sentences and says nothing about traps, because the judgment layer
+is not written and coaching here would make the evals measure this file.
+
+> **▲ Found while wiring it — the PROCESS held the credential the CODE did not.**
+> The MCP server loaded the whole workspace `.env`, so `ECOMMERCE_DB_URL` — the
+> estate admin role — sat in its environment, unread. Now `loadEnv` is an
+> allowlist (`COMMERCE_*` + `EMBEDDINGS`), `commerce:mcp-check` asserts it on a
+> planted file, and the client spawns the server with a minimal environment.
 
 ---
 
@@ -825,6 +973,34 @@ Three plants prove it, and the third is the one that matters:
 
 **Stop here and check:** plant 3 passes. If an empty allowlist allows
 everything, you have written the bug the guard exists to prevent.
+
+### ☑ DONE 2026-09-27 — plant 3 passes, and the list is of what the model SEES
+
+`apps/ai/commerce/src/agent/allowlist.ts`. The list is every tool the model may
+be shown — reads and the one permitted write — because PLAN §14 q4's answer is
+that a draft IS a write (other people read it) and "write" does not mean "spends
+money". `pnpm commerce:guard-check`, 13 checks, needs the API:
+
+```
+  PLANT 1  issue_refund, annotated readOnlyHint:true   → withheld
+  PLANT 2  the same tool renamed fetch_refund_status   → not shown
+  PLANT 3  an EMPTY allowlist                          → nothing shown, zero calls reach the server
+  real server: registered = published ∩ allowed; issue_refund not published at all
+  every outcome label the server PUBLISHES is classified by the client
+      (an unclassified one would be returned to the model as an answer — fail open)
+  tools/list byte-identical call to call, and equal to a REVIEWED snapshot
+      (tools.snapshot.json — a description change is a prompt change; --accept after review)
+  ONE live write on an ordinary case (CAS-00004), read back by get_contact_history,
+      deleted by its fixed proposer label, deletion asserted
+```
+
+**Verified by sabotage:** `issue_refund` added to the list turns the policy check
+and plant 1 red; a server label left unclassified turns the classification check
+red; a tool description changed without review turns the snapshot check red.
+The mechanism's own plants (`mcp-adapter:check`): an empty list read as "no
+restriction" and trusting `readOnlyHint` each turn exactly their plant red — once
+two plants stopped sharing a counter, which had made one plant's leak fail the
+other under the wrong name.
 
 ---
 

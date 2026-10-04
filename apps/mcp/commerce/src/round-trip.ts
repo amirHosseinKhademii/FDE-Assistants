@@ -21,7 +21,8 @@
  *   pnpm commerce:mcp-round-trip     (needs :3610 up)
  */
 import { InMemoryTransport } from '@modelcontextprotocol/server';
-import { Client } from '@modelcontextprotocol/client';
+import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
+import { startHttpServer, CASE_HEADER } from './http';
 import { loadEnv } from './config/env';
 import { createServer } from './server';
 import { startOrderStub, STUB } from './stub/order-stub';
@@ -275,12 +276,139 @@ async function probeEveryTrapThroughTheClient(): Promise<void> {
   );
 }
 
+/**
+ * STEPS 7–8, LIVE: every trap case over HTTP on 2026-07-28, and the desk sends
+ * ONLY the case. The order each tool reads is resolved by the API's `GET /case`
+ * — so this also proves all 13 reserved cases resolve to the order ESTATE.md §0
+ * says they do, which nothing checked before: the stdio sweep above was TOLD
+ * the order.
+ */
+async function probeEveryTrapOverHttp(): Promise<void> {
+  const token = 'rt_' + 'h'.repeat(40);
+  const srv = await startHttpServer({ token, api: apiConfigFromEnv() });
+  const failures: string[] = [];
+  try {
+    for (const [caseId, orderId] of TRAP_CASES) {
+      const client = new Client({ name: 'round-trip-http', version: '0.1.0' }, { versionNegotiation: { mode: { pin: '2026-07-28' } } });
+      try {
+        await client.connect(new StreamableHTTPClientTransport(new URL(srv.url), {
+          requestInit: { headers: { authorization: `Bearer ${token}`, [CASE_HEADER]: caseId } },
+        }));
+        await client.listTools();
+        for (const name of ['get_order', 'get_delivery', 'get_contact_history']) {
+          const r = await client.callTool({ name, arguments: {} });
+          const sc = r.structuredContent as { ok?: boolean; cause?: string; data?: any };
+          if (sc?.ok !== true) failures.push(`${caseId} ${name}: ${sc?.cause}`);
+          else if (name === 'get_order' && sc.data?.order?.id !== orderId) {
+            failures.push(`${caseId}: /case resolved ${sc.data?.order?.id}, ESTATE.md §0 says ${orderId}`);
+          }
+        }
+      } catch (e) {
+        failures.push(`${caseId}: THREW ${String((e as Error)?.message).slice(0, 90)}`);
+      } finally {
+        await client.close().catch(() => undefined);
+      }
+    }
+  } finally {
+    await srv.close();
+  }
+  check(
+    `all ${TRAP_CASES.length} trap cases over HTTP, 2026-07-28, the order RESOLVED FROM THE CASE`,
+    failures.length === 0,
+    failures.length === 0
+      ? 'bearer + x-case-id only; GET /case named the order ESTATE.md §0 names, every time, and every ' +
+        'tool answered through the gate on the modern era'
+      : failures.join(' | '),
+  );
+}
+
+/**
+ * STEP 9, LIVE — the policy index, through a LISTING client, against the answer
+ * key's citations. Each query is a trap's question in plain words; what is
+ * asserted is where the key says the answer lives, never a number tuned to pass.
+ */
+async function probeSearchPolicy(): Promise<void> {
+  const kbUrl = process.env.COMMERCE_KB_URL ?? '';
+  check(
+    'this process reaches the index as thb_kb_reader — the role that can only SELECT',
+    kbUrl !== '' && new URL(kbUrl).username === 'thb_kb_reader',
+    `role=${kbUrl ? new URL(kbUrl).username : 'UNSET'} (the URL is not printed). commerce:kb-check proves the role cannot write`,
+  );
+  const [ct, st] = InMemoryTransport.createLinkedPair();
+  const client = new Client({ name: 'round-trip-search', version: '0.1.0' });
+  await Promise.all([createServer({ api: apiConfigFromEnv(), session: { caseId: 'CAS-90006', orderId: 'ORD-101501' } }).connect(st), client.connect(ct)]);
+  const search = async (args: Record<string, unknown>) => {
+    const started = Date.now();
+    const r = await client.callTool({ name: 'search_policy', arguments: args });
+    return { sc: r.structuredContent as any, ms: Date.now() - started, text: ((r.content ?? []) as Array<{ text?: string }>).map((b) => b.text).join('') };
+  };
+  try {
+    await client.listTools();
+    const t6 = await search({ query: 'how many working days does Nexdrop have to deliver a standard parcel, and do bank holidays count' });
+    const t6Cites = (t6.sc?.data?.hits ?? []).map((h: any) => h.citation);
+    check(
+      'T6 — the Nexdrop contract\'s working-day clause comes back: policy:CON-CAR-NEXDROP-2025#2',
+      t6.sc?.ok === true && t6Cites.includes('policy:CON-CAR-NEXDROP-2025#2'),
+      `hits [${t6Cites.join(', ')}]. FIRST QUERY ${t6.ms}ms — it loads the embedding model in this process; Step 12 must not read that as protocol cost`,
+    );
+    const warm = await search({ query: 'who may approve a refund above the adviser limit' });
+    check('…and a warm query is fast', warm.sc?.ok === true && warm.ms < t6.ms, `warm ${warm.ms}ms vs first ${t6.ms}ms`);
+
+    // ▲ MEASURED 2026-09-27, and kept as a finding rather than tuned away. For
+    // the question an adviser would actually type, the top six are ALL "14 days
+    // for electronics" sources — the SUPERSEDED Rev 2, the INTERNAL bulletin, the
+    // RETIRED note — and the CURRENT published Rev 3 (30 days, every category)
+    // is not among them. Retrieval reproduces T2's trap by itself. What this
+    // plumbing check owes is that the LABELS say so, so a careful reader can see
+    // its only published hit is superseded — and that the audience filter
+    // reaches Rev 3. The retrieval miss itself is `ret-t2-005` in
+    // docs/commerce/evals/retrieval.jsonl, where it counts against recall.
+    const T2Q = 'how long does a customer have to return an electronics item';
+    const t2 = await search({ query: T2Q });
+    const hits: any[] = t2.sc?.data?.hits ?? [];
+    const label = (rev: string) => hits.filter((h) => h.revisionId === rev).map((h) => `${h.audience}/${h.status}`)[0];
+    check(
+      'T2 — every source that comes back is labelled with who saw it and whether it still holds',
+      label('BUL-RET-2025-03') === 'internal/current' && label('POL-RET-001 Rev 2') === 'published/superseded' &&
+        (label('NOTE-ELEC-2022') === undefined || label('NOTE-ELEC-2022') === 'internal/retired'),
+      `bulletin ${label('BUL-RET-2025-03')}, Rev 2 ${label('POL-RET-001 Rev 2')}, note ${label('NOTE-ELEC-2022') ?? 'absent'}, ` +
+        `Rev 3 ${label('POL-RET-001 Rev 3') ?? 'NOT IN THE TOP SIX — see ret-t2-005'}`,
+    );
+
+    const onlyPublished = await search({ query: T2Q, audience: 'published' });
+    const rev3 = (onlyPublished.sc?.data?.hits ?? []).find((h: any) => h.revisionId === 'POL-RET-001 Rev 3');
+    check(
+      '…and asking for published documents reaches the CURRENT published policy, Rev 3',
+      rev3?.audience === 'published' && rev3.status === 'current',
+      `Rev 3 → ${rev3 ? `${rev3.citation} ${rev3.audience}/${rev3.status}` : 'MISSING'}. The published promise is one filter away`,
+    );
+    const leaked = (onlyPublished.sc?.data?.hits ?? []).filter((h: any) => h.audience !== 'published').map((h: any) => h.citation);
+    check(
+      'audience is a filter the DATABASE applies — published-only returns nothing internal',
+      onlyPublished.sc?.ok === true && (onlyPublished.sc?.data?.hits?.length ?? 0) > 0 && leaked.length === 0,
+      leaked.length ? `INTERNAL LEAKED: ${leaked.join(', ')}` : `${onlyPublished.sc?.data?.hits?.length} hits, all published`,
+    );
+
+    const t4 = await search({ query: 'warranty claim on an item sold by a third-party marketplace seller' });
+    check(
+      'T4 — no document covers it, and the search still returns its six closest passages: no cutoff',
+      t4.sc?.ok === true && t4.sc?.data?.hits?.length === 6,
+      `${t4.sc?.data?.hits?.length} hits, top ${t4.sc?.data?.hits?.[0]?.citation}. Deciding "our policies do not address ` +
+        'this" is the model\'s reading, not a threshold\'s — CORPUS.md §4',
+    );
+  } finally {
+    await client.close();
+  }
+}
+
 async function main(): Promise<void> {
   console.log('\nRound trip — does the stub tell the truth about the live API?\n');
   await probeStubParses();
   await probeLiveParses();
   await probeRefusalIsNotSuccess();
   await probeEveryTrapThroughTheClient();
+  await probeEveryTrapOverHttp();
+  await probeSearchPolicy();
   console.log(`\n${failed === 0 ? 'all checks passed' : `${failed} FAILED`}\n`);
   process.exit(failed === 0 ? 0 : 1);
 }

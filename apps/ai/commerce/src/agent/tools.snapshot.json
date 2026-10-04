@@ -1,0 +1,181 @@
+[
+  {
+    "name": "get_contact_history",
+    "description": "This case's customer's contact history: their cases (this one and any earlier), each with the resolutions proposed or decided on it, and every message exchanged with them, oldest first. Message text is reproduced exactly as written, and each message is labelled with who wrote it. Takes no arguments: the customer is fixed by the case.",
+    "inputSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {}
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
+    }
+  },
+  {
+    "name": "get_delivery",
+    "description": "The delivery of this case's order: the shipment and its carrier, every tracking scan and delivery event, the proof of delivery, and — when Thornbury's own fleet delivered it — the route, the stop, and every driver report and depot incident filed for that route on that day. Also the carrier SLA for this service: the due date counted in working days and how many working days late the delivery was. Takes no arguments: the order is fixed by the case.",
+    "inputSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {}
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
+    }
+  },
+  {
+    "name": "get_order",
+    "description": "The order this case is about: what was bought, what it cost, how it was paid, and — read this before proposing any outcome — whether any refund has ALREADY been issued against it. Takes no arguments: the order is fixed by the case and cannot be chosen.",
+    "inputSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {}
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
+    }
+  },
+  {
+    "name": "get_policy_rules",
+    "description": "Thornbury's configured policy rows for one product category: the return window, the refund rules, goodwill limits by customer tier, approval thresholds by action, and any category overrides — each with a citation. This is the configuration the returns tooling applies, not the written policy documents.",
+    "inputSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "The product category, as the catalogue names it: electronics, homeware, apparel, kitchen or garden."
+        },
+        "channel": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "The channel the order was placed through: web, app or phone. Rows that apply to any channel are always included."
+        },
+        "valuePence": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991,
+          "description": "An amount in whole pence — for example a refund being considered. Required by the rules service; the approval thresholds are listed in the result."
+        },
+        "tier": {
+          "description": "The customer's tier, to narrow the goodwill limits: standard or priority. Omit it for every tier.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "action": {
+          "description": "The action being approved, to narrow the approval thresholds: refund, goodwill or replacement. Omit it for every action.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      },
+      "required": [
+        "category",
+        "channel",
+        "valuePence"
+      ]
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
+    }
+  },
+  {
+    "name": "ping",
+    "description": "Returns \"pong\". Proves the transport, the handshake and tool dispatch are working. Carries no business meaning and reads no data.",
+    "inputSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {}
+    }
+  },
+  {
+    "name": "propose_resolution",
+    "description": "Propose a resolution for this case: records a DRAFT for a person at the desk to approve or reject. It does not refund, pay or approve anything. The case is fixed by the session.",
+    "inputSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "full_refund",
+            "partial_refund",
+            "replacement",
+            "collection_and_refund",
+            "goodwill_only",
+            "not_entitled"
+          ],
+          "description": "The outcome being proposed for this case."
+        },
+        "amountPence": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991,
+          "description": "The amount, in whole pence, that the proposal would pay the customer. 0 for not_entitled or a replacement with no refund."
+        }
+      },
+      "required": [
+        "kind",
+        "amountPence"
+      ]
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": false
+    }
+  },
+  {
+    "name": "search_policy",
+    "description": "Searches Thornbury's written policy documents — the published returns policy, internal procedures and bulletins, carrier contracts and the statutory reference — and returns the 6 closest passages, each with its citation, its audience (published to customers, or internal) and its status (current, superseded or retired). There is no relevance threshold: it returns the closest passages it has.",
+    "inputSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 300,
+          "description": "What to look for in Thornbury's written policies, in plain words."
+        },
+        "audience": {
+          "description": "Only documents customers were shown (published), or only staff documents (internal). Omit for both.",
+          "type": "string",
+          "enum": [
+            "published",
+            "internal"
+          ]
+        },
+        "status": {
+          "description": "Only documents with this status. Omit for all of them.",
+          "type": "string",
+          "enum": [
+            "current",
+            "superseded",
+            "retired"
+          ]
+        }
+      },
+      "required": [
+        "query"
+      ]
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
+    }
+  }
+]

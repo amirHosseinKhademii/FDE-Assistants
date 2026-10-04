@@ -15,11 +15,25 @@
     "db:reset": "ts-node src/db/init/drop.ts --yes && ts-node src/db/init/create.ts && ts-node src/db/init/migrate.ts && ts-node src/db/seed/seed.ts && ts-node src/db/init/check.ts",
     "env:check": "ts-node src/db/init/env-check.ts",
     "world:check": "ts-node src/db/seed/world-check.ts",
-    "source:probe": "ts-node src/grounding/source-probe.ts"
+    "source:probe": "ts-node src/grounding/source-probe.ts",
+    "kb:provision": "ts-node src/grounding/kb-provision.ts",
+    "kb:chunks": "ts-node src/grounding/kb-cli.ts chunks",
+    "kb:load": "ts-node src/grounding/kb-cli.ts corpus:load",
+    "kb:ingest": "ts-node src/grounding/kb-cli.ts ingest",
+    "kb:query": "ts-node src/grounding/kb-cli.ts query",
+    "kb:build": "ts-node src/grounding/kb-provision.ts && ts-node src/grounding/kb-cli.ts corpus:load && ts-node src/grounding/kb-cli.ts ingest && ts-node src/grounding/kb-provision.ts",
+    "kb:check": "ts-node src/grounding/kb-check.ts",
+    "corpus:check": "ts-node src/grounding/corpus-check.ts",
+    "retrieval:eval": "ts-node src/grounding/retrieval-eval.ts",
+    "guard:check": "ts-node src/agent/guard-check.ts",
+    "ask:mcp": "ts-node src/cli/ask-mcp.ts"
   },
   "dependencies": {
+    "@fde/agent": "workspace:*",
     "@fde/estate": "workspace:*",
+    "@fde/foundry": "workspace:*",
     "@fde/grounding": "workspace:*",
+    "@modelcontextprotocol/client": "2.0.0",
     "dotenv": "^16.4.5",
     "pg": "^8.23.0"
   },
@@ -32,7 +46,15 @@
   "main": "./dist/config/connections.js",
   "exports": {
     "./config": "./dist/config/connections.js",
-    "./rows": "./dist/db/schema/rows.js"
+    "./rows": "./dist/db/schema/rows.js",
+    "./kb": "./dist/grounding/query.js"
+  },
+  "typesVersions": {
+    "*": {
+      "kb": [
+        "dist/grounding/query.d.ts"
+      ]
+    }
   },
   "files": [
     "dist",

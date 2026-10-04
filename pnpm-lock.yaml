@@ -19,12 +19,21 @@ importers:
 
   apps/ai/commerce:
     dependencies:
+      '@fde/agent':
+        specifier: workspace:*
+        version: link:../../../packages/agent
       '@fde/estate':
         specifier: workspace:*
         version: link:../../../packages/estate
+      '@fde/foundry':
+        specifier: workspace:*
+        version: link:../../../packages/providers/foundry
       '@fde/grounding':
         specifier: workspace:*
         version: link:../../../packages/grounding
+      '@modelcontextprotocol/client':
+        specifier: 2.0.0
+        version: 2.0.0
       dotenv:
         specifier: ^16.4.5
         version: 16.6.1
@@ -365,6 +374,9 @@ importers:
       '@modelcontextprotocol/server':
         specifier: 2.0.0
         version: 2.0.0
+      '@thornbury/commerce':
+        specifier: workspace:*
+        version: link:../../ai/commerce
       dotenv:
         specifier: ^16.4.5
         version: 16.6.1

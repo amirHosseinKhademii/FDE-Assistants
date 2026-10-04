@@ -12,12 +12,15 @@
     "check": "ts-node src/wire-selftest.ts",
     "live": "ts-node src/cli/live.ts",
     "round-trip": "ts-node src/round-trip.ts",
-    "break": "ts-node src/break-live.ts"
+    "break": "ts-node src/break-live.ts",
+    "http-check": "ts-node src/http-check.ts",
+    "serve:http": "ts-node src/http.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "2.0.0",
-    "zod": "^4.5.4",
-    "dotenv": "^16.4.5"
+    "@thornbury/commerce": "workspace:*",
+    "dotenv": "^16.4.5",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@modelcontextprotocol/client": "2.0.0",

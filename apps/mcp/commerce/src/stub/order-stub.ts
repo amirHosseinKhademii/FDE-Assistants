@@ -80,6 +80,12 @@ function rejectsAuth(token: string | undefined): boolean {
   return token !== TOKEN;
 }
 
+/**
+ * Every write the stub has received, in order — so a check can assert what the
+ * MCP server SENT, not only what it got back. Added with `propose_resolution`.
+ */
+export const STUB_WRITES: Array<Record<string, unknown>> = [];
+
 export function startOrderStub(port = 0): Promise<{ server: Server; url: string }> {
   const server = createServer((req, res) => {
     const token = req.headers['x-service-token'] as string | undefined;
@@ -87,6 +93,37 @@ export function startOrderStub(port = 0): Promise<{ server: Server; url: string 
 
     if (rejectsAuth(token)) return send(res, 401, { ok: false, cause: 'invalid_request', detail: 'bad or missing service token' });
     if (!caseId) return send(res, 200, { ok: false, cause: 'invalid_request', detail: 'x-case-id is required' });
+
+    // `POST /resolutions` — the draft write, in the real API's shapes (crm.dto.ts):
+    // 201 with `{ resolution }`, or `out_of_scope` for a case the header does not own.
+    if (req.method === 'POST' && req.url === '/resolutions') {
+      let raw = '';
+      req.on('data', (c) => (raw += c));
+      req.on('end', () => {
+        const body = JSON.parse(raw || '{}') as Record<string, unknown>;
+        STUB_WRITES.push(body);
+        if (body.caseId !== caseId || caseId !== CASE) return send(res, 200, { ok: false, cause: 'out_of_scope', detail: 'The case is not in scope.' });
+        send(res, 201, {
+          ok: true,
+          data: {
+            resolution: {
+              id: `RES-STUB-${String(STUB_WRITES.length).padStart(4, '0')}`,
+              caseId: body.caseId, kind: body.kind, amountPence: body.amountPence, status: 'proposed',
+              proposedAt: '2026-09-27T12:00:00.000Z', proposedBy: body.proposedBy, decidedAt: null, approvedBy: null,
+            },
+          },
+        });
+      });
+      return;
+    }
+
+    // `GET /case` — added with Step 7, so the HTTP gate can resolve a case to
+    // its order offline, exactly as it does against the real API. An unknown
+    // case is `invalid_request` there ("does not name a case"), so it is here.
+    if (req.url === '/case') {
+      if (caseId !== CASE) return send(res, 200, { ok: false, cause: 'invalid_request', detail: 'The case id presented does not name a case.' });
+      return send(res, 200, { ok: true, data: { caseId: CASE, customerId: 'CUS-STUB', orderRef: ORDER } });
+    }
 
     const match = /^\/orders\/(.+)$/.exec(req.url ?? '');
     if (!match) return send(res, 200, { ok: false, cause: 'not_found', detail: 'no such endpoint' });

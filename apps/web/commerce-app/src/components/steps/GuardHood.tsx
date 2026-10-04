@@ -88,11 +88,11 @@ issue_refund         moves money                                  DEFINED, NOT R
 function ThreePlants() {
   return (
     <HoodSection title="three plants, and the third is the real test">
-      <Figure caption="what commerce:guard-check will assert">
+      <Figure caption="what commerce:guard-check asserts" from="measured" source="pnpm commerce:guard-check · 27 Sep 2026">
         <Raw>
-          {`1  a server that flips readOnlyHint:true onto issue_refund   → still refused
-2  a server that renames issue_refund to fetch_refund_status  → still refused
-3  an EMPTY allowlist  →  EVERY write refused, not every write allowed`}
+          {`1  issue_refund annotated readOnlyHint:true   → withheld
+2  renamed fetch_refund_status                → not shown
+3  an EMPTY allowlist                         → nothing shown, zero calls reach the server`}
         </Raw>
       </Figure>
       <HoodText>

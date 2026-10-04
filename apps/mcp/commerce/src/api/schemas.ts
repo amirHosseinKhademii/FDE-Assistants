@@ -306,3 +306,7 @@ export const PolicyRulesSchema = z.object({
   // printed beside them is the `calendarDaysLateIfNaive` mistake again.
 });
 export type PolicyRules = z.infer<typeof PolicyRulesSchema>;
+
+/** `POST /resolutions` — the draft as written, `status: 'proposed'`. */
+export const ProposedResolutionSchema = z.object({ resolution: Resolution });
+export type ProposedResolution = z.infer<typeof ProposedResolutionSchema>;

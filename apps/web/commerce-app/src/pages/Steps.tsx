@@ -439,8 +439,8 @@ our app  ── "run get_order" ────────────────
               head={['Word', 'What it is', 'In this build']}
               rows={[
                 ['host', 'The application a person is using', 'The assistant’s loop, and later Iris’s desk'],
-                ['client', 'One connection, inside the host, to one server', 'What step 10 writes'],
-                ['server', 'The program that owns the tools', 'What steps 1–9 build'],
+                ['client', 'One connection, inside the host, to one server', 'What step 10 built'],
+                ['server', 'The program that owns the tools', 'What steps 1–9 built'],
               ]}
             />
           </Figure>
@@ -639,7 +639,7 @@ function PhaseBoundary() {
           <p>
             The phase where the design becomes real: a tool that fetches an actual
             order from Thornbury, over the web, using a service token — with{' '}
-            <strong>no database password anywhere in its program</strong>. It was
+            <strong>no password to Thornbury’s databases anywhere in its program</strong>. It was
             built first against a stand-in for Thornbury’s API, then pointed at the
             real one, which is where the best lessons came from.
           </p>
@@ -765,9 +765,14 @@ isError            false`}
               rows={[
                 [<code key="u">COMMERCE_API_URL</code>, 'The address of Thornbury’s API'],
                 [<code key="t">COMMERCE_SERVICE_TOKEN</code>, 'The service token that proves who is calling'],
-                ['Any database password', 'Not there — on purpose'],
+                ['Any password to Thornbury’s databases', 'Not there — on purpose'],
               ]}
             />
+            <Note>
+              As of step 4b. Step 8 added the server’s own secret, and step 9 a
+              read-only login for our own search index — one table, nothing of
+              Thornbury’s.
+            </Note>
           </Figure>
         </>
       }
@@ -1038,9 +1043,9 @@ function BetweenTheSteps() {
           <p>
             The fourteen steps only ever built one tool, the one that reads the
             order. The plan named four more, and without them the assistant could
-            reach only one of the six traps planted in the test data. Three are
-            now built. The fourth, policy search, waits on the document index
-            (step 9).
+            reach only one of the six traps planted in the test data. These three
+            were built between steps 6 and 7; the fourth, policy search, came with
+            step 9.
           </p>
         </Part>
         <Part label="Why it matters">
@@ -1143,13 +1148,12 @@ function PhaseService() {
         status={phase(SERVICE).status}
         what={
           <p>
-            The server stops being a program something else has to start, and
-            becomes a service on the network that refuses anyone without a valid
-            token. Neither step needs Thornbury’s systems — they are about this
-            server alone.
+            The server stopped being a program something else has to start, and
+            became a service on the network — locked. The two steps landed
+            together, because a port that serves a customer’s orders to anyone who
+            can reach it is worse than no port at all.
           </p>
         }
-        waits={['Steps 4a–6, because moving a server with one real tool onto the web proves more than moving one that only says pong.']}
       />
       <div className="mt-10 grid gap-8">
         <Step7 />
@@ -1164,20 +1168,37 @@ function Step7() {
     <Step
       n="7"
       title={TITLES['7']}
-      plain="Today the server only talks through stdio, so another program has to start it. This step will put it on the network at port 3620, using a standard web handler from the same SDK. The tools themselves won’t change."
-      why="In a real deployment the MCP server runs as its own service that the assistant connects to. This is also where we’ll find out whether the newer protocol version we asked for in step 1 is actually available over HTTP."
+      done="2026-09-27"
+      plain="The MCP server now runs as its own service on port 3620, using a standard web handler from the same SDK. The tools didn’t change at all: the code that builds the server was already separate from the code that connects it, so the web handler is just one more way in."
+      why="In a real deployment the MCP server is its own service that the assistant connects to. It’s also where we could finally answer step 1’s question: is the newer protocol version really available over the web?"
       code={
-        <Figure caption="Two settings to choose on purpose, not by accident" from="proposed">
+        <Figure caption="Which protocol version you get depends on both sides’ settings" from="measured" source="pnpm commerce:mcp-http-check · 27 Sep 2026">
           <Table
-            head={['Setting', 'Choice', 'Why']}
+            head={['Server setting', 'Client setting', 'Result']}
             rows={[
-              [<code key="l">legacy</code>, <code key="v">'reject'</code>, 'Refuse the older protocol version. We have no old clients, and supporting two means testing two.'],
-              [<code key="r">responseMode</code>, <code key="v">'auto'</code>, 'Leave it. The other option, json, silently drops progress messages sent during a call.'],
+              [<code key="s">reject</code>, <><code key="c">legacy</code> (the SDK’s default)</>, 'Refused: error -32022, unsupported protocol version'],
+              [<code key="s">reject</code>, <><code key="c">auto</code> or a pinned version</>, <>Agreed <code key="v">2026-07-28</code>, the newer version</>],
+              [<code key="s">stateless</code>, <code key="c">legacy</code>, <>Agreed <code key="v">2025-11-25</code>, the older version</>],
+              [<code key="s">stateless</code>, <><code key="c">auto</code> or a pinned version</>, <>Agreed <code key="v">2026-07-28</code></>],
             ]}
           />
+          <Note>
+            We chose <code>reject</code>: refuse the older version outright. We
+            have no old clients, and supporting two versions means testing two.
+            The MCP Inspector 2.7.0 speaks the older version over the web, so it
+            is refused there — it still works over stdio.
+          </Note>
         </Figure>
       }
-      learned={<p>That the same tools work unchanged over HTTP, and which protocol version the web handler actually agrees to.</p>}
+      learned={
+        <p>
+          Yes, the newer version is available over the web — <strong>but only if
+          the client asks for it.</strong> The SDK’s client defaults to the older
+          handshake, so with our server set to refuse it, an out-of-the-box client
+          is turned away. That’s the right outcome, and it means every client we
+          write has to opt in on purpose.
+        </p>
+      }
       terms={['stdio', 'handshake', 'server']}
     />
   );
@@ -1188,13 +1209,13 @@ function Step8() {
     <Step
       n="8"
       title={TITLES['8']}
-      plain="The server will refuse anyone without a valid token — and, more importantly, refuse everyone if no token has been configured at all."
+      done="2026-09-27"
+      plain="Every request now has to get past four gates. It must come from this machine, carry the desk’s own secret (not the one the server uses to reach Thornbury’s API), and name the case it’s about. There is never a default case, and the server looks up the order itself. If the secret isn’t configured, it refuses everyone."
       why={
         <p>
           The obvious way to write a token check lets everybody in when the
-          setting is missing: <code>{'if (expected && header !== expected) refuse()'}</code>{' '}
-          skips the check entirely when <code>expected</code> is empty. A missing
-          setting should reduce access, never grant it.
+          setting is missing: it skips the check when there’s nothing to compare
+          against. A missing setting should reduce access, never grant it.
           {VERESK && (
             <>
               {' '}
@@ -1206,23 +1227,67 @@ function Step8() {
         </p>
       }
       code={
-        <Figure caption="The two checks most guards forget" from="cited" source="MCP AuthInfo.resource · RFC 8707">
-          <Table
-            head={['Situation', 'Must happen']}
-            rows={[
-              ['No token configured on the server at all', 'Every request refused — not every request allowed'],
-              ['A valid token, but issued for a different service', 'Refused: the token has to name this server'],
-            ]}
-          />
-        </Figure>
+        <>
+          <Figure caption="The four gates, and what each one answers" from="measured" source="pnpm commerce:mcp-http-check · 27 Sep 2026">
+            <Table
+              head={['If…', 'The server answers']}
+              rows={[
+                ['The request isn’t from this machine (Host or Origin)', '403 Forbidden'],
+                [<>The secret <code key="t">COMMERCE_MCP_TOKEN</code> isn’t configured</>, '503 — to every request, even one carrying a token'],
+                ['The token isn’t this server’s own (including Thornbury’s API token)', '401 Unauthorized'],
+                ['The case id is missing or unknown', '400 — never a default case'],
+              ]}
+            />
+          </Figure>
+          <Figure caption="The gates, in order" from="excerpt" source="apps/mcp/commerce/src/http.ts">
+            <Code
+              path="apps/mcp/commerce/src/http.ts"
+              lines={[
+                'async function fetch(request: Request): Promise<Response> {',
+                '  const hostOrOrigin =',
+                '    hostHeaderValidationResponse(request, localhostAllowedHostnames()) ??',
+                '    originValidationResponse(request, localhostAllowedOrigins());',
+                '  if (hostOrOrigin) return hostOrOrigin;',
+                '',
+                '  if (!expected) {',
+                "    return refuse(503, 'COMMERCE_MCP_TOKEN is not set; this server refuses every request rather than serving unauthenticated ones');",
+                '  }',
+                '',
+                '  const auth = await gate(request);',
+                '  if (auth instanceof Response) return auth;',
+                '',
+                '  const caseId = request.headers.get(CASE_HEADER)?.trim();',
+                '  if (!caseId) {',
+                '    return refuse(400, `${CASE_HEADER} is required: the case comes from the desk with every request, and is never defaulted`);',
+                '  }',
+                '  const resolved = await resolveCase(caseId);',
+                "  if ('status' in resolved) return refuse(resolved.status, resolved.reason);",
+                '',
+                '  return handler.fetch(request, { authInfo: { ...auth, extra: { ...(auth.extra ?? {}), session: resolved.session } } });',
+                '}',
+              ]}
+              mark={[6, 7]}
+            />
+          </Figure>
+        </>
       }
       learned={
-        <p>
-          Unset the token setting and confirm every request is refused. Then show
-          a token made for another service and confirm it’s refused too —
-          otherwise the MCP server, which has more access than whoever calls it,
-          can be tricked into using that access for them.
-        </p>
+        <>
+          <p>
+            <strong>A check can pass over the very bug it’s for.</strong> The
+            first “no case id” check only asserted the status 400 — and the server
+            also answers 400 to an old-version request. Two different refusals, one
+            status, so a broken server could pass. It now checks the reason too.
+            Each gate was then broken on purpose, and each time exactly its own
+            check went red.
+          </p>
+          <p>
+            <strong>Found on the way:</strong> the MCP server used to load the whole
+            settings file — including the administrator login for Thornbury’s
+            databases. It now keeps only its own <code>COMMERCE_*</code> settings,
+            so that login never enters the process.
+          </p>
+        </>
       }
       terms={['serviceToken', 'confusedDeputy']}
     />
@@ -1239,16 +1304,11 @@ function PhaseRetrieval() {
         status={phase(RETRIEVAL).status}
         what={
           <p>
-            One step, and it’s where this business gets interesting. Thornbury’s
-            returns policy lives in two places that disagree on purpose. The
-            assistant has to show both, with their sources, rather than quietly
-            picking one.
+            Thornbury’s returns policy lives in two places that disagree on
+            purpose. This step gave the assistant the written half — and the
+            search turned out to reproduce the disagreement all by itself.
           </p>
         }
-        waits={[
-          'The twelve policy documents are written; they still need loading into a search index.',
-          'That index lives on our side of the line — it is ours and can be rebuilt any time — rather than behind Thornbury’s API.',
-        ]}
       />
       <div className="mt-10 grid gap-8">
         <Step9 />
@@ -1262,32 +1322,49 @@ function Step9() {
     <Step
       n="9"
       title={TITLES['9']}
-      plain="A second tool, search_policy, will search Thornbury’s twelve written policy documents and return the passages that best match the question, using the search code this repo already has."
-      why="The published returns policy says 30 days for everything. A setting in the returns system says 14 days for electronics. Both are true statements about Thornbury, and neither is “the answer” — the answer is “these disagree, here is each with its source, a person decides”."
+      done="2026-09-27"
+      plain="A new tool, search_policy, searches Thornbury’s twelve written policy documents and returns the best-matching passages. Every passage is labelled with who it was written for (customers, or staff only) and whether it still holds (current, superseded, or retired — meaning it was wrong)."
+      why="The published returns policy says 30 days for everything; a setting in the returns system says 14 days for electronics. Neither is “the answer” — the answer is “these disagree, here is each with its source, a person decides”. The labels are what let the assistant say which is which."
       code={
         <>
-          <Figure caption="The disagreement this step makes visible" from="cited" source="docs/commerce/PLAN.md §2.3">
+          <Figure caption="The index, and how well it finds the right passage" from="measured" source="pnpm commerce:retrieval-eval · 27 Sep 2026">
             <Table
-              head={['Where', 'What it says']}
+              head={['Measure', 'Result']}
               rows={[
-                ['A setting in the returns system', 'Electronics: 14 days, from 1 March 2025'],
-                ['The published returns policy (still live)', '“You may return any item within 30 days of delivery”'],
+                ['Documents, split into passages', '12 documents, 83 passages'],
+                ['Right passage in the top six (recall@6)', '0.912, over 17 test questions'],
+                ['Time per search', '2.3 s for the first (loading the model), about 1.9 s after'],
               ]}
             />
           </Figure>
-          <Figure caption="Two decisions that look like details" from="proposed">
+          <Figure caption="Two decisions that look like details" from="cited" source="docs/commerce/PLAN.md">
             <Table
               head={['Decision', 'Why']}
               rows={[
-                ['No relevance cut-off', 'Search always returns its best matches, even if they’re poor. Deciding “our policies don’t cover this” is the AI’s job, reading the passages. A threshold would turn “I don’t know” into silence.'],
-                ['The index is ours', 'Thornbury’s databases are its records. The search index is ours and rebuildable, so it lives on our side of the line.'],
+                ['No relevance cut-off', 'Search always returns its best matches, even poor ones. Deciding “our policies don’t cover this” is the AI’s job; a threshold would turn “I don’t know” into silence.'],
+                ['The index is ours, in its own database', 'It lives on our side of the line, and the search reads it through an account that can read one table and nothing else.'],
               ]}
             />
           </Figure>
         </>
       }
-      learned={<p>How often the right passage appears in the top results, measured against questions whose answers we already know — before the twelve documents are allowed to grow.</p>}
-      terms={['rag', 'embedding']}
+      learned={
+        <>
+          <p>
+            <strong>The search walks into trap T2 by itself.</strong> Asked “how
+            long does a customer have to return an electronics item?”, the top six
+            passages all say 14 days — the superseded policy, an internal bulletin,
+            and the retired note. The current published policy, which says 30
+            days, isn’t among them. Asking for published documents finds it.
+          </p>
+          <p>
+            We kept that as a recorded miss rather than tuning it away: it’s
+            exactly the situation the passage labels exist for, and exactly what
+            the assistant has to notice.
+          </p>
+        </>
+      }
+      terms={['rag', 'embedding', 'trap']}
     />
   );
 }
@@ -1302,15 +1379,11 @@ function PhaseClient() {
         status={phase(CLIENT).status}
         what={
           <p>
-            Where MCP stops being somebody else’s protocol and becomes our
-            assistant’s job. Step 10 connects the assistant to the tools; step 11
-            makes sure it can never move money on its own.
+            Where MCP stopped being somebody else’s protocol and became our
+            assistant’s job. Step 10 connected the assistant to the tools; step 11
+            made sure it can never move money on its own.
           </p>
         }
-        waits={[
-          'Everything above: a server with real tools, on the network, behind a token.',
-          'A small adapter beside the two the assistant already has for other tool formats.',
-        ]}
       />
       <div className="mt-10 grid gap-8">
         <Step10 />
@@ -1325,20 +1398,36 @@ function Step10() {
     <Step
       n="10"
       title={TITLES['10']}
-      plain="The assistant’s loop will learn to use these tools: an MCP client, plus a small adapter that turns an MCP tool into the format the assistant’s tool list already understands."
-      why="Until you’ve written a client, the list of features it declares looks like configuration. It’s actually a promise: a server may only use what the client said it supports. None of this repo’s three loop engines is an MCP client yet — so the approval step Iris needs is ours to build, not something MCP gives us for free."
+      done="2026-09-27"
+      plain="The assistant’s loop now gets its tools from the MCP server instead of defining them itself — and nothing in the loop had to change. A small adapter turns each MCP tool into the shape the loop already understood."
+      why="This is the point of the whole build: the assistant works the same, but the code that can reach Thornbury’s systems now lives in a separate, locked program."
       code={
-        <Figure caption="Two things a server can ask of a client, if the client allows it" from="cited" source="ClientCapabilitiesSchema, in the MCP SDK">
-          <Table
-            head={['Feature', 'What it lets the server do']}
-            rows={[
-              [<code key="e">elicitation</code>, 'Ask a person a question, e.g. “confirm this £340 refund?”'],
-              [<code key="s">sampling</code>, 'Ask the client’s AI model to write something'],
+        <Figure caption="How a failure crosses back into the loop" from="excerpt" source="packages/agent/src/mcp/tools.ts">
+          <Code
+            path="packages/agent/src/mcp/tools.ts"
+            lines={[
+              'if (outcome?.ok === false && outcome.cause && infra.has(outcome.cause)) {',
+              '  throw new Error(`[${outcome.cause}] ${outcome.detail ?? text}`);',
+              '}',
             ]}
           />
+          <Note>
+            An infrastructure failure — the backend down, a timeout — is turned
+            back into a thrown error, so the loop’s existing failure counting
+            files it correctly. A business answer like “not your order” stays an
+            answer.
+          </Note>
         </Figure>
       }
-      learned={<p>That the assistant can find and call get_order through the client exactly as it calls its built-in tools.</p>}
+      learned={
+        <p>
+          Asked “what was ordered, and has anything been refunded?”, the
+          assistant called one tool over the protocol and answered correctly:
+          <strong> £22 already refunded on the shirt.</strong> And because step 5
+          showed an error code can mean two things, the client always lists the
+          server’s tools before calling one.
+        </p>
+      }
       terms={['client', 'host', 'loop']}
     />
   );
@@ -1349,26 +1438,52 @@ function Step11() {
     <Step
       n="11"
       title={TITLES['11']}
-      plain="The AI will be able to propose a resolution — a refund, a replacement — but never carry it out. A person approves. This step builds that gate, and the obvious way to build it is wrong."
-      why="MCP lets a tool describe itself — for example “I only read, I never change anything”. The tempting client auto-approves anything that says so. But that description is written by the very server being guarded, and the MCP SDK’s own documentation says clients must never decide based on it. So the gate is a fixed list of tool names, kept on our side."
+      done="2026-09-27"
+      plain="The AI is shown only the tools on a list the desk holds. The one write it’s allowed, propose_resolution, only records a draft for a person to approve. The refund tool exists, and is never shown to the AI."
+      why="MCP lets a tool describe itself — “I only read, I never change anything”. The tempting client auto-approves anything that says so. But that label is written by the very server being guarded, and the SDK’s own documentation says never to decide based on it. So the list is of tool names, held on our side."
       code={
-        <Figure caption="The trap, in the SDK’s own words" from="cited" source="ToolAnnotations · the MCP SDK’s doc comment">
-          <Raw>
-            {`A tool can describe itself:   annotations: { readOnlyHint: true }
-The tempting client:          auto-approve anything marked read-only
-
-The SDK:  "Clients should never make tool use decisions based on
-           ToolAnnotations received from untrusted servers."`}
-          </Raw>
-        </Figure>
+        <>
+          <Figure caption="Three planted mistakes, and one real write" from="measured" source="pnpm commerce:guard-check · 27 Sep 2026">
+            <Table
+              head={['We tried', 'Result']}
+              rows={[
+                [<>The refund tool, labelled “read-only”</>, 'Withheld — labels are never read'],
+                [<>The refund tool, renamed <code key="n">fetch_refund_status</code></>, 'Not shown — the name isn’t on the list'],
+                ['An empty list', 'Nothing shown, and zero calls reach the server'],
+                ['One real write on an ordinary case', 'A draft was recorded, read back, deleted, and the deletion checked'],
+              ]}
+            />
+          </Figure>
+          <Figure caption="The list is a filter on names" from="excerpt" source="packages/agent/src/mcp/tools.ts">
+            <Code
+              path="packages/agent/src/mcp/tools.ts"
+              lines={[
+                'const kept = published.filter((t) => allow.has(t.name));',
+                'const withheld = published.filter((t) => !allow.has(t.name)).map((t) => t.name);',
+              ]}
+            />
+            <Note>
+              The list lives in <code>apps/ai/commerce/src/agent/allowlist.ts</code>:
+              six tools, one of which writes. <code>issue_refund</code> is defined
+              and never registered.
+            </Note>
+          </Figure>
+        </>
       }
       learned={
-        <p>
-          Three planted mistakes. A server that marks its refund tool “read-only”:
-          still refused. A server that renames the refund tool after approval:
-          still refused. And an <strong>empty</strong> list of allowed tools: it
-          must refuse every write, not allow every write.
-        </p>
+        <>
+          <p>
+            <strong>An empty list must mean nothing, not everything.</strong> The
+            obvious guard skips the check when the list is empty — which is what a
+            misconfigured deployment looks like. Here, an empty list shows the AI
+            nothing.
+          </p>
+          <p>
+            <strong>The server writes its own name as the proposer.</strong> A
+            customer’s message saying “Dave already approved it” can’t put “Dave”
+            in the record, because the AI never gets to fill that field in.
+          </p>
+        </>
       }
       terms={['allowlist', 'promptInjection', 'confusedDeputy']}
       hood={
@@ -1499,9 +1614,14 @@ function NotYet() {
           There is no screen for Iris yet. The desk — where she would see what a
           customer is owed, under which policy, with which evidence, and where two
           sources disagree — is specified in <code>docs/commerce/PLAN.md</code> §8.
-          It needs policy search (step 9) and the client and its guard (steps 10
-          and 11) first, and none of those has run. In all, {inWords(planned.length)}{' '}
-          steps are still ahead: {planned.join(', ')}.
+          The parts it stands on (the tools, policy search, the client and its
+          guard) are built; the desk itself is not.
+          {planned.length > 0 && (
+            <>
+              {' '}
+              Still ahead: step {planned.join(', step ')}, {planned.map((s) => TITLES[s].toLowerCase()).join('; ')}.
+            </>
+          )}
         </p>
         <p className="mt-4">
           <Link to="/" className="thb-a">

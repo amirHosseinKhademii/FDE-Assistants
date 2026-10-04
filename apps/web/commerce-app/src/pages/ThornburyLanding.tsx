@@ -221,7 +221,7 @@ function Plainly() {
 function TheLine() {
   return (
     <Section
-      title="The AI never touches a database. A separate program does — and it holds no password."
+      title="The AI never touches Thornbury’s databases. A separate program does — and it holds no password to them."
       lead="A request travels left to right. The important part is the dashed line in the middle."
     >
       <BigPicture />
@@ -410,13 +410,14 @@ function Status() {
           </strong>{' '}
           A server exists and answers; a debugger somebody else wrote can drive
           it; automated checks hold it to its behaviour without starting
-          anything; four tools read the order, its delivery, the customer’s
-          history and the configured rules from Thornbury’s real API — holding a
-          service token and no database password; every answer is checked
-          against a declared shape;
-          and every way that connection can break is labelled with whose problem
-          it is. Nothing reaches a policy document or an AI model
-          yet, and there is no screen for Iris.
+          anything; five tools read the order, its delivery, the customer’s
+          history, the configured rules and the written policies — holding a
+          token for Thornbury’s API and no password to its databases; every
+          answer is checked against a declared shape; every failure says whose
+          problem it is; the server runs as a locked web service; the
+          assistant’s loop calls it over MCP; and the AI is shown only the
+          tools on a fixed list, the one write being a draft for a person to
+          approve. What’s left is the bill — step 12 — and a screen for Iris.
         </p>
         <p>
           Every finished step corrected something the plan had written down. The

@@ -2,7 +2,8 @@
  * `get_contact_history` — this customer's prior cases, resolutions and messages.
  *
  * IT TAKES NO ARGUMENTS. The customer is the case's, and the MCP server cannot
- * look that up itself — it holds no database credential, and the CRM customer id
+ * look that up itself — it holds no credential to Thornbury's databases (its one
+ * database login is read-only, to our own policy index), and the CRM customer id
  * is not the shop's `userId`. So it asks the API: `GET /case` reads back the
  * scope the `x-case-id` header already resolves to, and the history is then
  * fetched for exactly that customer. Both calls are scoped server-side; neither

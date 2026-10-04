@@ -89,12 +89,22 @@ export const DEFAULT_CHUNK_TABLE = 'document_chunks';
  * what makes a retrieved passage citable — a fragment that cannot say which of
  * a dozen near-identical documents it came from is not evidence, it is a
  * rumour.
+ *
+ * `readOnly` IS FOR A CONNECTION THAT MUST NOT BE ABLE TO WRITE. `initialize()`
+ * always runs `CREATE EXTENSION IF NOT EXISTS vector` and `CREATE TABLE IF NOT
+ * EXISTS …` — and Postgres checks CREATE privilege on the schema BEFORE it
+ * checks existence, so a SELECT-only role is refused by a statement that would
+ * have done nothing. The fix is not to grant the reader CREATE; it is to not
+ * ask. `readOnly` skips the DDL (`skipInitializationCheck`), and the store
+ * assumes the table the ingest side built. Added 2026-09-27 for a query-only
+ * process that holds a read-only credential and nothing else.
  */
 export async function openStore(
   embeddings: EmbeddingsInterface,
-  opts: { connectionString?: string; tableName?: string } = {},
+  opts: { connectionString?: string; tableName?: string; readOnly?: boolean } = {},
 ): Promise<PGVectorStore> {
   const store = await PGVectorStore.initialize(embeddings, {
+    skipInitializationCheck: opts.readOnly ?? false,
     postgresConnectionOptions: {
       connectionString: opts.connectionString ?? connectionString(),
       // See PG_OPTIONS: without keepalive a suspended Neon compute hangs the
