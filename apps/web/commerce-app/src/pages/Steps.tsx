@@ -184,6 +184,11 @@ function Nav() {
         </span>
         Thornbury Goods
       </Link>
+
+      <Link to="/desk" className="text-[0.9375rem] text-ui-dim transition-colors hover:text-ui-fg">
+        Resolve a claim
+      </Link>
+
       <span
         aria-current="page"
         className="text-[0.9375rem] font-semibold text-ui-fg underline decoration-thb-1 decoration-2 underline-offset-[6px] sm:ml-auto"

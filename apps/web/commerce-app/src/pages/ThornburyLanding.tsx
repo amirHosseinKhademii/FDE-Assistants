@@ -37,6 +37,7 @@ import { Link } from '@tanstack/react-router';
 import { Aurora } from '@veresk/surface';
 import type { ReactNode } from 'react';
 import { BigPicture } from '../components/BigPicture';
+import { ThornburyMap } from '../components/flow/ThornburyMap';
 import { AURORA } from '../lib/aurora';
 import { VERESK } from '../lib/links';
 import { BUILDABLE, DONE, inWords } from '../lib/progress';
@@ -46,8 +47,9 @@ export function ThornburyLanding() {
     <div className="relative min-h-screen overflow-hidden">
       <Aurora tones={AURORA} />
       <Header />
-      <main className="relative z-10 mx-auto max-w-6xl px-5 pb-24 sm:px-6">
+      <main className="relative z-10 w-full px-6 pb-24 md:px-10 xl:px-16">
         <Hero />
+        <ThornburyMap />
         <TheContact />
         <Plainly />
         <TheLine />
@@ -63,7 +65,7 @@ export function ThornburyLanding() {
 
 function Header() {
   return (
-    <nav className="relative z-10 mx-auto flex max-w-6xl flex-wrap items-center gap-x-5 gap-y-3 px-5 py-5 sm:px-6 sm:py-6">
+    <nav className="relative z-10 flex w-full flex-wrap items-center gap-x-5 gap-y-3 px-6 py-5 md:px-10 md:py-6 xl:px-16">
       <span className="flex items-center gap-3">
         <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-thb-1/15 text-thb-1 ring-1 ring-thb-1/30">
           <BoxIcon />
@@ -71,7 +73,11 @@ function Header() {
         <span className="font-semibold tracking-tight">Thornbury Goods</span>
       </span>
 
-      <Link to="/steps" className="text-[0.9375rem] text-ui-dim transition-colors hover:text-ui-fg sm:ml-auto">
+      <Link to="/desk" className="text-[0.9375rem] text-ui-dim transition-colors hover:text-ui-fg sm:ml-auto">
+        Resolve a claim
+      </Link>
+
+      <Link to="/steps" className="text-[0.9375rem] text-ui-dim transition-colors hover:text-ui-fg">
         How it works
       </Link>
 
@@ -163,7 +169,7 @@ function TheContact() {
         answer that one message, she opens seven things:
       </p>
 
-      <ol className="mt-5 grid max-w-3xl gap-px overflow-hidden rounded-xl border border-ui-line bg-ui-line">
+      <ol className="mt-5 grid w-full gap-px overflow-hidden rounded-xl border border-ui-line bg-ui-line">
         {TABS_OPENED.map(([what, why], i) => (
           <li key={what} className="grid gap-1 bg-ui-surface px-4 py-3 sm:grid-cols-[2rem_13rem_1fr] sm:items-baseline sm:gap-3">
             <span className="hidden text-[0.875rem] font-semibold text-ui-faint sm:block">{i + 1}</span>
@@ -205,7 +211,7 @@ const DOES: [string, string][] = [
 function Plainly() {
   return (
     <Section title="What the assistant will do" lead="The design, in plain words. How much of it exists today is at the bottom of this page.">
-      <ol className="mt-7 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <ol className="mt-7 grid w-full gap-4 md:grid-cols-2 lg:grid-cols-3">
         {DOES.map(([what, how], i) => (
           <li key={what} className="thb-card">
             <p className="text-[0.875rem] font-semibold text-thb-1">{i + 1}</p>
@@ -270,7 +276,7 @@ const SYSTEMS = [
 function TheEstate() {
   return (
     <Section title="Five systems, and nothing joining them" lead="Thornbury’s data lives in five separate systems, each its own database.">
-      <div className="mt-6 grid gap-px overflow-hidden rounded-xl border border-ui-line bg-ui-line">
+      <div className="mt-6 grid w-full gap-px overflow-hidden rounded-xl border border-ui-line bg-ui-line">
         {SYSTEMS.map(([name, stands, owns]) => (
           <div key={name} className="grid gap-1 bg-ui-surface px-4 py-3.5 sm:grid-cols-[10rem_1fr] sm:gap-4">
             <code className="font-mono text-[0.9375rem] text-ui-fg">{name}</code>
@@ -305,7 +311,7 @@ function TheEstate() {
 function TheDisagreement() {
   return (
     <Section title="Policy lives in two places, and they disagree">
-      <div className="mt-7 grid gap-4 lg:grid-cols-2">
+      <div className="mt-7 grid w-full gap-4 lg:grid-cols-2">
         <Position
           label="A setting in the returns system"
           body={`thb_policy.return_windows
@@ -378,7 +384,7 @@ const WILL_NOT = [
 function Refusal() {
   return (
     <Section title="Four things it will not do">
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
+      <div className="mt-6 grid w-full gap-4 md:grid-cols-2">
         {WILL_NOT.map(([what, why]) => (
           <div key={what} className="thb-card">
             <h3>{what}</h3>
@@ -444,7 +450,7 @@ function Status() {
 
 function Footer() {
   return (
-    <footer className="relative z-10 mx-auto max-w-6xl border-t border-ui-line px-5 py-10 text-[0.9375rem] text-ui-faint sm:px-6">
+    <footer className="relative z-10 w-full border-t border-ui-line px-6 py-10 md:px-10 xl:px-16 text-[0.9375rem] text-ui-faint">
       Thornbury Goods and Iris are fictional. The protocol, the SDK and every
       correction on{' '}
       <Link to="/steps" className="thb-a">

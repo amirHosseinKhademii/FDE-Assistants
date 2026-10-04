@@ -18,18 +18,14 @@
  *   pnpm commerce:ask-mcp                          CAS-90003, the default question
  *   pnpm commerce:ask-mcp CAS-90001 "what happened to this delivery?"
  */
-import { chatClient, chatModelName, runLoop, loopChoice, engineLabel } from '@fde/agent';
-import { openaiClient } from '@fde/foundry';
+import { loopChoice, engineLabel } from '@fde/agent';
 import { REPO_ROOT } from '../config/connections';
 import { config } from 'dotenv';
 import { resolve } from 'node:path';
-import { connectToThornbury, spawnMcpServer } from '../agent/mcp-client';
+import { spawnMcpServer } from '../agent/mcp-client';
+import { askThornbury, type AskEvent } from '../agent/ask';
 
 config({ path: resolve(REPO_ROOT, '.env'), quiet: true });
-
-const SYSTEM =
-  "You are helping a resolutions specialist at Thornbury Goods, an online retailer. " +
-  "Answer from Thornbury's own records, using the tools. Say what you found and which tool it came from.";
 
 async function main(): Promise<number> {
   const args = process.argv.slice(2);
@@ -37,44 +33,55 @@ async function main(): Promise<number> {
   const question = args.join(' ') || 'What was ordered on this case, and has any part of it already been refunded?';
 
   const server = await spawnMcpServer();
-  const t = await connectToThornbury({ url: server.url, token: server.token, caseId });
   try {
-    const choice = loopChoice();
-    const model = chatModelName(process.env.FOUNDRY_CHAT_DEPLOYMENT ?? '');
-    console.log(`\n  engine ${engineLabel(choice)} · model ${model} · case ${caseId}`);
-    console.log(`  tools over MCP: [${t.gate.tools.map((x) => x.schema.name).join(', ')}]  withheld: [${t.gate.withheld.join(', ')}]`);
-    console.log(`  "${question}"\n`);
+    let exitCode = 0;
+    let answerText = '';
+    let toolOkCount = 0;
 
-    const calls: Array<{ name: string; ok: boolean }> = [];
-    let result;
-    try {
-      result = await runLoop<string>(choice, chatClient(openaiClient), model, t.registry, question, {
-        system: SYSTEM,
-        onEvent: (e: any) => {
-          if (e.type === 'tool_call') console.log(`  → ${e.name}(${JSON.stringify(e.args)})`);
-          if (e.type === 'tool_result') calls.push({ name: e.name, ok: e.ok });
-        },
-      });
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      if (/429|quota|rate.?limit|RESOURCE_EXHAUSTED|high demand|503/i.test(msg)) {
-        console.log(`\n  PROVIDER, NOT CODE — the model endpoint refused: ${msg.slice(0, 200)}\n`);
-        return 3;
-      }
-      throw e;
+    await askThornbury({
+      caseId,
+      question,
+      url: server.url,
+      token: server.token,
+      onEvent: (e: AskEvent) => {
+        switch (e.type) {
+          case 'start':
+            console.log(`\n  engine ${engineLabel(loopChoice())} · model ${e.model} · case ${e.caseId}`);
+            console.log(`  "${question}"\n`);
+            break;
+          case 'tool':
+            console.log(`  → ${e.name}(${JSON.stringify(e.args)}) [${e.ms}ms] ${e.ok ? '✓' : '✗'}`);
+            if (e.ok) toolOkCount++;
+            break;
+          case 'answer':
+            answerText = e.text;
+            console.log(`\n${e.text}\n`);
+            break;
+          case 'error':
+            const msg = e.message;
+            if (/429|quota|rate.?limit|RESOURCE_EXHAUSTED|high demand|503/i.test(msg)) {
+              console.log(`\n  PROVIDER, NOT CODE — the model endpoint refused: ${msg.slice(0, 200)}\n`);
+              exitCode = 3;
+            } else {
+              console.log(`\n  ERROR: ${msg}\n`);
+              exitCode = 1;
+            }
+            break;
+        }
+      },
+    });
+
+    // Print final status (matching the original output format)
+    if (exitCode === 0) {
+      const ok = toolOkCount > 0 && answerText.trim().length > 0;
+      console.log(
+        `  ${ok ? 'ok  ' : 'FAIL'}  the model called ${toolOkCount} tool(s) through MCP and answered\n`,
+      );
+      exitCode = ok ? 0 : 1;
     }
 
-    const text = result.text;
-    console.log(`\n${text}\n`);
-    const throughMcp = calls.filter((c) => c.ok);
-    const ok = throughMcp.length > 0 && text.trim().length > 0;
-    console.log(
-      `  ${ok ? 'ok  ' : 'FAIL'}  the model called ${throughMcp.length} tool(s) through MCP ` +
-        `[${throughMcp.map((c) => c.name).join(', ')}] and answered\n`,
-    );
-    return ok ? 0 : 1;
+    return exitCode;
   } finally {
-    await t.close();
     server.stop();
   }
 }

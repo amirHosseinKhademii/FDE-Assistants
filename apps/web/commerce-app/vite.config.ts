@@ -1,36 +1,46 @@
 /**
  * Thornbury Goods' build.
  *
- * ── THERE IS NO `ssr.external` LIST, AND THAT IS A CLAIM ABOUT THE APP ─────
+ * ── THIS APP HOLDS THE MCP TOKEN AND MODEL KEY ON THE SERVER ────────────
  *
- * Every other surface here carries one: `@fde/agent`, `pg`, an embedder and
- * three engines have to be required at runtime rather than bundled, because
- * bundling a database driver into a client chunk is how a secret gets shipped
- * to a reader. This app needs no such list because it opens no database, calls
- * no model and holds no credential — the two pages it serves are readings of
- * documents in `docs/commerce/` and of source files in `apps/mcp/commerce/`,
- * baked in at build time.
- *
- * `apps/web/veresk-app` says the same thing about itself and `apps/web/
- * safety-app` used to, right up until `/desk` arrived and made it false. So this
- * comment has a shelf life: THE DAY THIS APP GROWS `/api/resolve`, the list
- * arrives with it, and it will be safety's — the set of things that must not be
- * bundled is a property of `@fde/agent`, not of any one surface.
- *
- * ── AND IT DEPENDS ON NONE OF THE OTHER FOUR COMMERCE PACKAGES ────────────
- *
- * `@thornbury/commerce`, `@thornbury/commerce-api` and `@thornbury/commerce-mcp`
- * are being written by three other sessions right now, and this app imports
- * nothing from any of them. That is deliberate rather than incidental: a
- * dependency on a half-built package means their red build is this app's red
- * build, and there is nothing here that needs their types. The MCP server's
- * source appears on `/steps` as QUOTED TEXT, which is a different relationship
- * from an import and survives the file being mid-refactor.
+ * The `/api/ask` route keeps `COMMERCE_MCP_TOKEN` and model keys server-side:
+ * the browser sees only events, never the credentials. That is a demo decision
+ * (2026-10-04), not a hard rule. Every package in the `ssr.external` list below
+ * must not be bundled — bundling a database driver into a client chunk is how
+ * a secret gets shipped to a reader.
  */
-import { defineConfig } from 'vite';
+import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
+import { defineConfig, loadEnv as viteLoadEnv } from 'vite';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const repoRoot = join(__dirname, '../../../../');
+// Also use Vite's loadEnv for the build process
+viteLoadEnv('development', repoRoot, '');
+
+const DOMAIN_EXTERNALS = [
+  '@thornbury/commerce',
+  '@fde/agent',
+  '@fde/grounding',
+  '@fde/foundry',
+  '@fde/guard',
+  '@fde/telemetry',
+  '@fde/estate',
+  '@mastra/core',
+  '@ai-sdk/openai-compatible',
+  'ai',
+  '@openai/agents',
+  'openai',
+  '@azure/identity',
+  '@modelcontextprotocol/client',
+  'pg',
+  '@langchain/pgvector',
+  '@langchain/core',
+  '@huggingface/transformers',
+];
 
 export default defineConfig({
   plugins: [
@@ -41,4 +51,12 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  ssr: { external: DOMAIN_EXTERNALS },
+  build: {
+    rolldownOptions: {
+      external: DOMAIN_EXTERNALS.map(
+        (p) => new RegExp(`^${p.replace(/[/\\^$*+?.()|[\]{}]/g, '\\$&')}(/.*)?$`),
+      ),
+    },
+  },
 });
