@@ -320,6 +320,14 @@ const CASES = [
     state: 'The first corpus here nobody wrote for us — 73,334 public NHTSA filings. Parsed and surveyed; the desk is not built.',
     elsewhere: 'Runs as its own application — pnpm safety:dev, port 3500',
   },
+  {
+    href: COMMERCE,
+    customer: 'Thornbury Goods',
+    persona: 'a claims assessor, five operational databases in hand',
+    asks: 'What is this customer owed, and what proves it?',
+    state: 'Grounded in 5 operational databases, 12 policy documents, and one MCP server. The `/steps` page is built; the `/desk` awaits the HTTP transport.',
+    elsewhere: 'Runs as its own application — pnpm commerce:dev, port 3600',
+  },
 ];
 
 function Engagements() {

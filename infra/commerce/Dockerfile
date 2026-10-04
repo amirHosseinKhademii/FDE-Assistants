@@ -6,35 +6,17 @@
 #
 #   docker build -f infra/commerce/Dockerfile -t thornbury-commerce:dev .
 #
-# ── THE SIMPLEST OF THE FIVE, AND THE REASON IS WORTH READING ───────────────
+# ── WHAT THIS IMAGE CARRIES ──────────────────────────────────────────────
 #
-# No API route, no database, no model call, no corpus copy, no secrets. The two
-# pages this serves are readings of documents in `docs/commerce/` and of source
-# files in `apps/mcp/commerce/`, and both were read AT AUTHORING TIME and baked
-# into the components. So the image carries statements rather than the means of
-# producing them, and nothing in it can differ from what a reader saw in the
-# repository.
+# Two pages and the `/api/ask` route. Pages read at authoring time — that is
+# `docs/commerce/` and source quoted on `/steps`. The `/api/ask` route is server-
+# side streaming from the MCP server, so it needs @thornbury/commerce in scope at
+# runtime to shape questions and handle responses.
 #
-# It is also the only one of the five that depends on NO package from its own
-# engagement. `@thornbury/commerce`, `@thornbury/commerce-api` and
-# `@thornbury/commerce-mcp` are being written by three other sessions; this app
-# imports nothing from any of them, so their build state cannot break this
-# image. The MCP server's source appears on `/steps` as QUOTED TEXT, which is a
-# different relationship from an import and survives the file being mid-refactor.
-#
-# ── WHAT WILL MAKE THIS HEADER FALSE ────────────────────────────────────────
-#
-# `/desk`. It runs a loop, a model and an MCP client, and it brings
-# `@fde/agent`, the engines, an `ssr.external` list in `vite.config.ts` and a
-# service token with it. THIS COMMENT IS TRUE AS OF THE COMMIT THAT ADDED IT.
-# The safety image's header says the same thing about its own desk, having been
-# rewritten once already when the steering one went stale — so when `/desk`
-# lands here, this block is the one to rewrite rather than leave standing
-# because it reads well.
-#
-# NOTHING IN THE BUILD WILL HAVE TO CHANGE FOR THAT. `pnpm deploy --prod`
-# resolves the app's dependency graph, so adding a dependency to
-# `apps/web/commerce-app/package.json` is the whole of the change.
+# The app imports `@thornbury/commerce` (its domain code), so the build's
+# `pnpm deploy --prod` resolves it and includes it. Building the app builds its
+# dependency graph, so `pnpm exec turbo run build --filter=@thornbury/commerce-app...`
+# is sufficient; no change needed here.
 
 FROM node:22-slim AS build
 

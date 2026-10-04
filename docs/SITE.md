@@ -425,14 +425,18 @@ with six tables — exactly as intended.
 
 ## Deployment
 
-**One workflow, `.github/workflows/deploy.yml`, four jobs in a chain:**
+**One workflow, `.github/workflows/deploy.yml`, jobs in a chain:**
+
+The firm's page (`veresk`) now links to all four engagements — Meridian Pharma,
+Vantis Steering, Calder Safety, and Thornbury Goods — and the pipeline builds
+the engagements first, then the firm's page after watching them all return 200.
 
 | | job | why it is here |
 |---|---|---|
-| 1 | build steering image | |
-| 2 | deploy steering + smoke test | |
-| 3 | build veresk image | takes the steering URL from the job that just watched it return 200 |
-| 4 | deploy veresk + smoke test | asserts the firm's page carries that URL, and that the guard still 401s |
+| 1–2 | build and deploy each engagement | |
+| 1e–2f | build and deploy commerce-api and commerce-mcp | internal services that commerce-app depends on |
+| 3 | build veresk image | takes all four engagement URLs from the jobs that just watched them return 200 |
+| 4 | deploy veresk + smoke test | asserts the firm's page carries all four URLs, and that the guards still close |
 
 **The order is the whole design.** The apps link to each other and
 `import.meta.env.VITE_*` is inlined at BUILD time, so the firm's page has to

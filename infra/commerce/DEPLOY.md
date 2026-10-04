@@ -18,13 +18,62 @@ are four deployables at all.
 | | | |
 |---|---|---|
 | `apps/web/commerce-app` | `@thornbury/commerce-app` | **deployed** — jobs `1d` / `2d`, image `infra/commerce/Dockerfile` |
-| `apps/mcp/commerce` | `@thornbury/commerce-mcp` | not deployed — **no HTTP transport yet**, see below |
-| `apps/api/commerce` | `@thornbury/commerce-api` | not deployed — not this session's, and it holds five database credentials |
+| `apps/api/commerce` | `@thornbury/commerce-api` | **deployed** — jobs `1e` / `2e`, image `infra/commerce-api/Dockerfile`, internal ingress only |
+| `apps/mcp/commerce` | `@thornbury/commerce-mcp` | **deployed** — jobs `1f` / `2f`, image `infra/commerce-mcp/Dockerfile`, internal ingress only |
 | `apps/ai/commerce` | `@thornbury/commerce` | never deployed — a library and its CLIs, no port |
 
-The container app is `commerce-app` in `rg-claims-fde`, on the shared
-`cae-pharma` environment, `--min-replicas 0` like the other four. It costs
-nothing while idle.
+All three container apps are in `rg-claims-fde`, on the shared `cae-pharma`
+environment, `--min-replicas 0` like the other four. They cost nothing while
+idle. The web app has external ingress; the API and MCP servers have internal
+ingress only.
+
+---
+
+## First-time setup (manual, once)
+
+The `commerce-app` (web surface) is created by job `2d` on its first run if it
+does not exist — that is the standard pattern in this pipeline. The API and MCP
+servers are different: they are created **before the first push**, by hand, with
+their secrets and environment variables already set.
+
+```bash
+# Create commerce-api with internal ingress only
+az containerapp create \
+  --name commerce-api --resource-group rg-claims-fde --environment cae-pharma \
+  --image docker.io/amir2575/thornbury-commerce-api:sha-placeholder \
+  --target-port 8080 --ingress internal \
+  --cpu 0.5 --memory 1.0Gi \
+  --min-replicas 0 --max-replicas 1
+
+# Set the two secrets on commerce-api (consult the per-app runbook)
+az containerapp secret set -n commerce-api -g rg-claims-fde \
+  --secrets COMMERCE_DATABASE_URL=<value> COMMERCE_API_TOKEN=<value>
+
+# Set the environment vars on commerce-api
+az containerapp update -n commerce-api -g rg-claims-fde \
+  --set-env-vars COMMERCE_DATABASE_URL='secretref:COMMERCE_DATABASE_URL' \
+                 COMMERCE_API_TOKEN='secretref:COMMERCE_API_TOKEN'
+
+# Create commerce-mcp with internal ingress only
+az containerapp create \
+  --name commerce-mcp --resource-group rg-claims-fde --environment cae-pharma \
+  --image docker.io/amir2575/thornbury-commerce-mcp:sha-placeholder \
+  --target-port 8080 --ingress internal \
+  --cpu 0.5 --memory 1.0Gi \
+  --min-replicas 0 --max-replicas 1
+
+# Set secrets and env vars on commerce-mcp (consult the per-app runbook)
+az containerapp secret set -n commerce-mcp -g rg-claims-fde \
+  --secrets COMMERCE_API_URL=<value> COMMERCE_API_TOKEN=<value>
+
+az containerapp update -n commerce-mcp -g rg-claims-fde \
+  --set-env-vars COMMERCE_API_URL='secretref:COMMERCE_API_URL' \
+                 COMMERCE_API_TOKEN='secretref:COMMERCE_API_TOKEN'
+```
+
+After both apps exist, the first push will update their images to the real SHA.
+The two apps are update-only from that point forward; the workflow has no create
+branch for them.
 
 ---
 

@@ -44,6 +44,9 @@ export function Desk() {
   const [question, setQuestion] = useState('');
   const [state, setState] = useState<StreamState>(EMPTY);
   const [caseInfo, setCaseInfo] = useState<{ caseId: string; source: string } | null>(null);
+  const [apiKey, setApiKey] = useState(() => typeof localStorage !== 'undefined' ? localStorage.getItem('thb-demo-key') || '' : '');
+  const [keyNeeded, setKeyNeeded] = useState(false);
+  const [keyInput, setKeyInput] = useState('');
   const abort = useRef<AbortController | null>(null);
 
   const selected = CASES.find((c) => c.id === selectedId);
@@ -54,6 +57,15 @@ export function Desk() {
     setSelectedId(caseId);
     setQuestion(c.question);
   };
+
+  const saveKey = useCallback((newKey: string) => {
+    setApiKey(newKey);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('thb-demo-key', newKey);
+    }
+    setKeyNeeded(false);
+    setKeyInput('');
+  }, []);
 
   const onRun = useCallback(async () => {
     if (mode === 'pick' && (!selectedId || !question.trim())) return;
@@ -69,7 +81,7 @@ export function Desk() {
       // In pick mode, use selectedId; in prompt mode, let the API extract it
       const caseIdToSend = mode === 'pick' ? (selected?.caseId ?? undefined) : undefined;
 
-      for await (const event of askStream(caseIdToSend, question, controller.signal)) {
+      for await (const event of askStream(caseIdToSend, question, controller.signal, apiKey || undefined)) {
         if (event.type === 'case') {
           setCaseInfo({ caseId: event.caseId, source: event.source });
         } else if (event.type === 'tool') {
@@ -94,11 +106,17 @@ export function Desk() {
             answer: { text: event.text, turns: event.turns },
           }));
         } else if (event.type === 'error') {
-          setState((s) => ({
-            ...s,
-            phase: 'error',
-            error: event.message,
-          }));
+          // Check if this is a 401 authentication error (missing or mismatched key)
+          if (event.message?.includes('401') || event.message?.includes('api-key') || event.message?.includes('This demo needs')) {
+            setKeyNeeded(true);
+            setState(EMPTY);
+          } else {
+            setState((s) => ({
+              ...s,
+              phase: 'error',
+              error: event.message,
+            }));
+          }
         }
       }
     } catch (e: any) {
@@ -111,7 +129,7 @@ export function Desk() {
     } finally {
       abort.current = null;
     }
-  }, [selectedId, question, mode, selected]);
+  }, [selectedId, question, mode, selected, apiKey]);
 
   const onCancel = useCallback(() => {
     abort.current?.abort();
@@ -213,6 +231,50 @@ export function Desk() {
                   </button>
                 </div>
               </div>
+
+              {/* Access key input */}
+              {(keyNeeded || apiKey) && (
+                <div className="rounded-lg border border-ui-line bg-ui-surface p-4">
+                  <label htmlFor="apikey" className="block text-sm font-semibold text-ui-fg">
+                    Access key
+                  </label>
+                  <div className="mt-2 flex gap-2">
+                    <input
+                      id="apikey"
+                      type="password"
+                      className="flex-1 rounded-lg border border-ui-line bg-ui-raised px-3 py-2 text-sm text-ui-fg placeholder-ui-faint focus:border-thb-1 focus:outline-none"
+                      value={keyInput}
+                      onChange={(e) => setKeyInput(e.target.value)}
+                      placeholder="Paste the demo key"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          saveKey(keyInput);
+                        }
+                      }}
+                    />
+                    <button
+                      onClick={() => saveKey(keyInput)}
+                      className="rounded-lg bg-thb-1 px-4 py-2 text-sm font-semibold text-[#0b1a1a] transition-colors hover:bg-[#5fd6ca]"
+                    >
+                      Save
+                    </button>
+                  </div>
+                  {apiKey && (
+                    <div className="mt-2 text-xs text-ui-dim">
+                      Key saved.{' '}
+                      <button
+                        onClick={() => {
+                          saveKey('');
+                          setKeyInput('');
+                        }}
+                        className="text-thb-1 hover:underline"
+                      >
+                        Change key
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Question input */}
               <div>

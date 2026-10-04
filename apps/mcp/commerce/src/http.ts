@@ -150,8 +150,19 @@ export function createHttpHandler(opts: HttpOptions, publicUrl: string) {
   });
 
   async function fetch(request: Request): Promise<Response> {
+    // Allow additional hostnames from COMMERCE_MCP_ALLOWED_HOSTS env var.
+    // Entries are comma-separated, trimmed, lowercased. Entries with * are ignored
+    // (never allow wildcard). Port is stripped.
+    const allowedHosts = new Set(localhostAllowedHostnames());
+    const extra = (process.env.COMMERCE_MCP_ALLOWED_HOSTS ?? '')
+      .split(',')
+      .map((h) => h.trim().toLowerCase())
+      .filter((h) => h && !h.includes('*'))
+      .map((h) => h.replace(/:\d+$/, '')); // strip :port
+    extra.forEach((h) => allowedHosts.add(h));
+
     const hostOrOrigin =
-      hostHeaderValidationResponse(request, localhostAllowedHostnames()) ??
+      hostHeaderValidationResponse(request, Array.from(allowedHosts)) ??
       originValidationResponse(request, localhostAllowedOrigins());
     if (hostOrOrigin) return hostOrOrigin;
 
@@ -245,6 +256,7 @@ async function main(): Promise<void> {
     token: process.env.COMMERCE_MCP_TOKEN ?? '',
     api: apiConfigFromEnv(),
     port: Number(process.env.COMMERCE_MCP_PORT ?? 3620),
+    host: process.env.HOST ?? '127.0.0.1',
   });
   if (!(process.env.COMMERCE_MCP_TOKEN ?? '').trim()) {
     serverLog('COMMERCE_MCP_TOKEN is not set — listening, and refusing every request (fail closed).');

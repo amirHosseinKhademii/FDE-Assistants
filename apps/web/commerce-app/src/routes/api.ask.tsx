@@ -21,7 +21,7 @@ import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { createFileRoute } from '@tanstack/react-router';
 import { askThornbury, type AskEvent } from '@thornbury/commerce';
-import { publicError } from '@fde/guard';
+import { authorize, publicError } from '@fde/guard';
 import { CASES } from '../lib/cases';
 
 // Load .env by walking up to repo root (pnpm-workspace.yaml)
@@ -55,6 +55,7 @@ const keysToLoad = [
   'COMMERCE_MCP_TOKEN',
   'COMMERCE_MCP_PORT',
   'COMMERCE_MCP_URL',
+  'COMMERCE_DEMO_KEY',
   'FOUNDRY_OPENAI_ENDPOINT',
   'FOUNDRY_CHAT_DEPLOYMENT',
   'LLM_PROVIDER',
@@ -89,6 +90,30 @@ export const Route = createFileRoute('/api/ask')({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        // Before anything else happens — no body parsing, no model call, no
+        // MCP connection for a request that is not allowed. The guard is
+        // fail-CLOSED: no key configured means refuse, not allow.
+        // `import.meta.env.DEV` is the only thing that distinguishes "the dev
+        // server, which binds loopback" from "somewhere we cannot vouch for".
+        const allowed = authorize({
+          configuredKey: process.env.COMMERCE_DEMO_KEY,
+          presentedKey: request.headers.get('x-api-key'),
+          isDev: Boolean(import.meta.env.DEV),
+        });
+        if (!allowed.ok) {
+          // Provide a user-friendly message for the frontend
+          let errorMessage = allowed.reason;
+          if (allowed.status === 401) {
+            errorMessage = 'This demo needs an access key.';
+          } else if (allowed.status === 503) {
+            errorMessage = 'Demo key not configured';
+          }
+          return new Response(JSON.stringify({ error: errorMessage }), {
+            status: allowed.status,
+            headers: { 'content-type': 'application/json' },
+          });
+        }
+
         const body: any = await request.json().catch(() => ({}));
         let caseId = String(body?.caseId ?? '').trim();
         let question = String(body?.question ?? '').trim();

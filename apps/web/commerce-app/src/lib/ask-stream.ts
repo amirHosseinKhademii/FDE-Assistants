@@ -27,10 +27,14 @@ export async function* askStream(
   caseId: string | undefined,
   question: string,
   signal?: AbortSignal,
+  apiKey?: string,
 ): AsyncGenerator<DeskEvent> {
   const res = await fetch('/api/ask', {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers: {
+      'content-type': 'application/json',
+      ...(apiKey ? { 'x-api-key': apiKey } : {}),
+    },
     body: JSON.stringify({ caseId: caseId ?? undefined, question }),
     signal,
   });

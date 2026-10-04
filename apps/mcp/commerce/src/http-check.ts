@@ -189,6 +189,44 @@ async function probeTransport(url: string, host: string): Promise<void> {
 }
 
 /**
+ * COMMERCE_MCP_ALLOWED_HOSTS allowlist: additional hostnames appended to localhost.
+ */
+async function probeAllowedHosts(stubUrl: string): Promise<void> {
+  // Set the env var before starting the server — createHttpHandler reads it
+  process.env.COMMERCE_MCP_ALLOWED_HOSTS = 'commerce-mcp,*';
+  const srv = await startHttpServer({ token: TOKEN, api: { baseUrl: stubUrl, serviceToken: STUB.token } });
+  try {
+    // Request with an allowed host but no auth — should pass the host gate, fail auth gate (401)
+    const allowed = await rawPost(srv.url, { host: 'commerce-mcp:3620' });
+    check(
+      'COMMERCE_MCP_ALLOWED_HOSTS: an allowed host passes the host gate',
+      allowed.status === 401,
+      `got ${allowed.status}. Allowed hosts are appended, localhost still works, and ` +
+        '401 (no auth) proves the request passed the Host gate. 403 would mean it failed there',
+    );
+
+    // Request with a disallowed host — should fail the host gate (403)
+    const denied = await rawPost(srv.url, { host: 'evil.example:3620' });
+    check(
+      'a host NOT in the allowlist is still refused',
+      denied.status === 403,
+      `got ${denied.status}. The allowlist does not widen the gate to everything`,
+    );
+
+    // Allowlist with * should never actually allow it — * is ignored
+    const starAttempt = await rawPost(srv.url, { host: '*:3620' });
+    check(
+      'COMMERCE_MCP_ALLOWED_HOSTS: entries with * are stripped, never allowed',
+      starAttempt.status === 403,
+      `got ${starAttempt.status}. Setting the var to * or *:port must not widen access`,
+    );
+  } finally {
+    delete process.env.COMMERCE_MCP_ALLOWED_HOSTS;
+    await srv.close();
+  }
+}
+
+/**
  * STEP 5 AGAIN, ON THE ERA IT WAS NOT MEASURED ON. Every Step 5 check ran over
  * InMemoryTransport, which negotiates 2025-11-25. The object-rooted schema and
  * the no-re-nesting property are era-dependent in the SDK's own code, so they
@@ -271,6 +309,8 @@ async function main(): Promise<void> {
     await probeFailClosed(stub.url);
     console.log('\nSTEP 7 — THE TRANSPORT');
     await probeTransport(srv.url, host);
+    console.log('\nSTEP 8 — ALLOWED HOSTS GATE');
+    await probeAllowedHosts(stub.url);
     console.log('\nSTEP 5, RE-MEASURED ON THE MODERN ERA');
     await probeStep5OnModern(srv.url);
     console.log('\nTHE HARNESS ITSELF');

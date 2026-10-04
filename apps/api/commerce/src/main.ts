@@ -26,8 +26,9 @@ async function bootstrap(): Promise<void> {
   app.enableShutdownHooks();
 
   const port = apiPort();
-  await app.listen(port, '127.0.0.1');
-  console.log(`thornbury commerce-api listening on 127.0.0.1:${port} — five systems, no AI`);
+  const host = process.env.HOST ?? '127.0.0.1';
+  await app.listen(port, host);
+  console.log(`thornbury commerce-api listening on ${host}:${port} — five systems, no AI`);
 }
 
 bootstrap().catch((error) => {

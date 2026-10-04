@@ -130,17 +130,17 @@ on:
       - 'apps/web/pharma-app/**'
       - 'apps/web/safety-app/**'
       - 'apps/web/commerce-app/**'
+      - 'apps/api/commerce/**'
+      - 'apps/mcp/commerce/**'
       - 'packages/**'
       - 'infra/veresk/Dockerfile'
       - 'infra/steering/Dockerfile'
       - 'infra/pharma/Dockerfile'
       - 'infra/safety/Dockerfile'
       - 'infra/commerce/Dockerfile'
+      - 'infra/commerce-api/Dockerfile'
+      - 'infra/commerce-mcp/Dockerfile'
       - 'pnpm-lock.yaml'
-      # `apps/mcp/**` and `apps/api/**` are deliberately ABSENT: no image is
-      # built from either, so listing them would start a run that rebuilds four
-      # unrelated images. infra/commerce/DEPLOY.md says what has to be true
-      # before that changes.
       - '.github/workflows/deploy.yml'
 
 # Two runs of this racing each other would have them fighting over the same two
@@ -897,7 +897,7 @@ jobs:
   # ── 2d ── the fifth engagement, live ────────────────────────────────────
   commerce-deploy:
     name: 2d · deploy commerce
-    needs: commerce-build
+    needs: [commerce-build, commerce-api-deploy, commerce-mcp-deploy]
     if: ${{ (inputs.scope || 'all') == 'all' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -1051,17 +1051,205 @@ jobs:
           grep -qa "$MARKER" /tmp/steps.html \
             || { echo "::error::/steps served without the tab chip $MARKER — PHASES did not render"; exit 1; }
 
+          # `/desk` ships in this commit and must return 200. The commerce surface
+          # gates it behind a service token via the MCP server.
+          code=$(curl -s --max-time 120 -o /dev/null -w '%{http_code}' "$url/desk")
+          echo "GET /desk -> $code"
+          [ "$code" = "200" ] || { echo "::error::/desk returned $code, expected 200"; exit 1; }
+
+          # THE GUARD ASSERTION: POST /api/ask without the x-api-key header must
+          # return 401. A deploy that shipped an empty token would serve a
+          # healthy-looking response to anybody on the internet, and only this
+          # would notice.
+          guard=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 \
+            -X POST "$url/api/ask" \
+            -H 'content-type: application/json' -d '{"question":"ping"}')
+          echo "POST /api/ask without x-api-key header -> $guard"
+          case "$guard" in
+            401) echo "✓ guard refused an unauthenticated request" ;;
+            503) echo "::error::POST /api/ask returned 503 — COMMERCE_DEMO_KEY is not set on the container app"; exit 1 ;;
+            *) echo "::error::guard check got $guard — expected 401"; exit 1 ;;
+          esac
+
       - run: echo "✅ **2d · commerce deployed** — ${{ steps.smoke.outputs.url }}" >> "$GITHUB_STEP_SUMMARY"
+
+  # ── 1e ── the commerce API's image ─────────────────────────────────────────
+  commerce-api-build:
+    name: 1e · build commerce-api image
+    if: ${{ (inputs.scope || 'all') == 'all' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/commerce-api/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/thornbury-commerce-api:sha-${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=min,scope=commerce-api
+
+      - run: echo "✅ **1e · commerce-api image built** — \`docker.io/${{ secrets.DOCKERHUB_USERNAME }}/thornbury-commerce-api:sha-${GITHUB_SHA}\`" >> "$GITHUB_STEP_SUMMARY"
+
+  # ── 2e ── the commerce API, live ───────────────────────────────────────────
+  commerce-api-deploy:
+    name: 2e · deploy commerce-api
+    needs: commerce-api-build
+    if: ${{ (inputs.scope || 'all') == 'all' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # NO CREATE BRANCH. The commerce-api container app is created by hand
+      # before the first push, with internal ingress and secrets already set.
+      # Subsequent runs only update the image tag.
+      - name: Point the app at the new image
+        run: |
+          image="docker.io/${{ secrets.DOCKERHUB_USERNAME }}/thornbury-commerce-api:sha-${GITHUB_SHA}"
+          echo "IMAGE=$image" >> "$GITHUB_ENV"
+          echo "updating commerce-api -> $image"
+          az containerapp update -n commerce-api -g "$RG" --image "$image" --output none
+
+      - name: Wait for the revision
+        run: |
+          for i in $(seq 1 40); do
+            state=$(az containerapp revision list -n commerce-api -g "$RG" \
+              --query "[?properties.active] | [0].properties.provisioningState" -o tsv)
+            image=$(az containerapp show -n commerce-api -g "$RG" \
+              --query "properties.template.containers[0].image" -o tsv)
+            echo "attempt $i — provisioning=$state image=$image"
+            if [ "$state" = "Provisioned" ] && [ "$image" = "$IMAGE" ]; then
+              echo "revision is provisioned and carries the expected sha"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::error::no active revision reached Provisioned with $IMAGE"
+          exit 1
+
+      - name: Check revision health
+        run: |
+          for i in $(seq 1 12); do
+            revisions=$(az containerapp revision list -n commerce-api -g "$RG" \
+              --query "[].properties | [0]" -o json)
+            echo "attempt $i — checking latest revision"
+            if echo "$revisions" | jq -e '.runningReplicas > 0' > /dev/null 2>&1; then
+              echo "✅ latest revision has running replicas"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::no running replicas for latest revision"
+          exit 1
+
+      - run: echo "✅ **2e · commerce-api deployed** — internal ingress only" >> "$GITHUB_STEP_SUMMARY"
+
+  # ── 1f ── the commerce MCP server's image ────────────────────────────────
+  commerce-mcp-build:
+    name: 1f · build commerce-mcp image
+    if: ${{ (inputs.scope || 'all') == 'all' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/commerce-mcp/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/thornbury-commerce-mcp:sha-${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=min,scope=commerce-mcp
+
+      - run: echo "✅ **1f · commerce-mcp image built** — \`docker.io/${{ secrets.DOCKERHUB_USERNAME }}/thornbury-commerce-mcp:sha-${GITHUB_SHA}\`" >> "$GITHUB_STEP_SUMMARY"
+
+  # ── 2f ── the commerce MCP server, live ───────────────────────────────────
+  commerce-mcp-deploy:
+    name: 2f · deploy commerce-mcp
+    needs: commerce-mcp-build
+    if: ${{ (inputs.scope || 'all') == 'all' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # NO CREATE BRANCH. The commerce-mcp container app is created by hand
+      # before the first push, with internal ingress and secrets already set.
+      # Subsequent runs only update the image tag.
+      - name: Point the app at the new image
+        run: |
+          image="docker.io/${{ secrets.DOCKERHUB_USERNAME }}/thornbury-commerce-mcp:sha-${GITHUB_SHA}"
+          echo "IMAGE=$image" >> "$GITHUB_ENV"
+          echo "updating commerce-mcp -> $image"
+          az containerapp update -n commerce-mcp -g "$RG" --image "$image" --output none
+
+      - name: Wait for the revision
+        run: |
+          for i in $(seq 1 40); do
+            state=$(az containerapp revision list -n commerce-mcp -g "$RG" \
+              --query "[?properties.active] | [0].properties.provisioningState" -o tsv)
+            image=$(az containerapp show -n commerce-mcp -g "$RG" \
+              --query "properties.template.containers[0].image" -o tsv)
+            echo "attempt $i — provisioning=$state image=$image"
+            if [ "$state" = "Provisioned" ] && [ "$image" = "$IMAGE" ]; then
+              echo "revision is provisioned and carries the expected sha"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::error::no active revision reached Provisioned with $IMAGE"
+          exit 1
+
+      - name: Check revision health
+        run: |
+          for i in $(seq 1 12); do
+            revisions=$(az containerapp revision list -n commerce-mcp -g "$RG" \
+              --query "[].properties | [0]" -o json)
+            echo "attempt $i — checking latest revision"
+            if echo "$revisions" | jq -e '.runningReplicas > 0' > /dev/null 2>&1; then
+              echo "✅ latest revision has running replicas"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::no running replicas for latest revision"
+          exit 1
+
+      - run: echo "✅ **2f · commerce-mcp deployed** — internal ingress only" >> "$GITHUB_STEP_SUMMARY"
 
   # ── 3 ── the host's image, built after both engagements are live ─────────
   veresk-build:
     name: 3 · build veresk image
-    needs: [steering-deploy, pharma-deploy, safety-deploy]
+    needs: [steering-deploy, pharma-deploy, safety-deploy, commerce-deploy]
     # SKIPPED IS NOT FAILED, AND THIS JOB HAS TO TELL THEM APART. Without an
     # `if`, a skipped dependency skips this job too — so `veresk-only` would
     # deploy nothing at all. `!cancelled()` and not `always()`, because
     # `always()` would also build after somebody pressed cancel.
-    if: ${{ !cancelled() && needs.steering-deploy.result != 'failure' && needs.pharma-deploy.result != 'failure' && needs.safety-deploy.result != 'failure' }}
+    if: ${{ !cancelled() && needs.steering-deploy.result != 'failure' && needs.pharma-deploy.result != 'failure' && needs.safety-deploy.result != 'failure' && needs.commerce-deploy.result != 'failure' }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -1070,11 +1258,12 @@ jobs:
       # THE WHOLE POINT OF THE ORDERING IS THIS LINE. The URL comes from the job
       # that just watched that app return 200, so the firm's page cannot ship a
       # link to something that is not there.
-      - name: Take all three URLs from the deploys that proved them
+      - name: Take all URLs from the deploys that proved them
         run: |
           echo "STEERING_URL=${{ needs.steering-deploy.outputs.url }}" >> "$GITHUB_ENV"
           echo "PHARMA_URL=${{ needs.pharma-deploy.outputs.url }}" >> "$GITHUB_ENV"
           echo "SAFETY_URL=${{ needs.safety-deploy.outputs.url }}" >> "$GITHUB_ENV"
+          echo "COMMERCE_URL=${{ needs.commerce-deploy.outputs.url }}" >> "$GITHUB_ENV"
 
       - uses: docker/setup-buildx-action@v3
       - uses: docker/login-action@v3
@@ -1092,21 +1281,22 @@ jobs:
             VITE_PHARMA_URL=${{ env.PHARMA_URL }}
             VITE_STEERING_URL=${{ env.STEERING_URL }}
             VITE_SAFETY_URL=${{ env.SAFETY_URL }}
+            VITE_COMMERCE_URL=${{ env.COMMERCE_URL }}
           # This cache only pays off because the Dockerfile installs
           # dependencies BEFORE copying the source — see the layer-order comment
           # there. With the original `COPY . .` first it had nothing cacheable.
           cache-from: type=gha
           cache-to: type=gha,mode=min,scope=veresk
 
-      - run: echo "✅ **3 · veresk image built** — links to \`${PHARMA_URL:-(none)}\`, \`${STEERING_URL:-(none)}\` and \`${SAFETY_URL:-(none)}\`" >> "$GITHUB_STEP_SUMMARY"
+      - run: echo "✅ **3 · veresk image built** — links to \`${PHARMA_URL:-(none)}\`, \`${STEERING_URL:-(none)}\`, \`${SAFETY_URL:-(none)}\`, and \`${COMMERCE_URL:-(none)}\`" >> "$GITHUB_STEP_SUMMARY"
 
   # ── 4 ── the host, live ─────────────────────────────────────────────────
   veresk-deploy:
     name: 4 · deploy veresk
-    needs: [veresk-build, steering-deploy, pharma-deploy, safety-deploy]
+    needs: [veresk-build, steering-deploy, pharma-deploy, safety-deploy, commerce-deploy]
     # Same rule as the build, with one difference: the BUILD must have
     # succeeded. A skipped build means there is no image to deploy.
-    if: ${{ !cancelled() && needs.veresk-build.result == 'success' && needs.steering-deploy.result != 'failure' && needs.pharma-deploy.result != 'failure' && needs.safety-deploy.result != 'failure' }}
+    if: ${{ !cancelled() && needs.veresk-build.result == 'success' && needs.steering-deploy.result != 'failure' && needs.pharma-deploy.result != 'failure' && needs.safety-deploy.result != 'failure' && needs.commerce-deploy.result != 'failure' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -1207,6 +1397,7 @@ jobs:
           pharma="${{ needs.pharma-deploy.outputs.url }}"
           steering="${{ needs.steering-deploy.outputs.url }}"
           safety="${{ needs.safety-deploy.outputs.url }}"
+          commerce="${{ needs.commerce-deploy.outputs.url }}"
 
           # ── AN ABSENT URL IS NOT A URL TO LOOK FOR ─────────────────────────
           #
@@ -1225,6 +1416,7 @@ jobs:
           [ -n "$pharma" ] && want="$want $pharma"
           [ -n "$steering" ] && want="$want $steering"
           [ -n "$safety" ] && want="$want $safety"
+          [ -n "$commerce" ] && want="$want $commerce"
           if [ -z "$want" ]; then
             echo "veresk-only: no engagement URLs to assert — checking 200 and no-localhost only"
           else
@@ -1266,5 +1458,7 @@ jobs:
             echo "| veresk — the firm's door | <$url> |"
             echo "| pharma — Meridian Pharma | ${pharma:+<$pharma>}${pharma:-not deployed — run with scope: all} |"
             echo "| steering — Vantis Steering | ${steering:+<$steering>}${steering:-not deployed — run with scope: all} |"
+            echo "| safety — Calder Safety | ${safety:+<$safety>}${safety:-not deployed — run with scope: all} |"
+            echo "| commerce — Thornbury Goods | ${commerce:+<$commerce>}${commerce:-not deployed — run with scope: all} |"
             echo "| image tag | \`sha-${GITHUB_SHA}\` |"
           } >> "$GITHUB_STEP_SUMMARY"
