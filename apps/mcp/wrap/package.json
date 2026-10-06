@@ -1,0 +1,28 @@
+{
+  "name": "@wrap/mcp",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Wrap MCP — tools and resources. No credentials.",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "dev": "ts-node src/index.ts",
+    "serve": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.0.0",
+    "dotenv": "^16.4.5",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "2.0.0",
+    "@types/node": "^22.7.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  },
+  "files": [
+    "dist",
+    "package.json"
+  ]
+}

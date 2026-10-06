@@ -197,7 +197,16 @@
     "commerce:api-guard-check": "pnpm --filter @thornbury/commerce-api guard-check",
     "commerce:api-scope-check": "pnpm --filter @thornbury/commerce-api scope-check",
     "commerce:api-isolation-check": "pnpm --filter @thornbury/commerce-api isolation-check",
-    "commerce:sla-check": "pnpm --filter @thornbury/commerce-api sla-check"
+    "commerce:sla-check": "pnpm --filter @thornbury/commerce-api sla-check",
+    "wrap:dev": "turbo run dev --filter=@wrap/web",
+    "wrap:build": "turbo run build --filter=@wrap/*",
+    "wrap:ingest": "pnpm --filter @wrap/ai ingest",
+    "wrap:query": "pnpm --filter @wrap/ai query",
+    "wrap:eval": "pnpm --filter @wrap/ai eval",
+    "wrap:ask": "pnpm --filter @wrap/ai ask",
+    "db:wrap-up": "docker compose -f docker-compose.yml up -d pgvector",
+    "db:wrap-down": "docker compose -f docker-compose.yml down",
+    "db:wrap-reset": "docker compose -f docker-compose.yml down -v && docker compose -f docker-compose.yml up -d pgvector"
   },
   "devDependencies": {
     "turbo": "^2.10.12"

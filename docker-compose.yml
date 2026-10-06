@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  pgvector:
+    image: pgvector/pgvector:pg17
+    container_name: wrap-pgvector
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: wrap_index
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - wrap_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  wrap_pgdata:
