@@ -13,7 +13,8 @@
     "eval": "echo 'not implemented yet'",
     "ask": "echo 'not implemented yet'",
     "make-mess": "RNG_SEED=${RNG_SEED:-42} tsx src/cli/make-mess.ts",
-    "foundation:check": "tsx src/cli/foundation-check.ts"
+    "foundation:check": "tsx src/cli/foundation-check.ts",
+    "golden:check": "tsx src/cli/golden-check.ts"
   },
   "dependencies": {
     "@fde/foundry": "workspace:*",
