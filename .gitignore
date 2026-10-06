@@ -17,3 +17,9 @@ apps/*/.turbo/
 
 # Cached model responses — a paid run, kept so a later failure cannot waste it.
 .cache/
+
+# Generated test corpus with deliberate flaws
+apps/ai/wrap/data/raw_dump/
+
+# TypeScript build cache
+*.tsbuildinfo
