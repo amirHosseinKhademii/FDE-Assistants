@@ -12,7 +12,8 @@
     "query": "echo 'not implemented yet'",
     "eval": "echo 'not implemented yet'",
     "ask": "echo 'not implemented yet'",
-    "make-mess": "RNG_SEED=${RNG_SEED:-42} tsx src/cli/make-mess.ts"
+    "make-mess": "RNG_SEED=${RNG_SEED:-42} tsx src/cli/make-mess.ts",
+    "foundation:check": "tsx src/cli/foundation-check.ts"
   },
   "dependencies": {
     "@fde/foundry": "workspace:*",
