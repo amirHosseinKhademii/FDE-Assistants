@@ -328,6 +328,9 @@ importers:
       '@fde/telemetry':
         specifier: workspace:*
         version: link:../../../packages/telemetry
+      '@huggingface/transformers':
+        specifier: ^4.2.0
+        version: 4.2.0
       pg:
         specifier: ^8.23.0
         version: 8.23.0
@@ -788,12 +791,12 @@ importers:
       '@tanstack/react-start':
         specifier: 1.168.52
         version: 1.168.52(esbuild@0.28.2)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(rolldown@1.2.8)(vite@8.3.0(@types/node@22.20.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0))(webpack@5.97.1(esbuild@0.28.2))
-      '@veresk/surface':
-        specifier: workspace:*
-        version: link:../../../packages/surface
       '@veresk/learn':
         specifier: workspace:*
         version: link:../../../packages/learn
+      '@veresk/surface':
+        specifier: workspace:*
+        version: link:../../../packages/surface
       react:
         specifier: ^19.3.0
         version: 19.3.0
@@ -1018,9 +1021,6 @@ importers:
         specifier: ^5.1.3
         version: 5.9.3
 
-  packages/providers/bedrock:
-    dependencies:
-      '@anthropic-ai/bedrock-sdk':
   packages/learn:
     dependencies:
       '@fde/uikit':
@@ -1049,6 +1049,9 @@ importers:
         specifier: ^5.1.3
         version: 5.9.3
 
+  packages/providers/bedrock:
+    dependencies:
+      '@anthropic-ai/bedrock-sdk':
         specifier: ^0.33.5
         version: 0.33.5(zod@4.5.4)
       '@anthropic-ai/sdk':
@@ -6120,11 +6123,9 @@ snapshots:
   '@esbuild/win32-x64@0.28.2':
     optional: true
 
-  '@huggingface/jinja@0.5.10':
-    optional: true
+  '@huggingface/jinja@0.5.10': {}
 
-  '@huggingface/tokenizers@0.1.3':
-    optional: true
+  '@huggingface/tokenizers@0.1.3': {}
 
   '@huggingface/transformers@4.2.0':
     dependencies:
@@ -6133,10 +6134,8 @@ snapshots:
       onnxruntime-node: 1.24.3
       onnxruntime-web: 1.26.0-dev.20260416-b7804b056c
       sharp: 0.34.5
-    optional: true
 
-  '@img/colour@1.1.0':
-    optional: true
+  '@img/colour@1.1.0': {}
 
   '@img/sharp-darwin-arm64@0.34.5':
     optionalDependencies:
@@ -6879,34 +6878,25 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react-dom'
 
-  '@protobufjs/aspromise@1.1.2':
-    optional: true
+  '@protobufjs/aspromise@1.1.2': {}
 
-  '@protobufjs/base64@1.1.2':
-    optional: true
+  '@protobufjs/base64@1.1.2': {}
 
-  '@protobufjs/codegen@2.0.5':
-    optional: true
+  '@protobufjs/codegen@2.0.5': {}
 
-  '@protobufjs/eventemitter@1.1.1':
-    optional: true
+  '@protobufjs/eventemitter@1.1.1': {}
 
   '@protobufjs/fetch@1.1.1':
     dependencies:
       '@protobufjs/aspromise': 1.1.2
-    optional: true
 
-  '@protobufjs/float@1.0.2':
-    optional: true
+  '@protobufjs/float@1.0.2': {}
 
-  '@protobufjs/path@1.1.2':
-    optional: true
+  '@protobufjs/path@1.1.2': {}
 
-  '@protobufjs/pool@1.1.0':
-    optional: true
+  '@protobufjs/pool@1.1.0': {}
 
-  '@protobufjs/utf8@1.1.2':
-    optional: true
+  '@protobufjs/utf8@1.1.2': {}
 
   '@radix-ui/primitive@1.1.3': {}
 
@@ -7947,8 +7937,7 @@ snapshots:
 
   acorn@8.18.0: {}
 
-  adm-zip@0.5.18:
-    optional: true
+  adm-zip@0.5.18: {}
 
   agent-base@7.1.4: {}
 
@@ -8045,8 +8034,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  boolean@3.2.0:
-    optional: true
+  boolean@3.2.0: {}
 
   bowser@2.14.1: {}
 
@@ -8259,7 +8247,6 @@ snapshots:
       es-define-property: 1.0.1
       es-errors: 1.3.0
       gopd: 1.2.0
-    optional: true
 
   define-lazy-prop@3.0.0: {}
 
@@ -8268,7 +8255,6 @@ snapshots:
       define-data-property: 1.1.4
       has-property-descriptors: 1.0.2
       object-keys: 1.1.1
-    optional: true
 
   defu@6.1.7: {}
 
@@ -8286,8 +8272,7 @@ snapshots:
 
   detect-libc@2.1.2: {}
 
-  detect-node@2.1.0:
-    optional: true
+  detect-node@2.1.0: {}
 
   devlop@1.1.0:
     dependencies:
@@ -8346,8 +8331,7 @@ snapshots:
     dependencies:
       es-errors: 1.3.0
 
-  es6-error@4.1.1:
-    optional: true
+  es6-error@4.1.1: {}
 
   esbuild@0.28.2:
     optionalDependencies:
@@ -8382,8 +8366,7 @@ snapshots:
 
   escape-html@1.0.3: {}
 
-  escape-string-regexp@4.0.0:
-    optional: true
+  escape-string-regexp@4.0.0: {}
 
   escape-string-regexp@5.0.0: {}
 
@@ -8538,8 +8521,7 @@ snapshots:
       fast-querystring: 1.1.2
       safe-regex2: 5.1.1
 
-  flatbuffers@25.9.23:
-    optional: true
+  flatbuffers@25.9.23: {}
 
   foreground-child@3.3.1:
     dependencies:
@@ -8599,13 +8581,11 @@ snapshots:
       roarr: 2.15.4
       semver: 7.8.5
       serialize-error: 7.0.1
-    optional: true
 
   globalthis@1.0.4:
     dependencies:
       define-properties: 1.2.1
       gopd: 1.2.0
-    optional: true
 
   gopd@1.2.0: {}
 
@@ -8622,8 +8602,7 @@ snapshots:
       section-matter: 1.0.0
       strip-bom-string: 1.0.0
 
-  guid-typescript@1.0.9:
-    optional: true
+  guid-typescript@1.0.9: {}
 
   h3@2.0.1-rc.20:
     dependencies:
@@ -8644,7 +8623,6 @@ snapshots:
   has-property-descriptors@1.0.2:
     dependencies:
       es-define-property: 1.0.1
-    optional: true
 
   has-symbols@1.1.0: {}
 
@@ -8791,8 +8769,7 @@ snapshots:
 
   json-schema@0.4.0: {}
 
-  json-stringify-safe@5.0.1:
-    optional: true
+  json-stringify-safe@5.0.1: {}
 
   json5@2.2.3: {}
 
@@ -9001,7 +8978,6 @@ snapshots:
   matcher@3.0.0:
     dependencies:
       escape-string-regexp: 4.0.0
-    optional: true
 
   math-intrinsics@1.1.0: {}
 
@@ -9380,8 +9356,7 @@ snapshots:
 
   object-inspect@1.13.4: {}
 
-  object-keys@1.1.1:
-    optional: true
+  object-keys@1.1.1: {}
 
   ohash@2.0.12: {}
 
@@ -9401,18 +9376,15 @@ snapshots:
       regex: 6.1.0
       regex-recursion: 6.0.2
 
-  onnxruntime-common@1.24.0-dev.20251116-b39e144322:
-    optional: true
+  onnxruntime-common@1.24.0-dev.20251116-b39e144322: {}
 
-  onnxruntime-common@1.24.3:
-    optional: true
+  onnxruntime-common@1.24.3: {}
 
   onnxruntime-node@1.24.3:
     dependencies:
       adm-zip: 0.5.18
       global-agent: 3.0.0
       onnxruntime-common: 1.24.3
-    optional: true
 
   onnxruntime-web@1.26.0-dev.20260416-b7804b056c:
     dependencies:
@@ -9422,7 +9394,6 @@ snapshots:
       onnxruntime-common: 1.24.0-dev.20251116-b39e144322
       platform: 1.3.6
       protobufjs: 7.6.6
-    optional: true
 
   open@10.2.0:
     dependencies:
@@ -9533,8 +9504,7 @@ snapshots:
       exsolve: 1.1.1
       pathe: 2.0.3
 
-  platform@1.3.6:
-    optional: true
+  platform@1.3.6: {}
 
   postcss@8.5.28:
     dependencies:
@@ -9606,7 +9576,6 @@ snapshots:
       '@protobufjs/utf8': 1.1.2
       '@types/node': 22.20.3
       long: 5.3.2
-    optional: true
 
   proxy-addr@2.0.7:
     dependencies:
@@ -9712,7 +9681,6 @@ snapshots:
       json-stringify-safe: 5.0.1
       semver-compare: 1.0.0
       sprintf-js: 1.1.3
-    optional: true
 
   robust-predicates@3.0.3: {}
 
@@ -9785,8 +9753,7 @@ snapshots:
       extend-shallow: 2.0.1
       kind-of: 6.0.3
 
-  semver-compare@1.0.0:
-    optional: true
+  semver-compare@1.0.0: {}
 
   semver@6.3.1: {}
 
@@ -9813,7 +9780,6 @@ snapshots:
   serialize-error@7.0.1:
     dependencies:
       type-fest: 0.13.1
-    optional: true
 
   seroval-plugins@1.6.7(seroval@1.6.7):
     dependencies:
@@ -9862,7 +9828,6 @@ snapshots:
       '@img/sharp-win32-arm64': 0.34.5
       '@img/sharp-win32-ia32': 0.34.5
       '@img/sharp-win32-x64': 0.34.5
-    optional: true
 
   shebang-command@2.0.0:
     dependencies:
@@ -9933,8 +9898,7 @@ snapshots:
 
   sprintf-js@1.0.3: {}
 
-  sprintf-js@1.1.3:
-    optional: true
+  sprintf-js@1.1.3: {}
 
   sqlstring@2.3.3: {}
 
@@ -10072,8 +10036,7 @@ snapshots:
       '@turbo/windows-64': 2.10.12
       '@turbo/windows-arm64': 2.10.12
 
-  type-fest@0.13.1:
-    optional: true
+  type-fest@0.13.1: {}
 
   type-is@1.6.18:
     dependencies:

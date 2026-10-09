@@ -39,3 +39,22 @@ CREATE INDEX IF NOT EXISTS embeddings_chunk_idx ON embeddings (chunk_id);
 CREATE INDEX IF NOT EXISTS embeddings_embedding_hnsw_idx
   ON embeddings USING hnsw (embedding vector_cosine_ops)
   WITH (m = 12, ef_construction = 200);
+
+-- Local embeddings (Step 2.6, full run): Xenova/bge-base-en-v1.5 via transformers.js, 768 dims.
+-- Same shape as `embeddings`; kept separate so the 1536-dim Gemini rows are untouched.
+-- Queries must be embedded with kind 'query' (bge prefix) — see src/ingest/embedder.ts.
+CREATE TABLE IF NOT EXISTS embeddings_local (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  chunk_id     TEXT NOT NULL REFERENCES chunks(id) ON DELETE CASCADE,
+  content_hash VARCHAR(64) NOT NULL,
+  embedding    vector(768) NOT NULL,
+  model        VARCHAR(100) NOT NULL,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (content_hash, model)
+);
+
+CREATE INDEX IF NOT EXISTS embeddings_local_chunk_idx ON embeddings_local (chunk_id);
+
+CREATE INDEX IF NOT EXISTS embeddings_local_embedding_hnsw_idx
+  ON embeddings_local USING hnsw (embedding vector_cosine_ops)
+  WITH (m = 12, ef_construction = 200);

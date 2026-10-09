@@ -3,24 +3,29 @@
  * into pgvector. Idempotent: a chunk is skipped when an embedding exists for
  * (content_hash, model). The HNSW index is created by db:migrate (schema.sql).
  *
+ * Providers (--provider, default gemini so nothing changes silently):
+ *   gemini  -> table `embeddings` (1536d, Gemini free tier, rate-limited). --limit capped at 20.
+ *   local   -> table `embeddings_local` (768d, Xenova/bge-base-en-v1.5 on CPU, free).
+ *              No cap, no retries. QUERIES must be embedded with kind 'query' (bge prefix).
+ *
  * Usage:
- *   pnpm wrap:embed --dry-run              counts + token estimate, no API calls, no writes
- *   pnpm wrap:embed --limit N              N <= 20 (Stage A cap)
- *   pnpm wrap:embed --all                  full run (needs the learner's OK)
+ *   pnpm wrap:embed --dry-run                     counts + token estimate, no API calls, no writes
+ *   pnpm wrap:embed --limit N                     N <= 20 (Stage A cap, gemini only)
+ *   pnpm wrap:embed --all                         full run (gemini needs the learner's OK)
+ *   pnpm wrap:embed:local --limit N | --all       local provider
  *
  * --limit N is a WINDOW: the first N chunks in (source_file, chunk_index) order. Chunks
  * in that window that are already embedded are skipped, so re-running --limit N embeds 0.
+ * Idempotency is per (content_hash, model) in the provider's table.
  */
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { Pool, PoolClient } from 'pg';
 import { loadEnv, redact, requireDbUrl } from '../db/env';
-import { ChunkToEmbed, EmbeddingResult, embedChunks, readEmbeddingConfig } from '../ingest/embedder';
+import { LOCAL_MODEL, ChunkToEmbed, EmbeddingResult, EmbedKind, createEmbedder, readEmbeddingConfig } from '../ingest/embedder';
 
 const STAGE_A_CAP = 20;
-const BATCH_SIZE = 50;
-const RETRY_COUNT = 5;
 
 interface ChunkRecord extends ChunkToEmbed {
   source_file: string;
@@ -68,7 +73,13 @@ function byOrder(a: ChunkRecord, b: ChunkRecord): number {
   return a.chunk_index - b.chunk_index;
 }
 
-async function persistBatch(pool: Pool, results: EmbeddingResult[], byId: Map<string, ChunkRecord>, model: string) {
+async function persistBatch(
+  pool: Pool,
+  results: EmbeddingResult[],
+  byId: Map<string, ChunkRecord>,
+  model: string,
+  table: string,
+) {
   const client: PoolClient = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -84,7 +95,7 @@ async function persistBatch(pool: Pool, results: EmbeddingResult[], byId: Map<st
          c.heading_path, c.type, c.tokens, c.content, JSON.stringify(c.metadata)],
       );
       await client.query(
-        `INSERT INTO embeddings (chunk_id, content_hash, embedding, model)
+        `INSERT INTO ${table} (chunk_id, content_hash, embedding, model)
          VALUES ($1, $2, $3::vector, $4)
          ON CONFLICT (content_hash, model) DO NOTHING`,
         [c.id, c.content_hash, `[${r.embedding.join(',')}]`, model],
@@ -105,13 +116,20 @@ async function main(): Promise<void> {
   const all = args.includes('--all');
   const limitIdx = args.indexOf('--limit');
   const limit = limitIdx >= 0 ? Number(args[limitIdx + 1]) : undefined;
+  const provIdx = args.indexOf('--provider');
+  const provider = (provIdx >= 0 ? args[provIdx + 1] : 'gemini') as 'gemini' | 'local';
 
+  if (provider !== 'gemini' && provider !== 'local') fail('--provider must be gemini or local');
   if (limitIdx >= 0 && (!Number.isInteger(limit) || (limit as number) < 1)) fail('--limit needs a positive integer');
   if (!dryRun && !all && limit === undefined) fail('pass --limit N (N <= 20) or --all');
-  if (!all && limit !== undefined && limit > STAGE_A_CAP) fail(`--limit ${limit} is above the Stage A cap (${STAGE_A_CAP}); pass --all to go beyond`);
+  if (provider === 'gemini' && !all && limit !== undefined && limit > STAGE_A_CAP) fail(`--limit ${limit} is above the Stage A cap (${STAGE_A_CAP}); pass --all to go beyond`);
 
   loadEnv();
-  const { model } = readEmbeddingConfig(); // validates HOSTED_API_KEY presence before any work
+  const table = provider === 'local' ? 'embeddings_local' : 'embeddings';
+  const batchSize = provider === 'local' ? 64 : 50;
+  const retries = provider === 'local' ? 0 : 5; // gemini retries live inside its embedder
+  // Validates HOSTED_API_KEY for gemini before any work. The local model is loaded after the dry-run exit.
+  const model = provider === 'local' ? LOCAL_MODEL : readEmbeddingConfig().model;
   const url = requireDbUrl();
   const started = Date.now();
 
@@ -122,7 +140,7 @@ async function main(): Promise<void> {
   try {
     const embeddedNow = async () =>
       new Set(
-        (await pool.query('SELECT content_hash FROM embeddings WHERE model = $1', [model])).rows.map(
+        (await pool.query(`SELECT content_hash FROM ${table} WHERE model = $1`, [model])).rows.map(
           (r) => r.content_hash as string,
         ),
       );
@@ -133,11 +151,11 @@ async function main(): Promise<void> {
     const toEmbed = window.filter((c) => !existing.has(c.content_hash));
     const sum = (xs: ChunkRecord[]) => xs.reduce((s, c) => s + c.tokens, 0);
 
-    console.log(`model: ${model}  batch size: ${BATCH_SIZE}  retries: ${RETRY_COUNT}`);
+    console.log(`provider: ${provider}  table: ${table}  model: ${model}  batch size: ${batchSize}  retries: ${retries}`);
     console.log(`chunks in file:            ${sorted.length}`);
     console.log(`already embedded:          ${sorted.length - pendingFull.length}`);
     console.log(`window:                    ${all || limit === undefined ? 'full file' : `first ${window.length} (source_file, chunk_index)`}`);
-    console.log(`to embed (this run):       ${toEmbed.length}  in ${Math.ceil(toEmbed.length / BATCH_SIZE)} batch(es)`);
+    console.log(`to embed (this run):       ${toEmbed.length}  in ${Math.ceil(toEmbed.length / batchSize)} batch(es)`);
     console.log(`est. tokens, this run:     ${sum(toEmbed)}`);
     console.log(`full remaining set:        ${pendingFull.length} chunks, est. ${sum(pendingFull)} tokens`);
 
@@ -150,13 +168,26 @@ async function main(): Promise<void> {
     let failures = 0;
     let batchNo = 0;
     if (toEmbed.length === 0) console.log('nothing to embed');
+    const embedder = await createEmbedder({ provider });
+    if (provider === 'local') console.log(`  local model loaded: ${embedder.model}, ${embedder.dims} dims`);
+    const runStart = Date.now();
     try {
-      await embedChunks(toEmbed, BATCH_SIZE, RETRY_COUNT, async (results) => {
-        await persistBatch(pool, results, byId, model);
+      for (let i = 0; i < toEmbed.length; i += batchSize) {
+        const batch = toEmbed.slice(i, i + batchSize);
+        const kind: EmbedKind = 'passage';
+        const vectors = await embedder.embed(batch.map((c) => c.content), kind);
+        const results: EmbeddingResult[] = batch.map((c, j) => ({
+          chunk_id: c.id,
+          content_hash: c.content_hash,
+          embedding: vectors[j],
+          status: 'success',
+        }));
+        await persistBatch(pool, results, byId, model, table);
         embedded += results.length;
         batchNo += 1;
-        console.log(`  batch ${batchNo}: stored ${results.length} (total ${embedded})`);
-      });
+        const secs = (Date.now() - runStart) / 1000;
+        console.log(`  batch ${batchNo}: stored ${results.length} (total ${embedded}, ${(embedded / secs).toFixed(1)} chunks/s)`);
+      }
     } catch (err: any) {
       failures += 1;
       console.error(`embed-and-index: batch ${batchNo + 1} aborted: ${redact(String(err?.message ?? err))}`);

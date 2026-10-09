@@ -14,10 +14,10 @@ async function main(): Promise<void> {
     await pool.query(sql); // no params -> simple protocol, multi-statement OK
     const tables = await pool.query(
       `SELECT table_name FROM information_schema.tables
-       WHERE table_schema = 'public' AND table_name IN ('chunks', 'embeddings') ORDER BY table_name`,
+       WHERE table_schema = 'public' AND table_name IN ('chunks', 'embeddings', 'embeddings_local') ORDER BY table_name`,
     );
     const hnsw = await pool.query(
-      `SELECT indexname FROM pg_indexes WHERE tablename = 'embeddings' AND indexdef ILIKE '%USING hnsw%'`,
+      `SELECT indexname FROM pg_indexes WHERE tablename LIKE 'embeddings%' AND indexdef ILIKE '%USING hnsw%'`,
     );
     const ext = await pool.query(`SELECT extversion FROM pg_extension WHERE extname = 'vector'`);
     console.log('db:migrate ok');

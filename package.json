@@ -212,6 +212,7 @@
     "wrap:chunk": "pnpm --filter @wrap/ai chunk",
     "wrap:db:migrate": "pnpm --filter @wrap/ai db:migrate",
     "wrap:embed": "pnpm --filter @wrap/ai embed-and-index",
+    "wrap:embed:local": "pnpm --filter @wrap/ai embed-and-index --provider local",
     "wrap:ask": "pnpm --filter @wrap/ai ask",
     "db:wrap-up": "docker compose -f docker-compose.yml up -d pgvector",
     "db:wrap-down": "docker compose -f docker-compose.yml down",
