@@ -237,3 +237,62 @@ jq '.[] | select(.type=="PERSON")' apps/ai/wrap/data/pii-map.json
 - The map is an explicit object passed by the caller, not a hidden global.
 - Plan's `scrubPII` signature returned `{text, redactions}` with a `mode: 'redact' | 'remove'` argument; implemented as specified. Removal mode keeps no map entries and is not reversible.
 - UNKNOWN files are copied unscrubbed, as specified. A text file that detection cannot classify would therefore pass through with any PII intact. Only `empty.txt` hit this case in the current corpus.
+
+## Step 2.4 — Type-aware chunking
+
+**Date:** 2026-10-09
+
+Built a chunker that splits each file by its format: Markdown by heading, C and headers by function or declaration group, CSV one row per chunk, JSON and plain text by sliding window. A CLI writes every chunk of the scrubbed tree to `data/chunks.jsonl`.
+
+- **`chunking/types.ts`** — `Chunk`, `ChunkType`, `CHUNK_SIZES` (max 500 from `MAX_TOKENS_PER_CHUNK`, text window 400, overlap 100, min merge 50), `estimateTokens` (ceil(chars / 4)), deterministic `chunkId` (sha256 of path and index, 16 hex chars).
+- **`chunking/markdown.ts`** — ATX headings; fenced code (``` and ~~~) hides `#` lines; `heading_path` trail; tiny sections merge into a neighbour; oversize sections window-split, each part repeating its heading lines.
+- **`chunking/csv.ts`** — header plus one `column: value` chunk per row; quoted fields with commas, doubled quotes and embedded newlines; `#` comment lines skipped; over-wide rows truncated.
+- **`chunking/text.ts`** — 400-token windows, 100-token overlap, breaks on paragraph gaps, never cuts a word.
+- **`chunking/c-code.ts`** — C and header chunker. A masked copy of the file (comments, string and char literals, preprocessor directives blanked, same length) drives a brace-depth and `;` scan, so a `}` in a comment or a `{` in a string does not confuse it. A top-level `{...}` preceded by `)` is a function: its chunk runs from the doc comment directly above it (no blank line between) to the closing brace; `heading_path` and `metadata.function` hold the name. Other top-level units (includes, defines, typedefs, struct/enum definitions, prototypes, globals) are packed into declaration chunks up to the max; groups before the first function are `metadata.kind = "preamble"`. A function over the max is sub-split with the text window; each part repeats the signature line, and part 1 keeps the doc comment.
+- **`chunking/index.ts`** — `chunkFile(sourceFile, text, format)` routes by `Format` from `ingest/format-detector.ts`. MARKDOWN to markdown; C_SOURCE and C_HEADER to c-code; CSV to csv; JSON and TEXT to text; BINARY and UNKNOWN give `[]`.
+- **`chunking/chunking.selftest.ts`** — 17 checks, run by `pnpm --filter @wrap/ai chunk:check` (11 Markdown, CSV and text checks from Part A; 6 new C and router checks).
+- **`cli/chunk.ts`** — walks `data/scrubbed`, skips files listed as removed exact duplicates in `data/dedup-report.json`, detects each format, decodes to UTF-8, chunks, and writes `data/chunks.jsonl`. Prints counts, per-type totals, token stats, over-max count and top files.
+- **Scripts** — `chunk` in `apps/ai/wrap/package.json`, `wrap:chunk` in the root `package.json`. `data/chunks.jsonl` added to `apps/ai/wrap/.gitignore`.
+
+**Commands (from repo root):**
+```bash
+pnpm wrap:chunk                      # scrubbed tree -> data/chunks.jsonl
+pnpm --filter @wrap/ai chunk:check   # selftest (17 checks)
+head -1 apps/ai/wrap/data/chunks.jsonl | jq '{type, source_file, tokens, metadata}'
+```
+
+**Run (`data/scrubbed`, 1111 files):**
+
+| Item | Value |
+|---|---|
+| Files chunked | 1092 |
+| Skipped, removed exact duplicate | 18 (all 18 entries in `dedup-report.json` found in the tree) |
+| Skipped, BINARY or UNKNOWN | 1 |
+| Total chunks | 20097 |
+| csv_row | 12763 |
+| markdown_section | 6097 |
+| code_function | 807 (593 distinct names) |
+| code_struct | 220 |
+| text_paragraph | 210 |
+| Tokens per chunk | min 6, median 28, p95 129, max 498 |
+| Chunks over MAX_TOKENS_PER_CHUNK (500) | 0 |
+| Largest files by chunk count | `huge-repeated.txt` 4167, `pmo/timesheets/2020-Q4.csv` 762, `pmo/timesheets/2025-Q3.csv` 606, `pmo/timesheets/2021-Q1.csv` 541, `pmo/timesheets/2024-Q3.csv` 540 |
+| Runtime | 0.36 s |
+
+- Output is byte-identical across two runs.
+- No function in the corpus was over the max, so the C oversize sub-split is exercised only by its selftest.
+- PII check: 254 lines contain `EMAIL_` or `HANDLE_` tokens (the input is the scrubbed tree); `t.sala@` appears 0 times.
+
+**Choices:**
+- Token estimate is ceil(chars / 4), as in Part A. No `js-tiktoken`, so no new dependency and no token cache.
+- Sizes: 500 max (from the plan's `MAX_TOKENS_PER_CHUNK`), 400 text window, 100 overlap. Min merge 50 tokens for Markdown sections.
+- The C preamble is a group of declaration units packed to the max, not one chunk per struct. Header prototypes and macros are packed the same way.
+- A comment separated from a function by a blank line is not its doc comment; it is kept as declaration text so no text is dropped.
+- Input is the scrubbed tree. Dedup-removed files are skipped (the kept copy is chunked). Their content is not otherwise used.
+
+**Deviations from plan:**
+- Plan named `src/cli/chunk-documents.ts` and `data/chunks.jsonl` written by `chunk-documents`. Built as `src/cli/chunk.ts` with script `chunk` and root `wrap:chunk`, per the brief.
+- Plan's `subsystem`, `requirement_id` and `ticket_id` metadata are not extracted yet. Only `source_file`, `chunk_index`, `start_line`, `end_line`, `heading_path` and the per-type metadata are set.
+- Plan's `chunkDocument` name is `chunkFile(sourceFile, text, format)` in `chunking/index.ts`, taking the detected format.
+- Plan's `chunker.ts` is not one file. The per-type chunkers are split into `markdown.ts`, `csv.ts`, `text.ts` and `c-code.ts`, with shared types in `types.ts`.
+- Known limit: a function inside an `extern "C" { ... }` block is not split out; the whole block is one declaration unit, window-split if large.
