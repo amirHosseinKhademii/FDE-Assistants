@@ -1,3 +1,5 @@
+import { makeStateOf, type StepState } from '@veresk/learn/steps';
+
 /**
  * How far the build has got — the ONE place either page reads it from.
  *
@@ -75,3 +77,20 @@ const WORDS = [
   'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen',
 ];
 export const inWords = (n: number) => WORDS[n] ?? String(n);
+
+/**
+ * The kit's state rule, bound to this build: step 0 is background, a step in
+ * DONE is done, and NEXT is the one being built now. Everything else is planned.
+ */
+export const stateOf = makeStateOf({ isDone, next: NEXT, idea: '0' });
+
+/**
+ * The second pill on a step: what it waits for, or what it needed once it was
+ * done. Nothing for step 0, which has nothing to wait for.
+ */
+export function metaOf(n: string, state: StepState): string | null {
+  if (state === 'idea') return null;
+  const needs = NEEDS[n];
+  if (state === 'done') return needs === 'nobody' ? 'Built on a laptop' : `Needed ${needs}`;
+  return needs === 'nobody' ? 'Can be built on a laptop' : `Waits for ${needs}`;
+}

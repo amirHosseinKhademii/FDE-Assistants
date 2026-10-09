@@ -38,10 +38,23 @@
 import { useCallback, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { Aurora, Code } from '@veresk/surface';
-import { Figure, Lesson, Note, Part, Raw, Step, Table, Terms, Wire, stateOf } from '../components/steps/kit';
-import { PhaseHead, PhaseTabs } from '../components/steps/Tabs';
-import type { PhaseTab } from '../components/steps/Tabs';
-import { Hood } from '../components/steps/Hood';
+import {
+  Figure,
+  GlossaryProvider,
+  Hood,
+  Lesson,
+  Note,
+  Part,
+  PhaseHead,
+  PhaseTabs,
+  Raw,
+  Step,
+  StepProgressProvider,
+  Table,
+  Terms,
+  Wire,
+} from '@veresk/learn/steps';
+import type { PhaseTab } from '@veresk/learn/steps';
 import { HandshakeHood } from '../components/steps/HandshakeHood';
 import { InspectorHood } from '../components/steps/InspectorHood';
 import { FailuresHood } from '../components/steps/FailuresHood';
@@ -50,8 +63,15 @@ import { CostHood } from '../components/steps/CostHood';
 import { BigPicture } from '../components/BigPicture';
 import { AURORA } from '../lib/aurora';
 import { VERESK } from '../lib/links';
-import { BUILDABLE, DONE, NEXT, doneIn, inWords, isDone } from '../lib/progress';
+import { BUILDABLE, DONE, NEXT, doneIn, inWords, isDone, metaOf, stateOf } from '../lib/progress';
 import { GLOSSARY, GLOSSARY_ORDER, termId } from '../lib/glossary';
+import type { TermKey } from '../lib/glossary';
+
+/** The kit's glossary: a "words to know" link is `term-<key>`, and is named here. */
+const GLOSSARY_VALUE = { entries: GLOSSARY, idOf: (key: string) => termId(key as TermKey) };
+
+/** The kit's progress: which state a step is in, and the pill that says what it waits for. */
+const PROGRESS_VALUE = { stateOf, metaOf };
 
 /** Every step's name, used by the step list and by the step itself. */
 const TITLES: Record<string, string> = {
@@ -117,6 +137,8 @@ export function Steps() {
   const goToStep = useGoToStep(setActive);
 
   return (
+    <GlossaryProvider value={GLOSSARY_VALUE}>
+    <StepProgressProvider value={PROGRESS_VALUE}>
     <div className="relative min-h-screen overflow-hidden">
       <Aurora tones={AURORA} muted />
       <Nav />
@@ -143,13 +165,15 @@ export function Steps() {
             does in plain words, why it matters, the code, and what we learned
             doing it.
           </p>
-          <PhaseTabs tabs={PHASES} active={active} onActivate={setActive} />
+          <PhaseTabs tabs={PHASES} active={active} onActivate={setActive} label="Phases of the build" />
         </section>
         <Glossary />
         <NotYet />
       </main>
       <Footer />
     </div>
+    </StepProgressProvider>
+    </GlossaryProvider>
   );
 }
 
@@ -341,7 +365,7 @@ function Roadmap({ onGo }: { onGo: (step: string) => void }) {
         {PHASES.map((p) => (
           <div key={p.id} className="thb-road-phase">
             <p className="thb-label" data-tone={p.built ? undefined : 'quiet'}>
-              {p.label} <span className="font-normal text-ui-faint">· {p.status.toLowerCase()}</span>
+              {p.label} <span className="font-normal text-ui-faint">· {(p.status ?? "").toLowerCase()}</span>
             </p>
             {p.holds.map((s) => {
               const st = stateOf(s);

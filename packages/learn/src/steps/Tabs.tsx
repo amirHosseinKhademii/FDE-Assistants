@@ -16,15 +16,33 @@
 import { useCallback, useId, useRef } from 'react';
 import type { ReactNode } from 'react';
 
+/**
+ * TWO SHAPES, ONE COMPONENT. A stage numbered by the documents (`stage`) gets
+ * the pip row. A host whose tabs are counted in steps rather than stages gives
+ * `status` instead, and the card shows a meter of `done` over `total`, and says
+ * whether the stage `built`. The safety app uses the first; commerce the second.
+ */
 export interface PhaseTab {
   id: string;
   /** The stage number, as the documents write it. */
-  stage: string;
+  stage?: string;
   /** What it is called. */
   label: string;
   /** The steps it holds — the pips on the card are counted from this. */
   holds: string[];
   content: ReactNode;
+  /** The meter variant: how much of the stage exists, in two or three words. */
+  status?: string;
+  /** Whether anything in the stage has been built. Drawn dashed when false. */
+  built?: boolean;
+  /** How many of `holds` count as built, and how many can. */
+  done?: number;
+  total?: number;
+}
+
+/** `0–3`, or just `9` where a stage holds one step. */
+export function rangeOf(holds: string[]): string {
+  return holds.length > 1 ? `${holds[0]}\u2013${holds[holds.length - 1]}` : (holds[0] ?? '');
 }
 
 export function PhaseTabs({
@@ -56,23 +74,39 @@ export function PhaseTabs({
             id={`${base}-tab-${tab.id}`}
             aria-controls={`${base}-panel-${tab.id}`}
             aria-selected={tab.id === active}
+            data-built={tab.built === undefined ? undefined : tab.built}
             tabIndex={tab.id === active ? 0 : -1}
             onClick={() => onActivate(tab.id)}
             onKeyDown={(e) => onKey(e, i)}
             className="cal-phase"
           >
-            <span className="cal-phase-n">Stage {tab.stage}</span>
+            {tab.status === undefined ? (
+              <span className="cal-phase-n">Stage {tab.stage}</span>
+            ) : (
+              <span className="cal-phase-n">
+                {tab.holds.length > 1 ? 'Steps' : 'Step'} {rangeOf(tab.holds)}
+              </span>
+            )}
             <span className="cal-phase-label">{tab.label}</span>
-            <span className="cal-phase-status">
-              <span>
-                {tab.holds.length} {tab.holds.length === 1 ? 'step' : 'steps'}, built
+            {tab.status === undefined ? (
+              <span className="cal-phase-status">
+                <span>
+                  {tab.holds.length} {tab.holds.length === 1 ? 'step' : 'steps'}, built
+                </span>
+                <span className="cal-pips" aria-hidden>
+                  {tab.holds.map((s) => (
+                    <span key={s} />
+                  ))}
+                </span>
               </span>
-              <span className="cal-pips" aria-hidden>
-                {tab.holds.map((s) => (
-                  <span key={s} />
-                ))}
+            ) : (
+              <span className="cal-phase-status">
+                <span>{tab.status}</span>
+                <span className="cal-meter" aria-hidden>
+                  <span style={{ width: `${((tab.done ?? 0) / Math.max(tab.total ?? 1, 1)) * 100}%` }} />
+                </span>
               </span>
-            </span>
+            )}
           </button>
         ))}
       </div>
@@ -129,39 +163,66 @@ function useArrowKeys(
  * reader who presses a tab deserves that in the first paragraph rather than
  * after the sixth step. `result` is the stage's headline number, if it has one —
  * always with its caveat in the same sentence.
+ *
+ * TWO SHAPES, AS ON THE TABS. `stage` + `result` is the numbered build; `status`
+ * + `waits` is a phase that may not have started, where `waits` lists what has
+ * to happen first and the pill says how far it has got.
  */
-export function PhaseHead({
-  stage,
-  title,
-  what,
-  result,
-}: {
-  stage: string;
+export type PhaseHeadProps = {
   title: string;
   what: ReactNode;
-  result?: ReactNode;
-}) {
+} & (
+  | { stage: string; result?: ReactNode; status?: undefined; waits?: undefined }
+  | { status: string; waits?: string[]; stage?: undefined; result?: undefined }
+);
+
+export function PhaseHead(props: PhaseHeadProps) {
+  const { title, what } = props;
   return (
     <section className="lift-in">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <h2 className="cal-phase-title">
-          {title}
-        </h2>
-        <span className="cal-pill" data-tone="done">
-          Stage {stage} · Built
-        </span>
+        <h2 className="cal-phase-title">{title}</h2>
+        {props.status === undefined ? (
+          <span className="cal-pill" data-tone="done">
+            Stage {props.stage} · Built
+          </span>
+        ) : (
+          <span className="cal-pill" data-tone={props.waits === undefined ? 'done' : 'planned'}>
+            {props.status}
+          </span>
+        )}
       </div>
 
       <div className="cal-prose mt-4">{what}</div>
 
-      {result && (
+      {props.status === undefined && props.result && (
         <div className="cal-phase-result">
           <h3 className="cal-label" data-tone="quiet">
             Where this stage ended
           </h3>
-          <div className="cal-prose mt-1.5">{result}</div>
+          <div className="cal-prose mt-1.5">{props.result}</div>
         </div>
       )}
+
+      {props.waits && props.waits.length > 0 && <Waits items={props.waits} />}
     </section>
+  );
+}
+
+function Waits({ items }: { items: string[] }) {
+  return (
+    <div className="cal-waits">
+      <h3 className="cal-label" data-tone="quiet">
+        Before this stage can start
+      </h3>
+      <ul className="cal-waits-list">
+        {items.map((item) => (
+          <li key={item}>
+            <span aria-hidden>•</span>
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

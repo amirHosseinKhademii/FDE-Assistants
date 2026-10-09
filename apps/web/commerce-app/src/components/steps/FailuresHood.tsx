@@ -31,8 +31,8 @@
  * That is why this is a step rather than a refactor discovered mid-sprint.
  */
 import { Code } from '@veresk/surface';
-import { HoodSection, HoodText } from './Hood';
-import { Figure, Raw } from './kit';
+import { HoodSection, HoodText } from '@veresk/learn/steps';
+import { Figure, Raw } from '@veresk/learn/steps';
 
 /**
  * The six, who each one belongs to, and what the wire actually says.
@@ -96,7 +96,7 @@ export function FailuresHood() {
 
 function WhatTheRunAdded() {
   return (
-    <HoodSection title="this panel is half of step 6">
+    <HoodSection title="This panel is half of step 6">
       <HoodText>
         Below is the <strong>protocol</strong> half: how MCP itself reports six
         kinds of failure, measured offline. When step 6 ran on 27 September
@@ -120,7 +120,7 @@ function WhatTheRunAdded() {
  */
 function TheFlattening() {
   return (
-    <HoodSection title="and three more share a single boolean">
+    <HoodSection title="And three more share a single boolean">
       <Figure
         caption="three different owners, one wire shape"
         from="corrected"
@@ -211,7 +211,7 @@ and the discriminator reads THAT, not the boolean.`}
 
 function FiveFailures() {
   return (
-    <HoodSection title="six failures, three owners — and three wire shapes between them">
+    <HoodSection title="Six failures, three owners — and three wire shapes between them">
       <HoodText>
         Read the middle column first, and read it as the <em>bad</em> news. Six
         distinct events, each with a different owner and a different fix, and the
@@ -302,7 +302,7 @@ MEASURED    unknown tool     -32602
 
 function TheSilentWidening() {
   return (
-    <HoodSection title="and the existing machinery has two of the five">
+    <HoodSection title="And the existing machinery has two of the five">
       <Figure caption="what a tool failure can currently be called" from="measured" source="quoted from the file">
         <Code
           path="packages/agent/src/core/tool.types.ts:72"
@@ -338,7 +338,7 @@ apps/ai/insurance/src/eval/scorecard-selftest.ts  threw.cause === 'threw'`}
 
 function TheRule() {
   return (
-    <HoodSection title="the rule this step adopts">
+    <HoodSection title="The rule this step adopts">
       <HoodText>
         A tool that ran and concluded “no” returns <code>isError: true</code>{' '}
         with a readable explanation. <strong>It does not throw.</strong> Throwing

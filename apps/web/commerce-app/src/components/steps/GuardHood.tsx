@@ -15,8 +15,8 @@
  * surface, and it is the only one of the three plants that fails in the
  * direction nobody notices.
  */
-import { HoodSection, HoodText } from './Hood';
-import { Figure, Raw } from './kit';
+import { HoodSection, HoodText } from '@veresk/learn/steps';
+import { Figure, Raw } from '@veresk/learn/steps';
 
 export function GuardHood() {
   return (
@@ -31,7 +31,7 @@ export function GuardHood() {
 
 function TheHint() {
   return (
-    <HoodSection title="the SDK says not to trust its own annotations">
+    <HoodSection title="The SDK says not to trust its own annotations">
       <Figure
         caption="quoted verbatim, from the schema's own doc comment"
         from="measured"
@@ -58,13 +58,13 @@ function TheHint() {
 
 function TheAllowlist() {
   return (
-    <HoodSection title="so the gate is a list of names, on our side">
+    <HoodSection title="So the gate is a list of names, on our side">
       <HoodText>
         The allowlist lives in the client, beside the prompt — not on the server,
         because the server is the thing being constrained. Two write tools exist
         and only one is registered:
       </HoodText>
-      <Figure caption="the write surface">
+      <Figure from="proposed" caption="the write surface">
         <Raw>
           {`propose_resolution   writes a DRAFT row, status = 'proposed',
                      attributed to the model, visible to Iris     registered
@@ -87,7 +87,7 @@ issue_refund         moves money                                  DEFINED, NOT R
 
 function ThreePlants() {
   return (
-    <HoodSection title="three plants, and the third is the real test">
+    <HoodSection title="Three plants, and the third is the real test">
       <Figure caption="what commerce:guard-check asserts" from="measured" source="pnpm commerce:guard-check · 27 Sep 2026">
         <Raw>
           {`1  issue_refund annotated readOnlyHint:true   → withheld
@@ -115,8 +115,8 @@ function ThreePlants() {
 
 function ScopeToo() {
   return (
-    <HoodSection title="and the same instinct one layer down">
-      <Figure caption="who chooses whose order gets read">
+    <HoodSection title="And the same instinct one layer down">
+      <Figure from="proposed" caption="who chooses whose order gets read">
         <Raw>
           {`WRONG   get_order(order_id)    ← the model chooses whose order
 RIGHT   get_order()             ← the case id comes from the session;

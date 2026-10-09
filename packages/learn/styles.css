@@ -1490,3 +1490,144 @@ a.lesson-card:focus-visible {
   border-radius: 0.75rem;
   background: var(--color-ui-surface, #0d0f15);
 }
+
+/* ── THE STATES OF A STEP ──────────────────────────────────────────────────
+   A host that tracks progress sets `data-state` on a step (see `StepProgressProvider`).
+   Built steps keep the lit ring; the next one is ringed in the accent; a planned
+   step is dashed and set back, so nothing unbuilt reads as built. */
+.cal-step[data-state='planned'] {
+  background: color-mix(in oklab, var(--color-ui-surface, #0d0f15) 55%, transparent);
+  border-style: dashed;
+}
+
+.cal-step[data-state='next'] .cal-step-n {
+  border-color: var(--steps-accent, #7dd3fc);
+  color: var(--color-ui-fg, #e6ebf2);
+}
+
+.cal-step[data-state='done'] .cal-step-n {
+  background: color-mix(in oklab, var(--steps-built, #818cf8) 16%, transparent);
+}
+
+.cal-pill[data-tone='next'] {
+  border-color: color-mix(in oklab, var(--steps-accent, #7dd3fc) 55%, transparent);
+  color: var(--steps-accent, #7dd3fc);
+}
+
+.cal-pill[data-tone='planned'] {
+  border-style: dashed;
+  color: var(--color-ui-faint, #5f6878);
+}
+
+/* A planned lesson: what it WILL check, not what it did. Dashed, unfilled. */
+.cal-lesson[data-planned='true'] {
+  border-style: dashed;
+  border-color: var(--color-ui-line-lit, #3a4760);
+  background: transparent;
+}
+
+.cal-lesson[data-planned='true'] p {
+  color: var(--color-ui-dim, #b3bdcc);
+}
+
+/* ── A STAGE THAT COUNTS IN STEPS, AND A PHASE THAT WAITS ───────────────────
+   The meter is the commerce form of the pip row: one bar for "how much exists",
+   which suits a stage of eight steps and a stage of one equally well. */
+.cal-phase[data-built='false'] {
+  border-style: dashed;
+}
+
+.cal-meter {
+  display: block;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--color-ui-line, #1e232e);
+  overflow: hidden;
+}
+
+.cal-meter > span {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--steps-built, #818cf8);
+}
+
+.cal-waits {
+  margin-top: 1.5rem;
+  border: 1px dashed var(--color-ui-line-lit, #3a4760);
+  border-radius: 0.75rem;
+  padding: 0.875rem 1rem;
+}
+
+.cal-waits-list {
+  margin-top: 0.5rem;
+  display: grid;
+  gap: 0.375rem;
+}
+
+.cal-waits-list li {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-ui-dim, #b3bdcc);
+}
+
+.cal-waits-list li > span:first-child {
+  color: var(--color-ui-faint, #5f6878);
+}
+
+/* ── A WIRE: protocol messages, drawn as themselves ─────────────────────────
+   Teal for what we sent, sky for what came back — the turn-taking reads down
+   the left edge without reading any JSON. */
+.cal-wire-box {
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-ui-line, #1e232e);
+  background: var(--snip-bg, var(--color-ui-bg, #0a0c11));
+  padding: 0.5rem 1rem;
+}
+
+.cal-wire {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.125rem 0.75rem;
+  padding: 0.5rem 0;
+  align-items: start;
+}
+
+@media (min-width: 40rem) {
+  .cal-wire {
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+  }
+}
+
+.cal-wire + .cal-wire {
+  border-top: 1px solid color-mix(in oklab, var(--color-ui-line, #1e232e) 60%, transparent);
+}
+
+.cal-wire-dir {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.7;
+  color: var(--steps-built, #818cf8);
+}
+
+.cal-wire[data-dir='in'] .cal-wire-dir {
+  color: var(--steps-accent, #7dd3fc);
+}
+
+.cal-wire-body {
+  overflow-x: auto;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: #d4dae3;
+  white-space: pre;
+}
+
+.cal-wire-body mark {
+  background: color-mix(in oklab, var(--steps-accent, #7dd3fc) 26%, transparent);
+  color: var(--color-ui-fg, #e6ebf2);
+  border-radius: 0.1875rem;
+  padding: 0.0625rem 0.1875rem;
+}

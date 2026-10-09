@@ -17,8 +17,8 @@
  * Nothing goes red. The check is `assert the serialized block is byte-identical
  * twenty times running`, and it takes a minute to write.
  */
-import { HoodSection, HoodText } from './Hood';
-import { Figure, Raw } from './kit';
+import { HoodSection, HoodText } from '@veresk/learn/steps';
+import { Figure, Raw } from '@veresk/learn/steps';
 
 export function CostHood() {
   return (
@@ -45,7 +45,7 @@ export function CostHood() {
  */
 function NotACheck() {
   return (
-    <HoodSection title="and this one cannot be settled by a check">
+    <HoodSection title="And this one cannot be settled by a check">
       <HoodText>
         Everything else on this page was decided by running something. The
         protocol version, the error code, the three causes that collapse into one
@@ -61,7 +61,7 @@ function NotACheck() {
         tool surface separately was worth paying them for. That is a judgment
         about what this customer values, and no self-test settles it.
       </HoodText>
-      <Figure caption="so the rule has a limit, and it is stated rather than discovered">
+      <Figure from="proposed" caption="so the rule has a limit, and it is stated rather than discovered">
         <Raw>
           {`write the check before the paragraph          — holds for everything above
 
@@ -87,8 +87,8 @@ BUT: a conclusion no check can reach must still be
 
 function TheExperiment() {
   return (
-    <HoodSection title="the same twelve questions, twice">
-      <Figure caption="the two arms">
+    <HoodSection title="The same twelve questions, twice">
+      <Figure from="proposed" caption="the two arms">
         <Raw>
           {`arm A   seven tools in ToolRegistry, whose bodies make THE SAME HTTP
         calls to THE SAME Nest endpoints
@@ -109,8 +109,8 @@ only the transport to the model differs`}
 
 function WhatToRecord() {
   return (
-    <HoodSection title="five numbers">
-      <Figure caption="what comes out of the run">
+    <HoodSection title="Five numbers">
+      <Figure from="proposed" caption="what comes out of the run">
         <Raw>
           {`tool latency                 p50 / p95
 tokens in the tools block    it renders on every request
@@ -132,7 +132,7 @@ cache_read_input_tokens      see below`}
 
 function TheSilentOne() {
   return (
-    <HoodSection title="the one that catches a disaster nothing else sees">
+    <HoodSection title="The one that catches a disaster nothing else sees">
       <HoodText>
         Prompt caching is a prefix match, and the <code>tools</code> block
         renders <strong>first</strong> — before the system prompt, before the
@@ -141,7 +141,7 @@ function TheSilentOne() {
         description carries a build version, the entire cached prefix is
         invalidated on every request.
       </HoodText>
-      <Figure caption="what that failure looks like from outside">
+      <Figure from="proposed" caption="what that failure looks like from outside">
         <Raw>
           {`the bill              up
 latency               up

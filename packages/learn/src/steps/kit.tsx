@@ -68,15 +68,24 @@ export function useGlossary(): GlossaryValue {
   return useContext(GlossaryContext);
 }
 
-export type Provenance = 'measured' | 'worked' | 'target' | 'pending' | 'excerpt' | 'cited';
+/**
+ * `corrected` and `proposed` are the two the build-log hosts use: real output
+ * that changed the plan, and a design nobody has built yet. They are additions,
+ * so a host that never passes them renders exactly as before.
+ */
+export type Provenance = 'measured' | 'worked' | 'target' | 'pending' | 'excerpt' | 'cited' | 'corrected' | 'proposed';
 
-const BADGE: Record<Provenance, { text: string; tone: 'done' | 'learn' | 'pending' | 'quiet' }> = {
+type BadgeTone = 'done' | 'learn' | 'pending' | 'quiet' | 'planned';
+
+const BADGE: Record<Provenance, { text: string; tone: BadgeTone }> = {
   measured: { text: 'Real output', tone: 'done' },
   worked: { text: 'Worked by hand', tone: 'learn' },
   target: { text: 'Not ours — the bar to clear', tone: 'quiet' },
   pending: { text: 'No number yet', tone: 'pending' },
   excerpt: { text: 'Shortened from the real code', tone: 'quiet' },
   cited: { text: 'From the docs', tone: 'quiet' },
+  corrected: { text: 'Real output — it changed our plan', tone: 'learn' },
+  proposed: { text: 'Planned, not built yet', tone: 'planned' },
 };
 
 const WHEN_TEXT: Record<When, string> = {
@@ -85,6 +94,69 @@ const WHEN_TEXT: Record<When, string> = {
   'on demand': 'Run on demand',
 };
 
+/**
+ * Where a step stands in the build. A host that tracks progress gives `Step` a
+ * `StepProgressProvider`; a host that does not gets the one-state rendering
+ * (every step reads "Built"), which is what the safety app has always shown.
+ *
+ *   done      ran, and kept its output       ✓ numeral, "Done, <date>"
+ *   next      the step to build now           "Up next"
+ *   planned   designed, not built yet         dashed "what this step will check"
+ *   idea      background, not a build step    "Background", "Check yourself"
+ */
+export type StepState = 'done' | 'next' | 'planned' | 'idea';
+
+const STATE_TEXT: Record<StepState, string> = {
+  done: 'Done',
+  next: 'Up next',
+  planned: 'Planned',
+  idea: 'Background',
+};
+
+const CODE_LABEL: Record<StepState, string> = {
+  done: 'The code, and what it printed',
+  next: 'What it will look like',
+  planned: 'What it will look like',
+  idea: 'The picture',
+};
+
+const LESSON_TITLE: Partial<Record<StepState, string>> = {
+  planned: 'What this step will check',
+  idea: 'Check yourself',
+};
+
+/**
+ * The state rule, once, for a host that has a notion of "built" and "next":
+ * `idea` names the background step (not a build step), `done` is what the
+ * host says is finished, and `next` is the one it is working on now.
+ */
+export function makeStateOf(progress: { isDone: (n: string) => boolean; next: string | null; idea?: string }) {
+  return (n: string): StepState => {
+    if (n === progress.idea) return 'idea';
+    if (progress.isDone(n)) return 'done';
+    if (n === progress.next) return 'next';
+    return 'planned';
+  };
+}
+
+export interface StepProgressValue {
+  stateOf: (n: string) => StepState;
+  /** A second pill after the state, e.g. "Waits for the API". Optional. */
+  metaOf?: (n: string, state: StepState) => ReactNode;
+}
+
+const StepProgressContext = createContext<StepProgressValue | null>(null);
+
+/** Mount once, above the steps, when the host tracks progress. */
+export const StepProgressProvider = StepProgressContext.Provider;
+
+/** "2026-09-18" → "18 Sep 2026". Fixed format so the server and the browser agree. */
+function formatDate(iso: string): string {
+  const [y, m, d] = iso.split('-').map(Number);
+  const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][m - 1];
+  return `${d} ${month} ${y}`;
+}
+
 export function Step({
   n,
   title,
@@ -92,11 +164,12 @@ export function Step({
   plain,
   why,
   code,
-  codeLabel = 'The code, and what it printed',
+  codeLabel,
   learned,
-  learnedTitle = 'What we learned',
+  learnedTitle,
   terms = [],
   hood,
+  done,
 }: {
   n: string;
   title: string;
@@ -112,22 +185,38 @@ export function Step({
   terms?: string[];
   /** An "under the hood" press — see `Hood.tsx`. */
   hood?: ReactNode;
+  /** The date a done step landed, shown only while its state is `done`. */
+  done?: string;
 }) {
+  const progress = useContext(StepProgressContext);
+  const state = progress?.stateOf(n);
+  const finished = state === 'done';
+  const planned = state !== undefined && !finished;
+  const meta = state !== undefined && progress?.metaOf ? progress.metaOf(n, state) : null;
+
   return (
-    <article className="cal-step" id={`step-${n}`} aria-labelledby={`step-${n}-title`}>
+    <article className="cal-step" id={`step-${n}`} aria-labelledby={`step-${n}-title`} data-state={state}>
       <header className="cal-step-head">
         <span className="cal-step-n" aria-hidden>
-          {n}
+          {finished ? '✓' : n}
         </span>
         <h3 className="cal-step-title" id={`step-${n}-title`}>
           <span className="sr-only">Step {n}: </span>
           {title}
         </h3>
         <p className="cal-step-meta">
-          <span className="cal-pill" data-tone="done">
-            Step {n} · Built
-          </span>
+          {state === undefined ? (
+            <span className="cal-pill" data-tone="done">
+              Step {n} · Built
+            </span>
+          ) : (
+            <span className="cal-pill" data-tone={state === 'idea' ? undefined : state}>
+              Step {n} · {STATE_TEXT[state]}
+              {finished && done ? `, ${formatDate(done)}` : ''}
+            </span>
+          )}
           {when && <span className="cal-pill">{WHEN_TEXT[when]}</span>}
+          {meta && <span className="cal-pill">{meta}</span>}
         </p>
       </header>
 
@@ -135,11 +224,15 @@ export function Step({
         <Part label="In plain words">{typeof plain === 'string' ? <p>{plain}</p> : plain}</Part>
         <Part label="Why it matters">{typeof why === 'string' ? <p>{why}</p> : why}</Part>
         {code && (
-          <Part label={codeLabel}>
+          <Part label={codeLabel ?? CODE_LABEL[state ?? 'done']}>
             <div className="grid gap-6">{code}</div>
           </Part>
         )}
-        {learned && <Lesson title={learnedTitle}>{learned}</Lesson>}
+        {learned && (
+          <Lesson planned={planned} title={learnedTitle ?? (state ? LESSON_TITLE[state] : undefined)}>
+            {learned}
+          </Lesson>
+        )}
         {terms.length > 0 && <Terms keys={terms} />}
         {hood}
       </div>
@@ -158,10 +251,22 @@ export function Part({ label, children }: { label: string; children: ReactNode }
   );
 }
 
-export function Lesson({ title = 'What we learned', children }: { title?: string; children: ReactNode }) {
+/**
+ * What a step learned. `planned` draws it dashed: what a step WILL check is not
+ * yet something that happened, and must not look like something that did.
+ */
+export function Lesson({
+  title = 'What we learned',
+  planned = false,
+  children,
+}: {
+  title?: string;
+  planned?: boolean;
+  children: ReactNode;
+}) {
   return (
-    <aside className="cal-lesson">
-      <h4 className="cal-label" data-tone="learn">
+    <aside className="cal-lesson" data-planned={planned || undefined}>
+      <h4 className="cal-label" data-tone={planned ? 'quiet' : 'learn'}>
         <LightIcon />
         {title}
       </h4>
@@ -351,4 +456,42 @@ export function BeforeAfter({
  */
 export function Because({ children }: { children: ReactNode }) {
   return <p className="cal-because">{children}</p>;
+}
+
+export interface WireLine {
+  dir: 'out' | 'in';
+  body: string;
+  /** A fragment of `body` to pick out, e.g. the version that was agreed. */
+  mark?: string;
+}
+
+/**
+ * Protocol messages, drawn as themselves. Each row says in words which way it
+ * went — "we sent" / "it replied" — rather than relying on an arrow, which a
+ * newcomer has to decode and a screen reader reads as "right arrow".
+ */
+export function Wire({ lines }: { lines: WireLine[] }) {
+  return (
+    <div className="cal-wire-box">
+      {lines.map((line, i) => (
+        <div key={i} className="cal-wire" data-dir={line.dir}>
+          <span className="cal-wire-dir">{line.dir === 'out' ? 'We sent' : 'It replied'}</span>
+          <span className="cal-wire-body">{highlight(line.body, line.mark)}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function highlight(body: string, mark?: string): ReactNode {
+  if (!mark) return body;
+  const at = body.indexOf(mark);
+  if (at < 0) return body;
+  return (
+    <>
+      {body.slice(0, at)}
+      <mark>{mark}</mark>
+      {body.slice(at + mark.length)}
+    </>
+  );
 }

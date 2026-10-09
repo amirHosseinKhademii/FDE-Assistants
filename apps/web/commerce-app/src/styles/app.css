@@ -30,6 +30,10 @@
  */
 @import '@veresk/surface/styles.css';
 @source '../../../../../packages/surface/src';
+/* The how-it-works kit (`@veresk/learn/steps`). Its CSS reads the variables
+   set in `:root` below, so the kit comes out in this app's palette. */
+@import '@veresk/learn/styles.css';
+@source '../../../../../packages/learn/src';
 
 /* ── THE REDESIGN OF 2026-09-27, AND WHAT IT WAS FOR ───────────────────────
    The first version of these pages was brass and copper on near-black, with
@@ -113,6 +117,13 @@ body {
   outline: 2px solid var(--color-thb-2);
   outline-offset: 3px;
   border-radius: 0.375rem;
+}
+
+:root {
+  /* The how-it-works kit (`@veresk/learn/steps`) reads these two: what was
+     built (teal, as the thb steps drew it) and what we learned (sky). */
+  --steps-built: var(--color-thb-1);
+  --steps-accent: var(--color-thb-2);
 }
 
 :root {

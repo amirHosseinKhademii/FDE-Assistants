@@ -516,6 +516,9 @@ importers:
       '@thornbury/commerce':
         specifier: workspace:*
         version: link:../../ai/commerce
+      '@veresk/learn':
+        specifier: workspace:*
+        version: link:../../../packages/learn
       '@veresk/surface':
         specifier: workspace:*
         version: link:../../../packages/surface

@@ -17,8 +17,8 @@
  * `head`'s status. That is a whole class of wrong measurement and it is recorded
  * rather than quietly fixed.
  */
-import { HoodSection, HoodText } from './Hood';
-import { Figure, Raw } from './kit';
+import { HoodSection, HoodText } from '@veresk/learn/steps';
+import { Figure, Raw } from '@veresk/learn/steps';
 
 export function InspectorHood() {
   return (
@@ -32,7 +32,7 @@ export function InspectorHood() {
 
 function NotOurs() {
   return (
-    <HoodSection title="a program we did not write used our server">
+    <HoodSection title="A program we did not write used our server">
       <Figure caption="the command" from="measured" source="@modelcontextprotocol/inspector 2.7.0">
         <Raw>
           {`cd apps/mcp/commerce
@@ -70,7 +70,7 @@ npx -y @modelcontextprotocol/inspector@2.7.0 npx ts-node src/server.ts`}
 
 function TwoVocabularies() {
   return (
-    <HoodSection title="the same failure, described two ways">
+    <HoodSection title="The same failure, described two ways">
       <Figure caption="one event, two clients" from="corrected" source="step 1 vs. step 2">
         <Raw>
           {`raw wire (our CLI)  { "code": -32602,           "message": "Tool no_such_tool not found" }
@@ -106,7 +106,7 @@ the inspector       { "code": "tool_not_found", "message": "Tool '...' not found
 
 function ThroughAPipe() {
   return (
-    <HoodSection title="and one measurement that was nearly wrong">
+    <HoodSection title="And one measurement that was nearly wrong">
       <HoodText>
         The first run of that command was piped into <code>head</code>. So{' '}
         <code>$?</code> reported <code>head</code>'s exit status — 0 — and the
@@ -114,7 +114,7 @@ function ThroughAPipe() {
         exit code.” It does; it exits 5. Re-running it without the pipe is the
         only reason that sentence is not in the document.
       </HoodText>
-      <Figure caption="the shape of the error">
+      <Figure from="proposed" caption="the shape of the error">
         <Raw>
           {`$ thing-that-fails | head        $? = 0   ← head's status
 $ thing-that-fails               $? = 5   ← the thing's status`}

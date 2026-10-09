@@ -18,9 +18,9 @@
  * them.
  */
 import { Code } from '@veresk/surface';
-import { HoodSection, HoodText } from './Hood';
-import { Figure, Raw, Wire } from './kit';
-import type { WireLine } from './kit';
+import { HoodSection, HoodText } from '@veresk/learn/steps';
+import { Figure, Raw, Wire } from '@veresk/learn/steps';
+import type { WireLine } from '@veresk/learn/steps';
 
 /**
  * The captured exchange, reformatted only by wrapping — no field renamed, no
@@ -92,7 +92,7 @@ export function HandshakeHood() {
 /** Correction one: the answer came back lower than the question, in silence. */
 function Version() {
   return (
-    <HoodSection title="we asked for one protocol version and were given another">
+    <HoodSection title="We asked for one protocol version and were given another">
       <HoodText>
         The client asked to speak <code>2026-07-28</code>. The server replied{' '}
         <code>2025-11-25</code> — and that is the whole exchange. No error, no
@@ -117,7 +117,7 @@ function Version() {
 /** Correction two: one error code for two different people's mistakes. */
 function ErrorCode() {
   return (
-    <HoodSection title="an unknown tool is −32602, not −32601">
+    <HoodSection title="An unknown tool is −32602, not −32601">
       <HoodText>
         The plan predicted <code>-32601 METHOD_NOT_FOUND</code>. The wire says{' '}
         <code>-32602 INVALID_PARAMS</code>, and it is obvious afterwards:{' '}
@@ -156,7 +156,7 @@ function ErrorCode() {
 
 function TheServer() {
   return (
-    <HoodSection title="the server — one tool, no database, no credential">
+    <HoodSection title="The server — one tool, no database, no credential">
       <Figure caption="registering a tool" from="measured" source="quoted whole, comments and all">
         <Code
           path="apps/mcp/commerce/src/server.ts:104–120"
@@ -287,7 +287,7 @@ function TheServer() {
 
 function TheClient() {
   return (
-    <HoodSection title="the client — raw JSON-RPC, deliberately not the SDK">
+    <HoodSection title="The client — raw JSON-RPC, deliberately not the SDK">
       <HoodText>
         Step 10 writes a real client. This is not it. The client SDK is the right
         way to talk to a server and the wrong way to <em>learn</em> one, because
@@ -334,7 +334,7 @@ function TheClient() {
         approval is therefore ours to build rather than the protocol's to
         provide.
       </HoodText>
-      <Figure caption="the framing, verified rather than assumed">
+      <Figure from="proposed" caption="the framing, verified rather than assumed">
         <Raw>
           {`require('@modelcontextprotocol/server').serializeMessage({...})
   -> '{"jsonrpc":"2.0","id":1,"method":"ping"}\\n'`}
@@ -350,7 +350,7 @@ function TheClient() {
 
 function FullTrace() {
   return (
-    <HoodSection title="the whole run">
+    <HoodSection title="The whole run">
       <Figure
         caption="four exchanges, start to finish"
         from="measured"
