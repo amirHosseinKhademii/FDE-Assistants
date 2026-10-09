@@ -26,13 +26,18 @@ export interface LessonFacts {
   source: string;
   /** What a reader needs first, or null when it reads cold. */
   needs: string | null;
+  /** Where the page sits in the path: its phase, and its stop within it. */
+  path?: { phase: number; stop: number; of: number };
 }
 
-/** One of the two links out. `crossesTo` is set only when it enters another track. */
+/**
+ * One of the two links out: a lesson, or a build's anchor on its phase page.
+ * `label` is what the card says ("Build · 2.2 Dedup", "3. The answer").
+ * `crossesTo` is set only when the link enters another phase or track.
+ */
 export interface NeighbourLink {
   href: string;
-  n: number;
-  short: string;
+  label: string;
   title: string;
   crossesTo?: string;
 }
@@ -60,6 +65,11 @@ export function LessonPage({
           <span style={{ color: 'var(--lesson)' }}>
             lesson {lesson.n} of {lesson.total}
           </span>
+          {lesson.path && (
+            <span className="text-ui-dim">
+              {`Phase ${lesson.path.phase} · stop ${lesson.path.stop} of ${lesson.path.of}`}
+            </span>
+          )}
           <span className="text-ui-faint">≈ {lesson.minutes} min, roughly</span>
         </p>
 
@@ -102,7 +112,7 @@ export function LessonPage({
           <Step
             href={prev.href}
             dir="back"
-            label={`${prev.n}. ${prev.short}`}
+            label={prev.label}
             title={prev.title}
             /* Only when it changes, so the common case stays quiet and the
                handover between tracks is the thing that stands out. */
@@ -115,7 +125,7 @@ export function LessonPage({
           <Step
             href={next.href}
             dir="on"
-            label={`${next.n}. ${next.short}`}
+            label={next.label}
             title={next.title}
             track={next.crossesTo}
           />

@@ -1,7 +1,7 @@
 /**
  * `/steps` — How it works. Ported from commerce-app's Steps page, with the
  * commerce content removed. Everything on the page is derived from
- * lib/steps.ts, so a content change never touches this file.
+ * data/wrap-steps.ts, so a content change never touches this file.
  */
 import { useCallback, useState } from 'react';
 import { Aurora } from '@veresk/surface';
@@ -9,9 +9,9 @@ import { Step } from '../components/steps/kit';
 import { PhaseHead, PhaseTabs } from '../components/steps/Tabs';
 import type { PhaseTab } from '../components/steps/Tabs';
 import { AURORA } from '../lib/aurora';
-import { GLOSSARY, GLOSSARY_ORDER, termId } from '../lib/glossary';
-import { PHASES } from '../lib/steps';
-import type { PhaseDef, StepDef } from '../lib/steps';
+import { GLOSSARY, GLOSSARY_ORDER, termId } from '@veresk/learn/wrap-glossary';
+import { PHASES } from '@veresk/learn/wrap-steps';
+import type { PhaseDef, StepDef } from '@veresk/learn/wrap-steps';
 
 const ALL_STEPS: StepDef[] = PHASES.flatMap((p) => p.steps);
 const TOTAL = ALL_STEPS.length;

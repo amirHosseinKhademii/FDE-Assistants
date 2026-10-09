@@ -60,7 +60,9 @@ export { Stages } from './charts/Stages';
 export { Trifecta, type TrifectaSet } from './charts/Trifecta';
 export { VectorLab } from './charts/VectorLab';
 
-// The lessons: their records, and every page by slug.
+// The lessons: their records, and every page by slug. The wrap steps and glossary
+// are NOT re-exported here (their names would collide with the kit's); import them
+// by subpath: `@veresk/learn/wrap-steps`, `@veresk/learn/wrap-glossary`.
 export {
   TRACKS,
   LESSONS,
@@ -77,4 +79,25 @@ export {
 } from './data/lessons';
 export { GENERATED_AT, PACKAGES, type ArchPackage } from './data/architecture.generated';
 export { LESSON_PAGES } from './lessons/registry';
+
+// The path: the same 27 lessons in the order they are built, with the wrap steps
+// that build them. Helpers are path-order reads; `pathCoverageErrors` is the check.
+export {
+  PATH,
+  pathCoverageErrors,
+  pathOrder,
+  phaseCounts,
+  phaseOf,
+  linkableNeighbours,
+  nextStop,
+  prevStop,
+  stopIndexOf,
+  stopPosition,
+  stopHref,
+  stopLabel,
+  stopTitle,
+  type PathPhase,
+  type PhaseId,
+  type Stop,
+} from './data/path';
 export { LearnIndex } from './lessons/LearnIndex';

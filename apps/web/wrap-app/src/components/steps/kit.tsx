@@ -12,12 +12,12 @@
  *                      check, drawn dashed so it does not look finished
  *   words to know      each one a link down to the glossary
  *
- * The step is data (lib/steps.ts), so `Step` takes that object, not children.
+ * The step is data (@veresk/learn/wrap-steps), so `Step` takes that object, not children.
  */
 import type { ReactNode } from 'react';
 import { Code } from '@veresk/surface';
-import { GLOSSARY, termId } from '../../lib/glossary';
-import type { Provenance, StepCode, StepDef } from '../../lib/steps';
+import { GLOSSARY, termId } from '@veresk/learn/wrap-glossary';
+import type { Provenance, StepCode, StepDef } from '@veresk/learn/wrap-steps';
 import { Hood, HoodSection } from './Hood';
 
 const BADGE: Record<Provenance, { text: string; tone: 'done' | 'next' | 'planned' | 'quiet' }> = {

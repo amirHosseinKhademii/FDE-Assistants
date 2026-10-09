@@ -7,7 +7,7 @@
  * it is HERE, in this build, if that differs. A definition that only works if
  * you already know two other terms is not a definition.
  *
- * Every step's `terms` list in lib/steps.ts must name a key that is defined
+ * Every step's `terms` list in data/wrap-steps.ts must name a key that is defined
  * here. Keys are identifier-safe (no hyphens) so TermKey stays a plain union.
  */
 

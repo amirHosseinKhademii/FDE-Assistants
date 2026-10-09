@@ -23,7 +23,7 @@
  * file can be checked line by line against the file it names.
  */
 import type { Lang } from '@veresk/surface';
-import type { TermKey } from './glossary';
+import type { TermKey } from './wrap-glossary';
 
 export type StepStatus = 'done' | 'next' | 'planned';
 
@@ -72,7 +72,7 @@ export interface StepDef {
   code?: StepCode;
   /** Part 4 — what we learned (done) or what it will check (planned). */
   learned?: string;
-  /** Part 5 — words to know, each a key of GLOSSARY in lib/glossary.ts. */
+  /** Part 5 — words to know, each a key of GLOSSARY in data/wrap-glossary.ts. */
   terms?: TermKey[];
   /** The "under the hood" dialog. Optional. */
   hood?: StepHood;
