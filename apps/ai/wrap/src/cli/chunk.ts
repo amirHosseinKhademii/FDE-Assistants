@@ -4,12 +4,15 @@
  * Usage: pnpm --filter @wrap/ai chunk   (or pnpm wrap:chunk from the repo root)
  *
  * Files listed as removed exact duplicates in data/dedup-report.json are skipped (the kept copy
- * is chunked). BINARY and UNKNOWN files are skipped. Output is one Chunk JSON object per line,
- * in sorted path order, so two runs give a byte-identical file.
+ * is chunked). make-mess bookkeeping (MAKE_MESS_BOOKKEEPING) and BINARY/UNKNOWN files are skipped.
+ * Identical chunks are then dropped (chunk-dedup.ts), keeping the first in sorted order. Output is
+ * one Chunk JSON object per line, in sorted (source_file, chunk_index) order, so two runs give a
+ * byte-identical file.
  */
 import * as fs from "fs";
 import * as path from "path";
 import { CHUNK_SIZES, Chunk, chunkFile } from "../chunking";
+import { dedupChunks } from "../chunking/chunk-dedup";
 import { decodeToUtf8, detectFormat, Format } from "../ingest/format-detector";
 import { enrichChunk } from "../ingest/metadata-extractor";
 
@@ -18,6 +21,15 @@ const SCRUBBED_DIR = path.join(PACKAGE_DIR, "data", "scrubbed");
 const DEDUP_REPORT = path.join(PACKAGE_DIR, "data", "dedup-report.json");
 const OUT_FILE = path.join(PACKAGE_DIR, "data", "chunks.jsonl");
 const TOP_FILES = 5;
+
+/**
+ * make-mess bookkeeping, relative to the scrubbed root, that is NOT corpus. make-mess.ts writes
+ * `manifest.json` next to the flawed files: it lists every planted flaw, so indexing it would
+ * hand the retriever an answer key. The only other file make-mess writes is the corpus itself
+ * (empty.txt, huge-repeated.txt, scanned-doc.txt are planted flaws, not bookkeeping). Keep this
+ * list explicit: add a name here only when make-mess starts writing another bookkeeping file.
+ */
+const MAKE_MESS_BOOKKEEPING = new Set(["manifest.json"]);
 
 function walk(dir: string): string[] {
   const out: string[] = [];
@@ -91,15 +103,15 @@ function main(): void {
   let chunkedFiles = 0;
   let skippedDuplicates = 0;
   let skippedFormat = 0;
-  const lines: string[] = [];
-  const enriched: Chunk[] = [];
-  const perFile = new Map<string, number>();
-  const perType = new Map<string, number>();
-  const tokens: number[] = [];
-  let overMax = 0;
+  let skippedBookkeeping = 0;
+  const all: Chunk[] = [];
 
   for (const file of files) {
     const rel = path.relative(SCRUBBED_DIR, file).split(path.sep).join("/");
+    if (MAKE_MESS_BOOKKEEPING.has(rel)) {
+      skippedBookkeeping++;
+      continue;
+    }
     if (removed.has(rel)) {
       skippedDuplicates++;
       continue;
@@ -112,18 +124,26 @@ function main(): void {
     }
     const chunks: Chunk[] = chunkFile(rel, decodeToUtf8(buf, detection.encoding), detection.format);
     chunkedFiles++;
-    perFile.set(rel, chunks.length);
-    for (const raw of chunks) {
-      const c = enrichChunk(raw);
-      enriched.push(c);
-      lines.push(JSON.stringify(c));
-      perType.set(c.type, (perType.get(c.type) ?? 0) + 1);
-      tokens.push(c.tokens);
-      if (c.tokens > CHUNK_SIZES.maxTokens) overMax++;
-    }
+    for (const raw of chunks) all.push(enrichChunk(raw));
   }
 
-  fs.writeFileSync(OUT_FILE, lines.map((l) => `${l}\n`).join(""));
+  const { kept: enriched, dropped } = dedupChunks(all);
+  fs.writeFileSync(OUT_FILE, enriched.map((c) => `${JSON.stringify(c)}\n`).join(""));
+
+  const perFile = new Map<string, number>();
+  const perType = new Map<string, number>();
+  const tokens: number[] = [];
+  let overMax = 0;
+  for (const c of enriched) {
+    perFile.set(c.source_file, (perFile.get(c.source_file) ?? 0) + 1);
+    perType.set(c.type, (perType.get(c.type) ?? 0) + 1);
+    tokens.push(c.tokens);
+    if (c.tokens > CHUNK_SIZES.maxTokens) overMax++;
+  }
+
+  const droppedPerFile = new Map<string, number>();
+  for (const c of dropped) droppedPerFile.set(c.source_file, (droppedPerFile.get(c.source_file) ?? 0) + 1);
+  const topDropped = [...droppedPerFile.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1)).slice(0, TOP_FILES);
 
   const sorted = [...tokens].sort((a, b) => a - b);
   const top = [...perFile.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1)).slice(0, TOP_FILES);
@@ -132,9 +152,13 @@ function main(): void {
   console.log("Chunking complete");
   console.log(`Files in data/scrubbed: ${files.length}`);
   console.log(`  chunked: ${chunkedFiles}`);
+  console.log(`  skipped, make-mess bookkeeping (not corpus): ${skippedBookkeeping}`);
   console.log(`  skipped, removed exact duplicate (data/dedup-report.json): ${skippedDuplicates}`);
   console.log(`  skipped, BINARY/UNKNOWN: ${skippedFormat}`);
-  console.log(`Total chunks: ${lines.length} -> ${path.relative(PACKAGE_DIR, OUT_FILE)}`);
+  console.log(`Chunk dedup (identical normalised content): ${all.length} -> ${enriched.length} chunks, dropped ${dropped.length}`);
+  console.log(`Top ${topDropped.length} source files by chunks dropped:`);
+  for (const [rel, count] of topDropped) console.log(`  ${String(count).padStart(6)}  ${rel}`);
+  console.log(`Total chunks: ${enriched.length} -> ${path.relative(PACKAGE_DIR, OUT_FILE)}`);
   console.log("Chunks per type:");
   for (const [type, count] of [...perType.entries()].sort()) console.log(`  ${type}: ${count}`);
   if (sorted.length > 0) {

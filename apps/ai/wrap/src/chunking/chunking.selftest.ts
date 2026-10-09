@@ -10,7 +10,8 @@ import { Format } from "../ingest/format-detector";
 import { chunkCsv } from "./csv";
 import { chunkMarkdown } from "./markdown";
 import { chunkText } from "./text";
-import { CHUNK_SIZES, Chunk, chunkId, estimateTokens } from "./types";
+import { CHUNK_SIZES, Chunk, chunkId, estimateTokens, makeChunk } from "./types";
+import { dedupChunks } from "./chunk-dedup";
 
 let passed = 0;
 let failed = 0;
@@ -317,6 +318,31 @@ check("router: BINARY and UNKNOWN give no chunks; C_HEADER and CSV route to thei
   const csv = chunkFile("t/a.csv", "k,v\n1,2\n", Format.CSV);
   assert.equal(csv[0].type, "csv_row");
   assert.equal(chunkFile("n/a.json", "word ".repeat(5), Format.JSON)[0].type, "text_paragraph");
+});
+
+check("chunk dedup: 3 identical (one whitespace-varied) + 1 different gives 2 kept, first in sorted order, duplicate_count 2", () => {
+  const mk = (source: string, index: number, content: string): Chunk =>
+    makeChunk({ sourceFile: source, index, type: "text_paragraph", content, startLine: 1, endLine: 1 });
+  const same = "steering torque sensor";
+  const input = [
+    mk("docs/b.txt", 0, same),
+    mk("docs/c.txt", 2, "  steering\n torque   sensor "),
+    mk("docs/a.txt", 1, same),
+    mk("docs/a.txt", 0, "a different paragraph"),
+  ];
+  const first = dedupChunks(input);
+  const second = dedupChunks([...input].reverse());
+  assert.equal(first.kept.length, 2, `kept ${first.kept.length}`);
+  assert.equal(first.dropped.length, 2, `dropped ${first.dropped.length}`);
+  const keptIds = first.kept.map((c) => `${c.source_file}:${c.chunk_index}`);
+  assert.deepEqual(keptIds, ["docs/a.txt:0", "docs/a.txt:1"]);
+  assert.equal(first.kept[1].metadata.duplicate_count, 2, "two identical copies dropped");
+  assert.equal(first.kept[0].metadata.duplicate_count, undefined, "no duplicates for the different chunk");
+  assert.deepEqual(
+    second.kept.map((c) => `${c.source_file}:${c.chunk_index}`),
+    keptIds,
+    "order must not depend on input order",
+  );
 });
 
 console.log(`\n${passed}/${passed + failed} checks passed`);

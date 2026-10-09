@@ -376,3 +376,25 @@ jq -c '.metadata | {subsystem, type_category, ticket_ids, requirement_ids, dates
 - `type_category` uses the real folder names (`closure-reports`, `timesheets`, …) and a few file-name and subsystem rules beyond the plan's list. `README`/`CHANGELOG` count as documentation.
 - Plan's "subsystem count" check (eps-core 2100, pmo 500, …) does not match the corpus. Actual counts are above.
 - Plan's `--audit` stretch goal is not built.
+
+## Step 2.4/2.5 fix — skip make-mess manifest, dedup identical chunks
+
+**Date:** 2026-10-09
+
+**What was wrong:**
+- `data/scrubbed/manifest.json` (make-mess's list of planted flaws) was chunked into 10 chunks. It is an answer key, not corpus.
+- `data/scrubbed/huge-repeated.txt` (planted repeated text) produced 4,167 near-identical chunks.
+
+**What changed (`src/cli/chunk.ts`, new `src/chunking/chunk-dedup.ts`):**
+- `MAKE_MESS_BOOKKEEPING` = `{"manifest.json"}`, skipped by path. make-mess.ts writes no other bookkeeping file; `empty.txt`, `huge-repeated.txt` and `scanned-doc.txt` are planted flaws and stay in the corpus.
+- Chunk-level exact dedup after chunking: content is trimmed, whitespace-collapsed, sha256-hashed. Chunks are visited in (source_file, chunk_index) order, the first is kept, and the kept chunk gets `metadata.duplicate_count` when copies were dropped.
+- `chunking.selftest.ts` has a new dedup check (3 identical + 1 different → 2 kept, duplicate_count 2, same result for reversed input). `chunk:check` 18/18.
+
+**New totals (`pnpm wrap:chunk`, two runs byte-identical):**
+- Before: 20,097 chunks, of which 10 from manifest.json. After skipping: 20,087. After dedup: 15,795 (4,292 dropped; 92 kept chunks carry `duplicate_count`).
+- `huge-repeated.txt`: 4,167 → 1 chunk.
+- Per type: code_function 708, code_struct 219, csv_row 12,760, markdown_section 1,908, text_paragraph 200.
+- Top files by chunks dropped: huge-repeated.txt (4,166), system-requirements-PRG-VGR-05_pii.md (17), test_filter_iir_1.c (7), test_checksum_8.c (6), test_rate_limit_6.c (5).
+- The subsystem and type_category tables above are from before this fix and are stale.
+
+**Commands:** unchanged. `pnpm --filter @wrap/ai chunk:check` (18 checks), `meta:check` (9 checks).
