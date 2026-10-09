@@ -398,3 +398,59 @@ jq -c '.metadata | {subsystem, type_category, ticket_ids, requirement_ids, dates
 - The subsystem and type_category tables above are from before this fix and are stale.
 
 **Commands:** unchanged. `pnpm --filter @wrap/ai chunk:check` (18 checks), `meta:check` (9 checks).
+
+## Step 2.6 — Stage A (20-chunk trial)
+
+**Date:** 2026-10-09
+
+**What was built (`apps/ai/wrap`):**
+- `src/db/schema.sql`: `CREATE EXTENSION vector`; `chunks` (id TEXT from chunks.jsonl, content_hash VARCHAR(64) UNIQUE, source_file, chunk_index, start/end_line, heading_path, type, tokens, content, metadata JSONB); `embeddings` (chunk_id FK ON DELETE CASCADE, content_hash, embedding vector(1536), model, UNIQUE (content_hash, model)); HNSW `vector_cosine_ops` with m=12, ef_construction=200. All `IF NOT EXISTS`.
+- `src/db/env.ts`: loads the repo-root `.env` in Node; `redact()` strips WRAP_DB_URL, HOSTED_API_KEY and any postgres URL from logs.
+- `src/cli/db-migrate.ts` (`db:migrate`): applies schema.sql, prints tables, pgvector version, HNSW index name.
+- `src/ingest/embedder.ts`: `embedChunks(chunks, batchSize, retryCount, onBatch?)`. Gemini OpenAI-compatible endpoint, `gemini-embedding-001`, 1536 dims. Retries 429 and 5xx with exponential backoff (1s base, 30s cap, jitter), up to 5 retries. Any other error throws. Each batch goes to `onBatch` for persistence.
+- `src/cli/embed-and-index.ts` (`embed-and-index`, alias `embed`): reads `data/chunks.jsonl`, sha256 of content, sorts by (source_file, chunk_index). Skips any (content_hash, model) already embedded. Batch size 50. Each batch is one transaction that inserts the chunk row and its embedding. Flags: `--dry-run`, `--limit N` (N <= 20 unless `--all`), `--all`.
+- Root scripts: `wrap:db:migrate`, `wrap:embed`. `@wrap/ai` scripts: `db:migrate`, `embed-and-index`, `embed`.
+
+**Commands:**
+```
+pnpm wrap:db:migrate            # run twice; both exit 0
+pnpm wrap:embed --dry-run
+pnpm wrap:embed --limit 20      # first run
+pnpm wrap:embed --limit 20      # second run: must embed 0
+pnpm --filter @wrap/ai exec tsc --noEmit
+```
+
+**Migration (run twice, identical output):** tables chunks + embeddings, pgvector 0.8.6, index `embeddings_embedding_hnsw_idx`. The DB is Postgres 18.6 on Neon. It was empty before this step.
+
+**Dry run (no API calls, no writes):**
+- Chunks in file: 15,795
+- Already embedded: 0
+- To embed (full run): 15,795 in 316 batches of 50
+- Estimated tokens, full run: **717,060** (sum of `tokens` field; largest chunk 498)
+
+**20-chunk trial (`--limit 20`):**
+- Window: first 20 chunks in (source_file, chunk_index) order
+- Embedded now: 20, failures: 0, batches: 1
+- Estimated tokens embedded: 3,157
+- Still to embed (full set): 15,775 chunks, est. 713,903 tokens
+- Elapsed: 6.7 s
+
+**Idempotency proof:** second `--limit 20` run reports already embedded 20, to embed 0, embedded now 0, exit 0, elapsed 1.1 s. A `--limit 21` attempt exits 2 before any API call.
+
+**Sanity query (scratch script, not in repo):**
+- Rows: chunks 20, embeddings 20
+- `vector_dims(embedding)` = 1536
+- Nearest neighbours of one embedded chunk (source_file, cosine distance): git-log.txt 0.0621, git-log.txt 0.0713, CODEOWNERS 0.2581, README.md 0.2612, cfg/build.json 0.3059
+
+**Typecheck:** `pnpm --filter @wrap/ai exec tsc --noEmit` passes.
+
+**Deviations from the plan:**
+- Plan named the migration `packages/wrap-postgres/migrations/002-*.sql` and the CLI `embed-and-index.ts`. The schema lives in `apps/ai/wrap/src/db/schema.sql` because packages/* was off-limits this session. The CLI keeps the plan's name.
+- `packages/wrap-postgres/migrations/001-init.sql` is still on disk. It defines `embeddings` with `chunk_id` as PRIMARY KEY and no `(content_hash, model)` key, so it does not match this schema. It has never been applied to Neon. Retire it or align it before any full run, so the two cannot be applied in conflicting order.
+- chunks.id is the TEXT id from chunks.jsonl (not a generated UUID), so re-ingest maps to the file's ids.
+- `--limit N` is a window (the first N chunks in order), not "the next N unembedded". This is what makes the second `--limit 20` run embed 0.
+- Retries: up to 5 retries after the first attempt (6 attempts total) on 429/5xx. There is no `embed-errors.jsonl`. Other errors stop the run with exit 1, and earlier batches stay committed.
+- Cost is not printed because no price variables are set in .env.
+- `openai` and `dotenv` are imported (same as foundation-check.ts) but are not listed in `apps/ai/wrap/package.json`. They resolve from the root node_modules. No `pnpm install` was run.
+
+**Not done (needs the learner's OK):** full run (`pnpm wrap:embed --all`, about 717k tokens across 316 batches).

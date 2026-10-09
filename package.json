@@ -210,6 +210,8 @@
     "wrap:dedup-check": "pnpm --filter @wrap/ai dedup-check",
     "wrap:scrub-pii": "pnpm --filter @wrap/ai scrub-pii",
     "wrap:chunk": "pnpm --filter @wrap/ai chunk",
+    "wrap:db:migrate": "pnpm --filter @wrap/ai db:migrate",
+    "wrap:embed": "pnpm --filter @wrap/ai embed-and-index",
     "wrap:ask": "pnpm --filter @wrap/ai ask",
     "db:wrap-up": "docker compose -f docker-compose.yml up -d pgvector",
     "db:wrap-down": "docker compose -f docker-compose.yml down",
