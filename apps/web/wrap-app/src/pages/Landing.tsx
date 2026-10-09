@@ -105,17 +105,17 @@ export function Landing() {
     <div className="relative min-h-screen overflow-hidden">
       <Aurora tones={AURORA} />
 
-      <main className="relative z-10 mx-auto max-w-6xl px-5 pb-24 sm:px-6">
+      <main className="relative z-10 mx-auto max-w-6xl px-4 pb-24 sm:px-6">
         {/* 1. HERO — the promise, the corpus, and who does what. */}
-        <section className="pt-12 pb-16 md:pt-20 md:pb-20">
+        <section className="pt-10 pb-14 md:pt-20 md:pb-20">
           <h1
-            className="lift-in title-spectrum text-[3.25rem] leading-none font-bold tracking-tight md:text-[4.5rem]"
+            className="lift-in text-[4rem] leading-[0.95] font-semibold tracking-tight md:text-[7rem]"
             style={{ animationDelay: '60ms' }}
           >
-            Wrap
+            <span className="wrap-mark">Wrap</span>
           </h1>
           <p
-            className="lift-in mt-6 max-w-[40ch] text-[1.375rem] leading-snug font-semibold text-ui-fg md:text-[1.625rem]"
+            className="lift-in mt-7 max-w-[30ch] font-display text-[1.5rem] leading-snug font-medium text-ui-fg md:text-[2.125rem]"
             style={{ animationDelay: '160ms' }}
           >
             A document ingestion and retrieval pipeline, built from scratch. Every piece is hand-rolled and measured.
@@ -140,7 +140,7 @@ export function Landing() {
 
         {/* 2. THE MESS — what the pipeline has to survive. Counts from PROGRESS.md, Steps 0.2, 1.1, 2.1–2.3. */}
         <section className="mt-4" aria-labelledby="mess-title">
-          <h2 id="mess-title" className="text-[1.75rem] leading-tight font-bold tracking-tight text-ui-fg">
+          <h2 id="mess-title" className="text-[2rem] leading-[1.15] font-semibold tracking-tight text-ui-fg md:text-[2.5rem]">
             The mess we start from
           </h2>
           <p className="mt-2 mb-8 max-w-[64ch] text-[1.0625rem] leading-relaxed text-ui-dim">
@@ -160,29 +160,29 @@ export function Landing() {
 
         {/* 3. THE PIPELINE SO FAR — one real number per finished step, each linking to its page. */}
         <section className="mt-20" aria-labelledby="pipe-title">
-          <h2 id="pipe-title" className="text-[1.75rem] leading-tight font-bold tracking-tight text-ui-fg">
+          <h2 id="pipe-title" className="text-[2rem] leading-[1.15] font-semibold tracking-tight text-ui-fg md:text-[2.5rem]">
             The pipeline so far
           </h2>
           <p className="mt-2 mb-8 max-w-[64ch] text-[1.0625rem] leading-relaxed text-ui-dim">
             Each finished step, with the one figure it produced. The step page has the code, the commands and what
             went wrong.
           </p>
-          <ol className="grid gap-3 md:grid-cols-2">
+          <ol className="wrap-rail">
             {PIPELINE.map((s) => (
-              <li key={s.n} className="wrap-card flex gap-4">
-                <span className="wrap-dot mt-0.5 shrink-0" data-state="done" aria-hidden>
-                  ✓
+              <li key={s.n} data-state="done">
+                <span className="wrap-rail-node" aria-hidden>
+                  {s.n}
                 </span>
-                <div className="min-w-0">
-                  <p className="flex flex-wrap items-baseline gap-x-3">
-                    <span className="text-[1.25rem] font-bold text-wrap-1">{s.fig}</span>
-                    <span className="font-semibold text-ui-fg">
+                <div className="wrap-rail-body">
+                  <p className="wrap-rail-fig">
+                    <span>{s.fig}</span>
+                    <span className="wrap-rail-title">
                       <span className="sr-only">Step {s.n}: </span>
                       {s.title}
                     </span>
                   </p>
-                  <p className="mt-1.5 text-[0.9375rem] leading-relaxed text-ui-dim">{s.says}</p>
-                  <Link to="/steps" className="wrap-a mt-2 inline-block text-[0.9375rem]">
+                  <p className="wrap-rail-says">{s.says}</p>
+                  <Link to="/steps" className="wrap-a mt-3 inline-block text-[0.9375rem]">
                     Step {s.n} →
                   </Link>
                 </div>
@@ -193,7 +193,7 @@ export function Landing() {
 
         {/* 4. MEASURED, NOT GUESSED — the scoreboard, and the honest state of its numbers. */}
         <section className="mt-20" aria-labelledby="measure-title">
-          <h2 id="measure-title" className="text-[1.75rem] leading-tight font-bold tracking-tight text-ui-fg">
+          <h2 id="measure-title" className="text-[2rem] leading-[1.15] font-semibold tracking-tight text-ui-fg md:text-[2.5rem]">
             Measured, not guessed
           </h2>
           <p className="mt-2 mb-6 max-w-[66ch] text-[1.0625rem] leading-relaxed text-ui-dim">
@@ -205,22 +205,24 @@ export function Landing() {
             <p className="wrap-label" data-tone="quiet">
               Stub baseline, 27 answerable cases
             </p>
-            <table className="wrap-table mt-4">
-              <thead>
-                <tr>
-                  <th scope="col">Metric</th>
-                  <th scope="col">Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                {STUB_BASELINE.map((row) => (
-                  <tr key={row.metric}>
-                    <td>{row.metric}</td>
-                    <td>{row.value}</td>
+            <div className="mt-4 overflow-x-auto">
+              <table className="wrap-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Metric</th>
+                    <th scope="col">Value</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {STUB_BASELINE.map((row) => (
+                    <tr key={row.metric}>
+                      <td>{row.metric}</td>
+                      <td>{row.value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
             <p className="wrap-note">
               <strong>These are not retrieval scores.</strong> The stub search places the right document in the top 10
               for about one query in three, on purpose. The numbers prove the harness works. The real baseline arrives
@@ -231,7 +233,7 @@ export function Landing() {
 
         {/* 5. THE ROAD AHEAD — all nine phases from the plan, with status from the progress log. */}
         <section className="mt-20" aria-labelledby="road-title">
-          <h2 id="road-title" className="text-[1.75rem] leading-tight font-bold tracking-tight text-ui-fg">
+          <h2 id="road-title" className="text-[2rem] leading-[1.15] font-semibold tracking-tight text-ui-fg md:text-[2.5rem]">
             The road ahead
           </h2>
           <p className="mt-2 mb-8 max-w-[64ch] text-[1.0625rem] leading-relaxed text-ui-dim">
@@ -269,8 +271,8 @@ export function Landing() {
 
 function Flaw({ fig, label }: { fig: string; label: string }) {
   return (
-    <div className="wrap-card">
-      <dt className="text-[1.5rem] font-bold text-wrap-2">{fig}</dt>
+    <div className="wrap-doc">
+      <dt className="wrap-flaw-fig">{fig}</dt>
       <dd className="mt-1.5 text-[0.9375rem] leading-relaxed text-ui-dim">{label}</dd>
     </div>
   );

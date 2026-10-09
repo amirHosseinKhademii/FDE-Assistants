@@ -20,8 +20,9 @@ export const Route = createRootRoute({
     meta: [
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { name: 'color-scheme', content: 'dark' },
-      { name: 'theme-color', content: '#121826' },
+      { name: 'color-scheme', content: 'light dark' },
+      { name: 'theme-color', media: '(prefers-color-scheme: light)', content: '#f3ecdd' },
+      { name: 'theme-color', media: '(prefers-color-scheme: dark)', content: '#1a1b20' },
       { title: 'Wrap' },
     ],
     links: [
@@ -30,7 +31,7 @@ export const Route = createRootRoute({
       { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
       {
         rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Atkinson+Hyperlegible+Mono:wght@400;500;600&display=swap',
+        href: 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap',
       },
     ],
   }),
@@ -45,8 +46,8 @@ function RootLayout() {
         <script dangerouslySetInnerHTML={{ __html: MOTION_SETTLE }} />
       </head>
       <body>
-        <header className="mx-auto flex max-w-6xl items-center gap-6 px-5 py-5 sm:px-6">
-          <Link to="/" className="text-[1rem] font-bold text-ui-fg">
+        <header className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-5 sm:px-6">
+          <Link to="/" className="font-display text-[1.25rem] font-semibold text-ui-fg">
             Wrap
           </Link>
           <nav aria-label="Main" className="flex gap-5 text-[0.9375rem]">

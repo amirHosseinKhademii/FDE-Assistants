@@ -25,11 +25,11 @@ export function Steps() {
   return (
     <div className="relative min-h-screen overflow-hidden">
       <Aurora tones={AURORA} muted />
-      <main className="relative z-10 mx-auto max-w-6xl px-5 pb-24 sm:px-6">
+      <main className="relative z-10 mx-auto max-w-6xl px-4 pb-24 sm:px-6">
         <Hero />
         <Roadmap onGo={goToStep} />
         <section className="mt-20" aria-labelledby="steps-title">
-          <h2 id="steps-title" className="text-[1.75rem] leading-tight font-bold tracking-tight text-ui-fg">
+          <h2 id="steps-title" className="text-[2rem] leading-[1.15] font-semibold tracking-tight text-ui-fg md:text-[2.5rem]">
             The steps
           </h2>
           <p className="mt-2 mb-6 max-w-[64ch] text-[1.0625rem] leading-relaxed text-ui-dim">
@@ -67,7 +67,7 @@ function useGoToStep(setActive: (id: string) => void) {
 function Hero() {
   return (
     <section className="pt-8 pb-4 md:pt-14">
-      <h1 className="text-[2.25rem] leading-[1.1] font-bold tracking-tight text-ui-fg md:text-[3rem]">How it works</h1>
+      <h1 className="text-[2.75rem] leading-[1.05] font-semibold tracking-tight text-ui-fg md:text-[4.25rem]">How it works</h1>
       <p className="mt-4 max-w-[64ch] text-[1.125rem] leading-relaxed text-ui-dim">
         Each step is built and checked before the next one starts. Every step is
         laid out the same way, so you know where to look in each.
@@ -87,7 +87,7 @@ function Hero() {
 function Roadmap({ onGo }: { onGo: (step: string) => void }) {
   return (
     <section className="mt-20" aria-labelledby="road-title">
-      <h2 id="road-title" className="text-[1.75rem] leading-tight font-bold tracking-tight text-ui-fg">
+      <h2 id="road-title" className="text-[2rem] leading-[1.15] font-semibold tracking-tight text-ui-fg md:text-[2.5rem]">
         The roadmap
       </h2>
       <div className="wrap-road mt-8">
@@ -152,7 +152,7 @@ function PhaseBody({ phase }: { phase: PhaseDef }) {
 function Glossary() {
   return (
     <section className="mt-20" aria-labelledby="gloss-title">
-      <h2 id="gloss-title" className="text-[1.75rem] leading-tight font-bold tracking-tight text-ui-fg">
+      <h2 id="gloss-title" className="text-[2rem] leading-[1.15] font-semibold tracking-tight text-ui-fg md:text-[2.5rem]">
         Words used on this page
       </h2>
       <p className="mt-2 mb-6 max-w-[66ch] text-[1.0625rem] leading-relaxed text-ui-dim">
