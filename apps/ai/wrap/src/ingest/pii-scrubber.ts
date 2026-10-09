@@ -1,9 +1,13 @@
 /**
- * PII scrubbing for ingested text: emails, phones, and person names.
+ * PII scrubbing for ingested text: emails, email handles, phones, and person names.
  *
- * Three regex passes run in order (emails, phones, names). Each pass sees the
+ * Four passes run in order (emails, handles, phones, names). Each pass sees the
  * text already rewritten by the previous passes, so a token such as EMAIL_0001
  * is never re-matched as a name or phone.
+ *
+ * Handles are the local part of an email (t.sala in t.sala@x.example). They
+ * leak in git-log author lines ("Author: t.sala <EMAIL_0009>"), so once an
+ * email is known, its local part is redacted wherever it stands alone.
  *
  * The token map is an explicit object (createPiiMap) passed in by the caller,
  * not a module-level global. Same (type, value) pair -> same token, so one
@@ -16,7 +20,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-export type PiiType = "EMAIL" | "PHONE" | "PERSON";
+export type PiiType = "EMAIL" | "HANDLE" | "PHONE" | "PERSON";
 export type ScrubMode = "redact" | "remove";
 
 export type Redaction = {
@@ -49,7 +53,7 @@ export type PiiAllowlist = {
 export function createPiiMap(): PiiMap {
   const tokenByKey = new Map<string, string>();
   const valueByToken = new Map<string, { type: PiiType; original: string }>();
-  const counters: Record<PiiType, number> = { EMAIL: 0, PHONE: 0, PERSON: 0 };
+  const counters: Record<PiiType, number> = { EMAIL: 0, HANDLE: 0, PHONE: 0, PERSON: 0 };
 
   return {
     tokenFor(type, value) {
@@ -111,6 +115,38 @@ function regexSpans(text: string, re: RegExp, type: PiiType): Span[] {
     type,
     value: m[0],
   }));
+}
+
+// Local parts too generic to treat as a person's handle, even when they meet the length rule.
+const GENERIC_MAILBOXES = new Set([
+  "info", "admin", "support", "noreply", "no-reply", "sales", "contact", "team", "office", "hello",
+]);
+
+/** True when an email's local part is specific enough to redact as a standalone handle. */
+export function isHandleCandidate(local: string): boolean {
+  if (!/[A-Za-z]/.test(local)) return false;
+  if (GENERIC_MAILBOXES.has(local.toLowerCase())) return false;
+  return local.includes(".") || local.includes("_") || local.length >= 4;
+}
+
+/**
+ * One regex matching any of `handles` as a standalone word: not inside a longer
+ * word, an email (no '@' on either side), a dotted name, or a token. Null if none.
+ */
+export function handleRegex(handles: string[]): RegExp | null {
+  const alts = [...new Set(handles)]
+    .sort((a, b) => b.length - a.length)
+    .map((h) => h.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  if (alts.length === 0) return null;
+  return new RegExp(`(?<![\\w@.-])(?:${alts.join("|")})(?![\\w@-]|\\.\\w)`, "g");
+}
+
+function handleSpans(text: string, emails: string[]): Span[] {
+  const handles = emails
+    .map((e) => e.slice(0, e.indexOf("@")))
+    .filter(isHandleCandidate);
+  const re = handleRegex(handles);
+  return re ? regexSpans(text, re, "HANDLE") : [];
 }
 
 function nameSpans(text: string, allow: PiiAllowlist): Span[] {
@@ -213,13 +249,21 @@ export function scrubPII(
   const redactions: Redaction[] = [];
 
   state = applySpans(state, regexSpans(state.text, EMAIL_RE, "EMAIL"), mode, map, redactions);
+
+  // Known emails: those redacted in this call plus every email already in the shared map.
+  const emails = [
+    ...redactions.filter((r) => r.type === "EMAIL").map((r) => r.original),
+    ...map.entries().filter((e) => e.type === "EMAIL").map((e) => e.original),
+  ];
+  state = applySpans(state, handleSpans(state.text, emails), mode, map, redactions);
+
   state = applySpans(state, regexSpans(state.text, PHONE_RE, "PHONE"), mode, map, redactions);
   state = applySpans(state, nameSpans(state.text, allowlist), mode, map, redactions);
 
   return { text: state.text, redactions };
 }
 
-const TOKEN_RE = /\b(?:EMAIL|PHONE|PERSON)_\d{4}\b/g;
+const TOKEN_RE = /\b(?:EMAIL|HANDLE|PHONE|PERSON)_\d{4}\b/g;
 
 /** Replaces every known token in `text` with its original value. Unknown tokens are left alone. */
 export function restorePII(text: string, map: PiiMap): string {

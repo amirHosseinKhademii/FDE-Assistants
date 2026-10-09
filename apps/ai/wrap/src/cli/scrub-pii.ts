@@ -9,8 +9,12 @@
  * the input tree under apps/ai/wrap/data/scrubbed/. BINARY and UNKNOWN files
  * are copied unchanged. The map is written to data/pii-map.json (chmod 600).
  *
- * --validate re-scans data/scrubbed with the same email and phone regexes and
- * reports anything that survived (expected: 0).
+ * Two passes: first every email in the corpus is registered in the map, so its
+ * local part (a handle such as t.sala) is known in every file; then the
+ * scrubbing pass runs. Both passes allocate the same tokens as a single pass.
+ *
+ * --validate re-scans data/scrubbed with the same email and phone regexes, and
+ * counts remaining known handles (HANDLE entries in the map). Expected: 0.
  */
 import * as fs from "fs";
 import * as path from "path";
@@ -18,6 +22,7 @@ import { decodeToUtf8, detectFormat, Format } from "../ingest/format-detector";
 import {
   createPiiMap,
   EMAIL_RE,
+  handleRegex,
   loadPiiAllowlist,
   PHONE_RE,
   scrubPII,
@@ -60,17 +65,44 @@ function validate(): number {
     console.error(`scrub-pii --validate: no scrubbed output at ${SCRUBBED_DIR}`);
     return 1;
   }
+  const knownHandles = fs.existsSync(MAP_FILE)
+    ? (JSON.parse(fs.readFileSync(MAP_FILE, "utf8")) as Array<{ type: string; original: string }>)
+        .filter((e) => e.type === "HANDLE")
+        .map((e) => e.original)
+    : [];
+  const handleRe = handleRegex(knownHandles);
+
   const files = walk(SCRUBBED_DIR);
   const hits: string[] = [];
+  const handleHits: string[] = [];
   for (const file of files) {
     const text = fs.readFileSync(file, "utf8");
-    for (const m of text.matchAll(EMAIL_RE)) hits.push(`EMAIL ${path.relative(SCRUBBED_DIR, file)}: ${m[0]}`);
-    for (const m of text.matchAll(PHONE_RE)) hits.push(`PHONE ${path.relative(SCRUBBED_DIR, file)}: ${m[0]}`);
+    const rel = path.relative(SCRUBBED_DIR, file);
+    for (const m of text.matchAll(EMAIL_RE)) hits.push(`EMAIL ${rel}: ${m[0]}`);
+    for (const m of text.matchAll(PHONE_RE)) hits.push(`PHONE ${rel}: ${m[0]}`);
+    if (handleRe) for (const m of text.matchAll(handleRe)) handleHits.push(`HANDLE ${rel}: ${m[0]}`);
   }
   console.log(`Validate: ${files.length} files in ${SCRUBBED_DIR}`);
   console.log(`Remaining emails/phones: ${hits.length}`);
+  console.log(`Remaining known handles (${knownHandles.length} in map): ${handleHits.length}`);
+  for (const h of handleHits.slice(0, 20)) console.log(`  ${h}`);
   for (const h of hits.slice(0, 20)) console.log(`  ${h}`);
-  return hits.length === 0 ? 0 : 1;
+  return hits.length === 0 && handleHits.length === 0 ? 0 : 1;
+}
+
+/** Pass 1: register every email in the corpus, so handles are known before any file is scrubbed. */
+function registerEmails(files: string[], map: PiiMap): void {
+  for (const file of files) {
+    try {
+      const buf = fs.readFileSync(file);
+      const detection = detectFormat(buf, path.basename(file));
+      if (detection.format === Format.BINARY || detection.format === Format.UNKNOWN) continue;
+      const text = decodeToUtf8(buf, detection.encoding);
+      for (const m of text.matchAll(EMAIL_RE)) map.tokenFor("EMAIL", m[0]);
+    } catch {
+      // Unreadable files are reported by the scrubbing pass.
+    }
+  }
 }
 
 function main(): void {
@@ -94,6 +126,8 @@ function main(): void {
 
   // Start from a clean output tree so no stale files survive a rerun.
   fs.rmSync(SCRUBBED_DIR, { recursive: true, force: true });
+
+  registerEmails(files, map);
 
   for (const file of files) {
     const rel = path.relative(scanDir, file);
@@ -126,7 +160,7 @@ function main(): void {
   console.log(`Scanned: ${scanDir}`);
   console.log(`Files scanned: ${files.length} (changed: ${changed}, copied unchanged BINARY/UNKNOWN: ${copied}, errors: ${errors})`);
   console.log("Per type (found / unique values / tokens):");
-  for (const type of ["EMAIL", "PHONE", "PERSON"] as PiiType[]) {
+  for (const type of ["EMAIL", "HANDLE", "PHONE", "PERSON"] as PiiType[]) {
     const found = all.filter((r) => r.type === type);
     const unique = new Set(found.map((r) => r.original));
     const tokens = map.entries().filter((e) => e.type === type).length;

@@ -117,6 +117,33 @@ check("email with a capitalized-name-like local part is redacted once, not as a 
   assert.equal(r.text, "Send it to EMAIL_0001 today");
 });
 
+check("git-log author: email and its handle both tokenised, restore round-trips", () => {
+  const text = "Author: t.sala <t.sala@vantis-steering.example>";
+  const map = createPiiMap();
+  const r = scrubPII(text, "redact", map, allow);
+  assert.equal(r.text, "Author: HANDLE_0001 <EMAIL_0001>");
+  assert.ok(!r.text.includes("t.sala"), "handle left in output");
+  assert.equal(restorePII(r.text, map), text);
+});
+
+check("handle learned from an email in the shared map is scrubbed in later text", () => {
+  const map = createPiiMap();
+  scrubPII("mail t.sala@vantis-steering.example", "redact", map, allow);
+  const r = scrubPII("Reviewed by t.sala yesterday", "redact", map, allow);
+  assert.equal(r.text, "Reviewed by HANDLE_0001 yesterday");
+});
+
+check("generic mailbox 'info' is never a handle", () => {
+  const r = scrub("Write to info@x.com, the info desk is open.");
+  assert.equal(r.text, "Write to EMAIL_0001, the info desk is open.");
+  assert.ok(!r.redactions.some((x) => x.type === "HANDLE"));
+});
+
+check("handle is not matched inside a longer word or a dotted name", () => {
+  const r = scrub("mail jharvey@company.local; xjharvey and jharvey.v2 stay");
+  assert.equal(r.text, "mail EMAIL_0001; xjharvey and jharvey.v2 stay");
+});
+
 check("redact mode: restorePII(scrub(x)) === x", () => {
   const map = createPiiMap();
   for (const x of [PLANTED_A, PLANTED_B, "a jharvey@company.local b jharvey@company.local"]) {
@@ -136,7 +163,7 @@ check("redact mode: start/end offsets point at the original text", () => {
 check("remove mode: no tokens and no PII left", () => {
   const r = scrub(PLANTED_A, "remove");
   assert.deepEqual(typesOf(r.redactions).sort(), ["EMAIL", "PERSON", "PHONE"]);
-  assert.ok(!/\b(EMAIL|PHONE|PERSON)_\d{4}\b/.test(r.text), "token left in output");
+  assert.ok(!/\b(EMAIL|HANDLE|PHONE|PERSON)_\d{4}\b/.test(r.text), "token left in output");
   for (const original of ["John Harvey", "jharvey@company.local", "555-0147"]) {
     assert.ok(!r.text.includes(original), `output still contains ${original}`);
   }
