@@ -1,27 +1,17 @@
 /**
- * The seven stages of the build, as tabs.
+ * The stages of a build, as tabs.
  *
- * ── WHY A TAB BAR AND NOT ONE LONG PAGE ────────────────────────────────────
+ * WHY A TAB BAR AND NOT ONE LONG PAGE. Twenty-nine steps in one column is a
+ * wall: a reader arriving mid-way has no way to tell whether they are near the
+ * start or the end, and no way to skip what they did not come for. A stage is a
+ * thing you could stop after and still have something worth having.
  *
- * Twenty-nine steps in one column is a wall: a reader arriving at step 5.2 has
- * no way to tell whether it is near the start or the end, and no way to skip
- * the eight steps about search if what they came for is the evals. The seven
- * stages are the documents' own grouping (`docs/safety/`), and each is a thing
- * you could stop after and still have something worth having.
+ * THE ORDER IS THE DEPENDENCY ORDER, which is the host's to choose. Reading left
+ * to right should be reading the sequence.
  *
- * ── THE ORDER IS THE DEPENDENCY ORDER ──────────────────────────────────────
- *
- * Not the order somebody would like to build them in. You cannot write an
- * answer key for a corpus you have not surveyed, or a contract before the key,
- * or evals before there is something to score. Reading left to right is reading
- * the sequence.
- *
- * ── CONTROLLED, BECAUSE A LINK HAS TO BE ABLE TO OPEN A TAB ────────────────
- *
- * Only the active panel is rendered, so an anchor to a step in a closed tab
- * scrolls nowhere and looks like a broken page. The roadmap's buttons open the
- * stage first, so the owner of "which tab is open" is the page, not this file.
- * (The same move, for the same reason, as Thornbury's `Tabs.tsx`.)
+ * CONTROLLED, BECAUSE A LINK HAS TO BE ABLE TO OPEN A TAB. Only the active panel
+ * is rendered, so an anchor to a step in a closed tab scrolls nowhere and looks
+ * like a broken page. The page owns "which tab is open".
  */
 import { useCallback, useId, useRef } from 'react';
 import type { ReactNode } from 'react';
@@ -41,10 +31,13 @@ export function PhaseTabs({
   tabs,
   active,
   onActivate,
+  label = 'Stages of the build',
 }: {
   tabs: PhaseTab[];
   active: string;
   onActivate: (id: string) => void;
+  /** Read out by a screen reader as the name of the tab list. */
+  label?: string;
 }) {
   const base = useId();
   const buttons = useRef<Record<string, HTMLButtonElement | null>>({});
@@ -52,7 +45,7 @@ export function PhaseTabs({
 
   return (
     <section className="lift-in" style={{ animationDelay: '140ms' }}>
-      <div role="tablist" aria-label="Stages of the build" className="cal-phases">
+      <div role="tablist" aria-label={label} className="cal-phases">
         {tabs.map((tab, i) => (
           <button
             key={tab.id}
@@ -151,7 +144,7 @@ export function PhaseHead({
   return (
     <section className="lift-in">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <h2 className="text-[1.5rem] leading-tight font-bold tracking-tight text-ui-fg md:text-[1.75rem]">
+        <h2 className="cal-phase-title">
           {title}
         </h2>
         <span className="cal-pill" data-tone="done">
@@ -162,7 +155,7 @@ export function PhaseHead({
       <div className="cal-prose mt-4">{what}</div>
 
       {result && (
-        <div className="mt-6 rounded-xl border border-ui-line-lit bg-ui-surface px-4 py-3.5">
+        <div className="cal-phase-result">
           <h3 className="cal-label" data-tone="quiet">
             Where this stage ended
           </h3>

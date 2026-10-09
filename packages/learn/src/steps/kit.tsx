@@ -1,50 +1,72 @@
 /**
- * The parts a step on `/steps` is built from.
+ * The how-it-works kit: the parts a step is built from, and the figures a step
+ * shows its numbers in. One shape for every step, so a reader who has done one
+ * knows where to look in the next.
  *
- * ── ONE SHAPE, TWENTY-NINE TIMES ───────────────────────────────────────────
- *
- * Since the redesign of 2026-09-27 — which ports Thornbury Goods' `/steps`
- * (`apps/web/commerce-app/src/components/steps/kit.tsx`) — every step is the
- * same five parts in the same order:
+ * THE FIVE PARTS, in the same order every time:
  *
  *   in plain words     what the step does, with no jargon left unexplained
  *   why it matters     what would go wrong without it
  *   the code           real, highlighted, labelled with where it came from
- *   what we learned    what running it taught us — nearly every step on this
- *                      engagement corrected something the plan had written down
+ *   what we learned    what running it taught us
  *   words to know      each one a link down to the glossary
  *
- * A reader who has read one step knows where to look in the other twenty-eight.
- * That is the whole design argument for a fixed shape over bespoke layouts, and
- * it is why `Step` takes the parts as props rather than children.
+ * `Step` takes the parts as props rather than children, which is what makes the
+ * shape fixed. A host that keeps a glossary mounts `GlossaryProvider` once, above
+ * its steps; without one, a word links to an anchor named after its key.
  *
  * ── WHERE EVERY FIGURE CAME FROM ───────────────────────────────────────────
  *
  * The badge is not decoration. The difference between "we ran this and kept the
  * output" and "this is somebody else's number, quoted as the bar" is the one
- * thing a reader cannot recover for themselves. The four original categories
- * survive the redesign unchanged in meaning; only the words on the badge moved
- * from the plan's shorthand to plain English, and two were added for code:
+ * thing a reader cannot recover for themselves. The default is `measured`, so a
+ * figure nobody labelled is a claim that it was run: label anything that was not.
  *
- *   measured    Real output          read out of the NHTSA files, or produced
+ *   measured    Real output          read out of a data file, or produced
  *                                    by running the thing. THE DEFAULT, so a
  *                                    figure nobody labelled is a claim that it
  *                                    was run — label anything that was not.
  *   worked      Worked by hand       carried through by a person in the source
  *                                    document; arithmetic anybody can check.
  *   target      Not ours — the bar   somebody else's measurement, quoted as the
- *                                    thing to clear. THE DANGEROUS ONE: 0.813 is
- *                                    Vantis Steering's recall@6 and reads as
- *                                    Calder's unless it says otherwise.
+ *                                    thing to clear. THE DANGEROUS ONE: a bar quoted from
+ *                                    another project reads as this one's
+ *                                    result unless it says otherwise.
  *   pending     No number yet        a definition or a shape with no result in it.
  *   excerpt     Shortened from the   real code, cut down for the page. No line
  *               real code            numbers: a gutter promises the file says
  *                                    this at that line, and the files move.
  *   cited       From the docs        stated in a named document or spec.
  */
+import { createContext, useContext } from 'react';
 import type { ReactNode } from 'react';
-import { GLOSSARY, termId, type TermKey } from '../../lib/glossary';
-import type { When } from '../../lib/steps';
+
+/** The three states a step can be in when it is read: all of them are "built". */
+export type When = 'once, offline' | 'every question' | 'on demand';
+
+/** A glossary entry, as far as the kit needs it: the word to show. */
+export interface GlossaryEntry {
+  word: string;
+}
+
+export interface GlossaryValue {
+  /** Entries by key, as a `Step`'s `terms` names them. */
+  entries: Record<string, GlossaryEntry>;
+  /** The anchor a term links to. */
+  idOf: (key: string) => string;
+}
+
+const GlossaryContext = createContext<GlossaryValue>({
+  entries: {},
+  idOf: (key) => `term-${key}`,
+});
+
+/** Mount once, above the steps: `<GlossaryProvider value={{ entries, idOf }}>`. */
+export const GlossaryProvider = GlossaryContext.Provider;
+
+export function useGlossary(): GlossaryValue {
+  return useContext(GlossaryContext);
+}
 
 export type Provenance = 'measured' | 'worked' | 'target' | 'pending' | 'excerpt' | 'cited';
 
@@ -87,7 +109,7 @@ export function Step({
   codeLabel?: string;
   learned?: ReactNode;
   learnedTitle?: string;
-  terms?: TermKey[];
+  terms?: string[];
   /** An "under the hood" press — see `Hood.tsx`. */
   hood?: ReactNode;
 }) {
@@ -125,7 +147,7 @@ export function Step({
   );
 }
 
-function Part({ label, children }: { label: string; children: ReactNode }) {
+export function Part({ label, children }: { label: string; children: ReactNode }) {
   return (
     <section className="cal-part">
       <h4 className="cal-label" data-tone="quiet">
@@ -156,13 +178,14 @@ function LightIcon() {
   );
 }
 
-export function Terms({ keys }: { keys: TermKey[] }) {
+export function Terms({ keys }: { keys: string[] }) {
+  const { entries, idOf } = useGlossary();
   return (
     <p className="cal-terms">
       <span>Words to know:</span>
       {keys.map((k) => (
-        <a key={k} href={`#${termId(k)}`} className="cal-term">
-          {GLOSSARY[k].word}
+        <a key={k} href={`#${idOf(k)}`} className="cal-term">
+          {entries[k]?.word ?? k}
         </a>
       ))}
     </p>
@@ -172,8 +195,7 @@ export function Terms({ keys }: { keys: TermKey[] }) {
 /**
  * A figure, and where its numbers came from.
  *
- * SAME PROPS AS BEFORE THE REDESIGN, and the same default (`measured`), so every
- * existing call site keeps its meaning without being edited.
+ * The default is `measured`, so a figure with no `from` says it was run.
  */
 export function Figure({
   caption,

@@ -45,8 +45,8 @@ import { useCallback, useRef, useState } from 'react';
 import { OriginDialog, originOf } from '@fde/uikit';
 import type { Origin } from '@fde/uikit';
 import { Code, Data } from '@veresk/surface';
-import { HoodButton } from './Hood';
-import { Because } from './kit';
+import { HoodButton } from '@veresk/learn/steps';
+import { Because } from '@veresk/learn/steps';
 
 /**
  * The controlled comparison: 320 real passages, mean 610 characters, max 2,051,

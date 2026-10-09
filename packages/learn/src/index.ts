@@ -44,6 +44,10 @@ export {
   type Cost,
 } from './components/kit';
 
+// The how-it-works kit, under its own name: `steps.Step` is not the lesson's `Step`.
+// Consumers may import it by subpath instead: `import { Step } from '@veresk/learn/steps'`.
+export * as steps from './steps';
+
 // The figures. Hand-rolled SVG, each taking its rows as data.
 export { BarRows, type BarRow } from './charts/BarRows';
 export { Funnel } from './charts/Funnel';

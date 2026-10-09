@@ -53,7 +53,7 @@ import { OriginDialog, originOf } from '@fde/uikit';
 import type { Origin } from '@fde/uikit';
 import { Code, Data } from '@veresk/surface';
 import type { ReactNode } from 'react';
-import { HoodButton, HoodSection, HoodText } from './Hood';
+import { HoodButton, HoodSection, HoodText } from '@veresk/learn/steps';
 
 /**
  * The seven complaints that name campaign 20V197000 in their own narrative.

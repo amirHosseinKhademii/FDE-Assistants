@@ -64,9 +64,9 @@
  * under `apps/ai/safety/src/tools/` and `src/cli/measure-tools.ts`.
  */
 import { Code } from '@veresk/surface';
-import { Figure, Note, Numbers, Table, Step } from './kit';
-import { PhaseHead } from './Tabs';
-import { Hood, HoodSection, HoodText } from './Hood';
+import { Figure, Note, Numbers, Table, Step } from '@veresk/learn/steps';
+import { PhaseHead } from '@veresk/learn/steps';
+import { Hood, HoodSection, HoodText } from '@veresk/learn/steps';
 import { TITLES, WHEN } from '../../lib/steps';
 import { CitingModal } from './CitingModal';
 import { CountModal } from './CountModal';

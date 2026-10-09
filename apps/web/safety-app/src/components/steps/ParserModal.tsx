@@ -49,8 +49,8 @@ import { OriginDialog, originOf } from '@fde/uikit';
 import type { Origin } from '@fde/uikit';
 import { Code, Data } from '@veresk/surface';
 import { ROWS, UNITS } from '../../lib/estate.generated';
-import { HoodButton } from './Hood';
-import { Because } from './kit';
+import { HoodButton } from '@veresk/learn/steps';
+import { Because } from '@veresk/learn/steps';
 
 const n = (x: number) => x.toLocaleString('en-GB');
 

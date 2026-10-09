@@ -49,8 +49,8 @@ import { OriginDialog, originOf } from '@fde/uikit';
 import type { Origin } from '@fde/uikit';
 import { Code, Data } from '@veresk/surface';
 import type { ReactNode } from 'react';
-import { HoodButton, HoodSection, HoodText } from './Hood';
-import { Numbers, Table } from './kit';
+import { HoodButton, HoodSection, HoodText } from '@veresk/learn/steps';
+import { Numbers, Table } from '@veresk/learn/steps';
 
 /** Honda Odyssey campaigns whose component begins "BACK OVER PREVENTION". */
 const BACK_OVER = [

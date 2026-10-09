@@ -73,9 +73,9 @@ import type { ReactNode } from 'react';
 import { Code, Data, Journey } from '@veresk/surface';
 import { LOOP_TURNS } from '../../pages/loop-turns';
 import { TITLES, WHEN } from '../../lib/steps';
-import { BeforeAfter, Figure, Note, Numbers, Raw, Step, Table } from './kit';
-import { PhaseHead } from './Tabs';
-import { Hood, HoodSection, HoodText } from './Hood';
+import { BeforeAfter, Figure, Note, Numbers, Raw, Step, Table } from '@veresk/learn/steps';
+import { PhaseHead } from '@veresk/learn/steps';
+import { Hood, HoodSection, HoodText } from '@veresk/learn/steps';
 import { LoopModal } from './LoopModal';
 
 export function Stage6() {

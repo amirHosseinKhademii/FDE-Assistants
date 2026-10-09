@@ -49,10 +49,10 @@
 import { useCallback, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { Aurora, Code, Data } from '@veresk/surface';
-import { BeforeAfter, Figure, Note, Numbers, Raw, Step, Table } from '../components/steps/kit';
-import { PhaseHead, PhaseTabs } from '../components/steps/Tabs';
-import type { PhaseTab } from '../components/steps/Tabs';
-import { BigPicture } from '../components/steps/BigPicture';
+import { BeforeAfter, Figure, GlossaryProvider, Note, Numbers, Raw, Step, Table } from '@veresk/learn/steps';
+import { PhaseHead, PhaseTabs } from '@veresk/learn/steps';
+import type { PhaseTab } from '@veresk/learn/steps';
+import { SafetyBigPicture } from '../components/steps/SafetyBigPicture';
 import { ParserModal } from '../components/steps/ParserModal';
 import { ChunkerModal } from '../components/steps/ChunkerModal';
 import { EmbedModal } from '../components/steps/EmbedModal';
@@ -68,6 +68,7 @@ import { AURORA } from '../lib/aurora';
 import { ROWS, UNITS } from '../lib/estate.generated';
 import { VERESK } from '../lib/links';
 import { GLOSSARY, GLOSSARY_ORDER, termId } from '../lib/glossary';
+import type { TermKey } from '../lib/glossary';
 import { ALL_STEPS, STAGES, STAGE_OF, TITLES, WHEN, inWords } from '../lib/steps';
 
 /** The complaint this page follows, start to finish. */
@@ -110,12 +111,19 @@ const CONTENT: Record<string, React.ReactNode> = {
 
 const PHASES: PhaseTab[] = STAGES.map((s) => ({ ...s, content: CONTENT[s.id] }));
 
+/** The page's glossary, handed to the kit: a step's "words to know" link here. */
+const GLOSSARY_VALUE = {
+  entries: GLOSSARY,
+  idOf: (key: string) => termId(key as TermKey),
+};
+
 export function Steps() {
   const [active, setActive] = useState(PHASES[0].id);
   const goToStep = useGoToStep(setActive);
 
   return (
     <div className="cal-howto relative min-h-screen overflow-hidden">
+      <GlossaryProvider value={GLOSSARY_VALUE}>
       <Aurora tones={AURORA} muted />
       <Nav />
       <main className="relative z-10 mx-auto max-w-6xl px-5 pb-24 sm:px-6">
@@ -130,7 +138,7 @@ export function Steps() {
             near the end — the one place where what the public wrote leaves
             machines we control.
           </p>
-          <BigPicture passages={PASSAGES} />
+          <SafetyBigPicture passages={PASSAGES} />
         </section>
         <Roadmap onGo={goToStep} />
         <section className="mt-20" aria-labelledby="steps-title">
@@ -148,6 +156,7 @@ export function Steps() {
         <Limits />
       </main>
       <Footer />
+      </GlossaryProvider>
     </div>
   );
 }

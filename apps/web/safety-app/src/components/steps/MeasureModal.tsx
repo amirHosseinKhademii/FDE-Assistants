@@ -49,8 +49,8 @@ import { useCallback, useState } from 'react';
 import { OriginDialog, originOf } from '@fde/uikit';
 import type { Origin } from '@fde/uikit';
 import { Data } from '@veresk/surface';
-import { HoodButton } from './Hood';
-import { Because, Numbers, Table } from './kit';
+import { HoodButton } from '@veresk/learn/steps';
+import { Because, Numbers, Table } from '@veresk/learn/steps';
 
 /** Where the answer key's documents ranked in the KEYWORD arm, each for its own question. */
 const WHERE_THEY_WERE = [

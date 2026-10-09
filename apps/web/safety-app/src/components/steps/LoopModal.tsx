@@ -63,8 +63,8 @@ import { OriginDialog, originOf } from '@fde/uikit';
 import type { Origin } from '@fde/uikit';
 import { Code, Data } from '@veresk/surface';
 import type { ReactNode } from 'react';
-import { HoodButton, HoodSection, HoodText } from './Hood';
-import { Table } from './kit';
+import { HoodButton, HoodSection, HoodText } from '@veresk/learn/steps';
+import { Table } from '@veresk/learn/steps';
 
 /** Seven arguments, and each one is a stage of this engagement arriving. */
 const ARGS: readonly { arg: string; is: string }[] = [

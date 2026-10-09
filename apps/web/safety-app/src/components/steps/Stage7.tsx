@@ -74,9 +74,9 @@
  *     same tool — so it cannot say which change moved REC-007.
  */
 import { Code, Data } from '@veresk/surface';
-import { BeforeAfter, Figure, Note, Numbers, Step, Table } from './kit';
-import { PhaseHead } from './Tabs';
-import { Hood, HoodSection, HoodText } from './Hood';
+import { BeforeAfter, Figure, Note, Numbers, Step, Table } from '@veresk/learn/steps';
+import { PhaseHead } from '@veresk/learn/steps';
+import { Hood, HoodSection, HoodText } from '@veresk/learn/steps';
 import { TITLES, WHEN } from '../../lib/steps';
 
 export function Stage7() {

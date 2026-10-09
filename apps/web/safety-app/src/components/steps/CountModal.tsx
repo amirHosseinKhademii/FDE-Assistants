@@ -53,8 +53,8 @@ import { OriginDialog, originOf } from '@fde/uikit';
 import type { Origin } from '@fde/uikit';
 import { Data } from '@veresk/surface';
 import type { ReactNode } from 'react';
-import { HoodButton, HoodSection, HoodText } from './Hood';
-import { Table } from './kit';
+import { HoodButton, HoodSection, HoodText } from '@veresk/learn/steps';
+import { Table } from '@veresk/learn/steps';
 
 /** Each figure, by three routes that share no code with each other. */
 const AGREEMENTS = [

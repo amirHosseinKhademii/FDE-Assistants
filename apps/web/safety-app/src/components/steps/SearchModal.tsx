@@ -40,8 +40,8 @@ import { useCallback, useState } from 'react';
 import { OriginDialog, originOf } from '@fde/uikit';
 import type { Origin } from '@fde/uikit';
 import { Code, Data } from '@veresk/surface';
-import { HoodButton } from './Hood';
-import { Because } from './kit';
+import { HoodButton } from '@veresk/learn/steps';
+import { Because } from '@veresk/learn/steps';
 
 /** The fuser's constant, as named in `hybrid.ts`. */
 const RRF_K = 60;

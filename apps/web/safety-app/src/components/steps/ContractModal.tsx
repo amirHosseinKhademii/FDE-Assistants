@@ -52,7 +52,7 @@ import { OriginDialog, originOf } from '@fde/uikit';
 import type { Origin } from '@fde/uikit';
 import { Code, Data } from '@veresk/surface';
 import type { ReactNode } from 'react';
-import { HoodButton, HoodSection, HoodText } from './Hood';
+import { HoodButton, HoodSection, HoodText } from '@veresk/learn/steps';
 
 /** The first run: the rules were fine and the control was not. */
 const FIRST_RUN: readonly { what: string; ok: boolean }[] = [

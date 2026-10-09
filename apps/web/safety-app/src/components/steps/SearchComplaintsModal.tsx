@@ -43,7 +43,7 @@ import { OriginDialog, originOf } from '@fde/uikit';
 import type { Origin } from '@fde/uikit';
 import { Data } from '@veresk/surface';
 import type { ReactNode } from 'react';
-import { HoodButton, HoodSection, HoodText } from './Hood';
+import { HoodButton, HoodSection, HoodText } from '@veresk/learn/steps';
 
 const HAYSTACK = { before: 70194, after: 1057 };
 const RANK = { before: 3026, after: 1 };

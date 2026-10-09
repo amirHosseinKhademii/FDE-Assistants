@@ -67,9 +67,9 @@
 import { Code, Data } from '@veresk/surface';
 import { TITLES, WHEN } from '../../lib/steps';
 import { ContractModal } from './ContractModal';
-import { Hood, HoodSection, HoodText } from './Hood';
-import { Figure, Note, Numbers, Raw, Step, Table } from './kit';
-import { PhaseHead } from './Tabs';
+import { Hood, HoodSection, HoodText } from '@veresk/learn/steps';
+import { Figure, Note, Numbers, Raw, Step, Table } from '@veresk/learn/steps';
+import { PhaseHead } from '@veresk/learn/steps';
 
 const SCHEMA_FILE = 'apps/ai/safety/src/schema/safety-answer.ts';
 const SELFTEST_FILE = 'apps/ai/safety/src/schema/schema-selftest.ts';

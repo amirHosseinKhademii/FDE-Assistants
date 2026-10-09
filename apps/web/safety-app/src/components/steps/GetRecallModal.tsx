@@ -38,7 +38,7 @@ import { OriginDialog, originOf } from '@fde/uikit';
 import type { Origin } from '@fde/uikit';
 import { Code, Data } from '@veresk/surface';
 import type { ReactNode } from 'react';
-import { HoodButton, HoodSection, HoodText } from './Hood';
+import { HoodButton, HoodSection, HoodText } from '@veresk/learn/steps';
 
 /** What search returned when asked for exactly that campaign. Stage 3.5's run. */
 const SEARCH_SAID: { rank: number; what: string; wanted?: boolean }[] = [

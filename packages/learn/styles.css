@@ -23,6 +23,8 @@
  *   --lesson              the lesson's hue, set on <article class="lesson"> by LessonPage
  *   --rail-hue            one rail row's hue, set inline by LessonNav
  *   --snip-accent         the marked line in a code block; defaults to --lesson
+ *   --steps-built         the how-it-works kit: what was built (numerals, stages, pips)
+ *   --steps-accent        the how-it-works kit: what we learned, links, focus, "under the hood"
  */
 
 /* ── THE NEXT / BACK LINKS ──────────────────────────────────────────────────
@@ -638,4 +640,853 @@ a.lesson-card:hover {
 a.lesson-card:focus-visible {
   outline: 2px solid var(--color-ui-accent, #2dd4bf);
   outline-offset: 3px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   THE HOW-IT-WORKS KIT — `@veresk/learn/steps`
+
+   The step card, its five parts, the stage tabs, the "under the hood" press,
+   the figures and the tables. Moved here from safety-app's stylesheet on the
+   2026-10-09 extraction, unchanged in what they draw. The class names keep the
+   `cal-` prefix on purpose: `learn-step` is already the lesson's numbered
+   step, and the two must not collide.
+
+   It reads two HUES, set by the app and defaulting to a neutral pair:
+     --steps-built    what was built: the step numeral, the stage, the pips
+     --steps-accent   what we learned, links, focus, the "under the hood" press
+   ══════════════════════════════════════════════════════════════════════════ */
+
+
+/* ── LABELS ─────────────────────────────────────────────────────────────────
+   Sentence case, in the text face, a little smaller and bolder than the body.
+   The tracked-out uppercase monospace labels were the hardest thing on the old
+   page to read, and there was one above nearly every block. */
+.cal-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--steps-built, #818cf8);
+}
+
+
+.cal-label[data-tone='learn'] {
+  color: var(--steps-accent, #7dd3fc);
+}
+
+
+.cal-label[data-tone='quiet'] {
+  color: var(--color-ui-faint, #5f6878);
+}
+
+
+/* ── THE STAGES, AS TABS ────────────────────────────────────────────────────
+   Seven stages, each a card in a row. The active card's bottom edge is erased
+   so card and panel read as one surface rather than a button above some text. */
+.cal-phases {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+
+@media (min-width: 40rem) {
+  .cal-phases {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+
+@media (min-width: 64rem) {
+  .cal-phases {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0;
+    align-items: stretch;
+  }
+}
+
+
+.cal-phase {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: 0.375rem;
+  padding: 0.875rem 0.875rem 1rem;
+  text-align: left;
+  border: 1px solid var(--color-ui-line, #1e232e);
+  border-radius: 0.875rem;
+  background: var(--color-ui-surface, #0d0f15);
+  transition:
+    background 200ms ease,
+    border-color 200ms ease;
+}
+
+
+@media (min-width: 64rem) {
+  /* NO BOTTOM EDGE ON THE ROW: the tabs sit straight on the panel, so there is
+     no line between the stage you picked and what it shows. */
+  .cal-phase {
+    border-radius: 0.875rem 0.875rem 0 0;
+    border-bottom-width: 0;
+    margin-inline-start: -1px;
+  }
+  .cal-phase:first-child {
+    margin-inline-start: 0;
+  }
+}
+
+
+.cal-phase:hover {
+  background: var(--color-ui-raised, #13161f);
+}
+
+
+.cal-phase[aria-selected='true'] {
+  z-index: 1;
+  border-color: color-mix(in oklab, var(--steps-built, #818cf8) 55%, var(--color-ui-line, #1e232e));
+  background: var(--color-ui-raised, #13161f);
+}
+
+
+.cal-phase[aria-selected='true']::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0.875rem;
+  top: -1px;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--steps-built, #818cf8);
+}
+
+
+.cal-phase-n {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-ui-faint, #5f6878);
+}
+
+
+.cal-phase-label {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--color-ui-dim, #b3bdcc);
+}
+
+
+.cal-phase[aria-selected='true'] .cal-phase-label,
+.cal-phase:hover .cal-phase-label {
+  color: var(--color-ui-fg, #e6ebf2);
+}
+
+
+.cal-phase-status {
+  align-self: end;
+  display: grid;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  color: var(--steps-built, #818cf8);
+}
+
+
+/* How many steps the stage holds, as a row of pips — one per step. Every one
+   is lit, because every one has run; the row is there to show SIZE, which is
+   the thing that differs between stages (one step against eight). */
+.cal-pips {
+  display: flex;
+  gap: 3px;
+}
+
+
+.cal-pips > span {
+  flex: 1;
+  max-width: 1.5rem;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--steps-built, #818cf8);
+}
+
+
+.cal-phasepanel {
+  border: 1px solid var(--color-ui-line, #1e232e);
+  border-radius: 0.875rem;
+  background: linear-gradient(180deg, var(--color-ui-raised, #13161f) 0, var(--color-ui-bg, #0a0c11) 22rem);
+  padding: 1.5rem 1rem 2rem;
+}
+
+
+@media (min-width: 40rem) {
+  .cal-phasepanel {
+    padding: 2rem 1.75rem 2.5rem;
+  }
+}
+
+
+@media (min-width: 64rem) {
+  .cal-phasepanel {
+    border-top-width: 0;
+    border-radius: 0 0 0.875rem 0.875rem;
+    padding: 2.5rem 2.25rem 2.75rem;
+  }
+}
+
+
+/* ── A STEP ─────────────────────────────────────────────────────────────────
+   Every step is the same five parts in the same order — in plain words, why it
+   matters, the code, what we learned, words to know — so a reader who has done
+   one knows where to look in the next twenty-eight. */
+.cal-step {
+  scroll-margin-top: 1.5rem;
+  border: 1px solid var(--color-ui-line, #1e232e);
+  border-radius: 1rem;
+  background: var(--color-ui-surface, #0d0f15);
+  padding: 1.25rem 1rem 1.5rem;
+}
+
+
+@media (min-width: 40rem) {
+  .cal-step {
+    padding: 1.75rem 1.75rem 2rem;
+  }
+}
+
+
+.cal-step-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.25rem 1rem;
+  align-items: start;
+}
+
+
+/* The step's own number, in a lit ring. Not a tick: on this page every step
+   has run, so a tick would say nothing, and `3.6b` is how the documents, the
+   code and the next person all refer to it. */
+.cal-step-n {
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  min-width: 2.75rem;
+  height: 2.75rem;
+  padding-inline: 0.375rem;
+  border-radius: 999px;
+  border: 2px solid var(--steps-built, #818cf8);
+  background: color-mix(in oklab, var(--steps-built, #818cf8) 16%, transparent);
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: var(--color-ui-fg, #e6ebf2);
+}
+
+
+.cal-step-title {
+  font-size: 1.3125rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.005em;
+  color: var(--color-ui-fg, #e6ebf2);
+}
+
+
+.cal-step-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem 0.5rem;
+  align-items: center;
+}
+
+
+.cal-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-ui-line-lit, #3a4760);
+  padding: 0.125rem 0.625rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-ui-dim, #b3bdcc);
+  white-space: nowrap;
+}
+
+
+.cal-pill[data-tone='done'] {
+  border-color: color-mix(in oklab, var(--steps-built, #818cf8) 55%, transparent);
+  background: color-mix(in oklab, var(--steps-built, #818cf8) 12%, transparent);
+  color: var(--steps-built, #818cf8);
+}
+
+
+.cal-pill[data-tone='learn'] {
+  border-color: color-mix(in oklab, var(--steps-accent, #7dd3fc) 55%, transparent);
+  color: var(--steps-accent, #7dd3fc);
+}
+
+
+.cal-pill[data-tone='pending'] {
+  border-style: dashed;
+  color: var(--color-ui-faint, #5f6878);
+}
+
+
+.cal-step-body {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+
+@media (min-width: 40rem) {
+  .cal-step-body {
+    padding-left: 3.75rem;
+  }
+}
+
+
+.cal-part > h4 {
+  margin-bottom: 0.375rem;
+}
+
+
+.cal-part p,
+.cal-prose p {
+  max-width: 68ch;
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim, #b3bdcc);
+}
+
+
+.cal-part p + p,
+.cal-prose p + p {
+  margin-top: 0.75rem;
+}
+
+
+.cal-part strong,
+.cal-prose strong,
+.cal-lesson strong,
+.cal-because strong {
+  color: var(--color-ui-fg, #e6ebf2);
+  font-weight: 600;
+}
+
+
+/* WHAT WE LEARNED. The part of each step that is worth the visit — nearly
+   every one corrected something the plan had written down — so it is the one
+   block with a fill. */
+.cal-lesson {
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in oklab, var(--steps-accent, #7dd3fc) 35%, transparent);
+  background: color-mix(in oklab, var(--steps-accent, #7dd3fc) 6%, transparent);
+  padding: 1rem 1.125rem 1.125rem;
+}
+
+
+.cal-lesson > h4 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+
+.cal-lesson p {
+  max-width: 66ch;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim, #b3bdcc);
+}
+
+
+.cal-lesson p + p {
+  margin-top: 0.625rem;
+}
+
+
+/* A reason set apart from the description — the part a reader is being asked
+   to agree or disagree with. */
+.cal-because {
+  max-width: 68ch;
+  border-left: 2px solid color-mix(in oklab, var(--steps-accent, #7dd3fc) 50%, transparent);
+  padding: 0.25rem 0 0.25rem 1rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim, #b3bdcc);
+}
+
+
+/* Words to know — each one jumps to its glossary entry. */
+.cal-terms {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-ui-faint, #5f6878);
+}
+
+
+.cal-term {
+  border-radius: 999px;
+  border: 1px solid var(--color-ui-line-lit, #3a4760);
+  padding: 0.125rem 0.625rem;
+  color: var(--color-ui-dim, #b3bdcc);
+  transition:
+    color 160ms ease,
+    border-color 160ms ease;
+}
+
+
+.cal-term:hover {
+  border-color: var(--steps-accent, #7dd3fc);
+  color: var(--color-ui-fg, #e6ebf2);
+}
+
+
+/* ── A FIGURE: a caption, where it came from, and the thing itself ─────────── */
+.cal-fig-cap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem 0.625rem;
+  padding-bottom: 0.625rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-ui-fg, #e6ebf2);
+}
+
+
+.cal-fig-src {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--color-ui-faint, #5f6878);
+}
+
+
+.cal-fig .snip-frame {
+  margin: 0;
+}
+
+
+.cal-raw {
+  overflow-x: auto;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-ui-line, #1e232e);
+  background: var(--snip-bg, var(--color-ui-surface, #0d0f15));
+  padding: 0.875rem 1rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: #d4dae3;
+  white-space: pre;
+}
+
+
+.cal-raw mark {
+  background: color-mix(in oklab, var(--steps-accent, #7dd3fc) 26%, transparent);
+  color: var(--color-ui-fg, #e6ebf2);
+  border-radius: 0.1875rem;
+  padding: 0.0625rem 0.1875rem;
+}
+
+
+/* A small table for "this → that" figures. Real rows wrap on a phone; aligned
+   spaces in a <pre> did not. */
+.cal-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--color-ui-line, #1e232e);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  font-size: 0.9375rem;
+}
+
+
+.cal-table th,
+.cal-table td {
+  padding: 0.625rem 0.875rem;
+  text-align: left;
+  vertical-align: top;
+  border-top: 1px solid var(--color-ui-line, #1e232e);
+  line-height: 1.55;
+}
+
+
+.cal-table thead th {
+  border-top: 0;
+  background: var(--color-ui-raised, #13161f);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-ui-faint, #5f6878);
+}
+
+
+.cal-table td {
+  color: var(--color-ui-dim, #b3bdcc);
+}
+
+
+.cal-table td:first-child {
+  color: var(--color-ui-fg, #e6ebf2);
+}
+
+
+.cal-table td[data-num] {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  text-align: right;
+  white-space: nowrap;
+}
+
+
+.cal-table tr[data-lit='true'] td {
+  background: color-mix(in oklab, var(--steps-built, #818cf8) 9%, transparent);
+  color: var(--color-ui-fg, #e6ebf2);
+}
+
+
+.cal-table td code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.85em;
+  /* AN IDENTIFIER NEVER BREAKS. The prose rule above lets inline code wrap
+     anywhere, which in a narrow first column split \`20V197000\` into
+     "20V197" over "000" — a number nobody can look up. The table scrolls
+     sideways on a phone instead. */
+  overflow-wrap: normal;
+  white-space: nowrap;
+}
+
+
+/* A few big numbers in a row, each with what it counts. */
+.cal-numbers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2.5rem;
+}
+
+
+.cal-number-v {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--color-ui-fg, #e6ebf2);
+  font-variant-numeric: tabular-nums;
+}
+
+
+.cal-number-l {
+  margin-top: 0.25rem;
+  max-width: 22ch;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--color-ui-faint, #5f6878);
+}
+
+
+/* A sentence under a figure, saying what to notice in it. */
+.cal-fignote {
+  margin-top: 0.625rem;
+  max-width: 68ch;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--color-ui-faint, #5f6878);
+}
+
+
+.cal-fignote strong {
+  color: var(--color-ui-dim, #b3bdcc);
+  font-weight: 600;
+}
+
+
+/* ── THE BIG PICTURE: who holds what, and where the data leaves ─────────────
+   Five boxes in the order a question's data travels. Ours are outlined in
+   indigo, everybody else's are grey, and the line where the complaints leave
+   our machines is drawn as a line. On a phone the row becomes a column and the
+   arrows turn to point down. */
+.cal-map {
+  display: grid;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+
+@media (min-width: 64rem) {
+  .cal-map {
+    grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr auto 1fr;
+    gap: 0;
+  }
+}
+
+
+.cal-node {
+  display: grid;
+  align-content: start;
+  gap: 0.375rem;
+  border-radius: 0.875rem;
+  border: 1px solid var(--color-ui-line-lit, #3a4760);
+  background: var(--color-ui-surface, #0d0f15);
+  padding: 0.875rem 1rem 1rem;
+}
+
+
+.cal-node[data-side='ours'] {
+  border-color: color-mix(in oklab, var(--steps-built, #818cf8) 60%, transparent);
+  background: color-mix(in oklab, var(--steps-built, #818cf8) 7%, var(--color-ui-surface, #0d0f15));
+}
+
+
+.cal-node[data-side='person'] {
+  border-style: dashed;
+  background: transparent;
+}
+
+
+.cal-node-name {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--color-ui-fg, #e6ebf2);
+}
+
+
+.cal-node-who {
+  font-size: 0.8125rem;
+  color: var(--color-ui-faint, #5f6878);
+}
+
+
+.cal-node[data-side='ours'] .cal-node-who {
+  color: var(--steps-built, #818cf8);
+}
+
+
+.cal-node-holds {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-ui-dim, #b3bdcc);
+}
+
+
+.cal-arrow {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.125rem;
+  padding: 0.125rem 0;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  text-align: center;
+  color: var(--steps-accent, #7dd3fc);
+}
+
+
+.cal-arrow-head {
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
+
+.cal-arrow-head::before {
+  content: '↓';
+}
+
+
+@media (min-width: 64rem) {
+  .cal-arrow {
+    width: 5.25rem;
+    padding: 0 0.25rem;
+  }
+  .cal-arrow-head::before {
+    content: '→';
+  }
+}
+
+
+.cal-arrow[data-line='true'] {
+  position: relative;
+}
+
+
+@media (min-width: 64rem) {
+  .cal-arrow[data-line='true']::after {
+    content: '';
+    position: absolute;
+    top: -0.75rem;
+    bottom: -0.75rem;
+    left: 50%;
+    border-left: 2px dashed color-mix(in oklab, var(--color-ui-fg, #e6ebf2) 35%, transparent);
+    z-index: -1;
+  }
+}
+
+
+/* The label sits ON the line, not under it: this one is three lines long, and
+   a dashed rule struck through its words read as a rendering fault. */
+.cal-arrow[data-line='true'] > span:last-child {
+  position: relative;
+  background: var(--color-ui-bg, #0a0c11);
+  padding-block: 0.25rem;
+}
+
+
+.cal-map-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+  color: var(--color-ui-faint, #5f6878);
+}
+
+
+.cal-swatch {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-right: 0.375rem;
+  vertical-align: -0.0625rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--color-ui-line-lit, #3a4760);
+  background: var(--color-ui-surface, #0d0f15);
+}
+
+
+.cal-swatch[data-side='ours'] {
+  border-color: var(--steps-built, #818cf8);
+  background: color-mix(in oklab, var(--steps-built, #818cf8) 20%, var(--color-ui-surface, #0d0f15));
+}
+
+
+/* Paragraphs inside an "under the hood" dialog, held to a readable measure. */
+.cal-hood-text {
+  max-width: 66ch;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim, #b3bdcc);
+}
+
+/* Inline code in prose, inside the kit. The page-scoped half of the same rule
+   stays in the host's stylesheet. */
+.cal-prose code,
+.cal-step code,
+.cal-hood-text code,
+.cal-because code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.9em;
+  padding: 0.0625rem 0.3125rem;
+  border-radius: 0.3125rem;
+  background: color-mix(in oklab, var(--color-ui-raised, #13161f) 80%, transparent);
+  color: var(--color-ui-fg, #e6ebf2);
+  overflow-wrap: anywhere;
+}
+
+/* ── THE "UNDER THE HOOD" TRIGGER AND ITS PANEL ─────────────────────────────
+   Colours come from the variables above, not from Tailwind's theme, so the
+   kit draws the same in an app whose theme has never heard of these names. */
+.cal-hood-trigger {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  text-align: left;
+  border: 1px solid var(--color-ui-line-lit, #3a4760);
+  border-radius: 0.75rem;
+  background: var(--color-ui-raised, #13161f);
+  transition: border-color 160ms ease;
+}
+
+.cal-hood-trigger:hover {
+  border-color: color-mix(in oklab, var(--steps-accent, #7dd3fc) 60%, transparent);
+}
+
+.cal-hood-trigger:focus-visible {
+  outline: 2px solid var(--steps-accent, #7dd3fc);
+  outline-offset: 3px;
+}
+
+.cal-hood-icon {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.5rem;
+  background: color-mix(in oklab, var(--steps-accent, #7dd3fc) 12%, transparent);
+  color: var(--steps-accent, #7dd3fc);
+}
+
+.cal-hood-body {
+  display: block;
+  min-width: 0;
+  flex: 1;
+}
+
+.cal-hood-title {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-ui-fg, #e6ebf2);
+}
+
+.cal-hood-blurb {
+  display: block;
+  font-size: 0.9375rem;
+  line-height: 1.375;
+  color: var(--color-ui-dim, #b3bdcc);
+}
+
+.cal-hood-open {
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--steps-accent, #7dd3fc);
+  transition: color 160ms ease;
+}
+
+.cal-hood-trigger:hover .cal-hood-open {
+  color: var(--color-ui-fg, #e6ebf2);
+}
+
+.cal-hood-head-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-ui-fg, #e6ebf2);
+}
+
+.cal-hood-head-sub {
+  margin-top: 0.125rem;
+  font-size: 0.875rem;
+  color: var(--color-ui-faint, #5f6878);
+}
+
+.cal-hood-section-title {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--color-ui-fg, #e6ebf2);
+}
+
+/* ── THE STAGE HEADING, AND WHERE IT ENDED ─────────────────────────────────── */
+.cal-phase-title {
+  font-size: 1.5rem;
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--color-ui-fg, #e6ebf2);
+}
+
+@media (min-width: 48rem) {
+  .cal-phase-title {
+    font-size: 1.75rem;
+  }
+}
+
+.cal-phase-result {
+  margin-top: 1.5rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--color-ui-line-lit, #3a4760);
+  border-radius: 0.75rem;
+  background: var(--color-ui-surface, #0d0f15);
 }

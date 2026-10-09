@@ -40,8 +40,8 @@ import { OriginDialog, originOf } from '@fde/uikit';
 import type { Origin } from '@fde/uikit';
 import { Code, Data } from '@veresk/surface';
 import { MAX_CHARS, MEAN_CHARS, UNITS } from '../../lib/estate.generated';
-import { HoodButton } from './Hood';
-import { Because } from './kit';
+import { HoodButton } from '@veresk/learn/steps';
+import { Because } from '@veresk/learn/steps';
 
 /**
  * WHAT WENT IN AND WHAT CAME OUT, which is the whole stage.
