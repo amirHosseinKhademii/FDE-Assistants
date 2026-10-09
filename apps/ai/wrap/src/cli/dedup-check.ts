@@ -1,17 +1,19 @@
 /**
  * dedup-check.ts: find exact and near-duplicate files in a directory.
  *
- * Usage: pnpm wrap:dedup-check [dir]
+ * Usage: pnpm wrap:dedup-check [dir] [--shingle <k>] [--threshold <t>]
  *   dir defaults to apps/ai/wrap/data/raw_dump (resolved from the package).
+ *   --shingle k     word k-gram size for shingling (default 5).
+ *   --threshold t   estimated Jaccard at or above which a pair is near-dup (default 0.95).
  *
  * Steps:
  *   1. SHA-256 of every file's raw bytes. Files with the same hash are exact
  *      duplicates; the shortest relative path is kept (tie: alphabetical).
  *   2. Files that are BINARY or UNKNOWN are hashed but not shingled.
  *   3. Every other file is decoded to UTF-8 (files over 10 MB: first and last
- *      10% of the text only), shingled (word 5-grams) and MinHashed (128).
+ *      10% of the text only), shingled (word k-grams) and MinHashed (128).
  *   4. Among the files that survive exact dedup, every pair is compared by
- *      estimated Jaccard. Pairs at or above 0.95 are near-duplicates.
+ *      estimated Jaccard. Pairs at or above the threshold are near-duplicates.
  *
  * Writes apps/ai/wrap/data/dedup-report.json. The report is deterministic:
  * the same directory always gives the same bytes. Runtime is printed, not
@@ -20,13 +22,19 @@
 import * as fs from "fs";
 import * as path from "path";
 import { decodeToUtf8, detectFormat, Format } from "../ingest/format-detector";
-import { computeMinHash, computeSHA256, computeShingles, jaccardSimilarity } from "../ingest/dedup";
+import {
+  computeMinHash,
+  computeSHA256,
+  computeShingles,
+  DEFAULT_SHINGLE_SIZE,
+  jaccardSimilarity,
+} from "../ingest/dedup";
 
 const PACKAGE_DIR = path.resolve(__dirname, "../..");
 const DEFAULT_DIR = path.join(PACKAGE_DIR, "data", "raw_dump");
 const REPORT_FILE = path.join(PACKAGE_DIR, "data", "dedup-report.json");
 
-const NEAR_DUP_THRESHOLD = 0.95;
+const DEFAULT_NEAR_DUP_THRESHOLD = 0.75;
 const SUMMARY_THRESHOLDS = [0.9, 0.8];
 const LARGE_FILE_BYTES = 10 * 1024 * 1024;
 const LARGE_FILE_EDGE_FRACTION = 0.1;
@@ -88,9 +96,51 @@ function textForShingles(buf: Buffer, text: string): string {
   return text.slice(0, cut) + "\n" + text.slice(text.length - cut);
 }
 
+interface Options {
+  dir: string;
+  shingleSize: number;
+  threshold: number;
+}
+
+/** Parses argv: one optional directory, plus --shingle <k> and --threshold <t>. */
+function parseArgs(argv: string[]): Options {
+  const opts: Options = { dir: DEFAULT_DIR, shingleSize: DEFAULT_SHINGLE_SIZE, threshold: DEFAULT_NEAR_DUP_THRESHOLD };
+  let dirSet = false;
+  const die = (msg: string): never => {
+    console.error(`dedup-check: ${msg}`);
+    process.exit(1);
+  };
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i];
+    if (arg === "--shingle" || arg === "--threshold") {
+      const raw = argv[++i];
+      if (raw === undefined) die(`${arg} needs a value`);
+      if (arg === "--shingle") {
+        const k = Number(raw);
+        if (!Number.isInteger(k) || k < 1) die(`--shingle must be a positive integer, got "${raw}"`);
+        opts.shingleSize = k;
+      } else {
+        const t = Number(raw);
+        if (!Number.isFinite(t) || t < 0 || t > 1) die(`--threshold must be between 0 and 1, got "${raw}"`);
+        opts.threshold = t;
+      }
+    } else if (arg.startsWith("--")) {
+      die(`unknown option ${arg}`);
+    } else if (!dirSet) {
+      opts.dir = arg;
+      dirSet = true;
+    } else {
+      die(`unexpected argument ${arg}`);
+    }
+  }
+  return opts;
+}
+
 function main(): void {
   const started = Date.now();
-  const scanDir = path.resolve(process.argv[2] ?? DEFAULT_DIR);
+  const opts = parseArgs(process.argv.slice(2));
+  const NEAR_DUP_THRESHOLD = opts.threshold;
+  const scanDir = path.resolve(opts.dir);
   if (!fs.existsSync(scanDir) || !fs.statSync(scanDir).isDirectory()) {
     console.error(`dedup-check: not a directory: ${scanDir}`);
     process.exit(1);
@@ -125,7 +175,7 @@ function main(): void {
       continue;
     }
     const text = textForShingles(buf, decodeToUtf8(buf, detection.encoding));
-    minhashByRel.set(rel, computeMinHash(computeShingles(text)));
+    minhashByRel.set(rel, computeMinHash(computeShingles(text, opts.shingleSize)));
   }
 
   // Exact groups: every hash shared by two or more files.
@@ -179,6 +229,7 @@ function main(): void {
 
   const s = report.summary;
   console.log(`Scanned: ${scanDir}`);
+  console.log(`Shingle size: ${opts.shingleSize}, near-dup threshold: ${NEAR_DUP_THRESHOLD}`);
   console.log(`Total files: ${s.total_files} (skipped shingling: ${s.skipped_shingling}, errors: ${errors})`);
   console.log(`Exact groups: ${s.exact_groups} (removed: ${s.exact_removed})`);
   console.log(`Near-dup pairs >= ${NEAR_DUP_THRESHOLD}: ${s.near_dup_pairs} (>= 0.9: ${s.pairs_ge_0_9}, >= 0.8: ${s.pairs_ge_0_8})`);
