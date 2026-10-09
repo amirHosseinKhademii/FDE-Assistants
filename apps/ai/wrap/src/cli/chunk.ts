@@ -11,6 +11,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { CHUNK_SIZES, Chunk, chunkFile } from "../chunking";
 import { decodeToUtf8, detectFormat, Format } from "../ingest/format-detector";
+import { enrichChunk } from "../ingest/metadata-extractor";
 
 const PACKAGE_DIR = path.resolve(__dirname, "../..");
 const SCRUBBED_DIR = path.join(PACKAGE_DIR, "data", "scrubbed");
@@ -41,6 +42,43 @@ function percentile(sorted: number[], p: number): number {
   return sorted[Math.min(sorted.length - 1, Math.ceil(sorted.length * p) - 1)];
 }
 
+function countBy(chunks: Chunk[], key: (c: Chunk) => string[]): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const c of chunks) for (const k of new Set(key(c))) counts.set(k, (counts.get(k) ?? 0) + 1);
+  return counts;
+}
+
+function percentOf(n: number, total: number): string {
+  return total === 0 ? "0.0%" : `${((100 * n) / total).toFixed(1)}%`;
+}
+
+/** Metadata summary (plan Step 2.5): per subsystem and type, and how often each ID kind or date appears. */
+function printMetadataSummary(chunks: Chunk[]): void {
+  const total = chunks.length;
+  const one = (value: unknown): string[] => (typeof value === "string" ? [value] : []);
+  const list = (value: unknown): string[] => (Array.isArray(value) ? (value as string[]) : []);
+  const bySubsystem = countBy(chunks, (c) => one(c.metadata.subsystem ?? "(none)"));
+  const byType = countBy(chunks, (c) => one(c.metadata.type_category));
+  const withReq = chunks.filter((c) => list(c.metadata.requirement_ids).length > 0).length;
+  const withTicket = chunks.filter((c) => list(c.metadata.ticket_ids).length > 0).length;
+  const withDate = chunks.filter((c) => list(c.metadata.dates).length > 0).length;
+  const reqCounts = countBy(chunks, (c) => list(c.metadata.requirement_ids));
+  const topReq = [...reqCounts.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1)).slice(0, 10);
+
+  console.log("Metadata summary:");
+  console.log("  Chunks per subsystem:");
+  for (const [name, count] of [...bySubsystem.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1)))
+    console.log(`    ${String(count).padStart(6)}  ${name}`);
+  console.log("  Chunks per type_category:");
+  for (const [name, count] of [...byType.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1)))
+    console.log(`    ${String(count).padStart(6)}  ${name}`);
+  console.log(`  Chunks with >=1 requirement id: ${withReq} (${percentOf(withReq, total)})`);
+  console.log(`  Chunks with >=1 ticket id:      ${withTicket} (${percentOf(withTicket, total)})`);
+  console.log(`  Chunks with >=1 date:           ${withDate} (${percentOf(withDate, total)})`);
+  console.log("  Top 10 requirement ids by chunk count:");
+  for (const [id, count] of topReq) console.log(`    ${String(count).padStart(6)}  ${id}`);
+}
+
 function main(): void {
   const started = Date.now();
   if (!fs.existsSync(SCRUBBED_DIR)) {
@@ -54,6 +92,7 @@ function main(): void {
   let skippedDuplicates = 0;
   let skippedFormat = 0;
   const lines: string[] = [];
+  const enriched: Chunk[] = [];
   const perFile = new Map<string, number>();
   const perType = new Map<string, number>();
   const tokens: number[] = [];
@@ -74,7 +113,9 @@ function main(): void {
     const chunks: Chunk[] = chunkFile(rel, decodeToUtf8(buf, detection.encoding), detection.format);
     chunkedFiles++;
     perFile.set(rel, chunks.length);
-    for (const c of chunks) {
+    for (const raw of chunks) {
+      const c = enrichChunk(raw);
+      enriched.push(c);
       lines.push(JSON.stringify(c));
       perType.set(c.type, (perType.get(c.type) ?? 0) + 1);
       tokens.push(c.tokens);
@@ -104,6 +145,7 @@ function main(): void {
   console.log(`Chunks over MAX_TOKENS_PER_CHUNK (${CHUNK_SIZES.maxTokens}): ${overMax}`);
   console.log(`Top ${top.length} files by chunk count:`);
   for (const [rel, count] of top) console.log(`  ${String(count).padStart(4)}  ${rel}`);
+  printMetadataSummary(enriched);
   console.log(`Runtime: ${seconds.toFixed(2)}s`);
 }
 

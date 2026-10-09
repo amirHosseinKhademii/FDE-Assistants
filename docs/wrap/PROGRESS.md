@@ -296,3 +296,83 @@ head -1 apps/ai/wrap/data/chunks.jsonl | jq '{type, source_file, tokens, metadat
 - Plan's `chunkDocument` name is `chunkFile(sourceFile, text, format)` in `chunking/index.ts`, taking the detected format.
 - Plan's `chunker.ts` is not one file. The per-type chunkers are split into `markdown.ts`, `csv.ts`, `text.ts` and `c-code.ts`, with shared types in `types.ts`.
 - Known limit: a function inside an `extern "C" { ... }` block is not split out; the whole block is one declaration unit, window-split if large.
+
+## Step 2.5 — Metadata extraction
+
+**Date:** 2026-10-09
+
+Each chunk now carries `metadata.subsystem`, `type_category`, `requirement_ids`, `ticket_ids`, `dates` and `keywords`, written into `data/chunks.jsonl` by `pnpm wrap:chunk`. Existing keys (`function`, `kind`, `merged_sections`, …) are kept.
+
+- **`ingest/metadata-extractor.ts`** — `extractMetadata(chunk)` returns `ChunkMetadata`; `enrichChunk(chunk)` merges it into a copy of the chunk's `metadata`. Exports `subsystemOf`, `typeCategory`, `extractDates`, `extractKeywords`.
+- **`ingest/metadata-extractor.selftest.ts`** — 9 checks, `pnpm --filter @wrap/ai meta:check`.
+- **`cli/chunk.ts`** — enriches every chunk before writing, then prints a metadata summary (chunks per subsystem and per type, % with a requirement ID, ticket ID or date, top 10 requirement IDs by chunk count).
+- **Script** — `meta:check` in `apps/ai/wrap/package.json`. `src/chunking/types.ts` unchanged.
+
+**Measured ID shapes** (`grep -rhoE` over `data/scrubbed`, digits folded to 9):
+
+| Shape | Count | Example | Classification |
+|---|---|---|---|
+| `VST-9999` | 3843 | `VST-4471` (Jira export, "TICKET VST-4471") | ticket |
+| `CR-TDR-99-9999`, `SR-TDR-99-9999` (any programme; CR+SR total 7698 with the rows below) | 7698 total | `CR-TDR-32-0537`, `SR-KAI-…` | requirement row |
+| `SR-EPS-9999` | 76 | `SR-EPS-0407` (no programme segment) | requirement row |
+| `CR-HLX-H9-9999`, `SR-HLX-H9-9999` | 104 + 96 | `CR-HLX-H1-0001` | requirement row |
+| `CHR-9999-9999` | 660 | `CHR-2021-0177` ("Change-Request:") | ticket (change request) |
+| `PRG-TDR-99` | 447 (all PRG shapes) | `PRG-TDR-32` (programme code, "Programme: PRG-TDR-01 (Delve)") | programme, not extracted |
+| `CRS-TDR-32-001` | (in filenames) | `CRS-TDR-32-001_RevC.md` | requirements document ID, not extracted |
+| `EFF-BULK-9999`, `EFF-2021-0443` | 252 | closure-report file names | PMO document ID, not extracted |
+| `QUO-9999`, `RFQ-9999-9999` | 54, 53 | quote file names, RFQ numbers | PMO document ID, not extracted |
+| `SWC-PLT-999`, `SWC-DIAG`, `EL-TDR-99-ECU`, `ACT-ASSIST`, `DP-EPS` | — | software-component, element and program names | neither, not extracted |
+| `TC-999` | 327 | test-case rows in reports | neither, not extracted |
+| `HANDLE_9999`, `EMAIL_9999`, `PHONE_9999`, `PERSON_9999` | 937, 779, 15, 15 | PII placeholders | excluded from keywords |
+
+**Regexes chosen** (all with lookarounds so a match cannot start or end inside a longer ID):
+- Requirement: `(?<![-A-Za-z0-9])(?:CR|SR)-(?:[A-Z][A-Z0-9]{1,3}-)?(?:H\d-|\d{2}-)?\d{4}(?![-A-Za-z0-9])`
+- Ticket: `(?<![-A-Za-z0-9])(?:VST-\d{4,6}|CHR-\d{4}-\d{4})(?![-A-Za-z0-9])`. The plan's generic `\b[A-Z]{2,4}-\d{4,6}\b` would match `BULK-0225` inside `EFF-BULK-0225` and `2021`-style fragments of `CHR-2021-0177`, so it was replaced by an explicit prefix list.
+- Dates: ISO `YYYY-MM-DD`, `M/D/YYYY` (US order), `March 15 2025` / `March 15, 2025`, `15 March 2025`. Each is checked with a real calendar round-trip, so `2025-13-45` is dropped. The corpus has 13509 ISO dates and no slash or month-name dates.
+- Keywords: letters (with inner hyphens), lowercased, length ≥ 6, count ≥ 2, stoplist and placeholder tokens removed, top 10 by count then alphabetically.
+
+**Path rules:**
+- `subsystem` = first path segment. Top-level files (`empty.txt`, `manifest.json`, `huge-repeated.txt`, `scanned-doc.txt`) get no subsystem key.
+- `type_category`: the first folder under the subsystem that matches (`docs`→documentation, `src`→code, `test`/`tests`/`spec`→test, `cal`/`cfg`/`config`→config, `reports`→report, `closure-reports`→closure_report, `estimates`, `quotes`, `rate-cards`, `timesheets`). Then the file name (`git-log.txt`→history, `README*`/`CHANGELOG*`→documentation). Then subsystem rules (`releases`→release_notes, `tickets`→ticket_export, `requirements/PRG-*` files by name: system-requirements→requirements, CRS-*→requirements, trace-matrix→traceability, architecture, review-notes). Otherwise `other`.
+
+**Run (`pnpm wrap:chunk`, 20097 chunks):**
+
+| Subsystem | Chunks | | type_category | Chunks |
+|---|---|---|---|---|
+| pmo | 11479 | | timesheet | 10688 |
+| (none, top-level files) | 4178 | | other | 4194 |
+| requirements | 2695 | | traceability | 1371 |
+| eps-steering-feel | 272 | | requirements | 1132 |
+| tickets | 240 | | test | 589 |
+| eps-motor-control | 222 | | code | 438 |
+| eps-diagnostics | 202 | | estimate | 287 |
+| eps-core | 185 | | ticket_export | 240 |
+| eps-calibration-tools | 171 | | closure_report | 230 |
+| eps-safety-monitor | 166 | | report | 179 |
+| eps-steer-by-wire | 134 | | rate_card | 168 |
+| eps-end-of-line | 128 | | architecture | 160 |
+| releases | 25 | | documentation, history, quote, review_notes, release_notes, config | 124, 116, 106, 32, 25, 18 |
+
+- Chunks with ≥1 requirement ID: 2483 (12.4%). With ≥1 ticket ID: 4065 (20.2%). With ≥1 date: 11776 (58.6%).
+- Top requirement IDs by chunk count: CR-KAI-25-0426 (18), CR-KAI-22-0387 (17), CR-TDR-01-0022 (16), CR-TDR-32-0553 (16), CR-ORV-28-0470, CR-TDR-19-0325, CR-VGR-05-0099 (15 each), CR-NBX-02-0045, CR-ORV-23-0404, CR-TDR-06-0108 (14 each).
+- Sample: `jq -c '.metadata | {subsystem, type_category, ticket_ids, requirement_ids, dates}' data/chunks.jsonl | head -5` gives `{"subsystem":"eps-calibration-tools","type_category":"other","ticket_ids":[],"requirement_ids":[],"dates":[]}` and, further down, `{"subsystem":"eps-calibration-tools","type_category":"documentation","ticket_ids":[],"requirement_ids":[],"dates":["2019-07-08"]}`.
+- Output is byte-identical across two runs.
+
+**Commands (from repo root):**
+```bash
+pnpm wrap:chunk                                        # writes metadata and prints the summary
+pnpm --filter @wrap/ai meta:check                      # selftest (9 checks)
+pnpm --filter @wrap/ai chunk:check                     # chunker selftest (17 checks)
+jq -c '.metadata | {subsystem, type_category, ticket_ids, requirement_ids, dates}' apps/ai/wrap/data/chunks.jsonl | head -5
+```
+
+**Choices:**
+- Arrays are always present (empty when nothing is found), so filters need no existence check. `subsystem` and `type_category` are omitted only for top-level files, where there is no subsystem.
+- Keywords come from the chunk text only. Code chunks give identifier-like words, which is expected.
+
+**Deviations from plan:**
+- Plan's requirement regex `(PRG|CRS|DYN|REL|VER)-…` is not used. In the corpus `PRG-` is a programme code and `CRS-` a requirements document ID. The row-level requirement IDs are `CR-`/`SR-`. Programme codes are not stored, because `ChunkMetadata` has no field for them. Adding `programme_ids` is a possible follow-up.
+- Plan's generic ticket regex is replaced by the explicit `VST`/`CHR` prefixes (see above).
+- `type_category` uses the real folder names (`closure-reports`, `timesheets`, …) and a few file-name and subsystem rules beyond the plan's list. `README`/`CHANGELOG` count as documentation.
+- Plan's "subsystem count" check (eps-core 2100, pmo 500, …) does not match the corpus. Actual counts are above.
+- Plan's `--audit` stretch goal is not built.

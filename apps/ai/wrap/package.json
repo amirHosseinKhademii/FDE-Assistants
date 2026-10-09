@@ -22,6 +22,7 @@
     "dedup:check": "tsx src/ingest/dedup.selftest.ts",
     "pii:check": "tsx src/ingest/pii-scrubber.selftest.ts",
     "chunk:check": "tsx src/chunking/chunking.selftest.ts",
+    "meta:check": "tsx src/ingest/metadata-extractor.selftest.ts",
     "detect-formats": "tsx src/cli/detect-formats.ts",
     "dedup-check": "tsx src/cli/dedup-check.ts",
     "scrub-pii": "tsx src/cli/scrub-pii.ts",
