@@ -1,20 +1,31 @@
 /**
- * @veresk/learn: the lesson kit that `/learn` is drawn with.
+ * @veresk/learn: the lessons, the lesson kit and the figures that `/learn` is
+ * drawn with.
  *
- * WHY IT IS A PACKAGE AND NOT A FOLDER OF THE APP. The lesson shell, the rail
- * and the figures are the same for every track, and the second track of lessons
- * is about to need them in a second deployment. Nothing in here knows what a
- * lesson says: the app passes the lesson's facts in as props, and the lessons
- * themselves (`lib/learn/lessons.ts`) stay with the app. So the package holds no
- * domain words and needs no route tree of its own.
+ * TWO LAYERS, and the split is the point. The SHELL (`LessonPage`, `LessonNav`)
+ * takes its facts as props and knows no lesson. The BOUND pieces (`LessonFrame`,
+ * `LessonRail`) read the lesson records in `data/lessons.ts` and hand the shell
+ * finished values. A host that wants a different set of lessons uses the shell
+ * with its own records; a host that wants these lessons mounts `LESSON_PAGES`.
+ *
+ * THE MOUNT POINT is set by `LearnProvider` (default `/learn`). Lessons link to
+ * each other through it, so the section can sit under any prefix.
  *
  * IT USES TAILWIND UTILITIES, so a consumer must name it as a source and import
  * its stylesheet. See `styles.css` for the lines and the variables it reads.
  */
 
+// The mount point.
+export { LearnProvider, useLearnBase } from './context';
+
 // The shell and its rail. Both take their data as props.
-export { LessonPage, type LessonFacts, type LessonLink } from './components/LessonPage';
+export { LessonPage, type LessonFacts, type NeighbourLink } from './components/LessonPage';
 export { LessonNav, type LessonNavProps, type RailLesson, type RailTrack } from './components/LessonNav';
+
+// The bound pieces: a lesson by slug, and the rail drawn from the records.
+export { LessonFrame } from './components/LessonFrame';
+export { LessonRail } from './components/LessonRail';
+export { LessonLink } from './components/LessonLink';
 
 // The pieces every lesson body is written from.
 export { HowItWorks, type Walkthrough } from './components/HowItWorks';
@@ -44,3 +55,22 @@ export { Stack } from './charts/Stack';
 export { Stages } from './charts/Stages';
 export { Trifecta, type TrifectaSet } from './charts/Trifecta';
 export { VectorLab } from './charts/VectorLab';
+
+// The lessons: their records, and every page by slug.
+export {
+  TRACKS,
+  LESSONS,
+  MAP,
+  TOTALS,
+  hueOf,
+  lessonBySlug,
+  lessonsIn,
+  neighbours,
+  type Lesson,
+  type LessonSlug,
+  type Track,
+  type TrackId,
+} from './data/lessons';
+export { GENERATED_AT, PACKAGES, type ArchPackage } from './data/architecture.generated';
+export { LESSON_PAGES } from './lessons/registry';
+export { LearnIndex } from './lessons/LearnIndex';

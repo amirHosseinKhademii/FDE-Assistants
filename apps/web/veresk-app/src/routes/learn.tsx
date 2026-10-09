@@ -14,6 +14,7 @@
  * commit that says so.
  */
 import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
+import { LearnProvider } from '@veresk/learn';
 import { BoxIcon } from '@fde/uikit';
 import { Aurora } from '@veresk/surface';
 import { AURORA } from '../lib/aurora';
@@ -26,6 +27,7 @@ export const Route = createFileRoute('/learn')({
 
 function LearnLayout() {
   return (
+    <LearnProvider basePath="/learn">
     <div className="relative min-h-screen overflow-hidden">
       <Aurora tones={AURORA} />
 
@@ -74,5 +76,6 @@ function LearnLayout() {
         the engineering, the measurements and the failures are not.
       </footer>
     </div>
+    </LearnProvider>
   );
 }

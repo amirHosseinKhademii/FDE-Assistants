@@ -29,7 +29,7 @@ export interface LessonFacts {
 }
 
 /** One of the two links out. `crossesTo` is set only when it enters another track. */
-export interface LessonLink {
+export interface NeighbourLink {
   href: string;
   n: number;
   short: string;
@@ -44,8 +44,8 @@ export function LessonPage({
   children,
 }: {
   lesson: LessonFacts;
-  prev?: LessonLink;
-  next?: LessonLink;
+  prev?: NeighbourLink;
+  next?: NeighbourLink;
   children: ReactNode;
 }) {
 

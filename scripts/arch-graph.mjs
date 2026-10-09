@@ -40,7 +40,7 @@ import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
 const ROOT = new URL('..', import.meta.url).pathname.replace(/\/$/, '');
-const OUT = join(ROOT, 'apps/web/veresk-app/src/lib/learn/architecture.generated.ts');
+const OUT = join(ROOT, 'packages/learn/src/data/architecture.generated.ts');
 
 /** The globs from `pnpm-workspace.yaml`. The raw fact each package came from. */
 const GLOBS = [
@@ -86,7 +86,7 @@ const dirs = (p) => {
  * ── GENERATED FILES ARE EXCLUDED, AND THE FIRST RUN PROVED WHY ─────────────
  *
  * `--check` failed immediately after a successful write. The output of this
- * script lands in `apps/web/veresk-app/src/lib/learn/`, which is inside a
+ * script lands in `packages/learn/src/data/`, which is inside a
  * package this script counts — so writing the artifact changed the number the
  * artifact reports, and it could never agree with itself.
  *

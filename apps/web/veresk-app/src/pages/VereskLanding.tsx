@@ -41,7 +41,7 @@ import { AURORA } from '../lib/aurora';
 import { COMMERCE, PHARMA, SAFETY, STEERING, WRAP } from '../lib/links';
 import { BoxIcon } from '@fde/uikit';
 import { CaseGlyph, PackageGlyph } from '../components/flow/veresk-glyphs';
-import { hueOf, lessonsIn, MAP, TOTALS, TRACKS } from '../lib/learn/lessons';
+import { hueOf, lessonsIn, MAP, TOTALS, TRACKS } from '@veresk/learn';
 
 /* ── The graph, as data ────────────────────────────────────────────────────
    Every edge below is a real dependency. Regenerate the list with:
@@ -519,7 +519,7 @@ function Learn() {
       </p>
 
       {/* GROUPED, BECAUSE THE TRACKS ARE NOT ONE NUMBERED RUN. See
-          `lib/learn/lessons.ts`: two of them open with a lesson that assumes
+          `packages/learn/src/data/lessons.ts`: two of them open with a lesson that assumes
           nothing at all, and one flat strip would claim a dependency chain that
           does not exist. */}
       <div className="mt-8 space-y-5">
@@ -549,7 +549,7 @@ function Learn() {
           It belongs to no track, and it is the thing somebody arriving cold
           most often wants first: not how a retriever works, but where any of
           this lives. It also shipped reachable only by typing the URL — see
-          `lib/learn/lessons.ts`. */}
+          `packages/learn/src/data/lessons.ts`. */}
       <div className="mt-5">
         <p className="font-mono text-[0.625rem] tracking-[0.1em] text-ui-faint uppercase">
           and the repo itself
