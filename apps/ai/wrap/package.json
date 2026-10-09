@@ -20,8 +20,10 @@
     "golden:check": "tsx src/cli/golden-check.ts",
     "detect:check": "tsx src/ingest/format-detector.selftest.ts",
     "dedup:check": "tsx src/ingest/dedup.selftest.ts",
+    "pii:check": "tsx src/ingest/pii-scrubber.selftest.ts",
     "detect-formats": "tsx src/cli/detect-formats.ts",
-    "dedup-check": "tsx src/cli/dedup-check.ts"
+    "dedup-check": "tsx src/cli/dedup-check.ts",
+    "scrub-pii": "tsx src/cli/scrub-pii.ts"
   },
   "dependencies": {
     "@fde/foundry": "workspace:*",

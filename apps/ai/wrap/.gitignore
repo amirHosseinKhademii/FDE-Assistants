@@ -1,3 +1,5 @@
 evals/results/
 data/format-detection.jsonl
 data/dedup-report.json
+data/scrubbed/
+data/pii-map.json

@@ -183,3 +183,55 @@ Why k=5 stays: the `make-mess` edit changes 2–5 lines. Each changed line break
 Among the flagged same-source variants (none unrelated): the top are `requirements/PRG-VGR-05/system-requirements-PRG-VGR-05_pii.md` (0.938), `…PRG-MRL-30/architecture-PRG-MRL-30_pii.md` (0.922), and `pmo/closure-reports/EFF-BULK-0398_cp1252.md` (0.844). The `CODEOWNERS` vs `huge-repeated.txt` pair (0.844) is a synthetic 2 MB repeat of `CODEOWNERS`, so it is correct to flag it. One unrelated pair sits below the threshold: `eps-calibration-tools/src/filter_iir_1.h` vs `eps-steer-by-wire/src/filter_iir_1.h` (0.648), a copied header across two projects. At 0.6 it is flagged, together with 3 other unrelated pairs.
 
 **Checks:** `dedup:check` 7/7 pass; `pnpm --filter @wrap/ai exec tsc --noEmit` passes; report byte-identical across two runs; `jq` lists 13 kept paths; the flags reject `--shingle 0` and unknown options.
+
+## Step 2.3 — PII scrubbing
+
+**Date:** 2026-10-09
+
+Built reversible PII redaction (emails, phones, person names) and a CLI that scrubs `data/raw_dump` into `data/scrubbed`. Redaction is by token (`EMAIL_0001`, `PHONE_0001`, `PERSON_0001`); the map that restores originals lives in `data/pii-map.json`.
+
+- **`ingest/pii-scrubber.ts`** — `scrubPII(text, mode, map, allowlist)`, `createPiiMap()`, `loadPiiAllowlist()`, `restorePII()`. Three passes in order (emails, phones, names); each pass sees the previous pass's output, so tokens are never re-matched. The map is an explicit object passed in by the caller, not a module global, so one shared map gives one token per value across all files. `EMAIL_RE` and `PHONE_RE` are exported so `--validate` uses the same patterns.
+- **`ingest/pii-scrubber.selftest.ts`** — 12 checks, run by `pnpm --filter @wrap/ai pii:check`.
+- **`config/pii-allowlist.json`** — `{phrases, words}`. Phrases are exact multi-word strings; words suppress any name window containing them.
+- **`cli/scrub-pii.ts`** — walks `data/raw_dump` (or a directory argument), copies BINARY and UNKNOWN files unchanged, scrubs everything else in redact mode with one shared map, mirrors the tree under `data/scrubbed/`, and writes `data/pii-map.json` (array of `{token, type, original}`, chmod 600). `--validate` re-scans `data/scrubbed` for emails and phones.
+- **Scripts** — `scrub-pii` in `apps/ai/wrap/package.json`, `wrap:scrub-pii` in the root `package.json`.
+- **`.gitignore`** — `data/scrubbed/` and `data/pii-map.json` added.
+
+**Commands (from repo root):**
+```bash
+pnpm wrap:scrub-pii                 # scrub data/raw_dump -> data/scrubbed, write data/pii-map.json
+pnpm wrap:scrub-pii --validate      # re-scan data/scrubbed for remaining emails/phones
+pnpm --filter @wrap/ai pii:check    # selftest (12 checks)
+jq '.[] | select(.type=="PERSON")' apps/ai/wrap/data/pii-map.json
+```
+
+**Counts (`data/raw_dump`, 1111 files, after allowlist tuning):**
+
+| Type | Found | Unique values | Tokens |
+|---|---|---|---|
+| EMAIL | 779 | 14 | 14 |
+| PHONE | 15 | 2 | 2 |
+| PERSON | 15 | 2 | 2 |
+
+- Files scanned: 1111. Changed: 14. Copied unchanged (BINARY/UNKNOWN): 1 (`empty.txt`). Errors: 0.
+- Planted values, all six got a token: John Harvey, Alice Smith, jharvey@company.local, asmith.contractor@external-firm.io, 555-0147, +44-1234-567890.
+- `--validate`: 1111 scrubbed files, 0 remaining emails or phones.
+
+**Allowlist tuning (PERSON):**
+
+| Run | Found | Unique | Top originals |
+|---|---|---|---|
+| Before (phrases + first word list) | 484 | 52 | Programme Office (237), Requirements Specification (41), Architectural Design (40), Tundra Vehicles, Kaigan Jidosha, Electric Power variants |
+| After one tuning pass | 15 | 2 | Alice Smith (9), John Harvey (6) |
+
+- Classification of the 52 before: 2 real-looking names (the planted pair). 50 false positives: document headings and phrases ("Programme Office", "Requirements Specification", "Architectural Design", "In Progress"), and company or product names ("X Electric Power", "X Motors", "X Automotive", "Tundra Vehicles", "Voegler Nutzfahrzeuge", "Kaigan Jidosha", "Altura Mobility", "Bradmoor Commercial").
+- Words added (17): Programme, Office, Requirements, Specification, Architectural, Design, Progress, Electric, Power, Mobility, Commercial, Motors, Automotive, Auto, Vehicles, Nutzfahrzeuge, Jidosha. This is one pass, not three. The list is now a PERSON list of real-looking names only, so no further pass was needed.
+- Caveat: a word on the allowlist suppresses every name window that contains it. A real person named "Power" or "Design" would be missed. The current corpus shows no such case.
+
+**Checks:** `pii:check` 12/12 pass; `tsc --noEmit` clean; two runs give a byte-identical `pii-map.json` and a byte-identical `data/scrubbed` tree; `ls -l data/pii-map.json` shows `-rw-------`; `grep -rl jharvey@company.local data/scrubbed` returns 0 files.
+
+**Deviations from plan:**
+- Allowlist shape is `{phrases, words}`, not the plan's `{names, emails, patterns}`. The plan's sample `names` list contained "John" and "Harvey", which would have exempted the planted names. Names are never allowlisted.
+- The map is an explicit object passed by the caller, not a hidden global.
+- Plan's `scrubPII` signature returned `{text, redactions}` with a `mode: 'redact' | 'remove'` argument; implemented as specified. Removal mode keeps no map entries and is not reversible.
+- UNKNOWN files are copied unscrubbed, as specified. A text file that detection cannot classify would therefore pass through with any PII intact. Only `empty.txt` hit this case in the current corpus.
