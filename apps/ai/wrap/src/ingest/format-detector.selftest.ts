@@ -34,6 +34,18 @@ check("markdown with headings and list", () => {
   assert.ok(r.confidence >= 0.8, `confidence ${r.confidence}`);
 });
 
+check("git-log-like .txt with one '#' line is not Markdown", () => {
+  const src =
+    "# git log, exported 2026-09-07\ncommit 3f2a9c1\nAuthor: dev <dev@example.com>\nDate:   Mon Sep 7 10:00:00 2026\n\n    fix parser\n";
+  const r = detectFormat(utf8(src), "git-log.txt");
+  assert.equal(r.format, Format.TEXT, r.reason);
+});
+
+check("two '#' headings plus a '- ' list in a .txt is Markdown", () => {
+  const r = detectFormat(utf8("# First\n\nSome text.\n\n# Second\n\n- item a\n- item b\n"), "notes.txt");
+  assert.equal(r.format, Format.MARKDOWN, r.reason);
+});
+
 check("C header (include guard, prototypes, no bodies)", () => {
   const src =
     "#ifndef FOO_H\n#define FOO_H\n\nint add(int a, int b);\nvoid reset(void);\n\n#endif\n";

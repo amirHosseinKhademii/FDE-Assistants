@@ -279,7 +279,8 @@ function detectMarkdown(text: string, lines: string[]): Candidate | null {
   if ((headings > 0 && signals >= 2) || headings >= 2 || fences >= 2) {
     return { format: Format.MARKDOWN, confidence: 0.85, reason: `Markdown structure: ${detail}` };
   }
-  if (signals >= 1) {
+  // A lone '#' line is common in logs and exports; need at least two signals in total.
+  if (headings + fences + links + bullets >= 2) {
     return { format: Format.MARKDOWN, confidence: 0.65, reason: `weak Markdown signal: ${detail}` };
   }
   return null;
