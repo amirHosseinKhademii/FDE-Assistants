@@ -10,10 +10,10 @@
  * flips. Both of those are said where they fall, not collected in a footnote.
  */
 import { LessonPage } from '../../components/learn/LessonPage';
-import { HowItWorks } from '../../components/learn/HowItWorks';
-import { Caveat, Code, Data, Figure, Glossary, Key, P, RunIt, SaidOutLoud, Step, Term } from '../../components/learn/kit';
-import { BarRows } from '../../components/learn/charts/BarRows';
-import { RunGrid } from '../../components/learn/charts/RunGrid';
+import { HowItWorks } from '@veresk/learn';
+import { Caveat, Code, Data, Figure, Glossary, Key, P, RunIt, SaidOutLoud, Step, Term } from '@veresk/learn';
+import { BarRows } from '@veresk/learn';
+import { RunGrid } from '@veresk/learn';
 
 export function Regressions() {
   return (

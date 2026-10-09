@@ -1,0 +1,30 @@
+{
+  "name": "@veresk/learn",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Veresk's lesson kit: the lesson shell, its rail, the figures and charts, and the press that opens real code.",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./styles.css": "./styles.css"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fde/uikit": "workspace:*",
+    "@veresk/surface": "workspace:*"
+  },
+  "peerDependencies": {
+    "@tanstack/react-router": ">=1",
+    "react": ">=19",
+    "react-dom": ">=19"
+  },
+  "devDependencies": {
+    "@tanstack/react-router": "^1.170.35",
+    "@types/react": "^19.3.0",
+    "typescript": "^5.1.3",
+    "@types/react-dom": "^19.3.0"
+  }
+}

@@ -10,10 +10,10 @@
  * carries more safeguards than the other two put together.
  */
 import { LessonPage } from '../../components/learn/LessonPage';
-import { HowItWorks } from '../../components/learn/HowItWorks';
-import { Caveat, Figure, Glossary, Key, P, RunIt, Step, Term } from '../../components/learn/kit';
-import { BarRows } from '../../components/learn/charts/BarRows';
-import { Stages } from '../../components/learn/charts/Stages';
+import { HowItWorks } from '@veresk/learn';
+import { Caveat, Figure, Glossary, Key, P, RunIt, Step, Term } from '@veresk/learn';
+import { BarRows } from '@veresk/learn';
+import { Stages } from '@veresk/learn';
 
 export function Pipelines() {
   return (

@@ -13,9 +13,9 @@
  * says a default is NOT what everybody assumes it is.
  */
 import { LessonPage } from '../../components/learn/LessonPage';
-import { HowItWorks } from '../../components/learn/HowItWorks';
-import { Caveat, Figure, Glossary, Key, P, RunIt, Step, Term } from '../../components/learn/kit';
-import { BarRows } from '../../components/learn/charts/BarRows';
+import { HowItWorks } from '@veresk/learn';
+import { Caveat, Figure, Glossary, Key, P, RunIt, Step, Term } from '@veresk/learn';
+import { BarRows } from '@veresk/learn';
 
 /** The three strengths a claim can have. Nothing else is allowed on this page. */
 const STRENGTH = {

@@ -11,11 +11,11 @@
  * reader trusts without reading.
  */
 import { LessonPage } from '../../components/learn/LessonPage';
-import { HowItWorks } from '../../components/learn/HowItWorks';
-import { Caveat, Code, Figure, Glossary, Key, P, RunIt, Step, Term } from '../../components/learn/kit';
-import { BarRows } from '../../components/learn/charts/BarRows';
-import { Matrix } from '../../components/learn/charts/Matrix';
-import { Stages } from '../../components/learn/charts/Stages';
+import { HowItWorks } from '@veresk/learn';
+import { Caveat, Code, Figure, Glossary, Key, P, RunIt, Step, Term } from '@veresk/learn';
+import { BarRows } from '@veresk/learn';
+import { Matrix } from '@veresk/learn';
+import { Stages } from '@veresk/learn';
 
 export function Loop() {
   return (

@@ -14,10 +14,10 @@
  * reprints it. See the component's own header.
  */
 import { LessonPage } from '../../components/learn/LessonPage';
-import { HowItWorks } from '../../components/learn/HowItWorks';
-import { Caveat, Code, Data, Figure, Glossary, Key, P, RunIt, Step, Term } from '../../components/learn/kit';
-import { BarRows } from '../../components/learn/charts/BarRows';
-import { VectorLab } from '../../components/learn/charts/VectorLab';
+import { HowItWorks } from '@veresk/learn';
+import { Caveat, Code, Data, Figure, Glossary, Key, P, RunIt, Step, Term } from '@veresk/learn';
+import { BarRows } from '@veresk/learn';
+import { VectorLab } from '@veresk/learn';
 
 export function Vectors() {
   return (

@@ -21,9 +21,9 @@
  * re-run the command that caught them.
  */
 import { LessonPage } from '../../components/learn/LessonPage';
-import { HowItWorks } from '../../components/learn/HowItWorks';
-import { Caveat, Data, Figure, Glossary, Key, P, RunIt, SaidOutLoud, Step, Term } from '../../components/learn/kit';
-import { Stages } from '../../components/learn/charts/Stages';
+import { HowItWorks } from '@veresk/learn';
+import { Caveat, Data, Figure, Glossary, Key, P, RunIt, SaidOutLoud, Step, Term } from '@veresk/learn';
+import { Stages } from '@veresk/learn';
 
 export function Drift() {
   return (

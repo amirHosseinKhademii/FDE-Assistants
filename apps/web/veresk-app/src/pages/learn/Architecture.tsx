@@ -21,9 +21,9 @@
  * that. It takes the accent of the engagement it walks through.
  */
 import { Link } from '@tanstack/react-router';
-import { HowItWorks } from '../../components/learn/HowItWorks';
-import { Caveat, Figure, Key, P, RunIt, Step, Term } from '../../components/learn/kit';
-import { BarRows } from '../../components/learn/charts/BarRows';
+import { HowItWorks } from '@veresk/learn';
+import { Caveat, Figure, Key, P, RunIt, Step, Term } from '@veresk/learn';
+import { BarRows } from '@veresk/learn';
 import { GENERATED_AT, PACKAGES, type ArchPackage } from '../../lib/learn/architecture.generated';
 
 /* ── THE FOUR LAYERS, WHICH ARE THE THREE WORKSPACE GLOBS ──────────────────

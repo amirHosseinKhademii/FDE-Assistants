@@ -15,13 +15,13 @@
  * defence you will remove during a refactor without knowing you removed it.
  */
 import { LessonPage } from '../../components/learn/LessonPage';
-import { HowItWorks } from '../../components/learn/HowItWorks';
-import { Caveat, Figure, Glossary, Key, P, RunIt, SaidOutLoud, Step, Term } from '../../components/learn/kit';
-import { BarRows } from '../../components/learn/charts/BarRows';
-import { Funnel } from '../../components/learn/charts/Funnel';
-import { Matrix } from '../../components/learn/charts/Matrix';
-import { Stages } from '../../components/learn/charts/Stages';
-import { Trifecta } from '../../components/learn/charts/Trifecta';
+import { HowItWorks } from '@veresk/learn';
+import { Caveat, Figure, Glossary, Key, P, RunIt, SaidOutLoud, Step, Term } from '@veresk/learn';
+import { BarRows } from '@veresk/learn';
+import { Funnel } from '@veresk/learn';
+import { Matrix } from '@veresk/learn';
+import { Stages } from '@veresk/learn';
+import { Trifecta } from '@veresk/learn';
 
 export function Injection() {
   return (
