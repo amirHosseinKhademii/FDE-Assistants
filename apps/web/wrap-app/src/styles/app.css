@@ -41,6 +41,12 @@
 @import '@veresk/surface/styles.css';
 @source '../../../../../packages/surface/src';
 
+/* The how-it-works kit (`@veresk/learn/steps`). Its CSS reads the variables
+   set further down, so it must come after the tokens it reads; the @source
+   line is as load-bearing here as it is for surface. */
+@import '@veresk/learn/styles.css';
+@source '../../../../../packages/learn/src';
+
 /* ── LIGHT (the default) ───────────────────────────────────────────────────
    Declared in `@theme`, so every `bg-ui-*`, `text-wrap-1` and friends are
    generated. The dark values below are unlayered, so they win over this block.
@@ -130,6 +136,44 @@
   --color-ui-ok: #6fd49a;
   --color-wrap-1: #f5b942;
   --color-wrap-2: #d4bfff;
+}
+
+/* ── THE HOW-IT-WORKS KIT (`@veresk/learn/steps`) ─────────────────────────────
+   The kit takes its colours from the page, so it takes wrap's palette rather
+   than the package's defaults. What was built is the marker (done things carry
+   it); what we learned, links and focus are cobalt. The package also declares
+   five lesson hues, set here so none of them falls back to sky or teal. Dark
+   values are repeated under both dark selectors, as the tokens above are. */
+:root {
+  --steps-built: #9f4410;
+  --steps-accent: #3b5fd0;
+  --color-learn-1: #9f4410;
+  --color-learn-2: #3b5fd0;
+  --color-learn-3: #2f6b3f;
+  --color-learn-4: #9b1c2a;
+  --color-learn-5: #7a5b12;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --steps-built: #f5b942;
+    --steps-accent: #d4bfff;
+    --color-learn-1: #f5b942;
+    --color-learn-2: #d4bfff;
+    --color-learn-3: #6fd49a;
+    --color-learn-4: #ff8a95;
+    --color-learn-5: #e8c15a;
+  }
+}
+
+:root[data-theme='dark'] {
+  --steps-built: #f5b942;
+  --steps-accent: #d4bfff;
+  --color-learn-1: #f5b942;
+  --color-learn-2: #d4bfff;
+  --color-learn-3: #6fd49a;
+  --color-learn-4: #ff8a95;
+  --color-learn-5: #e8c15a;
 }
 
 /* Code is an ink slab in BOTH themes: the Dark+ token colours are fixed and
@@ -435,337 +479,6 @@ h3 {
   color: var(--color-ui-faint);
 }
 
-/* ── THE PHASES, AS TABS ──────────────────────────────────────────────────── */
-.wrap-tabs {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.5rem;
-}
-
-@media (min-width: 40rem) {
-  .wrap-tabs {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 60rem) {
-  .wrap-tabs {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 0;
-    align-items: stretch;
-  }
-}
-
-.wrap-tab {
-  position: relative;
-  display: grid;
-  grid-template-rows: auto auto 1fr;
-  gap: 0.375rem;
-  padding: 0.875rem 0.875rem 1rem;
-  text-align: left;
-  border: 1px solid var(--color-ui-line);
-  border-radius: 0.75rem;
-  background: var(--color-ui-raised);
-  transition:
-    background 200ms ease,
-    border-color 200ms ease;
-}
-
-@media (min-width: 60rem) {
-  /* No bottom edge on the row: the tabs sit straight on the panel, so the
-     phase you picked and what it shows read as one object. */
-  .wrap-tab {
-    border-radius: 0.75rem 0.75rem 0 0;
-    border-bottom-width: 0;
-    margin-inline-start: -1px;
-  }
-  .wrap-tab:first-child {
-    margin-inline-start: 0;
-  }
-}
-
-.wrap-tab:hover {
-  background: color-mix(in oklab, var(--color-ui-raised) 60%, var(--color-ui-surface));
-}
-
-.wrap-tab[data-built='false'] {
-  border-style: dashed;
-  background: transparent;
-}
-
-.wrap-tab[aria-selected='true'] {
-  z-index: 1;
-  border-style: solid;
-  border-color: color-mix(in oklab, var(--color-wrap-1) 50%, var(--color-ui-line));
-  background: var(--color-ui-surface);
-}
-
-/* The marker stroke along the top of the selected tab. */
-.wrap-tab[aria-selected='true']::before {
-  content: '';
-  position: absolute;
-  inset-inline: 0.875rem;
-  top: -1px;
-  height: 3px;
-  border-radius: 3px;
-  background: var(--color-wrap-1);
-}
-
-.wrap-tab-n {
-  font-size: 0.8125rem;
-  font-weight: 700;
-  color: var(--color-ui-faint);
-}
-
-.wrap-tab-label {
-  font-family: var(--font-display);
-  font-size: 1.125rem;
-  font-weight: 600;
-  line-height: 1.2;
-  color: var(--color-ui-dim);
-}
-
-.wrap-tab[aria-selected='true'] .wrap-tab-label,
-.wrap-tab:hover .wrap-tab-label {
-  color: var(--color-ui-fg);
-}
-
-.wrap-tab-status {
-  align-self: end;
-  display: grid;
-  gap: 0.375rem;
-  font-size: 0.8125rem;
-  color: var(--color-ui-faint);
-}
-
-.wrap-tab[data-built='true'] .wrap-tab-status {
-  color: var(--color-wrap-1);
-}
-
-/* How much of the phase is done, as a bar. */
-.wrap-meter {
-  display: block;
-  height: 4px;
-  border-radius: 4px;
-  background: var(--color-ui-line);
-  overflow: hidden;
-}
-
-.wrap-meter > span {
-  display: block;
-  height: 100%;
-  border-radius: 4px;
-  background: var(--color-wrap-1);
-}
-
-.wrap-tabpanel {
-  border: 1px solid var(--color-ui-line);
-  border-radius: 0.75rem;
-  background: var(--color-ui-surface);
-  padding: 1.5rem 1rem 2rem;
-}
-
-@media (min-width: 40rem) {
-  .wrap-tabpanel {
-    padding: 2rem 1.75rem 2.5rem;
-  }
-}
-
-@media (min-width: 60rem) {
-  .wrap-tabpanel {
-    border-top-width: 0;
-    border-radius: 0 0 0.75rem 0.75rem;
-    padding: 2.5rem 2.25rem 2.75rem;
-  }
-}
-
-/* ── A STEP ───────────────────────────────────────────────────────────────── */
-.wrap-step {
-  scroll-margin-top: 1.5rem;
-  border: 1px solid var(--color-ui-line);
-  border-radius: 0.875rem;
-  background: var(--color-ui-bg);
-  padding: 1.25rem 1rem 1.5rem;
-}
-
-@media (min-width: 40rem) {
-  .wrap-step {
-    padding: 1.75rem 1.75rem 2rem;
-  }
-}
-
-.wrap-step[data-state='planned'] {
-  border-style: dashed;
-  border-color: var(--color-ui-line-lit);
-  background: transparent;
-}
-
-.wrap-step-head {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 0.25rem 1rem;
-  align-items: start;
-}
-
-.wrap-step-n {
-  grid-row: span 2;
-  display: grid;
-  place-items: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 999px;
-  border: 2px solid var(--color-ui-line-lit);
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 1rem;
-  color: var(--color-ui-dim);
-}
-
-.wrap-step[data-state='done'] .wrap-step-n {
-  border-color: var(--color-wrap-1);
-  background: var(--color-wrap-1);
-  color: var(--color-ui-bg);
-}
-
-.wrap-step[data-state='next'] .wrap-step-n {
-  border-color: var(--color-wrap-2);
-  color: var(--color-wrap-2);
-}
-
-.wrap-step[data-state='planned'] .wrap-step-n {
-  border-style: dashed;
-}
-
-.wrap-step-title {
-  font-size: 1.375rem;
-  font-weight: 600;
-  line-height: 1.25;
-  color: var(--color-ui-fg);
-}
-
-.wrap-step-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.375rem 0.5rem;
-  align-items: center;
-}
-
-.wrap-step-body {
-  display: grid;
-  gap: 1.5rem;
-  margin-top: 1.5rem;
-}
-
-@media (min-width: 40rem) {
-  .wrap-step-body {
-    padding-left: 3.5rem;
-  }
-}
-
-.wrap-part > h4 {
-  margin-bottom: 0.375rem;
-}
-
-.wrap-part p,
-.wrap-prose p {
-  max-width: 68ch;
-  font-size: 1.0625rem;
-  line-height: 1.7;
-  color: var(--color-ui-dim);
-}
-
-.wrap-part p + p,
-.wrap-prose p + p {
-  margin-top: 0.75rem;
-}
-
-.wrap-part strong,
-.wrap-prose strong,
-.wrap-lesson strong {
-  color: var(--color-ui-fg);
-  font-weight: 700;
-}
-
-/* WHAT WE LEARNED — the one block with a fill on each finished step, drawn as a
-   margin note: a marker edge down the left, a faint wash of the cobalt. A
-   planned step gets the same shape, dashed, and says what it will check. */
-.wrap-lesson {
-  border-radius: 0.5rem;
-  border-inline-start: 4px solid var(--color-wrap-2);
-  background: color-mix(in oklab, var(--color-wrap-2) 7%, var(--color-ui-surface));
-  padding: 1rem 1.125rem 1.125rem;
-}
-
-.wrap-lesson[data-planned='true'] {
-  border-inline-start-style: dashed;
-  border-inline-start-color: var(--color-ui-line-lit);
-  background: transparent;
-}
-
-.wrap-lesson > h4 {
-  margin-bottom: 0.5rem;
-}
-
-.wrap-lesson p {
-  max-width: 66ch;
-  font-size: 1rem;
-  line-height: 1.7;
-  color: var(--color-ui-dim);
-}
-
-.wrap-lesson p + p {
-  margin-top: 0.625rem;
-}
-
-/* Words to know — each one jumps to its glossary entry. */
-.wrap-terms {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  color: var(--color-ui-faint);
-}
-
-.wrap-term {
-  border-radius: 999px;
-  border: 1px solid var(--color-ui-line-lit);
-  padding: 0.125rem 0.625rem;
-  color: var(--color-ui-dim);
-  transition:
-    color 160ms ease,
-    border-color 160ms ease;
-}
-
-.wrap-term:hover {
-  border-color: var(--color-wrap-2);
-  color: var(--color-wrap-2);
-}
-
-/* ── A FIGURE: a caption, where it came from, and the thing itself ─────────── */
-.wrap-fig-cap {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.375rem 0.625rem;
-  padding-bottom: 0.625rem;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--color-ui-fg);
-}
-
-.wrap-fig-src {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 400;
-  color: var(--color-ui-faint);
-  overflow-wrap: anywhere;
-}
-
-.wrap-fig .snip-frame {
-  margin: 0;
-}
-
 /* Code is read, not glanced at: a little larger than the shared default. */
 .snip pre {
   font-size: 0.875rem;
@@ -789,26 +502,6 @@ h3 {
 .snip-frame {
   border-color: #2a3142;
 }
-
-.wrap-raw {
-  overflow-x: auto;
-  border-radius: 0.625rem;
-  background: var(--snip-bg);
-  padding: 0.875rem 1rem;
-  font-family: var(--font-mono);
-  font-size: 0.875rem;
-  line-height: 1.7;
-  color: #d4dae3;
-  white-space: pre;
-}
-
-.wrap-raw mark {
-  background: color-mix(in oklab, #d4bfff 28%, transparent);
-  color: #ffffff;
-  border-radius: 0.1875rem;
-  padding: 0.0625rem 0.1875rem;
-}
-
 /* ── TABLES: a ruled ledger that scrolls in its own box on a phone ────────── */
 .wrap-table {
   width: 100%;
@@ -989,11 +682,8 @@ h3 {
 }
 
 /* ── PROSE ────────────────────────────────────────────────────────────────── */
-.wrap-prose code,
-.wrap-step code,
 .wrap-card code,
 .wrap-gloss code,
-.wrap-hood-text code,
 .ui-dialog-body p code {
   font-family: var(--font-mono);
   font-size: 0.875em;
@@ -1031,11 +721,6 @@ h3 {
 .wrap-note strong {
   color: var(--color-ui-dim);
   font-weight: 700;
-}
-
-/* ── "UNDER THE HOOD" ─────────────────────────────────────────────────────── */
-.wrap-hood-text {
-  color: var(--color-ui-dim);
 }
 
 .ui-dialog-body {

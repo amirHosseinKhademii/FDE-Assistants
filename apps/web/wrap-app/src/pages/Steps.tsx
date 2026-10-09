@@ -1,22 +1,24 @@
 /**
- * `/steps` — How it works. Ported from commerce-app's Steps page, with the
- * commerce content removed. Everything on the page is derived from
- * lib/steps.ts, so a content change never touches this file.
+ * `/steps` — How it works. The page is the canonical kit (`@veresk/learn/steps`)
+ * rendering wrap's data through `components/steps/WrapStep.tsx`. Everything on
+ * the page is derived from lib/steps.ts, so a content change never touches this
+ * file.
  */
 import { useCallback, useState } from 'react';
 import { Aurora } from '@veresk/surface';
-import { Step } from '../components/steps/kit';
-import { PhaseHead, PhaseTabs } from '../components/steps/Tabs';
-import type { PhaseTab } from '../components/steps/Tabs';
+import { GlossaryProvider, PhaseTabs, StepProgressProvider } from '@veresk/learn/steps';
+import { GLOSSARY_VALUE, phaseTabs, progressValue } from '../components/steps/WrapStep';
 import { AURORA } from '../lib/aurora';
 import { GLOSSARY, GLOSSARY_ORDER, termId } from '../lib/glossary';
 import { PHASES } from '../lib/steps';
-import type { PhaseDef, StepDef } from '../lib/steps';
+import type { StepDef } from '../lib/steps';
 
 const ALL_STEPS: StepDef[] = PHASES.flatMap((p) => p.steps);
 const TOTAL = ALL_STEPS.length;
 const DONE = ALL_STEPS.filter((s) => s.status === 'done').length;
 const PHASE_OF = new Map(PHASES.flatMap((p) => p.steps.map((s) => [s.n, p.id] as const)));
+const TABS = phaseTabs(PHASES);
+const PROGRESS = progressValue(ALL_STEPS);
 
 export function Steps() {
   const [active, setActive] = useState(PHASES[0].id);
@@ -36,7 +38,11 @@ export function Steps() {
             Grouped into phases. Each step is laid out the same way: what it does in
             plain words, why it matters, the code, and what we learned doing it.
           </p>
-          <PhaseTabs tabs={buildTabs()} active={active} onActivate={setActive} />
+          <GlossaryProvider value={GLOSSARY_VALUE}>
+            <StepProgressProvider value={PROGRESS}>
+              <PhaseTabs tabs={TABS} active={active} onActivate={setActive} label="Stages of the build" />
+            </StepProgressProvider>
+          </GlossaryProvider>
         </section>
         <Glossary />
       </main>
@@ -114,38 +120,6 @@ function Roadmap({ onGo }: { onGo: (step: string) => void }) {
         ))}
       </div>
     </section>
-  );
-}
-
-function buildTabs(): PhaseTab[] {
-  return PHASES.map((p) => {
-    const done = p.steps.filter((s) => s.status === 'done').length;
-    return {
-      id: p.id,
-      label: p.label,
-      holds: p.steps.map((s) => s.n),
-      status: p.status,
-      built: done > 0,
-      done,
-      total: p.steps.length || 1,
-      content: <PhaseBody phase={p} />,
-    };
-  });
-}
-
-function PhaseBody({ phase }: { phase: PhaseDef }) {
-  return (
-    <div className="grid gap-6">
-      <PhaseHead
-        title={phase.label}
-        status={phase.status}
-        what={<p>{phase.what}</p>}
-        waits={phase.waits}
-      />
-      {phase.steps.map((s) => (
-        <Step key={s.n} step={s} />
-      ))}
-    </div>
   );
 }
 
