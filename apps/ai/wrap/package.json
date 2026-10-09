@@ -19,7 +19,9 @@
     "foundation:check": "tsx src/cli/foundation-check.ts",
     "golden:check": "tsx src/cli/golden-check.ts",
     "detect:check": "tsx src/ingest/format-detector.selftest.ts",
-    "detect-formats": "tsx src/cli/detect-formats.ts"
+    "dedup:check": "tsx src/ingest/dedup.selftest.ts",
+    "detect-formats": "tsx src/cli/detect-formats.ts",
+    "dedup-check": "tsx src/cli/dedup-check.ts"
   },
   "dependencies": {
     "@fde/foundry": "workspace:*",

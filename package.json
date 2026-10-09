@@ -207,6 +207,7 @@
     "wrap:eval:history": "pnpm --filter @wrap/ai eval:history",
     "wrap:eval:latest": "pnpm --filter @wrap/ai eval:latest",
     "wrap:detect-formats": "pnpm --filter @wrap/ai detect-formats",
+    "wrap:dedup-check": "pnpm --filter @wrap/ai dedup-check",
     "wrap:ask": "pnpm --filter @wrap/ai ask",
     "db:wrap-up": "docker compose -f docker-compose.yml up -d pgvector",
     "db:wrap-down": "docker compose -f docker-compose.yml down",

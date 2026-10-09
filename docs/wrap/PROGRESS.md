@@ -105,3 +105,57 @@ pnpm --filter @wrap/ai detect:check      # selftest (17 checks)
 - CSV detection needs at least 5 non-`#` rows, so shorter CSV-like files fall to TEXT.
 
 **Checks:** `detect:check` 17/17 pass; `pnpm --filter @wrap/ai exec tsc --noEmit` passes; `pnpm wrap:eval` runs (stub, 27 answerable cases; Recall@6 0.07, unchanged in kind from Step 1.2).
+
+## Step 2.2 — Dedup
+
+**Date:** 2026-10-09
+
+Built exact (SHA-256) and near-duplicate (word shingles + MinHash) detection by hand, with no libraries beyond Node's `crypto`, and a CLI that writes a report.
+
+- **`ingest/dedup.ts`** — `computeSHA256`, `computeShingles(text, k=5)`, `generateHash(seed, s)`, `computeMinHash(shingles, 128)`, `jaccardSimilarity`, `exactJaccard` (for checking the estimate). Hash is seeded FNV-1a with a murmur3 fmix32 finaliser, seed 42 + i per slot.
+- **`ingest/dedup.selftest.ts`** — 7 checks, run by `pnpm --filter @wrap/ai dedup:check`.
+- **`cli/dedup-check.ts`** — walks `data/raw_dump` (or the first argument). SHA-256 of raw bytes for every file. BINARY and UNKNOWN files are hashed but not shingled. Other files are decoded with `detectFormat`/`decodeToUtf8`; files over 10 MB keep only the first and last 10% of the text. Exact groups keep the shortest relative path (tie: alphabetical). Near-dup pairs are compared among the files that survive exact dedup, flagged at ≥ 0.95. Writes `data/dedup-report.json` (`exact_duplicates`, `near_duplicates`, `summary`). Prints the summary, the first 10 of each list, and runtime. The report has no timestamp or runtime, so it is byte-identical across runs.
+- **Report shape:** the plan's sketch was adjusted. Exact groups are `{hash, files, kept, removed}`, where `removed` is the list of removed paths (not a count). Near-dups are `{file_a, file_b, similarity}`. Summary counts are `total_files, skipped_shingling, exact_groups, exact_removed, near_dup_pairs, pairs_ge_0_9, pairs_ge_0_8, files_after_dedup`. The two `pairs_ge` counts are cumulative and include the ≥ 0.95 pairs.
+- **`.gitignore`** — `data/dedup-report.json` added. It is regenerated output.
+
+**Choices:**
+- Shingles are word 5-grams, lowercased, with whitespace collapsed. Punctuation stays part of the word.
+- 128 MinHash slots. Estimate standard error at Jaccard 0.9 is about ±0.025, so the 0.95 flag is noisy (see the borderline pair below).
+- FNV-1a + fmix32 seed 42 instead of the plan's HMAC hint. It is much faster for 128 hashes over every shingle and still deterministic.
+- `kept` = shortest path, so the original wins over `_copy_N_of_` and `_misnamed` copies.
+
+**Commands (from repo root):**
+```bash
+pnpm wrap:dedup-check              # scan data/raw_dump, write the report, print the summary
+pnpm wrap:dedup-check <other-dir>  # scan another directory
+pnpm --filter @wrap/ai dedup:check # selftest (7 checks)
+jq '.exact_duplicates[] | .kept' apps/ai/wrap/data/dedup-report.json
+```
+
+**Summary (`data/raw_dump`, 1111 files, 3.5 s):**
+- Total files: 1111 (skipped shingling: 1, the empty `empty.txt`; errors: 0)
+- Exact groups: 13, removing 18 files
+- Near-dup pairs ≥ 0.95: 1. Pairs ≥ 0.9: 5. Pairs ≥ 0.8: 12
+- Files after dedup: 1093
+
+**Planted vs found (make-mess, seed 42):**
+- Exact duplicates: 5 originals × 2 `_copy_N_of_` files = 10 planted. All 5 groups found, all 10 copies removed.
+- Wrong-extension copies (8 files, byte-identical to an original, not a dup plant): found as 8 extra exact groups. That is correct, since the bytes match.
+- Near-duplicates: 10 `_v2` files planted. At ≥ 0.95, 1 found. The other 9 are below 0.95:
+
+| `_v2` file | MinHash | exact Jaccard |
+|---|---|---|
+| eps-core/reports/hil-PRG-VGR-18-03_v2.md | 0.9531 (flagged) | 0.909 |
+| pmo/closure-reports/EFF-BULK-0288_v2.md | 0.8906 | 0.898 |
+| pmo/closure-reports/EFF-BULK-0520_v2.md | 0.8516 | 0.858 |
+| pmo/closure-reports/EFF-BULK-0257_v2.md | 0.8359 | 0.867 |
+| releases/eps-steer-by-wire-4.20.1_v2.md | 0.8359 | 0.840 |
+| eps-diagnostics/docs/module-lookup_table_1_v2.md | 0.7969 | 0.800 |
+| requirements/PRG-MRL-04/review-notes-PRG-MRL-04_v2.md | 0.7969 | 0.804 |
+| requirements/PRG-CHV-29/architecture-PRG-CHV-29_v2.md | 0.7813 | 0.841 |
+| pmo/closure-reports/EFF-BULK-0416_v2.md | 0.5703 | 0.594 |
+| eps-motor-control/reports/misra-sat_math_7_v2.txt | 0.6484 | 0.590 |
+
+  The 0.95 threshold misses 9 of 10 planted near-dups. The `make-mess` edit changes 2–5 lines, and each changed line breaks about five 5-word shingles. Short files lose a lot of similarity. The one flagged pair is borderline: the exact Jaccard is 0.909, so it is a 0.95 only by estimate noise. Both the threshold and the shingle size are open questions for the next step. At ≥ 0.8, 5 of the 10 are caught (the flagged pair and four more at 0.84–0.89).
+
+**Checks:** `dedup:check` 7/7 pass; `pnpm --filter @wrap/ai exec tsc --noEmit` passes; report byte-identical across two runs (`sha256sum`); `jq` lists 13 kept paths.
