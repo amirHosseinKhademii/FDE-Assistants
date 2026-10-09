@@ -28,7 +28,10 @@ function locate(pathname: string, base: string): { lesson?: LessonSlug; phase?: 
 
 export function LessonRail() {
   const base = useLearnBase();
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
+  // A build or planned stop lives on its phase page at `#step-X.Y`; that hash is
+  // what makes its row the current one once it is clicked.
+  const stepHere = (hash ?? '').replace(/^#?step-/, '');
   const [view, setView] = useState<RailView>('path');
 
   const here = locate(pathname, base);
@@ -71,7 +74,10 @@ export function LessonRail() {
         name: s.kind === 'lesson' ? lesson!.short : `${s.step} ${stopLabel(s).replace(/^(Build|Planned) · [\d.]+ /, '')}`,
         srLabel: stopLabel(s),
         hue: lesson ? hueOf(lesson) : undefined,
-        current: lesson !== undefined && here.lesson === lesson.slug,
+        current:
+          s.kind === 'lesson'
+            ? here.lesson === s.slug
+            : here.phase !== undefined && here.phase === phaseOf(s.step)?.id && stepHere === s.step,
       };
     });
     return {

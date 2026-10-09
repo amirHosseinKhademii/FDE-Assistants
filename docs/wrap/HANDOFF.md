@@ -199,3 +199,22 @@ badge. Never invent code for it.
 - Never push. The learner pushes.
 - Ask before paid model runs.
 - No new Azure resources without a clear OK.
+
+## 10. /learn start-to-finish path: UI status (2026-10-09, end of day)
+
+The learner signed off on the path UI as "good enough for now". What is built:
+
+| Commit | What |
+|---|---|
+| `63cb6db` | `packages/learn/src/data/path.ts`: PATH, 9 phases (p0–p8), 68 stops; `pnpm --filter @veresk/learn path:check` asserts 27/27 lessons exactly once, 11 builds, 30 planned. Wrap step data moved to `packages/learn/src/data/wrap-steps.ts` + `wrap-glossary.ts` |
+| `535d34e` | Rail redesign: 316px wide (260px at 900–1099px), sticky, full height, one scroll; "Contents" drawer below 900px |
+| `30c46d6` | Phase pages `/learn/phase/p0…p8` (`PhasePage`, `BuildStep` adapter → full how-it-works step with code, printed output, Under the hood), `/learn` = `PathOverview`, `/learn/topics` = old index |
+| (this commit) | Order inside each phase = lessons first, then build/planned steps by number. Lesson-section third level REMOVED (learner: unnecessary). No progress rings. An open phase is tinted with an outlined P-badge; the P-badge is FILLED only for the phase holding the current page; a build's step tag (e.g. `2.2`) is filled only on the current stop. Build/planned stops are hash links (`/learn/phase/p2#step-2.2`): `activeOptions={{exact:true, includeHash:true}}` so only the clicked stop is active |
+
+Open items for the next UI pass:
+- The stop list at the top of each phase page is plain text; make it clickable chips.
+- The rail's "By topic" toggle only switches the rail; also link `/learn/topics`.
+- The lesson header says "PHASE 0 · STOP 2 OF 5" (P-number); the rail says "Phase 1 of 9 · P0 …". Pick one convention.
+- Active state for a build stop follows the URL hash only; it does not follow scrolling (no scroll-spy). Fine for now.
+- Light mode: the site has no light palette; only dark is checked.
+- Wrap-app does not mount `/learn` yet (one-stop plan step E), and wrap `/steps` is still on its forked kit (stash "WIP 2c").

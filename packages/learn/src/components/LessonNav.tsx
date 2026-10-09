@@ -23,6 +23,11 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import type { PhaseId } from '../data/path';
 
+/** "1 lesson", "0 builds": the noun follows the count. */
+function plural(n: number, one: string): string {
+  return n === 1 ? one : `${one}s`;
+}
+
 /** One row on the topic rail. `hue` is the row's own accent, applied as `--rail-hue`. */
 export interface RailLesson {
   href: string;
@@ -107,8 +112,15 @@ export function LessonNav({
   const navRef = useRef<HTMLElement>(null);
   const [more, setMore] = useState(false);
 
-  // The current stop's key, so the scroll effect runs when the page moves.
-  const currentKey = phases.flatMap((p) => p.stops).find((s) => s.current)?.key ?? '';
+  // The current stop, and where the page sits in the path. The mobile handle and
+  // the progress line both say "Phase 1 of 9 · P0 Setup & the mess", counted from
+  // 1 and read from the phases this rail was given.
+  const currentStop = phases.flatMap((p) => p.stops).find((s) => s.current);
+  const currentKey = currentStop?.key ?? '';
+  const currentPhase = phases.find((p) => p.current);
+  const where = currentPhase
+    ? `Phase ${phases.indexOf(currentPhase) + 1} of ${phases.length} · P${currentPhase.n} ${currentPhase.title}`
+    : progress.phase;
 
   // Bring the current stop into view on load and on every move. Only the rail
   // scrolls (`nav.scrollTop`), never the window, so the page does not jump.
@@ -156,7 +168,7 @@ export function LessonNav({
         onClick={() => setDrawer((d) => !d)}
       >
         <span>Contents</span>
-        <span className="learn-rail-toggle-where">{progress.phase}</span>
+        <span className="learn-rail-toggle-where">{where}</span>
         <span aria-hidden className="learn-rail-chevron">
           ▸
         </span>
@@ -197,7 +209,7 @@ export function LessonNav({
         {view === 'path' ? (
           <div className="learn-rail-progress" aria-live="polite">
             <p className="learn-rail-progress-text">
-              {`${progress.phase} · ${progress.lessonsDone} of ${progress.lessonsTotal} lessons · ${progress.builds} builds`}
+              {`${where} · ${progress.lessonsDone} of ${progress.lessonsTotal} ${plural(progress.lessonsTotal, 'lesson')} · ${progress.builds} ${plural(progress.builds, 'build')}`}
             </p>
             <div className="learn-rail-bar" aria-hidden>
               <span style={{ width: `${Math.round(progress.fraction * 100)}%` }} />
@@ -237,8 +249,6 @@ export function LessonNav({
               const lessons = phase.stops.filter((s) => s.kind === 'lesson').length;
               const builds = phase.stops.filter((s) => s.kind === 'build').length;
               const planned = phase.stops.filter((s) => s.kind === 'gap').length;
-              const built = lessons + builds;
-              const pct = phase.count ? Math.round((built / phase.count) * 100) : 0;
               return (
                 <section
                   key={phase.id}
@@ -261,15 +271,9 @@ export function LessonNav({
                     <span className="learn-rail-phase-text">
                       <span className="learn-rail-phase-title">{phase.title}</span>
                       <span className="learn-rail-phase-meta">
-                        {`${lessons} ${lessons === 1 ? 'lesson' : 'lessons'} · ${builds} ${builds === 1 ? 'build' : 'builds'} · ${planned} planned`}
+                        {`${lessons} ${plural(lessons, 'lesson')} · ${builds} ${plural(builds, 'build')} · ${planned} planned`}
                       </span>
                     </span>
-                    <span
-                      aria-hidden
-                      className="learn-rail-ring"
-                      style={{ ['--p' as string]: pct }}
-                      title={`${built} of ${phase.count} built`}
-                    />
                     <span aria-hidden className="learn-rail-chevron">
                       ▸
                     </span>
@@ -284,7 +288,13 @@ export function LessonNav({
                       return (
                         <li key={s.key}>
                           <Link
-                            to={s.href}
+                            to={s.href.split('#')[0]}
+                            hash={s.href.split('#')[1]}
+                            /* The router would mark every stop on a phase page active,
+                               since they share its path; only the one whose hash is in
+                               the URL is. `s.current` is computed with the hash. */
+                            activeOptions={{ exact: true, includeHash: true }}
+                            activeProps={{ 'aria-current': 'page' }}
                             className="learn-rail-stop"
                             data-kind={s.kind}
                             aria-current={s.current ? 'page' : undefined}
@@ -337,7 +347,7 @@ export function LessonNav({
           ))
         )}
 
-        <p className="mt-6 max-w-[16rem] px-2.5 text-[0.6875rem] leading-relaxed text-ui-faint">
+        <p className="mt-6 max-w-[16rem] px-2.5 text-[0.6875rem] leading-relaxed text-ui-dim">
           Every figure either is a number this repo measured, with the command that reprints it
           underneath, or says on its face that it is not one.
         </p>

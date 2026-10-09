@@ -28,7 +28,7 @@ export const Route = createFileRoute('/learn')({
 function LearnLayout() {
   return (
     <LearnProvider basePath="/learn">
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-screen overflow-clip">
       <Aurora tones={AURORA} />
 
       <nav className="relative z-10 mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-3 px-5 py-5 sm:px-6 sm:py-6">
@@ -56,7 +56,7 @@ function LearnLayout() {
         )}
       </nav>
 
-      <div className="relative z-10 mx-auto grid max-w-6xl gap-10 px-5 pb-16 sm:px-6 min-[900px]:grid-cols-[260px_minmax(0,1fr)] min-[900px]:gap-8 min-[1100px]:grid-cols-[316px_minmax(0,1fr)] min-[1100px]:gap-12">
+      <div className="relative z-10 mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)] gap-10 px-5 pb-16 sm:px-6 min-[900px]:grid-cols-[260px_minmax(0,1fr)] min-[900px]:gap-8 min-[1100px]:grid-cols-[316px_minmax(0,1fr)] min-[1100px]:gap-12">
         {/* The rail comes SECOND in the DOM on small screens would be the
             obvious reading of this — it does not. It is first, because on a
             narrow screen a reader arriving mid-track needs to know where they

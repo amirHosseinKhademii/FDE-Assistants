@@ -80,9 +80,8 @@ a.learn-next:focus-visible {
 /* ── THE RAIL ───────────────────────────────────────────────────────────────
    Where you are in the path, visible without scrolling back. A LIST OF LINKS,
    not a progress bar: nothing here is "completed" because the site knows
-   nothing about who is reading it. The one number that is state is the
-   built/total ring, and that is a count of what this repo has built, not of
-   what a reader has read.
+   nothing about who is reading it. The counts on the progress line are of what
+   this repo has built, not of what a reader has read.
 
    THE GEOMETRY, IN ONE PLACE. The phase badge is a fixed 2.25rem pill. Its
    centre is the marker column of the stops below it. The title text starts at
@@ -263,7 +262,7 @@ a.learn-next:focus-visible {
   font-family: var(--font-mono, ui-monospace, monospace);
   font-size: 0.6875rem;
   letter-spacing: 0.08em;
-  color: var(--color-ui-faint, #5f6878);
+  color: var(--color-ui-dim, #98a2b3);
 }
 
 .learn-rail-item[aria-current='page'] .learn-rail-n {
@@ -289,7 +288,7 @@ a.learn-next:focus-visible {
 /* The header: the whole row is the button, at least 40px tall. */
 .learn-rail-phase {
   display: grid;
-  grid-template-columns: 2.25rem minmax(0, 1fr) 1rem 0.75rem;
+  grid-template-columns: 2.25rem minmax(0, 1fr) 0.75rem;
   column-gap: 0.625rem;
   align-items: center;
   width: 100%;
@@ -304,8 +303,44 @@ a.learn-next:focus-visible {
   background: var(--color-ui-raised, #13161f);
 }
 
+.learn-rail-group[data-open='true'] > .learn-rail-phase {
+  background: color-mix(in oklab, var(--color-ui-accent, #2dd4bf) 14%, transparent);
+}
+
 .learn-rail-group[data-open='true'] > .learn-rail-phase:hover {
-  background: color-mix(in oklab, var(--color-ui-accent, #2dd4bf) 10%, transparent);
+  background: color-mix(in oklab, var(--color-ui-accent, #2dd4bf) 20%, transparent);
+}
+
+/* An open group reads as ACTIVE: accent title, a filled P-badge, an accent chevron. */
+.learn-rail-group[data-open='true'] .learn-rail-phase-title {
+  color: var(--color-ui-accent, #2dd4bf);
+}
+
+/* An open group is outlined in the accent; only the group holding the current
+   page gets the FILLED badge, so a filled number always means "you are here". */
+.learn-rail-group[data-open='true'] .learn-rail-badge {
+  border-color: var(--color-ui-accent, #2dd4bf);
+  color: var(--color-ui-accent, #2dd4bf);
+}
+
+.learn-rail-group[data-current='true'] .learn-rail-badge {
+  border-color: var(--color-ui-accent, #2dd4bf);
+  background: var(--color-ui-accent, #2dd4bf);
+  color: var(--color-ui-bg, #07080b);
+  font-weight: 600;
+}
+
+/* A stop's step number ("2.2") fills the same way, only on the current stop. */
+:is(.learn-rail-stop[aria-current='page'], .learn-rail-stop.active) .learn-rail-tag {
+  padding: 0.0625rem 0.375rem;
+  border-radius: 999px;
+  background: var(--color-ui-accent, #2dd4bf);
+  color: var(--color-ui-bg, #07080b);
+  font-weight: 600;
+}
+
+.learn-rail-group[data-open='true'] .learn-rail-chevron {
+  color: var(--color-ui-accent, #2dd4bf);
 }
 
 /* The P-badge: a fixed pill, so every title starts at the same x. */
@@ -323,10 +358,6 @@ a.learn-next:focus-visible {
   background: var(--color-ui-bg, #07080b);
 }
 
-.learn-rail-group[data-current='true'] .learn-rail-badge {
-  border-color: var(--color-ui-accent, #2dd4bf);
-  color: var(--color-ui-accent, #2dd4bf);
-}
 
 .learn-rail-phase-text {
   display: flex;
@@ -352,20 +383,6 @@ a.learn-next:focus-visible {
   line-height: 1.4;
   white-space: normal;
   color: var(--rail-meta);
-}
-
-/* The built/total ring: a conic sweep with the centre cut out. */
-.learn-rail-ring {
-  justify-self: end;
-  width: 1rem;
-  height: 1rem;
-  border-radius: 50%;
-  background: conic-gradient(
-    var(--color-ui-accent, #2dd4bf) calc(var(--p, 0) * 1%),
-    var(--color-ui-line-lit, #2b3240) 0
-  );
-  -webkit-mask: radial-gradient(circle, transparent 4.5px, #000 5px);
-  mask: radial-gradient(circle, transparent 4.5px, #000 5px);
 }
 
 .learn-rail-chevron {
@@ -456,15 +473,20 @@ a.learn-next:focus-visible {
   opacity: 0.6;
 }
 
-.learn-rail-stop[aria-current='page'] {
+:is(.learn-rail-stop[aria-current='page'], .learn-rail-stop.active) {
   border-left-color: var(--color-ui-accent, #2dd4bf);
   background: color-mix(in oklab, var(--color-ui-accent, #2dd4bf) 9%, transparent);
   font-weight: 600;
   color: var(--color-ui-fg, #eef2f7);
 }
 
-.learn-rail-stop[aria-current='page'][data-kind='gap'] {
+:is(.learn-rail-stop[aria-current='page'], .learn-rail-stop.active)[data-kind='gap'] {
   opacity: 1;
+}
+
+/* A heading the rail scrolls to clears whatever sits above it. */
+.learn-step-title {
+  scroll-margin-top: 6rem;
 }
 
 /* ── A NUMBERED STEP ────────────────────────────────────────────────────────
