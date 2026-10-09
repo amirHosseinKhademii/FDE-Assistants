@@ -138,6 +138,14 @@ a.case-card:focus-visible {
   outline-offset: 3px;
 }
 
+/* Five engagement cards in a two-column grid: the fifth (odd, and last) takes
+   the whole row at sm and up, so it does not sit alone. Phones stay one column. */
+@media (min-width: 40rem) {
+  .cases-grid > :last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}
+
 .case-card--elsewhere {
   background: transparent;
   border-style: dashed;

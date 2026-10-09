@@ -347,18 +347,18 @@ function Engagements() {
   return (
     <section className="border-t border-ui-line py-16">
       <h2 className="max-w-[30ch] font-mono text-2xl leading-snug font-medium tracking-tight text-ui-fg md:text-3xl">
-        Four customers, four questions.
+        Five engagements, five questions.
       </h2>
       <p className="mt-4 max-w-[58ch] leading-relaxed text-ui-dim">
         Every engagement starts the same way: one person, one question they answer badly today, and
         a number that says whether it got better.
       </p>
 
-      {/* TWO BY TWO, NOT THREE AND A ONE. Three columns was right for three
-          engagements and a fourth card left a row of one next to two columns of
-          nothing, which reads as a card that failed to load rather than as the
-          fourth customer. Four items want an even grid. */}
-      <div className="mt-10 grid gap-3 sm:grid-cols-2">
+      {/* TWO BY TWO, WITH THE FIFTH CARD SPANNING THE ROW. Five items in a 2x2
+          grid leave the last one alone on its row, which reads as a card that
+          failed to load. The `.cases-grid` rule in styles/app.css widens the
+          odd last card to the full row at sm and up; phones stay single-column. */}
+      <div className="cases-grid mt-10 grid gap-3 sm:grid-cols-2">
         {CASES.map((c) => {
           const inside = (
             <>

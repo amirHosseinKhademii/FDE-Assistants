@@ -219,7 +219,7 @@ apps/web/wrap-app/src/
      WRAP_DB_URL=postgresql://postgres:postgres@127.0.0.1:5432/wrap_index
      WRAP_API_PORT=3510
      WRAP_MCP_PORT=3520
-     WRAP_WEB_PORT=3500
+     WRAP_WEB_PORT=3700
      OPENAI_API_KEY=<filled in later>
      AZURE_TENANT_ID=
      AZURE_CLIENT_ID=
