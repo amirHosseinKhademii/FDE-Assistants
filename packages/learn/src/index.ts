@@ -101,3 +101,6 @@ export {
   type Stop,
 } from './data/path';
 export { LearnIndex } from './lessons/LearnIndex';
+export { PhasePage } from './phases/PhasePage';
+export { PathOverview } from './phases/PathOverview';
+export { BuildStep } from './phases/BuildStep';

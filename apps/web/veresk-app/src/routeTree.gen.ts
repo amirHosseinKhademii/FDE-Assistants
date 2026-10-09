@@ -39,7 +39,9 @@ import { Route as LearnRegressionsRouteImport } from './routes/learn.regressions
 import { Route as LearnResidencyRouteImport } from './routes/learn.residency'
 import { Route as LearnRetrievalRouteImport } from './routes/learn.retrieval'
 import { Route as LearnToolsRouteImport } from './routes/learn.tools'
+import { Route as LearnTopicsRouteImport } from './routes/learn.topics'
 import { Route as LearnVectorsRouteImport } from './routes/learn.vectors'
+import { Route as LearnPhaseIdRouteImport } from './routes/learn.phase.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -191,9 +193,19 @@ const LearnToolsRoute = LearnToolsRouteImport.update({
   path: '/tools',
   getParentRoute: () => LearnRoute,
 } as any)
+const LearnTopicsRoute = LearnTopicsRouteImport.update({
+  id: '/topics',
+  path: '/topics',
+  getParentRoute: () => LearnRoute,
+} as any)
 const LearnVectorsRoute = LearnVectorsRouteImport.update({
   id: '/vectors',
   path: '/vectors',
+  getParentRoute: () => LearnRoute,
+} as any)
+const LearnPhaseIdRoute = LearnPhaseIdRouteImport.update({
+  id: '/phase/$id',
+  path: '/phase/$id',
   getParentRoute: () => LearnRoute,
 } as any)
 
@@ -227,8 +239,10 @@ export interface FileRoutesByFullPath {
   '/learn/residency': typeof LearnResidencyRoute
   '/learn/retrieval': typeof LearnRetrievalRoute
   '/learn/tools': typeof LearnToolsRoute
+  '/learn/topics': typeof LearnTopicsRoute
   '/learn/vectors': typeof LearnVectorsRoute
   '/learn/': typeof LearnIndexRoute
+  '/learn/phase/$id': typeof LearnPhaseIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -259,8 +273,10 @@ export interface FileRoutesByTo {
   '/learn/residency': typeof LearnResidencyRoute
   '/learn/retrieval': typeof LearnRetrievalRoute
   '/learn/tools': typeof LearnToolsRoute
+  '/learn/topics': typeof LearnTopicsRoute
   '/learn/vectors': typeof LearnVectorsRoute
   '/learn': typeof LearnIndexRoute
+  '/learn/phase/$id': typeof LearnPhaseIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -293,8 +309,10 @@ export interface FileRoutesById {
   '/learn/residency': typeof LearnResidencyRoute
   '/learn/retrieval': typeof LearnRetrievalRoute
   '/learn/tools': typeof LearnToolsRoute
+  '/learn/topics': typeof LearnTopicsRoute
   '/learn/vectors': typeof LearnVectorsRoute
   '/learn/': typeof LearnIndexRoute
+  '/learn/phase/$id': typeof LearnPhaseIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -328,8 +346,10 @@ export interface FileRouteTypes {
     | '/learn/residency'
     | '/learn/retrieval'
     | '/learn/tools'
+    | '/learn/topics'
     | '/learn/vectors'
     | '/learn/'
+    | '/learn/phase/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -360,8 +380,10 @@ export interface FileRouteTypes {
     | '/learn/residency'
     | '/learn/retrieval'
     | '/learn/tools'
+    | '/learn/topics'
     | '/learn/vectors'
     | '/learn'
+    | '/learn/phase/$id'
   id:
     | '__root__'
     | '/'
@@ -393,8 +415,10 @@ export interface FileRouteTypes {
     | '/learn/residency'
     | '/learn/retrieval'
     | '/learn/tools'
+    | '/learn/topics'
     | '/learn/vectors'
     | '/learn/'
+    | '/learn/phase/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -614,11 +638,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LearnToolsRouteImport
       parentRoute: typeof LearnRoute
     }
+    '/learn/topics': {
+      id: '/learn/topics'
+      path: '/topics'
+      fullPath: '/learn/topics'
+      preLoaderRoute: typeof LearnTopicsRouteImport
+      parentRoute: typeof LearnRoute
+    }
     '/learn/vectors': {
       id: '/learn/vectors'
       path: '/vectors'
       fullPath: '/learn/vectors'
       preLoaderRoute: typeof LearnVectorsRouteImport
+      parentRoute: typeof LearnRoute
+    }
+    '/learn/phase/$id': {
+      id: '/learn/phase/$id'
+      path: '/phase/$id'
+      fullPath: '/learn/phase/$id'
+      preLoaderRoute: typeof LearnPhaseIdRouteImport
       parentRoute: typeof LearnRoute
     }
   }
@@ -652,8 +690,10 @@ interface LearnRouteChildren {
   LearnResidencyRoute: typeof LearnResidencyRoute
   LearnRetrievalRoute: typeof LearnRetrievalRoute
   LearnToolsRoute: typeof LearnToolsRoute
+  LearnTopicsRoute: typeof LearnTopicsRoute
   LearnVectorsRoute: typeof LearnVectorsRoute
   LearnIndexRoute: typeof LearnIndexRoute
+  LearnPhaseIdRoute: typeof LearnPhaseIdRoute
 }
 
 const LearnRouteChildren: LearnRouteChildren = {
@@ -684,8 +724,10 @@ const LearnRouteChildren: LearnRouteChildren = {
   LearnResidencyRoute: LearnResidencyRoute,
   LearnRetrievalRoute: LearnRetrievalRoute,
   LearnToolsRoute: LearnToolsRoute,
+  LearnTopicsRoute: LearnTopicsRoute,
   LearnVectorsRoute: LearnVectorsRoute,
   LearnIndexRoute: LearnIndexRoute,
+  LearnPhaseIdRoute: LearnPhaseIdRoute,
 }
 
 const LearnRouteWithChildren = LearnRoute._addFileChildren(LearnRouteChildren)

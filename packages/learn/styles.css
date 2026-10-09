@@ -1982,3 +1982,11 @@ a.lesson-card:focus-visible {
   border-radius: 0.1875rem;
   padding: 0.0625rem 0.1875rem;
 }
+
+/* ── THE PHASE PAGE ───────────────────────────────────────────────────────
+   Every stop on a phase page is an anchor target. The rail is sticky on wide
+   screens and nothing else here is, so a few rem of margin is enough for the
+   target to land below the top edge rather than under it. */
+.phase-stop {
+  scroll-margin-top: 5rem;
+}
