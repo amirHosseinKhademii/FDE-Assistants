@@ -11,6 +11,7 @@
 import { createRootRoute, HeadContent, Link, Outlet, Scripts } from '@tanstack/react-router';
 import appCss from '../styles/app.css?url';
 import { RouteProgress } from '@veresk/surface';
+import { VERESK } from '../lib/links';
 
 const MOTION_SETTLE = `setTimeout(function(){document.documentElement.setAttribute('data-motion','settled')},1400)`;
 
@@ -55,6 +56,16 @@ function RootLayout() {
             <Link to="/steps" className="wrap-a">
               How it works
             </Link>
+            {/* A plain anchor: the firm's page is another deployment on another
+                origin. `null` in a production build with nothing configured, and
+                then it renders as text rather than as a link to nowhere. */}
+            {VERESK ? (
+              <a href={VERESK} className="wrap-a">
+                Veresk
+              </a>
+            ) : (
+              <span className="text-ui-faint">Veresk</span>
+            )}
           </nav>
         </header>
         {/* Outside the Outlet on purpose: a progress indicator inside the page

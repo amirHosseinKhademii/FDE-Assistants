@@ -62,3 +62,10 @@ export const SAFETY = url(import.meta.env.VITE_SAFETY_URL as string | undefined,
  * `VITE_COMMERCE_URL`, the way `VITE_SAFETY_URL` is passed.
  */
 export const COMMERCE = url(import.meta.env.VITE_COMMERCE_URL as string | undefined, 3600);
+
+/**
+ * Wrap — the document ingestion and retrieval pipeline, built from scratch over
+ * the Vantis steering corpus. Its own deployment, resolved and deployed the same
+ * way as the others: the pipeline looks its URL up AFTER watching it return 200.
+ */
+export const WRAP = url(import.meta.env.VITE_WRAP_URL as string | undefined, 3700);

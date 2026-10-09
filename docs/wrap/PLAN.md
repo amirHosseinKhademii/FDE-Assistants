@@ -89,7 +89,7 @@ Phases 0–2 are the foundation: build the corpus, measure baselines, and hand-r
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  apps/web/wrap-app        @wrap/web         TanStack Start     │
-│  React UI. Port 3500.                                           │
+│  React UI. Port 3700.                                           │
 └──────────────────────┬──────────────────────────────────────────┘
                        │  /api/ask  (SSE)
 ┌──────────────────────▼──────────────────────────────────────────┐

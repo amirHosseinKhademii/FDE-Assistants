@@ -47,7 +47,7 @@ const TYPES: Record<string, string> = {
 };
 
 if (import.meta.env.PROD) {
-  const port = Number(process.env.PORT ?? 3500);
+  const port = Number(process.env.PORT ?? 3700);
   // Bound to loopback only: this is a shared machine, so nothing else on the
   // network should be able to reach the page.
   const host = '127.0.0.1';

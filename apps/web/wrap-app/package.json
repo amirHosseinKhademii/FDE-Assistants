@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite dev --host 127.0.0.1 --port 3500",
+    "dev": "vite dev --host 127.0.0.1 --port 3700",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "start": "node dist/server/server.js"

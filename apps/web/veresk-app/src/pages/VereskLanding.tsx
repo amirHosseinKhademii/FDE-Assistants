@@ -38,7 +38,7 @@ import { FlowMap } from '@fde/uikit';
 import type { FlowEdge, FlowNode, FlowStage } from '@fde/uikit';
 import { Aurora } from '@veresk/surface';
 import { AURORA } from '../lib/aurora';
-import { COMMERCE, PHARMA, SAFETY, STEERING } from '../lib/links';
+import { COMMERCE, PHARMA, SAFETY, STEERING, WRAP } from '../lib/links';
 import { BoxIcon } from '@fde/uikit';
 import { CaseGlyph, PackageGlyph } from '../components/flow/veresk-glyphs';
 import { hueOf, lessonsIn, MAP, TOTALS, TRACKS } from '../lib/learn/lessons';
@@ -187,6 +187,11 @@ export function VereskLanding() {
             Thornbury Goods
           </a>
         )}
+        {WRAP && (
+          <a href={WRAP} className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
+            Wrap
+          </a>
+        )}
       </nav>
 
       <main className="relative z-10 mx-auto max-w-6xl px-5 sm:px-6">
@@ -327,6 +332,14 @@ const CASES = [
     asks: 'What is this customer owed, and what proves it?',
     state: 'Grounded in 5 operational databases, 12 policy documents, and one MCP server. The `/steps` page is built; the `/desk` awaits the HTTP transport.',
     elsewhere: 'Runs as its own application — pnpm commerce:dev, port 3600',
+  },
+  {
+    href: WRAP,
+    customer: 'Wrap',
+    persona: 'an engineer searching a messy document dump for one requirement',
+    asks: 'Where in the corpus is this requirement written down?',
+    state: 'Ingestion is built from scratch: format detection, dedup, PII scrubbing, type-aware chunking and metadata. Embedding and retrieval are not built yet.',
+    elsewhere: 'Runs as its own application — pnpm wrap:dev, port 3700',
   },
 ];
 

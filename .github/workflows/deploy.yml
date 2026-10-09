@@ -11,8 +11,8 @@
 #
 # So the order is the pipeline:
 #
-#   1a/1b/1c. build the ENGAGEMENT images    steering-build · pharma-build · safety-build
-#   2a/2b/2c. deploy them, prove they serve   steering-deploy · pharma-deploy · safety-deploy
+#   1a/1b/1c/1g. build the ENGAGEMENT images    steering-build · pharma-build · safety-build · wrap-build
+#   2a/2b/2c/2g. deploy them, prove they serve   steering-deploy · pharma-deploy · safety-deploy · wrap-deploy
 #   3.        only then build the HOST image  veresk-build   ← takes all three URLs
 #   4.        deploy the host and prove it    veresk-deploy
 #
@@ -129,6 +129,7 @@ on:
       - 'apps/web/steering-app/**'
       - 'apps/web/pharma-app/**'
       - 'apps/web/safety-app/**'
+      - 'apps/web/wrap-app/**'
       - 'apps/web/commerce-app/**'
       - 'apps/api/commerce/**'
       - 'apps/mcp/commerce/**'
@@ -137,6 +138,7 @@ on:
       - 'infra/steering/Dockerfile'
       - 'infra/pharma/Dockerfile'
       - 'infra/safety/Dockerfile'
+      - 'infra/wrap/**'
       - 'infra/commerce/Dockerfile'
       - 'infra/commerce-api/Dockerfile'
       - 'infra/commerce-mcp/Dockerfile'
@@ -209,6 +211,11 @@ env:
   # probe. infra/commerce/DEPLOY.md §"the MCP server" is the full answer.
   COMMERCE_APP: commerce-app
   COMMERCE_REPO: docker.io/amir2575/thornbury-commerce
+  # The sixth engagement: Wrap, the document ingestion and retrieval pipeline.
+  # Its image carries the pages only (apps/web/wrap-app); the pipeline in
+  # apps/ai/wrap is not in it. No secrets, same as safety.
+  WRAP_APP: wrap-app
+  WRAP_REPO: docker.io/amir2575/wrap
   # The host — the firm's door and Meridian Pharma's pages.
   #
   # RENAMED FROM `pharma-app` ON 2026-09-13, which meant recreating it: Azure
@@ -1242,15 +1249,168 @@ jobs:
 
       - run: echo "✅ **2f · commerce-mcp deployed** — internal ingress only" >> "$GITHUB_STEP_SUMMARY"
 
+  # ── 1g ── the sixth engagement's image ──────────────────────────────────
+  #
+  # A SIBLING OF 1c, AND THE SAME SHAPE: no database, no model call, no API
+  # route, no secrets. The ingestion pipeline in apps/ai/wrap is NOT in this
+  # image; the pages read nothing at request time. Only the back-link to the
+  # firm is resolved, the same way as safety's.
+  wrap-build:
+    name: 1g · build wrap image
+    if: ${{ (inputs.scope || 'all') == 'all' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # The back-link to the firm, resolved rather than written down. Empty is
+      # the correct answer if the host has no ingress: `links.ts` scopes its dev
+      # fallback to `import.meta.env.DEV`, so an unset value renders the firm's
+      # name as text rather than as a link to a port on the reader's machine.
+      - name: Resolve the host's URL
+        run: |
+          fqdn=$(az containerapp show -n "$VERESK_APP" -g "$RG" \
+            --query "properties.configuration.ingress.fqdn" -o tsv 2>/dev/null || true)
+          if [ -n "$fqdn" ]; then
+            echo "resolved $VERESK_APP -> https://$fqdn"
+            echo "VERESK_URL=https://$fqdn" >> "$GITHUB_ENV"
+          else
+            echo "::warning::$VERESK_APP has no ingress — the back-link will render as plain text"
+            echo "VERESK_URL=" >> "$GITHUB_ENV"
+          fi
+
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/wrap/Dockerfile
+          push: true
+          tags: ${{ env.WRAP_REPO }}:sha-${{ github.sha }}
+          build-args: |
+            VITE_VERESK_URL=${{ env.VERESK_URL }}
+          cache-from: type=gha
+          # mode=min, NOT max — see the note in 1a.
+          cache-to: type=gha,mode=min,scope=wrap
+
+      - run: echo "✅ **1g · wrap image built** — \`${WRAP_REPO}:sha-${GITHUB_SHA}\`" >> "$GITHUB_STEP_SUMMARY"
+
+  # ── 2g ── the sixth engagement, live ────────────────────────────────────
+  wrap-deploy:
+    name: 2g · deploy wrap
+    needs: wrap-build
+    if: ${{ (inputs.scope || 'all') == 'all' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      url: ${{ steps.smoke.outputs.url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # Created if it is not there — this app has never been stood up, so the
+      # FIRST run of this job takes the create branch. Ask the RESOURCE GROUP
+      # rather than the app, because `show` fails identically for "missing" and
+      # "may not read"; and derive the image name here rather than inheriting it,
+      # because a skipped build contributes no outputs and `--image ""` means
+      # "change nothing" and exits 0.
+      - name: Create or update the app
+        run: |
+          image="${WRAP_REPO}:sha-${GITHUB_SHA}"
+          echo "IMAGE=$image" >> "$GITHUB_ENV"
+
+          if ! names=$(az containerapp list -g "$RG" --query "[].name" -o tsv 2>/tmp/az-err); then
+            echo "::error::cannot list container apps in $RG — the deploy identity needs Contributor on the RESOURCE GROUP, not on a single app. Azure said: $(cat /tmp/az-err)"
+            exit 1
+          fi
+
+          if printf '%s\n' "$names" | grep -qx "$WRAP_APP"; then
+            echo "updating $WRAP_APP -> $image"
+            az containerapp update -n "$WRAP_APP" -g "$RG" --image "$image" --output none
+          else
+            echo "creating $WRAP_APP -> $image"
+            az containerapp create \
+              --name "$WRAP_APP" --resource-group "$RG" --environment "$ENVIRONMENT" \
+              --image "$image" \
+              --target-port 8080 --ingress external \
+              --cpu 0.5 --memory 1.0Gi \
+              --min-replicas 0 --max-replicas 1 \
+              --output none
+          fi
+
+      # `az containerapp update` RETURNS BEFORE THE NEW REVISION SERVES, so
+      # assert the template carries the sha we just pushed AND that the active
+      # revision finished provisioning.
+      - name: Wait for the revision
+        run: |
+          for i in $(seq 1 40); do
+            state=$(az containerapp revision list -n "$WRAP_APP" -g "$RG" \
+              --query "[?properties.active] | [0].properties.provisioningState" -o tsv)
+            image=$(az containerapp show -n "$WRAP_APP" -g "$RG" \
+              --query "properties.template.containers[0].image" -o tsv)
+            echo "attempt $i — provisioning=$state image=$image"
+            if [ "$state" = "Provisioned" ] && [ "$image" = "$IMAGE" ]; then
+              echo "revision is provisioned and carries the expected sha"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::error::no active revision reached Provisioned with $IMAGE"
+          exit 1
+
+      # A 200 says the process boots. The content assertion says it SERVED THE
+      # PAGE. Wrap has no generated data to read a marker out of, so the marker
+      # is its own name in the document title; the second route is asserted too,
+      # because a landing-only check would pass on an image whose router never built.
+      - name: Smoke test
+        id: smoke
+        run: |
+          fqdn=$(az containerapp show -n "$WRAP_APP" -g "$RG" \
+            --query "properties.configuration.ingress.fqdn" -o tsv)
+          url="https://$fqdn"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+          # --max-time is generous because min-replicas is 0 and the first
+          # request pays a cold start. The body goes to a file, not a variable.
+          ok=
+          for i in $(seq 1 12); do
+            code=$(curl -s --max-time 180 -o /tmp/page.html -w '%{http_code}' "$url/")
+            echo "attempt $i — GET / -> $code"
+            if [ "$code" = "200" ] && grep -qa '<title>Wrap</title>' /tmp/page.html; then ok=yes; break; fi
+            sleep 10
+          done
+          [ "$ok" = "yes" ] || { echo "::error::wrap never served its landing page"; exit 1; }
+
+          code=$(curl -s --max-time 120 -o /tmp/p.html -w '%{http_code}' "$url/steps")
+          echo "GET /steps -> $code"
+          [ "$code" = "200" ] || { echo "::error::/steps did not serve"; exit 1; }
+
+      - run: echo "✅ **2g · wrap deployed** — ${{ steps.smoke.outputs.url }}" >> "$GITHUB_STEP_SUMMARY"
+
   # ── 3 ── the host's image, built after both engagements are live ─────────
   veresk-build:
     name: 3 · build veresk image
-    needs: [steering-deploy, pharma-deploy, safety-deploy, commerce-deploy]
+    needs: [steering-deploy, pharma-deploy, safety-deploy, commerce-deploy, wrap-deploy]
     # SKIPPED IS NOT FAILED, AND THIS JOB HAS TO TELL THEM APART. Without an
     # `if`, a skipped dependency skips this job too — so `veresk-only` would
     # deploy nothing at all. `!cancelled()` and not `always()`, because
     # `always()` would also build after somebody pressed cancel.
-    if: ${{ !cancelled() && needs.steering-deploy.result != 'failure' && needs.pharma-deploy.result != 'failure' && needs.safety-deploy.result != 'failure' && needs.commerce-deploy.result != 'failure' }}
+    if: ${{ !cancelled() && needs.steering-deploy.result != 'failure' && needs.pharma-deploy.result != 'failure' && needs.safety-deploy.result != 'failure' && needs.commerce-deploy.result != 'failure' && needs.wrap-deploy.result != 'failure' }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -1265,6 +1425,7 @@ jobs:
           echo "PHARMA_URL=${{ needs.pharma-deploy.outputs.url }}" >> "$GITHUB_ENV"
           echo "SAFETY_URL=${{ needs.safety-deploy.outputs.url }}" >> "$GITHUB_ENV"
           echo "COMMERCE_URL=${{ needs.commerce-deploy.outputs.url }}" >> "$GITHUB_ENV"
+          echo "WRAP_URL=${{ needs.wrap-deploy.outputs.url }}" >> "$GITHUB_ENV"
 
       - uses: docker/setup-buildx-action@v3
       - uses: docker/login-action@v3
@@ -1283,21 +1444,22 @@ jobs:
             VITE_STEERING_URL=${{ env.STEERING_URL }}
             VITE_SAFETY_URL=${{ env.SAFETY_URL }}
             VITE_COMMERCE_URL=${{ env.COMMERCE_URL }}
+            VITE_WRAP_URL=${{ env.WRAP_URL }}
           # This cache only pays off because the Dockerfile installs
           # dependencies BEFORE copying the source — see the layer-order comment
           # there. With the original `COPY . .` first it had nothing cacheable.
           cache-from: type=gha
           cache-to: type=gha,mode=min,scope=veresk
 
-      - run: echo "✅ **3 · veresk image built** — links to \`${PHARMA_URL:-(none)}\`, \`${STEERING_URL:-(none)}\`, \`${SAFETY_URL:-(none)}\`, and \`${COMMERCE_URL:-(none)}\`" >> "$GITHUB_STEP_SUMMARY"
+      - run: echo "✅ **3 · veresk image built** — links to \`${PHARMA_URL:-(none)}\`, \`${STEERING_URL:-(none)}\`, \`${SAFETY_URL:-(none)}\`, and \`${COMMERCE_URL:-(none)}\`, and \`${WRAP_URL:-(none)}\`" >> "$GITHUB_STEP_SUMMARY"
 
   # ── 4 ── the host, live ─────────────────────────────────────────────────
   veresk-deploy:
     name: 4 · deploy veresk
-    needs: [veresk-build, steering-deploy, pharma-deploy, safety-deploy, commerce-deploy]
+    needs: [veresk-build, steering-deploy, pharma-deploy, safety-deploy, commerce-deploy, wrap-deploy]
     # Same rule as the build, with one difference: the BUILD must have
     # succeeded. A skipped build means there is no image to deploy.
-    if: ${{ !cancelled() && needs.veresk-build.result == 'success' && needs.steering-deploy.result != 'failure' && needs.pharma-deploy.result != 'failure' && needs.safety-deploy.result != 'failure' && needs.commerce-deploy.result != 'failure' }}
+    if: ${{ !cancelled() && needs.veresk-build.result == 'success' && needs.steering-deploy.result != 'failure' && needs.pharma-deploy.result != 'failure' && needs.safety-deploy.result != 'failure' && needs.commerce-deploy.result != 'failure' && needs.wrap-deploy.result != 'failure' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -1399,6 +1561,7 @@ jobs:
           steering="${{ needs.steering-deploy.outputs.url }}"
           safety="${{ needs.safety-deploy.outputs.url }}"
           commerce="${{ needs.commerce-deploy.outputs.url }}"
+          wrap="${{ needs.wrap-deploy.outputs.url }}"
 
           # ── AN ABSENT URL IS NOT A URL TO LOOK FOR ─────────────────────────
           #
@@ -1418,6 +1581,7 @@ jobs:
           [ -n "$steering" ] && want="$want $steering"
           [ -n "$safety" ] && want="$want $safety"
           [ -n "$commerce" ] && want="$want $commerce"
+          [ -n "$wrap" ] && want="$want $wrap"
           if [ -z "$want" ]; then
             echo "veresk-only: no engagement URLs to assert — checking 200 and no-localhost only"
           else
@@ -1461,5 +1625,6 @@ jobs:
             echo "| steering — Vantis Steering | ${steering:+<$steering>}${steering:-not deployed — run with scope: all} |"
             echo "| safety — Calder Safety | ${safety:+<$safety>}${safety:-not deployed — run with scope: all} |"
             echo "| commerce — Thornbury Goods | ${commerce:+<$commerce>}${commerce:-not deployed — run with scope: all} |"
+            echo "| wrap — Wrap | ${wrap:+<$wrap>}${wrap:-not deployed — run with scope: all} |"
             echo "| image tag | \`sha-${GITHUB_SHA}\` |"
           } >> "$GITHUB_STEP_SUMMARY"
