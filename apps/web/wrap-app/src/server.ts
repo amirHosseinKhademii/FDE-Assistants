@@ -48,9 +48,7 @@ const TYPES: Record<string, string> = {
 
 if (import.meta.env.PROD) {
   const port = Number(process.env.PORT ?? 3700);
-  // Bound to loopback only: this is a shared machine, so nothing else on the
-  // network should be able to reach the page.
-  const host = '127.0.0.1';
+  // Production binds all interfaces so the container ingress can reach it; local dev uses `vite dev --host 127.0.0.1`.
   const clientDir = join(import.meta.dirname ?? process.cwd(), '..', 'client');
 
   createServer(async (req, res) => {
@@ -103,8 +101,8 @@ if (import.meta.env.PROD) {
     if (!response.body) return res.end();
     // Piping rather than buffering is what keeps SSE streaming end to end.
     Readable.fromWeb(response.body as any).pipe(res);
-  }).listen(port, host, () => {
-    console.log(`wrap web listening on http://${host}:${port}`);
+  }).listen(port, () => {
+    console.log(`wrap web listening on ${port}`);
   });
 }
 
