@@ -577,7 +577,7 @@ Tokens per chunk: min 6, median 28, p95 129, max 498
 Chunks over MAX_TOKENS_PER_CHUNK (500): 0`,
         },
         learned:
-          'Chunks are small: the median is 28 tokens, because requirement documents are many short sections. CSV rows are 64% of all chunks (12,763 of 20,097), and they may crowd search results. Phase 3 evals will judge that; grouping rows is the usual fix. Token count is estimated as characters divided by 4, not counted with a tokenizer. No C function exceeded 500 tokens, so the sub-split for oversize functions is covered only by the selftest.',
+          'Chunks are small: the median is 28 tokens, because requirement documents are many short sections. CSV rows are 64% of all chunks (12,763 of 20,097), and they may crowd search results. Phase 3 evals will judge that; grouping rows is the usual fix. Token count is estimated as characters divided by 4, not counted with a tokenizer. No C function exceeded 500 tokens, so the sub-split for oversize functions is covered only by the selftest. The 20,097 above is from before the 2.5 fix. After it (manifest.json skipped, identical chunks kept once), the total is 15,795. huge-repeated.txt went from 4,167 chunks to 1, and CSV rows are now 12,760 of 15,795 (81%).',
         terms: ['chunk', 'token', 'chunkSize', 'slidingWindow', 'overlap', 'metadata'],
         hood: {
           title: 'Under the hood: the brace-depth scan',
@@ -625,13 +625,77 @@ Std_ReturnType A2l_Load(const A2lExportIn_t *in, A2lExportOut_t *out)
       {
         n: '2.5',
         title: 'Metadata extraction',
-        status: 'next',
+        status: 'done',
+        done: '2026-10-09',
         needs: 'Step 2.4 (done)',
         plain:
           'Read the subsystem from each file’s folder, and the requirement IDs, ticket IDs, dates and keywords from its text. Attach them to every chunk, so search can filter by them.',
         why: 'Without these tags, a question that names a subsystem or a requirement has to match the chunk’s own words, and chunks that never repeat those words are missed.',
+        code: {
+          caption: 'The two ID patterns. Each one stops at a letter, digit or dash on either side, so a longer code that contains it is not matched.',
+          from: 'measured',
+          source: 'grep over data/scrubbed, 2026-10-09',
+          path: 'apps/ai/wrap/src/ingest/metadata-extractor.ts',
+          lang: 'typescript',
+          code: String.raw`/** CR-TDR-32-0537, SR-EPS-0407, CR-HLX-H1-0001. Not PRG-/CRS-/EL-/SWC- (those are other IDs). */
+const REQUIREMENT_ID = /(?<![-A-Za-z0-9])(?:CR|SR)-(?:[A-Z][A-Z0-9]{1,3}-)?(?:H\d-|\d{2}-)?\d{4}(?![-A-Za-z0-9])/g;
+
+/** VST-4471 (Jira), CHR-2021-0177 (change request). Lookarounds stop matches inside EFF-BULK-0225 etc. */
+const TICKET_ID = /(?<![-A-Za-z0-9])(?:VST-\d{4,6}|CHR-\d{4}-\d{4})(?![-A-Za-z0-9])/g;`,
+          printed: `Chunks with >=1 requirement id: 2465 (15.6%)
+Chunks with >=1 ticket id:      4064 (25.7%)
+Chunks with >=1 date:           11773 (74.5%)
+Top requirement id: CR-KAI-25-0426 (18 chunks)`,
+        },
+        learned:
+          'The plan’s ID guesses were wrong, so the patterns were measured from the corpus. Requirements are CR- and SR- rows, such as CR-TDR-32-0537 and SR-EPS-0407. PRG- is a programme code and CRS- names a requirements document, so neither is tagged. Tickets are VST-NNNN (Jira exports) and CHR-YYYY-NNNN (change requests). The plan’s generic ticket pattern would have grabbed BULK-0225 out of EFF-BULK-0225. On the first run, 12.4% of chunks had a requirement ID, 20.2% a ticket ID and 58.6% a date. The fix found two problems: make-mess’s manifest.json, an answer key for the planted flaws, was being indexed, and huge-repeated.txt produced 4,167 near-identical chunks. After the fix the figures are the ones in the printed block, on 15,795 chunks.',
+        terms: ['regex', 'requirementId', 'ticketId', 'isoDate', 'keyword', 'stopword', 'filter', 'metadata'],
+        hood: {
+          title: 'Under the hood: keywords, then one metadata merge per chunk',
+          code: String.raw`export function extractKeywords(text: string): string[] {
+  const counts = new Map<string, number>();
+  const cleaned = text.replace(PLACEHOLDER, " ");
+  for (const raw of cleaned.match(WORD) ?? []) {
+    const word = raw.toLowerCase();
+    if (word.length < KEYWORD_MIN_LENGTH || STOPWORDS.has(word)) continue;
+    counts.set(word, (counts.get(word) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .filter(([, n]) => n >= KEYWORD_MIN_COUNT)
+    .sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))
+    .slice(0, KEYWORD_TOP_N)
+    .map(([word]) => word);
+}
+
+/** Path-based and content-based metadata for one chunk. Empty arrays are returned, not omitted. */
+export function extractMetadata(chunk: Chunk): ChunkMetadata {
+  const meta: ChunkMetadata = {};
+  const subsystem = subsystemOf(chunk.source_file);
+  if (subsystem !== undefined) meta.subsystem = subsystem;
+  meta.type_category = typeCategory(chunk.source_file);
+  meta.requirement_ids = sortedUnique(matches(REQUIREMENT_ID, chunk.content));
+  meta.ticket_ids = sortedUnique(matches(TICKET_ID, chunk.content));
+  meta.dates = extractDates(chunk.content);
+  meta.keywords = extractKeywords(chunk.content);
+  return meta;
+}
+
+/** Returns a copy of the chunk with extracted metadata merged into metadata (existing keys kept). */
+export function enrichChunk(chunk: Chunk): Chunk {
+  return { ...chunk, metadata: { ...chunk.metadata, ...extractMetadata(chunk) } };
+}`,
+          printed: `{"subsystem":"requirements","type_category":"requirements","requirement_ids":["CR-KAI-25-0420","CR-KAI-25-0421","CR-KAI-25-0422","CR-KAI-25-0423","CR-KAI-25-0424","CR-KAI-25-0425","CR-KAI-25-0426","CR-KAI-25-0427","CR-KAI-25-0428","CR-KAI-25-0429","CR-KAI-25-0430","CR-KAI-25-0431","CR-KAI-25-0432","CR-KAI-25-0433","CR-KAI-25-0434","CR-KAI-25-0435","CR-KAI-25-0436","CR-KAI-25-0437"],"dates":["2020-10-31","2023-12-24","2024-11-23"]}`,
+        },
       },
-      planned('2.6', 'Embed and store in pgvector', 'Turn each chunk into an embedding and store it, with a content hash so a rerun skips what is already there, and an HNSW index for fast search.'),
+      {
+        n: '2.6',
+        title: 'Embed and store in pgvector',
+        status: 'next',
+        needs: 'Step 2.5 (done)',
+        plain:
+          'Turn each chunk into an embedding and store it, with a content hash so a rerun skips what is already there, and an HNSW index for fast search.',
+        why: 'Without a stored vector, search has nothing to compare a question against. Without a content hash, every rerun would embed and store all 15,795 chunks again, whether or not they changed.',
+      },
     ],
   },
   {

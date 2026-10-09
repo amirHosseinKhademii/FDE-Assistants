@@ -166,6 +166,41 @@ export const GLOSSARY = {
     is: 'A stand-in such as EMAIL_0001 that takes the place of a real value. The same value always gets the same token.',
     here: 'Tokens are counted per type (EMAIL, HANDLE, PHONE, PERSON). The map from token to value is data/pii-map.json, which git ignores.',
   },
+  regex: {
+    word: 'regex',
+    is: 'A regular expression: a pattern written as characters that matches text by its shape, such as three letters, a dash and four digits.',
+    here: 'The requirement and ticket patterns in metadata-extractor.ts. Lookarounds at each end stop a match from starting or ending inside a longer code.',
+  },
+  requirementId: {
+    word: 'requirement ID',
+    is: 'A code that names one requirement, so the same requirement can be found wherever it is cited.',
+    here: 'CR- or SR- followed by an optional programme code and a four-digit number, such as CR-TDR-32-0537 or SR-EPS-0407. PRG- codes name programmes, so they are not tagged.',
+  },
+  ticketId: {
+    word: 'ticket ID',
+    is: 'A code that names one work item in an issue tracker, such as a bug, a change or a task.',
+    here: 'VST- followed by 4 to 6 digits (Jira exports), or CHR- with a year and a number (change requests), such as VST-4471 or CHR-2021-0177.',
+  },
+  isoDate: {
+    word: 'ISO date',
+    is: 'A date written year first, then month and day with two digits each, such as 2024-11-23. Sorted as text, it is also in date order.',
+    here: 'Dates are found in ISO form, US month/day/year, and month-name forms, then written this way. A date that is not real, such as 2025-13-45, is dropped.',
+  },
+  keyword: {
+    word: 'keyword',
+    is: 'A word that says what a piece of text is about. Often picked by counting how often each word appears.',
+    here: 'Lowercase words of six or more letters that appear at least twice in a chunk, keeping the top 10 by count.',
+  },
+  stopword: {
+    word: 'stopword',
+    is: 'A common word, such as "the" or "would", that carries no meaning for search and is thrown away before counting.',
+    here: 'A fixed list of English words in metadata-extractor.ts. Placeholder tokens such as EMAIL_0001 are removed as well.',
+  },
+  filter: {
+    word: 'filter',
+    is: 'A rule that keeps only the items matching a condition, such as only the chunks from one subsystem.',
+    here: 'Every chunk now carries subsystem, type_category and its ID and date lists, so a search can filter on them. Step 3.2 uses them; Step 2.5 only stores them.',
+  },
 } satisfies Record<string, Term>;
 
 export type TermKey = keyof typeof GLOSSARY;
@@ -201,6 +236,13 @@ export const GLOSSARY_ORDER: TermKey[] = [
   'allowlist',
   'redaction',
   'placeholderToken',
+  'regex',
+  'requirementId',
+  'ticketId',
+  'isoDate',
+  'keyword',
+  'stopword',
+  'filter',
 ];
 
 export const termId = (key: TermKey) => `term-${key}`;
