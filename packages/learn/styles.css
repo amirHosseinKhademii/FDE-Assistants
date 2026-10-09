@@ -78,10 +78,167 @@ a.learn-next:focus-visible {
 }
 
 /* ── THE RAIL ───────────────────────────────────────────────────────────────
-   Where you are in five, visible without scrolling back. It is a LIST OF LINKS
-   and not a progress bar: nothing here is completed or incomplete, because the
-   site has no idea what anybody read. A progress bar would be inventing state.
+   Where you are in the path, visible without scrolling back. A LIST OF LINKS,
+   not a progress bar: nothing here is "completed" because the site knows
+   nothing about who is reading it. The one number that is state is the
+   built/total ring, and that is a count of what this repo has built, not of
+   what a reader has read.
+
+   THE GEOMETRY, IN ONE PLACE. The phase badge is a fixed 2.25rem pill. Its
+   centre is the marker column of the stops below it. The title text starts at
+   --rail-title-x from the rail's left edge, and so does every stop's text, so
+   the eye reads one column of titles with the stops hung under them.
+
+   ON DESKTOP the rail is sticky and scrolls as ONE box, with max-height from
+   the viewport, so a phase opened at the bottom is never clipped into a
+   scrollbox of its own. Below 900px it is a full-width "Contents" drawer.
    ────────────────────────────────────────────────────────────────────────── */
+.learn-rail {
+  --rail-title-x: 3.375rem;
+  --rail-tint: color-mix(in oklab, var(--color-ui-accent, #2dd4bf) 6%, transparent);
+  --rail-meta: color-mix(in oklab, var(--color-ui-dim, #98a2b3) 80%, transparent);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+@media (min-width: 900px) {
+  .learn-rail {
+    position: sticky;
+    top: 1.5rem;
+    max-height: calc(100dvh - 3rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    padding: 0 0.5rem 0 0;
+  }
+}
+
+.learn-rail-toggle,
+.learn-rail-fade {
+  display: none;
+}
+
+@media (max-width: 899.98px) {
+  .learn-rail-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.5rem 0.875rem;
+    border: 1px solid var(--color-ui-line, #1e232e);
+    border-radius: 0.75rem;
+    background: var(--color-ui-surface, #0d0f15);
+    color: var(--color-ui-fg, #eef2f7);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    text-align: left;
+  }
+
+  .learn-rail-toggle-where {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--color-ui-dim, #98a2b3);
+  }
+
+  .learn-rail-toggle[aria-expanded='true'] .learn-rail-chevron {
+    transform: rotate(90deg);
+  }
+
+  .learn-rail-body[data-open='false'] {
+    display: none;
+  }
+
+  .learn-rail-body[data-open='true'] {
+    margin-top: 0.75rem;
+  }
+}
+
+.learn-rail-toggle:focus-visible,
+.learn-rail-seg-btn:focus-visible,
+.learn-rail-phase:focus-visible,
+.learn-rail-stop:focus-visible,
+.learn-rail-item:focus-visible {
+  outline: 2px solid var(--color-ui-accent, #2dd4bf);
+  outline-offset: 2px;
+}
+
+/* The bottom edge fades when there is more of the rail below the fold. */
+.learn-rail[data-more='true'] .learn-rail-fade {
+  position: sticky;
+  bottom: 0;
+  display: block;
+  height: 3rem;
+  margin-top: -3rem;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--color-ui-bg, #07080b) 85%);
+}
+
+/* The view toggle: one segmented track, two equal pills. */
+.learn-rail-seg {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 0.625rem;
+  background: var(--color-ui-raised, #13161f);
+}
+
+.learn-rail-seg-btn {
+  flex: 1 1 0;
+  min-height: 2.25rem;
+  border-radius: 0.4375rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--color-ui-dim, #98a2b3);
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.learn-rail-seg-btn:hover {
+  color: var(--color-ui-fg, #eef2f7);
+}
+
+.learn-rail-seg-btn[aria-pressed='true'] {
+  background: var(--color-ui-accent, #2dd4bf);
+  color: var(--color-ui-bg, #07080b);
+  font-weight: 600;
+}
+
+/* The progress line and its 2px bar. */
+.learn-rail-progress {
+  margin-top: 0.75rem;
+  padding: 0 0.5rem;
+}
+
+.learn-rail-progress-text {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-ui-dim, #98a2b3);
+}
+
+.learn-rail-bar {
+  margin-top: 0.625rem;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--color-ui-line, #1e232e);
+  overflow: hidden;
+}
+
+.learn-rail-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--color-ui-accent, #2dd4bf);
+  transition: width 240ms ease;
+}
+
+/* The topic view's rows, and the repo map pinned above the tracks. */
 .learn-rail-item {
   display: grid;
   grid-template-columns: 1.5rem 1fr;
@@ -97,9 +254,6 @@ a.learn-next:focus-visible {
   background: var(--color-ui-raised, #13161f);
 }
 
-/* The current lesson takes its own hue on the rail, and it is the one place on
-   the page where the hue appears without a number beside it — so the number is
-   put beside it. */
 .learn-rail-item[aria-current='page'] {
   background: color-mix(in oklab, var(--rail-hue, #38bdf8) 9%, transparent);
   border-left-color: var(--rail-hue, #38bdf8);
@@ -116,71 +270,32 @@ a.learn-next:focus-visible {
   color: var(--rail-hue, #38bdf8);
 }
 
-/* ── THE PATH RAIL ──────────────────────────────────────────────────────────
-   The top control, the progress line, the phase headers and the stops. Every
-   colour is a token with a fallback, so it reads in light and dark alike.
-   Rows are about 32px; one hairline separates phases; nothing is boxed. */
-
-/* The view toggle: one segmented track, two equal pills. */
-.learn-rail-seg {
-  display: flex;
-  gap: 2px;
-  padding: 2px;
-  border-radius: 0.5rem;
-  background: var(--color-ui-raised, #13161f);
-}
-
-.learn-rail-seg-btn {
-  flex: 1 1 0;
-  height: 2rem;
-  border-radius: 0.375rem;
-  font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 0.6875rem;
-  letter-spacing: 0.04em;
-  color: var(--color-ui-faint, #5f6878);
-  transition: background-color 160ms ease, color 160ms ease;
-}
-
-.learn-rail-seg-btn:hover {
-  color: var(--color-ui-dim, #9aa3b2);
-}
-
-.learn-rail-seg-btn[aria-pressed='true'] {
-  background: var(--color-ui-accent, #2dd4bf);
-  color: var(--color-ui-bg, #0d0f15);
-  font-weight: 600;
-}
-
-/* The slim progress line and its 2px bar. */
-.learn-rail-progress {
+/* A phase group. Each one is a soft panel; the gap between panels is the
+   separator, not a hairline. */
+.learn-rail-group {
   margin-top: 0.75rem;
-  padding: 0 0.625rem;
+  border-radius: 0.75rem;
+  transition: background-color 160ms ease;
 }
 
-.learn-rail-bar {
-  margin-top: 0.5rem;
-  height: 2px;
-  border-radius: 1px;
-  background: var(--color-ui-line, #1e232e);
-  overflow: hidden;
+.learn-rail-group:first-child {
+  margin-top: 0;
 }
 
-.learn-rail-bar > span {
-  display: block;
-  height: 100%;
-  background: var(--color-ui-accent, #2dd4bf);
-  transition: width 240ms ease;
+.learn-rail-group[data-open='true'] {
+  background: var(--rail-tint);
 }
 
-/* A phase header: one line, badge, title, count, chevron. */
+/* The header: the whole row is the button, at least 40px tall. */
 .learn-rail-phase {
-  display: flex;
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr) 1rem 0.75rem;
+  column-gap: 0.625rem;
   align-items: center;
-  gap: 0.5rem;
   width: 100%;
-  min-height: 2rem;
-  padding: 0.25rem 0.625rem;
-  border-radius: 0.375rem;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.5rem;
+  border-radius: 0.625rem;
   text-align: left;
   transition: background-color 160ms ease;
 }
@@ -189,47 +304,100 @@ a.learn-next:focus-visible {
   background: var(--color-ui-raised, #13161f);
 }
 
-.learn-rail-phase[data-current='true'] .learn-rail-badge {
+.learn-rail-group[data-open='true'] > .learn-rail-phase:hover {
+  background: color-mix(in oklab, var(--color-ui-accent, #2dd4bf) 10%, transparent);
+}
+
+/* The P-badge: a fixed pill, so every title starts at the same x. */
+.learn-rail-badge {
+  justify-self: start;
+  width: 2.25rem;
+  padding: 0.125rem 0;
+  border: 1px solid var(--color-ui-line-lit, #2b3240);
+  border-radius: 999px;
+  text-align: center;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  color: var(--color-ui-dim, #98a2b3);
+  background: var(--color-ui-bg, #07080b);
+}
+
+.learn-rail-group[data-current='true'] .learn-rail-badge {
   border-color: var(--color-ui-accent, #2dd4bf);
   color: var(--color-ui-accent, #2dd4bf);
 }
 
-.learn-rail-badge {
-  flex: none;
-  min-width: 1.75rem;
-  padding: 0.0625rem 0.25rem;
-  border: 1px solid var(--color-ui-line-lit, #2a3140);
-  border-radius: 0.25rem;
-  text-align: center;
-  font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 0.625rem;
-  letter-spacing: 0.04em;
-  color: var(--color-ui-faint, #5f6878);
+.learn-rail-phase-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 0.125rem;
+}
+
+.learn-rail-phase-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-ui-fg, #eef2f7);
+  overflow-wrap: anywhere;
+}
+
+.learn-rail-phase-meta {
+  font-size: 0.78125rem;
+  line-height: 1.4;
+  white-space: normal;
+  color: var(--rail-meta);
+}
+
+/* The built/total ring: a conic sweep with the centre cut out. */
+.learn-rail-ring {
+  justify-self: end;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--color-ui-accent, #2dd4bf) calc(var(--p, 0) * 1%),
+    var(--color-ui-line-lit, #2b3240) 0
+  );
+  -webkit-mask: radial-gradient(circle, transparent 4.5px, #000 5px);
+  mask: radial-gradient(circle, transparent 4.5px, #000 5px);
 }
 
 .learn-rail-chevron {
-  flex: none;
-  width: 0.75rem;
-  text-align: center;
-  font-size: 0.6875rem;
-  color: var(--color-ui-faint, #5f6878);
+  justify-self: center;
+  font-size: 0.75rem;
+  line-height: 1;
+  color: var(--color-ui-dim, #98a2b3);
   transition: transform 160ms ease;
 }
 
-.learn-rail-chevron.is-open {
+.learn-rail-phase[aria-expanded='true'] .learn-rail-chevron {
   transform: rotate(90deg);
 }
 
-/* A stop: indented one level, an icon, then its name. */
+/* The stops: indented under the title, not under the badge. */
+.learn-rail-stops {
+  padding: 0 0.25rem 0.5rem;
+}
+
 .learn-rail-stop {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-height: 2rem;
-  padding: 0.25rem 0.625rem 0.25rem 1.75rem;
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr) auto;
+  column-gap: 0.625rem;
+  align-items: start;
+  /* Column 1 is the badge's column, so the marker sits under the P-pill and
+     column 2 starts exactly at --rail-title-x. */
+  padding: 0.4375rem 0.5rem 0.4375rem 0.125rem;
   border-left: 2px solid transparent;
-  border-radius: 0.375rem;
-  color: var(--color-ui-dim, #9aa3b2);
+  border-radius: 0.5rem;
+  color: var(--color-ui-fg, #eef2f7);
+  font-size: 0.875rem;
+  line-height: 1.4;
   transition: background-color 160ms ease, border-color 160ms ease;
 }
 
@@ -237,36 +405,66 @@ a.learn-next:focus-visible {
   background: var(--color-ui-raised, #13161f);
 }
 
-.learn-rail-icon {
-  flex: none;
-  width: 0.75rem;
-  text-align: center;
-  font-size: 0.625rem;
-  color: var(--color-ui-faint, #5f6878);
+/* The marker, centred on the badge's column. */
+.learn-rail-stop::before {
+  content: '';
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: center;
+  align-self: start;
+  width: 0.4375rem;
+  height: 0.4375rem;
+  margin-top: 0.375rem;
+  border-radius: 50%;
+  background: var(--rail-hue, var(--color-ui-accent, #2dd4bf));
 }
 
-.learn-rail-stop[data-kind='lesson'] .learn-rail-icon {
-  color: var(--rail-hue, #38bdf8);
+.learn-rail-stop[data-kind='build']::before {
+  border-radius: 2px;
+  background: var(--color-ui-accent, #2dd4bf);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-ui-accent, #2dd4bf) 40%, transparent);
 }
 
-/* Planned steps are muted, and still readable. */
+.learn-rail-stop[data-kind='gap']::before {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--color-ui-dim, #98a2b3);
+}
+
+.learn-rail-stop-name {
+  grid-column: 2;
+  grid-row: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.learn-rail-tag {
+  grid-column: 3;
+  grid-row: 1;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  color: var(--color-ui-dim, #98a2b3);
+  white-space: nowrap;
+}
+
+/* Planned rows: 60% opacity, which keeps the text at 6.6:1 on the page
+   (checked, see the contrast run). Lower than that and it was 3.6:1. */
 .learn-rail-stop[data-kind='gap'] {
-  color: var(--color-ui-faint, #5f6878);
+  opacity: 0.6;
 }
 
 .learn-rail-stop[aria-current='page'] {
   border-left-color: var(--color-ui-accent, #2dd4bf);
-  color: var(--color-ui-fg, #e6e9ef);
+  background: color-mix(in oklab, var(--color-ui-accent, #2dd4bf) 9%, transparent);
   font-weight: 600;
+  color: var(--color-ui-fg, #eef2f7);
 }
 
-/* Keyboard focus is always visible on the rail. */
-.learn-rail-seg-btn:focus-visible,
-.learn-rail-phase:focus-visible,
-.learn-rail-stop:focus-visible,
-.learn-rail-item:focus-visible {
-  outline: 2px solid var(--color-ui-accent, #2dd4bf);
-  outline-offset: 2px;
+.learn-rail-stop[aria-current='page'][data-kind='gap'] {
+  opacity: 1;
 }
 
 /* ── A NUMBERED STEP ────────────────────────────────────────────────────────

@@ -19,6 +19,7 @@
  * in its topic track, the same as in the topic view, so the colour means the
  * same thing in both.
  */
+import { useEffect, useRef, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import type { PhaseId } from '../data/path';
 
@@ -100,153 +101,249 @@ export function LessonNav({
   progress,
   onTogglePhase,
 }: LessonNavProps) {
+  // Below 900px the rail is a "Contents" drawer; this is whether it is open.
+  // On desktop the body is always shown and the drawer state is not read.
+  const [drawer, setDrawer] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
+  const [more, setMore] = useState(false);
+
+  // The current stop's key, so the scroll effect runs when the page moves.
+  const currentKey = phases.flatMap((p) => p.stops).find((s) => s.current)?.key ?? '';
+
+  // Bring the current stop into view on load and on every move. Only the rail
+  // scrolls (`nav.scrollTop`), never the window, so the page does not jump.
+  useEffect(() => {
+    const nav = navRef.current;
+    const el = nav?.querySelector<HTMLElement>('[aria-current="page"]');
+    if (!nav || !el) return;
+    const n = nav.getBoundingClientRect();
+    const r = el.getBoundingClientRect();
+    if (r.height === 0) return; // the drawer is closed on mobile: nothing to scroll
+    if (r.top < n.top || r.bottom > n.bottom) {
+      nav.scrollTop += r.top - n.top - (nav.clientHeight - r.height) / 2;
+    }
+  }, [view, currentKey]);
+
+  // The bottom fade shows while there is more of the rail below the fold.
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+    const update = () => setMore(nav.scrollHeight - nav.scrollTop - nav.clientHeight > 4);
+    update();
+    nav.addEventListener('scroll', update, { passive: true });
+    const ro = new ResizeObserver(update);
+    ro.observe(nav);
+    return () => {
+      nav.removeEventListener('scroll', update);
+      ro.disconnect();
+    };
+  }, [phases, view]);
+
   return (
     <nav
+      ref={navRef}
       aria-label="Lessons"
-      className="lg:sticky lg:top-8 lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto lg:pr-1"
+      className="learn-rail"
+      data-more={more ? 'true' : undefined}
     >
-      {/* THE VIEW TOGGLE: one segmented control, two equal pills. The choice is
-          about which order to read the same pages in, so the rest of the rail
-          (totals, map, footer) does not change with it. Kept in the layout's
-          state, so it survives moving between lessons. */}
-      <div role="group" aria-label="Rail order" className="learn-rail-seg">
-        {(
-          [
-            ['path', 'Path'],
-            ['topic', 'By topic'],
-          ] as const
-        ).map(([id, label]) => (
-          <button
-            key={id}
-            type="button"
-            aria-pressed={view === id}
-            onClick={() => onView(id)}
-            className="learn-rail-seg-btn"
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
-      {view === 'path' ? (
-        <div className="learn-rail-progress" aria-live="polite">
-          <p className="font-mono text-[0.6875rem] leading-snug text-ui-faint">
-            {`${progress.phase} · ${progress.lessonsDone} of ${progress.lessonsTotal} lessons · ${progress.builds} builds`}
-          </p>
-          <div className="learn-rail-bar" aria-hidden>
-            <span style={{ width: `${Math.round(progress.fraction * 100)}%` }} />
-          </div>
-        </div>
-      ) : (
-        <Link
-          to={indexHref}
-          className="block px-2.5 font-mono text-[0.6875rem] tracking-[0.08em] text-ui-faint uppercase transition-colors hover:text-ui-dim"
-          activeOptions={{ exact: true }}
-        >
-          {`${totals.lessons} lessons · ${totals.tracks} tracks`}
-        </Link>
-      )}
-
-      {/* PINNED ABOVE THE TRACKS, AND SEPARATED FROM THEM. The repo map belongs
-          to no track and is not numbered, so it cannot join a numbered list
-          without claiming a position it does not have. It is here rather than
-          only on the index because it is a reference you want to jump to
-          MID-LESSON, and at that moment the rail is the only thing on screen.
-
-          It shipped reachable only by typing the URL. See `lessons.ts`. */}
-      <Link
-        to={map.href}
-        className="learn-rail-item mt-3 border-b border-ui-line pb-3"
-        style={{ ['--rail-hue' as string]: 'var(--color-ui-accent)' }}
+      {/* THE DRAWER HANDLE, below 900px only. It says where you are, so the
+          closed drawer still answers the question the rail exists for. */}
+      <button
+        type="button"
+        className="learn-rail-toggle"
+        aria-expanded={drawer}
+        aria-controls="learn-rail-body"
+        onClick={() => setDrawer((d) => !d)}
       >
-        <span className="learn-rail-n" aria-hidden>
-          ▣
+        <span>Contents</span>
+        <span className="learn-rail-toggle-where">{progress.phase}</span>
+        <span aria-hidden className="learn-rail-chevron">
+          ▸
         </span>
-        <span className="text-[0.875rem] leading-snug text-ui-dim">{map.short}</span>
-      </Link>
+      </button>
 
-      {view === 'path' ? (
-        <div className="mt-2">
-          {phases.map((phase, pi) => (
-            <section
-              key={phase.id}
-              aria-labelledby={`rail-${phase.id}`}
-              className={pi === 0 ? '' : 'mt-1 border-t border-ui-line pt-1'}
+      <div
+        id="learn-rail-body"
+        className="learn-rail-body"
+        data-open={drawer ? 'true' : 'false'}
+        /* A tap on a link in the drawer closes it, since the page has moved. */
+        onClick={(e) => {
+          if ((e.target as HTMLElement).closest('a')) setDrawer(false);
+        }}
+      >
+        {/* THE VIEW TOGGLE: one segmented control, two equal pills. The choice is
+            about which order to read the same pages in, so the rest of the rail
+            (totals, map, footer) does not change with it. Kept in the layout's
+            state, so it survives moving between lessons. */}
+        <div role="group" aria-label="Rail order" className="learn-rail-seg">
+          {(
+            [
+              ['path', 'Path'],
+              ['topic', 'By topic'],
+            ] as const
+          ).map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              aria-pressed={view === id}
+              onClick={() => onView(id)}
+              className="learn-rail-seg-btn"
             >
-              <button
-                type="button"
-                id={`rail-${phase.id}`}
-                aria-expanded={phase.open}
-                aria-controls={`rail-list-${phase.id}`}
-                onClick={() => onTogglePhase(phase.id)}
-                className="learn-rail-phase"
-                data-current={phase.current ? 'true' : undefined}
-              >
-                <span className="learn-rail-badge" aria-hidden>
-                  {`P${phase.n}`}
-                </span>
-                <span className="min-w-0 flex-1 truncate text-[0.875rem] leading-snug text-ui-dim">
-                  {phase.title}
-                </span>
-                <span className="font-mono text-[0.6875rem] text-ui-faint">{phase.count}</span>
-                <span aria-hidden className={`learn-rail-chevron ${phase.open ? 'is-open' : ''}`}>
-                  ▸
-                </span>
-              </button>
-              <ol id={`rail-list-${phase.id}`} className="mb-2" hidden={!phase.open}>
-                {phase.stops.map((s) => (
-                  <li key={s.key}>
-                    <Link
-                      to={s.href}
-                      className="learn-rail-stop"
-                      data-kind={s.kind}
-                      aria-current={s.current ? 'page' : undefined}
-                      style={{ ['--rail-hue' as string]: s.hue ?? 'var(--color-ui-accent)' }}
-                    >
-                      <span className="learn-rail-icon" aria-hidden>
-                        {s.kind === 'lesson' ? '●' : s.kind === 'build' ? '▸' : '○'}
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {view === 'path' ? (
+          <div className="learn-rail-progress" aria-live="polite">
+            <p className="learn-rail-progress-text">
+              {`${progress.phase} · ${progress.lessonsDone} of ${progress.lessonsTotal} lessons · ${progress.builds} builds`}
+            </p>
+            <div className="learn-rail-bar" aria-hidden>
+              <span style={{ width: `${Math.round(progress.fraction * 100)}%` }} />
+            </div>
+          </div>
+        ) : (
+          <Link
+            to={indexHref}
+            className="learn-rail-progress block font-mono text-[0.8125rem] tracking-[0.04em] text-ui-dim uppercase transition-colors hover:text-ui-fg"
+            activeOptions={{ exact: true }}
+          >
+            {`${totals.lessons} lessons · ${totals.tracks} tracks`}
+          </Link>
+        )}
+
+        {/* PINNED ABOVE THE TRACKS, AND SEPARATED FROM THEM. The repo map belongs
+            to no track and is not numbered, so it cannot join a numbered list
+            without claiming a position it does not have. It is here rather than
+            only on the index because it is a reference you want to jump to
+            MID-LESSON, and at that moment the rail is the only thing on screen.
+
+            It shipped reachable only by typing the URL. See `lessons.ts`. */}
+        <Link
+          to={map.href}
+          className="learn-rail-item mt-3 border-b border-ui-line pb-3"
+          style={{ ['--rail-hue' as string]: 'var(--color-ui-accent)' }}
+        >
+          <span className="learn-rail-n" aria-hidden>
+            ▣
+          </span>
+          <span className="text-[0.875rem] leading-snug text-ui-dim">{map.short}</span>
+        </Link>
+
+        {view === 'path' ? (
+          <div className="mt-3">
+            {phases.map((phase) => {
+              const lessons = phase.stops.filter((s) => s.kind === 'lesson').length;
+              const builds = phase.stops.filter((s) => s.kind === 'build').length;
+              const planned = phase.stops.filter((s) => s.kind === 'gap').length;
+              const built = lessons + builds;
+              const pct = phase.count ? Math.round((built / phase.count) * 100) : 0;
+              return (
+                <section
+                  key={phase.id}
+                  aria-labelledby={`rail-${phase.id}`}
+                  className="learn-rail-group"
+                  data-open={phase.open ? 'true' : 'false'}
+                  data-current={phase.current ? 'true' : undefined}
+                >
+                  <button
+                    type="button"
+                    id={`rail-${phase.id}`}
+                    aria-expanded={phase.open}
+                    aria-controls={`rail-list-${phase.id}`}
+                    onClick={() => onTogglePhase(phase.id)}
+                    className="learn-rail-phase"
+                  >
+                    <span className="learn-rail-badge" aria-hidden>
+                      {`P${phase.n}`}
+                    </span>
+                    <span className="learn-rail-phase-text">
+                      <span className="learn-rail-phase-title">{phase.title}</span>
+                      <span className="learn-rail-phase-meta">
+                        {`${lessons} ${lessons === 1 ? 'lesson' : 'lessons'} · ${builds} ${builds === 1 ? 'build' : 'builds'} · ${planned} planned`}
                       </span>
-                      <span className="sr-only">{`${s.srLabel}: `}</span>
-                      <span className="min-w-0 truncate text-[0.875rem] leading-snug">{s.name}</span>
+                    </span>
+                    <span
+                      aria-hidden
+                      className="learn-rail-ring"
+                      style={{ ['--p' as string]: pct }}
+                      title={`${built} of ${phase.count} built`}
+                    />
+                    <span aria-hidden className="learn-rail-chevron">
+                      ▸
+                    </span>
+                  </button>
+                  <ol id={`rail-list-${phase.id}`} className="learn-rail-stops" hidden={!phase.open}>
+                    {phase.stops.map((s) => {
+                      // A build or planned name reads "2.2 Dedup": the number goes
+                      // in the right-hand tag, the title in the text column.
+                      const m = /^(\d+\.\d+)\s+(.*)$/.exec(s.name);
+                      const tag = s.kind !== 'lesson' && m ? m[1] : undefined;
+                      const text = s.kind !== 'lesson' && m ? m[2] : s.name;
+                      return (
+                        <li key={s.key}>
+                          <Link
+                            to={s.href}
+                            className="learn-rail-stop"
+                            data-kind={s.kind}
+                            aria-current={s.current ? 'page' : undefined}
+                            style={{ ['--rail-hue' as string]: s.hue ?? 'var(--color-ui-accent)' }}
+                          >
+                            {/* The link's accessible name is the full label; the
+                                visible text, with its number in the tag, is hidden
+                                from screen readers so it is not read twice. */}
+                            <span className="sr-only">{s.srLabel}</span>
+                            <span className="learn-rail-stop-name" aria-hidden>{text}</span>
+                            {tag && (
+                              <span className="learn-rail-tag" aria-hidden>
+                                {tag}
+                              </span>
+                            )}
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                </section>
+              );
+            })}
+          </div>
+        ) : (
+          tracks.map((track, ti) => (
+            <section key={track.id} className={ti === 0 ? 'mt-4' : 'mt-7'}>
+              <h2 className="px-2.5 font-mono text-[0.6875rem] tracking-[0.08em] text-ui-dim uppercase">
+                {track.title}
+              </h2>
+              <ol className="mt-2 space-y-0.5">
+                {track.lessons.map((l) => (
+                  <li key={l.href}>
+                    <Link
+                      to={l.href}
+                      className="learn-rail-item"
+                      /* `--rail-hue` rather than `--lesson`: this rail is rendered
+                         by the LAYOUT route, outside the page that sets `--lesson`,
+                         so it has to carry each row's own accent rather than
+                         inherit one. */
+                      style={{ ['--rail-hue' as string]: l.hue }}
+                    >
+                      <span className="learn-rail-n">{l.n}.</span>
+                      <span className="text-[0.875rem] leading-snug text-ui-dim">{l.short}</span>
                     </Link>
                   </li>
                 ))}
               </ol>
             </section>
-          ))}
-        </div>
-      ) : (
-        tracks.map((track, ti) => (
-          <section key={track.id} className={ti === 0 ? 'mt-4' : 'mt-7'}>
-            <h2 className="px-2.5 font-mono text-[0.625rem] tracking-[0.1em] text-ui-faint uppercase">
-              {track.title}
-            </h2>
-            <ol className="mt-2 space-y-0.5">
-              {track.lessons.map((l) => (
-                <li key={l.href}>
-                  <Link
-                    to={l.href}
-                    className="learn-rail-item"
-                    /* `--rail-hue` rather than `--lesson`: this rail is rendered
-                       by the LAYOUT route, outside the page that sets `--lesson`,
-                       so it has to carry each row's own accent rather than
-                       inherit one. */
-                    style={{ ['--rail-hue' as string]: l.hue }}
-                  >
-                    <span className="learn-rail-n">{l.n}.</span>
-                    <span className="text-[0.875rem] leading-snug text-ui-dim">{l.short}</span>
-                  </Link>
-                </li>
-              ))}
-            </ol>
-          </section>
-        ))
-      )}
+          ))
+        )}
 
-      <p className="mt-6 max-w-[16rem] px-2.5 text-[0.6875rem] leading-relaxed text-ui-faint">
-        Every figure either is a number this repo measured, with the command that reprints it
-        underneath, or says on its face that it is not one.
-      </p>
+        <p className="mt-6 max-w-[16rem] px-2.5 text-[0.6875rem] leading-relaxed text-ui-faint">
+          Every figure either is a number this repo measured, with the command that reprints it
+          underneath, or says on its face that it is not one.
+        </p>
+      </div>
+
+      <div className="learn-rail-fade" aria-hidden />
     </nav>
   );
 }

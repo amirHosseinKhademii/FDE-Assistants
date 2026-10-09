@@ -56,17 +56,17 @@ function LearnLayout() {
         )}
       </nav>
 
-      <div className="relative z-10 mx-auto grid max-w-6xl gap-10 px-5 pb-16 sm:px-6 lg:grid-cols-[14rem_minmax(0,1fr)]">
+      <div className="relative z-10 mx-auto grid max-w-6xl gap-10 px-5 pb-16 sm:px-6 min-[900px]:grid-cols-[260px_minmax(0,1fr)] min-[900px]:gap-8 min-[1100px]:grid-cols-[316px_minmax(0,1fr)] min-[1100px]:gap-12">
         {/* The rail comes SECOND in the DOM on small screens would be the
             obvious reading of this — it does not. It is first, because on a
             narrow screen a reader arriving mid-track needs to know where they
             are before they start reading, and a contents list below the article
             is a contents list nobody sees. */}
-        <aside className="pt-2 lg:pt-10">
+        <aside className="pt-2 min-[900px]:pt-10">
           <LessonNav />
         </aside>
 
-        <main className="min-w-0 pt-2 lg:pt-10">
+        <main className="min-w-0 pt-2 min-[900px]:pt-10">
           <Outlet />
         </main>
       </div>
