@@ -29,7 +29,32 @@ export const GLOSSARY = {
   chunk: {
     word: 'chunk',
     is: 'A piece of a document, small enough to be searched on its own and handed to a model.',
-    here: 'Not built yet: Step 2.4 cuts the corpus into chunks.',
+    here: 'Step 2.4 cut the scrubbed corpus into 20,097 chunks from 1,092 files, written to apps/ai/wrap/data/chunks.jsonl.',
+  },
+  token: {
+    word: 'token',
+    is: 'The unit a language model reads and counts: a word, part of a word, or a symbol. In English, about four characters on average.',
+    here: 'Not counted with a tokenizer. The chunker estimates it as characters divided by 4, rounded up.',
+  },
+  chunkSize: {
+    word: 'chunk size',
+    is: 'The largest piece a splitter may produce, measured in tokens. Too large and a chunk mixes topics; too small and it says too little on its own.',
+    here: '500 tokens (MAX_TOKENS_PER_CHUNK). No chunk in the corpus is over it.',
+  },
+  slidingWindow: {
+    word: 'sliding window',
+    is: 'A fixed-size piece of text cut from a long document, moved along it one step at a time, so the pieces cover all of it.',
+    here: 'Plain text uses 400-token windows. A Markdown section or C function over the max is cut the same way.',
+  },
+  overlap: {
+    word: 'overlap',
+    is: 'The text that two neighbouring windows share, so a sentence cut at one edge still appears whole in the next piece.',
+    here: '100 tokens between neighbouring text windows.',
+  },
+  metadata: {
+    word: 'metadata',
+    is: 'Labels kept beside a piece of text that say where it came from, such as its file, its heading or its date. A search can filter on them without reading the text.',
+    here: 'Every chunk has source_file, start_line and end_line, plus a per-type field such as heading_path, the function name or the CSV column names. Subsystem, ticket and requirement IDs come in Step 2.5.',
   },
   embedding: {
     word: 'embedding',
@@ -149,6 +174,11 @@ export type TermKey = keyof typeof GLOSSARY;
 export const GLOSSARY_ORDER: TermKey[] = [
   'corpus',
   'chunk',
+  'token',
+  'chunkSize',
+  'slidingWindow',
+  'overlap',
+  'metadata',
   'embedding',
   'vector',
   'cosineSimilarity',

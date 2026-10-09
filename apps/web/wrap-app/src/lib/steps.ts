@@ -535,14 +535,102 @@ EMAIL_0001 EMAIL | HANDLE_0001 HANDLE | PHONE_0001 PHONE | PHONE_0002 PHONE | PE
       {
         n: '2.4',
         title: 'Type-aware chunking',
-        status: 'next',
+        status: 'done',
+        done: '2026-10-09',
         needs: 'Step 2.3 (done)',
         plain:
           'Cut each document into pieces that can be searched on their own. Cut them where the document already has natural breaks: Markdown at its headings, C code at each function, a CSV one row at a time, and plain text in overlapping windows.',
         why: 'A piece cut from the middle of a sentence or a function loses the words that say what it is, so no question that names it will find it.',
-        terms: ['chunk'],
+        code: {
+          caption: 'The router. The file’s format picks the splitter, and binary or unknown files give no chunks at all.',
+          from: 'measured',
+          source: 'pnpm wrap:chunk, 2026-10-09',
+          path: 'apps/ai/wrap/src/chunking/index.ts',
+          lang: 'typescript',
+          code: String.raw`export function chunkFile(sourceFile: string, text: string, format: Format): Chunk[] {
+  switch (format) {
+    case Format.MARKDOWN:
+      return chunkMarkdown(text, sourceFile);
+    case Format.C_SOURCE:
+    case Format.C_HEADER:
+      return chunkC(text, sourceFile);
+    case Format.CSV:
+      return chunkCsv(text, sourceFile);
+    case Format.JSON:
+    case Format.TEXT:
+      return chunkText(text, sourceFile);
+    case Format.BINARY:
+    case Format.UNKNOWN:
+      return [];
+  }
+}`,
+          printed: `Files in data/scrubbed: 1111
+  chunked: 1092
+  skipped, removed exact duplicate: 18
+  skipped, BINARY/UNKNOWN: 1
+Total chunks: 20097 -> data/chunks.jsonl
+Chunks per type:
+  csv_row 12763, markdown_section 6097
+  code_function 807, code_struct 220
+  text_paragraph 210
+Tokens per chunk: min 6, median 28, p95 129, max 498
+Chunks over MAX_TOKENS_PER_CHUNK (500): 0`,
+        },
+        learned:
+          'Chunks are small: the median is 28 tokens, because requirement documents are many short sections. CSV rows are 64% of all chunks (12,763 of 20,097), and they may crowd search results. Phase 3 evals will judge that; grouping rows is the usual fix. Token count is estimated as characters divided by 4, not counted with a tokenizer. No C function exceeded 500 tokens, so the sub-split for oversize functions is covered only by the selftest.',
+        terms: ['chunk', 'token', 'chunkSize', 'slidingWindow', 'overlap', 'metadata'],
+        hood: {
+          title: 'Under the hood: the brace-depth scan',
+          code: String.raw`  let i = 0;
+  while (i < n) {
+    const d = directives[di];
+    if (d && i === d.start) {
+      // A declaration cut short by a directive ends here; the directive is its own unit.
+      if (codeStart >= 0) close("decl", i);
+      units.push({ kind: "decl", start: unitStart, end: d.end, codeStart: d.start, brace: -1 });
+      di++;
+      reset(d.end);
+      i = d.end;
+      continue;
+    }
+    const c = masked[i];
+    if (isSpace(c)) {
+      i++;
+      continue;
+    }
+    if (codeStart < 0) codeStart = i;
+    if (c === "{") {
+      if (depth === 0 && brace < 0) {
+        brace = i;
+        braceIsFunc = lastCode >= 0 && masked[lastCode] === ")";
+      }
+      depth++;
+    } else if (c === "}") {
+      if (depth > 0) depth--;
+      if (depth === 0) {
+        if (brace >= 0 && braceIsFunc) close("func", i + 1);
+        else if (!continuesDeclaration(masked, i + 1, directives, di)) close("decl", i + 1);
+      }
+    } else if (c === ";" && depth === 0) {
+      close("decl", i + 1);
+    }
+    lastCode = i;
+    i++;
+  }`,
+          printed: `{"type":"code_function","source_file":"eps-calibration-tools/src/a2l_export.c","tokens":56,"start_line":19,"end_line":28,"metadata":{"function":"A2l_Load","kind":"function"}}
+Std_ReturnType A2l_Load(const A2lExportIn_t *in, A2lExportOut_t *out)
+{`,
+        },
       },
-      planned('2.5', 'Metadata extraction', 'Read the subsystem, ticket IDs, dates and requirement IDs from each file’s path and text, and attach them to every chunk.'),
+      {
+        n: '2.5',
+        title: 'Metadata extraction',
+        status: 'next',
+        needs: 'Step 2.4 (done)',
+        plain:
+          'Read the subsystem from each file’s folder, and the requirement IDs, ticket IDs, dates and keywords from its text. Attach them to every chunk, so search can filter by them.',
+        why: 'Without these tags, a question that names a subsystem or a requirement has to match the chunk’s own words, and chunks that never repeat those words are missed.',
+      },
       planned('2.6', 'Embed and store in pgvector', 'Turn each chunk into an embedding and store it, with a content hash so a rerun skips what is already there, and an HNSW index for fast search.'),
     ],
   },
