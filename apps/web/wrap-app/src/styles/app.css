@@ -1,0 +1,1008 @@
+@import 'tailwindcss';
+
+/**
+ * Three layers, in the order they may override each other.
+ *
+ *   @fde/uikit        the controls, the severity palette, the motion rules and
+ *                     the `--ui-*` tokens every component reads. Liftable into
+ *                     a customer's own repository, and therefore knows nothing
+ *                     about estates, firms or engagements.
+ *   @veresk/surface   this site's own shared parts: the wash behind a hero, the
+ *                     hero entrance, the code block, the estate section.
+ *   this file         what only Wrap' pages draw. It re-points the
+ *                     shared `--ui-*` tokens for THIS app only — the two shared
+ *                     packages are not edited, because four other apps render
+ *                     through them.
+ */
+@import '@fde/uikit/styles.css';
+
+/**
+ * THE `@source` LINE IS LOAD-BEARING. Tailwind v4 does not look inside
+ * `node_modules`, and `@veresk/surface` is symlinked there like every workspace
+ * package. Without this, its components render with every utility class missing
+ * — from a build that SUCCEEDS, which is the worst failure shape available.
+ *
+ * FIVE LEVELS, counted rather than copied: it walks to the repo root from
+ * `apps/web/<app>/src/styles/`. Two apps once carried a four-level version left
+ * over from when they lived at `apps/<app>/`, which resolved to a directory
+ * that does not exist — and Tailwind does not error on a `@source` matching
+ * nothing. It scans no files, emits no classes, and the build is green.
+ */
+@import '@veresk/surface/styles.css';
+@source '../../../../../packages/surface/src';
+
+/* ── THE REDESIGN OF 2026-09-27, AND WHAT IT WAS FOR ───────────────────────
+   The first version of these pages was brass and copper on near-black, with
+   monospace headings and 11px uppercase labels. It was faithful to the house
+   style and hard to read for the person it now has to serve: somebody who
+   arrived from a link about MCP or agents and has never seen the plan.
+
+   So three things changed, and they are all about reading:
+
+   1. A SOFTER DARK. Slate (#121826) rather than near-black (#07080b), so that
+      cards, code and page are three visibly different surfaces instead of
+      three shades of the same black.
+   2. CONTRAST THAT PASSES. Body text is #b3bdcc (9.3:1 on the page). The old
+      "faint" grey was 3.2:1 and failed WCAG AA; the new one is 5.5:1.
+   3. ONE TYPE FAMILY BUILT FOR LEGIBILITY. Atkinson Hyperlegible Next for text
+      and its Mono sibling for code, from the Braille Institute. The letters
+      that get confused — I l 1, O 0, rn m — are drawn to be told apart, which
+      matters on a page full of identifiers like `4b`, `-32602` and `isError`.
+   ────────────────────────────────────────────────────────────────────────── */
+@theme {
+  --font-sans: 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Atkinson Hyperlegible Mono', ui-monospace, 'SF Mono', monospace;
+  --font-ui-sans: var(--font-sans);
+  --font-ui-mono: var(--font-mono);
+
+  /* The shared greys, re-pointed. Same names, so every `@fde/uikit` and
+     `@veresk/surface` component on these pages follows without being edited. */
+  --color-ui-bg: #121826;
+  --color-ui-surface: #19212f;
+  --color-ui-raised: #1f2939;
+  --color-ui-line: #2a3448;
+  --color-ui-line-lit: #3a4760;
+  --color-ui-fg: #e6ebf2;
+  --color-ui-dim: #b3bdcc;
+  --color-ui-faint: #8390a5;
+
+  /* ── TWO COLOURS, AND WHAT EACH ONE MEANS ────────────────────────────────
+     --color-wrap-1  teal  WHAT WE BUILT — the assistant, the MCP server, a
+                          finished step.
+     --color-wrap-2  sky   THE PROTOCOL — a message crossing between programs,
+                          a link, and "what we learned" (every lesson so far
+                          came from watching the messages).
+
+     THORNBURY'S OWN SYSTEMS GET NO COLOUR. They are drawn in the neutral greys,
+     on purpose: the whole architecture is about not owning them.
+
+     MEASURED, NOT CHOSEN BY EYE. `docs/SITE.md` records a palette that shipped
+     failing at CIEDE2000 ΔE 6.8 against a floor of 15, so:
+       teal ↔ sky          ΔE 28.5   clears the floor
+     (The same calculation gives 18.0 for the old brass/copper pair, which is
+     the figure SURFACE.md §5 recorded — so the method agrees with the record.)
+     Contrast on the page background: teal 8.4:1, sky 8.5:1. */
+  --color-wrap-1: #3cc6b8;
+  --color-wrap-2: #7db7ff;
+}
+
+html {
+  background: var(--color-ui-bg);
+  color: var(--color-ui-fg);
+  -webkit-font-smoothing: antialiased;
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--font-sans);
+  /* Two soft pools of the two accents, so a flat slate does not read as
+     "unstyled". They do not move, so there is nothing for the reduced-motion
+     rule to suppress. */
+  background-image:
+    radial-gradient(60rem 30rem at 8% -12%, rgba(60, 198, 184, 0.07), transparent 60%),
+    radial-gradient(52rem 26rem at 96% 0%, rgba(125, 183, 255, 0.07), transparent 60%);
+  background-repeat: no-repeat;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--color-wrap-2) 35%, transparent);
+}
+
+/* A visible focus ring on everything a keyboard can reach. */
+:where(a, button, [role='tab'], summary):focus-visible {
+  outline: 2px solid var(--color-wrap-2);
+  outline-offset: 3px;
+  border-radius: 0.375rem;
+}
+
+:root {
+  /* Code blocks: darker than the page, so they read as an editor inset into
+     it. The TOKEN colours are untouched — `Snippet` runs VS Code's own Dark+
+     theme and that is the point of it. Only the ground and the accent move. */
+  --snip-bg: #0e1420;
+  --snip-mark: rgba(125, 183, 255, 0.09);
+  --snip-accent: var(--color-wrap-1);
+
+  /* The shared headline gradient. The pages here use a plain headline, but a
+     component that asks for the gradient should get these two colours. */
+  --title-1: #3cc6b8;
+  --title-2: #7db7ff;
+  --title-3: #b3bdcc;
+  --title-4: #8390a5;
+  --ui-progress: linear-gradient(90deg, var(--color-wrap-1), var(--color-wrap-2));
+}
+
+.ui-dialog-body {
+  --snip-bg: #0e1420;
+}
+
+/* Code a little larger than the shared default: Atkinson Hyperlegible Mono
+   sets small for its size, and on this page the code is read, not glanced at. */
+.snip pre {
+  font-size: 0.875rem;
+}
+
+.snip-head {
+  font-size: 0.8125rem;
+}
+
+.snip-kind {
+  letter-spacing: 0.02em;
+}
+
+/* Inline code in prose. */
+.wrap-prose code,
+.wrap-step code,
+.wrap-card code,
+.wrap-gloss code,
+.wrap-hood-text code,
+.ui-dialog-body p code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  padding: 0.0625rem 0.3125rem;
+  border-radius: 0.3125rem;
+  background: color-mix(in oklab, var(--color-ui-raised) 80%, transparent);
+  color: var(--color-ui-fg);
+  overflow-wrap: anywhere;
+}
+
+/* ── LABELS ─────────────────────────────────────────────────────────────────
+   Sentence case, in the text face, a little smaller and bolder than the body.
+   The old tracked-out uppercase monospace labels were the hardest thing on the
+   page to read, and there was one above nearly every block. */
+.wrap-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--color-wrap-1);
+}
+
+.wrap-label[data-tone='wire'] {
+  color: var(--color-wrap-2);
+}
+
+.wrap-label[data-tone='quiet'] {
+  color: var(--color-ui-faint);
+}
+
+/* ── THE PHASES, AS TABS ────────────────────────────────────────────────────
+   Six phases, each a card in a row. The active card's bottom edge is erased so
+   card and panel read as one surface rather than a button above some text.
+   A phase with nothing built yet is dashed; a phase with some steps done shows
+   a small progress track, so "how far along" is visible without reading. */
+.wrap-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+@media (min-width: 40rem) {
+  .wrap-tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 60rem) {
+  .wrap-tabs {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0;
+    align-items: stretch;
+  }
+}
+
+.wrap-tab {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: 0.375rem;
+  padding: 0.875rem 0.875rem 1rem;
+  text-align: left;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.875rem;
+  background: var(--color-ui-surface);
+  transition:
+    background 200ms ease,
+    border-color 200ms ease;
+}
+
+@media (min-width: 60rem) {
+  /* NO BOTTOM EDGE ON THE ROW. The tabs sit straight on the panel, so there is
+     no line between the phase you picked and what it shows — the row and the
+     panel read as one object. (Asked for directly, 2026-09-27.) */
+  .wrap-tab {
+    border-radius: 0.875rem 0.875rem 0 0;
+    border-bottom-width: 0;
+    margin-inline-start: -1px;
+  }
+  .wrap-tab:first-child {
+    margin-inline-start: 0;
+  }
+}
+
+.wrap-tab:hover {
+  background: var(--color-ui-raised);
+}
+
+.wrap-tab[data-built='false'] {
+  border-style: dashed;
+  background: transparent;
+}
+
+.wrap-tab[data-built='false']:hover {
+  background: color-mix(in oklab, var(--color-ui-surface) 70%, transparent);
+}
+
+.wrap-tab[aria-selected='true'] {
+  z-index: 1;
+  border-style: solid;
+  border-color: color-mix(in oklab, var(--color-wrap-1) 55%, var(--color-ui-line));
+  background: var(--color-ui-raised);
+}
+
+
+
+.wrap-tab[aria-selected='true']::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0.875rem;
+  top: -1px;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--color-wrap-1);
+}
+
+.wrap-tab-n {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-ui-faint);
+}
+
+.wrap-tab-label {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--color-ui-dim);
+}
+
+.wrap-tab[aria-selected='true'] .wrap-tab-label,
+.wrap-tab:hover .wrap-tab-label {
+  color: var(--color-ui-fg);
+}
+
+.wrap-tab-status {
+  align-self: end;
+  display: grid;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  color: var(--color-ui-faint);
+}
+
+.wrap-tab[data-built='true'] .wrap-tab-status {
+  color: var(--color-wrap-1);
+}
+
+/* How much of the phase is done, as a bar. */
+.wrap-meter {
+  display: block;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--color-ui-line);
+  overflow: hidden;
+}
+
+.wrap-meter > span {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--color-wrap-1);
+}
+
+.wrap-tabpanel {
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.875rem;
+  background: linear-gradient(180deg, var(--color-ui-raised) 0, var(--color-ui-bg) 22rem);
+  padding: 1.5rem 1rem 2rem;
+}
+
+@media (min-width: 40rem) {
+  .wrap-tabpanel {
+    padding: 2rem 1.75rem 2.5rem;
+  }
+}
+
+@media (min-width: 60rem) {
+  .wrap-tabpanel {
+    border-top-width: 0;
+    border-radius: 0 0 0.875rem 0.875rem;
+    padding: 2.5rem 2.25rem 2.75rem;
+  }
+}
+
+/* ── A STEP ─────────────────────────────────────────────────────────────────
+   Every step is the same five parts in the same order — in plain words, why it
+   matters, the code, what we learned, words to know — so a reader who has
+   done one knows where to look in the next thirteen. */
+.wrap-step {
+  scroll-margin-top: 1.5rem;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 1rem;
+  background: var(--color-ui-surface);
+  padding: 1.25rem 1rem 1.5rem;
+}
+
+@media (min-width: 40rem) {
+  .wrap-step {
+    padding: 1.75rem 1.75rem 2rem;
+  }
+}
+
+.wrap-step[data-state='planned'] {
+  border-style: dashed;
+  background: color-mix(in oklab, var(--color-ui-surface) 55%, transparent);
+}
+
+.wrap-step-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.25rem 1rem;
+  align-items: start;
+}
+
+.wrap-step-n {
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  border: 2px solid var(--color-ui-line-lit);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: var(--color-ui-dim);
+}
+
+.wrap-step[data-state='done'] .wrap-step-n {
+  border-color: var(--color-wrap-1);
+  background: color-mix(in oklab, var(--color-wrap-1) 16%, transparent);
+  color: var(--color-ui-fg);
+}
+
+.wrap-step[data-state='next'] .wrap-step-n {
+  border-color: var(--color-wrap-2);
+  color: var(--color-ui-fg);
+}
+
+.wrap-step-title {
+  font-size: 1.3125rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.005em;
+  color: var(--color-ui-fg);
+}
+
+.wrap-step-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem 0.5rem;
+  align-items: center;
+}
+
+.wrap-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-ui-line-lit);
+  padding: 0.125rem 0.625rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-ui-dim);
+  white-space: nowrap;
+}
+
+.wrap-pill[data-tone='done'] {
+  border-color: color-mix(in oklab, var(--color-wrap-1) 55%, transparent);
+  background: color-mix(in oklab, var(--color-wrap-1) 12%, transparent);
+  color: var(--color-wrap-1);
+}
+
+.wrap-pill[data-tone='next'] {
+  border-color: color-mix(in oklab, var(--color-wrap-2) 55%, transparent);
+  color: var(--color-wrap-2);
+}
+
+.wrap-pill[data-tone='planned'] {
+  border-style: dashed;
+  color: var(--color-ui-faint);
+}
+
+.wrap-step-body {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+@media (min-width: 40rem) {
+  .wrap-step-body {
+    padding-left: 3.5rem;
+  }
+}
+
+.wrap-part > h4 {
+  margin-bottom: 0.375rem;
+}
+
+.wrap-part p,
+.wrap-prose p {
+  max-width: 68ch;
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim);
+}
+
+.wrap-part p + p,
+.wrap-prose p + p {
+  margin-top: 0.75rem;
+}
+
+.wrap-part strong,
+.wrap-prose strong,
+.wrap-lesson strong {
+  color: var(--color-ui-fg);
+  font-weight: 600;
+}
+
+/* WHAT WE LEARNED. The part of each finished step that is worth the visit —
+   every step so far corrected something the plan had written down — so it is
+   the one block with a fill. A planned step gets the same shape, dashed, and
+   says what the step will check instead: a lesson that has not happened yet
+   must not look like one that has. */
+.wrap-lesson {
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in oklab, var(--color-wrap-2) 35%, transparent);
+  background: color-mix(in oklab, var(--color-wrap-2) 7%, transparent);
+  padding: 1rem 1.125rem 1.125rem;
+}
+
+.wrap-lesson[data-planned='true'] {
+  border-style: dashed;
+  border-color: var(--color-ui-line-lit);
+  background: transparent;
+}
+
+.wrap-lesson > h4 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.wrap-lesson p {
+  max-width: 66ch;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--color-ui-dim);
+}
+
+.wrap-lesson p + p {
+  margin-top: 0.625rem;
+}
+
+/* Words to know — each one jumps to its glossary entry. */
+.wrap-terms {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-ui-faint);
+}
+
+.wrap-term {
+  border-radius: 999px;
+  border: 1px solid var(--color-ui-line-lit);
+  padding: 0.125rem 0.625rem;
+  color: var(--color-ui-dim);
+  transition:
+    color 160ms ease,
+    border-color 160ms ease;
+}
+
+.wrap-term:hover {
+  border-color: var(--color-wrap-2);
+  color: var(--color-ui-fg);
+}
+
+/* ── A FIGURE: a caption, where it came from, and the thing itself ─────────── */
+.wrap-fig-cap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem 0.625rem;
+  padding-bottom: 0.625rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-ui-fg);
+}
+
+.wrap-fig-src {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--color-ui-faint);
+}
+
+.wrap-fig .snip-frame {
+  margin: 0;
+}
+
+.wrap-raw {
+  overflow-x: auto;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-ui-line);
+  background: var(--snip-bg);
+  padding: 0.875rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: #d4dae3;
+  white-space: pre;
+}
+
+/* A small two-column table for "this → that" figures that used to be
+   hand-aligned text in a <pre>. Real rows wrap on a phone; aligned spaces
+   did not. */
+.wrap-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  font-size: 0.9375rem;
+}
+
+.wrap-table th,
+.wrap-table td {
+  padding: 0.625rem 0.875rem;
+  text-align: left;
+  vertical-align: top;
+  border-top: 1px solid var(--color-ui-line);
+  line-height: 1.55;
+}
+
+.wrap-table thead th {
+  border-top: 0;
+  background: var(--color-ui-raised);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-ui-faint);
+}
+
+.wrap-table td {
+  color: var(--color-ui-dim);
+}
+
+.wrap-table td:first-child {
+  color: var(--color-ui-fg);
+}
+
+.wrap-table td code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+}
+
+/* A name in the first column is the row's label: never break it mid-word
+   ("get_orde / r"). The table scrolls sideways before it does that. */
+.wrap-table td:first-child code {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+/* ── THE WIRE: one JSON-RPC message, drawn as itself ───────────────────────
+   A message carries an arrow and takes its colour from which way it went —
+   teal for what we sent, sky for what came back — so the turn-taking reads
+   down the left edge without reading any JSON. */
+.wrap-wire-box {
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-ui-line);
+  background: var(--snip-bg);
+  padding: 0.5rem 1rem;
+}
+
+.wrap-wire {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.125rem 0.75rem;
+  padding: 0.5rem 0;
+  align-items: start;
+}
+
+/* Label beside the message where there is room; above it on a phone, where a
+   side label would leave the JSON a sliver to scroll through. */
+@media (min-width: 40rem) {
+  .wrap-wire {
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+  }
+}
+
+.wrap-wire + .wrap-wire {
+  border-top: 1px solid color-mix(in oklab, var(--color-ui-line) 60%, transparent);
+}
+
+.wrap-wire-dir {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.7;
+}
+
+.wrap-wire[data-dir='out'] .wrap-wire-dir {
+  color: var(--color-wrap-1);
+}
+
+.wrap-wire[data-dir='in'] .wrap-wire-dir {
+  color: var(--color-wrap-2);
+}
+
+.wrap-wire-body {
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: #d4dae3;
+  white-space: pre;
+}
+
+.wrap-wire-body mark,
+.wrap-raw mark {
+  background: color-mix(in oklab, var(--color-wrap-2) 26%, transparent);
+  color: var(--color-ui-fg);
+  border-radius: 0.1875rem;
+  padding: 0.0625rem 0.1875rem;
+}
+
+/* ── THE BIG PICTURE: who holds what, and where the line is ─────────────────
+   The one drawing on the page that is allowed to be bold. Five boxes in the
+   order a request travels; ours are outlined in teal, Wrap's are grey,
+   and the line between them is drawn as a line. On a phone the row becomes a
+   column and the arrows turn to point down. */
+.wrap-map {
+  display: grid;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+@media (min-width: 60rem) {
+  .wrap-map {
+    grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr auto 1fr;
+    gap: 0;
+  }
+}
+
+.wrap-node {
+  display: grid;
+  align-content: start;
+  gap: 0.375rem;
+  border-radius: 0.875rem;
+  border: 1px solid var(--color-ui-line-lit);
+  background: var(--color-ui-surface);
+  padding: 0.875rem 1rem 1rem;
+}
+
+.wrap-node[data-side='ours'] {
+  border-color: color-mix(in oklab, var(--color-wrap-1) 60%, transparent);
+  background: color-mix(in oklab, var(--color-wrap-1) 7%, var(--color-ui-surface));
+}
+
+.wrap-node[data-side='person'] {
+  border-style: dashed;
+  background: transparent;
+}
+
+.wrap-node-name {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--color-ui-fg);
+}
+
+.wrap-node-who {
+  font-size: 0.8125rem;
+  color: var(--color-ui-faint);
+}
+
+.wrap-node[data-side='ours'] .wrap-node-who {
+  color: var(--color-wrap-1);
+}
+
+.wrap-node-holds {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-ui-dim);
+}
+
+.wrap-link {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.125rem;
+  padding: 0.125rem 0;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  text-align: center;
+  color: var(--color-wrap-2);
+}
+
+.wrap-link-arrow {
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
+.wrap-link-arrow::before {
+  content: '↓';
+}
+
+@media (min-width: 60rem) {
+  .wrap-link {
+    width: 4.75rem;
+    padding: 0 0.25rem;
+  }
+  .wrap-link-arrow::before {
+    content: '→';
+  }
+}
+
+/* THE LINE. Between our MCP server and Wrap's API: everything left of it
+   we wrote and deploy, everything right of it the customer already owned. */
+.wrap-link[data-line='true'] {
+  position: relative;
+  isolation: isolate;
+}
+
+/* On a phone the boxes stack, so the line runs across instead of down. */
+.wrap-link[data-line='true']::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  border-top: 2px dashed color-mix(in oklab, var(--color-ui-fg) 35%, transparent);
+  z-index: -1;
+}
+
+.wrap-link[data-line='true'] > span {
+  background: var(--color-ui-bg);
+  padding-inline: 0.5rem;
+}
+
+@media (min-width: 60rem) {
+  .wrap-link[data-line='true']::after {
+    top: -0.75rem;
+    bottom: -0.75rem;
+    left: 50%;
+    right: auto;
+    border-top: 0;
+    border-left: 2px dashed color-mix(in oklab, var(--color-ui-fg) 35%, transparent);
+  }
+}
+
+.wrap-map-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+  color: var(--color-ui-faint);
+}
+
+.wrap-swatch {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-right: 0.375rem;
+  vertical-align: -0.0625rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--color-ui-line-lit);
+  background: var(--color-ui-surface);
+}
+
+.wrap-swatch[data-side='ours'] {
+  border-color: var(--color-wrap-1);
+  background: color-mix(in oklab, var(--color-wrap-1) 20%, var(--color-ui-surface));
+}
+
+/* ── THE ROADMAP: all fourteen steps, grouped by phase, each a button ──────── */
+.wrap-road {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (min-width: 40rem) {
+  .wrap-road {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 60rem) {
+  .wrap-road {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.wrap-road-phase > p {
+  margin-bottom: 0.5rem;
+}
+
+.wrap-road-step {
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr);
+  gap: 0.625rem;
+  align-items: center;
+  width: 100%;
+  padding: 0.375rem 0.5rem;
+  margin-inline: -0.5rem;
+  border-radius: 0.5rem;
+  text-align: left;
+  font-size: 0.9375rem;
+  line-height: 1.35;
+  color: var(--color-ui-dim);
+  transition: background 160ms ease;
+}
+
+.wrap-road-step:hover {
+  background: var(--color-ui-surface);
+  color: var(--color-ui-fg);
+}
+
+.wrap-dot {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  border: 1.5px dashed var(--color-ui-line-lit);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-ui-faint);
+}
+
+.wrap-dot[data-state='done'] {
+  border: 1.5px solid var(--color-wrap-1);
+  background: color-mix(in oklab, var(--color-wrap-1) 18%, transparent);
+  color: var(--color-ui-fg);
+}
+
+.wrap-dot[data-state='next'] {
+  border: 1.5px solid var(--color-wrap-2);
+  color: var(--color-wrap-2);
+}
+
+.wrap-dot[data-state='idea'] {
+  border-style: solid;
+}
+
+/* The overall progress bar in the hero. */
+.wrap-progress {
+  display: flex;
+  gap: 3px;
+}
+
+.wrap-progress > span {
+  flex: 1;
+  height: 8px;
+  border-radius: 3px;
+  background: var(--color-ui-line);
+}
+
+.wrap-progress > span[data-done='true'] {
+  background: var(--color-wrap-1);
+}
+
+/* ── PRIMER CARDS and the glossary ────────────────────────────────────────── */
+.wrap-card {
+  border-radius: 1rem;
+  border: 1px solid var(--color-ui-line);
+  background: var(--color-ui-surface);
+  padding: 1.25rem 1.25rem 1.375rem;
+}
+
+.wrap-card h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-ui-fg);
+}
+
+.wrap-card p {
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--color-ui-dim);
+}
+
+.wrap-gloss {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--color-ui-line);
+}
+
+@media (min-width: 48rem) {
+  .wrap-gloss {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 2.5rem;
+  }
+}
+
+.wrap-gloss > div {
+  scroll-margin-top: 1.5rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--color-ui-line);
+}
+
+.wrap-gloss > div:target {
+  background: color-mix(in oklab, var(--color-wrap-2) 8%, transparent);
+  box-shadow: -0.75rem 0 0 color-mix(in oklab, var(--color-wrap-2) 8%, transparent),
+    0.75rem 0 0 color-mix(in oklab, var(--color-wrap-2) 8%, transparent);
+}
+
+.wrap-gloss dt {
+  font-weight: 700;
+  color: var(--color-ui-fg);
+}
+
+.wrap-gloss dd {
+  margin-top: 0.25rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-ui-dim);
+}
+
+.wrap-gloss dd + dd {
+  color: var(--color-ui-faint);
+}
+
+/* A plain text link inside prose. */
+.wrap-a {
+  color: var(--color-wrap-2);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--color-wrap-2) 40%, transparent);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 160ms ease;
+}
+
+.wrap-a:hover {
+  text-decoration-color: var(--color-wrap-2);
+}
+
+/* A sentence under a figure, saying what to notice in it. */
+.wrap-note {
+  margin-top: 0.625rem;
+  max-width: 68ch;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--color-ui-faint);
+}
+
+.wrap-note strong {
+  color: var(--color-ui-dim);
+  font-weight: 600;
+}
