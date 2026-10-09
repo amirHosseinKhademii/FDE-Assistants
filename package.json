@@ -1,7 +1,7 @@
 {
   "name": "claims-assistant",
   "private": true,
-  "description": "FDE practice #2 \u2014 Turborepo workspace. See README.md.",
+  "description": "FDE practice #2 — Turborepo workspace. See README.md.",
   "license": "UNLICENSED",
   "packageManager": "pnpm@9.15.9",
   "scripts": {
@@ -206,6 +206,7 @@
     "wrap:eval:diff": "pnpm --filter @wrap/ai eval:diff",
     "wrap:eval:history": "pnpm --filter @wrap/ai eval:history",
     "wrap:eval:latest": "pnpm --filter @wrap/ai eval:latest",
+    "wrap:detect-formats": "pnpm --filter @wrap/ai detect-formats",
     "wrap:ask": "pnpm --filter @wrap/ai ask",
     "db:wrap-up": "docker compose -f docker-compose.yml up -d pgvector",
     "db:wrap-down": "docker compose -f docker-compose.yml down",

@@ -17,7 +17,9 @@
     "ask": "echo 'not implemented yet'",
     "make-mess": "RNG_SEED=${RNG_SEED:-42} tsx src/cli/make-mess.ts",
     "foundation:check": "tsx src/cli/foundation-check.ts",
-    "golden:check": "tsx src/cli/golden-check.ts"
+    "golden:check": "tsx src/cli/golden-check.ts",
+    "detect:check": "tsx src/ingest/format-detector.selftest.ts",
+    "detect-formats": "tsx src/cli/detect-formats.ts"
   },
   "dependencies": {
     "@fde/foundry": "workspace:*",
