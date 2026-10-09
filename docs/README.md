@@ -20,6 +20,7 @@ about**, so that is how this index is organised.
 | [`RUN.md`](RUN.md) | The pillars already walked, end to end. |
 | [`PROGRESS.md`](PROGRESS.md) | The dated engineering log. Long, and the most reliable record of *why* something is the way it is. |
 | [`ROADMAP.md`](ROADMAP.md) | What is planned next, repo-wide. *(Was `NEXT.md` — renamed because three files had that name.)* |
+| [`wrap/HANDOFF.md`](wrap/HANDOFF.md) | Where the wrap pipeline and the one-stop learning site stopped (2026-10-09), and how to resume. |
 
 ## How the AI actually works — read in this order
 
