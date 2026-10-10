@@ -143,6 +143,42 @@ input {
   align-items: stretch;
 }
 
+.search {
+  position: relative;
+}
+
+.place-suggest {
+  flex-basis: 100%;
+  order: 3;
+  margin: -2px 0 0;
+  padding: 4px;
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(30, 35, 40, 0.12);
+}
+
+.place-suggest button {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  font: inherit;
+  font-size: 15px;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.place-suggest button.is-active,
+.place-suggest button:hover {
+  background: var(--accent-soft);
+}
+
 .search .hint {
   flex-basis: 100%;
 }
@@ -194,6 +230,12 @@ input {
 .btn-primary:disabled {
   opacity: 0.6;
   cursor: default;
+}
+
+a.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
 }
 
 .btn-secondary {
@@ -345,6 +387,16 @@ input {
   display: none;
 }
 
+/* On a wide column the three chips wrap instead of scrolling sideways. */
+@media (min-width: 960px) {
+  .summary {
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 2px 0;
+    overflow: visible;
+  }
+}
+
 .summary-chip {
   flex: 0 0 auto;
   display: inline-flex;
@@ -394,6 +446,20 @@ input {
   border-radius: 0 0 var(--radius-card) var(--radius-card);
   overflow: hidden;
   background: var(--surface-2);
+}
+
+.gmap {
+  position: absolute;
+  inset: 0;
+}
+
+.map-info {
+  display: grid;
+  gap: 2px;
+  min-width: 140px;
+  padding-right: 4px;
+  font-size: 14px;
+  color: var(--text);
 }
 
 .map-placeholder {

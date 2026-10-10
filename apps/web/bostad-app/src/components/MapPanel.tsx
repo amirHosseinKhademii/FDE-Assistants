@@ -1,23 +1,31 @@
+import { useEffect, useState } from "react";
 import { useLang } from "../lib/lang";
 import { googleMapsHref } from "../lib/format";
+import { HAS_MAPS_KEY } from "../lib/maps";
 import { Icon } from "./Icons";
+import { GoogleMap, type MapStop } from "./GoogleMap";
 
 /**
- * PLACEHOLDER. The Google map (part 2) replaces the body of this component; the
- * props stay. Until a key is present it shows this card, never a crash.
+ * The map panel. With a key and coordinates it shows the Google map (client
+ * only). Without a key, or before mount, it shows the placeholder card.
  */
 export function MapPanel({
   lat,
   lon,
+  stops = [],
   loading = false,
   className = "",
 }: {
   lat?: number;
   lon?: number;
+  stops?: MapStop[];
   loading?: boolean;
   className?: string;
 }) {
   const { t } = useLang();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   if (loading) {
     return (
@@ -26,6 +34,15 @@ export function MapPanel({
   }
 
   const hasCoords = typeof lat === "number" && typeof lon === "number";
+
+  if (HAS_MAPS_KEY && mounted && hasCoords) {
+    return (
+      <div className={`profile-map ${className}`}>
+        <GoogleMap house={{ lat, lon }} stops={stops} />
+      </div>
+    );
+  }
+
   return (
     <div className={`profile-map ${className}`}>
       <div className="map-placeholder">

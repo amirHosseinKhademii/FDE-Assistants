@@ -1,6 +1,7 @@
 import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import appCss from "../styles/app.css?url";
 import { LangProvider } from "../lib/lang";
+import { MapsProvider } from "../components/MapsProvider";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -23,7 +24,9 @@ function RootLayout() {
       </head>
       <body>
         <LangProvider>
-          <Outlet />
+          <MapsProvider>
+            <Outlet />
+          </MapsProvider>
         </LangProvider>
         <Scripts />
       </body>

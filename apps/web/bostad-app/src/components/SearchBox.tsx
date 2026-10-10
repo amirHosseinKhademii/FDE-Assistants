@@ -1,7 +1,9 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useLang } from "../lib/lang";
 import { ADDRESS_MAX_LENGTH } from "../lib/address";
+import { HAS_MAPS_KEY } from "../lib/maps";
 import { Icon } from "./Icons";
+import { PlacesAutocomplete } from "./PlacesAutocomplete";
 
 export const SEARCH_INPUT_ID = "address-search";
 
@@ -56,6 +58,17 @@ export function SearchBox({
           if (empty) setEmpty(false);
         }}
       />
+      {HAS_MAPS_KEY && (
+        <PlacesAutocomplete
+          inputId={SEARCH_INPUT_ID}
+          value={value}
+          onPlace={(address) => {
+            setValue(address);
+            setEmpty(false);
+            onSearch(address);
+          }}
+        />
+      )}
       <button type="submit" className="btn-primary" aria-label={t("search.submit")}>
         {compact ? <Icon name="search" /> : t("search.submit")}
       </button>

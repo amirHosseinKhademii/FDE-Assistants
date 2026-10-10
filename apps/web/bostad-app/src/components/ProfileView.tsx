@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useLang } from "../lib/lang";
 import { useProfile } from "../lib/useProfile";
+import { gateOf, gatedCheck } from "../lib/checks";
 import { MapPanel } from "./MapPanel";
 import { ProfileError, ProfileSkeleton } from "./ProfileStates";
 import { AddressHeader, ProfileBody } from "./ProfileContent";
@@ -20,6 +21,8 @@ export function ProfileView({ address, onSearch }: { address: string; onSearch: 
   const loading = state.status === "idle" || state.status === "loading";
   const profile = state.status === "ok" ? state.profile : null;
   const coords = profile?.location.data;
+  const transit = profile ? gatedCheck(profile.transit, gateOf(profile)) : null;
+  const stops = transit?.kind === "ok" ? transit.data.stops : [];
 
   return (
     <div className="wrap">
@@ -29,7 +32,7 @@ export function ProfileView({ address, onSearch }: { address: string; onSearch: 
           <SearchBox compact initial={address} onSearch={onSearch} />
         </div>
 
-        <MapPanel lat={coords?.lat} lon={coords?.lon} loading={loading} />
+        <MapPanel lat={coords?.lat} lon={coords?.lon} stops={stops} loading={loading} />
 
         <div className="profile-main">
           <AddressHeader address={address} profile={profile} />

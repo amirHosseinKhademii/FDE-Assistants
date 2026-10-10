@@ -84,6 +84,8 @@ const en = {
   "map.placeholder": "Map will appear once a Google Maps key is added.",
   "map.open": "Open in Google Maps",
   "map.loading": "Loading map",
+  "map.house": "Your address",
+  "map.walk": "{minutes} min walk ({meters} m)",
 
   "error.title": "Lookup failed",
   "error.tooMany": "Too many searches — wait a minute.",
@@ -187,6 +189,8 @@ const sv: Record<MessageKey, string> = {
   "map.placeholder": "Kartan visas när en Google Maps-nyckel har lagts till.",
   "map.open": "Öppna i Google Maps",
   "map.loading": "Laddar karta",
+  "map.house": "Din adress",
+  "map.walk": "{minutes} min till fots ({meters} m)",
 
   "error.title": "Sökningen misslyckades",
   "error.tooMany": "För många sökningar — vänta en minut.",

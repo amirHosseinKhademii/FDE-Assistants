@@ -12,10 +12,18 @@ import { defineConfig } from 'vite';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+import { fileURLToPath } from 'node:url';
 
 const DOMAIN_EXTERNALS = ['@bostad/property', 'dotenv'];
 
 export default defineConfig({
+  /**
+   * The Google Maps key lives in the repo-root .env, so Vite reads env files from
+   * there. Only VITE_-prefixed names reach the browser; everything else in that
+   * file (database URLs, API keys) stays on the server.
+   */
+  envDir: fileURLToPath(new URL('../../..', import.meta.url)),
+
   plugins: [
     tanstackStart({ server: { entry: './server.ts' } }),
     react(),
