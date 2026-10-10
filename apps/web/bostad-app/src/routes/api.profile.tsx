@@ -8,7 +8,7 @@
  * Protection (no auth — this is a prototype, loopback-only):
  *  - same-origin: a browser request carrying an Origin header from another site
  *    gets 403. Requests without Origin (curl, server-side) are allowed.
- *  - rate limit: at most 20 requests per client per 10 minutes, then 429 with
+ *  - rate limit: at most 60 requests per client per 10 minutes, then 429 with
  *    Retry-After. Checked before parsing, so every request counts. The client
  *    key is the first hop of X-Forwarded-For, or one shared bucket when no
  *    proxy sets it (the normal loopback case). The header is client-controlled,
@@ -20,7 +20,7 @@ import { profileFor } from '../server/profile.server';
 import { isSameOrigin } from '../server/origin';
 
 const WINDOW_MS = 10 * 60 * 1000;
-const MAX_REQUESTS = 20;
+const MAX_REQUESTS = 60;
 const hits = new Map<string, number[]>();
 
 /** Returns 0 if the request is allowed, else seconds until the client may retry. */
