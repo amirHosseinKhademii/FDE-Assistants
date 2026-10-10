@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { DistrictResult, IncomeResult, NoiseResult, PlaceCategory, PlaceItem, PlacesResult, Profile } from "@bostad/property";
+import type { AreaResult, DistrictResult, IncomeResult, Level, NoiseResult, PlaceCategory, PlaceItem, PlacesResult, Profile } from "@bostad/property";
 import { useLang } from "../lib/lang";
 import type { Check, Reason } from "../lib/checks";
 import type { MessageKey } from "../lib/i18n";
@@ -177,64 +177,6 @@ export function TransportCard({
   );
 }
 
-/** Neighbourhood: three parts with their own sources. Each part can fail without hiding the others. */
-export function NeighbourhoodCard({
-  district,
-  income,
-  onRetry,
-  result,
-}: {
-  district: Check<DistrictResult>;
-  income: Check<IncomeResult>;
-  onRetry: () => void;
-  result?: CardResult;
-}) {
-  const { t, lang } = useLang();
-  const parts = [district, income];
-  const failed = parts.find((p): p is Extract<Check<unknown>, { kind: "failed" }> => p.kind === "failed");
-  const anyOk = parts.some((p) => p.kind === "ok");
-  const meta = anyOk
-    ? { status: "checked" as CardStatus }
-    : { status: "failed" as CardStatus, reason: REASON[failed?.reason ?? "sourceDown"], onRetry };
-  return (
-    <ProfileCard id="card-hood" icon="home" title="card.hood.title" explain="card.hood.explain" result={result} {...meta}>
-      {anyOk && (
-        <>
-          <NeighbourhoodPart check={district}>
-            {(d) => (
-              <>
-                <dl className="kv">
-                  <dt>{t("card.hood.district")}</dt>
-                  <dd>{d.stadsomrade?.name || "–"}</dd>
-                  <dt>{t("card.hood.area")}</dt>
-                  <dd>{d.primaryArea?.name || "–"}</dd>
-                </dl>
-                <PartSource name="card.hood.srcDistrict" time={checkedTime(district, lang)} />
-              </>
-            )}
-          </NeighbourhoodPart>
-
-          <NeighbourhoodPart check={income}>
-            {(i) => (
-              <>
-                <dl className="kv">
-                  <dt>{t("card.hood.incomeHere")}</dt>
-                  <dd>{kronor(i.medianDesoTkr, lang)}</dd>
-                  <dt>{t("card.hood.incomeCity")}</dt>
-                  <dd>{kronor(i.medianGothenburgTkr, lang)}</dd>
-                </dl>
-                <p className="muted">{t("card.hood.incomeNote", { year: i.year })}</p>
-                <PartSource name="card.hood.srcIncome" time={checkedTime(income, lang)} />
-              </>
-            )}
-          </NeighbourhoodPart>
-
-        </>
-      )}
-    </ProfileCard>
-  );
-}
-
 /**
  * Nearby places: the nearest of each everyday place, one row each, like the
  * transport list. The chips filter this list and the map together; a tap on a
@@ -340,6 +282,145 @@ export function placesSummary(data: PlacesResult, t: (k: MessageKey, v?: Record<
     return `${t(PLACE_KEY[c])} ${walkMinutes(item.distanceMeters)} min`;
   });
   return parts.length > 0 ? parts.join(" · ") : t("card.places.summaryEmpty");
+}
+
+/** Area & prices: one card for the small area. Each row has its level word and one plain sentence, with the source below. */
+export function AreaCard({
+  district,
+  income,
+  area,
+  onRetry,
+  result,
+}: {
+  district: Check<DistrictResult>;
+  income: Check<IncomeResult>;
+  area: Check<AreaResult>;
+  onRetry: () => void;
+  result?: CardResult;
+}) {
+  const { t, lang } = useLang();
+  const parts = [district, income, area];
+  const failed = parts.find((p): p is Extract<Check<unknown>, { kind: "failed" }> => p.kind === "failed");
+  const anyOk = parts.some((p) => p.kind === "ok");
+  const meta = anyOk
+    ? { status: "checked" as CardStatus }
+    : { status: "failed" as CardStatus, reason: REASON[failed?.reason ?? "sourceDown"], onRetry };
+  const pct = (v: number | null | undefined) => (v === null || v === undefined ? "–" : String(Math.round(v * 100)));
+  const num = (v: number) => v.toLocaleString(localeOf(lang));
+  return (
+    <ProfileCard id="card-area" icon="building" title="area.title" explain="area.explain" result={result} {...meta}>
+      {anyOk && (
+        <>
+          <NeighbourhoodPart check={district}>
+            {(d) => (
+              <>
+                <p className="area-row-label">{t("area.district")}</p>
+                <p className="area-sentence">
+                  {[d.stadsomrade?.name, d.primaryArea?.name].filter(Boolean).join(" · ") || "–"}
+                </p>
+                <PartSource name="card.hood.srcDistrict" time={checkedTime(district, lang)} />
+              </>
+            )}
+          </NeighbourhoodPart>
+
+          <NeighbourhoodPart check={income}>
+            {(i) => (
+              <AreaRow label="area.income.label" level={i.level}>
+                {i.medianDesoTkr !== null && i.percentile !== null
+                  ? t("area.income.sentence", {
+                      here: kronor(i.medianDesoTkr, lang),
+                      city: kronor(i.medianGothenburgTkr, lang),
+                      pct: Math.round(i.percentile),
+                      count: i.areaCount,
+                    })
+                  : "–"}
+              </AreaRow>
+            )}
+          </NeighbourhoodPart>
+
+          <NeighbourhoodPart check={area}>
+            {(a) => {
+              const f = a.flats;
+              const mix = [
+                { k: "rental" as const, v: f.rental ?? 0 },
+                { k: "condo" as const, v: f.condo ?? 0 },
+                { k: "owned" as const, v: f.owned ?? 0 },
+              ];
+              const top = mix.reduce((best, m) => (m.v > best.v ? m : best), mix[0]);
+              const mixKey = top.k === "rental" ? "area.mix.rental" : top.k === "condo" ? "area.mix.condo" : "area.mix.owned";
+              return (
+                <>
+                  <AreaRow label="area.mix.label" word={t(mixKey)}>
+                    {t("area.mix.sentence", {
+                      r: pct(f.rental),
+                      c: pct(f.condo),
+                      o: pct(f.owned),
+                      gr: pct(f.gothenburg.rental),
+                      gc: pct(f.gothenburg.condo),
+                      go: pct(f.gothenburg.owned),
+                    })}
+                  </AreaRow>
+                  <AreaRow label="area.edu.label" level={a.higherEducation.level}>
+                    {t("area.edu.sentence", { v: pct(a.higherEducation.value), g: pct(a.higherEducation.gothenburg) })}
+                  </AreaRow>
+                  <AreaRow label="area.age.label" level={a.over65.level}>
+                    {t("area.age.sentence", { v: pct(a.over65.value), g: pct(a.over65.gothenburg), u: pct(a.under20) })}
+                  </AreaRow>
+                  <AreaRow label="area.kids.label" level={a.withChildren.level}>
+                    {t("area.kids.sentence", { v: pct(a.withChildren.value), g: pct(a.withChildren.gothenburg) })}
+                  </AreaRow>
+                  <AreaRow label="area.pop.label">
+                    {a.population !== null ? t("area.pop.sentence", { n: num(a.population) }) : "–"}
+                  </AreaRow>
+                  <PartSource name="area.src.scb" time={checkedTime(area, lang)} />
+                </>
+              );
+            }}
+          </NeighbourhoodPart>
+
+          <section className="area-row area-row--soon">
+            <p className="area-row-label">
+              {t("area.price.label")} <span className="area-soon">{t("area.price.soon")}</span>
+            </p>
+            <p className="muted">{t("area.price.reason")}</p>
+            <a href="https://www.maklarstatistik.se/omrade/riket/vastra-gotalands-lan/goteborg/" target="_blank" rel="noreferrer">
+              {t("area.price.link")}
+            </a>
+          </section>
+          <p className="muted area-compare">{t("area.compare", { count: 320 })}</p>
+        </>
+      )}
+    </ProfileCard>
+  );
+}
+
+/** One area row: label, level word (or a word of its own), and one plain sentence. */
+function AreaRow({
+  label,
+  level,
+  word,
+  children,
+}: {
+  label: MessageKey;
+  level?: Level | null;
+  word?: string;
+  children?: ReactNode;
+}) {
+  const { t } = useLang();
+  const shown = word ?? (level ? t(`level.${level}` as MessageKey) : null);
+  return (
+    <section className="area-row">
+      <p className="area-row-label">
+        {t(label)}
+        {shown && (
+          <span className="area-level" data-level={level ?? "word"}>
+            {shown}
+          </span>
+        )}
+      </p>
+      {children && <p className="area-sentence">{children}</p>}
+    </section>
+  );
 }
 
 function checkedTime<T>(check: Check<T>, lang: "en" | "sv"): string {

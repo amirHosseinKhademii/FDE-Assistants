@@ -7,7 +7,10 @@
  */
 import type {
   AreaRef,
+  AreaResult,
+  Level,
   NoiseResult,
+  Share,
   PlaceCategory,
   PlaceItem,
   PlacesResult,
@@ -189,7 +192,47 @@ function normaliseIncome(data: unknown) {
     desoCode,
     medianDesoTkr: finite(data.medianDesoTkr),
     medianGothenburgTkr: finite(data.medianGothenburgTkr),
+    percentile: finite(data.percentile),
+    level: LEVELS.find((l) => l === data.level) ?? null,
+    areaCount: finite(data.areaCount) ?? 0,
     year: str(data.year),
+    source: str(data.source),
+  };
+}
+
+const LEVELS: Level[] = ["low", "belowAverage", "average", "aboveAverage", "high"];
+
+function normaliseShare(data: unknown): Share {
+  const d = isObject(data) ? data : {};
+  return {
+    value: finite(d.value),
+    gothenburg: finite(d.gothenburg),
+    percentile: finite(d.percentile),
+    level: LEVELS.find((l) => l === d.level) ?? null,
+  };
+}
+
+function normaliseAreaStats(data: unknown): AreaResult | undefined {
+  if (!isObject(data)) return undefined;
+  const desoCode = str(data.desoCode);
+  if (!desoCode) return undefined;
+  const flats = isObject(data.flats) ? data.flats : {};
+  const city = isObject(flats.gothenburg) ? flats.gothenburg : {};
+  return {
+    desoCode,
+    year: str(data.year),
+    flats: {
+      count: finite(flats.count) ?? 0,
+      rental: finite(flats.rental),
+      condo: finite(flats.condo),
+      owned: finite(flats.owned),
+      gothenburg: { rental: finite(city.rental), condo: finite(city.condo), owned: finite(city.owned) },
+    },
+    higherEducation: normaliseShare(data.higherEducation),
+    over65: normaliseShare(data.over65),
+    under20: finite(data.under20),
+    withChildren: normaliseShare(data.withChildren),
+    population: finite(data.population),
     source: str(data.source),
   };
 }
@@ -266,6 +309,7 @@ export function normaliseProfile(raw: unknown, now: string = new Date().toISOStr
     noise: normaliseSection(raw.noise, now, normaliseNoise),
     district: normaliseSection(raw.district, now, normaliseDistrict),
     income: normaliseSection(raw.income, now, normaliseIncome),
+    area: normaliseSection(raw.area, now, normaliseAreaStats),
     places: normaliseSection(raw.places, now, normalisePlaces),
     brf: normaliseSection<never>(raw.brf, now, () => undefined),
     energy: normaliseSection<never>(raw.energy, now, () => undefined),

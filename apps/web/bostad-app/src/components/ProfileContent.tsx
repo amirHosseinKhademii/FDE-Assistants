@@ -3,8 +3,9 @@ import { useLang } from "../lib/lang";
 import { gatedCheck, gateOf, type Check } from "../lib/checks";
 import { walkMinutes } from "../lib/format";
 import type { ModeFilter } from "../lib/transport";
+import type { MessageKey } from "../lib/i18n";
 import { Icon, type IconName } from "./Icons";
-import { GroundCard, NearbyPlacesCard, NeighbourhoodCard, NoiseCard, TransportCard, placesSummary } from "./cards";
+import { AreaCard, GroundCard, NearbyPlacesCard, NoiseCard, TransportCard, placesSummary } from "./cards";
 import type { PlacesFilter } from "./placeFilter";
 import type { CardResult } from "./ProfileCard";
 
@@ -22,7 +23,7 @@ function noiseResult(check: Check<NoiseResult>, t: Translate): CardResult {
 
 /** The address, large; the district under it in small muted text. Nothing else about matching. */
 export function AddressHeader({ address, profile }: { address: string; profile: Profile | null }) {
-  const district = profile ? gatedCheck(profile.district, gateOf(profile)) : null;
+  const district = profile ? gatedCheck(profile.district, "exact") : null;
   const names =
     district?.kind === "ok"
       ? [district.data.stadsomrade?.name, district.data.primaryArea?.name].filter((n): n is string => Boolean(n))
@@ -68,8 +69,9 @@ export function ProfileBody({
   const ground = gatedCheck(profile.landslide, gate);
   const noise = gatedCheck(profile.noise, gate);
   const transit = gatedCheck(profile.transit, gate);
-  const district = gatedCheck(profile.district, gate);
-  const income = gatedCheck(profile.income, gate);
+  // Area facts describe the small area, not the exact door: shown with a street-level match too (see profile.precision).
+  const district = gatedCheck(profile.district, "exact");
+  const income = gatedCheck(profile.income, "exact");
   // Places are distances from the point, not a risk claim: shown even when the match is only a street (see profile.precision).
   const places = gatedCheck(profile.places, "exact");
 
@@ -89,10 +91,11 @@ export function ProfileBody({
         : { text: t("tile.word.none") };
   const placesRes: CardResult =
     places.kind === "ok" ? { text: placesSummary(places.data, t) } : { text: t("summary.notChecked") };
-  const hoodRes: CardResult =
-    district.kind === "ok" && district.data.stadsomrade?.name
-      ? { text: district.data.stadsomrade.name }
-      : { text: t("summary.notChecked") };
+  const area = gatedCheck(profile.area, "exact");
+  const areaRes: CardResult =
+    income.kind === "ok" && income.data.level
+      ? { text: t("area.summary.income", { level: t(`level.${income.data.level}` as MessageKey) }) }
+      : { text: t("area.summary.none") };
 
   const tiles: Array<{ id: string; icon: IconName; label: "summary.label.ground" | "summary.label.noise" | "summary.label.transport"; res: CardResult }> = [
     { id: "card-ground", icon: "mountain", label: "summary.label.ground", res: groundRes },
@@ -131,7 +134,7 @@ export function ProfileBody({
         onPick={onPickPlace}
         result={placesRes}
       />
-      <NeighbourhoodCard district={district} income={income} onRetry={onRetry} result={hoodRes} />
+      <AreaCard district={district} income={income} area={area} onRetry={onRetry} result={areaRes} />
 
       <p className="more-row">
         {t("more.coming", { items: [t("more.brf"), t("more.energy"), t("more.inspection"), t("more.flood")].join(" · ") })}

@@ -1279,3 +1279,47 @@ a.btn-secondary {
   margin: 0;
   font-size: var(--fs-caption);
 }
+
+/* ---------- area & prices: one row per measure, level word on the label line ---------- */
+.area-row {
+  display: grid;
+  gap: 4px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line, rgba(0, 0, 0, 0.08));
+}
+
+.area-row:first-of-type {
+  border-top: 0;
+}
+
+.area-row-label {
+  margin: 0;
+  font-weight: 600;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+}
+
+.area-level {
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.area-sentence {
+  margin: 0;
+}
+
+.area-soon {
+  font-weight: 500;
+  color: var(--soon);
+}
+
+.area-row--soon a {
+  justify-self: start;
+}
+
+.area-compare {
+  margin: 8px 0 0;
+  font-size: var(--fs-caption);
+}

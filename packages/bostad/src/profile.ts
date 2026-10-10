@@ -10,10 +10,13 @@ import { noiseAt, type NoiseResult } from "./sources/noise";
 import { districtAt, type DistrictResult } from "./sources/district";
 import { incomeAt, type IncomeResult } from "./sources/income";
 import { placesAt, type PlacesResult } from "./sources/places";
+import { areaAt, type AreaResult } from "./sources/area";
 export type { TransitLine, TransitStop, TransportMode } from "./sources/transit";
 export type { NoiseBuilding, NoiseResult } from "./sources/noise";
 export type { AreaRef, DistrictResult } from "./sources/district";
 export type { IncomeResult } from "./sources/income";
+export type { AreaResult, Share } from "./sources/area";
+export type { Level } from "./sources/scb";
 export type { PlaceCategory, PlaceItem, PlacesResult } from "./sources/places";
 
 export type SectionStatus = "ok" | "error" | "unavailable";
@@ -35,6 +38,7 @@ export interface Profile {
   district: Section<DistrictResult>;
   income: Section<IncomeResult>;
   places: Section<PlacesResult>;
+  area: Section<AreaResult>;
   brf: Section<never>;
   energy: Section<never>;
 }
@@ -71,6 +75,7 @@ export async function getProfile(address: string): Promise<Profile> {
   let district: Section<DistrictResult>;
   let income: Section<IncomeResult>;
   let places: Section<PlacesResult>;
+  let area: Section<AreaResult>;
   if (location.status !== "ok" || !location.data) {
     const reason = "no coordinates (geocoding failed)";
     landslide = { status: "unavailable", reason, source: "geodata.sgi.se", fetchedAt: new Date().toISOString() };
@@ -79,16 +84,18 @@ export async function getProfile(address: string): Promise<Profile> {
     district = { status: "unavailable", reason, source: "goteborg.se", fetchedAt: new Date().toISOString() };
     income = { status: "unavailable", reason, source: "api.scb.se", fetchedAt: new Date().toISOString() };
     places = { status: "unavailable", reason, source: "places.googleapis.com", fetchedAt: new Date().toISOString() };
+    area = { status: "unavailable", reason, source: "api.scb.se", fetchedAt: new Date().toISOString() };
   } else {
     const { lat, lon } = location.data;
     // Every section is independent: one slow or failing source never blocks the others.
-    [landslide, transit, noise, district, income, places] = await Promise.all([
+    [landslide, transit, noise, district, income, places, area] = await Promise.all([
       attempt("geodata.sgi.se", () => landslideAt(lat, lon)),
       attempt("ext-api.vasttrafik.se", () => nearestStops(lat, lon, 6)),
       attempt("goteborg.se", () => noiseAt(lat, lon)),
       attempt("goteborg.se", () => districtAt(lat, lon)),
       attempt("api.scb.se", () => incomeAt(lat, lon)),
       attempt("places.googleapis.com", () => placesAt(lat, lon)),
+      attempt("api.scb.se", () => areaAt(lat, lon)),
     ]);
     // Report the provider that actually answered (Google first, Overpass as fallback).
     if (places.data) places.source = places.data.source;
@@ -103,6 +110,7 @@ export async function getProfile(address: string): Promise<Profile> {
     district,
     income,
     places,
+    area,
     brf: stub("bolagsverket (värdefulla datamängder)", "awaiting Bolagsverket API access"),
     energy: stub("boverket energideklaration", "awaiting Boverket agreement"),
   };
