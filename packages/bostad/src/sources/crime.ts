@@ -71,6 +71,16 @@ export function schemeForYear(year: number): AreaScheme | null {
   return null;
 }
 
+/**
+ * Schemes to try for a year, in order. 2002-2010 prefer the pre-2011 stadsdelar when
+ * their polygons and BRÅ totals exist for the point's area; otherwise the 2011 division.
+ */
+export function schemesForYear(year: number): AreaScheme[] {
+  if (year >= 2002 && year <= 2010) return ["stadsdel_pre2011", "sdn_2011_2020"];
+  const s = schemeForYear(year);
+  return s ? [s] : [];
+}
+
 export interface CategoryCount {
   category: string;
   count: number | null;
@@ -276,7 +286,7 @@ export function crimeHistory(lat: number, lon: number): CrimeHistory {
   const cityScheme: AreaScheme = "kommun";
   const allYears = [...new Set(c.history.map((h) => h.year))].sort((a, b) => b - a);
   for (const year of allYears) {
-    const scheme = schemeForYear(year);
+    const candidates = schemesForYear(year);
     const popCity = c.pop.get(String(year)) ?? null;
     const empty = (category: string): CategoryCount => ({
       category,
@@ -285,15 +295,29 @@ export function crimeHistory(lat: number, lon: number): CrimeHistory {
       cityCount: countFor(c, year, cityScheme, CITY, category)?.count ?? null,
       cityPer1000: per1000(countFor(c, year, cityScheme, CITY, category)?.count ?? null, popCity),
     });
+    let scheme: AreaScheme | null = candidates[candidates.length - 1] ?? null;
     let area: string | null = null;
     let areaNote: string | null = null;
-    if (scheme === null) {
-      areaNote = "no district scheme for this year";
-    } else if (!hasPolygons(scheme)) {
-      areaNote = `no polygons for ${scheme}`;
-    } else {
-      area = areaForPoint(lat, lon, scheme);
-      if (area === null) areaNote = "point outside all polygons";
+    if (candidates.length === 0) areaNote = "no district scheme for this year";
+    for (const cand of candidates) {
+      if (!hasPolygons(cand)) {
+        areaNote = `no polygons for ${cand}`;
+        continue;
+      }
+      const hit = areaForPoint(lat, lon, cand);
+      if (hit === null) {
+        areaNote = "point outside all polygons";
+        continue;
+      }
+      // Pre-2011 stadsdelar only win when BRÅ has a total for that area and year.
+      if (cand === "stadsdel_pre2011" && countFor(c, year, cand, hit, TOTAL_CATEGORY)?.count == null) {
+        areaNote = "no BRÅ total for the pre-2011 stadsdel";
+        continue;
+      }
+      scheme = cand;
+      area = hit;
+      areaNote = null;
+      break;
     }
 
     const sample = scheme ? c.history.find((h) => h.year === year && h.scheme === scheme) : undefined;
