@@ -134,6 +134,7 @@ on:
       - 'apps/api/commerce/**'
       - 'apps/mcp/commerce/**'
       - 'packages/**'
+      - '!packages/bostad/**'
       - 'infra/veresk/Dockerfile'
       - 'infra/steering/Dockerfile'
       - 'infra/pharma/Dockerfile'
