@@ -17,6 +17,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { parseAddress } from '../lib/address';
 import { profileFor } from '../server/profile.server';
+import { isSameOrigin } from '../server/origin';
 
 const WINDOW_MS = 10 * 60 * 1000;
 const MAX_REQUESTS = 20;
@@ -50,8 +51,7 @@ export const Route = createFileRoute('/api/profile')({
       GET: async ({ request }) => {
         const url = new URL(request.url);
 
-        const origin = request.headers.get('origin');
-        if (origin !== null && origin !== url.origin) {
+        if (!isSameOrigin(request, url)) {
           return json({ error: 'cross-origin requests are not allowed' }, 403);
         }
 
