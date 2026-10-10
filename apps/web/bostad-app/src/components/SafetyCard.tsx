@@ -4,7 +4,7 @@ import { useLang } from "../lib/lang";
 import type { Check } from "../lib/checks";
 import type { MessageKey } from "../lib/i18n";
 import { localeOf } from "../lib/format";
-import { CHART_KEYS, LEVEL_TONE, levelOf, niceMax, type CatKey, type SafetyLevel } from "../lib/safety";
+import { CHART_KEYS, LEVEL_TONE, levelOf, niceMax, pctDiff, type CatKey, type SafetyLevel } from "../lib/safety";
 import { ProfileCard, type CardResult, type CardStatus } from "./ProfileCard";
 import { REASON } from "./cards";
 import { Icon, type IconName } from "./Icons";
@@ -79,13 +79,14 @@ export function SafetyCard({
   const latest = data?.years.find((y) => y.year === data.latestYear) ?? null;
   const level = latest ? levelOf(latest.cats.all.district.per1000, latest.cats.all.city.per1000) : null;
   const result: CardResult = level
-    ? { text: t(`safety.summary.${level}` as MessageKey), tone: LEVEL_TONE[level] }
+    ? { text: t(`safety.summary.${level}` as MessageKey, { pct: pctDiff(latest?.cats.all.district.per1000, latest?.cats.all.city.per1000) }), tone: LEVEL_TONE[level] }
     : { text: t("summary.notChecked") };
   const failed = check.kind === "failed";
 
   return (
     <ProfileCard
       id="card-safety"
+      defaultOpen
       icon="shield"
       title="safety.title"
       explain="safety.explain"
@@ -144,7 +145,7 @@ function SafetyBody({
         {level && (
           <span className="sx-badge" data-tone={tone}>
             <Icon name="shield" />
-            <span>{t(`safety.level.${level}` as MessageKey)}</span>
+            <span>{t(`safety.level.${level}` as MessageKey, { pct: pctDiff(all.district.per1000, all.city.per1000) })}</span>
           </span>
         )}
         <p className="sx-sentence">
@@ -194,7 +195,14 @@ function NeighbourhoodBlock({ n, lang }: { n: NeighbourhoodResult; lang: "en" | 
       <p className="sx-nb-from">{t("safety.nb.from", { year: n.reportYear })}</p>
       <ul className="sx-nb-bullets">
         {bullets.map((b, i) => (
-          <li key={i}>{b}</li>
+          <li key={i}>
+            <span>{b}</span>
+            {n.reportUrl && (
+              <a className="sx-nb-src" href={`${n.reportUrl}#page=${n.page}`} target="_blank" rel="noreferrer">
+                {t("safety.nb.source")}
+              </a>
+            )}
+          </li>
         ))}
       </ul>
       {n.crimes.length > 0 && (
@@ -254,6 +262,15 @@ function NeighbourhoodBlock({ n, lang }: { n: NeighbourhoodResult; lang: "en" | 
   );
 }
 
+/** Category tiles say the difference from the city: "25% less than city", never a bare "below average". */
+const DELTA_KEY: Record<SafetyLevel, MessageKey> = {
+  wellBelow: "safety.delta.less",
+  below: "safety.delta.less",
+  around: "safety.delta.same",
+  above: "safety.delta.more",
+  wellAbove: "safety.delta.more",
+};
+
 /** One category: its icon and name, the rate here against the city, a bar, and an arrow with the level word. */
 function CatTile({
   k,
@@ -293,7 +310,7 @@ function CatTile({
         {level ? (
           <>
             <Icon name={LEVEL_ARROW[level]} />
-            <span>{t(`tile.safety.${level}` as MessageKey)}</span>
+            <span>{t(DELTA_KEY[level], { pct: pctDiff(here, city) })}</span>
           </>
         ) : (
           <span className="muted">{t("safety.noRate")}</span>

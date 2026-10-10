@@ -21,6 +21,12 @@ export function levelOf(here: number | null | undefined, city: number | null | u
   return "wellAbove";
 }
 
+/** How far the district's rate is from the city's, in whole percent (17 for 17 % less or more). */
+export function pctDiff(here: number | null | undefined, city: number | null | undefined): number {
+  if (here === null || here === undefined || city === null || city === undefined || city <= 0) return 0;
+  return Math.round(Math.abs(here / city - 1) * 100);
+}
+
 export const LEVEL_TONE: Record<SafetyLevel, Tone | undefined> = {
   wellBelow: "ok",
   below: "ok",

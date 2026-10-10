@@ -321,6 +321,7 @@ function normaliseNeighbourhood(raw: unknown): NeighbourhoodResult | null {
     primaromraden: strings(raw.primaromraden),
     reportYear: finite(raw.reportYear) ?? 0,
     reportUrl: str(raw.reportUrl),
+    page: finite(raw.page) ?? 0,
     bullets: { en: strings(bullets.en), sv: strings(bullets.sv) },
     crimes: arr(raw.crimes)
       .filter(isObject)

@@ -23,6 +23,7 @@ export function ProfileCard({
   result,
   status = "checked",
   children,
+  defaultOpen = false,
   reason,
   source,
   checkedAt,
@@ -30,6 +31,8 @@ export function ProfileCard({
   onToggle,
 }: {
   id?: string;
+  /** Starts open (the Safety card leads the page). */
+  defaultOpen?: boolean;
   icon: IconName;
   title: MessageKey;
   explain: MessageKey;
@@ -45,7 +48,7 @@ export function ProfileCard({
 }) {
   const { t } = useLang();
   return (
-    <details className="card" id={id} data-status={status} onToggle={(e) => onToggle?.(e.currentTarget.open)}>
+    <details className="card" id={id} open={defaultOpen || undefined} data-status={status} onToggle={(e) => onToggle?.(e.currentTarget.open)}>
       <summary>
         <span className="card-icon">
           <Icon name={icon} />

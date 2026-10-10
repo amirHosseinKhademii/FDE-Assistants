@@ -20,6 +20,8 @@ export interface NeighbourhoodResult {
   primaromraden: string[];
   reportYear: number;
   reportUrl: string;
+  /** Printed page where the mellanområde's section starts in the report. */
+  page: number;
   bullets: { en: string[]; sv: string[] };
   crimes: { tag: string; group: CrimeGroup }[];
   places: { name: string; noteEn: string }[];
@@ -118,6 +120,7 @@ export function neighbourhoodAt(lat: number, lon: number): NeighbourhoodResult |
     primaromraden: r.primaromraden,
     reportYear: r.report_year,
     reportUrl: r.report_url,
+    page: r.page,
     bullets: { en: r.summary_en, sv: r.summary_sv },
     crimes,
     places: r.places.map((p) => ({ name: p.name, noteEn: p.note_en })),

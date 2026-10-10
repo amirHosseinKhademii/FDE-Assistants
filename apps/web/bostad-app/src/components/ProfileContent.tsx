@@ -8,7 +8,7 @@ import { Icon, type IconName } from "./Icons";
 import { AreaCard, GroundCard, NearbyPlacesCard, NoiseCard, TransportCard, placesSummary } from "./cards";
 import { SafetyCard } from "./SafetyCard";
 import { proximityOf, type Proximity } from "./Badges";
-import { LEVEL_TONE, levelOf } from "../lib/safety";
+import { LEVEL_TONE, levelOf, pctDiff } from "../lib/safety";
 import type { PlacesFilter } from "./placeFilter";
 import type { CardResult } from "./ProfileCard";
 
@@ -163,7 +163,7 @@ export function ProfileBody({
           icon: "shield",
           word: t(`tile.safety.${safetyLevel}` as MessageKey),
           tone: LEVEL_TONE[safetyLevel] ?? "neutral",
-          aria: t("tile.aria.generic", { name: t("safety.title"), word: t(`safety.level.${safetyLevel}` as MessageKey) }),
+          aria: t("tile.aria.generic", { name: t("safety.title"), word: t(`safety.level.${safetyLevel}` as MessageKey, { pct: pctDiff(latestSafety?.cats.all.district.per1000, latestSafety?.cats.all.city.per1000) }) }),
         }
       : { id: "card-safety", icon: "shield", word: "–", tone: "muted", aria: unchecked(t("safety.title")) },
     transitMinutes !== null

@@ -107,7 +107,7 @@ export function GoogleMap({
   expanded?: boolean;
   fitKey?: number;
   resizeKey?: string;
-  /** The Safety card's district: a neutral outline and 8 % fill, labelled. */
+  /** The Safety card's area: a 2 px --text outline at 60 % and a 12 % --accent fill, labelled. */
   district?: { name: string; parts: LatLng[][][]; kind?: "district" | "neighbourhood" } | null;
 }) {
   const { t } = useLang();
@@ -135,7 +135,6 @@ export function GoogleMap({
   );
   const ringColour = effective === "dark" ? "#A3AAB2" : "#5F6670";
   const dots = zoom < DOT_BELOW_ZOOM;
-  const outlineColour = effective === "dark" ? "#A3AAB2" : "#5F6670";
   // Label point: the mean of the first outer ring's vertices (fine for a district shape).
   const districtLabel = useMemo(() => {
     const ring = district?.parts[0]?.[0];
@@ -193,11 +192,11 @@ export function GoogleMap({
           <Polygon
             key={`district-${i}`}
             paths={rings.map((ring) => ring.map((p) => ({ lat: p.lat, lng: p.lng })))}
-            fillColor={outlineColour}
-            fillOpacity={0.08}
-            strokeColor={outlineColour}
-            strokeOpacity={0.7}
-            strokeWeight={1.5}
+            fillColor={effective === "dark" ? "#5FB3A1" : "#2F6F62"}
+            fillOpacity={0.12}
+            strokeColor={effective === "dark" ? "#E8EAEC" : "#1E2328"}
+            strokeOpacity={0.6}
+            strokeWeight={2}
             clickable={false}
             zIndex={0}
           />
