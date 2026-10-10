@@ -3,8 +3,10 @@
  * on the city's geoserver, asked with bbox in lat,lon order and EPSG:4326:
  *
  *  - facade points: modelled dB(A) on building walls, per floor. The building
- *    is the cluster of facade points nearest the address (single-link, 5 m),
- *    searched within 25 m.
+ *    is this address's own footprint from OpenStreetMap (the polygon containing
+ *    the address, or the nearest within 15 m): its facade points are the ones
+ *    within 3 m of the outline. Without a footprint, the building is the cluster
+ *    of facade points nearest the address (single-link, 5 m), searched within 25 m.
  *  - LAeq contours: the dB(A) band (min..max) that contains the address point.
  *
  * Licence not verified: the layers are named "interna_berakningar". Ask the
@@ -12,6 +14,7 @@
  */
 import { haversineMeters } from "./transit";
 import { featureAt, wfsBbox, wfsFeatures } from "./wfs";
+import { footprintAt, onFootprint } from "./footprint";
 
 export const NOISE_WFS_URL =
   "https://geoserverextern.miljoforvaltningen.goteborg.se/geoserver/miljoovervakning_buller_v1/ows";
@@ -35,6 +38,8 @@ export interface NoiseBuilding {
   loudestDb: number;
   /** Facade points in the building cluster. */
   points: number;
+  /** "footprint": the OSM outline of this address's building. "cluster": nearest facade cluster (fallback). */
+  matched: "footprint" | "cluster";
 }
 
 export interface NoiseResult {
@@ -61,7 +66,20 @@ interface Facade {
   props: Props;
 }
 
-/** The building nearest the address: facade points linked within LINK_M of the nearest one. */
+/** Building figures from a set of facade points: the loudest level on each floor and the wall overall. */
+function summarise(cluster: Facade[], matched: NoiseBuilding["matched"]): NoiseBuilding {
+  return {
+    distanceMeters: Math.round(Math.min(...cluster.map((c) => c.distance))),
+    floors: maxOf(cluster.map((c) => num(c.props["antal_vån"]))),
+    streetDb: maxOf(cluster.map((c) => num(c.props["nivå_bott"]))),
+    topDb: maxOf(cluster.map((c) => num(c.props["nivå_takv"]))),
+    loudestDb: maxOf(cluster.map((c) => num(c.props["högst_niv"]))) ?? 0,
+    points: cluster.length,
+    matched,
+  };
+}
+
+/** Fallback: the building nearest the address, as the facade points linked within LINK_M of the nearest one. */
 export function nearestBuilding(points: Facade[]): NoiseBuilding | null {
   if (points.length === 0) return null;
   const sorted = [...points].sort((a, b) => a.distance - b.distance);
@@ -77,21 +95,14 @@ export function nearestBuilding(points: Facade[]): NoiseBuilding | null {
       }
     }
   }
-  const cluster = [...seen].map((i) => sorted[i]);
-  return {
-    distanceMeters: Math.round(sorted[0].distance),
-    floors: maxOf(cluster.map((c) => num(c.props["antal_vån"]))),
-    streetDb: maxOf(cluster.map((c) => num(c.props["nivå_bott"]))),
-    topDb: maxOf(cluster.map((c) => num(c.props["nivå_takv"]))),
-    loudestDb: maxOf(cluster.map((c) => num(c.props["högst_niv"]))) ?? 0,
-    points: cluster.length,
-  };
+  return summarise([...seen].map((i) => sorted[i]), "cluster");
 }
 
 export async function noiseAt(lat: number, lon: number): Promise<NoiseResult> {
-  const [facadeFeatures, contourFeatures] = await Promise.all([
+  const [facadeFeatures, contourFeatures, footprint] = await Promise.all([
     wfsFeatures(NOISE_WFS_URL, NOISE_FACADE_LAYER, wfsBbox(lat, lon, NOISE_RADIUS_M)),
     wfsFeatures(NOISE_WFS_URL, NOISE_CONTOUR_LAYER, wfsBbox(lat, lon, 2)),
+    footprintAt(lat, lon),
   ]);
 
   const facades: Facade[] = [];
@@ -112,8 +123,12 @@ export async function noiseAt(lat: number, lon: number): Promise<NoiseResult> {
     if (!band || minDb > band.minDb) band = { minDb, maxDb: maxDb !== null && maxDb < 100 ? maxDb : null };
   }
 
+  // This address's own building first; the nearest facade cluster only when there is no outline or no walls on it.
+  const own = footprint ? onFootprint(facades, footprint) : [];
+  const building = own.length > 0 ? summarise(own, "footprint") : nearestBuilding(facades);
+
   return {
-    building: nearestBuilding(facades),
+    building,
     band,
     guidelineDb: NOISE_GUIDELINE_DB,
     radiusMeters: NOISE_RADIUS_M,
