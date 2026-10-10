@@ -9,6 +9,7 @@ import { PlaceBadge } from "./MapPins";
 import { ListRow } from "./ListRow";
 import type { PlacesFilter } from "./placeFilter";
 import { ProfileCard, type CardResult, type CardStatus } from "./ProfileCard";
+import { LevelBadge, ProximityCircle, ProximityLegend, ProximityWord, proximityOf } from "./Badges";
 import { LineBadge, ModeIcon } from "./ModeIcon";
 import { MODE_KEY, modesPresent, stopMatches, type ModeFilter } from "../lib/transport";
 
@@ -209,6 +210,7 @@ export function NearbyPlacesCard({
     <ProfileCard id="card-places" icon="pin" title="card.places.title" explain="card.places.explain" result={result} {...meta}>
       {data && (
         <>
+          {present.length > 0 && <ProximityLegend />}
           {present.length > 0 && (
             <div className="mode-chips" role="group" aria-label={t("card.places.filter.label")}>
               {(["all", ...present] as PlacesFilter[]).map((option) => (
@@ -263,7 +265,12 @@ function PlaceRow({
     <ListRow
       icon={<PlaceBadge category={category} />}
       title={item.name || t(PLACE_KEY[category])}
-      meta={`${t("card.transport.walk", { minutes: walkMinutes(item.distanceMeters) })} · ${t("card.transport.meters", { meters: item.distanceMeters })}`}
+      meta={
+        <>
+          {t("card.transport.walk", { minutes: walkMinutes(item.distanceMeters) })} · {t("card.transport.meters", { meters: item.distanceMeters })}{" "}
+          <ProximityWord prox={proximityOf(walkMinutes(item.distanceMeters))} />
+        </>
+      }
       onPick={() => onPick(item)}
       pressed={selected}
     >
@@ -272,13 +279,24 @@ function PlaceRow({
   );
 }
 
-/** "Grocery 4 min · Pharmacy 3 min": the nearest two categories, for the card's one-line summary. */
-export function placesSummary(data: PlacesResult, t: (k: MessageKey, v?: Record<string, string | number>) => string): string {
-  const parts = PLACE_ORDER.filter((c) => data.nearest[c]).slice(0, 2).map((c) => {
-    const item = data.nearest[c] as PlaceItem;
-    return `${t(PLACE_KEY[c])} ${walkMinutes(item.distanceMeters)} min`;
-  });
-  return parts.length > 0 ? parts.join(" · ") : t("card.places.summaryEmpty");
+/** The collapsed Nearby places line: icons of the four closest categories, each in its proximity colour. */
+export function placesSummary(data: PlacesResult, t: (k: MessageKey, v?: Record<string, string | number>) => string): CardResult {
+  const ranked = PLACE_ORDER.filter((c) => data.nearest[c])
+    .map((c) => ({ c, minutes: walkMinutes((data.nearest[c] as PlaceItem).distanceMeters) }))
+    .sort((a, b) => a.minutes - b.minutes)
+    .slice(0, 4);
+  if (ranked.length === 0) return { text: t("card.places.summaryEmpty") };
+  const label = ranked.map(({ c, minutes }) => `${t(PLACE_KEY[c])}, ${minutes} min`).join("; ");
+  return {
+    text: label,
+    visual: (
+      <span className="prox-strip" role="img" aria-label={label}>
+        {ranked.map(({ c, minutes }) => (
+          <ProximityCircle key={c} category={c} prox={proximityOf(minutes)} />
+        ))}
+      </span>
+    ),
+  };
 }
 
 /** Area & prices: one card for the small area. Each row has its level word and one plain sentence, with the source below. */
@@ -409,11 +427,7 @@ function AreaRow({
     <section className="area-row">
       <p className="area-row-label">
         {t(label)}
-        {shown && (
-          <span className="area-level" data-level={level ?? "word"}>
-            {shown}
-          </span>
-        )}
+        {level ? <LevelBadge level={level} label={shown ?? undefined} /> : shown && <span className="area-level">{shown}</span>}
       </p>
       {children && <p className="area-sentence">{children}</p>}
     </section>

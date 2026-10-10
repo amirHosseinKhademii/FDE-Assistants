@@ -115,11 +115,11 @@ export function ProfileBody({
         ? { text: t("tile.transport", { minutes: walkMinutes(Math.min(...stops.map((s) => s.distanceMeters))) }), tone: "ok" }
         : { text: t("tile.word.none") };
   const placesRes: CardResult =
-    places.kind === "ok" ? { text: placesSummary(places.data, t) } : { text: t("summary.notChecked") };
+    places.kind === "ok" ? placesSummary(places.data, t) : { text: t("summary.notChecked") };
   const area = gatedCheck(profile.area, "exact");
   const areaRes: CardResult =
     income.kind === "ok" && income.data.level
-      ? { text: t("area.summary.income", { level: t(`level.${income.data.level}` as MessageKey) }) }
+      ? { text: t("area.summary.income", { level: t(`level.${income.data.level}` as MessageKey) }), level: income.data.level }
       : { text: t("area.summary.none") };
 
   const tiles: Array<{ id: string; icon: IconName; label: "summary.label.ground" | "summary.label.noise" | "summary.label.transport"; res: CardResult }> = [

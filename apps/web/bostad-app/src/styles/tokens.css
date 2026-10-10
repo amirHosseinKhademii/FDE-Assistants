@@ -17,6 +17,7 @@
   --on-accent: #FFFFFF;
   --ok: #2F7D4F;
   --warn: #A86A12;
+  --warn-soft: #F6EAD6;
   --risk: #B4443C;
   --soon: #6B6F8A;
   --shimmer: #F9F8F5;
@@ -53,6 +54,7 @@
     --on-accent: #0E1A17;
     --ok: #5CC08A;
     --warn: #E0A84A;
+    --warn-soft: #3A2D16;
     --risk: #E8756C;
     --soon: #9DA1C0;
     --shimmer: #202427;
@@ -87,6 +89,7 @@
   --on-accent: #0E1A17;
   --ok: #5CC08A;
   --warn: #E0A84A;
+  --warn-soft: #3A2D16;
   --risk: #E8756C;
   --soon: #9DA1C0;
   --shimmer: #202427;

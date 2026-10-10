@@ -16,7 +16,7 @@ export function ListRow({
 }: {
   icon: ReactNode;
   title: string;
-  meta?: string;
+  meta?: ReactNode;
   children?: ReactNode;
   onPick?: () => void;
   pressed?: boolean;

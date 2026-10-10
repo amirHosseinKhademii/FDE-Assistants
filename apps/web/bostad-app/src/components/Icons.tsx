@@ -12,6 +12,12 @@ const ICONS = {
   building: ["M5 3h14v18H5z", "M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2"],
   // A house with a price tag: neighbourhood and price, one glyph.
   houseTag: ["M3 10.5L8.5 5.5 14 10.5", "M4.5 9.5V19h7.5", "M14.5 14.5l5-5h2.5v2.5l-5 5z", circle(19.2, 11.2, 0.8)],
+  // Level badges (Area & prices): stroked arrows and a bar pair, centred on 12, 12.
+  arrowUp: ["M12 19V5", "M6 11l6-6 6 6"],
+  arrowDown: ["M12 5v14", "M6 13l6 6 6-6"],
+  arrowUpDouble: ["M6 11l6-6 6 6", "M6 18l6-6 6 6"],
+  arrowDownDouble: ["M6 6l6 6 6-6", "M6 13l6 6 6-6"],
+  equals: ["M5 9.5h14", "M5 14.5h14"],
   shield: ["M12 3l7 3v5.5c0 4.5-3 8-7 9.5-4-1.5-7-5-7-9.5V6z"],
   leaf: ["M5 19c0-8 5-13 14-14-1 9-6 14-14 14z", "M5 19l7-7"],
   tag: ["M3 12V4h8l10 10-8 8z", circle(7.5, 8, 1)],

@@ -1,11 +1,14 @@
 import type { ReactNode } from "react";
 import { useLang } from "../lib/lang";
 import type { MessageKey } from "../lib/i18n";
+import type { Level } from "@bostad/property";
 import { Icon, type IconName } from "./Icons";
+import { LevelBadge } from "./Badges";
 
 export type CardStatus = "checked" | "failed";
 export type Tone = "ok" | "warn" | "risk";
-export type CardResult = { text: string; tone?: Tone };
+/** The collapsed one-line result: a word and its tone, or a level badge, or a custom visual (e.g. proximity circles). */
+export type CardResult = { text: string; tone?: Tone; level?: Level; visual?: ReactNode };
 
 /**
  * One card on the profile. Collapsed by default: the summary line is the icon,
@@ -50,7 +53,7 @@ export function ProfileCard({
         <span className="card-title">{t(title)}</span>
         {result && (
           <span className="card-result" data-tone={result.tone}>
-            {result.text}
+            {result.level ? <LevelBadge level={result.level} label={result.text} /> : result.visual ?? result.text}
           </span>
         )}
         <Icon name="chevron" className="icon card-chevron" />

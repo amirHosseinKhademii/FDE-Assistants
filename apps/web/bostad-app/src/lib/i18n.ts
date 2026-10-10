@@ -196,7 +196,7 @@ const en = {
   "place.showOnMap": "Show on map",
   "area.title": "Area & prices",
   "area.explain": "What the small area around this address is like, compared with the rest of Gothenburg.",
-  "area.summary.income": "Income: {level}",
+  "area.summary.income": "{level} income",
   "area.summary.none": "Not checked",
   "level.low": "Low",
   "level.belowAverage": "Below average",
@@ -287,6 +287,13 @@ const en = {
   "safety.src": "Source: BRÅ, Göteborgs Stad (population) · exported {date}",
   "safety.noData": "No reported-crime data for this address.",
   "map.districtLabel": "{area} (district)",
+  "prox.close": "Close",
+  "prox.medium": "Medium",
+  "prox.far": "Far",
+  "prox.legend.label": "Walking distance",
+  "prox.legend.close": "5 min or less",
+  "prox.legend.medium": "5–10 min",
+  "prox.legend.far": "over 10 min",
 };
 
 export type MessageKey = keyof typeof en;
@@ -484,7 +491,7 @@ const sv: Record<MessageKey, string> = {
   "place.showOnMap": "Visa på kartan",
   "area.title": "Område och priser",
   "area.explain": "Hur det lilla området runt adressen är, jämfört med resten av Göteborg.",
-  "area.summary.income": "Inkomst: {level}",
+  "area.summary.income": "{level} inkomst",
   "area.summary.none": "Inte kontrollerad",
   "level.low": "Låg",
   "level.belowAverage": "Under genomsnittet",
@@ -575,6 +582,13 @@ const sv: Record<MessageKey, string> = {
   "safety.src": "Källa: BRÅ, Göteborgs Stad (befolkning) · exporterad {date}",
   "safety.noData": "Inga uppgifter om anmälda brott för den här adressen.",
   "map.districtLabel": "{area} (distrikt)",
+  "prox.close": "Nära",
+  "prox.medium": "Medel",
+  "prox.far": "Långt",
+  "prox.legend.label": "Gångavstånd",
+  "prox.legend.close": "5 min eller mindre",
+  "prox.legend.medium": "5–10 min",
+  "prox.legend.far": "över 10 min",
 };
 
 export const dictionaries: Record<Lang, Record<MessageKey, string>> = { en, sv };
