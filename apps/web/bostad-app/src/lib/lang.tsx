@@ -38,8 +38,20 @@ export function LangProvider({ children }: { children: ReactNode }) {
   return <LangContext.Provider value={value}>{children}</LangContext.Provider>;
 }
 
+/** Used when no provider is above a component: English, with one console warning. Never throws, so a provider slip cannot blank the page. */
+const FALLBACK: LangValue = {
+  lang: "en",
+  setLang: () => {},
+  t: (key, vars) => translate("en", key, vars),
+};
+let warned = false;
+
 export function useLang(): LangValue {
   const value = useContext(LangContext);
-  if (!value) throw new Error("useLang must be used inside LangProvider");
-  return value;
+  if (value) return value;
+  if (!warned && typeof console !== "undefined") {
+    warned = true;
+    console.warn("useLang used outside LangProvider; falling back to English");
+  }
+  return FALLBACK;
 }
