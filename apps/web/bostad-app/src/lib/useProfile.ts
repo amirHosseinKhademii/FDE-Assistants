@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Profile } from "@bostad/property";
+import { normaliseProfile } from "./normalise";
 
 export type ProfileErrorKind = "tooMany" | "badAddress" | "network" | "generic";
 
@@ -36,7 +37,8 @@ export function useProfile(address: string | undefined) {
           setState({ status: "error", kind: res.status === 400 ? "badAddress" : "generic" });
           return;
         }
-        setState({ status: "ok", profile: body as Profile });
+        const profile = normaliseProfile(body);
+        setState(profile ? { status: "ok", profile } : { status: "error", kind: "generic" });
       } catch {
         if (controller.signal.aborted) return;
         setState({ status: "error", kind: "network" });

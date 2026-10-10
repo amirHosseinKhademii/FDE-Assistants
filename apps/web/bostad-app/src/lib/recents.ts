@@ -9,10 +9,20 @@ export function exampleQuery(address: string): string {
   return `${address}, Göteborg`;
 }
 
-const RECENT_KEY = "bostad.recent";
+/**
+ * Versioned key: a shape change bumps it, and the old key is dropped, so stale
+ * entries from an earlier build are never read back.
+ */
+const RECENT_KEY = "bostad.recent.v2";
+const LEGACY_KEYS = ["bostad.recent"];
 const RECENT_MAX = 5;
 
 export function readRecents(): string[] {
+  try {
+    for (const key of LEGACY_KEYS) window.localStorage.removeItem(key);
+  } catch {
+    /* storage unavailable */
+  }
   try {
     const raw = window.localStorage.getItem(RECENT_KEY);
     const parsed: unknown = raw ? JSON.parse(raw) : [];

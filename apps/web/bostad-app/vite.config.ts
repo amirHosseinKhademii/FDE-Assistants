@@ -1,12 +1,14 @@
 /**
  * Build and dev config for the Bostad property-profile app.
  *
- * `@bostad/property` is CommonJS compiled to `dist/`, so Node must load it as
- * it is rather than Vite bundling a second copy. `dotenv` is listed for the same
- * reason: the server route loads the repo-root .env through it at runtime.
+ * `@bostad/property` is imported from its SOURCE (packages/bostad/src), not its
+ * compiled dist/. A dist copy goes stale the moment the package changes, and the
+ * running dev server then serves old code until someone rebuilds and restarts.
+ * Aliasing to source means Vite compiles the package with the app: a package
+ * edit shows on the next request, with no separate build step. The package's own
+ * build (tsc -> dist/) is still what the CLI and the typecheck use.
  *
- * Both forms of the list are needed: the dev server matches by package name,
- * Rolldown matches the build's import strings exactly, hence the regexes.
+ * `dotenv` stays external: the server route loads the repo-root .env through it.
  */
 import { defineConfig } from 'vite';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
@@ -14,7 +16,8 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { fileURLToPath } from 'node:url';
 
-const DOMAIN_EXTERNALS = ['@bostad/property', 'dotenv'];
+const PROPERTY_SOURCE = fileURLToPath(new URL('../../../packages/bostad/src/profile.ts', import.meta.url));
+const DOMAIN_EXTERNALS = ['dotenv'];
 
 export default defineConfig({
   /**
@@ -23,6 +26,10 @@ export default defineConfig({
    * file (database URLs, API keys) stays on the server.
    */
   envDir: fileURLToPath(new URL('../../..', import.meta.url)),
+
+  resolve: {
+    alias: { '@bostad/property': PROPERTY_SOURCE },
+  },
 
   plugins: [
     tanstackStart({ server: { entry: './server.ts' } }),

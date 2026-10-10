@@ -4,6 +4,7 @@ import { googleMapsHref } from "../lib/format";
 import { HAS_MAPS_KEY } from "../lib/maps";
 import { Icon } from "./Icons";
 import { GoogleMap, type MapStop } from "./GoogleMap";
+import { MapBoundary } from "./MapBoundary";
 import type { ModeFilter } from "../lib/transport";
 
 /**
@@ -38,25 +39,27 @@ export function MapPanel({
 
   const hasCoords = typeof lat === "number" && typeof lon === "number";
 
-  if (HAS_MAPS_KEY && mounted && hasCoords) {
-    return (
-      <div className={`profile-map ${className}`}>
-        <GoogleMap house={{ lat, lon }} stops={stops} filter={filter} />
-      </div>
-    );
+  const placeholder = (
+    <div className="map-placeholder">
+      <Icon name="pin" />
+      <p>{t("map.placeholder")}</p>
+      {hasCoords && (
+        <a className="btn-secondary" href={googleMapsHref(lat, lon)} target="_blank" rel="noreferrer">
+          {t("map.open")}
+        </a>
+      )}
+    </div>
+  );
+
+  if (!(HAS_MAPS_KEY && mounted && hasCoords)) {
+    return <div className={`profile-map ${className}`}>{placeholder}</div>;
   }
 
   return (
     <div className={`profile-map ${className}`}>
-      <div className="map-placeholder">
-        <Icon name="pin" />
-        <p>{t("map.placeholder")}</p>
-        {hasCoords && (
-          <a className="btn-secondary" href={googleMapsHref(lat, lon)} target="_blank" rel="noreferrer">
-            {t("map.open")}
-          </a>
-        )}
-      </div>
+      <MapBoundary fallback={placeholder} resetKey={`${lat},${lon}`}>
+        <GoogleMap house={{ lat, lon }} stops={stops} filter={filter} />
+      </MapBoundary>
     </div>
   );
 }

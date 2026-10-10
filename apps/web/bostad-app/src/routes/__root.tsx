@@ -14,6 +14,8 @@ export const Route = createRootRoute({
     ],
     links: [
       // Open the connections to Google before the first keystroke needs them.
+      // Stops the browser asking for /favicon.ico, which this app does not serve (it was the one 404).
+      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
       { rel: "preconnect", href: "https://maps.googleapis.com" },
       { rel: "preconnect", href: "https://maps.gstatic.com", crossOrigin: "anonymous" },
     ],
