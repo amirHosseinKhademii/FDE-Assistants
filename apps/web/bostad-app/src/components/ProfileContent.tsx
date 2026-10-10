@@ -6,22 +6,27 @@ import type { ModeFilter } from "../lib/transport";
 import type { MessageKey } from "../lib/i18n";
 import { Icon, type IconName } from "./Icons";
 import { AreaCard, GroundCard, NearbyPlacesCard, NoiseCard, TransportCard, placesSummary } from "./cards";
-import { SafetyCard } from "./SafetyCard";
-import { proximityOf, type Proximity } from "./Badges";
+import { LEVEL_ARROW, SafetyCard } from "./SafetyCard";
+import { LEVEL_ICON } from "./Badges";
 import { LEVEL_TONE, levelOf, pctDiff } from "../lib/safety";
 import type { PlacesFilter } from "./placeFilter";
-import type { CardResult } from "./ProfileCard";
+import type { CardResult, Tone } from "./ProfileCard";
 
 type Translate = ReturnType<typeof useLang>["t"];
 
+/** The result of a card with no data: the sentence "Not checked" and a dash for the chip. */
+function uncheckedResult(t: Translate): CardResult {
+  return { text: t("summary.notChecked"), short: "–", tone: "muted" };
+}
+
 /** "Quiet / Moderate / Loud" from the loudest facade point: under 50, 50 to 55, over 55 dB(A). */
 function noiseResult(check: Check<NoiseResult>, t: Translate): CardResult {
-  if (check.kind !== "ok") return { text: t("summary.notChecked") };
+  if (check.kind !== "ok") return uncheckedResult(t);
   const building = check.data.building;
-  if (!building) return { text: t("summary.noise.none") };
-  if (building.loudestDb < 50) return { text: t("summary.noise.quiet"), tone: "ok" };
-  if (building.loudestDb <= 55) return { text: t("summary.noise.moderate"), tone: "warn" };
-  return { text: t("summary.noise.loud"), tone: "risk" };
+  if (!building) return { text: t("summary.noise.none"), short: t("tile.word.none"), tone: "muted" };
+  if (building.loudestDb < 50) return { text: t("summary.noise.quiet"), short: t("summary.noise.quiet"), tone: "ok" };
+  if (building.loudestDb <= 55) return { text: t("summary.noise.moderate"), short: t("summary.noise.moderate"), tone: "warn" };
+  return { text: t("summary.noise.loud"), short: t("summary.noise.loud"), tone: "risk" };
 }
 
 /** One line for the recent-searches list: the noise word and the walk to the nearest stop, when known. */
@@ -29,7 +34,7 @@ export function quickResult(profile: Profile, t: Translate): string | undefined 
   const gate = gateOf(profile);
   const parts: string[] = [];
   const noise = gatedCheck(profile.noise, gate);
-  if (noise.kind === "ok") parts.push(noiseResult(noise, t).text);
+  if (noise.kind === "ok") parts.push(noiseResult(noise, t).short);
   const transit = gatedCheck(profile.transit, gate);
   if (transit.kind === "ok" && transit.data.stops.length > 0) {
     parts.push(t("tile.transport", { minutes: walkMinutes(Math.min(...transit.data.stops.map((x) => x.distanceMeters))) }));
@@ -70,8 +75,8 @@ function openCard(id: string) {
   };
 }
 
-/** One status tile: an icon in a coloured circle, one short word, and the full sentence for screen readers. */
-type Tile = { id: string; icon: IconName; word: string; tone: string; aria: string };
+/** One status tile: an icon, a small name and the card's chip word. Its screen-reader label is the card's sentence. */
+type Tile = { id: string; icon: IconName; res: CardResult };
 
 /** The short name printed under each tile's icon. */
 const TILE_NAME: Record<string, MessageKey> = {
@@ -82,9 +87,6 @@ const TILE_NAME: Record<string, MessageKey> = {
   "card-places": "tile.name.nearby",
   "card-ground": "tile.name.ground",
 };
-
-/** Proximity colour name for a walking distance, as the tiles and rows use it. */
-const PROX_TONE: Record<Proximity, string> = { close: "ok", medium: "warn", far: "muted" };
 
 /** Every section of a loaded profile: three status tiles, the cards, then one row for what is coming. */
 export function ProfileBody({
@@ -120,99 +122,76 @@ export function ProfileBody({
   const places = gatedCheck(profile.places, "exact");
   const safety = gatedCheck(profile.safety, "exact");
 
+  // One result per card. The card's chip and the tile above it are the same object, so they cannot disagree.
   const groundRes: CardResult =
     ground.kind === "ok"
       ? ground.data.inRiskArea
-        ? { text: t("tile.word.groundRisk"), tone: "risk" }
-        : { text: t("tile.word.groundSafe"), tone: "ok" }
-      : { text: t("summary.notChecked") };
+        ? { text: t("summary.ground.risk"), short: t("tile.word.groundRisk"), tone: "risk", icon: "mountain" }
+        : { text: t("summary.ground.ok"), short: t("tile.word.groundSafe"), tone: "ok", icon: "mountain" }
+      : uncheckedResult(t);
   const noiseRes = noiseResult(noise, t);
   const stops = transit.kind === "ok" ? transit.data.stops : [];
+  const transitMinutes = stops.length > 0 ? walkMinutes(Math.min(...stops.map((s) => s.distanceMeters))) : null;
   const transitRes: CardResult =
     transit.kind !== "ok"
-      ? { text: t("summary.notChecked") }
-      : stops.length > 0
-        ? { text: t("tile.transport", { minutes: walkMinutes(Math.min(...stops.map((s) => s.distanceMeters))) }), tone: "ok" }
-        : { text: t("tile.word.none") };
-  const placesRes: CardResult =
-    places.kind === "ok" ? placesSummary(places.data, t) : { text: t("summary.notChecked") };
+      ? uncheckedResult(t)
+      : transitMinutes !== null
+        ? {
+            text: t("summary.transport.walk", { minutes: transitMinutes }),
+            short: t("tile.transport", { minutes: transitMinutes }),
+            tone: transitMinutes <= 5 ? "ok" : transitMinutes <= 10 ? "warn" : "muted",
+            icon: "bus",
+          }
+        : { text: t("summary.transport.none"), short: t("tile.word.none"), tone: "muted" };
+  const placesRes: CardResult = places.kind === "ok" ? placesSummary(places.data, t) : uncheckedResult(t);
   const area = gatedCheck(profile.area, "exact");
-  const areaRes: CardResult =
-    income.kind === "ok" && income.data.level
-      ? { text: t("area.summary.income", { level: t(`level.${income.data.level}` as MessageKey) }), level: income.data.level }
-      : { text: t("area.summary.none") };
-
-  // Tile facts. Price shows the income level until house prices exist (the aria label says so).
+  // Price shows the income level until house prices exist (see the card's sentence).
+  const incomeLevel: Level | null = income.kind === "ok" ? income.data.level : null;
+  const areaRes: CardResult = incomeLevel
+    ? {
+        text: t("area.summary.income", { level: t(`level.${incomeLevel}` as MessageKey) }),
+        short: t(`chip.level.${incomeLevel}` as MessageKey),
+        tone: incomeLevel === "high" || incomeLevel === "aboveAverage" ? "accent" : incomeLevel === "average" ? "neutral" : "warn",
+        icon: LEVEL_ICON[incomeLevel],
+      }
+    : uncheckedResult(t);
   const latestSafety = safety.kind === "ok" && safety.data.latestYear !== null ? safety.data.years.find((y) => y.year === safety.data.latestYear) : undefined;
   const safetyLevel = latestSafety ? levelOf(latestSafety.cats.all.district.per1000, latestSafety.cats.all.city.per1000) : null;
-  const transitMinutes = stops.length > 0 ? walkMinutes(Math.min(...stops.map((s) => s.distanceMeters))) : null;
-  const groceryMinutes =
-    places.kind === "ok" && places.data.nearest.grocery ? walkMinutes(places.data.nearest.grocery.distanceMeters) : null;
-  const groceryProx = groceryMinutes === null ? null : proximityOf(groceryMinutes);
-  const incomeLevel: Level | null = income.kind === "ok" ? income.data.level : null;
-  const levelWord = (l: Level) => t(`level.${l}` as MessageKey);
-  const priceTone = incomeLevel === "high" || incomeLevel === "aboveAverage" ? "accent" : incomeLevel === "average" ? "neutral" : incomeLevel ? "warn" : "muted";
-  const noiseWord = noiseRes.text;
-  const groundWord = groundRes.text;
+  const safetyRes: CardResult = safetyLevel
+    ? {
+        text: t(`safety.summary.${safetyLevel}` as MessageKey, { pct: pctDiff(latestSafety?.cats.all.district.per1000, latestSafety?.cats.all.city.per1000) }),
+        short: t(`tile.safety.${safetyLevel}` as MessageKey),
+        tone: (LEVEL_TONE[safetyLevel] ?? "neutral") as Tone,
+        icon: LEVEL_ARROW[safetyLevel],
+      }
+    : uncheckedResult(t);
 
-  const unchecked = (name: string): string => t("tile.aria.unchecked", { name });
   const tiles: Tile[] = [
-    safetyLevel
-      ? {
-          id: "card-safety",
-          icon: "shield",
-          word: t(`tile.safety.${safetyLevel}` as MessageKey),
-          tone: LEVEL_TONE[safetyLevel] ?? "neutral",
-          aria: t("tile.aria.generic", { name: t("safety.title"), word: t(`safety.level.${safetyLevel}` as MessageKey, { pct: pctDiff(latestSafety?.cats.all.district.per1000, latestSafety?.cats.all.city.per1000) }) }),
-        }
-      : { id: "card-safety", icon: "shield", word: "–", tone: "muted", aria: unchecked(t("safety.title")) },
-    transitMinutes !== null
-      ? {
-          id: "card-transport",
-          icon: "bus",
-          word: t("tile.transport", { minutes: transitMinutes }),
-          tone: transitMinutes <= 5 ? "ok" : transitMinutes <= 10 ? "warn" : "muted",
-          aria: t("tile.aria.transport", { minutes: transitMinutes }),
-        }
-      : { id: "card-transport", icon: "bus", word: transitRes.text, tone: "muted", aria: t("tile.aria.generic", { name: t("summary.label.transport"), word: transitRes.text }) },
-    {
-      id: "card-noise",
-      icon: "sound",
-      word: noiseWord,
-      tone: noiseRes.tone ?? "muted",
-      aria: t("tile.aria.generic", { name: t("summary.label.noise"), word: noiseWord }),
-    },
-    incomeLevel
-      ? { id: "card-area", icon: "houseTag", word: levelWord(incomeLevel), tone: priceTone, aria: t("tile.aria.price", { level: levelWord(incomeLevel) }) }
-      : { id: "card-area", icon: "houseTag", word: "–", tone: "muted", aria: unchecked(t("area.title")) },
-    groceryProx && groceryMinutes !== null
-      ? {
-          id: "card-places",
-          icon: "pin",
-          word: t(`prox.${groceryProx}` as MessageKey),
-          tone: PROX_TONE[groceryProx],
-          aria: t("tile.aria.places", { minutes: groceryMinutes, prox: t(`prox.${groceryProx}` as MessageKey) }),
-        }
-      : { id: "card-places", icon: "pin", word: "–", tone: "muted", aria: unchecked(t("card.places.title")) },
-    {
-      id: "card-ground",
-      icon: "mountain",
-      word: groundWord,
-      tone: groundRes.tone ?? "muted",
-      aria: t("tile.aria.generic", { name: t("summary.label.ground"), word: groundWord }),
-    },
+    { id: "card-safety", icon: "shield", res: safetyRes },
+    { id: "card-transport", icon: "bus", res: transitRes },
+    { id: "card-noise", icon: "sound", res: noiseRes },
+    { id: "card-area", icon: "houseTag", res: areaRes },
+    { id: "card-places", icon: "pin", res: placesRes },
+    { id: "card-ground", icon: "mountain", res: groundRes },
   ];
 
   return (
     <>
       <nav className="status-tiles" aria-label={t("summary.label.overview")}>
         {tiles.map((tile) => (
-          <button key={tile.id} type="button" className="status-tile" data-tone={tile.tone} aria-label={tile.aria} onClick={openCard(tile.id)}>
+          <button
+            key={tile.id}
+            type="button"
+            className="status-tile"
+            data-tone={tile.res.tone ?? "muted"}
+            aria-label={t("tile.aria.generic", { name: t(TILE_NAME[tile.id]), word: tile.res.text })}
+            onClick={openCard(tile.id)}
+          >
             <span className="tile-icon" aria-hidden="true">
               <Icon name={tile.icon} />
             </span>
             <span className="tile-name">{t(TILE_NAME[tile.id])}</span>
-            <span className="tile-word">{tile.word}</span>
+            <span className="tile-word">{tile.res.short}</span>
           </button>
         ))}
       </nav>
@@ -225,7 +204,7 @@ export function ProfileBody({
       )}
 
       {/* Card order matches the tiles: Safety, Transport, Noise, Area & prices, Nearby places, Ground. */}
-      <SafetyCard check={safety} onRetry={onRetry} onOpenChange={onSafetyToggle} />
+      <SafetyCard check={safety} result={safetyRes} onRetry={onRetry} onOpenChange={onSafetyToggle} />
       <TransportCard check={transit} onRetry={onRetry} filter={filter} onFilter={onFilter} result={transitRes} />
       <NoiseCard check={noise} onRetry={onRetry} result={noiseRes} />
       <AreaCard district={district} income={income} area={area} onRetry={onRetry} result={areaRes} />

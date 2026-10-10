@@ -43,7 +43,7 @@ const GROUP_ICON: Partial<Record<CrimeGroup, IconName>> = {
 };
 
 /** Arrow for a level: up above city, down below, equals around. Colour comes from the tone. */
-const LEVEL_ARROW: Record<SafetyLevel, IconName> = {
+export const LEVEL_ARROW: Record<SafetyLevel, IconName> = {
   wellBelow: "arrowDown",
   below: "arrowDown",
   around: "equals",
@@ -65,10 +65,12 @@ const fmt = (v: number | null | undefined, lang: "en" | "sv") =>
  */
 export function SafetyCard({
   check,
+  result,
   onRetry,
   onOpenChange,
 }: {
   check: Check<SafetyResult>;
+  result: CardResult;
   onRetry: () => void;
   onOpenChange: (open: boolean) => void;
 }) {
@@ -78,9 +80,6 @@ export function SafetyCard({
   const data = check.kind === "ok" ? check.data : null;
   const latest = data?.years.find((y) => y.year === data.latestYear) ?? null;
   const level = latest ? levelOf(latest.cats.all.district.per1000, latest.cats.all.city.per1000) : null;
-  const result: CardResult = level
-    ? { text: t(`safety.summary.${level}` as MessageKey, { pct: pctDiff(latest?.cats.all.district.per1000, latest?.cats.all.city.per1000) }), tone: LEVEL_TONE[level] }
-    : { text: t("summary.notChecked") };
   const failed = check.kind === "failed";
 
   return (

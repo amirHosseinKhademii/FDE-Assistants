@@ -9,7 +9,7 @@ import { PlaceBadge } from "./MapPins";
 import { ListRow } from "./ListRow";
 import type { PlacesFilter } from "./placeFilter";
 import { ProfileCard, type CardResult, type CardStatus } from "./ProfileCard";
-import { LevelBadge, ProximityCircle, ProximityLegend, ProximityWord, proximityOf } from "./Badges";
+import { LevelBadge, PROX_TONE, ProximityLegend, ProximityWord, proximityOf } from "./Badges";
 import { LineBadge, ModeIcon } from "./ModeIcon";
 import { MODE_KEY, modesPresent, stopMatches, type ModeFilter } from "../lib/transport";
 
@@ -279,24 +279,19 @@ function PlaceRow({
   );
 }
 
-/** The collapsed Nearby places line: icons of the four closest categories, each in its proximity colour. */
+/**
+ * The Nearby places result: the chip is the proximity word of the closest place, the sentence lists the four
+ * closest categories with their walks (the body shows the icons in their proximity colour).
+ */
 export function placesSummary(data: PlacesResult, t: (k: MessageKey, v?: Record<string, string | number>) => string): CardResult {
   const ranked = PLACE_ORDER.filter((c) => data.nearest[c])
     .map((c) => ({ c, minutes: walkMinutes((data.nearest[c] as PlaceItem).distanceMeters) }))
     .sort((a, b) => a.minutes - b.minutes)
     .slice(0, 4);
-  if (ranked.length === 0) return { text: t("card.places.summaryEmpty") };
+  if (ranked.length === 0) return { text: t("card.places.summaryEmpty"), short: "–", tone: "muted" };
   const label = ranked.map(({ c, minutes }) => `${t(PLACE_KEY[c])}, ${minutes} min`).join("; ");
-  return {
-    text: label,
-    visual: (
-      <span className="prox-strip" role="img" aria-label={label}>
-        {ranked.map(({ c, minutes }) => (
-          <ProximityCircle key={c} category={c} prox={proximityOf(minutes)} />
-        ))}
-      </span>
-    ),
-  };
+  const prox = proximityOf(ranked[0].minutes);
+  return { text: label, short: t(`prox.${prox}` as MessageKey), tone: PROX_TONE[prox] };
 }
 
 /** Area & prices: one card for the small area. Each row has its level word and one plain sentence, with the source below. */

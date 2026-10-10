@@ -1208,17 +1208,42 @@ a.btn-secondary {
   scroll-margin-top: 80px;
 }
 
-.card-result {
+/* Collapsed header chip: a short status word and icon in the status colour on a soft tint (12 %).
+   It never shrinks or truncates; the title gives way first. */
+.card-chip {
+  flex: none;
   margin-left: auto;
-  padding-left: 8px;
-  color: var(--muted);
-  font-size: var(--fs-body);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: var(--tone, var(--muted));
+  background: color-mix(in srgb, var(--tone, var(--muted)) 12%, transparent);
+  font-size: 14px;
   font-weight: 600;
-  text-align: right;
+  line-height: 20px;
+  white-space: nowrap;
 }
 
-.card-result[data-tone] {
-  color: var(--tone);
+.card-chip .icon {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+.card-chip[data-tone="ok"] { --tone: var(--ok); }
+.card-chip[data-tone="warn"] { --tone: var(--warn); }
+.card-chip[data-tone="risk"] { --tone: var(--risk); }
+.card-chip[data-tone="accent"] { --tone: var(--accent); }
+.card-chip[data-tone="neutral"] { --tone: var(--text); }
+.card-chip[data-tone="muted"] { --tone: var(--muted); }
+
+/* The open card's first line: the full sentence for the result. */
+.card-lead {
+  color: var(--text);
+  font-size: var(--fs-body);
+  font-weight: 600;
 }
 
 .more-row {
@@ -1553,15 +1578,6 @@ a.btn-secondary {
   text-overflow: ellipsis;
 }
 
-.card-result {
-  flex: 0 1 auto;
-  min-width: 0;
-  max-width: 48%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 /* Filter chips: one row, scrolling sideways inside it; the page never scrolls sideways. */
 .mode-chips {
   flex-wrap: nowrap;
@@ -1650,18 +1666,6 @@ a.btn-secondary {
 
 .list-row-button[aria-pressed="true"] .list-row-title {
   text-decoration: underline;
-}
-
-/* The title keeps its full width; the result gives way first (it is the one that truncates). */
-.card-title {
-  flex: 0 0 auto;
-  min-width: auto;
-}
-
-.card-result {
-  flex: 1 1 auto;
-  max-width: none;
-  margin-left: auto;
 }
 
 /* ---------- phone profile: map on top (45 %), a scrolling sheet below; collapsed = full-screen map ---------- */

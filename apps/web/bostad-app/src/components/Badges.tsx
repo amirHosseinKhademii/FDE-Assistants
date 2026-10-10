@@ -55,7 +55,10 @@ export function ProximityLegend() {
   );
 }
 
-const LEVEL_ICON: Record<Level, IconName> = {
+/** Proximity colour name for a walking distance, as the tiles, chips and rows use it. */
+export const PROX_TONE: Record<Proximity, "ok" | "warn" | "muted"> = { close: "ok", medium: "warn", far: "muted" };
+
+export const LEVEL_ICON: Record<Level, IconName> = {
   high: "arrowUpDouble",
   aboveAverage: "arrowUp",
   average: "equals",
