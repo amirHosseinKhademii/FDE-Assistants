@@ -1144,6 +1144,7 @@ a.btn-secondary {
 [data-tone="risk"] { --tone: var(--risk); }
 [data-tone="warn"] { --tone: var(--warn); }
 
+/* Status tiles: six, three columns on a phone. Plain icon, a small name, then the status word; no circles. */
 .status-tiles {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1152,30 +1153,54 @@ a.btn-secondary {
 
 .status-tile {
   display: grid;
-  gap: 4px;
-  min-height: var(--tap);
-  padding: 12px 10px;
+  justify-items: center;
+  align-content: center;
+  gap: 2px;
+  min-height: 44px;
+  padding: 8px 4px;
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
   background: var(--surface);
   color: var(--text);
-  text-decoration: none;
+  font: inherit;
+  cursor: pointer;
   box-shadow: var(--shadow);
 }
 
-.status-tile > .icon {
-  color: var(--muted);
+.status-tile[data-tone="ok"] { --tone: var(--ok); }
+.status-tile[data-tone="warn"] { --tone: var(--warn); }
+.status-tile[data-tone="risk"] { --tone: var(--risk); }
+.status-tile[data-tone="accent"] { --tone: var(--accent); }
+.status-tile[data-tone="neutral"] { --tone: var(--text); }
+.status-tile[data-tone="muted"] { --tone: var(--muted); }
+
+.tile-icon {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  color: var(--tone, var(--muted));
+}
+
+.tile-icon .icon {
+  width: 24px;
+  height: 24px;
+  color: inherit;
 }
 
 .status-tile .tile-name {
   color: var(--muted);
-  font-size: var(--fs-caption);
+  font-size: 12px;
+  line-height: 1.2;
+  text-align: center;
 }
 
 .status-tile .tile-word {
   color: var(--tone, var(--text));
-  font-size: var(--fs-body);
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
   overflow-wrap: anywhere;
 }
 
