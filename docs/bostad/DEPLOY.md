@@ -7,15 +7,18 @@ creating the Azure resources is a one-time step you run yourself.
 
 ## What the workflow does
 
-`.github/workflows/deploy-bostad.yml`, started by hand from the Actions tab:
+`.github/workflows/deploy-bostad.yml` runs on push to `master` when `apps/web/bostad-app/**`,
+`packages/bostad/**` or the workflow itself changes, and on demand. It is a single job:
 
-| Job | What it does |
-|---|---|
-| 1 · check | `pnpm install --frozen-lockfile`, builds `@bostad/app` and its workspace deps, runs `typecheck`. |
-| 2 · image | Logs into ACR with the OIDC token, builds `apps/web/bostad-app/Dockerfile` from the repo root, pushes `<acr>.azurecr.io/bostad-app:sha-<commit>`. |
-| 3 · deploy | Lists the resource group. Creates `bostad-app` if absent, otherwise updates its image. Sets the Västtrafik values as Container App secrets. Waits for the revision to be Provisioned with the new image. Smoke tests `/healthz` and `/`. |
+1. Typecheck and build `@bostad/property`, then typecheck and build `@bostad/app`.
+2. Log in to Docker Hub and build `apps/web/bostad-app/Dockerfile` from the repo root.
+   It pushes `docker.io/<DOCKERHUB_USERNAME>/bostad-app:sha-<commit>` and `:latest`.
+3. Log in to Azure with OIDC and run `az containerapp update -n bostad-app -g rg-claims-fde --image …`.
+   Only the image changes. The Västtrafik secrets already on the app are left alone.
+4. Wait for the active revision to be Provisioned with the new image, then smoke test `/healthz` and `/`.
 
-Ingress is external on port 8080, scale is 0 to 2 replicas, 0.5 vCPU and 1 GiB.
+The app is not created by the workflow. It must exist before the first run (see the
+one-time setup above). The workflow fails with a clear message if it does not.
 
 ## The image
 
@@ -105,17 +108,27 @@ echo "AZURE_CLIENT_ID=$APP_ID  AZURE_TENANT_ID=$(az account show --query tenantI
 
 The last line prints three IDs. None of them is a secret.
 
-## GitHub repository settings (you do these)
+## GitHub Actions: secrets and how to run it
 
-| Kind | Name | Value |
-|---|---|---|
-| Secret | `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID` | Already used by `deploy.yml`. Reuse them, or set them from the line above. |
-| Secret | `VASTTRAFIK_CLIENT_IDENTIFIER`, `VASTTRAFIK_CLIENT_SECRET` | From the repo-root `.env`. Enter them in Settings → Secrets, do not paste them into a shell. |
-| Variable | `VITE_GOOGLE_MAPS_API_KEY`, `VITE_GOOGLE_MAPS_MAP_ID` | Public browser keys. Variables, not secrets, because they are baked into the page. |
-| Edit file | `env:` block in `deploy-bostad.yml` | Replace the four `TODO-…` values with your resource group, environment and ACR names. |
+Settings → Secrets and variables → Actions. All of these are secrets:
 
-Then start it from **Actions → deploy-bostad → Run workflow**, on branch `bostad/mvp`.
-It is `workflow_dispatch` only, so nothing runs on push.
+| Secret | Use |
+|---|---|
+| `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN` | Same as `deploy.yml`. Docker Hub push. |
+| `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID` | Same as `deploy.yml`. OIDC login, no client secret. |
+| `GOOGLE_MAPS_BROWSER_KEY` (new) | `VITE_GOOGLE_MAPS_API_KEY`. Public browser key, baked into the bundle at build time. |
+| `GOOGLE_MAPS_MAP_ID` (optional) | `VITE_GOOGLE_MAPS_MAP_ID`. Empty is allowed. |
+
+The Västtrafik credentials are not needed here. They already live on the Container App.
+
+OIDC only trusts `master`, so a run from `bostad/mvp` fails at `azure/login` until
+the branch is merged. Merge first, or add a federated credential for `bostad/mvp`.
+
+To run it by hand after merge:
+
+```bash
+gh workflow run deploy-bostad.yml --ref master
+```
 
 ## Google Maps key: add the new host
 
