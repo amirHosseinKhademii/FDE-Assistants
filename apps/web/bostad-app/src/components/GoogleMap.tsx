@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { Map, AdvancedMarker, Polyline, useMap, ColorScheme } from "@vis.gl/react-google-maps";
+import { Map, AdvancedMarker, Polygon, Polyline, useMap, ColorScheme } from "@vis.gl/react-google-maps";
 import { useLang } from "../lib/lang";
 import { useTheme } from "../lib/theme";
 import { stopMatches, type MapStop, type ModeFilter } from "../lib/transport";
 import { MAP_ID } from "../lib/maps";
 import { PLACE_KEY } from "../lib/places";
 import { HomePin, PlacePin, StopDot, StopPin } from "./MapPins";
-import type { PlaceItem } from "@bostad/property";
+import type { LatLng, PlaceItem } from "@bostad/property";
 
 export type { MapStop } from "../lib/transport";
 
@@ -92,6 +92,7 @@ export function GoogleMap({
   expanded = false,
   fitKey = 0,
   resizeKey,
+  district = null,
 }: {
   house: { lat: number; lon: number };
   stops: MapStop[];
@@ -106,6 +107,8 @@ export function GoogleMap({
   expanded?: boolean;
   fitKey?: number;
   resizeKey?: string;
+  /** The Safety card's district: a neutral outline and 8 % fill, labelled. */
+  district?: { name: string; parts: LatLng[][][] } | null;
 }) {
   const { t } = useLang();
   const { effective } = useTheme();
@@ -116,9 +119,14 @@ export function GoogleMap({
 
   const houseAt = useMemo(() => ({ lat: house.lat, lng: house.lon }), [house.lat, house.lon]);
   // Fit to every stop, so changing the filter never moves the view.
+  // While the Safety card shows its district, the district's outline is in the fit too, so the shading is in view.
   const points = useMemo(
-    () => [houseAt, ...stops.map((s) => ({ lat: s.lat, lng: s.lon }))],
-    [houseAt, stops],
+    () => [
+      houseAt,
+      ...stops.map((s) => ({ lat: s.lat, lng: s.lon })),
+      ...(district ? district.parts.flatMap((rings) => rings.flatMap((ring) => ring.filter((_, i) => i % 8 === 0))) : []),
+    ],
+    [houseAt, stops, district],
   );
   const shown = useMemo(() => stops.filter((s) => stopMatches(s, filter)), [stops, filter]);
   const rings = useMemo(
@@ -127,6 +135,14 @@ export function GoogleMap({
   );
   const ringColour = effective === "dark" ? "#A3AAB2" : "#5F6670";
   const dots = zoom < DOT_BELOW_ZOOM;
+  const outlineColour = effective === "dark" ? "#A3AAB2" : "#5F6670";
+  // Label point: the mean of the first outer ring's vertices (fine for a district shape).
+  const districtLabel = useMemo(() => {
+    const ring = district?.parts[0]?.[0];
+    if (!ring || ring.length === 0) return null;
+    const sum = ring.reduce((a, p) => ({ lat: a.lat + p.lat, lng: a.lng + p.lng }), { lat: 0, lng: 0 });
+    return { lat: sum.lat / ring.length, lng: sum.lng / ring.length };
+  }, [district]);
 
   return (
     <Map
@@ -171,6 +187,26 @@ export function GoogleMap({
           </AdvancedMarker>
         );
       })}
+
+      {district &&
+        district.parts.map((rings, i) => (
+          <Polygon
+            key={`district-${i}`}
+            paths={rings.map((ring) => ring.map((p) => ({ lat: p.lat, lng: p.lng })))}
+            fillColor={outlineColour}
+            fillOpacity={0.08}
+            strokeColor={outlineColour}
+            strokeOpacity={0.7}
+            strokeWeight={1.5}
+            clickable={false}
+            zIndex={0}
+          />
+        ))}
+      {district && districtLabel && (
+        <AdvancedMarker position={districtLabel} clickable={false} zIndex={0}>
+          <div className="district-label">{t("map.districtLabel", { area: district.name })}</div>
+        </AdvancedMarker>
+      )}
 
       <HomePin position={houseAt} title={t("map.house")} />
 

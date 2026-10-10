@@ -11,6 +11,7 @@ import { districtAt, type DistrictResult } from "./sources/district";
 import { incomeAt, type IncomeResult } from "./sources/income";
 import { placesAt, type PlacesResult } from "./sources/places";
 import { areaAt, type AreaResult } from "./sources/area";
+import { safetyAt, type SafetyResult } from "./sources/safety";
 export type { TransitLine, TransitStop, TransportMode } from "./sources/transit";
 export type { NoiseBuilding, NoiseResult } from "./sources/noise";
 export type { AreaRef, DistrictResult } from "./sources/district";
@@ -18,6 +19,8 @@ export type { IncomeResult } from "./sources/income";
 export type { AreaResult, Share } from "./sources/area";
 export type { Level } from "./sources/scb";
 export type { PlaceCategory, PlaceItem, PlacesResult } from "./sources/places";
+export type { SafetyKey, SafetyResult, SafetyYear, SafetyFigure } from "./sources/safety";
+export type { LatLng } from "./sources/crime";
 
 export type SectionStatus = "ok" | "error" | "unavailable";
 
@@ -39,6 +42,7 @@ export interface Profile {
   income: Section<IncomeResult>;
   places: Section<PlacesResult>;
   area: Section<AreaResult>;
+  safety: Section<SafetyResult>;
   brf: Section<never>;
   energy: Section<never>;
 }
@@ -76,6 +80,7 @@ export async function getProfile(address: string): Promise<Profile> {
   let income: Section<IncomeResult>;
   let places: Section<PlacesResult>;
   let area: Section<AreaResult>;
+  let safety: Section<SafetyResult>;
   if (location.status !== "ok" || !location.data) {
     const reason = "no coordinates (geocoding failed)";
     landslide = { status: "unavailable", reason, source: "geodata.sgi.se", fetchedAt: new Date().toISOString() };
@@ -85,6 +90,7 @@ export async function getProfile(address: string): Promise<Profile> {
     income = { status: "unavailable", reason, source: "api.scb.se", fetchedAt: new Date().toISOString() };
     places = { status: "unavailable", reason, source: "places.googleapis.com", fetchedAt: new Date().toISOString() };
     area = { status: "unavailable", reason, source: "api.scb.se", fetchedAt: new Date().toISOString() };
+    safety = { status: "unavailable", reason, source: "statistik.bra.se", fetchedAt: new Date().toISOString() };
   } else {
     const { lat, lon } = location.data;
     // Every section is independent: one slow or failing source never blocks the others.
@@ -99,6 +105,9 @@ export async function getProfile(address: string): Promise<Profile> {
     ]);
     // Report the provider that actually answered (Google first, Overpass as fallback).
     if (places.data) places.source = places.data.source;
+    // Local BRÅ export (no network). The primärområde comes from the district lookup above.
+    const primaryArea = district.data?.primaryArea?.name ?? null;
+    safety = await attempt("statistik.bra.se", async () => safetyAt(lat, lon, primaryArea));
   }
 
   return {
@@ -111,6 +120,7 @@ export async function getProfile(address: string): Promise<Profile> {
     income,
     places,
     area,
+    safety,
     brf: stub("bolagsverket (värdefulla datamängder)", "awaiting Bolagsverket API access"),
     energy: stub("boverket energideklaration", "awaiting Boverket agreement"),
   };

@@ -69,3 +69,7 @@ Scripts and raw files are not committed (they are in the session scratchpad). Th
 Validation: not possible yet. No independent published population per SDN 2011–2020 was found (checked Göteborgs Stad and SCB searches; SCB's Angered figure is for the tätort, not the SDN). So the mapping is **unverified**, `crime.ts` does not use it, and `sdn_2011_2020` population and polygons are not written. The only check run is that each of the 96 primärområden has exactly one row. The 2011–2020 population sums per SDN were not computed, because the mapping is not verified.
 
 Still needed to verify: a Göteborgs Stad document that lists primärområden per SDN, or an SDN population series to compare the sums against (±3 %).
+
+## Use in crime.ts (2026-10-10)
+
+`crime.ts` uses this mapping for 2002–2020 only: the address's primärområde (WFS lookup) → SDN name → BRÅ counts. Those years are `verified: false`, show counts but no per-1 000 rate. Rows with `verified` = `manual` (Kyrkbyn, Rambergsstaden, Eriksberg, Lindholmen → Lundby; Södra Skärgården → Västra Göteborg) were assigned by hand from the district names, without a published source. The other 91 rows are the unverified Wikipedia-name draft.

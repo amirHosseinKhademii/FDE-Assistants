@@ -11,6 +11,7 @@ import type { PlaceCategory, PlaceItem } from "@bostad/property";
 import { PLACE_KEY, PLACE_ORDER } from "../lib/places";
 import { PlaceBadge } from "./MapPins";
 import type { PlacesFilter } from "./placeFilter";
+import type { LatLng } from "@bostad/property";
 
 const MAX_BADGES = 8;
 
@@ -51,6 +52,7 @@ export function MapPanel({
   onShowPlaces = () => {},
   loading = false,
   resizeKey,
+  district = null,
 }: {
   lat?: number;
   lon?: number;
@@ -70,6 +72,8 @@ export function MapPanel({
   loading?: boolean;
   /** Changes when the map's box changes size (the sheet opened or collapsed): the map resizes, its centre and zoom stay. */
   resizeKey?: string;
+  /** The Safety card's district, shaded on the map while the card is open. */
+  district?: { name: string; parts: LatLng[][][] } | null;
 }) {
   const { t } = useLang();
   const [mounted, setMounted] = useState(false);
@@ -158,6 +162,7 @@ export function MapPanel({
           resizeKey={resizeKey}
           expanded={expanded}
           fitKey={fitKey}
+          district={district}
         />
       </MapBoundary>
       </div>

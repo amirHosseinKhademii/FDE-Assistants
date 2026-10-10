@@ -12,7 +12,7 @@ import { ProfileCard, type CardResult, type CardStatus } from "./ProfileCard";
 import { LineBadge, ModeIcon } from "./ModeIcon";
 import { MODE_KEY, modesPresent, stopMatches, type ModeFilter } from "../lib/transport";
 
-const REASON: Record<Reason, MessageKey> = {
+export const REASON: Record<Reason, MessageKey> = {
   notExact: "reason.notExact",
   noAddress: "reason.noAddress",
   noMatch: "reason.noMatch",

@@ -14,6 +14,9 @@ import type {
   PlaceCategory,
   PlaceItem,
   PlacesResult,
+  SafetyFigure,
+  SafetyResult,
+  SafetyYear,
   Profile,
   Section,
   TransitLine,
@@ -295,6 +298,48 @@ function normaliseTransit(data: unknown) {
   return { stops, source: str(data.source) };
 }
 
+const SAFETY_CATS = ["all", "violence", "burglary", "carTheft", "theftFromCar", "bikeTheft", "vandalism", "fraud", "drugs"] as const;
+
+function safetyFigure(v: unknown): SafetyFigure {
+  const o = isObject(v) ? v : {};
+  return { count: finite(o.count), per1000: finite(o.per1000) };
+}
+
+function normaliseSafety(data: unknown): SafetyResult | undefined {
+  if (!isObject(data)) return undefined;
+  const years = arr(data.years)
+    .filter(isObject)
+    .map((y): SafetyYear => {
+      const raw = isObject(y.cats) ? y.cats : {};
+      const cats = {} as SafetyYear["cats"];
+      for (const k of SAFETY_CATS) {
+        const c = isObject(raw[k]) ? raw[k] : {};
+        cats[k] = { district: safetyFigure(c.district), city: safetyFigure(c.city) };
+      }
+      return {
+        year: finite(y.year) ?? 0,
+        area: typeof y.area === "string" ? y.area : null,
+        verified: y.verified === true,
+        basis: y.basis === "polygon" || y.basis === "mapping" ? y.basis : null,
+        cats,
+      };
+    });
+  const outline = isObject(data.outline) ? data.outline : null;
+  const point = (v: unknown) => {
+    const p = isObject(v) ? v : {};
+    return { lat: finite(p.lat) ?? 0, lng: finite(p.lng) ?? 0 };
+  };
+  return {
+    years,
+    latestYear: finite(data.latestYear),
+    outline: outline
+      ? { name: str(outline.name), parts: arr(outline.parts).map((part) => arr(part).map((ring) => arr(ring).map(point))) }
+      : null,
+    outlineName: typeof data.outlineName === "string" ? data.outlineName : null,
+    exportedAt: typeof data.exportedAt === "string" ? data.exportedAt : null,
+  };
+}
+
 /**
  * The whole profile, or null when the body is not an object at all. Missing
  * sections come back as failed sections, so the UI always has all of them.
@@ -310,6 +355,7 @@ export function normaliseProfile(raw: unknown, now: string = new Date().toISOStr
     district: normaliseSection(raw.district, now, normaliseDistrict),
     income: normaliseSection(raw.income, now, normaliseIncome),
     area: normaliseSection(raw.area, now, normaliseAreaStats),
+    safety: normaliseSection(raw.safety, now, normaliseSafety),
     places: normaliseSection(raw.places, now, normalisePlaces),
     brf: normaliseSection<never>(raw.brf, now, () => undefined),
     energy: normaliseSection<never>(raw.energy, now, () => undefined),

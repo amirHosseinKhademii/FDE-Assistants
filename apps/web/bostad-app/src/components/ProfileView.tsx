@@ -65,6 +65,16 @@ export function ProfileView({ address, onSearch }: { address: string; onSearch: 
     setFocus({ lat: item.lat, lon: item.lon, nonce: Date.now() });
   };
 
+  // The Safety card, when open, shades its district on the map. Closed again on a new address.
+  const [safetyOpen, setSafetyOpen] = useState(false);
+  useEffect(() => setSafetyOpen(false), [coords?.lat, coords?.lon]);
+  const district = useMemo(() => {
+    if (!profile) return null;
+    const s = gatedCheck(profile.safety, "exact");
+    if (s.kind !== "ok" || !s.data.outline) return null;
+    return { name: s.data.outlineName ?? "", parts: s.data.outline.parts };
+  }, [profile]);
+
   // Wide screens keep the search bar in the column; phones get the floating icon over the map.
   const [wide, setWide] = useState(false);
   // The phone sheet: open (the map is the top 45 %) or collapsed (the map is the whole screen).
@@ -114,6 +124,7 @@ export function ProfileView({ address, onSearch }: { address: string; onSearch: 
           onShowPlaces={setShowPlaces}
           loading={loading}
           resizeKey={mode === "collapsed" ? "collapsed" : "open"}
+          district={safetyOpen ? district : null}
         />
 
         <BottomSheet mode={mode} onMode={setMode}>
@@ -131,6 +142,7 @@ export function ProfileView({ address, onSearch }: { address: string; onSearch: 
               onPlaceFilter={setPlaceFilter}
               selectedPlaceId={placeId}
               onPickPlace={pickPlace}
+              onSafetyToggle={setSafetyOpen}
             />
           )}
           <p className="footnote">{t("profile.footer")}</p>

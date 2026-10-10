@@ -1920,3 +1920,202 @@ a.btn-secondary {
     transition: none !important;
   }
 }
+
+/* Safety card: level words, trend chart, category rows. Neutral text; only ok/warn colours. */
+.safety-head {
+  margin: 0;
+  font-size: 15px;
+}
+
+.safety-latest {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+}
+
+.safety-level {
+  display: inline-block;
+  padding: 2px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.safety-level[data-tone="ok"] {
+  color: var(--ok);
+  border-color: currentColor;
+}
+
+.safety-level[data-tone="warn"] {
+  color: var(--warn);
+  border-color: currentColor;
+}
+
+.safety-chart {
+  display: grid;
+  gap: 10px;
+}
+
+.safety-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.safety-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.safety-grid {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.safety-axis {
+  fill: var(--muted);
+  font-size: 11px;
+}
+
+.safety-line--district,
+.safety-line--city,
+.safety-line--count {
+  fill: none;
+}
+
+.safety-line--district {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
+
+.safety-line--city {
+  stroke: var(--muted);
+  stroke-width: 1.8;
+}
+
+.safety-line--count {
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+  opacity: 0.8;
+}
+
+.safety-dot--district {
+  fill: var(--accent);
+}
+
+.safety-dot--city {
+  fill: var(--muted);
+}
+
+.safety-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.safety-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.safety-legend .sw {
+  display: inline-block;
+  width: 18px;
+  border-top: 2.5px solid var(--accent);
+}
+
+.safety-legend .sw--city {
+  border-top: 1.8px solid var(--muted);
+}
+
+.safety-legend .sw--count {
+  border-top: 1.5px dashed var(--accent);
+}
+
+.safety-toggle {
+  justify-self: start;
+}
+
+.safety-note {
+  margin: 0;
+  font-size: 14px;
+}
+
+.safety-cats {
+  display: grid;
+  gap: 8px;
+}
+
+.safety-rows {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.safety-row-top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px 8px;
+}
+
+.safety-row-name {
+  font-weight: 600;
+}
+
+.safety-bar {
+  position: relative;
+  height: 8px;
+  margin: 6px 0 4px;
+  border-radius: 999px;
+  background: var(--surface-2);
+}
+
+.safety-bar-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: inherit;
+  background: var(--accent);
+  opacity: 0.55;
+}
+
+.safety-bar-city {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  background: var(--text);
+  transform: translateX(-1px);
+}
+
+.safety-row-nums {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.district-label {
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}

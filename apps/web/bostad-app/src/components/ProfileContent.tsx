@@ -6,6 +6,7 @@ import type { ModeFilter } from "../lib/transport";
 import type { MessageKey } from "../lib/i18n";
 import { Icon, type IconName } from "./Icons";
 import { AreaCard, GroundCard, NearbyPlacesCard, NoiseCard, TransportCard, placesSummary } from "./cards";
+import { SafetyCard } from "./SafetyCard";
 import type { PlacesFilter } from "./placeFilter";
 import type { CardResult } from "./ProfileCard";
 
@@ -75,6 +76,7 @@ export function ProfileBody({
   onPlaceFilter = () => {},
   selectedPlaceId = null,
   onPickPlace = () => {},
+  onSafetyToggle = () => {},
 }: {
   profile: Profile;
   onRetry: () => void;
@@ -84,6 +86,7 @@ export function ProfileBody({
   onPlaceFilter?: (f: PlacesFilter) => void;
   selectedPlaceId?: string | null;
   onPickPlace?: (item: PlaceItem) => void;
+  onSafetyToggle?: (open: boolean) => void;
 }) {
   const { t } = useLang();
   const gate = gateOf(profile);
@@ -95,6 +98,7 @@ export function ProfileBody({
   const income = gatedCheck(profile.income, "exact");
   // Places are distances from the point, not a risk claim: shown even when the match is only a street (see profile.precision).
   const places = gatedCheck(profile.places, "exact");
+  const safety = gatedCheck(profile.safety, "exact");
 
   const groundRes: CardResult =
     ground.kind === "ok"
@@ -156,6 +160,7 @@ export function ProfileBody({
         result={placesRes}
       />
       <AreaCard district={district} income={income} area={area} onRetry={onRetry} result={areaRes} />
+      <SafetyCard check={safety} onRetry={onRetry} onOpenChange={onSafetyToggle} />
 
       <p className="more-row">
         {t("more.coming", { items: [t("more.brf"), t("more.energy"), t("more.inspection"), t("more.flood")].join(" · ") })}

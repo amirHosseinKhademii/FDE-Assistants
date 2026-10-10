@@ -46,15 +46,15 @@ primaromrade_nr,primaromrade_name,sdn_2011_2020,source_url,verified
 410,Brunnsbo,Norra Hisingen,https://en.wikipedia.org/wiki/Boroughs_and_districts_of_Gothenburg,false
 412,Backa,Norra Hisingen,https://en.wikipedia.org/wiki/Boroughs_and_districts_of_Gothenburg,false
 413,Skälltorp,Norra Hisingen,https://en.wikipedia.org/wiki/Boroughs_and_districts_of_Gothenburg,false
-414,Kyrkbyn,,,false
-415,Rambergsstaden,,,false
-416,Eriksberg,,,false
-417,Lindholmen,,,false
+414,Kyrkbyn,Lundby,"manual 2026-10-10 (assigned by hand, no published source)",manual
+415,Rambergsstaden,Lundby,"manual 2026-10-10 (assigned by hand, no published source)",manual
+416,Eriksberg,Lundby,"manual 2026-10-10 (assigned by hand, no published source)",manual
+417,Lindholmen,Lundby,"manual 2026-10-10 (assigned by hand, no published source)",manual
 501,Fiskebäck,Västra Göteborg,https://en.wikipedia.org/wiki/Boroughs_and_districts_of_Gothenburg,false
 502,Långedrag,Västra Göteborg,https://en.wikipedia.org/wiki/Boroughs_and_districts_of_Gothenburg,false
 503,Hagen,Västra Göteborg,https://en.wikipedia.org/wiki/Boroughs_and_districts_of_Gothenburg,false
 504,Grimmered,Västra Göteborg,https://en.wikipedia.org/wiki/Boroughs_and_districts_of_Gothenburg,false
-505,Södra Skärgården,,,false
+505,Södra Skärgården,Västra Göteborg,"manual 2026-10-10 (assigned by hand, no published source)",manual
 506,Bratthammar,Västra Göteborg,https://en.wikipedia.org/wiki/Boroughs_and_districts_of_Gothenburg,false
 507,Guldringen,Västra Göteborg,https://en.wikipedia.org/wiki/Boroughs_and_districts_of_Gothenburg,false
 508,Skattegården,Västra Göteborg,https://en.wikipedia.org/wiki/Boroughs_and_districts_of_Gothenburg,false

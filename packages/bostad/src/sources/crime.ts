@@ -12,11 +12,32 @@
 import * as fs from "fs";
 import * as path from "path";
 
-// Works from both src/sources and dist/sources (both are two levels below package root).
-const DATA_DIR = path.resolve(__dirname, "..", "..", "data");
+/**
+ * Works from src/sources and dist/sources (two levels below the package root). Under an ESM
+ * bundler (the web app's dev server) __dirname is undefined, so the package's data folder is
+ * found by walking up from the working directory instead.
+ */
+function dataDir(): string {
+  if (typeof __dirname !== "undefined") return path.resolve(__dirname, "..", "..", "data");
+  let dir = path.resolve(process.cwd());
+  for (;;) {
+    const candidate = path.join(dir, "packages", "bostad", "data");
+    if (fs.existsSync(candidate)) return candidate;
+    const parent = path.dirname(dir);
+    if (parent === dir) return path.resolve(process.cwd(), "..", "..", "data");
+    dir = parent;
+  }
+}
+const DATA_DIR = dataDir();
 const HISTORY_FILE = path.join(DATA_DIR, "bra-goteborg-history.csv");
 const POP_FILE = path.join(DATA_DIR, "goteborg-area-population.csv");
 const AREA_DIR = path.join(DATA_DIR, "areas");
+const MAPPING_FILE = path.join(DATA_DIR, "primaromrade-mapping.csv");
+
+/** Lower-case, no diacritics: "Majorna-Linné" and "Majorna-Linne" match. */
+function norm(s: string): string {
+  return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+}
 
 export const CITY = "Göteborg kommun";
 
@@ -94,6 +115,10 @@ export interface YearCrime {
   scheme: AreaScheme | null;
   /** Area containing the point in this year's scheme, or null when no polygon/no data. */
   area: string | null;
+  /** "polygon" = point inside a polygon (verified); "mapping" = primärområde → SDN by name (unverified). */
+  basis: "polygon" | "mapping" | null;
+  /** True only when the area comes from a polygon of the same scheme. */
+  verified: boolean;
   /** Why area is null, when it is. */
   areaNote: string | null;
   population: number | null;
@@ -128,9 +153,40 @@ interface Cache {
   pop: Map<string, number>; // kommun population, `${year}`
   areaPop: Map<string, number>; // `${year}|${scheme}|${area}`
   polys: Map<AreaScheme, AreaPoly[]>;
+  /** norm(short SDN name) -> BRÅ area name for sdn_2011_2020, e.g. "lundby" -> "Lundby stadsdel (upphörde 2021-01-01)". */
+  sdnNames: Map<string, string>;
 }
 
 let cache: Cache | null = null;
+
+interface Mapping {
+  sdn: string;
+  status: string; // "false" = draft, "manual" = assigned by hand
+}
+let mapping: Map<string, Mapping> | null = null;
+
+/** primärområde name (norm) -> stadsdelsnämndsområde (2011-2020). Draft except rows marked manual. */
+function loadMapping(): Map<string, Mapping> {
+  if (mapping) return mapping;
+  const m = new Map<string, Mapping>();
+  if (fs.existsSync(MAPPING_FILE)) {
+    for (const r of readCsv(MAPPING_FILE)) {
+      if (!r[1] || !r[2]) continue;
+      m.set(norm(r[1]), { sdn: r[2], status: r[4] ?? "" });
+    }
+  }
+  mapping = m;
+  return m;
+}
+
+/** Display name for a BRÅ area: "Stadsområde Centrum (Gbg)" -> "Centrum", "Majorna-Linne stadsdel (upphörde …)" -> "Majorna-Linne". */
+export function displayAreaName(area: string | null): string | null {
+  if (!area) return null;
+  return area
+    .replace(/^Stadsområde\s+/, "")
+    .replace(/\s*\(Gbg\)$/, "")
+    .replace(/\s+stadsdel\s*\(upphörde.*\)$/, "");
+}
 
 function parseCsvLine(line: string): string[] {
   const out: string[] = [];
@@ -199,7 +255,13 @@ function load(): Cache {
   for (const s of ["stadsomrade_2021", "sdn_2011_2020", "stadsdel_pre2011"] as AreaScheme[]) {
     polys.set(s, loadPolys(s));
   }
-  cache = { history, byKey, pop, areaPop, polys };
+  const sdnNames = new Map<string, string>();
+  for (const h of history) {
+    if (h.scheme !== "sdn_2011_2020") continue;
+    const short = norm(h.area.replace(/\s+stadsdel\s*\(upphörde.*\)$/, ""));
+    if (!sdnNames.has(short)) sdnNames.set(short, h.area);
+  }
+  cache = { history, byKey, pop, areaPop, polys, sdnNames };
   return cache;
 }
 
@@ -234,6 +296,25 @@ export function areaForPoint(lat: number, lon: number, scheme: AreaScheme): stri
 /** Whether polygons exist for a scheme (so areaForPoint can answer). */
 export function hasPolygons(scheme: AreaScheme): boolean {
   return (load().polys.get(scheme) ?? []).length > 0;
+}
+
+export interface LatLng {
+  lat: number;
+  lng: number;
+}
+/** The polygon(s) of the area containing the point, as [part][ring][vertex] in lat/lng. */
+export interface Outline {
+  name: string;
+  parts: LatLng[][][];
+}
+
+export function outlineAt(lat: number, lon: number, scheme: AreaScheme): Outline | null {
+  const name = areaForPoint(lat, lon, scheme);
+  if (name === null) return null;
+  const parts = (load().polys.get(scheme) ?? [])
+    .filter((p) => p.name === name)
+    .flatMap((p) => p.polygons.map((rings) => rings.map((ring) => ring.map(([x, y]) => ({ lat: y, lng: x })))));
+  return { name, parts };
 }
 
 function countFor(c: Cache, year: number, scheme: AreaScheme, area: string, category: string): HistoryRow | undefined {
@@ -272,12 +353,12 @@ function figure(
  * 2002-2020 the 2011-2020 stadsdelsnämndsområden) and its polygon decides the area.
  * No network calls.
  */
-export function crimeHistory(lat: number, lon: number): CrimeHistory {
+export function crimeHistory(lat: number, lon: number, primaryArea: string | null = null): CrimeHistory {
   const c = load();
   const caveats = [
     "Anmälda brott = reported crimes, not all crime. Reporting varies by area and crime type.",
     "Boundaries changed in 2011 and 2021; figures before a boundary change are not comparable across it.",
-    "Polygons exist only for stadsområden (2021-). 2002-2020 need stadsdelsnämndsområde polygons, not yet available.",
+    "Polygons exist only for stadsområden (2021-). 2002-2020 use the primärområde → stadsdelsnämndsområde mapping by name (unverified, except 5 manual rows).",
     "Area population exists for stadsområden 2021-2025 only; per-1000 is null for other areas and years.",
     "Suppressed or unavailable BRÅ cells are null, not zero.",
     "District totals sum to roughly 90-98 % of the city total; the rest is not assigned to a district.",
@@ -320,6 +401,23 @@ export function crimeHistory(lat: number, lon: number): CrimeHistory {
       break;
     }
 
+    let basis: YearCrime["basis"] = area ? "polygon" : null;
+    // 2002-2020: no polygons for the 2011 division, so the address's primärområde (WFS, from the
+    // profile's district section) is mapped by name to its stadsdelsnämndsområde. Not verified.
+    if (!area && year >= 2002 && year <= 2020 && primaryArea) {
+      const m = loadMapping().get(norm(primaryArea));
+      const bra = m ? c.sdnNames.get(norm(m.sdn)) : undefined;
+      if (!m) areaNote = "primärområde not in the mapping";
+      else if (!bra) areaNote = "no BRÅ series for the mapped stadsdelsnämndsområde";
+      else if (countFor(c, year, "sdn_2011_2020", bra, TOTAL_CATEGORY)?.count == null) areaNote = "no BRÅ total for this year";
+      else {
+        scheme = "sdn_2011_2020";
+        area = bra;
+        areaNote = null;
+        basis = "mapping";
+      }
+    }
+
     const sample = scheme ? c.history.find((h) => h.year === year && h.scheme === scheme) : undefined;
     const subcategories = {} as Record<SubKey, CategoryCount>;
     const categories: Record<string, CategoryCount> = {};
@@ -345,6 +443,8 @@ export function crimeHistory(lat: number, lon: number): CrimeHistory {
       year,
       scheme,
       area,
+      basis,
+      verified: basis === "polygon",
       areaNote,
       population: areaPopulation,
       cityPopulation: popCity,

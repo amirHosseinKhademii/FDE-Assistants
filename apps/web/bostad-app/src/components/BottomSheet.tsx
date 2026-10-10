@@ -1,6 +1,6 @@
 /**
  * The profile sheet on phones: a fixed box over the map, with three modes.
- *  - open (default): its top at 45 % of the screen, 24 px over the map.
+ *  - open (default): its top at 45 % of the screen, exactly at the map's bottom edge (no overlap, so the Google attribution stays visible).
  *  - card: the card covers the whole screen; the map is behind it, unchanged.
  *  - collapsed: the map is the whole screen; a "Show details" pill brings the card back.
  * The handle bar is the only control. A tap cycles open ↔ collapsed (card: back to
@@ -18,7 +18,7 @@ const SWIPE_PX_PER_MS = 0.3;
 
 /** Top edge of the sheet for each mode. */
 export function sheetTop(mode: SheetMode): string {
-  if (mode === "open") return "calc(45dvh - 24px)";
+  if (mode === "open") return "45dvh";
   // Below the top overlay row (wordmark, language, theme, search), so the handle stays reachable.
   if (mode === "card") return "calc(env(safe-area-inset-top) + 64px)";
   return "100dvh";

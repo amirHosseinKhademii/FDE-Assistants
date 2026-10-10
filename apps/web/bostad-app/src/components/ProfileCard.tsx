@@ -24,6 +24,7 @@ export function ProfileCard({
   source,
   checkedAt,
   onRetry,
+  onToggle,
 }: {
   id?: string;
   icon: IconName;
@@ -36,10 +37,12 @@ export function ProfileCard({
   source?: { name: string; href: string | null };
   checkedAt?: string;
   onRetry?: () => void;
+  /** Called with the new open state whenever the card is opened or closed. */
+  onToggle?: (open: boolean) => void;
 }) {
   const { t } = useLang();
   return (
-    <details className="card" id={id} data-status={status}>
+    <details className="card" id={id} data-status={status} onToggle={(e) => onToggle?.(e.currentTarget.open)}>
       <summary>
         <span className="card-icon">
           <Icon name={icon} />
