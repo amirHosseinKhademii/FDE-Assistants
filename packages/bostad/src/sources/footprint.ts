@@ -5,7 +5,7 @@
  * neighbours'. Returns null when there is no building or the lookup fails: the
  * caller then falls back to nearest-cluster matching.
  */
-import { overpassCached } from "./overpass";
+import { gridCell, overpassCached } from "./overpass";
 import { polygonContains } from "./wfs";
 
 export const FOOTPRINT_RADIUS_M = 15;
@@ -84,17 +84,23 @@ export function pickFootprint(ways: OsmWay[], lat: number, lon: number): Footpri
   return best ? { ring: best.ring, containsAddress: false, distanceMeters: Math.round(best.d * 10) / 10 } : null;
 }
 
+/**
+ * Overpass asks around the centre of the address's grid cell, with the radius
+ * widened by the cell's half-diagonal (about 35 m), so every building within
+ * FOOTPRINT_RADIUS_M of the exact point is in the answer.
+ */
+const FOOTPRINT_QUERY_RADIUS_M = FOOTPRINT_RADIUS_M + 50;
+
 /** The building footprint at (lat, lon), or null when none is mapped nearby or Overpass cannot answer. */
 export async function footprintAt(lat: number, lon: number): Promise<Footprint | null> {
+  const cell = gridCell(lat, lon);
   const query = [
     "[out:json][timeout:10];",
-    `way["building"](around:${FOOTPRINT_RADIUS_M},${lat},${lon});`,
+    `way["building"](around:${FOOTPRINT_QUERY_RADIUS_M},${cell.lat},${cell.lon});`,
     "out geom;",
   ].join("\n");
-  // Keyed on a ~50 m grid, so the same address (or a neighbour's point) reuses the answer.
-  const key = `footprint:${Math.round(lat / 0.00045)},${Math.round(lon / 0.00045)}`;
   try {
-    const body = await overpassCached<{ elements?: OsmWay[] }>(key, query);
+    const body = await overpassCached<{ elements?: OsmWay[] }>("footprint", cell, query);
     return pickFootprint(body.elements ?? [], lat, lon);
   } catch {
     return null;

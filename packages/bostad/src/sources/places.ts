@@ -1,16 +1,12 @@
 /**
- * Everyday places within 500 m, from OpenStreetMap via Overpass (ODbL). One
- * query per point, with a User-Agent and a 10 s timeout. Results are cached in
- * memory per point (about 11 m grid) for an hour: the cache is a convenience,
- * never a store, and only successful answers are kept.
+ * Everyday places within PLACES_RADIUS_M, from OpenStreetMap via Overpass (ODbL).
+ * The lookup goes through the shared Overpass client (mirror fallback, 10 s per
+ * try) and its 24 h cache, keyed by grid cell (about 50 m): see overpass.ts.
  */
 import { haversineMeters } from "./transit";
+import { gridCell, overpassCached } from "./overpass";
 
-export const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
 export const PLACES_RADIUS_M = 500;
-const TTL_MS = 60 * 60 * 1000;
-const CACHE_MAX = 500;
-const USER_AGENT = "bostad-prototype/0.1 (learner prototype; OSM data)";
 const MAX_ITEMS = 80;
 
 export type PlaceCategory = "grocery" | "pharmacy" | "school" | "preschool" | "park" | "health";
@@ -35,11 +31,14 @@ export interface PlacesResult {
   source: string;
 }
 
+/** Overpass asks a little wider than the radius, around the grid cell centre (see gridCell). */
+const PLACES_QUERY_RADIUS_M = PLACES_RADIUS_M + 50;
+
 /** One Overpass filter over shop / amenity / leisure, then sorted by tag below. */
 function query(lat: number, lon: number): string {
   return [
     "[out:json][timeout:10];",
-    `nwr(around:${PLACES_RADIUS_M},${lat},${lon})[~"^(shop|amenity|leisure)$"~"^(supermarket|pharmacy|school|kindergarten|park|doctors|clinic|hospital)$"];`,
+    `nwr(around:${PLACES_QUERY_RADIUS_M},${lat},${lon})[~"^(shop|amenity|leisure)$"~"^(supermarket|pharmacy|school|kindergarten|park|doctors|clinic|hospital)$"];`,
     "out center tags;",
   ].join("\n");
 }
@@ -94,39 +93,19 @@ export function summarise(items: PlaceItem[]): Pick<PlacesResult, "counts" | "ne
   return { counts, nearest };
 }
 
-const cache = new Map<string, { at: number; value: PlacesResult }>();
-
-export async function placesAt(lat: number, lon: number, now: number = Date.now()): Promise<PlacesResult> {
-  const key = `${lat.toFixed(4)},${lon.toFixed(4)}`;
-  const hit = cache.get(key);
-  if (hit && now - hit.at < TTL_MS) return hit.value;
-
-  const res = await fetch(OVERPASS_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/json",
-      "User-Agent": USER_AGENT,
-    },
-    body: new URLSearchParams({ data: query(lat, lon) }).toString(),
-    signal: AbortSignal.timeout(10000),
-  });
-  if (!res.ok) throw new Error(`Overpass HTTP ${res.status}`);
-  const body = (await res.json()) as { elements?: unknown };
+export async function placesAt(lat: number, lon: number): Promise<PlacesResult> {
+  const cell = gridCell(lat, lon);
+  const body = await overpassCached<{ elements?: unknown }>("places", cell, query(cell.lat, cell.lon));
   if (!Array.isArray(body.elements)) throw new Error("Overpass response has no elements array");
 
-  const items = itemsFrom(body.elements as OverpassElement[], lat, lon);
-  const value: PlacesResult = {
+  // Measured from the exact point; the query was wider so no item inside the radius is missed.
+  const items = itemsFrom(body.elements as OverpassElement[], lat, lon).filter(
+    (item) => item.distanceMeters <= PLACES_RADIUS_M,
+  );
+  return {
     radiusMeters: PLACES_RADIUS_M,
     ...summarise(items),
     items,
     source: "overpass-api.de",
   };
-
-  if (cache.size >= CACHE_MAX) {
-    const oldest = cache.keys().next().value;
-    if (oldest !== undefined) cache.delete(oldest);
-  }
-  cache.set(key, { at: now, value });
-  return value;
 }
