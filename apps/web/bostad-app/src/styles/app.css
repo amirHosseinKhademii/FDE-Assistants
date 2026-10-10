@@ -1080,31 +1080,46 @@ a.btn-secondary {
   display: none;
 }
 
-/* Wide screens: map sticky on the left, search and content on the right. */
+/* Wide screens (960 px and up): the map on the left, full viewport height; the card column on the right scrolls on its own.
+   The phone sheet's offsets (45 dvh top, overlap, handle, pill) are switched off here. The top overlay floats over the map only. */
 @media (min-width: 960px) {
-  .profile {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 520px);
-    grid-template-rows: auto 1fr;
-    grid-template-areas: "map search" "map sheet";
-    column-gap: 24px;
-    align-items: start;
-    padding: 8px 0 48px;
+  .wrap:has(> .profile) {
+    position: relative;
+    max-width: none;
+    padding: 0;
   }
 
+  .profile {
+    --card-col: 480px;
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--card-col);
+    grid-template-rows: minmax(0, 100dvh);
+    grid-template-areas: "map sheet";
+    height: 100dvh;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  /* Search floats at the top-left of the map; it never reaches the card column. */
   .profile-search {
-    grid-area: search;
-    position: static;
+    grid-area: map;
+    position: absolute;
+    top: 68px;
+    left: 12px;
+    z-index: 3;
+    width: min(440px, calc(100% - 24px));
     padding: 0;
     background: none;
   }
 
   .map-col {
     grid-area: map;
-    position: sticky;
-    top: 16px;
-    height: calc(100vh - 32px);
+    position: relative;
+    top: auto;
+    height: 100dvh;
     min-height: 0;
-    border-radius: var(--radius-card);
+    border-radius: 0;
   }
 
   .map-col.is-expanded {
@@ -1112,10 +1127,70 @@ a.btn-secondary {
     border-radius: 0;
   }
 
+  /* Top overlay: wordmark at the top-left, language and theme at the top-right, both inside the map column. */
+  .wrap .topbar.is-overlay {
+    display: flex;
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: calc(var(--card-col) + 12px);
+    z-index: 30;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 0;
+    padding-right: 0;
+    background: transparent;
+    pointer-events: none;
+  }
+
+  .topbar.is-overlay .wordmark {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    height: 44px;
+    padding: 0 16px;
+    border-radius: 999px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+
+  .topbar.is-overlay .topbar-actions {
+    pointer-events: none;
+    margin-left: auto;
+  }
+
+  .topbar.is-overlay .topbar-actions > * {
+    pointer-events: auto;
+  }
+
+  .map-chips {
+    top: 124px;
+    left: 12px;
+    right: 12px;
+  }
+
+  .map-expand {
+    top: auto;
+    right: auto;
+    left: 10px;
+    bottom: 12px;
+  }
+
+  /* The card column: its own scroll, from the very top, with no sheet offsets. */
   .profile-sheet {
     grid-area: sheet;
-    margin-top: 0;
-    padding: 0;
+    position: relative;
+    top: auto !important;
+    z-index: 1;
+    display: grid;
+    align-content: start;
+    height: 100dvh;
+    min-height: 0;
+    margin: 0;
+    padding: 20px 24px 48px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
     border-radius: 0;
     background: none;
     box-shadow: none;

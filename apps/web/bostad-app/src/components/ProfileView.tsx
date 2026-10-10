@@ -88,10 +88,18 @@ export function ProfileView({ address, onSearch }: { address: string; onSearch: 
   const [searching, setSearching] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 960px)");
-    const sync = () => setWide(mq.matches);
     sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
+    // Crossing the breakpoint resets the layout state: the sheet opens and the phone search closes.
+    function onChange() {
+      sync();
+      setMode("open");
+      setSearching(false);
+    }
+    function sync() {
+      setWide(mq.matches);
+    }
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
   }, []);
   // A new address opens with the sheet open.
   useEffect(() => setMode("open"), [coords?.lat, coords?.lon]);
@@ -99,7 +107,7 @@ export function ProfileView({ address, onSearch }: { address: string; onSearch: 
   return (
     <div className="wrap">
       <TopBar
-        overlay={!wide}
+        overlay
         searching={searching}
         search={
           !wide ? <FloatingSearch address={address} onSearch={onSearch} onOpenChange={setSearching} /> : undefined
