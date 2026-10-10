@@ -49,6 +49,8 @@ function stub(source: string, reason: string): Section<never> {
 
 export async function getProfile(address: string): Promise<Profile> {
   const location = await attempt("nominatim.openstreetmap.org", () => geocode(address));
+  // Report the provider that actually answered, not the first one asked.
+  if (location.data) location.source = location.data.source;
 
   let landslide: Section<LandslideResult>;
   let transit: Section<TransitResult>;

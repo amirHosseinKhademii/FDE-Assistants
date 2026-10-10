@@ -29,7 +29,7 @@ const TYPES: Record<string, string> = {
 };
 
 if (import.meta.env.PROD) {
-  const port = Number(process.env.PORT ?? 3500);
+  const port = Number(process.env.PORT ?? 3600);
   const clientDir = join(import.meta.dirname ?? process.cwd(), '..', 'client');
 
   createServer(async (req, res) => {
