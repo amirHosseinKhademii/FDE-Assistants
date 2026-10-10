@@ -16,35 +16,42 @@ export const MODES: Mode[] = ["tram", "train", "ferry", "bus"];
 
 export type MapStop = Pick<TransitStop, "id" | "name" | "lat" | "lon" | "distanceMeters" | "modes" | "lines">;
 
-/** Pictogram paths on a 24 x 24 grid, stroked with currentColor (React) or ink (map). */
+/**
+ * Pictogram paths on a 24 x 24 grid, stroked with currentColor. Each drawing's
+ * bounding box is centred on (12, 12): the same margin on every side, so a
+ * pictogram sits in the middle of its circle (checked by pixels, see the
+ * marker check in scratchpad).
+ */
 export const MODE_PATHS: Record<Mode, string[]> = {
   tram: [
-    "M7 4h10a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z",
-    "M5 11h14",
-    "M9 2.5L12 4l3-1.5",
-    "M8 18.5L6.5 21",
-    "M16 18.5L17.5 21",
+    "M7 3h10a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z",
+    "M5 10.5h14",
+    "M8 16l-1.5 5",
+    "M16 16l1.5 5",
   ],
   train: [
     "M7 3h10a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z",
-    "M5 11h14",
+    "M5 10.5h14",
     "M9 18l-2 3",
     "M15 18l2 3",
-    "M9 7h6",
+    "M9 6.5h6",
   ],
   ferry: [
-    "M3 14h18l-2.5 5H5.5z",
-    "M7 14V9.5h10V14",
-    "M12 9.5V5.5",
-    "M9.5 9.5h5",
+    "M3 14.5h18l-2.5 4.5H5.5z",
+    "M7 14.5V10h10v4.5",
+    "M12 10V5",
+    "M9.5 10h5",
   ],
   bus: [
-    "M6 4h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z",
-    "M4 11h16",
-    "M8 19v2",
-    "M16 19v2",
+    "M6 3.5h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2z",
+    "M4 10.5h16",
+    "M8 17.5v3",
+    "M16 17.5v3",
   ],
 };
+
+/** The house pictogram for the home pin, on the same 24 x 24 grid. */
+export const HOME_PATHS: string[] = ["M3.5 11.5L12 4l8.5 7.5", "M6 10v10h4v-5.5h4V20h4V10"];
 
 export type Palette = { modes: Record<Mode, string>; ink: string; surface: string; text: string };
 

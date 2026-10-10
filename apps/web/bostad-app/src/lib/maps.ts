@@ -10,3 +10,9 @@ export const HAS_MAPS_KEY = MAPS_KEY.length > 0;
 
 /** Bias for address suggestions: 20 km around central Gothenburg. */
 export const GOTHENBURG_BIAS = { center: { lat: 57.7089, lng: 11.9746 }, radius: 20000 };
+
+/**
+ * Map ID for Advanced Markers and the colour scheme. DEMO_MAP_ID works for local
+ * development; set VITE_GOOGLE_MAPS_MAP_ID to use a vector Map ID from Google Cloud.
+ */
+export const MAP_ID: string = String(import.meta.env.VITE_GOOGLE_MAPS_MAP_ID ?? "").trim() || "DEMO_MAP_ID";

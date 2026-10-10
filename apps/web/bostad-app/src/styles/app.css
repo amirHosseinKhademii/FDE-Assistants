@@ -1108,3 +1108,106 @@ a.btn-secondary {
   margin: 0;
   font-size: var(--fs-caption);
 }
+
+/* ---------- map pins (Advanced Markers: React content, centred on the coordinate) ---------- */
+.pin {
+  position: relative;
+  box-sizing: border-box;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  line-height: 0;
+  border: 2px solid var(--surface);
+  border-radius: 999px;
+  color: var(--mode-ink);
+  box-shadow: var(--shadow-pop);
+}
+
+.pin svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+}
+
+.pin--tram { background: var(--mode-tram); }
+.pin--bus { background: var(--mode-bus); }
+.pin--ferry { background: var(--mode-ferry); }
+.pin--train { background: var(--mode-train); }
+
+.pin.is-selected {
+  transform: scale(1.15);
+  border-color: var(--text);
+}
+
+.pin--home {
+  width: 44px;
+  height: 44px;
+  border-width: 3px;
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.pin--home svg {
+  width: 20px;
+  height: 20px;
+}
+
+.pin--home::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border: 2px solid var(--accent);
+  border-radius: 999px;
+  opacity: 0;
+  pointer-events: none;
+  animation: pin-pulse 2.4s ease-out infinite;
+}
+
+@keyframes pin-pulse {
+  0% { transform: scale(0.8); opacity: 0.6; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pin--home::before { display: none; }
+}
+
+.pin--dot {
+  width: 12px;
+  height: 12px;
+  border-width: 2px;
+}
+
+.pin--dot svg { display: none; }
+
+.pin-badge {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: 14px;
+  height: 14px;
+  box-sizing: border-box;
+  border: 2px solid var(--surface);
+  border-radius: 999px;
+}
+
+.pin-badge.mode-tram { background: var(--mode-tram); }
+.pin-badge.mode-bus { background: var(--mode-bus); }
+.pin-badge.mode-ferry { background: var(--mode-ferry); }
+.pin-badge.mode-train { background: var(--mode-train); }
+
+.pin-label {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-shadow: var(--shadow-pop);
+}

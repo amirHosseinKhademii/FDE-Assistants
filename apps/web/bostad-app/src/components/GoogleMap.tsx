@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { Map, InfoWindow, Marker, useMap } from "@vis.gl/react-google-maps";
+import { Map, InfoWindow, Marker, ColorScheme, useMap } from "@vis.gl/react-google-maps";
 import { useLang } from "../lib/lang";
 import { walkMinutes } from "../lib/format";
 import { useTheme } from "../lib/theme";
-import { MAP_COLOURS, MODE_KEY, MODE_PATHS, stopMatches, modesPresent, type MapStop, type Mode, type ModeFilter, type Palette } from "../lib/transport";
+import { MAP_COLOURS, MODE_KEY, stopMatches, modesPresent, type MapStop, type Mode, type ModeFilter } from "../lib/transport";
+import { MAP_ID } from "../lib/maps";
+import { HomePin, StopPin } from "./MapPins";
 import { LineBadge } from "./ModeIcon";
 import { MapLegend } from "./MapLegend";
 import { PLACE_KEY } from "../lib/places";
@@ -11,74 +13,12 @@ import type { PlaceItem } from "@bostad/property";
 
 export type { MapStop } from "../lib/transport";
 
-const ACCENT = "#2F6F62";
-const STOP_FILL = "#9AA59F";
 const MAX_BADGES = 8;
 
 /** SVG as a data URI: no image request, and the marker size is the SVG's own. */
 function svgIcon(svg: string): string {
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
-
-const HOUSE_ICON = svgIcon(
-  `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">` +
-    `<circle cx="20" cy="20" r="16" fill="${ACCENT}" stroke="#FFFFFF" stroke-width="3"/>` +
-    `<path d="M20 11l9 7.5V29h-6v-6h-6v6h-6v-10.5z" fill="#FFFFFF"/></svg>`,
-);
-
-const STOP_ICON = svgIcon(
-  `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">` +
-    `<circle cx="8" cy="8" r="6" fill="${STOP_FILL}" stroke="#FFFFFF" stroke-width="2"/></svg>`,
-);
-
-/**
- * A round badge in the mode's colour with its pictogram. A stop served by more
- * than one primary mode gets a small "+" dot, so a tram stop that also has
- * buses says so before you tap it.
- */
-function modeIcon(mode: Mode, multi: boolean, p: Palette): string {
-  const fill = p.modes[mode];
-  const paths = MODE_PATHS[mode].map((d) => `<path d="${d}"/>`).join("");
-  const plus = multi
-    ? `<circle cx="29" cy="7" r="6" fill="${p.surface}" stroke="${fill}" stroke-width="2"/>` +
-      `<path d="M29 4.5v5M26.5 7h5" stroke="${p.text}" stroke-width="1.6" stroke-linecap="round"/>`
-    : "";
-  return svgIcon(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">` +
-      `<circle cx="18" cy="18" r="16" fill="${fill}" stroke="${p.surface}" stroke-width="2.5"/>` +
-      `<g transform="translate(6.08 6.08) scale(0.66)" fill="none" stroke="${p.ink}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${paths}</g>` +
-      plus +
-      `</svg>`,
-  );
-}
-
-/** Quieter base map in both themes: no POI labels or transit icons. */
-const QUIET_RULES: google.maps.MapTypeStyle[] = [
-  { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
-  { featureType: "poi.business", stylers: [{ visibility: "off" }] },
-  { featureType: "transit", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
-];
-
-/** Light: slightly desaturated greenery on the warm base. */
-const LIGHT_STYLE: google.maps.MapTypeStyle[] = [
-  ...QUIET_RULES,
-  { featureType: "landscape", stylers: [{ saturation: -25 }] },
-];
-
-/** Dark: a night base in the app's own greys, so the map sits in the page. */
-const DARK_STYLE: google.maps.MapTypeStyle[] = [
-  { elementType: "geometry", stylers: [{ color: "#1b2024" }] },
-  { elementType: "labels.text.stroke", stylers: [{ color: "#1b2024" }] },
-  { elementType: "labels.text.fill", stylers: [{ color: "#8d959d" }] },
-  { featureType: "road", elementType: "geometry", stylers: [{ color: "#2b3238" }] },
-  { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#1b2024" }] },
-  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#37414a" }] },
-  { featureType: "water", elementType: "geometry", stylers: [{ color: "#0f1417" }] },
-  { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#161b1e" }] },
-  { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#1a2a25" }] },
-  { featureType: "transit", elementType: "geometry", stylers: [{ color: "#22282d" }] },
-  ...QUIET_RULES,
-];
 
 /** Fits the view to every point; a single point gets a fixed street-level zoom. */
 function FitBounds({ points }: { points: google.maps.LatLngLiteral[] }) {
@@ -118,7 +58,6 @@ export function GoogleMap({
   const { t } = useLang();
   const { effective } = useTheme();
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const styles = effective === "dark" ? DARK_STYLE : LIGHT_STYLE;
   const palette = MAP_COLOURS[effective];
 
   const gesture: "cooperative" | "auto" =
@@ -144,29 +83,20 @@ export function GoogleMap({
     [effective, palette.surface],
   );
 
-  const icons = useMemo(() => {
-    const byMode = {} as Record<Mode, { single: string; multi: string }>;
-    for (const mode of ["tram", "train", "ferry", "bus"] as Mode[]) {
-      byMode[mode] = { single: modeIcon(mode, false, palette), multi: modeIcon(mode, true, palette) };
-    }
-    return byMode;
-  }, [palette]);
-
   return (
     <div className="gmap">
       <Map
         defaultCenter={houseAt}
         defaultZoom={15}
         gestureHandling={gesture}
-        styles={styles}
+        mapId={MAP_ID}
+        colorScheme={effective === "dark" ? ColorScheme.DARK : ColorScheme.LIGHT}
+        disableDefaultUI
         clickableIcons={false}
-        mapTypeControl={false}
-        streetViewControl={false}
-        fullscreenControl={false}
         style={{ width: "100%", height: "100%" }}
       >
         <FitBounds points={points} />
-        <Marker position={houseAt} icon={HOUSE_ICON} title={t("map.house")} zIndex={2} />
+        <HomePin position={houseAt} title={t("map.house")} />
         {places.map((p) => (
           <Marker
             key={`place-${p.id}`}
@@ -178,14 +108,15 @@ export function GoogleMap({
         ))}
         {shown.map((stop) => {
           const primary = stop.modes[0];
-          const icon = primary ? (stop.modes.length > 1 ? icons[primary].multi : icons[primary].single) : STOP_ICON;
+          if (!primary) return null;
           return (
-            <Marker
+            <StopPin
               key={stop.id || stop.name}
               position={{ lat: stop.lat, lng: stop.lon }}
-              icon={icon}
               title={stop.name}
-              zIndex={primary ? 1 : 0}
+              mode={primary}
+              secondary={stop.modes[1]}
+              zIndex={1}
               onClick={() => setSelectedId(stop.id || stop.name)}
             />
           );
