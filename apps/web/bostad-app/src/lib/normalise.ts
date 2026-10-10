@@ -14,6 +14,8 @@ import type {
   PlaceCategory,
   PlaceItem,
   PlacesResult,
+  CrimeGroup,
+  NeighbourhoodResult,
   SafetyFigure,
   SafetyResult,
   SafetyYear,
@@ -305,6 +307,35 @@ function safetyFigure(v: unknown): SafetyFigure {
   return { count: finite(o.count), per1000: finite(o.per1000) };
 }
 
+function normaliseNeighbourhood(raw: unknown): NeighbourhoodResult | null {
+  if (!isObject(raw)) return null;
+  const strings = (v: unknown) => arr(v).filter((x): x is string => typeof x === "string");
+  const bullets = isObject(raw.bullets) ? raw.bullets : {};
+  const point = (v: unknown) => {
+    const p = isObject(v) ? v : {};
+    return { lat: finite(p.lat) ?? 0, lng: finite(p.lng) ?? 0 };
+  };
+  return {
+    name: str(raw.name),
+    stadsomrade: str(raw.stadsomrade),
+    primaromraden: strings(raw.primaromraden),
+    reportYear: finite(raw.reportYear) ?? 0,
+    reportUrl: str(raw.reportUrl),
+    bullets: { en: strings(bullets.en), sv: strings(bullets.sv) },
+    crimes: arr(raw.crimes)
+      .filter(isObject)
+      .map((c) => ({ tag: str(c.tag), group: str(c.group, "other") as CrimeGroup })),
+    places: arr(raw.places)
+      .filter(isObject)
+      .map((p) => ({ name: str(p.name), noteEn: str(p.noteEn) })),
+    trendEn: typeof raw.trendEn === "string" ? raw.trendEn : null,
+    quotes: arr(raw.quotes)
+      .filter(isObject)
+      .map((q) => ({ sv: str(q.sv), page: finite(q.page) ?? 0 })),
+    outline: arr(raw.outline).map((part) => arr(part).map((ring) => arr(ring).map(point))),
+  };
+}
+
 function normaliseSafety(data: unknown): SafetyResult | undefined {
   if (!isObject(data)) return undefined;
   const years = arr(data.years)
@@ -336,6 +367,7 @@ function normaliseSafety(data: unknown): SafetyResult | undefined {
       ? { name: str(outline.name), parts: arr(outline.parts).map((part) => arr(part).map((ring) => arr(ring).map(point))) }
       : null,
     outlineName: typeof data.outlineName === "string" ? data.outlineName : null,
+    neighbourhood: normaliseNeighbourhood(data.neighbourhood),
     exportedAt: typeof data.exportedAt === "string" ? data.exportedAt : null,
   };
 }

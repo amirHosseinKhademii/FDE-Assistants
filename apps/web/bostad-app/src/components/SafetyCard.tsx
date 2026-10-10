@@ -1,5 +1,5 @@
 import { useId, useState } from "react";
-import type { SafetyResult, SafetyYear } from "@bostad/property";
+import type { CrimeGroup, NeighbourhoodResult, SafetyResult, SafetyYear } from "@bostad/property";
 import { useLang } from "../lib/lang";
 import type { Check } from "../lib/checks";
 import type { MessageKey } from "../lib/i18n";
@@ -27,6 +27,19 @@ const CAT_ICON: Record<CatKey, IconName> = {
   vandalism: "burst",
   fraud: "card",
   drugs: "pill",
+};
+
+/** Icons for the crime tags of the city report, grouped the same way as the categories. */
+const GROUP_ICON: Partial<Record<CrimeGroup, IconName>> = {
+  violence: "alertTri",
+  burglary: "houseDoor",
+  carTheft: "car",
+  theftFromCar: "carWindow",
+  bikeTheft: "bike",
+  vandalism: "burst",
+  fraud: "card",
+  drugs: "pill",
+  traffic: "car",
 };
 
 /** Arrow for a level: up above city, down below, equals around. Colour comes from the tone. */
@@ -121,6 +134,12 @@ function SafetyBody({
 
   return (
     <>
+      {data.neighbourhood && <NeighbourhoodBlock n={data.neighbourhood} lang={lang} />}
+      {data.neighbourhood && (
+        <p className="sx-divider">
+          <span>{t("safety.districtNumbers", { district: data.outlineName ?? area })}</span>
+        </p>
+      )}
       <div className="sx-head">
         {level && (
           <span className="sx-badge" data-tone={tone}>
@@ -154,6 +173,84 @@ function SafetyBody({
 
       {data.outline && <p className="muted sx-note">{t("safety.onMap")}</p>}
     </>
+  );
+}
+
+/**
+ * The mellanområde around the address, from the city's 2024 safety report: the report's own
+ * bullets, its common crime tags, named places and trend. Written assessment, not statistics.
+ */
+function NeighbourhoodBlock({ n, lang }: { n: NeighbourhoodResult; lang: "en" | "sv" }) {
+  const { t } = useLang();
+  const bullets = lang === "sv" && n.bullets.sv.length > 0 ? n.bullets.sv : n.bullets.en;
+  const englishOnly = lang === "sv";
+  return (
+    <section className="sx-nb" aria-label={t("safety.nb.kicker")}>
+      <p className="sx-nb-kicker">{t("safety.nb.kicker")}</p>
+      <h3 className="sx-nb-title">
+        {n.name}
+        {n.primaromraden.length > 0 && <span className="sx-nb-areas"> ({n.primaromraden.join(", ")})</span>}
+      </h3>
+      <p className="sx-nb-from">{t("safety.nb.from", { year: n.reportYear })}</p>
+      <ul className="sx-nb-bullets">
+        {bullets.map((b, i) => (
+          <li key={i}>{b}</li>
+        ))}
+      </ul>
+      {n.crimes.length > 0 && (
+        <>
+          <p className="sx-nb-label">{t("safety.nb.tags")}</p>
+          <ul className="sx-nb-tags">
+            {n.crimes.map((c) => {
+              const icon = GROUP_ICON[c.group];
+              return (
+                <li key={c.tag} className="sx-nb-tag">
+                  {icon && <Icon name={icon} />}
+                  <span>{c.tag}</span>
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
+      {n.places.length > 0 && (
+        <>
+          <p className="sx-nb-label">{t("safety.nb.places")}</p>
+          <ul className="sx-nb-places">
+            {n.places.map((p, i) => (
+              <li key={i}>
+                <span className="sx-nb-place-name">{p.name}</span>
+                {p.noteEn && <span className="muted"> · {p.noteEn}</span>}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      {n.trendEn && (
+        <p className="sx-nb-trend">
+          <span className="sx-nb-label">{t("safety.nb.trend")}</span> {n.trendEn}
+        </p>
+      )}
+      {n.quotes.length > 0 && (
+        <details className="sx-nb-sources">
+          <summary>{t("safety.nb.sources")}</summary>
+          <ul>
+            {n.quotes.map((q, i) => (
+              <li key={i}>
+                <q>{q.sv}</q>{" "}
+                {n.reportUrl && (
+                  <a href={`${n.reportUrl}#page=${q.page}`} target="_blank" rel="noreferrer">
+                    {t("safety.nb.page", { page: q.page })}
+                  </a>
+                )}
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+      <p className="muted sx-nb-note">{t("safety.nb.note")}</p>
+      {englishOnly && <p className="muted sx-nb-note">{t("safety.nb.enOnly")}</p>}
+    </section>
   );
 }
 

@@ -28,7 +28,7 @@ function dataDir(): string {
     dir = parent;
   }
 }
-const DATA_DIR = dataDir();
+export const DATA_DIR = dataDir();
 const HISTORY_FILE = path.join(DATA_DIR, "bra-goteborg-history.csv");
 const POP_FILE = path.join(DATA_DIR, "goteborg-area-population.csv");
 const AREA_DIR = path.join(DATA_DIR, "areas");

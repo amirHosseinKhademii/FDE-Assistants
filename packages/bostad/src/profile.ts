@@ -21,6 +21,7 @@ export type { Level } from "./sources/scb";
 export type { PlaceCategory, PlaceItem, PlacesResult } from "./sources/places";
 export type { SafetyKey, SafetyResult, SafetyYear, SafetyFigure } from "./sources/safety";
 export type { LatLng } from "./sources/crime";
+export type { NeighbourhoodResult, CrimeGroup } from "./sources/neighbourhood";
 
 export type SectionStatus = "ok" | "error" | "unavailable";
 

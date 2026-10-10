@@ -73,7 +73,7 @@ export function MapPanel({
   /** Changes when the map's box changes size (the sheet opened or collapsed): the map resizes, its centre and zoom stay. */
   resizeKey?: string;
   /** The Safety card's district, shaded on the map while the card is open. */
-  district?: { name: string; parts: LatLng[][][] } | null;
+  district?: { name: string; parts: LatLng[][][]; kind?: "district" | "neighbourhood" } | null;
 }) {
   const { t } = useLang();
   const [mounted, setMounted] = useState(false);

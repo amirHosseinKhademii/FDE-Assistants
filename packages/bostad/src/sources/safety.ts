@@ -6,6 +6,7 @@
  * (unverified): counts only, no per-1 000. No network calls.
  */
 import { crimeHistory, outlineAt, displayAreaName, type CategoryCount, type LatLng, type SubKey, type YearCrime } from "./crime";
+import { neighbourhoodAt, type NeighbourhoodResult } from "./neighbourhood";
 
 export type SafetyKey = "all" | "violence" | "burglary" | "carTheft" | "theftFromCar" | "bikeTheft" | "vandalism" | "fraud" | "drugs";
 
@@ -45,6 +46,8 @@ export interface SafetyResult {
   /** The stadsområde containing the address (2021+), outlined on the map. */
   outline: { name: string; parts: LatLng[][][] } | null;
   outlineName: string | null;
+  /** The mellanområde containing the address and its city/police assessment (2024 reports). */
+  neighbourhood: NeighbourhoodResult | null;
   exportedAt: string | null;
 }
 
@@ -104,6 +107,7 @@ export function safetyAt(lat: number, lon: number, primaryArea: string | null): 
     latestYear: latest?.year ?? null,
     outline: outline ? { name: outline.name, parts: outline.parts } : null,
     outlineName: displayAreaName(outline?.name ?? null),
+    neighbourhood: neighbourhoodAt(lat, lon),
     exportedAt: history.years[0]?.exportedAt ?? null,
   };
 }

@@ -108,7 +108,7 @@ export function GoogleMap({
   fitKey?: number;
   resizeKey?: string;
   /** The Safety card's district: a neutral outline and 8 % fill, labelled. */
-  district?: { name: string; parts: LatLng[][][] } | null;
+  district?: { name: string; parts: LatLng[][][]; kind?: "district" | "neighbourhood" } | null;
 }) {
   const { t } = useLang();
   const { effective } = useTheme();
@@ -204,7 +204,9 @@ export function GoogleMap({
         ))}
       {district && districtLabel && (
         <AdvancedMarker position={districtLabel} clickable={false} zIndex={0}>
-          <div className="district-label">{t("map.districtLabel", { area: district.name })}</div>
+          <div className="district-label">
+            {t(district.kind === "neighbourhood" ? "map.neighbourhoodLabel" : "map.districtLabel", { area: district.name })}
+          </div>
         </AdvancedMarker>
       )}
 

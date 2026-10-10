@@ -71,8 +71,12 @@ export function ProfileView({ address, onSearch }: { address: string; onSearch: 
   const district = useMemo(() => {
     if (!profile) return null;
     const s = gatedCheck(profile.safety, "exact");
-    if (s.kind !== "ok" || !s.data.outline) return null;
-    return { name: s.data.outlineName ?? "", parts: s.data.outline.parts };
+    if (s.kind !== "ok") return null;
+    // The neighbourhood (mellanområde) when the report covers it; the district otherwise.
+    const nb = s.data.neighbourhood;
+    if (nb && nb.outline.length > 0) return { name: nb.name, parts: nb.outline, kind: "neighbourhood" as const };
+    if (!s.data.outline) return null;
+    return { name: s.data.outlineName ?? "", parts: s.data.outline.parts, kind: "district" as const };
   }, [profile]);
 
   // Wide screens keep the search bar in the column; phones get the floating icon over the map.
