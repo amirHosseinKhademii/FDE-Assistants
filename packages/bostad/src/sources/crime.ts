@@ -11,24 +11,8 @@
  */
 import * as fs from "fs";
 import * as path from "path";
+import { DATA_DIR } from "../data-dir";
 
-/**
- * Works from src/sources and dist/sources (two levels below the package root). Under an ESM
- * bundler (the web app's dev server) __dirname is undefined, so the package's data folder is
- * found by walking up from the working directory instead.
- */
-function dataDir(): string {
-  if (typeof __dirname !== "undefined") return path.resolve(__dirname, "..", "..", "data");
-  let dir = path.resolve(process.cwd());
-  for (;;) {
-    const candidate = path.join(dir, "packages", "bostad", "data");
-    if (fs.existsSync(candidate)) return candidate;
-    const parent = path.dirname(dir);
-    if (parent === dir) return path.resolve(process.cwd(), "..", "..", "data");
-    dir = parent;
-  }
-}
-export const DATA_DIR = dataDir();
 const HISTORY_FILE = path.join(DATA_DIR, "bra-goteborg-history.csv");
 const POP_FILE = path.join(DATA_DIR, "goteborg-area-population.csv");
 const AREA_DIR = path.join(DATA_DIR, "areas");

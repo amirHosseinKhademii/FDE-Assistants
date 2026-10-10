@@ -59,10 +59,15 @@ FROM node:22-slim AS runtime
 # applies HOST.
 ENV NODE_ENV=production \
     PORT=8080 \
-    HOST=0.0.0.0
+    HOST=0.0.0.0 \
+    BOSTAD_DATA_DIR=/app/data
 
 WORKDIR /app
 COPY --from=build /out ./
+# The package's data files (crime CSVs, area GeoJSON, lagesbild JSON) are read from disk at
+# request time. pnpm deploy does not carry them, so they are copied here, read-only for the
+# non-root user (files are 644, folders 755), and found through BOSTAD_DATA_DIR.
+COPY --from=build /repo/packages/bostad/data /app/data
 
 USER node
 EXPOSE 8080

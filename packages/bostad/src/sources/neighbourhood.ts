@@ -6,7 +6,8 @@
  */
 import * as fs from "fs";
 import * as path from "path";
-import { DATA_DIR, type LatLng } from "./crime";
+import { DATA_DIR } from "../data-dir";
+import type { LatLng } from "./crime";
 
 const REPORTS_FILE = path.join(DATA_DIR, "lagesbild", "goteborg-mellanomraden.json");
 const POLYGONS_FILE = path.join(DATA_DIR, "areas", "mellanomraden.geojson");
