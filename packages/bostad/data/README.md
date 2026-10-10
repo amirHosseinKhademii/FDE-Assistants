@@ -7,7 +7,7 @@ Exported 2026-10-10. Used by `src/sources/crime.ts` (no network calls at runtime
 | File | What |
 |---|---|
 | `bra-goteborg-history.csv` | BRÅ reported crimes (anmälda brott), 1996–2025 kommun, 2002–2025 districts. Columns: `year,area_scheme,area,category,subcategory,count,source_url,exported_at`. 49 560 rows; empty `count` = BRÅ suppressed/unavailable (`..`), not zero. |
-| `goteborg-area-population.csv` | Göteborg kommun population per year (1996–2025). **No district population** (see caveats). |
+| `goteborg-area-population.csv` | Göteborg kommun population per year (1996–2025), and population of the 4 stadsområden 2021–2025 (`area_scheme=stadsomrade_2021`, same names as BRÅ). **No population for `sdn_2011_2020` or `stadsdel_pre2011`** (see caveats). |
 | `areas/stadsomrade_2021.geojson` | 4 stadsområden (2021–), EPSG:4326, simplified (Douglas-Peucker, ~10 m). `name` = BRÅ name. |
 | `bra-goteborg-stadsomraden.csv`, `goteborg-stadsomraden-population.csv` | **Superseded** by the two files above (2023–2025, 5 areas only). Kept, not read by `crime.ts`; delete when convenient. |
 
@@ -23,6 +23,12 @@ Area names are exactly as BRÅ prints them, including the `(Gbg)` suffix and the
 ## Categories
 
 `category` = BRÅ's own name for the item (e.g. `3-7 kap. Brott mot person`, `Totalt antal brott`). `subcategory` is set for the requested subcategories: `misshandel`, `ran`, `sexualbrott`, `bostadsinbrott_lagenhet`, `bostadsinbrott_villa`, `biltillgrepp`, `stold_ur_fordon`, `cykelstold`, `skadegorelse`, `narkotikabrott`, `bedrageri`. Items are 116 BRÅ top-level items (chapters and special laws) minus the age/sex breakdowns, plus `Totalt antal brott`, plus 5 leaf items (lägenhet, villa/radhus, fullbordat biltillgrepp, ur/från motordrivet fordon, cykel). Breakdown items are not in the export.
+
+## Population for stadsområden (added 2026-10-10)
+
+Source: Göteborgs Stad statistikdatabas (PxWeb, `statistikdatabas.goteborg.se/api/v1/sv`), table `Stadsområden > Befolkning > Folkmängd helår > 10_FolkmHelar_SO.px` (SCB data, all ages and sexes). Name map used (PxWeb → BRÅ): `01 Nordost` → `Stadsområde Nordost (Gbg)`, `02 Centrum` → `Stadsområde Centrum (Gbg)`, `03 Sydväst` → `Stadsområde Sydväst (Gbg)`, `04 Hisingen` → `Stadsområde Hisingen (Gbg)`. The 4 areas plus the table's `99 Ospecificerat Göteborg` row sum to the kommun population within 0–2 persons per year (2025: 613 276 vs 613 278 kommun). The 99 row is not in the export.
+
+Primärområden population (`Primärområden > Befolkning > Folkmängd helår > 10_FolkmHelar_PRI.px`, 1984–2025, 96 areas) was pulled for 2002–2025 and reconciles to the kommun totals (2024: 608 993), but it is **not in this export**: there is no source for which primärområde belongs to which stadsdelsnämnd (2011–2020) or stadsdel (pre-2011). See caveats.
 
 ## Sources and licence
 
@@ -52,5 +58,5 @@ Scripts and raw files are not committed (they are in the session scratchpad). Th
 - **Boundaries change.** 2011 and 2021 changes break continuity between schemes; do not compare a district across them without a note.
 - **Districts sum to ~90–98 % of the city total** in each year (checked 2002, 2005, 2010, 2021, 2025); the rest is not assigned to a district.
 - **Suppressed cells** (`..` in BRÅ) are empty here, not zero. A `0` is a real BRÅ zero.
-- **No district population.** SCB and Göteborgs Stad population by stadsområde/stadsdelsnämndsområde/stadsdel was not found in the sources checked, so per-1000 rates are only computed for the city. The SCB DeSO table (BE0101Y, DeSO 2010–2025) exists but does not map to districts without a crosswalk.
-- **Missing polygons.** Only `stadsomrade_2021` exists. The 10 stadsdelsnämndsområden (2011–2020) and the pre-2011 stadsdelar have no polygon source yet. The WFS service offers only current areas (stadsområden 4, mellanområden 36, primärområden 96, basområden). Until these are found, `crimeHistory` returns `area: null` for 2002–2020. Building them from primärområden would need a source that states the mapping.
+- **Population only for stadsområden 2021–2025.** Per-1000 rates for `sdn_2011_2020` and `stadsdel_pre2011` are null. Göteborgs Stad publishes population per primärområde (96 areas, 1984–2025) but not per stadsdelsnämndsområde or stadsdel; mapping primärområden to those needs a source that states the membership. The regulation for the stadsdelsnämnder (`09 Reglemente for Goteborgs stadsdelsnamnder.pdf`, 2014) says the boundaries are in bilaga A, held at the stadskansliet, so it does not state the mapping. A Wikipedia list gives district names per pre-2011 stadsdel but not primärområde numbers; name matching would be an unverified inference, so it was not used.
+- **Missing polygons.** Only `stadsomrade_2021` exists. The 10 stadsdelsnämndsområden (2011–2020) and the pre-2011 stadsdelar have no polygon. The WFS layer `slk-administrativ-indelning-v2:primaromraden` (96 areas, EPSG:4326) has attributes `nr`, `namn`, `area_km2` only, with no stadsdel attribute, so dissolving it needs the mapping above. Until a stated mapping is found, `crimeHistory` returns `area: null` for 2002–2020. Primärområde boundaries may have changed slightly since 2011; the WFS gives current geometry only.

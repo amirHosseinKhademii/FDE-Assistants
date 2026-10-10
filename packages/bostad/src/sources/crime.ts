@@ -2,7 +2,7 @@
  * Reported crimes (anmälda brott) for Göteborg, 1996-2025, from BRÅ's statistics
  * database (statistik.bra.se/solwebb). Data files, all read from disk, no network:
  *   data/bra-goteborg-history.csv   year, area_scheme, area, category, subcategory, count, ...
- *   data/goteborg-area-population.csv  kommun population per year (SCB)
+ *   data/goteborg-area-population.csv  kommun population per year; stadsområde population 2021-2025
  *   data/areas/<scheme>.geojson     area polygons (only stadsomrade_2021 exists so far)
  * See data/README.md for sources, caveats and how to refresh.
  *
@@ -115,7 +115,8 @@ interface AreaPoly {
 interface Cache {
   history: HistoryRow[];
   byKey: Map<string, HistoryRow>; // `${year}|${scheme}|${area}|${category}`
-  pop: Map<string, number>; // `${year}`
+  pop: Map<string, number>; // kommun population, `${year}`
+  areaPop: Map<string, number>; // `${year}|${scheme}|${area}`
   polys: Map<AreaScheme, AreaPoly[]>;
 }
 
@@ -176,16 +177,19 @@ function load(): Cache {
   for (const h of history) byKey.set(`${h.year}|${h.scheme}|${h.area}|${h.category}`, h);
 
   const pop = new Map<string, number>();
+  const areaPop = new Map<string, number>();
   if (fs.existsSync(POP_FILE)) {
     for (const r of readCsv(POP_FILE)) {
-      if (r[3] !== "") pop.set(r[0], Number(r[3]));
+      if (r[3] === "") continue;
+      if (r[1] === "kommun") pop.set(r[0], Number(r[3]));
+      else areaPop.set(`${r[0]}|${r[1]}|${r[2]}`, Number(r[3]));
     }
   }
   const polys = new Map<AreaScheme, AreaPoly[]>();
   for (const s of ["stadsomrade_2021", "sdn_2011_2020", "stadsdel_pre2011"] as AreaScheme[]) {
     polys.set(s, loadPolys(s));
   }
-  cache = { history, byKey, pop, polys };
+  cache = { history, byKey, pop, areaPop, polys };
   return cache;
 }
 
@@ -264,7 +268,7 @@ export function crimeHistory(lat: number, lon: number): CrimeHistory {
     "Anmälda brott = reported crimes, not all crime. Reporting varies by area and crime type.",
     "Boundaries changed in 2011 and 2021; figures before a boundary change are not comparable across it.",
     "Polygons exist only for stadsområden (2021-). 2002-2020 need stadsdelsnämndsområde polygons, not yet available.",
-    "Per-1000 rates for areas need population by area; not available in this export, so only city per-1000 is shown.",
+    "Area population exists for stadsområden 2021-2025 only; per-1000 is null for other areas and years.",
     "Suppressed or unavailable BRÅ cells are null, not zero.",
     "District totals sum to roughly 90-98 % of the city total; the rest is not assigned to a district.",
   ];
@@ -296,8 +300,10 @@ export function crimeHistory(lat: number, lon: number): CrimeHistory {
     const subcategories = {} as Record<SubKey, CategoryCount>;
     const categories: Record<string, CategoryCount> = {};
     let total: CategoryCount = empty(TOTAL_CATEGORY);
+    let areaPopulation: number | null = null;
     if (area && scheme) {
-      const popArea = null; // no district population in this export
+      const popArea = c.areaPop.get(`${year}|${scheme}|${area}`) ?? null;
+      areaPopulation = popArea;
       total = figure(c, year, scheme, area, TOTAL_CATEGORY, popArea, popCity, cityScheme);
       const seenCats = new Set(
         c.history.filter((h) => h.year === year && h.scheme === scheme && h.area === area).map((h) => h.category),
@@ -316,7 +322,7 @@ export function crimeHistory(lat: number, lon: number): CrimeHistory {
       scheme,
       area,
       areaNote,
-      population: null,
+      population: areaPopulation,
       cityPopulation: popCity,
       total,
       subcategories,
