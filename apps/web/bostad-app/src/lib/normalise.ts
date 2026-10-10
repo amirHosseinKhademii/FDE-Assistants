@@ -5,7 +5,7 @@
  * rather than at each use. Anything that cannot be trusted becomes a failed
  * section with a reason, never a crash.
  */
-import type { Profile, Section, TransitLine, TransitStop, TransportMode } from "@bostad/property";
+import type { NoiseResult, Profile, Section, TransitLine, TransitStop, TransportMode } from "@bostad/property";
 import type { Mode } from "./transport";
 
 type Loose = Record<string, unknown>;
@@ -124,6 +124,36 @@ function normaliseLandslide(data: unknown) {
   };
 }
 
+function normaliseNoise(data: unknown) {
+  if (!isObject(data)) return undefined;
+  let building: NoiseResult["building"] = null;
+  if (data.building !== null && data.building !== undefined) {
+    const b = data.building;
+    const loudest = isObject(b) ? finite(b.loudestDb) : null;
+    if (!isObject(b) || loudest === null) return undefined;
+    building = {
+      distanceMeters: finite(b.distanceMeters) ?? 0,
+      floors: finite(b.floors),
+      streetDb: finite(b.streetDb),
+      topDb: finite(b.topDb),
+      loudestDb: loudest,
+      points: finite(b.points) ?? 0,
+    };
+  }
+  const bandMin = isObject(data.band) ? finite(data.band.minDb) : null;
+  const band =
+    isObject(data.band) && bandMin !== null
+      ? { minDb: bandMin, maxDb: finite(data.band.maxDb) }
+      : null;
+  return {
+    building,
+    band,
+    guidelineDb: finite(data.guidelineDb) ?? 55,
+    radiusMeters: finite(data.radiusMeters) ?? 25,
+    source: str(data.source),
+  };
+}
+
 function normaliseTransit(data: unknown) {
   if (!isObject(data)) return undefined;
   const stops = arr(data.stops)
@@ -143,6 +173,7 @@ export function normaliseProfile(raw: unknown, now: string = new Date().toISOStr
     location: normaliseSection(raw.location, now, normaliseLocation),
     landslide: normaliseSection(raw.landslide, now, normaliseLandslide),
     transit: normaliseSection(raw.transit, now, normaliseTransit),
+    noise: normaliseSection(raw.noise, now, normaliseNoise),
     brf: normaliseSection<never>(raw.brf, now, () => undefined),
     energy: normaliseSection<never>(raw.energy, now, () => undefined),
   };

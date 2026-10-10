@@ -6,7 +6,9 @@
 import { geocode, type GeocodeResult } from "./sources/geocode";
 import { landslideAt, type LandslideResult } from "./sources/landslide";
 import { nearestStops, type TransitResult } from "./sources/transit";
+import { noiseAt, type NoiseResult } from "./sources/noise";
 export type { TransitLine, TransitStop, TransportMode } from "./sources/transit";
+export type { NoiseBuilding, NoiseResult } from "./sources/noise";
 
 export type SectionStatus = "ok" | "error" | "unavailable";
 
@@ -23,6 +25,7 @@ export interface Profile {
   location: Section<GeocodeResult>;
   landslide: Section<LandslideResult>;
   transit: Section<TransitResult>;
+  noise: Section<NoiseResult>;
   brf: Section<never>;
   energy: Section<never>;
 }
@@ -55,15 +58,18 @@ export async function getProfile(address: string): Promise<Profile> {
 
   let landslide: Section<LandslideResult>;
   let transit: Section<TransitResult>;
+  let noise: Section<NoiseResult>;
   if (location.status !== "ok" || !location.data) {
     const reason = "no coordinates (geocoding failed)";
     landslide = { status: "unavailable", reason, source: "geodata.sgi.se", fetchedAt: new Date().toISOString() };
     transit = { status: "unavailable", reason, source: "ext-api.vasttrafik.se", fetchedAt: new Date().toISOString() };
+    noise = { status: "unavailable", reason, source: "goteborg.se", fetchedAt: new Date().toISOString() };
   } else {
     const { lat, lon } = location.data;
-    [landslide, transit] = await Promise.all([
+    [landslide, transit, noise] = await Promise.all([
       attempt("geodata.sgi.se", () => landslideAt(lat, lon)),
       attempt("ext-api.vasttrafik.se", () => nearestStops(lat, lon, 6)),
+      attempt("goteborg.se", () => noiseAt(lat, lon)),
     ]);
   }
 
@@ -72,6 +78,7 @@ export async function getProfile(address: string): Promise<Profile> {
     location,
     landslide,
     transit,
+    noise,
     brf: stub("bolagsverket (värdefulla datamängder)", "awaiting Bolagsverket API access"),
     energy: stub("boverket energideklaration", "awaiting Boverket agreement"),
   };

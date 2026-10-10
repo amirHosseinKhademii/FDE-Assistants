@@ -997,3 +997,45 @@ a.btn-secondary {
     transition: none;
   }
 }
+
+/* Noise card: one bar from 35 to 75 dB(A), a tick at the 55 dB guideline. */
+.noise-bar {
+  position: relative;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--surface-2);
+}
+
+.noise-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--ok);
+  border-radius: 999px;
+}
+
+.noise-fill[data-over="yes"] {
+  background: var(--warn);
+}
+
+.noise-guide {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--text);
+}
+
+.noise-scale {
+  position: relative;
+  height: 20px;
+  margin-top: 4px;
+  font-size: var(--fs-caption);
+  color: var(--muted);
+}
+
+.noise-scale span {
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}

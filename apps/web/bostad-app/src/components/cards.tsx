@@ -1,4 +1,4 @@
-import type { Profile } from "@bostad/property";
+import type { NoiseResult, Profile } from "@bostad/property";
 import { useLang } from "../lib/lang";
 import type { Check, Reason } from "../lib/checks";
 import type { MessageKey } from "../lib/i18n";
@@ -49,6 +49,80 @@ export function GroundCard({ check, onRetry }: Props<NonNullable<Profile["landsl
         <p className="muted">{t("card.ground.zones", { count: check.data.features.length })}</p>
       )}
     </ProfileCard>
+  );
+}
+
+/** The bar runs from 35 to 75 dB(A): quiet homes sit at the left, the 55 dB guideline in the middle. */
+const NOISE_MIN = 35;
+const NOISE_MAX = 75;
+const pct = (db: number) => `${Math.min(100, Math.max(0, ((db - NOISE_MIN) / (NOISE_MAX - NOISE_MIN)) * 100))}%`;
+
+export function NoiseCard({ check, onRetry }: Props<NonNullable<Profile["noise"]["data"]>>) {
+  const { t } = useLang();
+  const meta = useCheckProps(check, onRetry);
+  return (
+    <ProfileCard icon="sound" title="card.noise.title" explain="card.noise.explain" {...meta}>
+      {check.kind === "ok" && <NoiseDetail data={check.data} />}
+    </ProfileCard>
+  );
+}
+
+function NoiseDetail({ data }: { data: NoiseResult }) {
+  const { t } = useLang();
+  const b = data.building;
+  const band = data.band && (
+    <p className="muted">
+      {t("card.noise.band", {
+        range:
+          data.band.maxDb === null
+            ? t("card.noise.bandOpen", { min: data.band.minDb })
+            : t("card.noise.bandRange", { min: data.band.minDb, max: data.band.maxDb }),
+      })}
+    </p>
+  );
+  const noBand = !data.band && <p className="muted">{t("card.noise.noBand")}</p>;
+
+  if (!b) {
+    return (
+      <>
+        <p className="muted">{t("card.noise.noBuilding")}</p>
+        {band}
+        {noBand}
+        <p className="muted">{t("card.noise.caveat")}</p>
+      </>
+    );
+  }
+
+  const over = b.loudestDb > data.guidelineDb;
+  return (
+    <>
+      <div className="noise-bar" role="img" aria-label={`${t("card.noise.loudest")}: ${b.loudestDb} dB`}>
+        <span className="noise-fill" data-over={over ? "yes" : "no"} style={{ width: pct(b.loudestDb) }} />
+        <span className="noise-guide" style={{ left: pct(data.guidelineDb) }} />
+      </div>
+      <div className="noise-scale">
+        <span style={{ left: pct(data.guidelineDb) }}>{t("card.noise.guideline")}</span>
+      </div>
+      <dl className="kv">
+        <dt>{t("card.noise.street")}</dt>
+        <dd>{b.streetDb !== null ? `${b.streetDb} dB` : "–"}</dd>
+        {b.topDb !== null && (
+          <>
+            <dt>{t("card.noise.top")}</dt>
+            <dd>{b.topDb} dB</dd>
+          </>
+        )}
+        <dt>{t("card.noise.loudest")}</dt>
+        <dd>
+          <strong style={{ color: over ? "var(--warn)" : "var(--ok)" }}>
+            {b.loudestDb} dB · {over ? t("card.noise.above") : t("card.noise.within")}
+          </strong>
+        </dd>
+      </dl>
+      {band}
+      {noBand}
+      <p className="muted">{t("card.noise.caveat")}</p>
+    </>
   );
 }
 
