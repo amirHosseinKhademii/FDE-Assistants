@@ -230,6 +230,13 @@ const en = {
   "recent.clear": "Clear all",
   "recent.clearConfirm": "Remove all recent searches from this browser?",
   "recent.remove": "Remove {address} from recent searches",
+  "hero.streetview": "Street View · {date}",
+  "hero.streetviewPlain": "Street View",
+  "hero.aerial": "Aerial view",
+  "hero.credit": "© Google",
+  "hero.open": "Open the 360° view",
+  "hero.close": "Close Street View",
+  "hero.alt": "Photo of {address}",
 };
 
 export type MessageKey = keyof typeof en;
@@ -461,6 +468,13 @@ const sv: Record<MessageKey, string> = {
   "recent.clear": "Rensa alla",
   "recent.clearConfirm": "Ta bort alla senaste sökningar från den här webbläsaren?",
   "recent.remove": "Ta bort {address} från senaste sökningar",
+  "hero.streetview": "Street View · {date}",
+  "hero.streetviewPlain": "Street View",
+  "hero.aerial": "Flygfoto",
+  "hero.credit": "© Google",
+  "hero.open": "Öppna 360°-vyn",
+  "hero.close": "Stäng Street View",
+  "hero.alt": "Foto av {address}",
 };
 
 export const dictionaries: Record<Lang, Record<MessageKey, string>> = { en, sv };

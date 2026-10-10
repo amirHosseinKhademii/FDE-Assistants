@@ -11,6 +11,7 @@ import type { ModeFilter } from "../lib/transport";
 import type { PlaceItem } from "@bostad/property";
 import type { PlacesFilter } from "./placeFilter";
 import { TopBar } from "./TopBar";
+import { HeroPhoto } from "./HeroPhoto";
 
 const NO_STOPS: never[] = [];
 const NO_PLACES: PlaceItem[] = [];
@@ -89,6 +90,7 @@ export function ProfileView({ address, onSearch }: { address: string; onSearch: 
         />
 
         <div className="profile-sheet">
+          {coords && <HeroPhoto lat={coords.lat} lon={coords.lon} address={address} />}
           <AddressHeader address={address} profile={profile} />
           {loading && <ProfileSkeleton />}
           {state.status === "error" && <ProfileError kind={state.kind} onRetry={retry} />}
