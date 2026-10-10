@@ -10,6 +10,7 @@
  * button and Esc. The Places photo tier is not built (it needs a server route).
  */
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useApiIsLoaded } from "@vis.gl/react-google-maps";
 import { useLang } from "../lib/lang";
 import { HAS_MAPS_KEY, MAPS_KEY } from "../lib/maps";
@@ -106,6 +107,13 @@ export function HeroPhoto({ lat, lon, address }: { lat: number; lon: number; add
     return () => window.removeEventListener("popstate", onPop);
   }, [open]);
 
+  // While the panorama is open the top overlay (wordmark, search, theme and language) is hidden, so nothing sits over its close button.
+  useEffect(() => {
+    if (!open) return;
+    document.documentElement.setAttribute("data-streetview", "open");
+    return () => document.documentElement.removeAttribute("data-streetview");
+  }, [open]);
+
   const closePanorama = () => {
     if (history.state && (history.state as { bostadPanorama?: boolean }).bostadPanorama) history.back();
     setOpen(false);
@@ -157,9 +165,12 @@ export function HeroPhoto({ lat, lon, address }: { lat: number; lon: number; add
       <figcaption className="hero-caption">
         {caption} · {t("hero.credit")}
       </figcaption>
-      {open && source.kind === "streetview" && (
-        <Panorama pano={source.pano} heading={source.heading} label={address} onClose={closePanorama} />
-      )}
+      {open &&
+        source.kind === "streetview" &&
+        createPortal(
+          <Panorama pano={source.pano} heading={source.heading} label={address} onClose={closePanorama} />,
+          document.body,
+        )}
     </figure>
   );
 }

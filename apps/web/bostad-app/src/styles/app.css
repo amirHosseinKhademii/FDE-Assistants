@@ -1522,7 +1522,7 @@ a.btn-secondary {
 .pano-overlay {
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: 1000;
   background: #000;
 }
 
@@ -1536,7 +1536,7 @@ a.btn-secondary {
   position: fixed;
   top: max(12px, env(safe-area-inset-top));
   left: max(12px, env(safe-area-inset-left));
-  z-index: 60;
+  z-index: 1001;
   width: 44px;
   height: 44px;
   display: grid;
@@ -1548,6 +1548,12 @@ a.btn-secondary {
   color: var(--text);
   box-shadow: var(--shadow-pop);
   cursor: pointer;
+}
+
+/* The top overlay hides while the panorama is open, so only the × is left at the top-left. */
+html[data-streetview="open"] .topbar.is-overlay,
+html[data-streetview="open"] .float-search {
+  display: none;
 }
 
 .pano-close:focus-visible {
