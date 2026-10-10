@@ -1,27 +1,30 @@
-import { createRootRoute, HeadContent, Outlet, Scripts } from '@tanstack/react-router';
-import appCss from '../styles/app.css?url';
+import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
+import appCss from "../styles/app.css?url";
+import { LangProvider } from "../lib/lang";
 
 export const Route = createRootRoute({
   head: () => ({
     meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { name: 'color-scheme', content: 'dark' },
-      { title: 'Bostad' },
+      { charSet: "utf-8" },
+      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "color-scheme", content: "light" },
+      { title: "Bostad" },
     ],
-    links: [{ rel: 'stylesheet', href: appCss }],
+    links: [{ rel: "stylesheet", href: appCss }],
   }),
   component: RootLayout,
 });
 
 function RootLayout() {
   return (
-    <html lang="sv">
+    <html lang="en">
       <head>
         <HeadContent />
       </head>
       <body>
-        <Outlet />
+        <LangProvider>
+          <Outlet />
+        </LangProvider>
         <Scripts />
       </body>
     </html>

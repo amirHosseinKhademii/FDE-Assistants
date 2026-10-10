@@ -1,0 +1,32 @@
+/*
+ * Calm Nordic tokens. Light only for v1 (dark mode is out of scope).
+ * Every colour a component uses is named here, so changing the look is one edit.
+ */
+:root {
+  --bg: #F7F6F3;
+  --surface: #FFFFFF;
+  --surface-2: #EFEDE8;
+  --text: #1E2328;
+  --muted: #5F6670;
+  --line: #E3E0DA;
+  --accent: #2F6F62;
+  --accent-soft: #E3EFEC;
+  --ok: #2F7D4F;
+  --warn: #A86A12;
+  --risk: #B4443C;
+  --soon: #6B6F8A;
+
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+  --fs-hero: 28px;
+  --fs-title: 22px;
+  --fs-body-lg: 17px;
+  --fs-body: 15px;
+  --fs-caption: 13px;
+  --lh: 1.45;
+
+  --radius-card: 16px;
+  --radius-pill: 999px;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --tap: 44px;
+  --gutter: 16px;
+}

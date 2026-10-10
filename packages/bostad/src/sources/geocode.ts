@@ -10,6 +10,36 @@ export interface GeocodeResult {
   displayName: string;
   /** Host of the provider that answered, e.g. "photon.komoot.io". */
   source: "nominatim.openstreetmap.org" | "photon.komoot.io";
+  /**
+   * How exact the match is. Only "address" (a house or building) is good enough
+   * for risk and transport results; "street" and "area" mean the provider could
+   * not place the house number, so the app must not present nearby results as
+   * if they belonged to this address.
+   */
+  precision: Precision;
+}
+
+export type Precision = "address" | "street" | "area";
+
+/** OSM feature types (Nominatim addresstype/type, Photon type) by precision. */
+const ADDRESS_TYPES = new Set(["house", "building", "apartments", "entrance"]);
+const STREET_TYPES = new Set([
+  "street", "road", "residential", "highway", "living_street", "pedestrian",
+  "primary", "secondary", "tertiary", "unclassified", "service",
+]);
+
+const RANK: Record<Precision, number> = { area: 0, street: 1, address: 2 };
+
+function bestPrecision(...types: Array<string | undefined>): Precision {
+  return types.map(precisionOf).reduce((a, b) => (RANK[b] > RANK[a] ? b : a), "area" as Precision);
+}
+
+export function precisionOf(type: string | undefined): Precision {
+  if (!type) return "area";
+  const t = type.toLowerCase();
+  if (ADDRESS_TYPES.has(t)) return "address";
+  if (STREET_TYPES.has(t)) return "street";
+  return "area";
 }
 
 export const NOMINATIM_USER_AGENT =
@@ -26,7 +56,13 @@ let lastNominatimAt = 0;
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-interface NominatimHit { lat: string; lon: string; display_name: string }
+interface NominatimHit {
+  lat: string;
+  lon: string;
+  display_name: string;
+  addresstype?: string;
+  type?: string;
+}
 
 async function nominatim(query: string): Promise<GeocodeResult | null> {
   const wait = lastNominatimAt + NOMINATIM_MIN_GAP_MS - Date.now();
@@ -45,12 +81,22 @@ async function nominatim(query: string): Promise<GeocodeResult | null> {
   if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
     throw new Error("geocoding result has no usable coordinates");
   }
-  return { lat, lon, displayName: hits[0].display_name, source: NOMINATIM_SOURCE };
+  // Nominatim reports a generic addresstype ("place") next to the specific
+  // type ("house"), so the better of the two decides.
+  const precision = bestPrecision(hits[0].type, hits[0].addresstype);
+  return { lat, lon, displayName: hits[0].display_name, source: NOMINATIM_SOURCE, precision };
 }
 
 interface PhotonFeature {
   geometry?: { coordinates?: [number, number] };
-  properties?: { name?: string; street?: string; housenumber?: string; city?: string; countrycode?: string };
+  properties?: {
+    name?: string;
+    street?: string;
+    housenumber?: string;
+    city?: string;
+    countrycode?: string;
+    type?: string;
+  };
 }
 
 async function photon(query: string): Promise<GeocodeResult | null> {
@@ -74,7 +120,7 @@ async function photon(query: string): Promise<GeocodeResult | null> {
   const displayName = [[p.street, p.housenumber].filter(Boolean).join(" "), p.city]
     .filter(Boolean)
     .join(", ") || p.name || query;
-  return { lat, lon, displayName, source: PHOTON_SOURCE };
+  return { lat, lon, displayName, source: PHOTON_SOURCE, precision: precisionOf(p.type) };
 }
 
 /** Appends ", Sverige" when missing and strips apartment letters ("23 A" -> "23"). */
