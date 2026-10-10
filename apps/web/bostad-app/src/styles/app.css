@@ -480,58 +480,6 @@ a.btn-secondary {
   color: var(--risk);
 }
 
-/* ---------- profile layout ---------- */
-.profile {
-  display: grid;
-  gap: 16px;
-  padding: 8px 0 104px;
-}
-
-.profile-search {
-  display: grid;
-}
-
-.profile-map {
-  position: relative;
-  height: 45vh;
-  min-height: 280px;
-  margin: 0 calc(var(--gutter) * -1);
-  border-radius: 0 0 var(--radius-card) var(--radius-card);
-  overflow: hidden;
-  background: var(--surface-2);
-}
-
-.gmap {
-  position: absolute;
-  inset: 0;
-}
-
-/* Google paints the InfoWindow frame itself; keep it on the theme's surface. */
-.gmap .gm-style .gm-style-iw-c,
-.gmap .gm-style .gm-style-iw-t::after,
-.gmap .gm-style .gm-style-iw-tc::after {
-  background: var(--surface) !important;
-  color: var(--text);
-  box-shadow: var(--shadow-pop);
-}
-
-.gmap .gm-style .gm-style-iw-d {
-  overflow: hidden !important;
-}
-
-.gmap .gm-ui-hover-effect > span {
-  background-color: var(--muted) !important;
-}
-
-.map-info {
-  display: grid;
-  gap: 2px;
-  min-width: 140px;
-  padding-right: 4px;
-  font-size: 14px;
-  color: var(--text);
-}
-
 .map-placeholder {
   height: 100%;
   display: grid;
@@ -548,12 +496,6 @@ a.btn-secondary {
   width: 32px;
   height: 32px;
   color: var(--accent);
-}
-
-.profile-main {
-  display: grid;
-  gap: 16px;
-  align-content: start;
 }
 
 .address {
@@ -740,60 +682,7 @@ a.btn-secondary {
   }
 }
 
-/* ---------- sticky bottom bar (phones only) ---------- */
-.sticky-bar {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 10;
-  padding: 12px var(--gutter) calc(12px + env(safe-area-inset-bottom));
-  border-top: 1px solid var(--line);
-  background: color-mix(in srgb, var(--bg) 92%, transparent);
-  backdrop-filter: blur(8px);
-}
-
-.sticky-bar .btn-primary {
-  width: 100%;
-}
-
-/* ---------- wider screens: map left, cards right ---------- */
-@media (min-width: 960px) {
-  .profile {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 520px);
-    column-gap: 24px;
-    align-items: start;
-    padding-bottom: 48px;
-  }
-
-  .profile-search {
-    grid-column: 2;
-    grid-row: 1;
-  }
-
-  .profile-map {
-    grid-column: 1;
-    grid-row: 1 / span 2;
-    position: sticky;
-    top: 16px;
-    align-self: start;
-    height: calc(100vh - 32px);
-    min-height: 0;
-    margin: 0;
-    border-radius: var(--radius-card);
-  }
-
-  .profile-main {
-    grid-column: 2;
-    grid-row: 2;
-  }
-
-  .sticky-bar {
-    display: none;
-  }
-}
-
-/* ---------- transport modes: pictograms, line badges, filter chips, map legend ---------- */
+/* ---------- transport modes: pictograms, line badges, filter chips ---------- */
 .mode-icon {
   display: inline-grid;
   place-items: center;
@@ -851,8 +740,7 @@ a.btn-secondary {
   font-weight: 600;
 }
 
-.mode-chip:focus-visible,
-.map-legend-toggle:focus-visible {
+.mode-chip:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
@@ -926,78 +814,6 @@ a.btn-secondary {
   color: var(--muted);
 }
 
-.map-legend {
-  position: absolute;
-  left: 8px;
-  bottom: 40px;
-  z-index: 2;
-  max-width: calc(100% - 16px);
-  border-radius: 12px;
-  background: var(--surface);
-  color: var(--text);
-  box-shadow: var(--shadow-pop);
-}
-
-.map-legend-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: var(--tap);
-  padding: 0 12px;
-  border: 0;
-  border-radius: 12px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.map-legend-chevron {
-  width: 16px;
-  height: 16px;
-  transition: transform 0.2s ease;
-}
-
-.map-legend.is-open .map-legend-chevron {
-  transform: rotate(180deg);
-}
-
-.map-legend-list {
-  display: grid;
-  gap: 6px;
-  margin: 0;
-  padding: 0 12px 10px;
-  list-style: none;
-}
-
-.map-legend-list li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-}
-
-.map-info-modes {
-  color: var(--muted);
-}
-
-.map-info .line-badges {
-  margin-top: 4px;
-}
-
-.map-info .line-badge {
-  height: 22px;
-  font-size: 12px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .map-legend-chevron {
-    transition: none;
-  }
-}
-
 /* Noise card: one bar from 35 to 75 dB(A), a tick at the 55 dB guideline. */
 .noise-bar {
   position: relative;
@@ -1038,38 +854,6 @@ a.btn-secondary {
   position: absolute;
   transform: translateX(-50%);
   white-space: nowrap;
-}
-
-/* Map: "Show places" toggle, pinned top-left over the map. */
-.map-wrap {
-  position: relative;
-}
-
-.map-toggle {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  z-index: 3;
-  min-height: 44px;
-  padding: 0 16px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--surface);
-  color: var(--text);
-  font: inherit;
-  font-size: var(--fs-caption);
-  cursor: pointer;
-}
-
-.map-toggle[aria-pressed="true"] {
-  background: var(--accent-soft);
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.map-toggle:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
 }
 
 /* Neighbourhood card: three parts, each with its own source line. */
@@ -1210,4 +994,259 @@ a.btn-secondary {
   line-height: 1.2;
   white-space: nowrap;
   box-shadow: var(--shadow-pop);
+}
+
+/* ---------- map and profile layout ---------- */
+/* Phones: search on top, the map full-bleed, the content as a sheet over the map's bottom edge. */
+.profile {
+  display: grid;
+  padding: 0 0 48px;
+}
+
+.profile-search {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 8px var(--gutter);
+  background: var(--bg);
+}
+
+.map-col {
+  position: relative;
+  z-index: 0;
+  height: 55vh;
+  min-height: 300px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+.map-canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.map-col .map-placeholder {
+  height: 100%;
+}
+
+.map-col.is-expanded {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  height: 100dvh;
+  min-height: 0;
+  border-radius: 0;
+}
+
+.profile-sheet {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 16px;
+  align-content: start;
+  margin-top: -24px;
+  padding: 10px var(--gutter) 0;
+  border-radius: 24px 24px 0 0;
+  background: var(--bg);
+  box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.06);
+}
+
+.profile-sheet::before {
+  content: "";
+  justify-self: center;
+  width: 40px;
+  height: 4px;
+  margin-bottom: -4px;
+  border-radius: 999px;
+  background: var(--line);
+}
+
+/* Map chips: one horizontal row across the top of the map; only the row scrolls. */
+.map-chips {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 64px;
+  z-index: 2;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px;
+  scrollbar-width: none;
+}
+
+.map-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.map-chip {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px 0 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  white-space: nowrap;
+  box-shadow: var(--shadow-pop);
+  cursor: pointer;
+}
+
+.map-chip[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  font-weight: 600;
+}
+
+/* Round map buttons, 44 px: expand (top right), recentre (bottom right). */
+.map-round {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-pop);
+  cursor: pointer;
+}
+
+.map-expand {
+  top: 10px;
+  right: 10px;
+}
+
+.map-recentre {
+  right: 10px;
+  bottom: 12px;
+}
+
+/* In-map stop card: pinned to the bottom of the map, clear of the recentre button. */
+.map-card {
+  position: absolute;
+  z-index: 3;
+  left: 10px;
+  right: 64px;
+  bottom: 12px;
+  display: grid;
+  gap: 10px;
+  max-height: 60%;
+  overflow-y: auto;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-pop);
+}
+
+.map-card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.map-card-text {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.map-card-close {
+  position: static;
+  flex: none;
+}
+
+.map-card-directions {
+  justify-self: start;
+}
+
+.ring-label {
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-shadow: var(--shadow);
+  pointer-events: none;
+}
+
+.pin--place {
+  width: 14px;
+  height: 14px;
+  border-width: 2px;
+  background: var(--muted);
+}
+
+.pin--place svg {
+  display: none;
+}
+
+/* Wide screens: map sticky on the left, search and content on the right. */
+@media (min-width: 960px) {
+  .profile {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 520px);
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "map search" "map sheet";
+    column-gap: 24px;
+    align-items: start;
+    padding: 8px 0 48px;
+  }
+
+  .profile-search {
+    grid-area: search;
+    position: static;
+    padding: 0;
+    background: none;
+  }
+
+  .map-col {
+    grid-area: map;
+    position: sticky;
+    top: 16px;
+    height: calc(100vh - 32px);
+    min-height: 0;
+    border-radius: var(--radius-card);
+  }
+
+  .map-col.is-expanded {
+    position: fixed;
+    border-radius: 0;
+  }
+
+  .profile-sheet {
+    grid-area: sheet;
+    margin-top: 0;
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .profile-sheet::before {
+    display: none;
+  }
+
+  .map-card {
+    right: auto;
+    width: min(340px, calc(100% - 24px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-card,
+  .map-chip,
+  .map-round {
+    transition: none;
+  }
 }

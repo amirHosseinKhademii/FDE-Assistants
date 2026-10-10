@@ -8,7 +8,6 @@ import { AddressHeader, ProfileBody } from "./ProfileContent";
 import { SearchBox } from "./SearchBox";
 import type { ModeFilter } from "../lib/transport";
 import type { PlaceItem } from "@bostad/property";
-import { StickyBar } from "./StickyBar";
 import { TopBar } from "./TopBar";
 
 const NO_STOPS: never[] = [];
@@ -49,28 +48,20 @@ export function ProfileView({ address, onSearch }: { address: string; onSearch: 
           <SearchBox compact initial={address} onSearch={onSearch} />
         </div>
 
-        <div className="map-wrap">
-          <MapPanel
-            lat={coords?.lat}
-            lon={coords?.lon}
-            stops={stops}
-            filter={filter}
-            places={showPlaces ? placeItems : NO_PLACES}
-            loading={loading}
-          />
-          {placeItems.length > 0 && (
-            <button
-              type="button"
-              className="map-toggle"
-              aria-pressed={showPlaces}
-              onClick={() => setShowPlaces((v) => !v)}
-            >
-              {t(showPlaces ? "map.hidePlaces" : "map.showPlaces")}
-            </button>
-          )}
-        </div>
+        <MapPanel
+          lat={coords?.lat}
+          lon={coords?.lon}
+          stops={stops}
+          filter={filter}
+          onFilter={setFilter}
+          places={placeItems}
+          placeCount={placeItems.length}
+          showPlaces={showPlaces}
+          onShowPlaces={setShowPlaces}
+          loading={loading}
+        />
 
-        <div className="profile-main">
+        <div className="profile-sheet">
           <AddressHeader address={address} profile={profile} />
           {loading && <ProfileSkeleton />}
           {state.status === "error" && <ProfileError kind={state.kind} onRetry={retry} />}
@@ -78,7 +69,6 @@ export function ProfileView({ address, onSearch }: { address: string; onSearch: 
         </div>
       </div>
       <p className="footnote">{t("profile.footer")}</p>
-      <StickyBar />
     </div>
   );
 }

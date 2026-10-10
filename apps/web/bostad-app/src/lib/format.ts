@@ -44,3 +44,8 @@ export function sourceHref(source: string): string | null {
 export function googleMapsHref(lat: number, lon: number): string {
   return `https://www.google.com/maps/search/?api=1&query=${lat.toFixed(6)},${lon.toFixed(6)}`;
 }
+
+/** Google Maps walking directions from home to a stop. */
+export function walkingDirectionsHref(from: { lat: number; lon: number }, to: { lat: number; lon: number }): string {
+  return `https://www.google.com/maps/dir/?api=1&origin=${from.lat.toFixed(6)},${from.lon.toFixed(6)}&destination=${to.lat.toFixed(6)},${to.lon.toFixed(6)}&travelmode=walking`;
+}
