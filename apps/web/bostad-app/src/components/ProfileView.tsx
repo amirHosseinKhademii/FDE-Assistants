@@ -66,9 +66,9 @@ export function ProfileView({ address, onSearch }: { address: string; onSearch: 
   };
 
   // The Safety card, when open, shades its district on the map. Closed again on a new address.
-  // The Safety card starts open, so the neighbourhood is shaded from the start.
-  const [safetyOpen, setSafetyOpen] = useState(true);
-  useEffect(() => setSafetyOpen(true), [coords?.lat, coords?.lon]);
+  // The Safety card starts collapsed, so no district is shaded until it is opened.
+  const [safetyOpen, setSafetyOpen] = useState(false);
+  useEffect(() => setSafetyOpen(false), [coords?.lat, coords?.lon]);
   const district = useMemo(() => {
     if (!profile) return null;
     const s = gatedCheck(profile.safety, "exact");

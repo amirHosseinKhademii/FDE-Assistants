@@ -85,7 +85,6 @@ export function SafetyCard({
   return (
     <ProfileCard
       id="card-safety"
-      defaultOpen
       ownIntro={Boolean(data && latest)}
       icon="shield"
       title="safety.title"
@@ -499,27 +498,29 @@ function TrendChart({ data, cat, extended, area }: { data: SafetyResult; cat: Ca
           </li>
         )}
       </ul>
-      <table className="sr-only">
-        <caption>{t("safety.period", { from, to })}</caption>
-        <thead>
-          <tr>
-            <th scope="col">{t("safety.tbl.year")}</th>
-            <th scope="col">{t("safety.legend.district")}</th>
-            <th scope="col">{t("safety.legend.city")}</th>
-            <th scope="col">{t("safety.tbl.count")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => (
-            <tr key={r.year}>
-              <th scope="row">{r.year}</th>
-              <td>{fmt(r.d, lang)}</td>
-              <td>{fmt(r.c, lang)}</td>
-              <td>{r.year <= 2020 && extended ? fmt(r.n, lang) : "–"}</td>
+      <div className="sr-only">
+        <table>
+          <caption>{t("safety.period", { from, to })}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{t("safety.tbl.year")}</th>
+              <th scope="col">{t("safety.legend.district")}</th>
+              <th scope="col">{t("safety.legend.city")}</th>
+              <th scope="col">{t("safety.tbl.count")}</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.year}>
+                <th scope="row">{r.year}</th>
+                <td>{fmt(r.d, lang)}</td>
+                <td>{fmt(r.c, lang)}</td>
+                <td>{r.year <= 2020 && extended ? fmt(r.n, lang) : "–"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }

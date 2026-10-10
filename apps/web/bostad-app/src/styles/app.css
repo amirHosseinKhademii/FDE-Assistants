@@ -469,6 +469,7 @@ a.btn-secondary {
 
 .card-body {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
   padding: 0 16px 16px;
 }
@@ -1762,6 +1763,12 @@ html[data-streetview="open"] .float-search {
 }
 
 @media (max-width: 959.98px) {
+  /* Safety net: the page never scrolls sideways on phones (the causes are fixed above). */
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
   .profile {
     position: relative;
     min-height: 0;
@@ -1795,8 +1802,10 @@ html[data-streetview="open"] .float-search {
     height: auto;
     margin: 0;
     padding: 0;
+    overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior: contain;
+    overscroll-behavior-x: none;
     -webkit-overflow-scrolling: touch;
     border-radius: 24px 24px 0 0;
     background: var(--bg);
@@ -1854,6 +1863,8 @@ html[data-streetview="open"] .float-search {
 
   .sheet-body {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
     gap: 16px;
     align-content: start;
     padding: 0 var(--gutter) calc(24px + env(safe-area-inset-bottom));
@@ -2040,6 +2051,7 @@ html[data-streetview="open"] .float-search {
 /* Safety card top: one row (shield and a tinted chip), the explanation behind (i), then the summary sentence. */
 .sx-top {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 6px;
 }
 
@@ -2223,6 +2235,7 @@ html[data-streetview="open"] .float-search {
 
 .sx-chart {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
 }
 
@@ -2506,6 +2519,7 @@ html[data-streetview="open"] .float-search {
 /* Safety card: the neighbourhood (mellanområde) from the city's 2024 report, above the district numbers. */
 .sx-nb {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
   padding: 14px;
   border: 1px solid var(--line);
@@ -2778,6 +2792,7 @@ html[data-streetview="open"] .float-search {
 
 .sx-nb-sources ul {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
   margin: 0;
   padding-left: 0;
@@ -2787,6 +2802,7 @@ html[data-streetview="open"] .float-search {
 
 .sx-nb-sources q {
   quotes: "\201C" "\201D";
+  overflow-wrap: anywhere;
 }
 
 .sx-nb-note {
