@@ -39,6 +39,12 @@ const ICONS = {
   sun: [circle(12, 12, 4), "M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"],
   moon: ["M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"],
   display: ["M3 5h18v11H3z", "M9 20h6", "M12 16v4"],
+  // Neighbourhood (Safety card): school, trend, document, info, check in a circle.
+  school: ["M3 10l9-5 9 5-9 5z", "M7 12.5V17c0 1 2.2 2.5 5 2.5s5-1.5 5-2.5v-4.5", "M21 10v5"],
+  trendUp: ["M3 17l6-6 4 4 8-8", "M15 7h6v6"],
+  doc: ["M6 3h8l4 4v14H6z", "M14 3v4h4", "M9 12h6M9 16h6"],
+  info: [circle(12, 12, 9), "M12 11v5.5", "M12 7.5v.5"],
+  checkCircle: [circle(12, 12, 9), "M8 12.5l2.7 2.7L16 9.5"],
   external: ["M14 4h6v6", "M20 4l-9 9", "M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"],
 } as const;
 

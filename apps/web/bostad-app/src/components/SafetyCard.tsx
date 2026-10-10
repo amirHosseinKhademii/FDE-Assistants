@@ -86,6 +86,7 @@ export function SafetyCard({
     <ProfileCard
       id="card-safety"
       defaultOpen
+      ownIntro={Boolean(data && latest)}
       icon="shield"
       title="safety.title"
       explain="safety.explain"
@@ -134,23 +135,33 @@ function SafetyBody({
 
   return (
     <>
+      <div className="sx-top">
+        <div className="sx-summary">
+          <Icon name="shield" className="icon sx-shield" />
+          {level && (
+            <span className="sx-chip" data-tone={level === "around" ? "neutral" : tone}>
+              <Icon name={LEVEL_ARROW[level]} />
+              <span>{t(`safety.level.${level}` as MessageKey, { pct: pctDiff(all.district.per1000, all.city.per1000) })}</span>
+            </span>
+          )}
+        </div>
+        <details className="sx-about">
+          <summary>
+            <Icon name="info" />
+            <span>{t("safety.about")}</span>
+          </summary>
+          <p>{t("safety.explain")}</p>
+        </details>
+        <p className="sx-sentence">
+          {t("safety.head", { area, here: fmt(all.district.per1000, lang), year: latest.year, city: fmt(all.city.per1000, lang) })}
+        </p>
+      </div>
       {data.neighbourhood && <NeighbourhoodBlock n={data.neighbourhood} lang={lang} />}
       {data.neighbourhood && (
         <p className="sx-divider">
           <span>{t("safety.districtNumbers", { district: data.outlineName ?? area })}</span>
         </p>
       )}
-      <div className="sx-head">
-        {level && (
-          <span className="sx-badge" data-tone={tone}>
-            <Icon name="shield" />
-            <span>{t(`safety.level.${level}` as MessageKey, { pct: pctDiff(all.district.per1000, all.city.per1000) })}</span>
-          </span>
-        )}
-        <p className="sx-sentence">
-          {t("safety.head", { area, here: fmt(all.district.per1000, lang), year: latest.year, city: fmt(all.city.per1000, lang) })}
-        </p>
-      </div>
 
       <ul className="sx-cats" aria-label={t("safety.chips.label")}>
         {CHART_KEYS.map((k) => (
@@ -176,34 +187,69 @@ function SafetyBody({
   );
 }
 
+/** Icon for a key point, from its words (English or Swedish). Improvements first, then the topic, else an alert. */
+const IMPROVED = /improv|safer|better|förbätt|tryggare|bättre|minskat/i;
+function pointIcon(b: string): IconName {
+  if (IMPROVED.test(b)) return "checkCircle";
+  if (/\bcar|\bbil/i.test(b)) return "car";
+  if (/bike|bicycl|cykel/i.test(b)) return "bike";
+  if (/drug|narkot|droger|narcot/i.test(b)) return "pill";
+  if (/vandal|skadegör|klotter|graffiti/i.test(b)) return "burst";
+  if (/school|preschool|skola|förskol|bibliotek|librar/i.test(b)) return "school";
+  return "alert";
+}
+
+const normText = (s: string) => s.trim().toLowerCase().replace(/\s+/g, " ");
+
 /**
  * The mellanområde around the address, from the city's 2024 safety report: the report's own
- * bullets, its common crime tags, named places and trend. Written assessment, not statistics.
+ * key points, its common crime tags, named places and trend. Written assessment, not statistics.
  */
 function NeighbourhoodBlock({ n, lang }: { n: NeighbourhoodResult; lang: "en" | "sv" }) {
   const { t } = useLang();
   const bullets = lang === "sv" && n.bullets.sv.length > 0 ? n.bullets.sv : n.bullets.en;
   const englishOnly = lang === "sv";
+  // The trend is shown as a banner only when no key point already says it.
+  const shown = new Set([...n.bullets.en, ...bullets].map(normText));
+  const trend = n.trendEn && !shown.has(normText(n.trendEn)) ? n.trendEn : null;
   return (
     <section className="sx-nb" aria-label={t("safety.nb.kicker")}>
       <p className="sx-nb-kicker">{t("safety.nb.kicker")}</p>
-      <h3 className="sx-nb-title">
-        {n.name}
-        {n.primaromraden.length > 0 && <span className="sx-nb-areas"> ({n.primaromraden.join(", ")})</span>}
-      </h3>
-      <p className="sx-nb-from">{t("safety.nb.from", { year: n.reportYear })}</p>
-      <ul className="sx-nb-bullets">
-        {bullets.map((b, i) => (
-          <li key={i}>
-            <span>{b}</span>
-            {n.reportUrl && (
-              <a className="sx-nb-src" href={`${n.reportUrl}#page=${n.page}`} target="_blank" rel="noreferrer">
-                {t("safety.nb.source")}
-              </a>
-            )}
-          </li>
-        ))}
+      <p className="sx-nb-info">
+        <Icon name="info" />
+        <span>{t("safety.nb.note")}</span>
+      </p>
+      <div className="sx-nb-head">
+        <h3 className="sx-nb-title">
+          <Icon name="pin" />
+          <span>{n.name}</span>
+        </h3>
+        {n.primaromraden.length > 0 && <p className="sx-nb-areas">{n.primaromraden.join(", ")}</p>}
+        {n.reportUrl && (
+          <a className="sx-nb-report" href={n.reportUrl} target="_blank" rel="noreferrer">
+            <Icon name="doc" />
+            <span>
+              {t("safety.nb.report", { year: n.reportYear })} · {t("safety.nb.page", { page: n.page })}
+            </span>
+            <Icon name="external" className="icon sx-ext" />
+          </a>
+        )}
+      </div>
+
+      <p className="sx-nb-label">{t("safety.nb.points")}</p>
+      <ul className="sx-nb-points">
+        {bullets.map((b, i) => {
+          const icon = pointIcon(b);
+          const tone = icon === "checkCircle" ? "ok" : icon === "alert" ? "warn" : undefined;
+          return (
+            <li key={i} data-tone={tone}>
+              <Icon name={icon} />
+              <span className="sx-pt-text">{b}</span>
+            </li>
+          );
+        })}
       </ul>
+
       {n.crimes.length > 0 && (
         <>
           <p className="sx-nb-label">{t("safety.nb.tags")}</p>
@@ -224,18 +270,32 @@ function NeighbourhoodBlock({ n, lang }: { n: NeighbourhoodResult; lang: "en" | 
         <>
           <p className="sx-nb-label">{t("safety.nb.places")}</p>
           <ul className="sx-nb-places">
-            {n.places.map((p, i) => (
-              <li key={i}>
-                <span className="sx-nb-place-name">{p.name}</span>
-                {p.noteEn && <span className="muted"> · {p.noteEn}</span>}
-              </li>
-            ))}
+            {n.places.map((p, i) => {
+              const improved = /improv|safer|better/i.test(p.noteEn);
+              return (
+                <li key={i} className="sx-nb-place">
+                  <Icon name="pin" />
+                  <div className="sx-pl-body">
+                    <span className="sx-nb-place-name">{p.name}</span>
+                    {p.noteEn && <span className="muted sx-pl-note">{p.noteEn}</span>}
+                  </div>
+                  {p.noteEn && (
+                    <span className="sx-nb-status" data-tone={improved ? "ok" : "warn"}>
+                      {t(improved ? "safety.nb.improved" : "safety.nb.issue")}
+                    </span>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </>
       )}
-      {n.trendEn && (
+      {trend && (
         <p className="sx-nb-trend">
-          <span className="sx-nb-label">{t("safety.nb.trend")}</span> {n.trendEn}
+          <Icon name="trendUp" />
+          <span>
+            <span className="sx-nb-label">{t("safety.nb.trend")}</span> {trend}
+          </span>
         </p>
       )}
       {n.quotes.length > 0 && (
@@ -246,8 +306,8 @@ function NeighbourhoodBlock({ n, lang }: { n: NeighbourhoodResult; lang: "en" | 
               <li key={i}>
                 <q>{q.sv}</q>{" "}
                 {n.reportUrl && (
-                  <a href={`${n.reportUrl}#page=${q.page}`} target="_blank" rel="noreferrer">
-                    {t("safety.nb.page", { page: q.page })}
+                  <a className="sx-page" href={`${n.reportUrl}#page=${q.page}`} target="_blank" rel="noreferrer">
+                    <span>{t("safety.nb.page", { page: q.page })}</span>
                   </a>
                 )}
               </li>
@@ -255,7 +315,6 @@ function NeighbourhoodBlock({ n, lang }: { n: NeighbourhoodResult; lang: "en" | 
           </ul>
         </details>
       )}
-      <p className="muted sx-nb-note">{t("safety.nb.note")}</p>
       {englishOnly && <p className="muted sx-nb-note">{t("safety.nb.enOnly")}</p>}
     </section>
   );

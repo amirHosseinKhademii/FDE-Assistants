@@ -26,6 +26,7 @@ export function ProfileCard({
   status = "checked",
   children,
   defaultOpen = false,
+  ownIntro = false,
   reason,
   source,
   checkedAt,
@@ -35,6 +36,8 @@ export function ProfileCard({
   id?: string;
   /** Starts open (the Safety card leads the page). */
   defaultOpen?: boolean;
+  /** The card draws its own summary and explanation (the Safety card), so the lead and explain lines are skipped. */
+  ownIntro?: boolean;
   icon: IconName;
   title: MessageKey;
   explain: MessageKey;
@@ -65,8 +68,8 @@ export function ProfileCard({
         <Icon name="chevron" className="icon card-chevron" />
       </summary>
       <div className="card-body">
-        {result && <p className="card-lead">{result.text}</p>}
-        <p className="card-explain">{t(explain)}</p>
+        {result && !ownIntro && <p className="card-lead">{result.text}</p>}
+        {!ownIntro && <p className="card-explain">{t(explain)}</p>}
 
         {status === "checked" && children}
 

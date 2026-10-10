@@ -2037,41 +2037,77 @@ html[data-streetview="open"] .float-search {
 }
 
 /* Safety card: level badge, category tiles, trend chart. Neutral text; ok and warn colours only. */
-.sx-head {
+/* Safety card top: one row (shield and a tinted chip), the explanation behind (i), then the summary sentence. */
+.sx-top {
   display: grid;
-  gap: 8px;
-  justify-items: start;
+  gap: 6px;
 }
 
-.sx-badge {
+.sx-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.sx-shield {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  color: var(--muted);
+}
+
+.sx-chip {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 14px 6px 10px;
-  border: 1.5px solid currentColor;
+  gap: 6px;
+  min-height: 32px;
+  padding: 4px 12px 4px 8px;
   border-radius: 999px;
+  background: var(--surface-2);
   color: var(--text);
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 700;
   line-height: 1.2;
 }
 
-.sx-badge svg {
-  width: 22px;
-  height: 22px;
+.sx-chip .icon {
+  width: 18px;
+  height: 18px;
   flex: none;
 }
 
-.sx-badge[data-tone="ok"] {
+.sx-chip[data-tone="ok"] {
+  background: color-mix(in srgb, var(--ok) 14%, var(--surface));
   color: var(--ok);
 }
 
-.sx-badge[data-tone="warn"] {
+.sx-chip[data-tone="warn"] {
+  background: color-mix(in srgb, var(--warn) 14%, var(--surface));
   color: var(--warn);
 }
 
-.sx-badge[data-tone="muted"] {
+.sx-about summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
   color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.sx-about summary .icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+
+.sx-about p {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
 }
 
 .sx-sentence {
@@ -2129,14 +2165,6 @@ html[data-streetview="open"] .float-search {
   line-height: 1.2;
   overflow-wrap: normal;
   word-break: normal;
-}
-
-.sx-nb-src {
-  margin-left: 6px;
-  color: var(--accent);
-  font-size: 13px;
-  font-weight: 600;
-  white-space: nowrap;
 }
 
 .sx-bar {
@@ -2478,7 +2506,7 @@ html[data-streetview="open"] .float-search {
 /* Safety card: the neighbourhood (mellanområde) from the city's 2024 report, above the district numbers. */
 .sx-nb {
   display: grid;
-  gap: 10px;
+  gap: 12px;
   padding: 14px;
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
@@ -2494,43 +2522,147 @@ html[data-streetview="open"] .float-search {
   letter-spacing: 0.04em;
 }
 
+.sx-nb-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.sx-nb-info .icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  margin-top: 1px;
+}
+
+.sx-nb-head {
+  display: grid;
+  gap: 4px;
+}
+
 .sx-nb-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin: 0;
   font-size: 19px;
   line-height: 1.25;
 }
 
+.sx-nb-title .icon {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  color: var(--accent);
+}
+
 .sx-nb-areas {
-  font-size: 15px;
-  font-weight: 500;
+  margin: 0 0 0 28px;
   color: var(--muted);
-}
-
-.sx-nb-from {
-  margin: 0;
   font-size: 14px;
-  color: var(--muted);
 }
 
-.sx-nb-bullets {
-  display: grid;
+.sx-nb-report {
+  display: inline-flex;
+  align-items: center;
   gap: 6px;
-  margin: 0;
-  padding-left: 20px;
-  font-size: 15px;
+  justify-self: start;
+  min-height: 44px;
+  margin-left: 22px;
+  text-decoration: none;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.sx-nb-report .icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+
+.sx-nb-report .sx-ext {
+  width: 14px;
+  height: 14px;
 }
 
 .sx-nb-label {
-  margin: 4px 0 0;
+  margin: 4px 0 -4px;
+  color: var(--muted);
   font-size: 13px;
   font-weight: 700;
+}
+
+.sx-nb-points {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.sx-nb-points li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.sx-nb-points .icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  margin-top: 2px;
   color: var(--muted);
+}
+
+.sx-nb-points li[data-tone="ok"] .icon {
+  color: var(--ok);
+}
+
+.sx-nb-points li[data-tone="warn"] .icon {
+  color: var(--warn);
+}
+
+.sx-pt-text {
+  min-width: 0;
+}
+
+/* "p. 46 ↗": a small pill in the text line; the 44 px tap target is an overlay that adds no height. */
+.sx-page {
+  position: relative;
+  display: inline-block;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.sx-page::after {
+  content: "";
+  position: absolute;
+  inset: -12px -6px;
+}
+
+.sx-page span {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
 }
 
 .sx-nb-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -2540,9 +2672,10 @@ html[data-streetview="open"] .float-search {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px 4px 6px;
-  border: 1px solid var(--line);
+  padding: 6px 12px 6px 8px;
   border-radius: 999px;
+  background: color-mix(in srgb, var(--warn) 10%, var(--surface));
+  color: var(--text);
   font-size: 13px;
   line-height: 1.3;
 }
@@ -2551,24 +2684,86 @@ html[data-streetview="open"] .float-search {
   width: 18px;
   height: 18px;
   flex: none;
-  color: var(--muted);
+  color: var(--warn);
 }
 
 .sx-nb-places {
   display: grid;
-  gap: 4px;
+  gap: 10px;
   margin: 0;
-  padding-left: 18px;
+  padding: 0;
+  list-style: none;
   font-size: 14px;
+  line-height: 1.45;
+}
+
+.sx-nb-place {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 10px;
+}
+
+.sx-nb-place > .icon {
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  color: var(--muted);
+}
+
+.sx-pl-body {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
 }
 
 .sx-nb-place-name {
-  font-weight: 600;
+  font-weight: 700;
 }
 
+.sx-pl-note {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.sx-nb-status {
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.sx-nb-status[data-tone="ok"] {
+  background: color-mix(in srgb, var(--ok) 14%, var(--surface));
+  color: var(--ok);
+}
+
+.sx-nb-status[data-tone="warn"] {
+  background: color-mix(in srgb, var(--warn) 14%, var(--surface));
+  color: var(--warn);
+}
+
+/* Soft --ok banner for the trend, only when no key point already says it. */
 .sx-nb-trend {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
   margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--ok) 10%, var(--surface));
   font-size: 14px;
+  line-height: 1.45;
+}
+
+.sx-nb-trend .icon {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  margin-top: 1px;
+  color: var(--ok);
 }
 
 .sx-nb-sources summary {
