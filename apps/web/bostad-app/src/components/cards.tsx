@@ -6,6 +6,7 @@ import type { MessageKey } from "../lib/i18n";
 import { clockTime, localeOf, sourceHref, sourceKey, walkMinutes } from "../lib/format";
 import { PLACE_KEY, PLACE_ORDER } from "../lib/places";
 import { PlaceBadge } from "./MapPins";
+import { ListRow } from "./ListRow";
 import type { PlacesFilter } from "./placeFilter";
 import { ProfileCard, type CardResult, type CardStatus } from "./ProfileCard";
 import { LineBadge, ModeIcon } from "./ModeIcon";
@@ -137,25 +138,24 @@ export function TransportCard({
             {/* The text version of the map's stops: the same list, with lines and walk time. */}
             <ol className="stops">
               {shown.map((stop) => (
-                <li key={stop.id || stop.name} className="stop-row">
-                  <div className="stop-head">
-                    <span className="stop-modes">
-                      {stop.modes.length > 0 ? (
-                        stop.modes.map((mode) => <ModeIcon key={mode} mode={mode} size={28} />)
-                      ) : (
-                        <span className="mode-icon mode-none" aria-hidden="true" />
-                      )}
-                    </span>
-                    <div className="stop-text">
-                      <span className="stop-name">{stop.name}</span>
-                      <span className="dist">
-                        {t("card.transport.walk", { minutes: walkMinutes(stop.distanceMeters) })} ·{" "}
-                        {t("card.transport.meters", { meters: stop.distanceMeters })}
+                <ListRow
+                  key={stop.id || stop.name}
+                  icon={
+                    stop.modes.length > 0 ? (
+                      <span className="stop-modes">
+                        {stop.modes.map((mode) => (
+                          <ModeIcon key={mode} mode={mode} size={28} />
+                        ))}
                       </span>
-                    </div>
-                  </div>
+                    ) : (
+                      <span className="mode-icon mode-none" aria-hidden="true" />
+                    )
+                  }
+                  title={stop.name}
+                  meta={`${t("card.transport.walk", { minutes: walkMinutes(stop.distanceMeters) })} · ${t("card.transport.meters", { meters: stop.distanceMeters })}`}
+                >
                   {stop.lines.length > 0 ? (
-                    <div className="line-badges">
+                    <span className="line-badges">
                       {stop.lines.slice(0, MAX_LINE_BADGES).map((line) => (
                         <LineBadge key={`${line.mode}|${line.shortName}`} line={line} />
                       ))}
@@ -164,11 +164,11 @@ export function TransportCard({
                           {t("transport.moreLines", { count: stop.lines.length - MAX_LINE_BADGES })}
                         </span>
                       )}
-                    </div>
+                    </span>
                   ) : (
-                    <p className="stop-empty">{t("transport.noDepartures")}</p>
+                    <span className="stop-empty">{t("transport.noDepartures")}</span>
                   )}
-                </li>
+                </ListRow>
               ))}
             </ol>
           </>
@@ -221,7 +221,7 @@ export function NearbyPlacesCard({
           {rows.length === 0 ? (
             <p className="muted">{t("card.places.summaryEmpty")}</p>
           ) : (
-            <ul className="stops place-rows">
+            <ul className="stops list-rows">
               {rows.map((category) => (
                 <PlaceRow
                   key={category}
@@ -260,18 +260,15 @@ function PlaceRow({
 }) {
   const { t } = useLang();
   return (
-    <li className="stop-row place-row">
-      <button type="button" className="place-pick" aria-pressed={selected} onClick={() => onPick(item)}>
-        <PlaceBadge category={category} />
-        <span className="stop-text">
-          <span className="stop-name">{item.name || t(PLACE_KEY[category])}</span>
-          <span className="dist">
-            {t("card.transport.walk", { minutes: walkMinutes(item.distanceMeters) })} · {t("card.transport.meters", { meters: item.distanceMeters })}
-          </span>
-          <span className="dist">{capped && count >= 5 ? t("card.places.countMax") : t("card.places.count", { count })}</span>
-        </span>
-      </button>
-    </li>
+    <ListRow
+      icon={<PlaceBadge category={category} />}
+      title={item.name || t(PLACE_KEY[category])}
+      meta={`${t("card.transport.walk", { minutes: walkMinutes(item.distanceMeters) })} · ${t("card.transport.meters", { meters: item.distanceMeters })}`}
+      onPick={() => onPick(item)}
+      pressed={selected}
+    >
+      <span className="list-row-count">{capped && count >= 5 ? t("card.places.countMax") : t("card.places.count", { count })}</span>
+    </ListRow>
   );
 }
 

@@ -1412,3 +1412,229 @@ a.btn-secondary {
   display: inline-flex;
   align-items: center;
 }
+
+/* ---------- hero photo of the building (16:9, shimmer while loading, quiet when missing) ---------- */
+.hero-photo {
+  margin: 0;
+}
+
+.hero-frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+.hero-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-button {
+  all: unset;
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: zoom-in;
+}
+
+.hero-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.hero-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--surface-2) 0%, var(--surface) 50%, var(--surface-2) 100%);
+  background-size: 200% 100%;
+  animation: hero-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes hero-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-shimmer { animation: none; }
+}
+
+.hero-caption {
+  margin: 6px 2px 0;
+  font-size: var(--fs-caption);
+  color: var(--muted);
+}
+
+.pano-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: #000;
+}
+
+.pano-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+/* Our own way out, above Google's controls: top-left inside the safe area, 44 px, readable in both themes. */
+.pano-close {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top));
+  left: max(12px, env(safe-area-inset-left));
+  z-index: 60;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-pop);
+  cursor: pointer;
+}
+
+.pano-close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------- small phones: one-line card header, shared list rows, chip rows that scroll ---------- */
+.card,
+.card-body {
+  min-width: 0;
+}
+
+.card > summary {
+  flex-wrap: nowrap;
+}
+
+.card-icon,
+.card-chevron {
+  flex: none;
+}
+
+.card-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-result {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 48%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Filter chips: one row, scrolling sideways inside it; the page never scrolls sideways. */
+.mode-chips {
+  flex-wrap: nowrap;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+
+.mode-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.mode-chip {
+  flex: none;
+}
+
+/* The shared row (transport stops and nearby places): icon column as wide as the icon, text column may shrink. */
+.stops li.list-row {
+  display: block;
+  padding: 10px 0;
+}
+
+.list-row-button,
+.list-row-body {
+  all: unset;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: 12px;
+  width: 100%;
+  min-width: 0;
+}
+
+.list-row-button {
+  cursor: pointer;
+  min-height: 44px;
+  border-radius: 8px;
+}
+
+.list-row-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.list-row-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+}
+
+.list-row-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.list-row-title {
+  font-weight: 600;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.list-row-meta,
+.list-row-count {
+  color: var(--muted);
+  font-size: var(--fs-caption);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.list-row-meta {
+  white-space: normal;
+}
+
+.list-row-text > .line-badges,
+.list-row-text > .stop-empty {
+  margin-top: 4px;
+}
+
+.list-row-button[aria-pressed="true"] .list-row-title {
+  text-decoration: underline;
+}
+
+/* The title keeps its full width; the result gives way first (it is the one that truncates). */
+.card-title {
+  flex: 0 0 auto;
+  min-width: auto;
+}
+
+.card-result {
+  flex: 1 1 auto;
+  max-width: none;
+  margin-left: auto;
+}
