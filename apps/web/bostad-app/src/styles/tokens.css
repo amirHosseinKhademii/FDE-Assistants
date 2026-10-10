@@ -27,6 +27,14 @@
   --mode-ferry: #1F8A9E;
   --mode-train: #7A4FB5;
   --mode-ink: #FFFFFF;
+  --place-grocery: #6B7F1F;
+  --place-pharmacy: #B23A48;
+  --place-health: #A23B8A;
+  --place-school: #3E5BA9;
+  --place-preschool: #A5721B;
+  --place-park: #2F7D5B;
+  --place-gym: #4F5D75;
+  --place-eatery: #7A5A3A;
 }
 
 /* Dark values. Written twice on purpose: the media query covers "system"
@@ -55,6 +63,14 @@
     --mode-ferry: #5CC7DA;
     --mode-train: #B69BE8;
     --mode-ink: #101417;
+    --place-grocery: #B8D15C;
+    --place-pharmacy: #E88A96;
+    --place-health: #DE84C5;
+    --place-school: #8FA8E8;
+    --place-preschool: #E7BE6E;
+    --place-park: #6FCB9F;
+    --place-gym: #A9B6D0;
+    --place-eatery: #C9A27E;
   }
 }
 
@@ -81,6 +97,14 @@
   --mode-ferry: #5CC7DA;
   --mode-train: #B69BE8;
   --mode-ink: #101417;
+  --place-grocery: #B8D15C;
+  --place-pharmacy: #E88A96;
+  --place-health: #DE84C5;
+  --place-school: #8FA8E8;
+  --place-preschool: #E7BE6E;
+  --place-park: #6FCB9F;
+  --place-gym: #A9B6D0;
+  --place-eatery: #C9A27E;
 }
 
 :root {

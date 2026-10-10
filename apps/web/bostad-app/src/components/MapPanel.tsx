@@ -7,7 +7,10 @@ import { Icon } from "./Icons";
 import { GoogleMap } from "./GoogleMap";
 import { MapBoundary } from "./MapBoundary";
 import { LineBadge, ModeIcon } from "./ModeIcon";
-import type { PlaceItem } from "@bostad/property";
+import type { PlaceCategory, PlaceItem } from "@bostad/property";
+import { PLACE_KEY, PLACE_ORDER } from "../lib/places";
+import { PlaceBadge } from "./MapPins";
+import type { PlacesFilter } from "./placeFilter";
 
 const MAX_BADGES = 8;
 
@@ -38,6 +41,11 @@ export function MapPanel({
   filter = "all",
   onFilter = () => {},
   places = [],
+  placeFilter = "all",
+  onPlaceFilter = () => {},
+  selectedPlaceId = null,
+  onSelectPlace = () => {},
+  focus = null,
   placeCount = 0,
   showPlaces = false,
   onShowPlaces = () => {},
@@ -48,8 +56,13 @@ export function MapPanel({
   stops?: MapStop[];
   filter?: ModeFilter;
   onFilter?: (f: ModeFilter) => void;
-  /** Everyday places to mark (empty unless the "Show places" chip is on). */
+  /** Every everyday place found; the layer shows the ones that match placeFilter. */
   places?: PlaceItem[];
+  placeFilter?: PlacesFilter;
+  onPlaceFilter?: (f: PlacesFilter) => void;
+  selectedPlaceId?: string | null;
+  onSelectPlace?: (id: string | null) => void;
+  focus?: { lat: number; lon: number; nonce: number } | null;
   placeCount?: number;
   showPlaces?: boolean;
   onShowPlaces?: (on: boolean) => void;
@@ -65,17 +78,23 @@ export function MapPanel({
   // A new address has new stops: the old selection and fullscreen do not carry over.
   useEffect(() => setSelectedId(null), [lat, lon]);
 
-  // Esc closes the stop card first, then leaves fullscreen.
+  // A chosen place and a chosen stop never show together: the newer choice wins.
   useEffect(() => {
-    if (!expanded && !selectedId) return;
+    if (selectedPlaceId) setSelectedId(null);
+  }, [selectedPlaceId]);
+
+  // Esc closes the open card first (place or stop), then leaves fullscreen.
+  useEffect(() => {
+    if (!expanded && !selectedId && !selectedPlaceId) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
-      if (selectedId) setSelectedId(null);
+      if (selectedPlaceId) onSelectPlace(null);
+      else if (selectedId) setSelectedId(null);
       else setExpanded(false);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [expanded, selectedId]);
+  }, [expanded, selectedId, selectedPlaceId, onSelectPlace]);
 
   // Fullscreen takes the page scroll away while it is open.
   useEffect(() => {
@@ -93,6 +112,9 @@ export function MapPanel({
 
   const hasCoords = typeof lat === "number" && typeof lon === "number";
   const selected = stops.find((s) => (s.id || s.name) === selectedId) ?? null;
+  const selectedPlace = places.find((p) => p.id === selectedPlaceId) ?? null;
+  const shownPlaces = showPlaces ? places.filter((p) => placeFilter === "all" || p.category === placeFilter) : [];
+  const placeCategories = PLACE_ORDER.filter((c) => places.some((p) => p.category === c));
   const present = modesPresent(stops);
   const className = `map-col${expanded ? " is-expanded" : ""}`;
 
@@ -120,9 +142,15 @@ export function MapPanel({
           house={{ lat, lon }}
           stops={stops}
           filter={filter}
-          places={showPlaces ? places : []}
+          places={shownPlaces}
           selectedId={selectedId}
-          onSelect={setSelectedId}
+          onSelect={(id) => {
+            if (id) onSelectPlace(null);
+            setSelectedId(id);
+          }}
+          selectedPlaceId={selectedPlaceId}
+          onSelectPlace={onSelectPlace}
+          focus={focus}
           expanded={expanded}
           fitKey={fitKey}
         />
@@ -148,6 +176,21 @@ export function MapPanel({
           </button>
         )}
       </div>
+      {showPlaces && placeCategories.length > 0 && (
+        <div className="map-chips map-chips--places" role="group" aria-label={t("card.places.filter.label")}>
+          {(["all", ...placeCategories] as PlacesFilter[]).map((option) => (
+            <button
+              key={option}
+              type="button"
+              className="map-chip"
+              aria-pressed={placeFilter === option}
+              onClick={() => onPlaceFilter(option)}
+            >
+              <span>{option === "all" ? t("transport.filter.all") : t(PLACE_KEY[option])}</span>
+            </button>
+          ))}
+        </div>
+      )}
 
       <button
         type="button"
@@ -170,6 +213,34 @@ export function MapPanel({
             <path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
           </svg>
         </button>
+      )}
+
+      {selectedPlace && hasCoords && (
+        <section className="map-card" aria-label={selectedPlace.name || t(PLACE_KEY[selectedPlace.category])}>
+          <div className="map-card-head">
+            <PlaceBadge category={selectedPlace.category} />
+            <div className="map-card-text">
+              <strong>{selectedPlace.name || t(PLACE_KEY[selectedPlace.category])}</strong>
+              <span className="muted">
+                {t(PLACE_KEY[selectedPlace.category])} ·{" "}
+                {t("map.walk", { minutes: walkMinutes(selectedPlace.distanceMeters), meters: selectedPlace.distanceMeters })}
+              </span>
+            </div>
+            <button type="button" className="map-round map-card-close" aria-label={t("map.close")} onClick={() => onSelectPlace(null)}>
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true" focusable="false">
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
+            </button>
+          </div>
+          <a
+            className="btn-secondary map-card-directions"
+            href={walkingDirectionsHref({ lat, lon }, selectedPlace)}
+            target="_blank"
+            rel="noreferrer"
+          >
+            {t("map.directions")}
+          </a>
+        </section>
       )}
 
       {selected && hasCoords && (

@@ -1208,3 +1208,74 @@ a.btn-secondary {
 .card > summary {
   min-height: 56px;
 }
+
+/* ---------- nearby places: category pins, list rows, chips ---------- */
+.pin--place-pict {
+  width: 28px;
+  height: 28px;
+  border-width: 2px;
+}
+
+.pin--place-pict svg {
+  width: 16px;
+  height: 16px;
+}
+
+.pin--place-pict.is-selected {
+  width: 34px;
+  height: 34px;
+  border-color: var(--text);
+}
+
+.pin--inline {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-width: 0;
+  box-shadow: none;
+}
+
+.pin--place-grocery { background: var(--place-grocery); }
+.pin--place-pharmacy { background: var(--place-pharmacy); }
+.pin--place-health { background: var(--place-health); }
+.pin--place-school { background: var(--place-school); }
+.pin--place-preschool { background: var(--place-preschool); }
+.pin--place-park { background: var(--place-park); }
+.pin--place-gym { background: var(--place-gym); }
+.pin--place-eatery { background: var(--place-eatery); }
+
+.place-pick {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 4px 0;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.place-pick:focus-visible {
+  outline: 2px solid var(--accent, currentColor);
+  outline-offset: 2px;
+}
+
+.place-pick[aria-pressed="true"] .stop-name {
+  text-decoration: underline;
+}
+
+.place-rows .stop-text {
+  display: grid;
+  gap: 2px;
+}
+
+.map-chips--places {
+  margin-top: 6px;
+}
+
+.place-credit {
+  margin: 0;
+  font-size: var(--fs-caption);
+}

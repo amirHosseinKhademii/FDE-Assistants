@@ -148,6 +148,7 @@ function normaliseNoise(data: unknown) {
       streetDb: finite(b.streetDb),
       topDb: finite(b.topDb),
       loudestDb: loudest,
+      matched: b.matched === "footprint" ? "footprint" : "cluster",
       points: finite(b.points) ?? 0,
     };
   }
@@ -193,7 +194,16 @@ function normaliseIncome(data: unknown) {
   };
 }
 
-const CATEGORIES: PlaceCategory[] = ["grocery", "pharmacy", "school", "preschool", "park", "health"];
+const CATEGORIES: PlaceCategory[] = [
+  "grocery",
+  "pharmacy",
+  "health",
+  "school",
+  "preschool",
+  "park",
+  "gym",
+  "eatery",
+];
 
 function normalisePlaceItem(raw: unknown): PlaceItem | null {
   if (!isObject(raw)) return null;
@@ -224,7 +234,14 @@ function normalisePlaces(data: unknown) {
     const item = isObject(data.nearest) ? normalisePlaceItem(data.nearest[c]) : null;
     if (item) nearest[c] = item;
   }
-  return { radiusMeters: finite(data.radiusMeters) ?? 500, counts, nearest, items, source: str(data.source) };
+  return {
+    radiusMeters: finite(data.radiusMeters) ?? 1500,
+    countRadiusMeters: finite(data.countRadiusMeters) ?? 500,
+    counts,
+    nearest,
+    items,
+    source: str(data.source),
+  };
 }
 
 function normaliseTransit(data: unknown) {

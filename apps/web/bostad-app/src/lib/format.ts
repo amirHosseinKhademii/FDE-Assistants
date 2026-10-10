@@ -25,7 +25,8 @@ export function walkMinutes(meters: number): number {
 export function sourceKey(source: string): MessageKey {
   if (source.includes("sgi.se")) return "source.sgi";
   if (source.includes("vasttrafik")) return "source.vasttrafik";
-  if (source.includes("nominatim")) return "source.osm";
+  if (source.includes("nominatim") || source.includes("overpass")) return "source.osm";
+  if (source.includes("googleapis")) return "source.google";
   if (source.includes("goteborg.se")) return "source.goteborg";
   if (source.includes("photon")) return "source.photon";
   return "source.generic";

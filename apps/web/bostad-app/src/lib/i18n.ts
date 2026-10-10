@@ -182,6 +182,18 @@ const en = {
 
   "doc.home": "Bostad — know the home before you bid",
   "doc.profile": "{address} — Bostad",
+  "card.places.title": "Nearby places",
+  "source.google": "Google Places",
+  "card.places.google": "Powered by Google",
+  "card.places.explain": "The nearest of each everyday place within 1.5 km. Tap one to see it on the map.",
+  "card.places.count": "{count} within 500 m",
+  "card.places.countMax": "5+ within 500 m",
+  "card.places.noneNear": "None within 1.5 km",
+  "card.places.filter.label": "Filter by kind of place",
+  "card.places.summaryEmpty": "Nothing nearby",
+  "place.gym": "Gym",
+  "place.eatery": "Café & restaurant",
+  "place.showOnMap": "Show on map",
 };
 
 export type MessageKey = keyof typeof en;
@@ -365,6 +377,18 @@ const sv: Record<MessageKey, string> = {
 
   "doc.home": "Bostad — känn till bostaden innan du bjuder",
   "doc.profile": "{address} — Bostad",
+  "card.places.title": "Platser i närheten",
+  "source.google": "Google Places",
+  "card.places.google": "Drivs av Google",
+  "card.places.explain": "Närmaste av varje vardagsplats inom 1,5 km. Tryck på en för att se den på kartan.",
+  "card.places.count": "{count} inom 500 m",
+  "card.places.countMax": "5+ inom 500 m",
+  "card.places.noneNear": "Inga inom 1,5 km",
+  "card.places.filter.label": "Filtrera efter typ av plats",
+  "card.places.summaryEmpty": "Inget i närheten",
+  "place.gym": "Gym",
+  "place.eatery": "Kafé och restaurang",
+  "place.showOnMap": "Visa på kartan",
 };
 
 export const dictionaries: Record<Lang, Record<MessageKey, string>> = { en, sv };

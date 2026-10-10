@@ -5,7 +5,7 @@ import { useTheme } from "../lib/theme";
 import { stopMatches, type MapStop, type ModeFilter } from "../lib/transport";
 import { MAP_ID } from "../lib/maps";
 import { PLACE_KEY } from "../lib/places";
-import { HomePin, StopDot, StopPin } from "./MapPins";
+import { HomePin, PlacePin, StopDot, StopPin } from "./MapPins";
 import type { PlaceItem } from "@bostad/property";
 
 export type { MapStop } from "../lib/transport";
@@ -49,6 +49,17 @@ function FitBounds({ points, fitKey }: { points: google.maps.LatLngLiteral[]; fi
   return null;
 }
 
+/** Pans to a place when it is chosen from the list (a new nonce each time, so the same place can be chosen twice). */
+function PanTo({ focus }: { focus: { lat: number; lon: number; nonce: number } | null }) {
+  const map = useMap();
+  useEffect(() => {
+    if (!map || !focus) return;
+    map.panTo({ lat: focus.lat, lng: focus.lon });
+    if ((map.getZoom() ?? 0) < 16) map.setZoom(16);
+  }, [map, focus]);
+  return null;
+}
+
 /**
  * The map body. Client-only: the parent renders it after mount. `stops` sets the
  * view and `filter` only decides which markers are drawn. Selection is owned by
@@ -62,15 +73,22 @@ export function GoogleMap({
   places = [],
   selectedId,
   onSelect,
+  selectedPlaceId = null,
+  onSelectPlace = () => {},
+  focus = null,
   expanded = false,
   fitKey = 0,
 }: {
   house: { lat: number; lon: number };
   stops: MapStop[];
   filter?: ModeFilter;
+  /** Places to mark: already filtered by the parent. */
   places?: PlaceItem[];
   selectedId: string | null;
   onSelect: (id: string | null) => void;
+  selectedPlaceId?: string | null;
+  onSelectPlace?: (id: string | null) => void;
+  focus?: { lat: number; lon: number; nonce: number } | null;
   expanded?: boolean;
   fitKey?: number;
 }) {
@@ -105,10 +123,14 @@ export function GoogleMap({
       gestureHandling={gesture}
       clickableIcons={false}
       onCameraChanged={(e) => setZoom(e.detail.zoom)}
-      onClick={() => onSelect(null)}
+      onClick={() => {
+        onSelect(null);
+        onSelectPlace(null);
+      }}
       style={{ width: "100%", height: "100%" }}
     >
       <FitBounds points={points} fitKey={fitKey} />
+      <PanTo focus={focus} />
 
       {rings.map((ring) => (
         <Polyline
@@ -137,14 +159,18 @@ export function GoogleMap({
       <HomePin position={houseAt} title={t("map.house")} />
 
       {places.map((p) => (
-        <AdvancedMarker
+        <PlacePin
           key={`place-${p.id}`}
           position={{ lat: p.lat, lng: p.lon }}
           title={p.name || t(PLACE_KEY[p.category])}
-          zIndex={-1}
-        >
-          <div className="pin pin--place" />
-        </AdvancedMarker>
+          category={p.category}
+          selected={p.id === selectedPlaceId}
+          zIndex={p.id === selectedPlaceId ? 4 : 0}
+          onClick={() => {
+            onSelect(null);
+            onSelectPlace(p.id === selectedPlaceId ? null : p.id);
+          }}
+        />
       ))}
 
       {shown.map((stop) => {
@@ -154,7 +180,10 @@ export function GoogleMap({
         const id = stop.id || stop.name;
         const isSelected = id === selectedId;
         const position = { lat: stop.lat, lng: stop.lon };
-        const toggle = () => onSelect(isSelected ? null : id);
+        const toggle = () => {
+          onSelectPlace(null);
+          onSelect(isSelected ? null : id);
+        };
         return dots ? (
           <StopDot key={id} position={position} title={stop.name} mode={primary} zIndex={1} onClick={toggle} />
         ) : (

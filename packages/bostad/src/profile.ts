@@ -78,7 +78,7 @@ export async function getProfile(address: string): Promise<Profile> {
     noise = { status: "unavailable", reason, source: "goteborg.se", fetchedAt: new Date().toISOString() };
     district = { status: "unavailable", reason, source: "goteborg.se", fetchedAt: new Date().toISOString() };
     income = { status: "unavailable", reason, source: "api.scb.se", fetchedAt: new Date().toISOString() };
-    places = { status: "unavailable", reason, source: "overpass-api.de", fetchedAt: new Date().toISOString() };
+    places = { status: "unavailable", reason, source: "places.googleapis.com", fetchedAt: new Date().toISOString() };
   } else {
     const { lat, lon } = location.data;
     // Every section is independent: one slow or failing source never blocks the others.
@@ -88,8 +88,10 @@ export async function getProfile(address: string): Promise<Profile> {
       attempt("goteborg.se", () => noiseAt(lat, lon)),
       attempt("goteborg.se", () => districtAt(lat, lon)),
       attempt("api.scb.se", () => incomeAt(lat, lon)),
-      attempt("overpass-api.de", () => placesAt(lat, lon)),
+      attempt("places.googleapis.com", () => placesAt(lat, lon)),
     ]);
+    // Report the provider that actually answered (Google first, Overpass as fallback).
+    if (places.data) places.source = places.data.source;
   }
 
   return {

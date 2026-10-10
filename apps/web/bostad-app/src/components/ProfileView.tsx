@@ -8,6 +8,7 @@ import { AddressHeader, ProfileBody } from "./ProfileContent";
 import { SearchBox } from "./SearchBox";
 import type { ModeFilter } from "../lib/transport";
 import type { PlaceItem } from "@bostad/property";
+import type { PlacesFilter } from "./placeFilter";
 import { TopBar } from "./TopBar";
 
 const NO_STOPS: never[] = [];
@@ -35,10 +36,25 @@ export function ProfileView({ address, onSearch }: { address: string; onSearch: 
   const [filter, setFilter] = useState<ModeFilter>("all");
   const placeItems = useMemo(() => {
     if (!profile) return NO_PLACES;
-    const places = gatedCheck(profile.places, gateOf(profile));
+    const places = gatedCheck(profile.places, "exact");
     return places.kind === "ok" ? places.data.items : NO_PLACES;
   }, [profile]);
   const [showPlaces, setShowPlaces] = useState(false);
+  const [placeFilter, setPlaceFilter] = useState<PlacesFilter>("all");
+  const [placeId, setPlaceId] = useState<string | null>(null);
+  const [focus, setFocus] = useState<{ lat: number; lon: number; nonce: number } | null>(null);
+  // A new address starts with nothing chosen.
+  useEffect(() => {
+    setPlaceId(null);
+    setFocus(null);
+    setPlaceFilter("all");
+  }, [coords?.lat, coords?.lon]);
+  // A tap on a row turns the Places layer on, pans to the place and opens its card.
+  const pickPlace = (item: PlaceItem) => {
+    setShowPlaces(true);
+    setPlaceId((cur) => (cur === item.id ? null : item.id));
+    setFocus({ lat: item.lat, lon: item.lon, nonce: Date.now() });
+  };
 
   return (
     <div className="wrap">
@@ -55,6 +71,11 @@ export function ProfileView({ address, onSearch }: { address: string; onSearch: 
           filter={filter}
           onFilter={setFilter}
           places={placeItems}
+          placeFilter={placeFilter}
+          onPlaceFilter={setPlaceFilter}
+          selectedPlaceId={placeId}
+          onSelectPlace={setPlaceId}
+          focus={focus}
           placeCount={placeItems.length}
           showPlaces={showPlaces}
           onShowPlaces={setShowPlaces}
@@ -65,7 +86,18 @@ export function ProfileView({ address, onSearch }: { address: string; onSearch: 
           <AddressHeader address={address} profile={profile} />
           {loading && <ProfileSkeleton />}
           {state.status === "error" && <ProfileError kind={state.kind} onRetry={retry} />}
-          {profile && <ProfileBody profile={profile} onRetry={retry} filter={filter} onFilter={setFilter} />}
+          {profile && (
+            <ProfileBody
+              profile={profile}
+              onRetry={retry}
+              filter={filter}
+              onFilter={setFilter}
+              placeFilter={placeFilter}
+              onPlaceFilter={setPlaceFilter}
+              selectedPlaceId={placeId}
+              onPickPlace={pickPlace}
+            />
+          )}
         </div>
       </div>
       <p className="footnote">{t("profile.footer")}</p>

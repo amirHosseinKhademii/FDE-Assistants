@@ -1,10 +1,11 @@
-import type { NoiseResult, Profile } from "@bostad/property";
+import type { NoiseResult, PlaceItem, Profile } from "@bostad/property";
 import { useLang } from "../lib/lang";
 import { gatedCheck, gateOf, type Check } from "../lib/checks";
 import { walkMinutes } from "../lib/format";
 import type { ModeFilter } from "../lib/transport";
 import { Icon, type IconName } from "./Icons";
-import { GroundCard, NeighbourhoodCard, NoiseCard, TransportCard } from "./cards";
+import { GroundCard, NearbyPlacesCard, NeighbourhoodCard, NoiseCard, TransportCard, placesSummary } from "./cards";
+import type { PlacesFilter } from "./placeFilter";
 import type { CardResult } from "./ProfileCard";
 
 type Translate = ReturnType<typeof useLang>["t"];
@@ -48,11 +49,19 @@ export function ProfileBody({
   onRetry,
   filter = "all",
   onFilter = () => {},
+  placeFilter = "all",
+  onPlaceFilter = () => {},
+  selectedPlaceId = null,
+  onPickPlace = () => {},
 }: {
   profile: Profile;
   onRetry: () => void;
   filter?: ModeFilter;
   onFilter?: (f: ModeFilter) => void;
+  placeFilter?: PlacesFilter;
+  onPlaceFilter?: (f: PlacesFilter) => void;
+  selectedPlaceId?: string | null;
+  onPickPlace?: (item: PlaceItem) => void;
 }) {
   const { t } = useLang();
   const gate = gateOf(profile);
@@ -61,7 +70,8 @@ export function ProfileBody({
   const transit = gatedCheck(profile.transit, gate);
   const district = gatedCheck(profile.district, gate);
   const income = gatedCheck(profile.income, gate);
-  const places = gatedCheck(profile.places, gate);
+  // Places are distances from the point, not a risk claim: shown even when the match is only a street (see profile.precision).
+  const places = gatedCheck(profile.places, "exact");
 
   const groundRes: CardResult =
     ground.kind === "ok"
@@ -77,6 +87,8 @@ export function ProfileBody({
       : stops.length > 0
         ? { text: t("tile.transport", { minutes: walkMinutes(Math.min(...stops.map((s) => s.distanceMeters))) }), tone: "ok" }
         : { text: t("tile.word.none") };
+  const placesRes: CardResult =
+    places.kind === "ok" ? { text: placesSummary(places.data, t) } : { text: t("summary.notChecked") };
   const hoodRes: CardResult =
     district.kind === "ok" && district.data.stadsomrade?.name
       ? { text: district.data.stadsomrade.name }
@@ -110,7 +122,16 @@ export function ProfileBody({
       <GroundCard check={ground} onRetry={onRetry} result={groundRes} />
       <NoiseCard check={noise} onRetry={onRetry} result={noiseRes} />
       <TransportCard check={transit} onRetry={onRetry} filter={filter} onFilter={onFilter} result={transitRes} />
-      <NeighbourhoodCard district={district} income={income} places={places} onRetry={onRetry} result={hoodRes} />
+      <NearbyPlacesCard
+        check={places}
+        onRetry={onRetry}
+        filter={placeFilter}
+        onFilter={onPlaceFilter}
+        selectedId={selectedPlaceId}
+        onPick={onPickPlace}
+        result={placesRes}
+      />
+      <NeighbourhoodCard district={district} income={income} onRetry={onRetry} result={hoodRes} />
 
       <p className="more-row">
         {t("more.coming", { items: [t("more.brf"), t("more.energy"), t("more.inspection"), t("more.flood")].join(" · ") })}

@@ -1,10 +1,12 @@
 import type { ReactNode } from "react";
-import type { DistrictResult, IncomeResult, NoiseResult, PlacesResult, Profile } from "@bostad/property";
+import type { DistrictResult, IncomeResult, NoiseResult, PlaceCategory, PlaceItem, PlacesResult, Profile } from "@bostad/property";
 import { useLang } from "../lib/lang";
 import type { Check, Reason } from "../lib/checks";
 import type { MessageKey } from "../lib/i18n";
 import { clockTime, localeOf, sourceHref, sourceKey, walkMinutes } from "../lib/format";
 import { PLACE_KEY, PLACE_ORDER } from "../lib/places";
+import { PlaceBadge } from "./MapPins";
+import type { PlacesFilter } from "./placeFilter";
 import { ProfileCard, type CardResult, type CardStatus } from "./ProfileCard";
 import { LineBadge, ModeIcon } from "./ModeIcon";
 import { MODE_KEY, modesPresent, stopMatches, type ModeFilter } from "../lib/transport";
@@ -179,18 +181,16 @@ export function TransportCard({
 export function NeighbourhoodCard({
   district,
   income,
-  places,
   onRetry,
   result,
 }: {
   district: Check<DistrictResult>;
   income: Check<IncomeResult>;
-  places: Check<PlacesResult>;
   onRetry: () => void;
   result?: CardResult;
 }) {
   const { t, lang } = useLang();
-  const parts = [district, income, places];
+  const parts = [district, income];
   const failed = parts.find((p): p is Extract<Check<unknown>, { kind: "failed" }> => p.kind === "failed");
   const anyOk = parts.some((p) => p.kind === "ok");
   const meta = anyOk
@@ -229,38 +229,117 @@ export function NeighbourhoodCard({
             )}
           </NeighbourhoodPart>
 
-          <NeighbourhoodPart check={places} heading="card.hood.places">
-            {(p) => (
-              <>
-                <ul className="place-list">
-                  {PLACE_ORDER.map((category) => {
-                    const near = p.nearest[category];
-                    return (
-                      <li key={category} className="place-row">
-                        <div className="place-line">
-                          <span>{t(PLACE_KEY[category])}</span>
-                          <strong>{p.counts[category]}</strong>
-                        </div>
-                        {near && (
-                          <p className="muted place-near">
-                            {t("card.hood.nearestRow", {
-                              name: near.name || t(PLACE_KEY[category]),
-                              minutes: walkMinutes(near.distanceMeters),
-                            })}
-                          </p>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
-                <PartSource name="card.hood.srcPlaces" time={checkedTime(places, lang)} />
-              </>
-            )}
-          </NeighbourhoodPart>
         </>
       )}
     </ProfileCard>
   );
+}
+
+/**
+ * Nearby places: the nearest of each everyday place, one row each, like the
+ * transport list. The chips filter this list and the map together; a tap on a
+ * row pans the map to that place and opens its card there.
+ */
+export function NearbyPlacesCard({
+  check,
+  onRetry,
+  filter,
+  onFilter,
+  selectedId,
+  onPick,
+  result,
+}: {
+  check: Check<PlacesResult>;
+  onRetry: () => void;
+  filter: PlacesFilter;
+  onFilter: (f: PlacesFilter) => void;
+  selectedId: string | null;
+  onPick: (item: PlaceItem) => void;
+  result?: CardResult;
+}) {
+  const { t } = useLang();
+  const meta = useCheckProps(check, onRetry);
+  const data = check.kind === "ok" ? check.data : null;
+  const nearest = data?.nearest ?? {};
+  const present = PLACE_ORDER.filter((c) => nearest[c]);
+  const rows = PLACE_ORDER.filter((c) => (filter === "all" || filter === c) && nearest[c]);
+  return (
+    <ProfileCard id="card-places" icon="building" title="card.places.title" explain="card.places.explain" result={result} {...meta}>
+      {data && (
+        <>
+          {present.length > 0 && (
+            <div className="mode-chips" role="group" aria-label={t("card.places.filter.label")}>
+              {(["all", ...present] as PlacesFilter[]).map((option) => (
+                <button key={option} type="button" className="mode-chip" aria-pressed={filter === option} onClick={() => onFilter(option)}>
+                  <span>{option === "all" ? t("transport.filter.all") : t(PLACE_KEY[option])}</span>
+                </button>
+              ))}
+            </div>
+          )}
+          {rows.length === 0 ? (
+            <p className="muted">{t("card.places.summaryEmpty")}</p>
+          ) : (
+            <ul className="stops place-rows">
+              {rows.map((category) => (
+                <PlaceRow
+                  key={category}
+                  category={category}
+                  item={nearest[category] as PlaceItem}
+                  count={data.counts[category]}
+                  capped={data.source.includes("googleapis")}
+                  selected={selectedId === nearest[category]?.id}
+                  onPick={onPick}
+                />
+              ))}
+            </ul>
+          )}
+          {data.source.includes("googleapis") && <p className="muted place-credit">{t("card.places.google")}</p>}
+        </>
+      )}
+    </ProfileCard>
+  );
+}
+
+function PlaceRow({
+  category,
+  item,
+  count,
+  capped,
+  selected,
+  onPick,
+}: {
+  category: PlaceCategory;
+  item: PlaceItem;
+  count: number;
+  /** Google returns at most 5 places per category, so 5 means "5 or more". */
+  capped: boolean;
+  selected: boolean;
+  onPick: (item: PlaceItem) => void;
+}) {
+  const { t } = useLang();
+  return (
+    <li className="stop-row place-row">
+      <button type="button" className="place-pick" aria-pressed={selected} onClick={() => onPick(item)}>
+        <PlaceBadge category={category} />
+        <span className="stop-text">
+          <span className="stop-name">{item.name || t(PLACE_KEY[category])}</span>
+          <span className="dist">
+            {t("card.transport.walk", { minutes: walkMinutes(item.distanceMeters) })} · {t("card.transport.meters", { meters: item.distanceMeters })}
+          </span>
+          <span className="dist">{capped && count >= 5 ? t("card.places.countMax") : t("card.places.count", { count })}</span>
+        </span>
+      </button>
+    </li>
+  );
+}
+
+/** "Grocery 4 min · Pharmacy 3 min": the nearest two categories, for the card's one-line summary. */
+export function placesSummary(data: PlacesResult, t: (k: MessageKey, v?: Record<string, string | number>) => string): string {
+  const parts = PLACE_ORDER.filter((c) => data.nearest[c]).slice(0, 2).map((c) => {
+    const item = data.nearest[c] as PlaceItem;
+    return `${t(PLACE_KEY[c])} ${walkMinutes(item.distanceMeters)} min`;
+  });
+  return parts.length > 0 ? parts.join(" · ") : t("card.places.summaryEmpty");
 }
 
 function checkedTime<T>(check: Check<T>, lang: "en" | "sv"): string {
