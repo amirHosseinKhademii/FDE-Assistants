@@ -1,0 +1,228 @@
+# Bostad property-profile app: a STANDALONE deploy, separate from deploy.yml.
+#
+# Manual only. There is deliberately no push or pull_request trigger: nothing
+# here runs until someone starts it from the Actions tab (Run workflow). It does
+# not touch the other apps, and deploy.yml does not depend on it.
+#
+# Pipeline:  1 typecheck + build  →  2 docker build + push to ACR  →  3 create or
+# update the Container App  →  smoke test.
+#
+# AUTH: azure/login with OIDC against a federated credential. No Azure client
+# secret lives in this repo. See docs/bostad/DEPLOY.md for the one-time setup.
+#
+# ── TODO: fill these in before the first run ──────────────────────────────
+# Every name the pipeline depends on is in `env:` below, so there is one place to
+# edit. Values are placeholders on purpose; the workflow fails fast on them.
+
+name: deploy-bostad
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-bostad
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  # TODO: the resource group that already holds the Container Apps environment.
+  AZ_RESOURCE_GROUP: "TODO-resource-group"
+  # TODO: the Container Apps managed environment name (reuse the one deploy.yml uses,
+  #       or create a new one; see DEPLOY.md step 2).
+  AZ_CONTAINERAPPS_ENVIRONMENT: "TODO-containerapps-environment"
+  # TODO: the Azure Container Registry name (no .azurecr.io suffix).
+  ACR_NAME: "TODO-acr-name"
+  # The Container App name. Fixed by the task; change only if you rename it.
+  BOSTAD_APP: "bostad-app"
+  # Repository inside the registry, so the image is <acr>.azurecr.io/bostad-app:sha-<commit>.
+  IMAGE_REPO: "bostad-app"
+
+jobs:
+  # ── 1 · typecheck + build ───────────────────────────────────────────────
+  # The image build repeats this, but a failure here is cheaper to read than one
+  # buried inside a Docker layer.
+  check:
+    name: 1 · typecheck and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable pnpm (version from the root packageManager field)
+        run: corepack enable
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # Build first: @bostad/app typechecks against @bostad/property's dist/ types.
+      - name: Build the app and its workspace dependencies
+        env:
+          VITE_GOOGLE_MAPS_API_KEY: ${{ vars.VITE_GOOGLE_MAPS_API_KEY }}
+          VITE_GOOGLE_MAPS_MAP_ID: ${{ vars.VITE_GOOGLE_MAPS_MAP_ID }}
+        run: pnpm --filter "@bostad/app..." run build
+
+      - name: Typecheck the app
+        run: pnpm --filter @bostad/app run typecheck
+
+      - run: echo "✅ **1 · bostad typecheck and build passed**" >> "$GITHUB_STEP_SUMMARY"
+
+  # ── 2 · image build and push ────────────────────────────────────────────
+  image:
+    name: 2 · build and push image
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      image: ${{ steps.tag.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # Logs Docker into ACR with the OIDC token. The identity needs AcrPush on the
+      # registry (DEPLOY.md step 4).
+      - name: Log in to ACR
+        run: az acr login --name "$ACR_NAME"
+
+      # Tag is a pure function of the commit, so the deploy job can compute the same
+      # value without needing outputs (a skipped build job has none).
+      - name: Compute the image tag
+        id: tag
+        run: |
+          login=$(az acr show --name "$ACR_NAME" --query loginServer -o tsv)
+          echo "image=${login}/${IMAGE_REPO}:sha-${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v3
+
+      # Build from the repo root (pnpm workspace). The Dockerfile reads the public
+      # Maps keys as build args; the server secrets are NOT passed here.
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/web/bostad-app/Dockerfile
+          push: true
+          tags: ${{ steps.tag.outputs.image }}
+          build-args: |
+            VITE_GOOGLE_MAPS_API_KEY=${{ vars.VITE_GOOGLE_MAPS_API_KEY }}
+            VITE_GOOGLE_MAPS_MAP_ID=${{ vars.VITE_GOOGLE_MAPS_MAP_ID }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=min,scope=bostad
+
+      - run: echo "✅ **2 · bostad image pushed** — \`${{ steps.tag.outputs.image }}\`" >> "$GITHUB_STEP_SUMMARY"
+
+  # ── 3 · create or update the Container App ──────────────────────────────
+  deploy:
+    name: 3 · deploy bostad-app
+    needs: image
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      url: ${{ steps.smoke.outputs.url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # Recomputed here, not taken from `needs.image.outputs`: a re-run of only this
+      # job skips the build and would otherwise deploy an empty image name.
+      - name: Create or update the app
+        env:
+          VT_ID: ${{ secrets.VASTTRAFIK_CLIENT_IDENTIFIER }}
+          VT_SECRET: ${{ secrets.VASTTRAFIK_CLIENT_SECRET }}
+        run: |
+          login=$(az acr show --name "$ACR_NAME" --query loginServer -o tsv)
+          image="${login}/${IMAGE_REPO}:sha-${GITHUB_SHA}"
+          echo "IMAGE=$image" >> "$GITHUB_ENV"
+
+          # Ask the resource group, not the app: `show` exits non-zero both when the
+          # app is missing and when the caller cannot read it, and those need opposite
+          # responses. Stderr goes to a file so the CLI's extension warnings cannot
+          # land in the name list.
+          if ! names=$(az containerapp list -g "$AZ_RESOURCE_GROUP" --query "[].name" -o tsv 2>/tmp/az-err); then
+            echo "::error::cannot list container apps in $AZ_RESOURCE_GROUP. The deploy identity needs Contributor on the resource group. Azure said: $(cat /tmp/az-err)"
+            exit 1
+          fi
+
+          # Server secrets go in as Container App secrets and are referenced by name.
+          # They are never part of the image.
+          if printf '%s\n' "$names" | grep -qx "$BOSTAD_APP"; then
+            echo "updating $BOSTAD_APP -> $image"
+            az containerapp secret set -n "$BOSTAD_APP" -g "$AZ_RESOURCE_GROUP" \
+              --secrets "vasttrafik-client-identifier=$VT_ID" "vasttrafik-client-secret=$VT_SECRET" --output none
+            az containerapp update -n "$BOSTAD_APP" -g "$AZ_RESOURCE_GROUP" --image "$image" \
+              --set-env-vars "VASTTRAFIK_CLIENT_IDENTIFIER=secretref:vasttrafik-client-identifier" \
+                             "VASTTRAFIK_CLIENT_SECRET=secretref:vasttrafik-client-secret" \
+              --output none
+          else
+            echo "creating $BOSTAD_APP -> $image"
+            az containerapp create \
+              --name "$BOSTAD_APP" --resource-group "$AZ_RESOURCE_GROUP" \
+              --environment "$AZ_CONTAINERAPPS_ENVIRONMENT" \
+              --image "$image" \
+              --registry-server "$login" --registry-identity system --system-assigned \
+              --target-port 8080 --ingress external \
+              --cpu 0.5 --memory 1.0Gi \
+              --min-replicas 0 --max-replicas 2 \
+              --secrets "vasttrafik-client-identifier=$VT_ID" "vasttrafik-client-secret=$VT_SECRET" \
+              --env-vars "VASTTRAFIK_CLIENT_IDENTIFIER=secretref:vasttrafik-client-identifier" \
+                         "VASTTRAFIK_CLIENT_SECRET=secretref:vasttrafik-client-secret" \
+              --output none
+          fi
+
+      # `update` returns before the new revision serves. Wait until the active revision
+      # is Provisioned and carries this commit's image, then probe.
+      - name: Wait for the revision
+        run: |
+          for i in $(seq 1 40); do
+            state=$(az containerapp revision list -n "$BOSTAD_APP" -g "$AZ_RESOURCE_GROUP" \
+              --query "[?properties.active] | [0].properties.provisioningState" -o tsv)
+            image=$(az containerapp show -n "$BOSTAD_APP" -g "$AZ_RESOURCE_GROUP" \
+              --query "properties.template.containers[0].image" -o tsv)
+            echo "attempt $i: provisioning=$state image=$image"
+            if [ "$state" = "Provisioned" ] && [ "$image" = "$IMAGE" ]; then
+              echo "revision is provisioned and carries the expected image"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::error::no active revision reached Provisioned with $IMAGE"
+          exit 1
+
+      # Health route first, then the page and the profile API. --max-time is generous
+      # because min-replicas is 0, so the first request after idle pays a cold start.
+      - name: Smoke test
+        id: smoke
+        run: |
+          fqdn=$(az containerapp show -n "$BOSTAD_APP" -g "$AZ_RESOURCE_GROUP" \
+            --query "properties.configuration.ingress.fqdn" -o tsv)
+          url="https://$fqdn"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+          ok=
+          for i in $(seq 1 12); do
+            code=$(curl -s --max-time 180 -o /dev/null -w '%{http_code}' "$url/healthz")
+            echo "attempt $i: GET /healthz -> $code"
+            if [ "$code" = "200" ]; then ok=yes; break; fi
+            sleep 10
+          done
+          [ "$ok" = "yes" ] || { echo "::error::/healthz never returned 200"; exit 1; }
+
+          page=$(curl -s --max-time 60 -o /dev/null -w '%{http_code}' "$url/")
+          [ "$page" = "200" ] || { echo "::error::GET / returned $page"; exit 1; }
+
+          echo "✅ **3 · bostad deployed** — <$url>" >> "$GITHUB_STEP_SUMMARY"

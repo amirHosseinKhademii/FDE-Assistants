@@ -1,0 +1,28 @@
+# Build context is the repo root. This file replaces the root .dockerignore for
+# builds of apps/web/bostad-app/Dockerfile, so it carries the same exclusions
+# plus what only this image can do without.
+node_modules
+**/node_modules
+dist
+**/dist
+.output
+**/.output
+.turbo
+**/.turbo
+
+# Credentials and local state. .env must NEVER be baked in: every server secret
+# is injected by Container Apps at runtime, and the Maps keys arrive as build args.
+.env
+.env.*
+!.env.example
+logs
+*.log
+
+.git
+.github
+narration
+archive
+docs
+infra
+.claude
+.vscode
