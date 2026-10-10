@@ -1,0 +1,25 @@
+{
+  "name": "@bostad/property",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Gothenburg address to property profile from free public sources: geocode, SGI landslide areas, Västtrafik stops. BRF and energy sections are stubbed.",
+  "license": "UNLICENSED",
+  "main": "./dist/profile.js",
+  "types": "./dist/profile.d.ts",
+  "exports": {
+    ".": "./dist/profile.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "profile": "ts-node src/cli/profile.ts"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.3.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.1.3"
+  }
+}

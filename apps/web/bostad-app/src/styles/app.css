@@ -1,0 +1,2813 @@
+@import "./tokens.css";
+
+/* ---------- base ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: var(--fs-body);
+  line-height: var(--lh);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--accent);
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.wrap {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.grid-gap {
+  display: grid;
+  gap: 12px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.caption {
+  color: var(--muted);
+  font-size: var(--fs-caption);
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  flex: none;
+}
+
+/* ---------- top bar and language toggle ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 60px;
+}
+
+.wordmark {
+  color: var(--accent);
+  font-size: var(--fs-body-lg);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+
+.topbar-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.theme-toggle {
+  display: grid;
+  place-items: center;
+  width: var(--tap);
+  height: var(--tap);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.theme-toggle .icon {
+  width: 20px;
+  height: 20px;
+}
+
+.lang {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+}
+
+.lang button {
+  min-width: var(--tap);
+  min-height: var(--tap);
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--muted);
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lang button[aria-pressed="true"] {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+/* ---------- search ---------- */
+.search {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.search {
+  position: relative;
+}
+
+/* The input and its dropdown: the dropdown floats under the input, not the row. */
+.combo {
+  position: relative;
+  display: flex;
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.combo input {
+  flex: 1;
+  width: 100%;
+}
+
+.place-suggest {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  left: 0;
+  z-index: 20;
+  max-height: 60vh;
+  overflow-y: auto;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  box-shadow: var(--shadow-pop);
+}
+
+.place-suggest li {
+  display: grid;
+  gap: 2px;
+  min-height: var(--tap);
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: var(--fs-body);
+  color: var(--text);
+}
+
+.place-suggest li.is-active,
+.place-suggest li:hover {
+  background: var(--accent-soft);
+}
+
+.place-suggest .sugg-main {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.place-suggest mark {
+  background: none;
+  color: var(--accent);
+  font-weight: 800;
+}
+
+.place-suggest .sugg-sub {
+  color: var(--muted);
+  font-size: var(--fs-caption);
+}
+
+.search .hint {
+  flex-basis: 100%;
+}
+
+.search input {
+  flex: 1;
+  min-width: 0;
+  height: 52px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  font-size: var(--fs-body-lg);
+  box-shadow: var(--shadow);
+}
+
+.search input::placeholder {
+  color: var(--muted);
+}
+
+.search input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 0;
+  border-color: var(--accent);
+}
+
+.search.compact input {
+  height: var(--tap);
+  font-size: var(--fs-body);
+}
+
+.btn-primary {
+  min-height: 52px;
+  min-width: var(--tap);
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--radius-card);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.search.compact .btn-primary {
+  min-height: var(--tap);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+a.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.btn-secondary {
+  min-height: var(--tap);
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.hint {
+  margin-top: 8px;
+  color: var(--warn);
+  font-size: var(--fs-caption);
+}
+
+/* ---------- home ---------- */
+.home {
+  padding-bottom: 24px;
+}
+
+.hero {
+  display: grid;
+  gap: 12px;
+  padding: 32px 0 24px;
+}
+
+.hero h1 {
+  font-size: var(--fs-hero);
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.hero p {
+  color: var(--muted);
+  font-size: var(--fs-body-lg);
+}
+
+.examples {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  min-height: var(--tap);
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  font-size: var(--fs-body);
+  cursor: pointer;
+}
+
+.footnote {
+  margin-top: 32px;
+  color: var(--muted);
+  font-size: var(--fs-caption);
+  text-align: center;
+}
+
+[data-tone="ok"] {
+  --tone: var(--ok);
+}
+
+[data-tone="risk"] {
+  --tone: var(--risk);
+}
+
+[data-tone="warn"] {
+  --tone: var(--warn);
+}
+
+.map-placeholder {
+  height: 100%;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 12px;
+  padding: 24px;
+  text-align: center;
+  color: var(--muted);
+  background: linear-gradient(160deg, var(--surface-2), var(--accent-soft));
+}
+
+.map-placeholder .icon {
+  width: 32px;
+  height: 32px;
+  color: var(--accent);
+}
+
+.address {
+  display: grid;
+  gap: 4px;
+}
+
+.address h1 {
+  font-size: var(--fs-title);
+  font-weight: 700;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.alert {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--warn) 35%, var(--surface));
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--warn) 10%, var(--surface));
+  font-size: var(--fs-body);
+}
+
+.alert .icon {
+  color: var(--warn);
+  margin-top: 1px;
+}
+
+/* ---------- cards ---------- */
+.card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.card > summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: var(--tap);
+  padding: 16px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.card > summary::-webkit-details-marker {
+  display: none;
+}
+
+.card-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.card-title {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-body-lg);
+  font-weight: 600;
+}
+
+.card-chevron {
+  color: var(--muted);
+  transition: transform 0.2s ease;
+}
+
+.card[open] .card-chevron {
+  transform: rotate(180deg);
+}
+
+.card-body {
+  display: grid;
+  gap: 12px;
+  padding: 0 16px 16px;
+}
+
+.card-explain {
+  color: var(--muted);
+  font-size: var(--fs-body);
+}
+
+.card-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: var(--fs-caption);
+}
+
+.card-foot a {
+  overflow-wrap: anywhere;
+}
+
+.reason {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+
+.kv {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 16px;
+  margin: 0;
+  font-size: var(--fs-body);
+}
+
+.kv dt {
+  color: var(--muted);
+}
+
+.kv dd {
+  margin: 0;
+  text-align: right;
+}
+
+.stops {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.stops li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  font-size: var(--fs-body);
+}
+
+.stops li:first-child {
+  border-top: 0;
+}
+
+.stops .dist {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.skeleton {
+  border-radius: var(--radius-card);
+  background: linear-gradient(90deg, var(--surface-2) 0%, var(--shimmer) 50%, var(--surface-2) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton-card {
+  height: 84px;
+}
+
+.skeleton-map {
+  height: 45vh;
+  min-height: 280px;
+  margin: 0 calc(var(--gutter) * -1);
+  border-radius: 0 0 var(--radius-card) var(--radius-card);
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* ---------- transport modes: pictograms, line badges, filter chips ---------- */
+.mode-icon {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  color: var(--mode-ink);
+}
+
+.mode-icon svg {
+  width: 62%;
+  height: 62%;
+}
+
+.mode-icon.mode-tram { background: var(--mode-tram); }
+.mode-icon.mode-bus { background: var(--mode-bus); }
+.mode-icon.mode-ferry { background: var(--mode-ferry); }
+.mode-icon.mode-train { background: var(--mode-train); }
+
+.mode-icon.mode-none {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+
+.mode-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.mode-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--tap);
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-body);
+  cursor: pointer;
+}
+
+.mode-chip:has(.mode-icon) {
+  padding-left: 8px;
+}
+
+.mode-chip[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  font-weight: 600;
+}
+
+.mode-chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.stops li.stop-row {
+  display: grid;
+  gap: 8px;
+  padding: 12px 0;
+}
+
+.stop-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.stop-modes {
+  display: inline-flex;
+  gap: 4px;
+  flex: none;
+}
+
+.stop-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.stop-name {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.stop-text .dist {
+  white-space: normal;
+}
+
+.line-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.line-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.line-more {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  font-size: var(--fs-caption);
+  color: var(--muted);
+}
+
+.stop-empty {
+  margin: 0;
+  font-size: var(--fs-caption);
+  color: var(--muted);
+}
+
+/* Noise card: one bar from 35 to 75 dB(A), a tick at the 55 dB guideline. */
+.noise-bar {
+  position: relative;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--surface-2);
+}
+
+.noise-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--ok);
+  border-radius: 999px;
+}
+
+.noise-fill[data-over="yes"] {
+  background: var(--warn);
+}
+
+.noise-guide {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--text);
+}
+
+.noise-scale {
+  position: relative;
+  height: 20px;
+  margin-top: 4px;
+  font-size: var(--fs-caption);
+  color: var(--muted);
+}
+
+.noise-scale span {
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+/* Neighbourhood card: three parts, each with its own source line. */
+.hood-part {
+  display: grid;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.hood-part:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.hood-head {
+  margin: 0;
+  font-weight: 600;
+}
+
+.place-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.place-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.place-near {
+  margin: 0;
+  font-size: var(--fs-caption);
+}
+
+/* ---------- map pins (Advanced Markers: React content, centred on the coordinate) ---------- */
+.pin {
+  position: relative;
+  box-sizing: border-box;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  line-height: 0;
+  border: 2px solid var(--surface);
+  border-radius: 999px;
+  color: var(--mode-ink);
+  box-shadow: var(--shadow-pop);
+}
+
+.pin svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+}
+
+.pin--tram { background: var(--mode-tram); }
+.pin--bus { background: var(--mode-bus); }
+.pin--ferry { background: var(--mode-ferry); }
+.pin--train { background: var(--mode-train); }
+
+.pin.is-selected {
+  transform: scale(1.15);
+  border-color: var(--text);
+}
+
+.pin--home {
+  width: 44px;
+  height: 44px;
+  border-width: 3px;
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.pin--home svg {
+  width: 20px;
+  height: 20px;
+}
+
+.pin--home::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border: 2px solid var(--accent);
+  border-radius: 999px;
+  opacity: 0;
+  pointer-events: none;
+  animation: pin-pulse 2.4s ease-out infinite;
+}
+
+@keyframes pin-pulse {
+  0% { transform: scale(0.8); opacity: 0.6; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pin--home::before { display: none; }
+}
+
+.pin--dot {
+  width: 12px;
+  height: 12px;
+  border-width: 2px;
+}
+
+.pin--dot svg { display: none; }
+
+.pin-badge {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: 14px;
+  height: 14px;
+  box-sizing: border-box;
+  border: 2px solid var(--surface);
+  border-radius: 999px;
+}
+
+.pin-badge.mode-tram { background: var(--mode-tram); }
+.pin-badge.mode-bus { background: var(--mode-bus); }
+.pin-badge.mode-ferry { background: var(--mode-ferry); }
+.pin-badge.mode-train { background: var(--mode-train); }
+
+.pin-label {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-shadow: var(--shadow-pop);
+}
+
+/* ---------- map and profile layout ---------- */
+/* Phones: search on top, the map full-bleed, the content as a sheet over the map's bottom edge. */
+.profile {
+  display: grid;
+  padding: 0 0 48px;
+}
+
+.profile-search {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 8px var(--gutter);
+  background: var(--bg);
+}
+
+.map-col {
+  position: relative;
+  z-index: 0;
+  height: 55vh;
+  min-height: 300px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+.map-canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.map-col .map-placeholder {
+  height: 100%;
+}
+
+.map-col.is-expanded {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  height: 100dvh;
+  min-height: 0;
+  border-radius: 0;
+}
+
+.profile-sheet {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 16px;
+  align-content: start;
+  margin-top: -24px;
+  padding: 10px var(--gutter) 0;
+  border-radius: 24px 24px 0 0;
+  background: var(--bg);
+  box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.06);
+}
+
+.profile-sheet::before {
+  content: "";
+  justify-self: center;
+  width: 40px;
+  height: 4px;
+  margin-bottom: -4px;
+  border-radius: 999px;
+  background: var(--line);
+}
+
+/* Map chips: one horizontal row across the top of the map; only the row scrolls. */
+.map-chips {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 64px;
+  z-index: 2;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px;
+  scrollbar-width: none;
+}
+
+.map-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.map-chip {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px 0 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  white-space: nowrap;
+  box-shadow: var(--shadow-pop);
+  cursor: pointer;
+}
+
+.map-chip[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  font-weight: 600;
+}
+
+/* Round map buttons, 44 px: expand (top right), recentre (bottom right). */
+.map-round {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-pop);
+  cursor: pointer;
+}
+
+.map-expand {
+  top: 10px;
+  right: 10px;
+}
+
+.map-recentre {
+  right: 10px;
+  bottom: 12px;
+}
+
+/* In-map stop card: pinned to the bottom of the map, clear of the recentre button. */
+.map-card {
+  position: absolute;
+  z-index: 3;
+  left: 10px;
+  right: 64px;
+  bottom: 12px;
+  display: grid;
+  gap: 10px;
+  max-height: 60%;
+  overflow-y: auto;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-pop);
+}
+
+.map-card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.map-card-text {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.map-card-close {
+  position: static;
+  flex: none;
+}
+
+.map-card-directions {
+  justify-self: start;
+}
+
+.ring-label {
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-shadow: var(--shadow);
+  pointer-events: none;
+}
+
+.pin--place {
+  width: 14px;
+  height: 14px;
+  border-width: 2px;
+  background: var(--muted);
+}
+
+.pin--place svg {
+  display: none;
+}
+
+/* Wide screens (960 px and up): the map on the left, full viewport height; the card column on the right scrolls on its own.
+   The phone sheet's offsets (45 dvh top, overlap, handle, pill) are switched off here. The top overlay floats over the map only. */
+@media (min-width: 960px) {
+  .wrap:has(> .profile) {
+    position: relative;
+    max-width: none;
+    padding: 0;
+  }
+
+  .profile {
+    --card-col: 480px;
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--card-col);
+    grid-template-rows: minmax(0, 100dvh);
+    grid-template-areas: "map sheet";
+    height: 100dvh;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  /* Search floats at the top-left of the map; it never reaches the card column. */
+  .profile-search {
+    grid-area: map;
+    position: absolute;
+    top: 68px;
+    left: 12px;
+    z-index: 3;
+    width: min(440px, calc(100% - 24px));
+    padding: 0;
+    background: none;
+  }
+
+  .map-col {
+    grid-area: map;
+    position: relative;
+    top: auto;
+    height: 100dvh;
+    min-height: 0;
+    border-radius: 0;
+  }
+
+  .map-col.is-expanded {
+    position: fixed;
+    border-radius: 0;
+  }
+
+  /* Top overlay: wordmark at the top-left, language and theme at the top-right, both inside the map column. */
+  .wrap .topbar.is-overlay {
+    display: flex;
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: calc(var(--card-col) + 12px);
+    z-index: 30;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 0;
+    padding-right: 0;
+    background: transparent;
+    pointer-events: none;
+  }
+
+  .topbar.is-overlay .wordmark {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    height: 44px;
+    padding: 0 16px;
+    border-radius: 999px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+
+  .topbar.is-overlay .topbar-actions {
+    pointer-events: none;
+    margin-left: auto;
+  }
+
+  .topbar.is-overlay .topbar-actions > * {
+    pointer-events: auto;
+  }
+
+  .map-chips {
+    top: 124px;
+    left: 12px;
+    right: 12px;
+  }
+
+  .map-expand {
+    top: auto;
+    right: auto;
+    left: 10px;
+    bottom: 12px;
+  }
+
+  /* The card column: its own scroll, from the very top, with no sheet offsets. */
+  .profile-sheet {
+    grid-area: sheet;
+    position: relative;
+    top: auto !important;
+    z-index: 1;
+    display: grid;
+    align-content: start;
+    height: 100dvh;
+    min-height: 0;
+    margin: 0;
+    padding: 20px 24px 48px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .profile-sheet::before {
+    display: none;
+  }
+
+  .map-card {
+    right: auto;
+    width: min(340px, calc(100% - 24px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-card,
+  .map-chip,
+  .map-round {
+    transition: none;
+  }
+}
+
+/* Status words: colour only on the word, never on the card. */
+[data-tone="ok"] { --tone: var(--ok); }
+[data-tone="risk"] { --tone: var(--risk); }
+[data-tone="warn"] { --tone: var(--warn); }
+
+/* Status tiles: six, three columns on a phone. Plain icon, a small name, then the status word; no circles. */
+.status-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.status-tile {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 2px;
+  min-height: 44px;
+  padding: 8px 4px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+
+.status-tile[data-tone="ok"] { --tone: var(--ok); }
+.status-tile[data-tone="warn"] { --tone: var(--warn); }
+.status-tile[data-tone="risk"] { --tone: var(--risk); }
+.status-tile[data-tone="accent"] { --tone: var(--accent); }
+.status-tile[data-tone="neutral"] { --tone: var(--text); }
+.status-tile[data-tone="muted"] { --tone: var(--muted); }
+
+.tile-icon {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  color: var(--tone, var(--muted));
+}
+
+.tile-icon .icon {
+  width: 24px;
+  height: 24px;
+  color: inherit;
+}
+
+.status-tile .tile-name {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.status-tile .tile-word {
+  color: var(--tone, var(--text));
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.card {
+  scroll-margin-top: 80px;
+}
+
+/* Collapsed header chip: a short status word and icon in the status colour on a soft tint (12 %).
+   It never shrinks or truncates; the title gives way first. */
+.card-chip {
+  flex: none;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: var(--tone, var(--muted));
+  background: color-mix(in srgb, var(--tone, var(--muted)) 12%, transparent);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.card-chip .icon {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+.card-chip[data-tone="ok"] { --tone: var(--ok); }
+.card-chip[data-tone="warn"] { --tone: var(--warn); }
+.card-chip[data-tone="risk"] { --tone: var(--risk); }
+.card-chip[data-tone="accent"] { --tone: var(--accent); }
+.card-chip[data-tone="neutral"] { --tone: var(--text); }
+.card-chip[data-tone="muted"] { --tone: var(--muted); }
+
+/* The open card's first line: the full sentence for the result. */
+.card-lead {
+  color: var(--text);
+  font-size: var(--fs-body);
+  font-weight: 600;
+}
+
+.more-row {
+  padding: 12px 16px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-card);
+  color: var(--muted);
+  font-size: var(--fs-caption);
+}
+
+/* Cards are one line until opened: the summary carries the word, the body the detail. */
+.card > summary {
+  min-height: 56px;
+}
+
+/* ---------- nearby places: category pins, list rows, chips ---------- */
+.pin--place-pict {
+  width: 28px;
+  height: 28px;
+  border-width: 2px;
+}
+
+.pin--place-pict svg {
+  width: 16px;
+  height: 16px;
+}
+
+.pin--place-pict.is-selected {
+  width: 34px;
+  height: 34px;
+  border-color: var(--text);
+}
+
+.pin--inline {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-width: 0;
+  box-shadow: none;
+}
+
+.pin--place-grocery { background: var(--place-grocery); }
+.pin--place-pharmacy { background: var(--place-pharmacy); }
+.pin--place-health { background: var(--place-health); }
+.pin--place-school { background: var(--place-school); }
+.pin--place-preschool { background: var(--place-preschool); }
+.pin--place-park { background: var(--place-park); }
+.pin--place-gym { background: var(--place-gym); }
+.pin--place-eatery { background: var(--place-eatery); }
+
+.place-pick {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 4px 0;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.place-pick:focus-visible {
+  outline: 2px solid var(--accent, currentColor);
+  outline-offset: 2px;
+}
+
+.place-pick[aria-pressed="true"] .stop-name {
+  text-decoration: underline;
+}
+
+.place-rows .stop-text {
+  display: grid;
+  gap: 2px;
+}
+
+.map-chips--places {
+  margin-top: 6px;
+}
+
+.place-credit {
+  margin: 0;
+  font-size: var(--fs-caption);
+}
+
+/* ---------- area & prices: one row per measure, level word on the label line ---------- */
+.area-row {
+  display: grid;
+  gap: 4px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line, rgba(0, 0, 0, 0.08));
+}
+
+.area-row:first-of-type {
+  border-top: 0;
+}
+
+.area-row-label {
+  margin: 0;
+  font-weight: 600;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+}
+
+.area-level {
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.area-sentence {
+  margin: 0;
+}
+
+.area-soon {
+  font-weight: 500;
+  color: var(--soon);
+}
+
+.area-row--soon a {
+  justify-self: start;
+}
+
+.area-compare {
+  margin: 8px 0 0;
+  font-size: var(--fs-caption);
+}
+
+/* ---------- landing: recent searches ---------- */
+.recents {
+  margin-top: 24px;
+}
+
+.recents-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.recents h2 {
+  font-size: var(--fs-body);
+  margin: 0 0 8px;
+}
+
+.recent-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.recent-row {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--line, rgba(0, 0, 0, 0.08));
+  border-radius: 12px;
+}
+
+.recent-open {
+  all: unset;
+  box-sizing: border-box;
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 12px 14px;
+  min-height: 44px;
+  cursor: pointer;
+  border-radius: 12px;
+}
+
+.recent-open:focus-visible,
+.recent-remove:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.recent-address {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recent-meta,
+.recent-quick {
+  font-size: var(--fs-caption);
+  color: var(--muted);
+}
+
+.recent-remove {
+  all: unset;
+  box-sizing: border-box;
+  width: 44px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 22px;
+  color: var(--muted);
+  border-radius: 12px;
+}
+
+.link-button {
+  all: unset;
+  cursor: pointer;
+  color: var(--accent);
+  text-decoration: underline;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ---------- hero photo of the building (16:9, shimmer while loading, quiet when missing) ---------- */
+.hero-photo {
+  margin: 0;
+}
+
+.hero-frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+.hero-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-button {
+  all: unset;
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: zoom-in;
+}
+
+.hero-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.hero-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--surface-2) 0%, var(--surface) 50%, var(--surface-2) 100%);
+  background-size: 200% 100%;
+  animation: hero-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes hero-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-shimmer { animation: none; }
+}
+
+.hero-caption {
+  margin: 6px 2px 0;
+  font-size: var(--fs-caption);
+  color: var(--muted);
+}
+
+.pano-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #000;
+}
+
+.pano-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+/* Our own way out, above Google's controls: top-left inside the safe area, 44 px, readable in both themes. */
+.pano-close {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top));
+  left: max(12px, env(safe-area-inset-left));
+  z-index: 1001;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-pop);
+  cursor: pointer;
+}
+
+/* The top overlay hides while the panorama is open, so only the × is left at the top-left. */
+html[data-streetview="open"] .topbar.is-overlay,
+html[data-streetview="open"] .float-search {
+  display: none;
+}
+
+.pano-close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------- small phones: one-line card header, shared list rows, chip rows that scroll ---------- */
+.card,
+.card-body {
+  min-width: 0;
+}
+
+.card > summary {
+  flex-wrap: nowrap;
+}
+
+.card-icon,
+.card-chevron {
+  flex: none;
+}
+
+.card-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Filter chips: one row, scrolling sideways inside it; the page never scrolls sideways. */
+.mode-chips {
+  flex-wrap: nowrap;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+
+.mode-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.mode-chip {
+  flex: none;
+}
+
+/* The shared row (transport stops and nearby places): icon column as wide as the icon, text column may shrink. */
+.stops li.list-row {
+  display: block;
+  padding: 10px 0;
+}
+
+.list-row-button,
+.list-row-body {
+  all: unset;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: 12px;
+  width: 100%;
+  min-width: 0;
+}
+
+.list-row-button {
+  cursor: pointer;
+  min-height: 44px;
+  border-radius: 8px;
+}
+
+.list-row-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.list-row-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+}
+
+.list-row-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.list-row-title {
+  font-weight: 600;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.list-row-meta,
+.list-row-count {
+  color: var(--muted);
+  font-size: var(--fs-caption);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.list-row-meta {
+  white-space: normal;
+}
+
+.list-row-text > .line-badges,
+.list-row-text > .stop-empty {
+  margin-top: 4px;
+}
+
+.list-row-button[aria-pressed="true"] .list-row-title {
+  text-decoration: underline;
+}
+
+/* ---------- phone profile: map on top (45 %), a scrolling sheet below; collapsed = full-screen map ---------- */
+.sheet-bar,
+.sheet-pill,
+.float-search,
+.topbar.is-overlay {
+  display: none;
+}
+
+.grip-hidden {
+  display: none;
+}
+
+@media (max-width: 959.98px) {
+  .profile {
+    position: relative;
+    min-height: 0;
+  }
+
+  /* The map: top 45 % of the screen, full-bleed; full-screen when the sheet is collapsed. */
+  .map-col {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 0;
+    height: 45dvh;
+    min-height: 0;
+    border-radius: 0;
+    transition: height 200ms ease-out;
+  }
+
+  .profile:has(.profile-sheet.is-collapsed) .map-col {
+    height: 100dvh;
+  }
+
+  /* The sheet: a fixed box from its top to the bottom of the screen; its own scroll. */
+  .profile-sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 15;
+    display: block;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 24px 24px 0 0;
+    background: var(--bg);
+    box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.12);
+    transition: top 200ms ease-out;
+  }
+
+  .profile-sheet.is-collapsed {
+    box-shadow: none;
+  }
+
+  /* The card covers the screen; the map stays where it is, behind it. */
+  .profile-sheet.is-card {
+    border-radius: 0;
+  }
+
+  .profile-sheet::before {
+    display: none;
+  }
+
+  /* The gesture strip: 48 px, full width, above the map; touch-action none so the browser does not take the swipe. */
+  .sheet-bar {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    height: 48px;
+    background: var(--bg);
+    border-radius: 24px 24px 0 0;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* The bar is the control: a 48 px tall, full-width hit area with the thin bar centred in it. */
+  .sheet-handle {
+    all: unset;
+    box-sizing: border-box;
+    width: 100%;
+    height: 48px;
+    touch-action: none;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+
+  .sheet-handle:focus-visible,
+  .sheet-pill:focus-visible,
+  .float-search-btn:focus-visible,
+  .float-search-cancel:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .sheet-body {
+    display: grid;
+    gap: 16px;
+    align-content: start;
+    padding: 0 var(--gutter) calc(24px + env(safe-area-inset-bottom));
+  }
+
+  .sheet-grip {
+    display: block;
+    width: 40px;
+    height: 5px;
+    border-radius: 999px;
+    background: var(--line);
+  }
+
+  .sheet-grip--pill {
+    width: 28px;
+    height: 4px;
+    background: var(--muted);
+  }
+
+  /* Collapsed: one pill at the bottom centre brings the details back. */
+  .sheet-pill {
+    all: unset;
+    box-sizing: border-box;
+    position: fixed;
+    left: 50%;
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    z-index: 16;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 44px;
+    padding: 0 20px;
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text);
+    font-weight: 600;
+    box-shadow: var(--shadow-pop);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  /* Top overlay: the wordmark and the language and theme controls float over the map. The
+     wrapper is transparent and lets touches through; only the controls take them. */
+  .topbar.is-overlay {
+    display: flex;
+    position: fixed;
+    top: calc(env(safe-area-inset-top) + 12px);
+    left: 12px;
+    right: 12px;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 0;
+    padding-right: 56px;
+    background: transparent;
+    pointer-events: none;
+  }
+
+  .topbar.is-overlay .wordmark {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    height: 44px;
+    padding: 0 16px;
+    border-radius: 999px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+
+  .topbar.is-overlay .topbar-actions {
+    pointer-events: none;
+    margin-left: auto;
+  }
+
+  .topbar.is-overlay .topbar-actions > * {
+    pointer-events: auto;
+  }
+
+  .topbar.is-overlay.is-searching .wordmark,
+  .topbar.is-overlay.is-searching .topbar-actions {
+    display: none;
+  }
+
+  /* The search: a 44 px round icon at the top right; open, it widens to the full width. */
+  .float-search {
+    position: fixed;
+    top: calc(env(safe-area-inset-top) + 12px);
+    right: 12px;
+    z-index: 31;
+    display: block;
+    width: 44px;
+    height: 44px;
+    background: transparent;
+    pointer-events: none;
+    transition: width 200ms ease-out;
+  }
+
+  .float-search.is-open {
+    width: calc(100vw - 24px);
+  }
+
+  .float-search-btn {
+    all: unset;
+    box-sizing: border-box;
+    pointer-events: auto;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--shadow-pop);
+    cursor: pointer;
+  }
+
+  .float-search-btn svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .float-search-box {
+    position: absolute;
+    left: 0;
+    right: 52px;
+    top: 0;
+    pointer-events: auto;
+    background: var(--surface);
+    border-radius: 999px;
+    box-shadow: var(--shadow-pop);
+  }
+
+  .float-search-box .search {
+    margin: 0;
+    background: transparent;
+  }
+
+  .float-search-cancel {
+    all: unset;
+    box-sizing: border-box;
+    position: absolute;
+    right: 0;
+    top: 0;
+    pointer-events: auto;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 24px;
+    box-shadow: var(--shadow-pop);
+    cursor: pointer;
+  }
+
+  /* Map controls: the map's own buttons move clear of the top overlay and the sheet pill. */
+  .map-expand {
+    top: auto;
+    right: auto;
+    left: 10px;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+  }
+
+  .map-chips {
+    top: calc(env(safe-area-inset-top) + 68px);
+    left: 12px;
+    right: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-sheet,
+  .map-col,
+  .float-search {
+    transition: none !important;
+  }
+}
+
+/* Safety card: level badge, category tiles, trend chart. Neutral text; ok and warn colours only. */
+/* Safety card top: one row (shield and a tinted chip), the explanation behind (i), then the summary sentence. */
+.sx-top {
+  display: grid;
+  gap: 6px;
+}
+
+.sx-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.sx-shield {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  color: var(--muted);
+}
+
+.sx-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 4px 12px 4px 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.sx-chip .icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+
+.sx-chip[data-tone="ok"] {
+  background: color-mix(in srgb, var(--ok) 14%, var(--surface));
+  color: var(--ok);
+}
+
+.sx-chip[data-tone="warn"] {
+  background: color-mix(in srgb, var(--warn) 14%, var(--surface));
+  color: var(--warn);
+}
+
+.sx-about summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.sx-about summary .icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+
+.sx-about p {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.sx-sentence {
+  margin: 0;
+  font-size: 15px;
+}
+
+.sx-cats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sx-cat {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px;
+  line-height: 1.3;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sx-cat[aria-pressed="true"] {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.sx-cat-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.sx-cat-head .icon {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  color: var(--muted);
+}
+
+.sx-cat-name {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.sx-bar {
+  position: relative;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-2);
+}
+
+.sx-bar-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: inherit;
+  background: var(--accent);
+  opacity: 0.55;
+}
+
+.sx-bar-city {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  background: var(--text);
+  transform: translateX(-1px);
+}
+
+.sx-cat-nums {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sx-cat-level {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.sx-cat-level svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+.sx-cat[data-tone="ok"] .sx-cat-level {
+  color: var(--ok);
+}
+
+.sx-cat[data-tone="warn"] .sx-cat-level {
+  color: var(--warn);
+}
+
+.sx-chart {
+  display: grid;
+  gap: 10px;
+}
+
+.sx-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.sx-grid {
+  stroke: var(--line);
+  stroke-width: 0.8;
+  opacity: 0.7;
+}
+
+.sx-axis {
+  fill: var(--muted);
+  font-size: 13px;
+}
+
+.sx-line {
+  fill: none;
+}
+
+.sx-line--district {
+  stroke: var(--accent);
+  stroke-width: 2.6;
+}
+
+.sx-line--city {
+  stroke: var(--muted);
+  stroke-width: 1.8;
+}
+
+.sx-line--count {
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+  opacity: 0.8;
+}
+
+.sx-dot--district {
+  fill: var(--accent);
+}
+
+.sx-dot--city {
+  fill: var(--muted);
+}
+
+.sx-end {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.sx-end--district {
+  fill: var(--accent);
+}
+
+.sx-end--city {
+  fill: var(--muted);
+}
+
+.sx-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.sx-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sx-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.sx-swatch--district {
+  background: var(--accent);
+}
+
+.sx-swatch--city {
+  background: var(--muted);
+}
+
+.sx-swatch--count {
+  width: 16px;
+  height: 0;
+  border-radius: 0;
+  border-top: 1.5px dashed var(--accent);
+}
+
+/* The 2002-2020 switch: a labelled track with a thumb, role="switch". */
+.sx-switch {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sx-track {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: 44px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  transition: background 150ms ease;
+}
+
+.sx-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: transform 150ms ease;
+}
+
+.sx-switch[aria-checked="true"] .sx-track {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.sx-switch[aria-checked="true"] .sx-thumb {
+  transform: translateX(18px);
+}
+
+.sx-note {
+  margin: 0;
+  font-size: 14px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sx-track,
+  .sx-thumb {
+    transition: none;
+  }
+}
+
+/* Proximity (Nearby places): colour and word say the same thing; the circle keeps a tint so the icon reads on both themes. */
+.prox-strip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.prox-circle {
+  box-sizing: border-box;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  line-height: 0;
+  color: var(--muted);
+  background: color-mix(in srgb, currentColor 14%, var(--surface));
+}
+
+.prox-circle[data-prox="close"] {
+  color: var(--ok);
+}
+
+.prox-circle[data-prox="medium"] {
+  color: var(--warn);
+}
+
+.prox-circle svg {
+  display: block;
+}
+
+.prox-word {
+  display: inline-block;
+  padding: 0 6px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 20px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.prox-word[data-prox="close"] {
+  color: var(--ok);
+}
+
+.prox-word[data-prox="medium"] {
+  color: var(--warn);
+}
+
+.prox-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+
+.prox-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Area levels: icon + colour + word. Neutral facts, so no red. */
+.level-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px 2px 6px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.level-badge svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+.level-badge[data-level="high"] {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.level-badge[data-level="aboveAverage"] {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.level-badge[data-level="average"] {
+  background: var(--surface-2);
+  color: var(--text);
+  border-color: var(--line);
+}
+
+.level-badge[data-level="belowAverage"] {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
+.level-badge[data-level="low"] {
+  background: var(--warn);
+  color: var(--on-accent);
+}
+
+/* Safety card: the neighbourhood (mellanområde) from the city's 2024 report, above the district numbers. */
+.sx-nb {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.sx-nb-kicker {
+  margin: 0;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sx-nb-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.sx-nb-info .icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  margin-top: 1px;
+}
+
+.sx-nb-head {
+  display: grid;
+  gap: 4px;
+}
+
+.sx-nb-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 19px;
+  line-height: 1.25;
+}
+
+.sx-nb-title .icon {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  color: var(--accent);
+}
+
+.sx-nb-areas {
+  margin: 0 0 0 28px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.sx-nb-report {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-self: start;
+  min-height: 44px;
+  margin-left: 22px;
+  text-decoration: none;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.sx-nb-report .icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+
+.sx-nb-report .sx-ext {
+  width: 14px;
+  height: 14px;
+}
+
+.sx-nb-label {
+  margin: 4px 0 -4px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.sx-nb-points {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.sx-nb-points li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.sx-nb-points .icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  margin-top: 2px;
+  color: var(--muted);
+}
+
+.sx-nb-points li[data-tone="ok"] .icon {
+  color: var(--ok);
+}
+
+.sx-nb-points li[data-tone="warn"] .icon {
+  color: var(--warn);
+}
+
+.sx-pt-text {
+  min-width: 0;
+}
+
+/* "p. 46 ↗": a small pill in the text line; the 44 px tap target is an overlay that adds no height. */
+.sx-page {
+  position: relative;
+  display: inline-block;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.sx-page::after {
+  content: "";
+  position: absolute;
+  inset: -12px -6px;
+}
+
+.sx-page span {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.sx-nb-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sx-nb-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px 6px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--warn) 10%, var(--surface));
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.sx-nb-tag .icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  color: var(--warn);
+}
+
+.sx-nb-places {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.sx-nb-place {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 10px;
+}
+
+.sx-nb-place > .icon {
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  color: var(--muted);
+}
+
+.sx-pl-body {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sx-nb-place-name {
+  font-weight: 700;
+}
+
+.sx-pl-note {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.sx-nb-status {
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.sx-nb-status[data-tone="ok"] {
+  background: color-mix(in srgb, var(--ok) 14%, var(--surface));
+  color: var(--ok);
+}
+
+.sx-nb-status[data-tone="warn"] {
+  background: color-mix(in srgb, var(--warn) 14%, var(--surface));
+  color: var(--warn);
+}
+
+/* Soft --ok banner for the trend, only when no key point already says it. */
+.sx-nb-trend {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--ok) 10%, var(--surface));
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.sx-nb-trend .icon {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  margin-top: 1px;
+  color: var(--ok);
+}
+
+.sx-nb-sources summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sx-nb-sources ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+  font-size: 14px;
+}
+
+.sx-nb-sources q {
+  quotes: "\201C" "\201D";
+}
+
+.sx-nb-note {
+  margin: 0;
+  font-size: 13px;
+}
+
+.sx-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 6px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.sx-divider::before,
+.sx-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}

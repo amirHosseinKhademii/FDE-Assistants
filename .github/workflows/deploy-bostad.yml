@@ -1,0 +1,160 @@
+# Bostad property-profile app: a standalone deploy, separate from deploy.yml.
+#
+# Pattern mirrors deploy.yml: public Docker Hub repository, SHA-tagged image,
+# Azure login by OIDC (no client secret), and `az containerapp update --image`.
+# The Container App already holds its runtime secrets (Västtrafik credentials), so
+# this workflow changes the image and nothing else.
+#
+# Runs on push to master when bostad sources change, and on demand. OIDC trusts
+# master, so a run from bostad/mvp will fail at azure/login until the branch is
+# merged, unless a federated credential for that branch is added.
+
+name: deploy-bostad
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - 'apps/web/bostad-app/**'
+      - 'packages/bostad/**'
+      - '.github/workflows/deploy-bostad.yml'
+
+concurrency:
+  group: deploy-bostad
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  RG: rg-claims-fde
+  BOSTAD_APP: bostad-app
+  # Same managed environment deploy.yml uses. Only needed if the app is ever created.
+  ENVIRONMENT: cae-pharma
+
+jobs:
+  deploy:
+    name: build, push and deploy bostad-app
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      id-token: write # OIDC federation to Azure
+    env:
+      DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+      # Public browser keys. Baked into the client bundle by Vite, so they are
+      # build inputs, not runtime secrets.
+      VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_BROWSER_KEY }}
+      VITE_GOOGLE_MAPS_MAP_ID: ${{ secrets.GOOGLE_MAPS_MAP_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # pnpm version comes from the root packageManager field.
+      - name: Enable pnpm
+        run: corepack enable
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # Build dependencies first: @bostad/app typechecks against @bostad/property's dist/.
+      - name: Typecheck and build @bostad/property and @bostad/app
+        run: |
+          pnpm --filter @bostad/property run typecheck
+          pnpm --filter @bostad/property run build
+          pnpm --filter @bostad/app run typecheck
+          pnpm --filter @bostad/app run build
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - uses: docker/setup-buildx-action@v3
+
+      # Build from the repo root (pnpm workspace). Server secrets are NOT passed here.
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/web/bostad-app/Dockerfile
+          push: true
+          tags: |
+            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/bostad-app:sha-${{ github.sha }}
+            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/bostad-app:latest
+          build-args: |
+            VITE_GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_BROWSER_KEY }}
+            VITE_GOOGLE_MAPS_MAP_ID=${{ secrets.GOOGLE_MAPS_MAP_ID }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=min,scope=bostad
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # Image only. Runtime secrets are already set on the app and are not touched here.
+      # The app must exist already (created once, see docs/bostad/DEPLOY.md).
+      - name: Point bostad-app at the new image
+        run: |
+          image="docker.io/${DOCKERHUB_USER}/bostad-app:sha-${GITHUB_SHA}"
+          echo "IMAGE=$image" >> "$GITHUB_ENV"
+
+          if ! names=$(az containerapp list -g "$RG" --query "[].name" -o tsv 2>/tmp/az-err); then
+            echo "::error::cannot list container apps in $RG. Azure said: $(cat /tmp/az-err)"
+            exit 1
+          fi
+          if ! printf '%s\n' "$names" | grep -qx "$BOSTAD_APP"; then
+            echo "::error::$BOSTAD_APP does not exist in $RG. Create it once first (docs/bostad/DEPLOY.md)."
+            exit 1
+          fi
+
+          echo "updating $BOSTAD_APP -> $image"
+          az containerapp update -n "$BOSTAD_APP" -g "$RG" --image "$image" --output none
+
+      # `update` returns before the new revision serves. Wait until the active revision
+      # is Provisioned and carries this commit's image.
+      - name: Wait for the revision
+        run: |
+          for i in $(seq 1 40); do
+            state=$(az containerapp revision list -n "$BOSTAD_APP" -g "$RG" \
+              --query "[?properties.active] | [0].properties.provisioningState" -o tsv)
+            image=$(az containerapp show -n "$BOSTAD_APP" -g "$RG" \
+              --query "properties.template.containers[0].image" -o tsv)
+            echo "attempt $i: provisioning=$state image=$image"
+            if [ "$state" = "Provisioned" ] && [ "$image" = "$IMAGE" ]; then
+              echo "revision is provisioned and carries the expected image"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::error::no active revision reached Provisioned with $IMAGE"
+          exit 1
+
+      # Health route first, then the page. min-replicas is 0, so the first request
+      # after idle pays a cold start; hence the generous --max-time and retries.
+      - name: Smoke test
+        run: |
+          fqdn=$(az containerapp show -n "$BOSTAD_APP" -g "$RG" \
+            --query "properties.configuration.ingress.fqdn" -o tsv)
+          url="https://$fqdn"
+
+          ok=
+          for i in $(seq 1 12); do
+            code=$(curl -s --max-time 180 -o /dev/null -w '%{http_code}' "$url/healthz")
+            echo "attempt $i: GET /healthz -> $code"
+            if [ "$code" = "200" ]; then ok=yes; break; fi
+            sleep 10
+          done
+          [ "$ok" = "yes" ] || { echo "::error::/healthz never returned 200"; exit 1; }
+
+          page=$(curl -s --max-time 60 -o /dev/null -w '%{http_code}' "$url/")
+          [ "$page" = "200" ] || { echo "::error::GET / returned $page"; exit 1; }
+
+          echo "✅ **bostad deployed** — <$url> — \`$IMAGE\`" >> "$GITHUB_STEP_SUMMARY"
