@@ -30,6 +30,7 @@
     "pharma:world-check": "pnpm --filter @meridian/pharma world:check",
     "pharma:estate": "pnpm --filter @meridian/pharma estate",
     "steering:dev": "turbo run dev --filter=@vantis/steering-app",
+    "bostad:dev": "turbo run dev --filter=@bostad/app",
     "bostad:profile": "pnpm --filter @bostad/property profile",
     "safety:dev": "turbo run dev --filter=@calder/safety-app",
     "safety:estate": "pnpm --filter @calder/safety-app estate",

@@ -1,0 +1,21 @@
+@import 'tailwindcss';
+
+/*
+ * Two layers, in the order they may override each other:
+ *   @fde/uikit   the controls, severity tones and `--ui-*` tokens. It uses no
+ *                utility classes of its own, so it needs no @source line.
+ *   this file    what only this page draws.
+ */
+@import '@fde/uikit/styles.css';
+
+html {
+  background: var(--color-ui-bg);
+  color: var(--color-ui-fg);
+  -webkit-font-smoothing: antialiased;
+  color-scheme: dark;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--color-ui-bg);
+}
