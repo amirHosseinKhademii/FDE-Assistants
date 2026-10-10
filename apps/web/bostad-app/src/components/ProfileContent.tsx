@@ -1,11 +1,33 @@
 import type { Profile } from "@bostad/property";
 import { useLang } from "../lib/lang";
 import { gatedCheck, gateOf, locationCheck } from "../lib/checks";
-import { minutesAgo, walkMinutes } from "../lib/format";
+import { localeOf, minutesAgo, walkMinutes } from "../lib/format";
+import { MODE_KEY, nearestByMode, type ModeFilter } from "../lib/transport";
 import { Icon } from "./Icons";
 import { ComingSoonCard, GroundCard, LocationCard, TransportCard } from "./cards";
 
 const TOTAL_CHECKS = 8;
+
+type Lang = "en" | "sv";
+type Translate = ReturnType<typeof useLang>["t"];
+
+/** "Nearest tram 1 min · bus 2 min" for the two closest modes; the plain stop time when no mode is known. */
+function transportSummary(stops: Parameters<typeof nearestByMode>[0], t: Translate, lang: Lang) {
+  const nearest = nearestByMode(stops, 2);
+  if (nearest.length === 0) {
+    return { text: t("summary.transport.walk", { minutes: walkMinutes(stops[0].distanceMeters) }), tone: "ok" };
+  }
+  const locale = localeOf(lang);
+  const list = nearest
+    .map((n) =>
+      t("summary.transport.modeMin", {
+        mode: t(MODE_KEY[n.mode]).toLocaleLowerCase(locale),
+        minutes: walkMinutes(n.distanceMeters),
+      }),
+    )
+    .join(" · ");
+  return { text: t("summary.transport.byMode", { list }), tone: "ok" };
+}
 
 /** Top of the profile: the address as typed, what it matched, and when. */
 export function AddressHeader({ address, profile }: { address: string; profile: Profile | null }) {
@@ -26,8 +48,18 @@ export function AddressHeader({ address, profile }: { address: string; profile: 
 }
 
 /** Every section of a loaded profile, in the order the plan gives. */
-export function ProfileBody({ profile, onRetry }: { profile: Profile; onRetry: () => void }) {
-  const { t } = useLang();
+export function ProfileBody({
+  profile,
+  onRetry,
+  filter = "all",
+  onFilter = () => {},
+}: {
+  profile: Profile;
+  onRetry: () => void;
+  filter?: ModeFilter;
+  onFilter?: (f: ModeFilter) => void;
+}) {
+  const { t, lang } = useLang();
   const gate = gateOf(profile);
   const location = locationCheck(profile);
   const ground = gatedCheck(profile.landslide, gate);
@@ -45,10 +77,7 @@ export function ProfileBody({ profile, onRetry }: { profile: Profile; onRetry: (
     transit.kind !== "ok"
       ? { text: t("summary.notChecked"), tone: undefined }
       : stops.length > 0
-        ? {
-            text: t("summary.transport.walk", { minutes: walkMinutes(stops[0].distanceMeters) }),
-            tone: "ok",
-          }
+        ? transportSummary(stops, t, lang)
         : { text: t("summary.transport.none"), tone: undefined };
 
   return (
@@ -76,7 +105,7 @@ export function ProfileBody({ profile, onRetry }: { profile: Profile; onRetry: (
       </div>
 
       <GroundCard check={ground} onRetry={onRetry} />
-      <TransportCard check={transit} onRetry={onRetry} />
+      <TransportCard check={transit} onRetry={onRetry} filter={filter} onFilter={onFilter} />
       <LocationCard check={location} onRetry={onRetry} />
       <ComingSoonCard icon="building" title="card.brf.title" explain="card.brf.explain" />
       <ComingSoonCard icon="leaf" title="card.energy.title" explain="card.energy.explain" />

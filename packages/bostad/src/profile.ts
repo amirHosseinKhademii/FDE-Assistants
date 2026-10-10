@@ -6,6 +6,7 @@
 import { geocode, type GeocodeResult } from "./sources/geocode";
 import { landslideAt, type LandslideResult } from "./sources/landslide";
 import { nearestStops, type TransitResult } from "./sources/transit";
+export type { TransitLine, TransitStop, TransportMode } from "./sources/transit";
 
 export type SectionStatus = "ok" | "error" | "unavailable";
 
@@ -62,7 +63,7 @@ export async function getProfile(address: string): Promise<Profile> {
     const { lat, lon } = location.data;
     [landslide, transit] = await Promise.all([
       attempt("geodata.sgi.se", () => landslideAt(lat, lon)),
-      attempt("ext-api.vasttrafik.se", () => nearestStops(lat, lon, 5)),
+      attempt("ext-api.vasttrafik.se", () => nearestStops(lat, lon, 6)),
     ]);
   }
 

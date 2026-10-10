@@ -4,6 +4,7 @@ import { googleMapsHref } from "../lib/format";
 import { HAS_MAPS_KEY } from "../lib/maps";
 import { Icon } from "./Icons";
 import { GoogleMap, type MapStop } from "./GoogleMap";
+import type { ModeFilter } from "../lib/transport";
 
 /**
  * The map panel. With a key and coordinates it shows the Google map (client
@@ -13,12 +14,14 @@ export function MapPanel({
   lat,
   lon,
   stops = [],
+  filter = "all",
   loading = false,
   className = "",
 }: {
   lat?: number;
   lon?: number;
   stops?: MapStop[];
+  filter?: ModeFilter;
   loading?: boolean;
   className?: string;
 }) {
@@ -38,7 +41,7 @@ export function MapPanel({
   if (HAS_MAPS_KEY && mounted && hasCoords) {
     return (
       <div className={`profile-map ${className}`}>
-        <GoogleMap house={{ lat, lon }} stops={stops} />
+        <GoogleMap house={{ lat, lon }} stops={stops} filter={filter} />
       </div>
     );
   }
