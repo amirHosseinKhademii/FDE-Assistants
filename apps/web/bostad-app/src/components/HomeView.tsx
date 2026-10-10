@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useLang } from "../lib/lang";
 import { SearchBox } from "./SearchBox";
-import { EXAMPLE_ADDRESSES, exampleQuery } from "../lib/recents";
+import { RecentSearches } from "./RecentSearches";
 import { TopBar } from "./TopBar";
 
 export function HomeView({ onSearch }: { onSearch: (address: string) => void }) {
@@ -22,16 +22,7 @@ export function HomeView({ onSearch }: { onSearch: (address: string) => void }) 
 
       <SearchBox initial="" onSearch={onSearch} />
 
-      <div className="examples">
-        <span className="caption">{t("home.examples")}</span>
-        <div className="chips">
-          {EXAMPLE_ADDRESSES.map((address) => (
-            <button key={address} type="button" className="chip" onClick={() => onSearch(exampleQuery(address))}>
-              {address}
-            </button>
-          ))}
-        </div>
-      </div>
+      <RecentSearches onOpen={onSearch} />
 
       <p className="footnote">{t("home.footer")}</p>
     </div>

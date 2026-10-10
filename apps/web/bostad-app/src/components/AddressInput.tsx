@@ -10,7 +10,7 @@ import { useMapsLibrary } from "@vis.gl/react-google-maps";
 import { useLang } from "../lib/lang";
 import type { MessageKey } from "../lib/i18n";
 import { GOTHENBURG_BIAS } from "../lib/maps";
-import { EXAMPLE_ADDRESSES, exampleQuery, readRecents } from "../lib/recents";
+import { readRecents } from "../lib/recents";
 
 type Range = { startOffset: number; endOffset: number };
 type Option = {
@@ -85,23 +85,15 @@ export function AddressInput({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [places]);
 
-  /** Recent searches and the examples: what a focused, empty box offers. */
+  /** Recent searches: what a focused, empty box offers. */
   function idleItems(): Option[] {
-    const recents: Option[] = readRecents().map((address) => ({
-      key: `recent:${address}`,
-      main: address,
+    return readRecents().map((r) => ({
+      key: `recent:${r.address}`,
+      main: r.address,
       ranges: [],
       secondaryKey: "search.recent",
-      value: address,
+      value: r.address,
     }));
-    const examples: Option[] = EXAMPLE_ADDRESSES.map((address) => ({
-      key: `example:${address}`,
-      main: address,
-      ranges: [],
-      secondaryKey: "search.example",
-      value: exampleQuery(address),
-    }));
-    return [...recents, ...examples];
   }
 
   function fetchSuggestions(query: string) {

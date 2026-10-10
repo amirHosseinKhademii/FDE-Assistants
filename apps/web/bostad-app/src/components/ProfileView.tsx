@@ -4,7 +4,8 @@ import { useProfile } from "../lib/useProfile";
 import { gateOf, gatedCheck } from "../lib/checks";
 import { MapPanel } from "./MapPanel";
 import { ProfileError, ProfileSkeleton } from "./ProfileStates";
-import { AddressHeader, ProfileBody } from "./ProfileContent";
+import { AddressHeader, ProfileBody, districtLine, quickResult } from "./ProfileContent";
+import { setRecentDetails } from "../lib/recents";
 import { SearchBox } from "./SearchBox";
 import type { ModeFilter } from "../lib/transport";
 import type { PlaceItem } from "@bostad/property";
@@ -25,6 +26,11 @@ export function ProfileView({ address, onSearch }: { address: string; onSearch: 
 
   const loading = state.status === "idle" || state.status === "loading";
   const profile = state.status === "ok" ? state.profile : null;
+  // Once loaded, the recent-searches list gets this address's district and quick result.
+  useEffect(() => {
+    if (!profile) return;
+    setRecentDetails(address, { district: districtLine(profile), quick: quickResult(profile, t) });
+  }, [profile, address, t]);
   const coords = profile?.location.data;
   // Memoised on the profile, so the map view is fitted once per search, not per render.
   const stops = useMemo(() => {

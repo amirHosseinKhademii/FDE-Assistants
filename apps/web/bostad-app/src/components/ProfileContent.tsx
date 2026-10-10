@@ -21,6 +21,27 @@ function noiseResult(check: Check<NoiseResult>, t: Translate): CardResult {
   return { text: t("summary.noise.loud"), tone: "risk" };
 }
 
+/** One line for the recent-searches list: the noise word and the walk to the nearest stop, when known. */
+export function quickResult(profile: Profile, t: Translate): string | undefined {
+  const gate = gateOf(profile);
+  const parts: string[] = [];
+  const noise = gatedCheck(profile.noise, gate);
+  if (noise.kind === "ok") parts.push(noiseResult(noise, t).text);
+  const transit = gatedCheck(profile.transit, gate);
+  if (transit.kind === "ok" && transit.data.stops.length > 0) {
+    parts.push(t("tile.transport", { minutes: walkMinutes(Math.min(...transit.data.stops.map((x) => x.distanceMeters))) }));
+  }
+  return parts.length ? parts.join(" · ") : undefined;
+}
+
+/** The district line for the recent-searches list, e.g. "Hisingen · Eriksberg". */
+export function districtLine(profile: Profile): string | undefined {
+  const district = gatedCheck(profile.district, "exact");
+  if (district.kind !== "ok") return undefined;
+  const names = [district.data.stadsomrade?.name, district.data.primaryArea?.name].filter((n): n is string => Boolean(n));
+  return names.length ? names.join(" · ") : undefined;
+}
+
 /** The address, large; the district under it in small muted text. Nothing else about matching. */
 export function AddressHeader({ address, profile }: { address: string; profile: Profile | null }) {
   const district = profile ? gatedCheck(profile.district, "exact") : null;

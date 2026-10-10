@@ -225,6 +225,11 @@ const en = {
   "area.price.link": "See Göteborg prices on Svensk Mäklarstatistik",
   "area.src.scb": "SCB, small areas 2024–2025",
   "area.compare": "Each level compares this small area with all {count} small areas in Gothenburg.",
+  "recent.title": "Recent searches",
+  "recent.empty": "Your searches will appear here.",
+  "recent.clear": "Clear all",
+  "recent.clearConfirm": "Remove all recent searches from this browser?",
+  "recent.remove": "Remove {address} from recent searches",
 };
 
 export type MessageKey = keyof typeof en;
@@ -451,6 +456,11 @@ const sv: Record<MessageKey, string> = {
   "area.price.link": "Se priser i Göteborg på Svensk Mäklarstatistik",
   "area.src.scb": "SCB, små områden 2024–2025",
   "area.compare": "Varje nivå jämför det här lilla området med alla {count} små områden i Göteborg.",
+  "recent.title": "Senaste sökningar",
+  "recent.empty": "Dina sökningar visas här.",
+  "recent.clear": "Rensa alla",
+  "recent.clearConfirm": "Ta bort alla senaste sökningar från den här webbläsaren?",
+  "recent.remove": "Ta bort {address} från senaste sökningar",
 };
 
 export const dictionaries: Record<Lang, Record<MessageKey, string>> = { en, sv };
