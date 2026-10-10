@@ -1639,64 +1639,68 @@ a.btn-secondary {
   margin-left: auto;
 }
 
-/* ---------- phone sheet: open or collapsed; the map is fixed full-screen and never moves ---------- */
+/* ---------- phone profile: map on top (45 %), a scrolling sheet below; collapsed = full-screen map ---------- */
 .sheet-bar,
-.sheet-pill {
+.sheet-pill,
+.float-search,
+.topbar.is-overlay {
   display: none;
 }
 
-.sheet-grip {
-  display: block;
-  width: 40px;
-  height: 5px;
-  border-radius: 999px;
-  background: var(--line);
-}
-
-.sheet-grip--pill {
-  width: 28px;
-  height: 4px;
-  background: var(--muted);
+.grip-hidden {
+  display: none;
 }
 
 @media (max-width: 959.98px) {
   .profile {
     position: relative;
-    min-height: 100dvh;
+    min-height: 0;
   }
 
-  .profile-search {
-    align-self: start;
-  }
-
+  /* The map: top 45 % of the screen, full-bleed; full-screen when the sheet is collapsed. */
   .map-col {
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
     z-index: 0;
-    height: 100dvh;
+    height: 45dvh;
     min-height: 0;
     border-radius: 0;
+    transition: height 200ms ease-out;
   }
 
+  .profile:has(.profile-sheet.is-collapsed) .map-col {
+    height: 100dvh;
+  }
+
+  /* The sheet: a fixed box from its top to the bottom of the screen; its own scroll. */
   .profile-sheet {
     position: fixed;
     left: 0;
     right: 0;
-    top: 0;
     bottom: 0;
     z-index: 15;
-    display: flex;
-    flex-direction: column;
+    display: block;
+    height: auto;
     margin: 0;
     padding: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
     border-radius: 24px 24px 0 0;
     background: var(--bg);
     box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.12);
-    transition: transform 200ms ease-out;
+    transition: top 200ms ease-out;
   }
 
   .profile-sheet.is-collapsed {
     box-shadow: none;
+  }
+
+  /* The card covers the screen; the map stays where it is, behind it. */
+  .profile-sheet.is-card {
+    border-radius: 0;
   }
 
   .profile-sheet::before {
@@ -1704,10 +1708,14 @@ a.btn-secondary {
   }
 
   .sheet-bar {
+    position: sticky;
+    top: 0;
+    z-index: 1;
     display: flex;
     justify-content: center;
-    flex: none;
     height: 44px;
+    background: var(--bg);
+    border-radius: 24px 24px 0 0;
   }
 
   /* The bar is the control: a 44 px tall, full-width hit area with the thin bar centred in it. */
@@ -1722,24 +1730,35 @@ a.btn-secondary {
   }
 
   .sheet-handle:focus-visible,
-  .sheet-pill:focus-visible {
+  .sheet-pill:focus-visible,
+  .float-search-btn:focus-visible,
+  .float-search-cancel:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
-    border-radius: 999px;
   }
 
   .sheet-body {
     display: grid;
     gap: 16px;
     align-content: start;
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
     padding: 0 var(--gutter) calc(24px + env(safe-area-inset-bottom));
   }
 
-  /* Collapsed: the map is the whole screen; one pill brings the details back. */
+  .sheet-grip {
+    display: block;
+    width: 40px;
+    height: 5px;
+    border-radius: 999px;
+    background: var(--line);
+  }
+
+  .sheet-grip--pill {
+    width: 28px;
+    height: 4px;
+    background: var(--muted);
+  }
+
+  /* Collapsed: one pill at the bottom centre brings the details back. */
   .sheet-pill {
     all: unset;
     box-sizing: border-box;
@@ -1762,10 +1781,142 @@ a.btn-secondary {
     white-space: nowrap;
   }
 
+  /* Top overlay: the wordmark and the language and theme controls float over the map. The
+     wrapper is transparent and lets touches through; only the controls take them. */
+  .topbar.is-overlay {
+    display: flex;
+    position: fixed;
+    top: calc(env(safe-area-inset-top) + 12px);
+    left: 12px;
+    right: 12px;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 0;
+    padding-right: 56px;
+    background: transparent;
+    pointer-events: none;
+  }
+
+  .topbar.is-overlay .wordmark {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    height: 44px;
+    padding: 0 16px;
+    border-radius: 999px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+
+  .topbar.is-overlay .topbar-actions {
+    pointer-events: none;
+    margin-left: auto;
+  }
+
+  .topbar.is-overlay .topbar-actions > * {
+    pointer-events: auto;
+  }
+
+  .topbar.is-overlay.is-searching .wordmark,
+  .topbar.is-overlay.is-searching .topbar-actions {
+    display: none;
+  }
+
+  /* The search: a 44 px round icon at the top right; open, it widens to the full width. */
+  .float-search {
+    position: fixed;
+    top: calc(env(safe-area-inset-top) + 12px);
+    right: 12px;
+    z-index: 31;
+    display: block;
+    width: 44px;
+    height: 44px;
+    background: transparent;
+    pointer-events: none;
+    transition: width 200ms ease-out;
+  }
+
+  .float-search.is-open {
+    width: calc(100vw - 24px);
+  }
+
+  .float-search-btn {
+    all: unset;
+    box-sizing: border-box;
+    pointer-events: auto;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--shadow-pop);
+    cursor: pointer;
+  }
+
+  .float-search-btn svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .float-search-box {
+    position: absolute;
+    left: 0;
+    right: 52px;
+    top: 0;
+    pointer-events: auto;
+    background: var(--surface);
+    border-radius: 999px;
+    box-shadow: var(--shadow-pop);
+  }
+
+  .float-search-box .search {
+    margin: 0;
+    background: transparent;
+  }
+
+  .float-search-cancel {
+    all: unset;
+    box-sizing: border-box;
+    position: absolute;
+    right: 0;
+    top: 0;
+    pointer-events: auto;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 24px;
+    box-shadow: var(--shadow-pop);
+    cursor: pointer;
+  }
+
+  /* Map controls: the map's own buttons move clear of the top overlay and the sheet pill. */
+  .map-expand {
+    top: auto;
+    right: auto;
+    left: 10px;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+  }
+
+  .map-chips {
+    top: calc(env(safe-area-inset-top) + 68px);
+    left: 12px;
+    right: 12px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .profile-sheet {
-    transition: none;
+  .profile-sheet,
+  .map-col,
+  .float-search {
+    transition: none !important;
   }
 }

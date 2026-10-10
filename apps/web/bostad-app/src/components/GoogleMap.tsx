@@ -51,6 +51,17 @@ function FitBounds({ points, fitKey }: { points: google.maps.LatLngLiteral[]; fi
   return null;
 }
 
+/** After the map's box has changed size, tell Google to fill the new area. The centre and zoom are kept; nothing is refitted. */
+function ResizeOnKey({ resizeKey }: { resizeKey?: string }) {
+  const map = useMap();
+  useEffect(() => {
+    if (!map || resizeKey === undefined) return;
+    const id = window.setTimeout(() => google.maps.event.trigger(map, "resize"), 260);
+    return () => window.clearTimeout(id);
+  }, [map, resizeKey]);
+  return null;
+}
+
 /** Pans to a place when it is chosen from the list (a new nonce each time, so the same place can be chosen twice). */
 function PanTo({ focus }: { focus: { lat: number; lon: number; nonce: number } | null }) {
   const map = useMap();
@@ -80,6 +91,7 @@ export function GoogleMap({
   focus = null,
   expanded = false,
   fitKey = 0,
+  resizeKey,
 }: {
   house: { lat: number; lon: number };
   stops: MapStop[];
@@ -93,6 +105,7 @@ export function GoogleMap({
   focus?: { lat: number; lon: number; nonce: number } | null;
   expanded?: boolean;
   fitKey?: number;
+  resizeKey?: string;
 }) {
   const { t } = useLang();
   const { effective } = useTheme();
@@ -133,6 +146,7 @@ export function GoogleMap({
     >
       <FitBounds points={points} fitKey={fitKey} />
       <PanTo focus={focus} />
+      <ResizeOnKey resizeKey={resizeKey} />
 
       {rings.map((ring) => (
         <Polyline

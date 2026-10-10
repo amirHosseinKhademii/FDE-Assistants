@@ -50,6 +50,7 @@ export function MapPanel({
   showPlaces = false,
   onShowPlaces = () => {},
   loading = false,
+  resizeKey,
 }: {
   lat?: number;
   lon?: number;
@@ -67,6 +68,8 @@ export function MapPanel({
   showPlaces?: boolean;
   onShowPlaces?: (on: boolean) => void;
   loading?: boolean;
+  /** Changes when the map's box changes size (the sheet opened or collapsed): the map resizes, its centre and zoom stay. */
+  resizeKey?: string;
 }) {
   const { t } = useLang();
   const [mounted, setMounted] = useState(false);
@@ -152,6 +155,7 @@ export function MapPanel({
           selectedPlaceId={selectedPlaceId}
           onSelectPlace={onSelectPlace}
           focus={focus}
+          resizeKey={resizeKey}
           expanded={expanded}
           fitKey={fitKey}
         />

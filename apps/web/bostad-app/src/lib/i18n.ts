@@ -238,7 +238,10 @@ const en = {
   "hero.close": "Close Street View",
   "hero.alt": "Photo of {address}",
   "sheet.label": "Address details",
+  "search.open": "Search address",
+  "search.cancel": "Cancel search",
   "sheet.showMap": "Show full map",
+  "sheet.showMapDetails": "Show map and details",
   "sheet.show": "Show details",
 };
 
@@ -479,7 +482,10 @@ const sv: Record<MessageKey, string> = {
   "hero.close": "Stäng Street View",
   "hero.alt": "Foto av {address}",
   "sheet.label": "Detaljer om adressen",
+  "search.open": "Sök adress",
+  "search.cancel": "Avbryt sökningen",
   "sheet.showMap": "Visa hela kartan",
+  "sheet.showMapDetails": "Visa karta och detaljer",
   "sheet.show": "Visa detaljer",
 };
 

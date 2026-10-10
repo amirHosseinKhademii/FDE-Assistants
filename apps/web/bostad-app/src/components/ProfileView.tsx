@@ -12,7 +12,8 @@ import type { PlaceItem } from "@bostad/property";
 import type { PlacesFilter } from "./placeFilter";
 import { TopBar } from "./TopBar";
 import { HeroPhoto } from "./HeroPhoto";
-import { BottomSheet } from "./BottomSheet";
+import { BottomSheet, type SheetMode } from "./BottomSheet";
+import { FloatingSearch } from "./FloatingSearch";
 
 const NO_STOPS: never[] = [];
 const NO_PLACES: PlaceItem[] = [];
@@ -64,31 +65,37 @@ export function ProfileView({ address, onSearch }: { address: string; onSearch: 
     setFocus({ lat: item.lat, lon: item.lon, nonce: Date.now() });
   };
 
-  // The phone sheet: open or collapsed. The map stays full-screen and never moves.
-  const [open, setOpen] = useState(true);
-  const [vh, setVh] = useState(800);
-  const [searchBottom, setSearchBottom] = useState(120);
-  const searchRef = useRef<HTMLDivElement>(null);
+  // Wide screens keep the search bar in the column; phones get the floating icon over the map.
+  const [wide, setWide] = useState(false);
+  // The phone sheet: open (the map is the top 45 %) or collapsed (the map is the whole screen).
+  // Toggling changes only the sheet's top and the map's height; the map is never refitted.
+  const [mode, setMode] = useState<SheetMode>("open");
+  const [searching, setSearching] = useState(false);
   useEffect(() => {
-    const measure = () => {
-      setVh(window.innerHeight);
-      const r = searchRef.current?.getBoundingClientRect();
-      if (r) setSearchBottom(Math.round(r.bottom));
-    };
-    measure();
-    window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
+    const mq = window.matchMedia("(min-width: 960px)");
+    const sync = () => setWide(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
   }, []);
   // A new address opens with the sheet open.
-  useEffect(() => setOpen(true), [coords?.lat, coords?.lon]);
+  useEffect(() => setMode("open"), [coords?.lat, coords?.lon]);
 
   return (
     <div className="wrap">
-      <TopBar />
+      <TopBar
+        overlay={!wide}
+        searching={searching}
+        search={
+          !wide ? <FloatingSearch address={address} onSearch={onSearch} onOpenChange={setSearching} /> : undefined
+        }
+      />
       <div className="profile">
-        <div className="profile-search" ref={searchRef}>
-          <SearchBox compact initial={address} onSearch={onSearch} />
-        </div>
+        {wide && (
+          <div className="profile-search">
+            <SearchBox compact initial={address} onSearch={onSearch} />
+          </div>
+        )}
 
         <MapPanel
           lat={coords?.lat}
@@ -106,9 +113,10 @@ export function ProfileView({ address, onSearch }: { address: string; onSearch: 
           showPlaces={showPlaces}
           onShowPlaces={setShowPlaces}
           loading={loading}
+          resizeKey={mode === "collapsed" ? "collapsed" : "open"}
         />
 
-        <BottomSheet open={open} vh={vh} searchBottom={searchBottom} onToggle={setOpen}>
+        <BottomSheet mode={mode} onMode={setMode}>
           {coords && <HeroPhoto lat={coords.lat} lon={coords.lon} address={address} />}
           <AddressHeader address={address} profile={profile} />
           {loading && <ProfileSkeleton />}
@@ -125,9 +133,9 @@ export function ProfileView({ address, onSearch }: { address: string; onSearch: 
               onPickPlace={pickPlace}
             />
           )}
+          <p className="footnote">{t("profile.footer")}</p>
         </BottomSheet>
       </div>
-      <p className="footnote">{t("profile.footer")}</p>
     </div>
   );
 }

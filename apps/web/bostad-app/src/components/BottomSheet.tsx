@@ -1,56 +1,119 @@
 /**
- * The profile sheet on phones, over a full-screen map that never moves. Two
- * states, no dragging:
- *  - open (default): the sheet starts at 55 % of the screen, as before.
- *  - collapsed: the sheet slides fully out of view and the map fills the
- *    screen; a floating "Show details" pill at the bottom brings it back.
- * Only the transform changes (200 ms, instant under reduced motion). The sheet
- * stays mounted, so its content and scroll position are kept.
+ * The profile sheet on phones: a fixed box over the map, with three modes.
+ *  - open (default): its top at 45 % of the screen, 24 px over the map.
+ *  - card: the card covers the whole screen; the map is behind it, unchanged.
+ *  - collapsed: the map is the whole screen; a "Show details" pill brings the card back.
+ * The handle bar is the only control. A tap cycles open ↔ collapsed (card: back to
+ * open). A swipe up goes to card; a swipe down goes one mode down. A swipe is only
+ * detected on pointer up: nothing follows the finger. Arrow keys mirror the swipes.
+ * The sheet stays mounted, so its content and scroll position are kept.
  */
-import type { ReactNode } from "react";
+import { useRef, type ReactNode, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from "react";
 import { useLang } from "../lib/lang";
 
-/** Top edge of the open sheet, px from the viewport top. */
-export function openTop(vh: number): number {
-  return Math.round(vh * 0.55);
+export type SheetMode = "open" | "card" | "collapsed";
+
+const SWIPE_PX = 40;
+const SWIPE_PX_PER_MS = 0.3;
+
+/** Top edge of the sheet for each mode. */
+export function sheetTop(mode: SheetMode): string {
+  if (mode === "open") return "calc(45dvh - 24px)";
+  // Below the top overlay row (wordmark, language, theme, search), so the handle stays reachable.
+  if (mode === "card") return "calc(env(safe-area-inset-top) + 64px)";
+  return "100dvh";
+}
+
+/** The mode one step down (towards collapsed). */
+export function stepDown(mode: SheetMode): SheetMode {
+  return mode === "card" ? "open" : "collapsed";
 }
 
 export function BottomSheet({
-  open,
-  vh,
-  searchBottom,
-  onToggle,
+  mode,
+  onMode,
   children,
 }: {
-  open: boolean;
-  vh: number;
-  /** Bottom edge of the search bar: the sheet's own top is 0, so this offsets it. */
-  searchBottom: number;
-  onToggle: (open: boolean) => void;
+  mode: SheetMode;
+  onMode: (mode: SheetMode) => void;
   children: ReactNode;
 }) {
   const { t } = useLang();
-  const transform = open ? `translate3d(0, ${openTop(vh) - searchBottom}px, 0)` : "translate3d(0, 100%, 0)";
+  const start = useRef<{ y: number; t: number } | null>(null);
+  const swiped = useRef(false);
+  const open = mode !== "collapsed";
+
+  function onPointerDown(e: ReactPointerEvent<HTMLButtonElement>) {
+    start.current = { y: e.clientY, t: performance.now() };
+    swiped.current = false;
+    // Capture the pointer so the release is reported to the handle even when the finger has left it.
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }
+
+  function onPointerUp(e: ReactPointerEvent<HTMLButtonElement>) {
+    const s = start.current;
+    start.current = null;
+    if (!s) return;
+    const dy = e.clientY - s.y;
+    const v = dy / Math.max(1, performance.now() - s.t);
+    if (dy <= -SWIPE_PX || v < -SWIPE_PX_PER_MS) {
+      swiped.current = true;
+      if (mode !== "card") onMode("card");
+    } else if (dy >= SWIPE_PX || v > SWIPE_PX_PER_MS) {
+      swiped.current = true;
+      onMode(stepDown(mode));
+    }
+  }
+
+  function onTap() {
+    // A swipe already acted; its click (if any) must not also act.
+    if (swiped.current) {
+      swiped.current = false;
+      return;
+    }
+    onMode(mode === "open" ? "collapsed" : "open");
+  }
+
+  function onKeyDown(e: ReactKeyboardEvent<HTMLButtonElement>) {
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      onMode("card");
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      onMode(stepDown(mode));
+    }
+  }
+
+  const handleLabel = mode === "card" ? t("sheet.showMapDetails") : t("sheet.showMap");
 
   return (
     <>
       <section
-        className={`profile-sheet${open ? "" : " is-collapsed"}`}
-        style={{ transform }}
+        className={`profile-sheet is-${mode}`}
+        style={{ top: sheetTop(mode) }}
         aria-label={t("sheet.label")}
         aria-hidden={open ? undefined : true}
         inert={!open}
       >
         <div className="sheet-bar">
-          {/* The handle bar is the control. Its button has an invisible 44 px hit area around the bar. */}
-          <button type="button" className="sheet-handle" aria-label={t("sheet.showMap")} aria-expanded={true} onClick={() => onToggle(false)}>
+          <button
+            type="button"
+            className="sheet-handle"
+            aria-label={handleLabel}
+            aria-expanded={mode !== "collapsed"}
+            onPointerDown={onPointerDown}
+            onPointerUp={onPointerUp}
+            onPointerCancel={() => (start.current = null)}
+            onClick={onTap}
+            onKeyDown={onKeyDown}
+          >
             <span className="sheet-grip" aria-hidden="true" />
           </button>
         </div>
         <div className="sheet-body">{children}</div>
       </section>
-      {!open && (
-        <button type="button" className="sheet-pill" aria-label={t("sheet.show")} aria-expanded={false} onClick={() => onToggle(true)}>
+      {mode === "collapsed" && (
+        <button type="button" className="sheet-pill" aria-label={t("sheet.show")} aria-expanded={false} onClick={() => onMode("open")}>
           <span>{t("sheet.show")}</span>
           <span className="sheet-grip sheet-grip--pill" aria-hidden="true" />
         </button>
