@@ -1190,7 +1190,7 @@ a.btn-secondary {
 
 .status-tile .tile-name {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.2;
   text-align: center;
 }
