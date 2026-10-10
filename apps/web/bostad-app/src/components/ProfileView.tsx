@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLang } from "../lib/lang";
 import { useProfile } from "../lib/useProfile";
 import { gateOf, gatedCheck } from "../lib/checks";
@@ -12,6 +12,7 @@ import type { PlaceItem } from "@bostad/property";
 import type { PlacesFilter } from "./placeFilter";
 import { TopBar } from "./TopBar";
 import { HeroPhoto } from "./HeroPhoto";
+import { BottomSheet } from "./BottomSheet";
 
 const NO_STOPS: never[] = [];
 const NO_PLACES: PlaceItem[] = [];
@@ -63,11 +64,29 @@ export function ProfileView({ address, onSearch }: { address: string; onSearch: 
     setFocus({ lat: item.lat, lon: item.lon, nonce: Date.now() });
   };
 
+  // The phone sheet: open or collapsed. The map stays full-screen and never moves.
+  const [open, setOpen] = useState(true);
+  const [vh, setVh] = useState(800);
+  const [searchBottom, setSearchBottom] = useState(120);
+  const searchRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const measure = () => {
+      setVh(window.innerHeight);
+      const r = searchRef.current?.getBoundingClientRect();
+      if (r) setSearchBottom(Math.round(r.bottom));
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+  // A new address opens with the sheet open.
+  useEffect(() => setOpen(true), [coords?.lat, coords?.lon]);
+
   return (
     <div className="wrap">
       <TopBar />
       <div className="profile">
-        <div className="profile-search">
+        <div className="profile-search" ref={searchRef}>
           <SearchBox compact initial={address} onSearch={onSearch} />
         </div>
 
@@ -89,7 +108,7 @@ export function ProfileView({ address, onSearch }: { address: string; onSearch: 
           loading={loading}
         />
 
-        <div className="profile-sheet">
+        <BottomSheet open={open} vh={vh} searchBottom={searchBottom} onToggle={setOpen}>
           {coords && <HeroPhoto lat={coords.lat} lon={coords.lon} address={address} />}
           <AddressHeader address={address} profile={profile} />
           {loading && <ProfileSkeleton />}
@@ -106,7 +125,7 @@ export function ProfileView({ address, onSearch }: { address: string; onSearch: 
               onPickPlace={pickPlace}
             />
           )}
-        </div>
+        </BottomSheet>
       </div>
       <p className="footnote">{t("profile.footer")}</p>
     </div>

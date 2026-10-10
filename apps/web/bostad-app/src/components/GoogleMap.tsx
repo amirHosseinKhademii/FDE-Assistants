@@ -36,6 +36,8 @@ function FitBounds({ points, fitKey }: { points: google.maps.LatLngLiteral[]; fi
 
   useEffect(() => {
     if (!map || points.length === 0) return;
+    // The map's box may have changed size (the sheet moved): tell Google first, then fit.
+    google.maps.event.trigger(map, "resize");
     if (points.length === 1) {
       map.setCenter(points[0]);
       map.setZoom(16);

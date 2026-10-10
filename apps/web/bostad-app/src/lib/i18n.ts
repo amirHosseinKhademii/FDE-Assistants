@@ -237,6 +237,9 @@ const en = {
   "hero.open": "Open the 360° view",
   "hero.close": "Close Street View",
   "hero.alt": "Photo of {address}",
+  "sheet.label": "Address details",
+  "sheet.showMap": "Show full map",
+  "sheet.show": "Show details",
 };
 
 export type MessageKey = keyof typeof en;
@@ -475,6 +478,9 @@ const sv: Record<MessageKey, string> = {
   "hero.open": "Öppna 360°-vyn",
   "hero.close": "Stäng Street View",
   "hero.alt": "Foto av {address}",
+  "sheet.label": "Detaljer om adressen",
+  "sheet.showMap": "Visa hela kartan",
+  "sheet.show": "Visa detaljer",
 };
 
 export const dictionaries: Record<Lang, Record<MessageKey, string>> = { en, sv };

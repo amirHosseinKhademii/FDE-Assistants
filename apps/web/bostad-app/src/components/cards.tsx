@@ -206,7 +206,7 @@ export function NearbyPlacesCard({
   const present = PLACE_ORDER.filter((c) => nearest[c]);
   const rows = PLACE_ORDER.filter((c) => (filter === "all" || filter === c) && nearest[c]);
   return (
-    <ProfileCard id="card-places" icon="building" title="card.places.title" explain="card.places.explain" result={result} {...meta}>
+    <ProfileCard id="card-places" icon="pin" title="card.places.title" explain="card.places.explain" result={result} {...meta}>
       {data && (
         <>
           {present.length > 0 && (
@@ -305,7 +305,7 @@ export function AreaCard({
   const pct = (v: number | null | undefined) => (v === null || v === undefined ? "–" : String(Math.round(v * 100)));
   const num = (v: number) => v.toLocaleString(localeOf(lang));
   return (
-    <ProfileCard id="card-area" icon="building" title="area.title" explain="area.explain" result={result} {...meta}>
+    <ProfileCard id="card-area" icon="houseTag" title="area.title" explain="area.explain" result={result} {...meta}>
       {anyOk && (
         <>
           <NeighbourhoodPart check={district}>

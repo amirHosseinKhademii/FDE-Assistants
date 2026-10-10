@@ -75,6 +75,7 @@ export function MapPanel({
   const [fitKey, setFitKey] = useState(0);
 
   useEffect(() => setMounted(true), []);
+
   // A new address has new stops: the old selection and fullscreen do not carry over.
   useEffect(() => setSelectedId(null), [lat, lon]);
 
