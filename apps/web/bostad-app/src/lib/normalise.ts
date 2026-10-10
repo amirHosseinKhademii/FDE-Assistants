@@ -5,7 +5,18 @@
  * rather than at each use. Anything that cannot be trusted becomes a failed
  * section with a reason, never a crash.
  */
-import type { NoiseResult, Profile, Section, TransitLine, TransitStop, TransportMode } from "@bostad/property";
+import type {
+  AreaRef,
+  NoiseResult,
+  PlaceCategory,
+  PlaceItem,
+  PlacesResult,
+  Profile,
+  Section,
+  TransitLine,
+  TransitStop,
+  TransportMode,
+} from "@bostad/property";
 import type { Mode } from "./transport";
 
 type Loose = Record<string, unknown>;
@@ -154,6 +165,68 @@ function normaliseNoise(data: unknown) {
   };
 }
 
+function normaliseArea(raw: unknown): AreaRef | null {
+  if (!isObject(raw)) return null;
+  const nr = str(raw.nr);
+  return nr ? { nr, name: str(raw.name) } : null;
+}
+
+function normaliseDistrict(data: unknown) {
+  if (!isObject(data)) return undefined;
+  return {
+    stadsomrade: normaliseArea(data.stadsomrade),
+    primaryArea: normaliseArea(data.primaryArea),
+    source: str(data.source),
+  };
+}
+
+function normaliseIncome(data: unknown) {
+  if (!isObject(data)) return undefined;
+  const desoCode = str(data.desoCode);
+  if (!desoCode) return undefined;
+  return {
+    desoCode,
+    medianDesoTkr: finite(data.medianDesoTkr),
+    medianGothenburgTkr: finite(data.medianGothenburgTkr),
+    year: str(data.year),
+    source: str(data.source),
+  };
+}
+
+const CATEGORIES: PlaceCategory[] = ["grocery", "pharmacy", "school", "preschool", "park", "health"];
+
+function normalisePlaceItem(raw: unknown): PlaceItem | null {
+  if (!isObject(raw)) return null;
+  const lat = finite(raw.lat);
+  const lon = finite(raw.lon);
+  const category = CATEGORIES.find((c) => c === raw.category);
+  if (lat === null || lon === null || !category) return null;
+  return {
+    id: str(raw.id),
+    name: str(raw.name),
+    category,
+    lat,
+    lon,
+    distanceMeters: finite(raw.distanceMeters) ?? 0,
+  };
+}
+
+function normalisePlaces(data: unknown) {
+  if (!isObject(data)) return undefined;
+  const items = arr(data.items)
+    .map(normalisePlaceItem)
+    .filter((i): i is PlaceItem => i !== null);
+  const counts = Object.fromEntries(
+    CATEGORIES.map((c) => [c, finite(isObject(data.counts) ? data.counts[c] : null) ?? 0]),
+  ) as PlacesResult["counts"];
+  const nearest: PlacesResult["nearest"] = {};
+  for (const c of CATEGORIES) {
+    const item = isObject(data.nearest) ? normalisePlaceItem(data.nearest[c]) : null;
+    if (item) nearest[c] = item;
+  }
+  return { radiusMeters: finite(data.radiusMeters) ?? 500, counts, nearest, items, source: str(data.source) };
+}
+
 function normaliseTransit(data: unknown) {
   if (!isObject(data)) return undefined;
   const stops = arr(data.stops)
@@ -174,6 +247,9 @@ export function normaliseProfile(raw: unknown, now: string = new Date().toISOStr
     landslide: normaliseSection(raw.landslide, now, normaliseLandslide),
     transit: normaliseSection(raw.transit, now, normaliseTransit),
     noise: normaliseSection(raw.noise, now, normaliseNoise),
+    district: normaliseSection(raw.district, now, normaliseDistrict),
+    income: normaliseSection(raw.income, now, normaliseIncome),
+    places: normaliseSection(raw.places, now, normalisePlaces),
     brf: normaliseSection<never>(raw.brf, now, () => undefined),
     energy: normaliseSection<never>(raw.energy, now, () => undefined),
   };

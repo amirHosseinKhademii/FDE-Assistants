@@ -4,7 +4,7 @@ import { gatedCheck, gateOf, locationCheck, type Check } from "../lib/checks";
 import { localeOf, minutesAgo, walkMinutes } from "../lib/format";
 import { MODE_KEY, nearestByMode, type ModeFilter } from "../lib/transport";
 import { Icon } from "./Icons";
-import { ComingSoonCard, GroundCard, LocationCard, NoiseCard, TransportCard } from "./cards";
+import { ComingSoonCard, GroundCard, LocationCard, NeighbourhoodCard, NoiseCard, TransportCard } from "./cards";
 
 type Lang = "en" | "sv";
 type Translate = ReturnType<typeof useLang>["t"];
@@ -73,10 +73,16 @@ export function ProfileBody({
   const ground = gatedCheck(profile.landslide, gate);
   const noise = gatedCheck(profile.noise, gate);
   const transit = gatedCheck(profile.transit, gate);
+  const district = gatedCheck(profile.district, gate);
+  const income = gatedCheck(profile.income, gate);
+  const places = gatedCheck(profile.places, gate);
 
-  // The coverage chip counts only the checks that are built: the rest are "coming soon".
+  // The coverage chip counts only the checks that are built ("coming soon" is not a check).
+  // Neighbourhood is one check, available when any of its three parts is.
+  const hoodOk = [district, income, places].some((c) => c.kind === "ok");
   const checks = [ground, noise, transit, location];
-  const available = checks.filter((c) => c.kind === "ok").length;
+  const available = checks.filter((c) => c.kind === "ok").length + (hoodOk ? 1 : 0);
+  const total = checks.length + 1;
   const stops = transit.kind === "ok" ? transit.data.stops : [];
   const groundValue =
     ground.kind === "ok"
@@ -116,13 +122,14 @@ export function ProfileBody({
         </div>
         <div className="summary-chip">
           <span className="label">{t("summary.label.coverage")}:</span>
-          <span className="value">{t("summary.coverage", { count: available, total: checks.length })}</span>
+          <span className="value">{t("summary.coverage", { count: available, total })}</span>
         </div>
       </div>
 
       <GroundCard check={ground} onRetry={onRetry} />
       <NoiseCard check={noise} onRetry={onRetry} />
       <TransportCard check={transit} onRetry={onRetry} filter={filter} onFilter={onFilter} />
+      <NeighbourhoodCard district={district} income={income} places={places} onRetry={onRetry} />
       <LocationCard check={location} onRetry={onRetry} />
       <ComingSoonCard icon="building" title="card.brf.title" explain="card.brf.explain" />
       <ComingSoonCard icon="leaf" title="card.energy.title" explain="card.energy.explain" />

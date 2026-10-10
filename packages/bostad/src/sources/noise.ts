@@ -11,6 +11,7 @@
  * city before any commercial use.
  */
 import { haversineMeters } from "./transit";
+import { featureAt, wfsBbox, wfsFeatures } from "./wfs";
 
 export const NOISE_WFS_URL =
   "https://geoserverextern.miljoforvaltningen.goteborg.se/geoserver/miljoovervakning_buller_v1/ows";
@@ -46,68 +47,12 @@ export interface NoiseResult {
 }
 
 type Props = Record<string, unknown>;
-interface Feature {
-  geometry?: { type?: string; coordinates?: unknown };
-  properties?: Props;
-}
-
-/** WFS bbox in lat,lon order: a square of `radiusM` around the point, plus a little margin. */
-export function wfsBbox(lat: number, lon: number, radiusM: number): string {
-  const dLat = (radiusM * 1.2) / 111320;
-  const dLon = (radiusM * 1.2) / (111320 * Math.cos((lat * Math.PI) / 180));
-  return `${lat - dLat},${lon - dLon},${lat + dLat},${lon + dLon},urn:ogc:def:crs:EPSG::4326`;
-}
-
-async function wfsFeatures(typeName: string, bbox: string): Promise<Feature[]> {
-  const params = new URLSearchParams({
-    service: "WFS",
-    version: "2.0.0",
-    request: "GetFeature",
-    typeNames: typeName,
-    outputFormat: "application/json",
-    srsName: "EPSG:4326",
-    bbox,
-    count: "5000",
-  });
-  const res = await fetch(`${NOISE_WFS_URL}?${params.toString()}`, {
-    headers: { Accept: "application/json" },
-    signal: AbortSignal.timeout(15000),
-  });
-  if (!res.ok) throw new Error(`noise WFS HTTP ${res.status}`);
-  const body = (await res.json()) as { features?: unknown };
-  if (!Array.isArray(body.features)) throw new Error("noise WFS response has no features array");
-  return body.features as Feature[];
-}
 
 const num = (v: unknown): number | null => (typeof v === "number" && Number.isFinite(v) ? v : null);
 const maxOf = (values: (number | null)[]): number | null => {
   const present = values.filter((v): v is number => v !== null);
   return present.length ? Math.max(...present) : null;
 };
-
-/** Ray-cast test for one ring of [lon, lat] pairs. */
-function inRing(lon: number, lat: number, ring: number[][]): boolean {
-  let inside = false;
-  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-    const [xi, yi] = ring[i];
-    const [xj, yj] = ring[j];
-    if (yi > lat !== yj > lat && lon < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) inside = !inside;
-  }
-  return inside;
-}
-
-/** True when the point is inside a (Multi)Polygon's outer ring and outside its holes. */
-export function polygonContains(geometry: { type?: string; coordinates?: unknown }, lon: number, lat: number): boolean {
-  const polygons =
-    geometry.type === "MultiPolygon"
-      ? (geometry.coordinates as number[][][][])
-      : geometry.type === "Polygon"
-        ? [geometry.coordinates as number[][][]]
-        : [];
-  return polygons.some(
-    (rings) => rings.length > 0 && inRing(lon, lat, rings[0]) && !rings.slice(1).some((hole) => inRing(lon, lat, hole)),
-  );
-}
 
 interface Facade {
   lat: number;
@@ -145,8 +90,8 @@ export function nearestBuilding(points: Facade[]): NoiseBuilding | null {
 
 export async function noiseAt(lat: number, lon: number): Promise<NoiseResult> {
   const [facadeFeatures, contourFeatures] = await Promise.all([
-    wfsFeatures(NOISE_FACADE_LAYER, wfsBbox(lat, lon, NOISE_RADIUS_M)),
-    wfsFeatures(NOISE_CONTOUR_LAYER, wfsBbox(lat, lon, 2)),
+    wfsFeatures(NOISE_WFS_URL, NOISE_FACADE_LAYER, wfsBbox(lat, lon, NOISE_RADIUS_M)),
+    wfsFeatures(NOISE_WFS_URL, NOISE_CONTOUR_LAYER, wfsBbox(lat, lon, 2)),
   ]);
 
   const facades: Facade[] = [];
@@ -160,7 +105,7 @@ export async function noiseAt(lat: number, lon: number): Promise<NoiseResult> {
   // Most specific band wins if two contain the point (boundary cases).
   let band: NoiseResult["band"] = null;
   for (const f of contourFeatures) {
-    if (!f.geometry || !f.properties || !polygonContains(f.geometry, lon, lat)) continue;
+    if (!f.properties || !featureAt([f], lat, lon)) continue;
     const minDb = num(f.properties.min);
     if (minDb === null) continue;
     const maxDb = num(f.properties.max);

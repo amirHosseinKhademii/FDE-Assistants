@@ -7,8 +7,14 @@ import { geocode, type GeocodeResult } from "./sources/geocode";
 import { landslideAt, type LandslideResult } from "./sources/landslide";
 import { nearestStops, type TransitResult } from "./sources/transit";
 import { noiseAt, type NoiseResult } from "./sources/noise";
+import { districtAt, type DistrictResult } from "./sources/district";
+import { incomeAt, type IncomeResult } from "./sources/income";
+import { placesAt, type PlacesResult } from "./sources/places";
 export type { TransitLine, TransitStop, TransportMode } from "./sources/transit";
 export type { NoiseBuilding, NoiseResult } from "./sources/noise";
+export type { AreaRef, DistrictResult } from "./sources/district";
+export type { IncomeResult } from "./sources/income";
+export type { PlaceCategory, PlaceItem, PlacesResult } from "./sources/places";
 
 export type SectionStatus = "ok" | "error" | "unavailable";
 
@@ -26,6 +32,9 @@ export interface Profile {
   landslide: Section<LandslideResult>;
   transit: Section<TransitResult>;
   noise: Section<NoiseResult>;
+  district: Section<DistrictResult>;
+  income: Section<IncomeResult>;
+  places: Section<PlacesResult>;
   brf: Section<never>;
   energy: Section<never>;
 }
@@ -59,17 +68,27 @@ export async function getProfile(address: string): Promise<Profile> {
   let landslide: Section<LandslideResult>;
   let transit: Section<TransitResult>;
   let noise: Section<NoiseResult>;
+  let district: Section<DistrictResult>;
+  let income: Section<IncomeResult>;
+  let places: Section<PlacesResult>;
   if (location.status !== "ok" || !location.data) {
     const reason = "no coordinates (geocoding failed)";
     landslide = { status: "unavailable", reason, source: "geodata.sgi.se", fetchedAt: new Date().toISOString() };
     transit = { status: "unavailable", reason, source: "ext-api.vasttrafik.se", fetchedAt: new Date().toISOString() };
     noise = { status: "unavailable", reason, source: "goteborg.se", fetchedAt: new Date().toISOString() };
+    district = { status: "unavailable", reason, source: "goteborg.se", fetchedAt: new Date().toISOString() };
+    income = { status: "unavailable", reason, source: "api.scb.se", fetchedAt: new Date().toISOString() };
+    places = { status: "unavailable", reason, source: "overpass-api.de", fetchedAt: new Date().toISOString() };
   } else {
     const { lat, lon } = location.data;
-    [landslide, transit, noise] = await Promise.all([
+    // Every section is independent: one slow or failing source never blocks the others.
+    [landslide, transit, noise, district, income, places] = await Promise.all([
       attempt("geodata.sgi.se", () => landslideAt(lat, lon)),
       attempt("ext-api.vasttrafik.se", () => nearestStops(lat, lon, 6)),
       attempt("goteborg.se", () => noiseAt(lat, lon)),
+      attempt("goteborg.se", () => districtAt(lat, lon)),
+      attempt("api.scb.se", () => incomeAt(lat, lon)),
+      attempt("overpass-api.de", () => placesAt(lat, lon)),
     ]);
   }
 
@@ -79,6 +98,9 @@ export async function getProfile(address: string): Promise<Profile> {
     landslide,
     transit,
     noise,
+    district,
+    income,
+    places,
     brf: stub("bolagsverket (värdefulla datamängder)", "awaiting Bolagsverket API access"),
     energy: stub("boverket energideklaration", "awaiting Boverket agreement"),
   };

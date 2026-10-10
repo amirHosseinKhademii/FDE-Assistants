@@ -6,6 +6,7 @@ import { Icon } from "./Icons";
 import { GoogleMap, type MapStop } from "./GoogleMap";
 import { MapBoundary } from "./MapBoundary";
 import type { ModeFilter } from "../lib/transport";
+import type { PlaceItem } from "@bostad/property";
 
 /**
  * The map panel. With a key and coordinates it shows the Google map (client
@@ -16,6 +17,7 @@ export function MapPanel({
   lon,
   stops = [],
   filter = "all",
+  places = [],
   loading = false,
   className = "",
 }: {
@@ -23,6 +25,8 @@ export function MapPanel({
   lon?: number;
   stops?: MapStop[];
   filter?: ModeFilter;
+  /** Everyday places to mark (empty unless the "Show places" toggle is on). */
+  places?: PlaceItem[];
   loading?: boolean;
   className?: string;
 }) {
@@ -58,7 +62,7 @@ export function MapPanel({
   return (
     <div className={`profile-map ${className}`}>
       <MapBoundary fallback={placeholder} resetKey={`${lat},${lon}`}>
-        <GoogleMap house={{ lat, lon }} stops={stops} filter={filter} />
+        <GoogleMap house={{ lat, lon }} stops={stops} filter={filter} places={places} />
       </MapBoundary>
     </div>
   );

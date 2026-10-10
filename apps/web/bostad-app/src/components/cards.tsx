@@ -1,8 +1,10 @@
-import type { NoiseResult, Profile } from "@bostad/property";
+import type { ReactNode } from "react";
+import type { DistrictResult, IncomeResult, NoiseResult, PlacesResult, Profile } from "@bostad/property";
 import { useLang } from "../lib/lang";
 import type { Check, Reason } from "../lib/checks";
 import type { MessageKey } from "../lib/i18n";
-import { clockTime, googleMapsHref, sourceHref, sourceKey, walkMinutes } from "../lib/format";
+import { clockTime, googleMapsHref, localeOf, sourceHref, sourceKey, walkMinutes } from "../lib/format";
+import { PLACE_KEY, PLACE_ORDER } from "../lib/places";
 import { ProfileCard } from "./ProfileCard";
 import { LineBadge, ModeIcon } from "./ModeIcon";
 import { MODE_KEY, modesPresent, stopMatches, type ModeFilter } from "../lib/transport";
@@ -201,6 +203,134 @@ export function TransportCard({
           </>
         ))}
     </ProfileCard>
+  );
+}
+
+/** Neighbourhood: three parts with their own sources. Each part can fail without hiding the others. */
+export function NeighbourhoodCard({
+  district,
+  income,
+  places,
+  onRetry,
+}: {
+  district: Check<DistrictResult>;
+  income: Check<IncomeResult>;
+  places: Check<PlacesResult>;
+  onRetry: () => void;
+}) {
+  const { t, lang } = useLang();
+  const parts = [district, income, places];
+  const failed = parts.find((p): p is Extract<Check<unknown>, { kind: "failed" }> => p.kind === "failed");
+  const anyOk = parts.some((p) => p.kind === "ok");
+  const meta = anyOk
+    ? { status: "checked" as CardStatus }
+    : { status: "failed" as CardStatus, reason: REASON[failed?.reason ?? "sourceDown"], onRetry };
+  return (
+    <ProfileCard icon="home" title="card.hood.title" explain="card.hood.explain" {...meta}>
+      {anyOk && (
+        <>
+          <NeighbourhoodPart check={district}>
+            {(d) => (
+              <>
+                <dl className="kv">
+                  <dt>{t("card.hood.district")}</dt>
+                  <dd>{d.stadsomrade?.name || "–"}</dd>
+                  <dt>{t("card.hood.area")}</dt>
+                  <dd>{d.primaryArea?.name || "–"}</dd>
+                </dl>
+                <PartSource name="card.hood.srcDistrict" time={checkedTime(district, lang)} />
+              </>
+            )}
+          </NeighbourhoodPart>
+
+          <NeighbourhoodPart check={income}>
+            {(i) => (
+              <>
+                <dl className="kv">
+                  <dt>{t("card.hood.incomeHere")}</dt>
+                  <dd>{kronor(i.medianDesoTkr, lang)}</dd>
+                  <dt>{t("card.hood.incomeCity")}</dt>
+                  <dd>{kronor(i.medianGothenburgTkr, lang)}</dd>
+                </dl>
+                <p className="muted">{t("card.hood.incomeNote", { year: i.year })}</p>
+                <PartSource name="card.hood.srcIncome" time={checkedTime(income, lang)} />
+              </>
+            )}
+          </NeighbourhoodPart>
+
+          <NeighbourhoodPart check={places} heading="card.hood.places">
+            {(p) => (
+              <>
+                <ul className="place-list">
+                  {PLACE_ORDER.map((category) => {
+                    const near = p.nearest[category];
+                    return (
+                      <li key={category} className="place-row">
+                        <div className="place-line">
+                          <span>{t(PLACE_KEY[category])}</span>
+                          <strong>{p.counts[category]}</strong>
+                        </div>
+                        {near && (
+                          <p className="muted place-near">
+                            {t("card.hood.nearestRow", {
+                              name: near.name || t(PLACE_KEY[category]),
+                              minutes: walkMinutes(near.distanceMeters),
+                            })}
+                          </p>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+                <PartSource name="card.hood.srcPlaces" time={checkedTime(places, lang)} />
+              </>
+            )}
+          </NeighbourhoodPart>
+        </>
+      )}
+    </ProfileCard>
+  );
+}
+
+function checkedTime<T>(check: Check<T>, lang: "en" | "sv"): string {
+  return check.kind === "ok" ? clockTime(check.checkedAt, lang) : "";
+}
+
+/** kr for a value in thousands of SEK per year, e.g. 318.5 -> "318 500 kr". */
+function kronor(tkr: number | null, lang: "en" | "sv"): string {
+  return tkr === null ? "–" : `${Math.round(tkr * 1000).toLocaleString(localeOf(lang))} kr`;
+}
+
+function PartSource({ name, time }: { name: MessageKey; time: string }) {
+  const { t } = useLang();
+  return (
+    <div className="card-foot">
+      <span>{t("card.source", { name: t(name), time })}</span>
+    </div>
+  );
+}
+
+function NeighbourhoodPart<T>({
+  check,
+  heading,
+  children,
+}: {
+  check: Check<T>;
+  heading?: MessageKey;
+  children: (data: T) => ReactNode;
+}) {
+  const { t } = useLang();
+  return (
+    <section className="hood-part">
+      {heading && <p className="hood-head">{t(heading)}</p>}
+      {check.kind === "ok" ? (
+        children(check.data)
+      ) : (
+        <p className="muted">
+          {t("card.hood.partFailed")} {t(REASON[check.reason])}
+        </p>
+      )}
+    </section>
   );
 }
 

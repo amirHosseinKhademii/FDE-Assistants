@@ -7,10 +7,12 @@ import { ProfileError, ProfileSkeleton } from "./ProfileStates";
 import { AddressHeader, ProfileBody } from "./ProfileContent";
 import { SearchBox } from "./SearchBox";
 import type { ModeFilter } from "../lib/transport";
+import type { PlaceItem } from "@bostad/property";
 import { StickyBar } from "./StickyBar";
 import { TopBar } from "./TopBar";
 
 const NO_STOPS: never[] = [];
+const NO_PLACES: PlaceItem[] = [];
 
 /** The profile for one address. Shareable: the address lives in the URL. */
 export function ProfileView({ address, onSearch }: { address: string; onSearch: (address: string) => void }) {
@@ -32,6 +34,12 @@ export function ProfileView({ address, onSearch }: { address: string; onSearch: 
   }, [profile]);
   // Shared by the transport card and the map, so one tap filters both.
   const [filter, setFilter] = useState<ModeFilter>("all");
+  const placeItems = useMemo(() => {
+    if (!profile) return NO_PLACES;
+    const places = gatedCheck(profile.places, gateOf(profile));
+    return places.kind === "ok" ? places.data.items : NO_PLACES;
+  }, [profile]);
+  const [showPlaces, setShowPlaces] = useState(false);
 
   return (
     <div className="wrap">
@@ -41,7 +49,26 @@ export function ProfileView({ address, onSearch }: { address: string; onSearch: 
           <SearchBox compact initial={address} onSearch={onSearch} />
         </div>
 
-        <MapPanel lat={coords?.lat} lon={coords?.lon} stops={stops} filter={filter} loading={loading} />
+        <div className="map-wrap">
+          <MapPanel
+            lat={coords?.lat}
+            lon={coords?.lon}
+            stops={stops}
+            filter={filter}
+            places={showPlaces ? placeItems : NO_PLACES}
+            loading={loading}
+          />
+          {placeItems.length > 0 && (
+            <button
+              type="button"
+              className="map-toggle"
+              aria-pressed={showPlaces}
+              onClick={() => setShowPlaces((v) => !v)}
+            >
+              {t(showPlaces ? "map.hidePlaces" : "map.showPlaces")}
+            </button>
+          )}
+        </div>
 
         <div className="profile-main">
           <AddressHeader address={address} profile={profile} />
