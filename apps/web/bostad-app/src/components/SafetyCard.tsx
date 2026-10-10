@@ -7,11 +7,37 @@ import { localeOf } from "../lib/format";
 import { CHART_KEYS, LEVEL_TONE, levelOf, niceMax, type CatKey, type SafetyLevel } from "../lib/safety";
 import { ProfileCard, type CardResult, type CardStatus } from "./ProfileCard";
 import { REASON } from "./cards";
+import { Icon, type IconName } from "./Icons";
 
 const W = 340;
-const H = 196;
+const H = 236;
+const PAD_L = 34;
+const PAD_R = 50;
+const PAD_T = 14;
+const PAD_B = 28;
 
-/** Rates under 10 keep one decimal, so small categories do not read as 0 or 1. */
+/** One icon per category; the arrow beside each carries the level. */
+const CAT_ICON: Record<CatKey, IconName> = {
+  all: "clipboard",
+  violence: "alertTri",
+  burglary: "houseDoor",
+  carTheft: "car",
+  theftFromCar: "carWindow",
+  bikeTheft: "bike",
+  vandalism: "burst",
+  fraud: "card",
+  drugs: "pill",
+};
+
+/** Arrow for a level: up above city, down below, equals around. Colour comes from the tone. */
+const LEVEL_ARROW: Record<SafetyLevel, IconName> = {
+  wellBelow: "arrowDown",
+  below: "arrowDown",
+  around: "equals",
+  above: "arrowUp",
+  wellAbove: "arrowUp",
+};
+
 const fmt = (v: number | null | undefined, lang: "en" | "sv") =>
   v === null || v === undefined
     ? "–"
@@ -20,8 +46,8 @@ const fmt = (v: number | null | undefined, lang: "en" | "sv") =>
       : Math.round(v).toLocaleString(localeOf(lang));
 
 /**
- * Reported crimes at the address's district: one level word for the latest year, a trend
- * chart (2021-2025, or 2002-2025 when the toggle is on) and one row per category.
+ * Reported crimes at the address's district. A level badge and one sentence for the latest
+ * year, one tile per category (the chart shows the selected one), then the trend chart.
  * The map shades the district while this card is open (reported up through onOpenChange).
  */
 export function SafetyCard({
@@ -90,113 +116,98 @@ function SafetyBody({
 }) {
   const { t } = useLang();
   const area = latest.area ?? "–";
-  const shownFrom = early ? 2002 : 2021;
-  const period = t("safety.period", { from: shownFrom, to: latest.year });
   const all = latest.cats.all;
+  const tone = level ? (LEVEL_TONE[level] ?? "neutral") : "muted";
 
   return (
     <>
-      <p className="safety-head">
-        <strong>{t("safety.area", { area })}</strong> <span className="muted">· {period}</span>
-      </p>
-
-      <div className="safety-latest">
+      <div className="sx-head">
         {level && (
-          <span className="safety-level" data-tone={LEVEL_TONE[level] ?? "neutral"}>
-            {t(`safety.level.${level}` as MessageKey)}
+          <span className="sx-badge" data-tone={tone}>
+            <Icon name="shield" />
+            <span>{t(`safety.level.${level}` as MessageKey)}</span>
           </span>
         )}
-        <p className="area-sentence">
-          {t("safety.latest", { year: latest.year, here: fmt(all.district.per1000, lang), city: fmt(all.city.per1000, lang) })}
+        <p className="sx-sentence">
+          {t("safety.head", { area, here: fmt(all.district.per1000, lang), year: latest.year, city: fmt(all.city.per1000, lang) })}
         </p>
       </div>
 
-      <section className="safety-chart">
-        <div className="safety-chips" role="group" aria-label={t("safety.chips.label")}>
-          {CHART_KEYS.map((k) => (
-            <button key={k} type="button" className="mode-chip" aria-pressed={cat === k} onClick={() => onCat(k)}>
-              <span>{t(`safety.cat.${k}` as MessageKey)}</span>
-            </button>
-          ))}
-        </div>
-        <TrendChart data={data} cat={cat} extended={early} area={area} period={period} />
-        <button type="button" className="btn-secondary safety-toggle" aria-pressed={early} onClick={() => onEarly(!early)}>
-          {t(early ? "safety.toggle.hide" : "safety.toggle.show")}
+      <ul className="sx-cats" aria-label={t("safety.chips.label")}>
+        {CHART_KEYS.map((k) => (
+          <li key={k}>
+            <CatTile k={k} here={latest.cats[k].district.per1000} city={latest.cats[k].city.per1000} selected={cat === k} onPick={() => onCat(k)} lang={lang} />
+          </li>
+        ))}
+      </ul>
+
+      <section className="sx-chart">
+        <TrendChart data={data} cat={cat} extended={early} area={area} />
+        <button type="button" role="switch" aria-checked={early} className="sx-switch" onClick={() => onEarly(!early)}>
+          <span className="sx-track" aria-hidden="true">
+            <span className="sx-thumb" />
+          </span>
+          <span>{t("safety.toggle.show")}</span>
         </button>
-        {early && <p className="muted safety-note">{t("safety.note.mapping")}</p>}
+        {early && <p className="muted sx-note">{t("safety.note.mapping")}</p>}
       </section>
 
-      <section className="safety-cats">
-        <p className="area-row-label">{t("safety.cats.label", { year: latest.year })}</p>
-        <ul className="safety-rows">
-          {CHART_KEYS.map((k) => (
-            <CategoryRow key={k} name={t(`safety.cat.${k}` as MessageKey)} detail={k === "violence" ? t("safety.detail.violence") : k === "burglary" ? t("safety.detail.burglary") : null} here={latest.cats[k].district.per1000} city={latest.cats[k].city.per1000} lang={lang} />
-          ))}
-        </ul>
-      </section>
-
-      {data.outline && <p className="muted safety-note">{t("safety.onMap")}</p>}
+      {data.outline && <p className="muted sx-note">{t("safety.onMap")}</p>}
     </>
   );
 }
 
-function CategoryRow({
-  name,
-  detail,
+/** One category: its icon and name, the rate here against the city, a bar, and an arrow with the level word. */
+function CatTile({
+  k,
   here,
   city,
+  selected,
+  onPick,
   lang,
 }: {
-  name: string;
-  detail: string | null;
+  k: CatKey;
   here: number | null;
   city: number | null;
+  selected: boolean;
+  onPick: () => void;
   lang: "en" | "sv";
 }) {
   const { t } = useLang();
+  const name = t(`safety.cat.${k}` as MessageKey);
   const level = levelOf(here, city);
   const max = Math.max(here ?? 0, city ?? 0);
   const pct = (v: number | null) => (v === null || max <= 0 ? 0 : Math.min(100, (v / max) * 100));
+  const tone = level ? (LEVEL_TONE[level] ?? "neutral") : "muted";
   return (
-    <li className="safety-row">
-      <div className="safety-row-top">
-        <span>
-          <span className="safety-row-name">{name}</span>
-          {detail && <span className="muted"> · {detail}</span>}
-        </span>
+    <button type="button" className="sx-cat" aria-pressed={selected} data-tone={tone} onClick={onPick}>
+      <span className="sx-cat-head">
+        <Icon name={CAT_ICON[k]} />
+        <span className="sx-cat-name">{name}</span>
+      </span>
+      <span className="sx-bar" aria-hidden="true">
+        <span className="sx-bar-fill" style={{ width: `${pct(here)}%` }} />
+        <span className="sx-bar-city" style={{ left: `${pct(city)}%` }} />
+      </span>
+      <span className="sx-cat-nums">
+        {fmt(here, lang)} <span className="muted">· {fmt(city, lang)}</span>
+      </span>
+      <span className="sx-cat-level">
         {level ? (
-          <span className="safety-level" data-tone={LEVEL_TONE[level] ?? "neutral"}>
-            {t(`safety.level.${level}` as MessageKey)}
-          </span>
+          <>
+            <Icon name={LEVEL_ARROW[level]} />
+            <span>{t(`tile.safety.${level}` as MessageKey)}</span>
+          </>
         ) : (
           <span className="muted">{t("safety.noRate")}</span>
         )}
-      </div>
-      <div className="safety-bar" aria-hidden="true">
-        <span className="safety-bar-fill" style={{ width: `${pct(here)}%` }} />
-        <span className="safety-bar-city" style={{ left: `${pct(city)}%` }} />
-      </div>
-      <p className="safety-row-nums">
-        {t("safety.row.nums", { here: fmt(here, lang), city: fmt(city, lang) })}
-      </p>
-    </li>
+      </span>
+    </button>
   );
 }
 
-/** Inline SVG trend chart. Lines break where a value is missing. Hidden data table for screen readers. */
-function TrendChart({
-  data,
-  cat,
-  extended,
-  area,
-  period,
-}: {
-  data: SafetyResult;
-  cat: CatKey;
-  extended: boolean;
-  area: string;
-  period: string;
-}) {
+/** Inline SVG trend chart with end labels and a legend. Lines break where a value is missing; a visually hidden table gives the same numbers. */
+function TrendChart({ data, cat, extended, area }: { data: SafetyResult; cat: CatKey; extended: boolean; area: string }) {
   const { t, lang } = useLang();
   const id = useId();
   const years = data.years.filter((y) => extended || y.year >= 2021);
@@ -205,21 +216,17 @@ function TrendChart({
     d: y.cats[cat].district.per1000,
     c: y.cats[cat].city.per1000,
     n: y.cats[cat].district.count,
-    verified: y.verified,
   }));
   const N = rows.length;
-  const padL = 34;
-  const padR = extended ? 42 : 12;
-  const padT = 12;
-  const padB = 26;
-  const plotW = W - padL - padR;
-  const plotH = H - padT - padB;
+  const padR = PAD_R;
+  const plotW = W - PAD_L - padR;
+  const plotH = H - PAD_T - PAD_B;
   const rateMax = niceMax(Math.max(0, ...rows.flatMap((r) => [r.d ?? 0, r.c ?? 0])));
   const countRows = extended ? rows.filter((r) => r.year <= 2020) : [];
   const countMax = niceMax(Math.max(0, ...countRows.map((r) => r.n ?? 0)));
-  const x = (i: number) => (N <= 1 ? padL + plotW / 2 : padL + (i * plotW) / (N - 1));
-  const yRate = (v: number) => padT + plotH * (1 - v / rateMax);
-  const yCount = (v: number) => padT + plotH * (1 - v / countMax);
+  const x = (i: number) => (N <= 1 ? PAD_L + plotW / 2 : PAD_L + (i * plotW) / (N - 1));
+  const yRate = (v: number) => PAD_T + plotH * (1 - v / rateMax);
+  const yCount = (v: number) => PAD_T + plotH * (1 - v / countMax);
 
   const path = (pts: ({ x: number; y: number } | null)[]) => {
     let d = "";
@@ -237,13 +244,32 @@ function TrendChart({
   const dPts = rows.map((r, i) => (r.d === null ? null : { x: x(i), y: yRate(r.d) }));
   const cPts = rows.map((r, i) => (r.c === null ? null : { x: x(i), y: yRate(r.c) }));
   const nPts = rows.map((r, i) => (extended && r.year <= 2020 && r.n !== null ? { x: x(i), y: yCount(r.n) } : null));
+  const lastOf = (pts: ({ x: number; y: number } | null)[]) => {
+    for (let i = pts.length - 1; i >= 0; i--) if (pts[i]) return { i, p: pts[i] as { x: number; y: number } };
+    return null;
+  };
+  const lastD = lastOf(dPts);
+  const lastC = lastOf(cPts);
+  // Keep the two end labels apart when the lines finish close together.
+  let cLabelY = lastC ? lastC.p.y + 4 : 0;
+  let dLabelY = lastD ? lastD.p.y + 4 : 0;
+  if (lastC && lastD && Math.abs(lastC.p.y - lastD.p.y) < 14) {
+    if (lastD.p.y <= lastC.p.y) {
+      dLabelY -= 5;
+      cLabelY += 7;
+    } else {
+      dLabelY += 7;
+      cLabelY -= 5;
+    }
+  }
   const ticks = [0, 0.5, 1];
-  // Five years: label them all. Twenty-four: every fourth year, and the last.
   const labelYears = rows
     .map((r, i) => ({ r, i }))
-    .filter(({ r, i }) => N <= 6 || i === N - 1 || ((r.year - 2002) % 4 === 0 && N - 1 - i >= 4));
+    .filter(({ r, i }) => N <= 6 || i === N - 1 || ((r.year - 2002) % 8 === 0 && N - 1 - i >= 4));
   const catLabel = t(`safety.cat.${cat}` as MessageKey);
-  const title = t("safety.chart.title", { area, from: years[0]?.year ?? 2021, to: years[N - 1]?.year ?? 2025 });
+  const from = years[0]?.year ?? 2021;
+  const to = years[N - 1]?.year ?? 2025;
+  const title = t("safety.chart.title", { area, from, to });
   const desc = t("safety.chart.desc", { cat: catLabel, area });
 
   return (
@@ -253,46 +279,56 @@ function TrendChart({
         <desc id={`${id}-d`}>{desc}</desc>
         {ticks.map((f) => (
           <g key={f}>
-            <line className="safety-grid" x1={padL} x2={W - padR} y1={yRate(rateMax * f)} y2={yRate(rateMax * f)} />
-            <text className="safety-axis" x={padL - 6} y={yRate(rateMax * f) + 4} textAnchor="end">
+            <line className="sx-grid" x1={PAD_L} x2={W - padR} y1={yRate(rateMax * f)} y2={yRate(rateMax * f)} />
+            <text className="sx-axis" x={PAD_L - 6} y={yRate(rateMax * f) + 4} textAnchor="end">
               {Math.round(rateMax * f)}
             </text>
             {extended && countMax > 0 && (
-              <text className="safety-axis" x={W - padR + 6} y={yCount(countMax * f) + 4} textAnchor="start">
+              <text className="sx-axis" x={W - padR + 6} y={yCount(countMax * f) + 4} textAnchor="start">
                 {Math.round(countMax * f)}
               </text>
             )}
           </g>
         ))}
         {labelYears.map(({ r, i }) => (
-          <text key={r.year} className="safety-axis" x={x(i)} y={H - 6} textAnchor={i === 0 ? "start" : i === N - 1 ? "end" : "middle"}>
+          <text key={r.year} className="sx-axis" x={x(i)} y={H - 6} textAnchor={i === 0 ? "start" : i === N - 1 ? "end" : "middle"}>
             {r.year}
           </text>
         ))}
-        {extended && <path className="safety-line--count" d={path(nPts)} />}
-        <path className="safety-line--city" d={path(cPts)} />
-        <path className="safety-line--district" d={path(dPts)} />
-        {cPts.map((p, i) => p && <circle key={`c${i}`} className="safety-dot--city" cx={p.x} cy={p.y} r={2.6} />)}
-        {dPts.map((p, i) => p && <circle key={`d${i}`} className="safety-dot--district" cx={p.x} cy={p.y} r={3} />)}
+        {extended && <path className="sx-line sx-line--count" d={path(nPts)} />}
+        <path className="sx-line sx-line--city" d={path(cPts)} />
+        <path className="sx-line sx-line--district" d={path(dPts)} />
+        {cPts.map((p, i) => p && <circle key={`c${i}`} className="sx-dot sx-dot--city" cx={p.x} cy={p.y} r={2.8} />)}
+        {dPts.map((p, i) => p && <circle key={`d${i}`} className="sx-dot sx-dot--district" cx={p.x} cy={p.y} r={3.4} />)}
+        {lastC && (
+          <text className="sx-end sx-end--city" x={lastC.p.x + 7} y={cLabelY}>
+            {fmt(rows[lastC.i].c, lang)}
+          </text>
+        )}
+        {lastD && (
+          <text className="sx-end sx-end--district" x={lastD.p.x + 7} y={dLabelY}>
+            {fmt(rows[lastD.i].d, lang)}
+          </text>
+        )}
       </svg>
-      <ul className="safety-legend">
+      <ul className="sx-legend">
         <li>
-          <span className="sw sw--district" aria-hidden="true" />
+          <span className="sx-swatch sx-swatch--district" aria-hidden="true" />
           {t("safety.legend.district")}
         </li>
         <li>
-          <span className="sw sw--city" aria-hidden="true" />
+          <span className="sx-swatch sx-swatch--city" aria-hidden="true" />
           {t("safety.legend.city")}
         </li>
         {extended && (
           <li>
-            <span className="sw sw--count" aria-hidden="true" />
+            <span className="sx-swatch sx-swatch--count" aria-hidden="true" />
             {t("safety.legend.count")}
           </li>
         )}
       </ul>
       <table className="sr-only">
-        <caption>{period}</caption>
+        <caption>{t("safety.period", { from, to })}</caption>
         <thead>
           <tr>
             <th scope="col">{t("safety.tbl.year")}</th>
