@@ -3,12 +3,11 @@ import type { DistrictResult, IncomeResult, NoiseResult, PlacesResult, Profile }
 import { useLang } from "../lib/lang";
 import type { Check, Reason } from "../lib/checks";
 import type { MessageKey } from "../lib/i18n";
-import { clockTime, googleMapsHref, localeOf, sourceHref, sourceKey, walkMinutes } from "../lib/format";
+import { clockTime, localeOf, sourceHref, sourceKey, walkMinutes } from "../lib/format";
 import { PLACE_KEY, PLACE_ORDER } from "../lib/places";
-import { ProfileCard } from "./ProfileCard";
+import { ProfileCard, type CardResult, type CardStatus } from "./ProfileCard";
 import { LineBadge, ModeIcon } from "./ModeIcon";
 import { MODE_KEY, modesPresent, stopMatches, type ModeFilter } from "../lib/transport";
-import type { CardStatus } from "./StatusPill";
 
 const REASON: Record<Reason, MessageKey> = {
   notExact: "reason.notExact",
@@ -17,7 +16,7 @@ const REASON: Record<Reason, MessageKey> = {
   sourceDown: "reason.sourceDown",
 };
 
-type Props<T> = { check: Check<T>; onRetry: () => void };
+type Props<T> = { check: Check<T>; onRetry: () => void; result?: CardResult };
 
 /** Shared wiring: status, reason, source footer and time for a checked or failed card. */
 function useCheckProps<T>(check: Check<T>, onRetry: () => void) {
@@ -32,11 +31,11 @@ function useCheckProps<T>(check: Check<T>, onRetry: () => void) {
   };
 }
 
-export function GroundCard({ check, onRetry }: Props<NonNullable<Profile["landslide"]["data"]>>) {
+export function GroundCard({ check, onRetry, result }: Props<NonNullable<Profile["landslide"]["data"]>>) {
   const { t } = useLang();
   const meta = useCheckProps(check, onRetry);
   return (
-    <ProfileCard icon="mountain" title="card.ground.title" explain="card.ground.explain" {...meta}>
+    <ProfileCard id="card-ground" icon="mountain" title="card.ground.title" explain="card.ground.explain" result={result} {...meta}>
       {check.kind === "ok" && (
         <dl className="kv">
           <dt>{t("card.ground.inArea")}</dt>
@@ -47,9 +46,6 @@ export function GroundCard({ check, onRetry }: Props<NonNullable<Profile["landsl
           </dd>
         </dl>
       )}
-      {check.kind === "ok" && check.data.inRiskArea && (
-        <p className="muted">{t("card.ground.zones", { count: check.data.features.length })}</p>
-      )}
     </ProfileCard>
   );
 }
@@ -59,41 +55,21 @@ const NOISE_MIN = 35;
 const NOISE_MAX = 75;
 const pct = (db: number) => `${Math.min(100, Math.max(0, ((db - NOISE_MIN) / (NOISE_MAX - NOISE_MIN)) * 100))}%`;
 
-export function NoiseCard({ check, onRetry }: Props<NonNullable<Profile["noise"]["data"]>>) {
+export function NoiseCard({ check, onRetry, result }: Props<NonNullable<Profile["noise"]["data"]>>) {
   const { t } = useLang();
   const meta = useCheckProps(check, onRetry);
   return (
-    <ProfileCard icon="sound" title="card.noise.title" explain="card.noise.explain" {...meta}>
+    <ProfileCard id="card-noise" icon="sound" title="card.noise.title" explain="card.noise.explain" result={result} {...meta}>
       {check.kind === "ok" && <NoiseDetail data={check.data} />}
     </ProfileCard>
   );
 }
 
+/** The bar, then at most two facts: the street-side level and the loudest wall. */
 function NoiseDetail({ data }: { data: NoiseResult }) {
   const { t } = useLang();
   const b = data.building;
-  const band = data.band && (
-    <p className="muted">
-      {t("card.noise.band", {
-        range:
-          data.band.maxDb === null
-            ? t("card.noise.bandOpen", { min: data.band.minDb })
-            : t("card.noise.bandRange", { min: data.band.minDb, max: data.band.maxDb }),
-      })}
-    </p>
-  );
-  const noBand = !data.band && <p className="muted">{t("card.noise.noBand")}</p>;
-
-  if (!b) {
-    return (
-      <>
-        <p className="muted">{t("card.noise.noBuilding")}</p>
-        {band}
-        {noBand}
-        <p className="muted">{t("card.noise.caveat")}</p>
-      </>
-    );
-  }
+  if (!b) return <p className="muted">{t("card.noise.noBuilding")}</p>;
 
   const over = b.loudestDb > data.guidelineDb;
   return (
@@ -108,12 +84,6 @@ function NoiseDetail({ data }: { data: NoiseResult }) {
       <dl className="kv">
         <dt>{t("card.noise.street")}</dt>
         <dd>{b.streetDb !== null ? `${b.streetDb} dB` : "–"}</dd>
-        {b.topDb !== null && (
-          <>
-            <dt>{t("card.noise.top")}</dt>
-            <dd>{b.topDb} dB</dd>
-          </>
-        )}
         <dt>{t("card.noise.loudest")}</dt>
         <dd>
           <strong style={{ color: over ? "var(--warn)" : "var(--ok)" }}>
@@ -121,9 +91,6 @@ function NoiseDetail({ data }: { data: NoiseResult }) {
           </strong>
         </dd>
       </dl>
-      {band}
-      {noBand}
-      <p className="muted">{t("card.noise.caveat")}</p>
     </>
   );
 }
@@ -135,6 +102,7 @@ export function TransportCard({
   onRetry,
   filter,
   onFilter,
+  result,
 }: Props<NonNullable<Profile["transit"]["data"]>> & { filter: ModeFilter; onFilter: (f: ModeFilter) => void }) {
   const { t } = useLang();
   const meta = useCheckProps(check, onRetry);
@@ -142,7 +110,7 @@ export function TransportCard({
   const present = modesPresent(stops);
   const shown = stops.filter((stop) => stopMatches(stop, filter));
   return (
-    <ProfileCard icon="bus" title="card.transport.title" explain="card.transport.explain" {...meta}>
+    <ProfileCard id="card-transport" icon="bus" title="card.transport.title" explain="card.transport.explain" result={result} {...meta}>
       {check.kind === "ok" &&
         (stops.length === 0 ? (
           <p className="muted">{t("card.transport.none")}</p>
@@ -164,6 +132,7 @@ export function TransportCard({
                 ))}
               </div>
             )}
+            {/* The text version of the map's stops: the same list, with lines and walk time. */}
             <ol className="stops">
               {shown.map((stop) => (
                 <li key={stop.id || stop.name} className="stop-row">
@@ -212,11 +181,13 @@ export function NeighbourhoodCard({
   income,
   places,
   onRetry,
+  result,
 }: {
   district: Check<DistrictResult>;
   income: Check<IncomeResult>;
   places: Check<PlacesResult>;
   onRetry: () => void;
+  result?: CardResult;
 }) {
   const { t, lang } = useLang();
   const parts = [district, income, places];
@@ -226,7 +197,7 @@ export function NeighbourhoodCard({
     ? { status: "checked" as CardStatus }
     : { status: "failed" as CardStatus, reason: REASON[failed?.reason ?? "sourceDown"], onRetry };
   return (
-    <ProfileCard icon="home" title="card.hood.title" explain="card.hood.explain" {...meta}>
+    <ProfileCard id="card-hood" icon="home" title="card.hood.title" explain="card.hood.explain" result={result} {...meta}>
       {anyOk && (
         <>
           <NeighbourhoodPart check={district}>
@@ -332,45 +303,4 @@ function NeighbourhoodPart<T>({
       )}
     </section>
   );
-}
-
-export function LocationCard({ check, onRetry }: Props<NonNullable<Profile["location"]["data"]>>) {
-  const { t } = useLang();
-  const meta = useCheckProps(check, onRetry);
-  return (
-    <ProfileCard icon="pin" title="card.location.title" explain="card.location.explain" {...meta}>
-      {check.kind === "ok" && (
-        <>
-          <p>{check.data.displayName}</p>
-          <dl className="kv">
-            <dt>{t("card.location.coords")}</dt>
-            <dd>
-              {check.data.lat.toFixed(5)}, {check.data.lon.toFixed(5)}
-            </dd>
-          </dl>
-          <a
-            className="btn-secondary"
-            style={{ justifySelf: "start" }}
-            href={googleMapsHref(check.data.lat, check.data.lon)}
-            target="_blank"
-            rel="noreferrer"
-          >
-            {t("card.location.openMaps")}
-          </a>
-        </>
-      )}
-    </ProfileCard>
-  );
-}
-
-export function ComingSoonCard({
-  icon,
-  title,
-  explain,
-}: {
-  icon: "building" | "leaf" | "tag" | "clipboard" | "wave";
-  title: MessageKey;
-  explain: MessageKey;
-}) {
-  return <ProfileCard icon={icon} title={title} explain={explain} status="soon" />;
 }

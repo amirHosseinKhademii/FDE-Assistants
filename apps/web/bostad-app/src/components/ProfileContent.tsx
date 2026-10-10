@@ -1,61 +1,48 @@
 import type { NoiseResult, Profile } from "@bostad/property";
 import { useLang } from "../lib/lang";
-import { gatedCheck, gateOf, locationCheck, type Check } from "../lib/checks";
-import { localeOf, minutesAgo, walkMinutes } from "../lib/format";
-import { MODE_KEY, nearestByMode, type ModeFilter } from "../lib/transport";
-import { Icon } from "./Icons";
-import { ComingSoonCard, GroundCard, LocationCard, NeighbourhoodCard, NoiseCard, TransportCard } from "./cards";
+import { gatedCheck, gateOf, type Check } from "../lib/checks";
+import { walkMinutes } from "../lib/format";
+import type { ModeFilter } from "../lib/transport";
+import { Icon, type IconName } from "./Icons";
+import { GroundCard, NeighbourhoodCard, NoiseCard, TransportCard } from "./cards";
+import type { CardResult } from "./ProfileCard";
 
-type Lang = "en" | "sv";
 type Translate = ReturnType<typeof useLang>["t"];
 
-/** "Nearest tram 1 min · bus 2 min" for the two closest modes; the plain stop time when no mode is known. */
-function transportSummary(stops: Parameters<typeof nearestByMode>[0], t: Translate, lang: Lang) {
-  const nearest = nearestByMode(stops, 2);
-  if (nearest.length === 0) {
-    return { text: t("summary.transport.walk", { minutes: walkMinutes(stops[0].distanceMeters) }), tone: "ok" };
-  }
-  const locale = localeOf(lang);
-  const list = nearest
-    .map((n) =>
-      t("summary.transport.modeMin", {
-        mode: t(MODE_KEY[n.mode]).toLocaleLowerCase(locale),
-        minutes: walkMinutes(n.distanceMeters),
-      }),
-    )
-    .join(" · ");
-  return { text: t("summary.transport.byMode", { list }), tone: "ok" };
-}
-
-/** "Noise: Quiet / Moderate / Loud" from the loudest facade point: under 50, 50 to 55, over 55 dB(A). */
-function noiseSummary(check: Check<NoiseResult>, t: Translate) {
-  if (check.kind !== "ok") return { text: t("summary.notChecked"), tone: undefined };
+/** "Quiet / Moderate / Loud" from the loudest facade point: under 50, 50 to 55, over 55 dB(A). */
+function noiseResult(check: Check<NoiseResult>, t: Translate): CardResult {
+  if (check.kind !== "ok") return { text: t("summary.notChecked") };
   const building = check.data.building;
-  if (!building) return { text: t("summary.noise.none"), tone: undefined };
+  if (!building) return { text: t("summary.noise.none") };
   if (building.loudestDb < 50) return { text: t("summary.noise.quiet"), tone: "ok" };
   if (building.loudestDb <= 55) return { text: t("summary.noise.moderate"), tone: "warn" };
   return { text: t("summary.noise.loud"), tone: "risk" };
 }
 
-/** Top of the profile: the address as typed, what it matched, and when. */
+/** The address, large; the district under it in small muted text. Nothing else about matching. */
 export function AddressHeader({ address, profile }: { address: string; profile: Profile | null }) {
-  const { t, lang } = useLang();
-  const matched = profile?.location.data?.displayName;
-  const ago = profile ? minutesAgo(profile.location.fetchedAt, lang) : null;
+  const district = profile ? gatedCheck(profile.district, gateOf(profile)) : null;
+  const names =
+    district?.kind === "ok"
+      ? [district.data.stadsomrade?.name, district.data.primaryArea?.name].filter((n): n is string => Boolean(n))
+      : [];
   return (
     <section className="address">
       <h1>{address}</h1>
-      {matched && (
-        <p className="muted">
-          {t("profile.matchedAs")}: {matched}
-        </p>
-      )}
-      {profile && <p className="caption">{ago ? t("profile.checkedAgo", { when: ago }) : t("profile.checkedNow")}</p>}
+      {names.length > 0 && <p className="muted">{names.join(" · ")}</p>}
     </section>
   );
 }
 
-/** Every section of a loaded profile, in the order the plan gives. */
+/** Opens the card a tile points at, so the tap lands on the detail, not just the heading. */
+function openCard(id: string) {
+  return () => {
+    const el = document.getElementById(id);
+    if (el instanceof HTMLDetailsElement) el.open = true;
+  };
+}
+
+/** Every section of a loaded profile: three status tiles, the cards, then one row for what is coming. */
 export function ProfileBody({
   profile,
   onRetry,
@@ -67,9 +54,8 @@ export function ProfileBody({
   filter?: ModeFilter;
   onFilter?: (f: ModeFilter) => void;
 }) {
-  const { t, lang } = useLang();
+  const { t } = useLang();
   const gate = gateOf(profile);
-  const location = locationCheck(profile);
   const ground = gatedCheck(profile.landslide, gate);
   const noise = gatedCheck(profile.noise, gate);
   const transit = gatedCheck(profile.transit, gate);
@@ -77,29 +63,43 @@ export function ProfileBody({
   const income = gatedCheck(profile.income, gate);
   const places = gatedCheck(profile.places, gate);
 
-  // The coverage chip counts only the checks that are built ("coming soon" is not a check).
-  // Neighbourhood is one check, available when any of its three parts is.
-  const hoodOk = [district, income, places].some((c) => c.kind === "ok");
-  const checks = [ground, noise, transit, location];
-  const available = checks.filter((c) => c.kind === "ok").length + (hoodOk ? 1 : 0);
-  const total = checks.length + 1;
-  const stops = transit.kind === "ok" ? transit.data.stops : [];
-  const groundValue =
+  const groundRes: CardResult =
     ground.kind === "ok"
       ? ground.data.inRiskArea
-        ? { text: t("summary.ground.risk"), tone: "risk" }
-        : { text: t("summary.ground.ok"), tone: "ok" }
-      : { text: t("summary.notChecked"), tone: undefined };
-  const noiseValue = noiseSummary(noise, t);
-  const transportValue =
+        ? { text: t("tile.word.groundRisk"), tone: "risk" }
+        : { text: t("tile.word.groundSafe"), tone: "ok" }
+      : { text: t("summary.notChecked") };
+  const noiseRes = noiseResult(noise, t);
+  const stops = transit.kind === "ok" ? transit.data.stops : [];
+  const transitRes: CardResult =
     transit.kind !== "ok"
-      ? { text: t("summary.notChecked"), tone: undefined }
+      ? { text: t("summary.notChecked") }
       : stops.length > 0
-        ? transportSummary(stops, t, lang)
-        : { text: t("summary.transport.none"), tone: undefined };
+        ? { text: t("tile.transport", { minutes: walkMinutes(Math.min(...stops.map((s) => s.distanceMeters))) }), tone: "ok" }
+        : { text: t("tile.word.none") };
+  const hoodRes: CardResult =
+    district.kind === "ok" && district.data.stadsomrade?.name
+      ? { text: district.data.stadsomrade.name }
+      : { text: t("summary.notChecked") };
+
+  const tiles: Array<{ id: string; icon: IconName; label: "summary.label.ground" | "summary.label.noise" | "summary.label.transport"; res: CardResult }> = [
+    { id: "card-ground", icon: "mountain", label: "summary.label.ground", res: groundRes },
+    { id: "card-noise", icon: "sound", label: "summary.label.noise", res: noiseRes },
+    { id: "card-transport", icon: "bus", label: "summary.label.transport", res: transitRes },
+  ];
 
   return (
     <>
+      <nav className="status-tiles" aria-label={t("summary.label.overview")}>
+        {tiles.map((tile) => (
+          <a key={tile.id} href={`#${tile.id}`} className="status-tile" data-tone={tile.res.tone} onClick={openCard(tile.id)}>
+            <Icon name={tile.icon} />
+            <span className="tile-name">{t(tile.label)}</span>
+            <span className="tile-word">{tile.res.text}</span>
+          </a>
+        ))}
+      </nav>
+
       {gate === "inexact" && (
         <div className="alert" role="note">
           <Icon name="alert" />
@@ -107,35 +107,15 @@ export function ProfileBody({
         </div>
       )}
 
-      <div className="summary" aria-label={t("summary.label.coverage")}>
-        <div className="summary-chip" data-tone={groundValue.tone}>
-          <span className="label">{t("summary.label.ground")}:</span>
-          <span className="value">{groundValue.text}</span>
-        </div>
-        <div className="summary-chip" data-tone={noiseValue.tone}>
-          <span className="label">{t("summary.label.noise")}:</span>
-          <span className="value">{noiseValue.text}</span>
-        </div>
-        <div className="summary-chip" data-tone={transportValue.tone}>
-          <span className="label">{t("summary.label.transport")}:</span>
-          <span className="value">{transportValue.text}</span>
-        </div>
-        <div className="summary-chip">
-          <span className="label">{t("summary.label.coverage")}:</span>
-          <span className="value">{t("summary.coverage", { count: available, total })}</span>
-        </div>
-      </div>
+      <GroundCard check={ground} onRetry={onRetry} result={groundRes} />
+      <NoiseCard check={noise} onRetry={onRetry} result={noiseRes} />
+      <TransportCard check={transit} onRetry={onRetry} filter={filter} onFilter={onFilter} result={transitRes} />
+      <NeighbourhoodCard district={district} income={income} places={places} onRetry={onRetry} result={hoodRes} />
 
-      <GroundCard check={ground} onRetry={onRetry} />
-      <NoiseCard check={noise} onRetry={onRetry} />
-      <TransportCard check={transit} onRetry={onRetry} filter={filter} onFilter={onFilter} />
-      <NeighbourhoodCard district={district} income={income} places={places} onRetry={onRetry} />
-      <LocationCard check={location} onRetry={onRetry} />
-      <ComingSoonCard icon="building" title="card.brf.title" explain="card.brf.explain" />
-      <ComingSoonCard icon="leaf" title="card.energy.title" explain="card.energy.explain" />
-      <ComingSoonCard icon="tag" title="card.listings.title" explain="card.listings.explain" />
-      <ComingSoonCard icon="clipboard" title="card.inspection.title" explain="card.inspection.explain" />
-      <ComingSoonCard icon="wave" title="card.flood.title" explain="card.flood.explain" />
+      <p className="more-row">
+        {t("more.coming", { items: [t("more.brf"), t("more.energy"), t("more.inspection"), t("more.flood")].join(" · ") })}
+      </p>
     </>
   );
 }
+

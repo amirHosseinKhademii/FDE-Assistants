@@ -354,61 +354,11 @@ a.btn-secondary {
   cursor: pointer;
 }
 
-.tiles {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 32px;
-}
-
-.tile {
-  display: grid;
-  gap: 10px;
-  padding: 16px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-card);
-  background: var(--surface);
-  box-shadow: var(--shadow);
-}
-
-.tile .icon {
-  color: var(--accent);
-}
-
-.tile-label {
-  font-size: var(--fs-body);
-  font-weight: 600;
-}
-
 .footnote {
   margin-top: 32px;
   color: var(--muted);
   font-size: var(--fs-caption);
   text-align: center;
-}
-
-/* ---------- pills and summary ---------- */
-.pill {
-  --tone: var(--muted);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 28px;
-  padding: 0 10px;
-  border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--tone) 12%, var(--surface));
-  color: var(--tone);
-  font-size: var(--fs-caption);
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.pill::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: currentColor;
 }
 
 [data-tone="ok"] {
@@ -421,63 +371,6 @@ a.btn-secondary {
 
 [data-tone="warn"] {
   --tone: var(--warn);
-}
-
-[data-tone="soon"] {
-  --tone: var(--soon);
-}
-
-.summary {
-  display: flex;
-  gap: 8px;
-  margin: 0 calc(var(--gutter) * -1);
-  padding: 2px var(--gutter);
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.summary::-webkit-scrollbar {
-  display: none;
-}
-
-/* On a wide column the three chips wrap instead of scrolling sideways. */
-@media (min-width: 960px) {
-  .summary {
-    flex-wrap: wrap;
-    margin: 0;
-    padding: 2px 0;
-    overflow: visible;
-  }
-}
-
-.summary-chip {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: var(--tap);
-  padding: 0 14px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-pill);
-  background: var(--surface);
-  font-size: var(--fs-body);
-}
-
-.summary-chip .label {
-  color: var(--muted);
-}
-
-.summary-chip .value {
-  color: var(--text);
-  font-weight: 600;
-}
-
-.summary-chip[data-tone="ok"] .value {
-  color: var(--ok);
-}
-
-.summary-chip[data-tone="risk"] .value {
-  color: var(--risk);
 }
 
 .map-placeholder {
@@ -556,11 +449,6 @@ a.btn-secondary {
   border-radius: 12px;
   background: var(--accent-soft);
   color: var(--accent);
-}
-
-.card.is-soon .card-icon {
-  background: var(--surface-2);
-  color: var(--soon);
 }
 
 .card-title {
@@ -1249,4 +1137,74 @@ a.btn-secondary {
   .map-round {
     transition: none;
   }
+}
+
+/* Status words: colour only on the word, never on the card. */
+[data-tone="ok"] { --tone: var(--ok); }
+[data-tone="risk"] { --tone: var(--risk); }
+[data-tone="warn"] { --tone: var(--warn); }
+
+.status-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.status-tile {
+  display: grid;
+  gap: 4px;
+  min-height: var(--tap);
+  padding: 12px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  color: var(--text);
+  text-decoration: none;
+  box-shadow: var(--shadow);
+}
+
+.status-tile > .icon {
+  color: var(--muted);
+}
+
+.status-tile .tile-name {
+  color: var(--muted);
+  font-size: var(--fs-caption);
+}
+
+.status-tile .tile-word {
+  color: var(--tone, var(--text));
+  font-size: var(--fs-body);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.card {
+  scroll-margin-top: 80px;
+}
+
+.card-result {
+  margin-left: auto;
+  padding-left: 8px;
+  color: var(--muted);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  text-align: right;
+}
+
+.card-result[data-tone] {
+  color: var(--tone);
+}
+
+.more-row {
+  padding: 12px 16px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-card);
+  color: var(--muted);
+  font-size: var(--fs-caption);
+}
+
+/* Cards are one line until opened: the summary carries the word, the body the detail. */
+.card > summary {
+  min-height: 56px;
 }

@@ -2,27 +2,35 @@ import type { ReactNode } from "react";
 import { useLang } from "../lib/lang";
 import type { MessageKey } from "../lib/i18n";
 import { Icon, type IconName } from "./Icons";
-import { StatusPill, type CardStatus } from "./StatusPill";
+
+export type CardStatus = "checked" | "failed";
+export type Tone = "ok" | "warn" | "risk";
+export type CardResult = { text: string; tone?: Tone };
 
 /**
- * One card on the profile. A native <details> so it collapses without script,
- * opens by default unless it is "coming soon", and keeps its summary focusable.
+ * One card on the profile. Collapsed by default: the summary line is the icon,
+ * the title and one result word. Opening it shows one sentence, a few facts and
+ * the source. A native <details>, so it works without script and from the keyboard.
  */
 export function ProfileCard({
+  id,
   icon,
   title,
   explain,
-  status,
+  result,
+  status = "checked",
   children,
   reason,
   source,
   checkedAt,
   onRetry,
 }: {
+  id?: string;
   icon: IconName;
   title: MessageKey;
   explain: MessageKey;
-  status: CardStatus;
+  result?: CardResult;
+  status?: CardStatus;
   children?: ReactNode;
   reason?: MessageKey;
   source?: { name: string; href: string | null };
@@ -30,15 +38,18 @@ export function ProfileCard({
   onRetry?: () => void;
 }) {
   const { t } = useLang();
-  const soon = status === "soon";
   return (
-    <details className={`card${soon ? " is-soon" : ""}`} open={!soon}>
+    <details className="card" id={id} data-status={status}>
       <summary>
         <span className="card-icon">
           <Icon name={icon} />
         </span>
         <span className="card-title">{t(title)}</span>
-        <StatusPill status={status} />
+        {result && (
+          <span className="card-result" data-tone={result.tone}>
+            {result.text}
+          </span>
+        )}
         <Icon name="chevron" className="icon card-chevron" />
       </summary>
       <div className="card-body">
