@@ -8,5 +8,5 @@ export const MAPS_KEY: string = String(import.meta.env.VITE_GOOGLE_MAPS_API_KEY 
 
 export const HAS_MAPS_KEY = MAPS_KEY.length > 0;
 
-/** Bias for address suggestions: a box around Gothenburg. */
-export const GOTHENBURG_BOUNDS = { south: 57.55, west: 11.8, north: 57.85, east: 12.15 };
+/** Bias for address suggestions: 20 km around central Gothenburg. */
+export const GOTHENBURG_BIAS = { center: { lat: 57.7089, lng: 11.9746 }, radius: 20000 };

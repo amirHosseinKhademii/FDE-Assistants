@@ -7,6 +7,10 @@ export type Lang = "en" | "sv";
 const en = {
   "brand": "Bostad",
   "nav.language": "Language",
+  "nav.theme": "Theme",
+  "theme.light": "Light",
+  "theme.dark": "Dark",
+  "theme.system": "System",
 
   "home.title": "Know the home before you bid.",
   "home.subtitle": "Everything public about a Gothenburg address — risks, transport, and the housing association — in plain words.",
@@ -23,6 +27,9 @@ const en = {
   "search.placeholder": "Type an address in Gothenburg",
   "search.submit": "Search",
   "search.empty": "Type an address in Gothenburg first.",
+  "search.listLabel": "Address suggestions",
+  "search.recent": "Recent",
+  "search.example": "Example",
 
   "profile.newAddress": "New address",
   "profile.checkedNow": "Checked just now",
@@ -112,6 +119,10 @@ export type MessageKey = keyof typeof en;
 const sv: Record<MessageKey, string> = {
   "brand": "Bostad",
   "nav.language": "Språk",
+  "nav.theme": "Tema",
+  "theme.light": "Ljust",
+  "theme.dark": "Mörkt",
+  "theme.system": "System",
 
   "home.title": "Känn till bostaden innan du bjuder.",
   "home.subtitle": "Allt offentligt om en adress i Göteborg — risker, kollektivtrafik och bostadsrättsföreningen — med enkla ord.",
@@ -128,6 +139,9 @@ const sv: Record<MessageKey, string> = {
   "search.placeholder": "Skriv en adress i Göteborg",
   "search.submit": "Sök",
   "search.empty": "Skriv en adress i Göteborg först.",
+  "search.listLabel": "Adressförslag",
+  "search.recent": "Senaste",
+  "search.example": "Exempel",
 
   "profile.newAddress": "Ny adress",
   "profile.checkedNow": "Kontrollerad just nu",

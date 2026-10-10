@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Map, InfoWindow, Marker, useMap } from "@vis.gl/react-google-maps";
 import { useLang } from "../lib/lang";
 import { walkMinutes } from "../lib/format";
+import { useTheme } from "../lib/theme";
 
 export type MapStop = { id: string; name: string; lat: number; lon: number; distanceMeters: number };
 
@@ -24,12 +25,32 @@ const STOP_ICON = svgIcon(
     `<circle cx="8" cy="8" r="6" fill="${STOP_FILL}" stroke="#FFFFFF" stroke-width="2"/></svg>`,
 );
 
-/** Quieter base map: no POI labels, slightly desaturated greenery. */
-const MUTED_STYLE: google.maps.MapTypeStyle[] = [
+/** Quieter base map in both themes: no POI labels or transit icons. */
+const QUIET_RULES: google.maps.MapTypeStyle[] = [
   { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
   { featureType: "poi.business", stylers: [{ visibility: "off" }] },
   { featureType: "transit", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+];
+
+/** Light: slightly desaturated greenery on the warm base. */
+const LIGHT_STYLE: google.maps.MapTypeStyle[] = [
+  ...QUIET_RULES,
   { featureType: "landscape", stylers: [{ saturation: -25 }] },
+];
+
+/** Dark: a night base in the app's own greys, so the map sits in the page. */
+const DARK_STYLE: google.maps.MapTypeStyle[] = [
+  { elementType: "geometry", stylers: [{ color: "#1b2024" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#1b2024" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#8d959d" }] },
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#2b3238" }] },
+  { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#1b2024" }] },
+  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#37414a" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#0f1417" }] },
+  { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#161b1e" }] },
+  { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#1a2a25" }] },
+  { featureType: "transit", elementType: "geometry", stylers: [{ color: "#22282d" }] },
+  ...QUIET_RULES,
 ];
 
 /** Fits the view to every point; a single point gets a fixed street-level zoom. */
@@ -57,7 +78,9 @@ function FitBounds({ points }: { points: google.maps.LatLngLiteral[] }) {
  */
 export function GoogleMap({ house, stops }: { house: { lat: number; lon: number }; stops: MapStop[] }) {
   const { t } = useLang();
+  const { effective } = useTheme();
   const [selected, setSelected] = useState<MapStop | null>(null);
+  const styles = effective === "dark" ? DARK_STYLE : LIGHT_STYLE;
 
   const gesture: "cooperative" | "auto" =
     typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches ? "cooperative" : "auto";
@@ -74,7 +97,7 @@ export function GoogleMap({ house, stops }: { house: { lat: number; lon: number 
         defaultCenter={houseAt}
         defaultZoom={15}
         gestureHandling={gesture}
-        styles={MUTED_STYLE}
+        styles={styles}
         clickableIcons={false}
         mapTypeControl={false}
         streetViewControl={false}

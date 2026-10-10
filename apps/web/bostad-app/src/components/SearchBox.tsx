@@ -3,13 +3,15 @@ import { useLang } from "../lib/lang";
 import { ADDRESS_MAX_LENGTH } from "../lib/address";
 import { HAS_MAPS_KEY } from "../lib/maps";
 import { Icon } from "./Icons";
-import { PlacesAutocomplete } from "./PlacesAutocomplete";
+import { AddressInput, MapsAddressInput } from "./AddressInput";
 
 export const SEARCH_INPUT_ID = "address-search";
 
 /**
  * The address box. An empty submit shows a hint and makes no request. `initial`
- * follows the URL, so a shared link fills the box it was opened with.
+ * follows the URL, so a shared link fills the box it was opened with. With a
+ * Maps key the box also offers live suggestions; without one it still offers
+ * recent searches and the examples.
  */
 export function SearchBox({
   initial,
@@ -37,38 +39,30 @@ export function SearchBox({
     onSearch(trimmed);
   }
 
+  const shared = {
+    inputId: SEARCH_INPUT_ID,
+    value,
+    placeholder: t("search.placeholder"),
+    maxLength: ADDRESS_MAX_LENGTH,
+    invalid: empty,
+    describedBy: empty ? `${SEARCH_INPUT_ID}-hint` : undefined,
+    onChange: (next: string) => {
+      setValue(next);
+      if (empty) setEmpty(false);
+    },
+    onPick: (address: string) => {
+      setValue(address);
+      setEmpty(false);
+      onSearch(address);
+    },
+  };
+
   return (
     <form className={`search${compact ? " compact" : ""}`} role="search" onSubmit={submit}>
       <label className="sr-only" htmlFor={SEARCH_INPUT_ID}>
         {t("search.label")}
       </label>
-      <input
-        id={SEARCH_INPUT_ID}
-        name="address"
-        type="text"
-        autoComplete="off"
-        enterKeyHint="search"
-        placeholder={t("search.placeholder")}
-        maxLength={ADDRESS_MAX_LENGTH}
-        value={value}
-        aria-invalid={empty || undefined}
-        aria-describedby={empty ? `${SEARCH_INPUT_ID}-hint` : undefined}
-        onChange={(e) => {
-          setValue(e.target.value);
-          if (empty) setEmpty(false);
-        }}
-      />
-      {HAS_MAPS_KEY && (
-        <PlacesAutocomplete
-          inputId={SEARCH_INPUT_ID}
-          value={value}
-          onPlace={(address) => {
-            setValue(address);
-            setEmpty(false);
-            onSearch(address);
-          }}
-        />
-      )}
+      {HAS_MAPS_KEY ? <MapsAddressInput {...shared} /> : <AddressInput {...shared} places={null} />}
       <button type="submit" className="btn-primary" aria-label={t("search.submit")}>
         {compact ? <Icon name="search" /> : t("search.submit")}
       </button>

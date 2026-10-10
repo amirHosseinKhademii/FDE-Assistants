@@ -11,7 +11,6 @@ html {
   -webkit-text-size-adjust: 100%;
   background: var(--bg);
   color: var(--text);
-  color-scheme: light;
 }
 
 body {
@@ -109,6 +108,30 @@ input {
   text-decoration: none;
 }
 
+.topbar-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.theme-toggle {
+  display: grid;
+  place-items: center;
+  width: var(--tap);
+  height: var(--tap);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.theme-toggle .icon {
+  width: 20px;
+  height: 20px;
+}
+
 .lang {
   display: inline-flex;
   padding: 3px;
@@ -147,36 +170,66 @@ input {
   position: relative;
 }
 
+/* The input and its dropdown: the dropdown floats under the input, not the row. */
+.combo {
+  position: relative;
+  display: flex;
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.combo input {
+  flex: 1;
+  width: 100%;
+}
+
 .place-suggest {
-  flex-basis: 100%;
-  order: 3;
-  margin: -2px 0 0;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  left: 0;
+  z-index: 20;
+  max-height: 60vh;
+  overflow-y: auto;
+  margin: 0;
   padding: 4px;
   list-style: none;
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
-  background: #fff;
-  box-shadow: 0 8px 24px rgba(30, 35, 40, 0.12);
+  background: var(--surface);
+  box-shadow: var(--shadow-pop);
 }
 
-.place-suggest button {
-  display: block;
-  width: 100%;
-  min-height: 44px;
-  padding: 10px 12px;
-  border: 0;
-  border-radius: 8px;
-  background: none;
-  font: inherit;
-  font-size: 15px;
-  color: var(--text);
-  text-align: left;
+.place-suggest li {
+  display: grid;
+  gap: 2px;
+  min-height: var(--tap);
+  padding: 8px 12px;
+  border-radius: 10px;
   cursor: pointer;
+  font-size: var(--fs-body);
+  color: var(--text);
 }
 
-.place-suggest button.is-active,
-.place-suggest button:hover {
+.place-suggest li.is-active,
+.place-suggest li:hover {
   background: var(--accent-soft);
+}
+
+.place-suggest .sugg-main {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.place-suggest mark {
+  background: none;
+  color: var(--accent);
+  font-weight: 800;
+}
+
+.place-suggest .sugg-sub {
+  color: var(--muted);
+  font-size: var(--fs-caption);
 }
 
 .search .hint {
@@ -217,7 +270,7 @@ input {
   border: 0;
   border-radius: var(--radius-card);
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   font-size: var(--fs-body);
   font-weight: 600;
   cursor: pointer;
@@ -453,6 +506,23 @@ a.btn-secondary {
   inset: 0;
 }
 
+/* Google paints the InfoWindow frame itself; keep it on the theme's surface. */
+.gmap .gm-style .gm-style-iw-c,
+.gmap .gm-style .gm-style-iw-t::after,
+.gmap .gm-style .gm-style-iw-tc::after {
+  background: var(--surface) !important;
+  color: var(--text);
+  box-shadow: var(--shadow-pop);
+}
+
+.gmap .gm-style .gm-style-iw-d {
+  overflow: hidden !important;
+}
+
+.gmap .gm-ui-hover-effect > span {
+  background-color: var(--muted) !important;
+}
+
 .map-info {
   display: grid;
   gap: 2px;
@@ -645,7 +715,7 @@ a.btn-secondary {
 
 .skeleton {
   border-radius: var(--radius-card);
-  background: linear-gradient(90deg, var(--surface-2) 0%, #F9F8F5 50%, var(--surface-2) 100%);
+  background: linear-gradient(90deg, var(--surface-2) 0%, var(--shimmer) 50%, var(--surface-2) 100%);
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
 }

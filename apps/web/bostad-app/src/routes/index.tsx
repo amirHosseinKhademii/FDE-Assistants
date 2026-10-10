@@ -6,6 +6,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ADDRESS_MAX_LENGTH } from "../lib/address";
 import { HomeView } from "../components/HomeView";
 import { ProfileView } from "../components/ProfileView";
+import { addRecent } from "../lib/recents";
 
 export const Route = createFileRoute("/")({
   validateSearch: (search: Record<string, unknown>): { address?: string } => {
@@ -18,7 +19,10 @@ export const Route = createFileRoute("/")({
 function Page() {
   const { address } = Route.useSearch();
   const navigate = useNavigate();
-  const search = (next: string) => navigate({ to: "/", search: { address: next } });
+  const search = (next: string) => {
+    addRecent(next);
+    navigate({ to: "/", search: { address: next } });
+  };
 
   return address ? <ProfileView address={address} onSearch={search} /> : <HomeView onSearch={search} />;
 }

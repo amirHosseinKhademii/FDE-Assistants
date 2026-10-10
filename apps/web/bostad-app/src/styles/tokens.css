@@ -1,8 +1,11 @@
 /*
- * Calm Nordic tokens. Light only for v1 (dark mode is out of scope).
+ * Calm Nordic tokens. Light is the default; dark follows the system or the
+ * visitor's choice (data-theme on <html>, set by the inline script in __root).
  * Every colour a component uses is named here, so changing the look is one edit.
  */
-:root {
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
   --bg: #F7F6F3;
   --surface: #FFFFFF;
   --surface-2: #EFEDE8;
@@ -11,11 +14,61 @@
   --line: #E3E0DA;
   --accent: #2F6F62;
   --accent-soft: #E3EFEC;
+  --on-accent: #FFFFFF;
   --ok: #2F7D4F;
   --warn: #A86A12;
   --risk: #B4443C;
   --soon: #6B6F8A;
+  --shimmer: #F9F8F5;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --shadow-pop: 0 8px 24px rgba(30, 35, 40, 0.12);
+}
 
+/* Dark values. Written twice on purpose: the media query covers "system"
+   (no data-theme attribute), the attribute selector covers an explicit choice. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #121416;
+    --surface: #1B1F22;
+    --surface-2: #252A2E;
+    --text: #E8EAEC;
+    --muted: #A3AAB2;
+    --line: #2E3439;
+    --accent: #5FB3A1;
+    --accent-soft: #1F3A35;
+    --on-accent: #0E1A17;
+    --ok: #5CC08A;
+    --warn: #E0A84A;
+    --risk: #E8756C;
+    --soon: #9DA1C0;
+    --shimmer: #202427;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 4px 16px rgba(0, 0, 0, 0.25);
+    --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.45);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121416;
+  --surface: #1B1F22;
+  --surface-2: #252A2E;
+  --text: #E8EAEC;
+  --muted: #A3AAB2;
+  --line: #2E3439;
+  --accent: #5FB3A1;
+  --accent-soft: #1F3A35;
+  --on-accent: #0E1A17;
+  --ok: #5CC08A;
+  --warn: #E0A84A;
+  --risk: #E8756C;
+  --soon: #9DA1C0;
+  --shimmer: #202427;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 4px 16px rgba(0, 0, 0, 0.25);
+  --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+:root {
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
   --fs-hero: 28px;
   --fs-title: 22px;
@@ -26,7 +79,6 @@
 
   --radius-card: 16px;
   --radius-pill: 999px;
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
   --tap: 44px;
   --gutter: 16px;
 }

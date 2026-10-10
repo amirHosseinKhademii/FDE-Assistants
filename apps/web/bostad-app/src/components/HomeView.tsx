@@ -2,9 +2,9 @@ import { useEffect } from "react";
 import { useLang } from "../lib/lang";
 import { Icon, type IconName } from "./Icons";
 import { SearchBox } from "./SearchBox";
+import { EXAMPLE_ADDRESSES, exampleQuery } from "../lib/recents";
 import { TopBar } from "./TopBar";
 
-const EXAMPLES = ["Djurgårdsgatan 23 A", "Linnégatan 1", "Kungsportsavenyen 10"];
 
 const TILES: Array<{ icon: IconName; label: "home.tile.ground" | "home.tile.transport" | "home.tile.brf" | "home.tile.energy"; soon: boolean }> = [
   { icon: "mountain", label: "home.tile.ground", soon: false },
@@ -34,8 +34,8 @@ export function HomeView({ onSearch }: { onSearch: (address: string) => void }) 
       <div className="examples">
         <span className="caption">{t("home.examples")}</span>
         <div className="chips">
-          {EXAMPLES.map((address) => (
-            <button key={address} type="button" className="chip" onClick={() => onSearch(`${address}, Göteborg`)}>
+          {EXAMPLE_ADDRESSES.map((address) => (
+            <button key={address} type="button" className="chip" onClick={() => onSearch(exampleQuery(address))}>
               {address}
             </button>
           ))}

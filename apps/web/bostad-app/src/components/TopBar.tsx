@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useLang } from "../lib/lang";
 import { LangToggle } from "./LangToggle";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function TopBar() {
   const { t } = useLang();
@@ -9,7 +10,10 @@ export function TopBar() {
       <Link to="/" className="wordmark">
         {t("brand")}
       </Link>
-      <LangToggle />
+      <div className="topbar-actions">
+        <LangToggle />
+        <ThemeToggle />
+      </div>
     </header>
   );
 }
