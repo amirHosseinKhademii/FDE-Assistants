@@ -2827,3 +2827,131 @@ html[data-streetview="open"] .float-search {
   height: 1px;
   background: var(--line);
 }
+
+/* ---------- buy | rent switch and rent card ---------- */
+.mode {
+  display: inline-flex;
+  align-self: start;
+  margin-top: 16px;
+  padding: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+}
+
+.mode-option {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  padding: 0 20px;
+  border-radius: var(--radius-pill);
+  color: var(--muted);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.mode-option[aria-current="page"] {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+.mode-option:focus-visible,
+.rent-field input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.rent-card .card-body {
+  padding-top: 16px;
+}
+
+.rent-section {
+  display: grid;
+  gap: 10px;
+  padding: 16px 0;
+  border-top: 1px solid var(--line);
+}
+
+.rent-section:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.rent-heading {
+  margin: 0;
+  font-size: var(--fs-body-lg);
+  font-weight: 600;
+}
+
+.rent-big {
+  margin: 0;
+  font-size: var(--fs-body-lg);
+  font-weight: 600;
+}
+
+.rent-fields {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 560px) {
+  .rent-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.rent-field {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: var(--fs-caption);
+}
+
+.rent-field input {
+  width: 100%;
+  min-height: var(--tap);
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 16px;
+}
+
+.rent-result {
+  display: grid;
+  gap: 6px;
+  font-size: var(--fs-body);
+}
+
+.rent-result p {
+  margin: 0;
+}
+
+.rent-verdict {
+  font-weight: 600;
+}
+
+.rent-verdict.is-above {
+  color: var(--warn);
+}
+
+.rent-verdict.is-farBelow {
+  color: var(--risk);
+}
+
+.rent-verdict.is-close,
+.rent-verdict.is-below {
+  color: var(--ok);
+}
+
+.rent-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

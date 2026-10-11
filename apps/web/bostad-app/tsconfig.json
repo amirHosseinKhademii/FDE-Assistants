@@ -7,6 +7,9 @@
     "strict": true,
     "skipLibCheck": true,
     "noEmit": true,
+    "paths": {
+      "@bostad/property/rent-benchmark": ["../../../packages/bostad/src/sources/rent-benchmark.ts"]
+    },
     "types": ["vite/client", "google.maps"]
   },
   "include": ["src", "vite.config.ts"]

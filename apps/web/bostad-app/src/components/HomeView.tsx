@@ -3,6 +3,7 @@ import { useLang } from "../lib/lang";
 import { SearchBox } from "./SearchBox";
 import { RecentSearches } from "./RecentSearches";
 import { TopBar } from "./TopBar";
+import { ModeSwitch } from "./ModeSwitch";
 
 export function HomeView({ onSearch }: { onSearch: (address: string) => void }) {
   const { t } = useLang();
@@ -14,6 +15,7 @@ export function HomeView({ onSearch }: { onSearch: (address: string) => void }) 
   return (
     <div className="wrap home">
       <TopBar />
+      <ModeSwitch mode="buy" />
 
       <section className="hero">
         <h1>{t("home.title")}</h1>

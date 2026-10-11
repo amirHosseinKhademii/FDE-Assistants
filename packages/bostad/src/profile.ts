@@ -22,6 +22,7 @@ export type { PlaceCategory, PlaceItem, PlacesResult } from "./sources/places";
 export type { SafetyKey, SafetyResult, SafetyYear, SafetyFigure } from "./sources/safety";
 export type { LatLng } from "./sources/crime";
 export type { NeighbourhoodResult, CrimeGroup } from "./sources/neighbourhood";
+export { RENT_BENCHMARK } from "./sources/rent-benchmark";
 
 export type SectionStatus = "ok" | "error" | "unavailable";
 

@@ -17,6 +17,11 @@ import tailwindcss from '@tailwindcss/vite';
 import { fileURLToPath } from 'node:url';
 
 const PROPERTY_SOURCE = fileURLToPath(new URL('../../../packages/bostad/src/profile.ts', import.meta.url));
+/**
+ * The rent benchmark is a constant with no imports. The browser imports this one file,
+ * not the package root, because the root pulls in server-only modules (fs, the data folder).
+ */
+const RENT_BENCHMARK_SOURCE = fileURLToPath(new URL('../../../packages/bostad/src/sources/rent-benchmark.ts', import.meta.url));
 const DOMAIN_EXTERNALS = ['dotenv'];
 
 export default defineConfig({
@@ -28,7 +33,10 @@ export default defineConfig({
   envDir: fileURLToPath(new URL('../../..', import.meta.url)),
 
   resolve: {
-    alias: { '@bostad/property': PROPERTY_SOURCE },
+    alias: {
+      '@bostad/property/rent-benchmark': RENT_BENCHMARK_SOURCE,
+      '@bostad/property': PROPERTY_SOURCE,
+    },
   },
 
   plugins: [
