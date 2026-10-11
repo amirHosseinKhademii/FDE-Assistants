@@ -3,42 +3,260 @@
     "name": "HSB Brf Sörgården i Göteborg",
     "org_nr": "757200-9087",
     "year": 2023,
-    "addresses": ["Barytongatan 5A", "Barytongatan 7A", "Barytongatan 9", "Barytongatan 18", "Barytongatan 24", "Barytongatan 28", "Tenorgatan 8"],
+    "addresses": [
+      "Barytongatan 5A",
+      "Barytongatan 7A",
+      "Barytongatan 9",
+      "Barytongatan 18",
+      "Barytongatan 24",
+      "Barytongatan 28",
+      "Tenorgatan 8"
+    ],
     "source_url": "https://www.hsb.se/contentassets/20871446109741329347762f32f0b7f3/arsredovisning-hsbs-brf-sorgarden-i-goteborg-2023.pdf",
     "figures": {
-      "debt_per_sqm": { "value": 2103, "page": 2 },
-      "annual_fee_per_sqm": { "value": 707, "page": 4 },
-      "interest_cost": { "value": -904676, "page": 11 },
+      "debt_per_sqm": {
+        "value": 2103,
+        "page": 2
+      },
+      "annual_fee_per_sqm": {
+        "value": 707,
+        "page": 4
+      },
+      "interest_cost": {
+        "value": -904676,
+        "page": 11
+      },
       "planned_maintenance": null,
-      "auditor_remarks": { "value": "none", "page": 19 }
+      "auditor_remarks": {
+        "value": "none",
+        "page": 19
+      }
     }
   },
   {
     "name": "Brf Chalmersgatan i Göteborg",
     "org_nr": "716444-4593",
     "year": 2023,
-    "addresses": ["Chalmersgatan 27"],
+    "addresses": [
+      "Chalmersgatan 27"
+    ],
     "source_url": "https://www.bjurfors.se/contentassets/0f5051f60f414103a3a791f1523c6398/brf-chalmersgatan-i-goteborg-716444-4593---arsredovisning-2023.pdf",
     "figures": {
-      "debt_per_sqm": null,
-      "annual_fee_per_sqm": { "value": 515, "page": 8 },
-      "interest_cost": { "value": -1220176, "page": 10 },
+      "debt_per_sqm": {
+        "value": 8716,
+        "page": 8,
+        "quote": "8 716",
+        "basis": "per m² of flat (bostadsrätt) area"
+      },
+      "annual_fee_per_sqm": {
+        "value": 515,
+        "page": 8
+      },
+      "interest_cost": {
+        "value": -1220176,
+        "page": 10
+      },
       "planned_maintenance": null,
-      "auditor_remarks": { "value": "remark", "page": 24, "quote": "Jag anmärker på att avgiftsuttaget inte är tillräckligt för att uppfylla stadgarna" }
+      "auditor_remarks": {
+        "value": "remark",
+        "page": 24,
+        "quote": "Jag anmärker på att avgiftsuttaget inte är tillräckligt för att uppfylla stadgarna"
+      }
     }
   },
   {
     "name": "Brf Kronjuvelen i Göteborg",
     "org_nr": "769637-1223",
     "year": 2025,
-    "addresses": ["Bratteråsgatan 40"],
+    "addresses": [
+      "Bratteråsgatan 40"
+    ],
     "source_url": "https://nyakvadrat.se/wp-content/uploads/2026/09/Arsredovisning-2025-4.pdf",
     "figures": {
-      "debt_per_sqm": { "value": 16838, "page": 9 },
-      "annual_fee_per_sqm": { "value": 932, "page": 9 },
-      "interest_cost": { "value": -7306685, "page": 11 },
+      "debt_per_sqm": {
+        "value": 16838,
+        "page": 9
+      },
+      "annual_fee_per_sqm": {
+        "value": 932,
+        "page": 9
+      },
+      "interest_cost": {
+        "value": -7306685,
+        "page": 11
+      },
       "planned_maintenance": null,
-      "auditor_remarks": { "value": "none", "page": 25, "quote": "Enligt vår uppfattning har årsredovisningen upprättats i enlighet med årsredovisningslagen och ger en i alla väsentliga avseenden rättvisande bild" }
+      "auditor_remarks": {
+        "value": "none",
+        "page": 25,
+        "quote": "Enligt vår uppfattning har årsredovisningen upprättats i enlighet med årsredovisningslagen och ger en i alla väsentliga avseenden rättvisande bild"
+      }
+    }
+  },
+  {
+    "name": "HSB Brf Seglaren i Göteborg",
+    "org_nr": "757202-6941",
+    "year": 2024,
+    "addresses": [
+      "Seglaregatan 4",
+      "Seglaregatan 23"
+    ],
+    "source_url": "https://www.hsb.se/contentassets/3fafc0b3feb746a6a86ccda3dca72574/arsredovisning-2023-2024.pdf",
+    "figures": {
+      "debt_per_sqm": {
+        "value": 2834,
+        "page": 12,
+        "quote": "Skuldsättning bostadsrättsyta, kr/kvm 2 834",
+        "basis": "per m² of flat (bostadsrätt) area"
+      },
+      "annual_fee_per_sqm": {
+        "value": 1162,
+        "page": 12,
+        "quote": "Årsavgifter, kr/kvm 1 162"
+      },
+      "interest_cost": {
+        "value": -1176009,
+        "page": 14,
+        "quote": "Räntekostnader och liknande resultatposter Not 9 -1 176 009"
+      },
+      "planned_maintenance": null,
+      "auditor_remarks": {
+        "value": "no remarks",
+        "page": 26,
+        "quote": "Vi tillstyrker därför att föreningsstämman"
+      }
+    }
+  },
+  {
+    "name": "HSB Brf Linné i Göteborg",
+    "org_nr": "716408-6634",
+    "year": 2025,
+    "addresses": [
+      "Sveagatan 29"
+    ],
+    "source_url": "https://www.hsb.se/contentassets/8cfd5a283856484995c41b100c068ce1/arsredovisning-brf-linne-2025.pdf",
+    "figures": {
+      "debt_per_sqm": {
+        "value": 4148,
+        "page": 7,
+        "quote": "Skuldsättning bostadsrättsyta, kr/kvm 4 148",
+        "basis": "per m² of flat (bostadsrätt) area"
+      },
+      "annual_fee_per_sqm": {
+        "value": 815,
+        "page": 7,
+        "quote": "Årsavgifter, kr/kvm 815"
+      },
+      "interest_cost": {
+        "value": -2190515,
+        "page": 9,
+        "quote": "Räntekostnader och liknande resultatposter Not 9 -2 190 515"
+      },
+      "planned_maintenance": null,
+      "auditor_remarks": {
+        "value": "no remarks",
+        "page": 21,
+        "quote": "Enligt vår uppfattning har årsredovisningen upprättats"
+      }
+    }
+  },
+  {
+    "name": "HSB Brf Ada i Göteborg",
+    "org_nr": "716444-0799",
+    "year": 2024,
+    "addresses": [
+      "Haga Östergata 22"
+    ],
+    "source_url": "https://www.hsb.se/contentassets/604f87bac60e4923b969040db18ee657/2154-ar24.pdf",
+    "figures": {
+      "debt_per_sqm": {
+        "value": 4831,
+        "page": 5,
+        "quote": "Skuldsättning bostadsrättsyta, kr/kvm 4 831",
+        "basis": "per m² of flat (bostadsrätt) area"
+      },
+      "annual_fee_per_sqm": {
+        "value": 668,
+        "page": 5,
+        "quote": "Årsavgifter, kr/kvm 668"
+      },
+      "interest_cost": {
+        "value": -846752,
+        "page": 8,
+        "quote": "Räntekostnader och liknande resultatposter Not 9 -846 752"
+      },
+      "planned_maintenance": null,
+      "auditor_remarks": {
+        "value": "no remarks",
+        "page": 18,
+        "quote": "Enligt vår uppfattning har årsredovisningen upprättats"
+      }
+    }
+  },
+  {
+    "name": "HSB Brf Bäckebol i Göteborg",
+    "org_nr": "757202-7204",
+    "year": 2024,
+    "addresses": [
+      "Gösta Berlings gata 32"
+    ],
+    "source_url": "https://www.hsb.se/contentassets/5082e3152df044599b558e681fa27941/arsredovisning-backebol-2024.pdf",
+    "figures": {
+      "debt_per_sqm": {
+        "value": 6342,
+        "page": 8,
+        "quote": "Skuldsättning bostadsrättsyta, kr/kvm 6 342",
+        "basis": "per m² of flat (bostadsrätt) area"
+      },
+      "annual_fee_per_sqm": {
+        "value": 1020,
+        "page": 1,
+        "quote": "1 020"
+      },
+      "interest_cost": {
+        "value": -9277715,
+        "page": 10,
+        "quote": "Räntekostnader och liknande resultatposter Not 9 -9 277 715"
+      },
+      "planned_maintenance": null,
+      "auditor_remarks": {
+        "value": "no remarks",
+        "page": 21,
+        "quote": "Enligt vår uppfattning har årsredovisningen upprättats"
+      }
+    }
+  },
+  {
+    "name": "HSB Brf Linjalen i Göteborg",
+    "org_nr": "757200-9129",
+    "year": 2024,
+    "addresses": [
+      "Västra Stillestorpsgatan 21"
+    ],
+    "source_url": "https://www.hsb.se/contentassets/3453d18c6f6149c0b22a07a3f652b0e6/arsredovisning-linjalen-2024.pdf",
+    "figures": {
+      "debt_per_sqm": {
+        "value": 4895,
+        "page": 8,
+        "quote": "Skuldsättning bostadsrättsyta, kr/kvm 4 895",
+        "basis": "per m² of flat (bostadsrätt) area"
+      },
+      "annual_fee_per_sqm": {
+        "value": 947,
+        "page": 1,
+        "quote": "947"
+      },
+      "interest_cost": {
+        "value": -2779972,
+        "page": 10,
+        "quote": "Räntekostnader och liknande resultatposter Not 8 -2 779 972"
+      },
+      "planned_maintenance": null,
+      "auditor_remarks": {
+        "value": "no remarks",
+        "page": 21,
+        "quote": "Enligt vår uppfattning har årsredovisningen upprättats"
+      }
     }
   }
 ]
