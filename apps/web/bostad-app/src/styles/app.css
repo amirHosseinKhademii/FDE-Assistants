@@ -2946,3 +2946,106 @@ html[data-streetview="open"] .float-search {
   padding: 0;
   list-style: none;
 }
+
+/* "Ask about this address" (AskCard.tsx) */
+.ask-form {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.ask-form input {
+  flex: 1;
+  min-width: 0;
+  height: var(--tap);
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--fs-body);
+}
+
+.ask-form input::placeholder {
+  color: var(--muted);
+}
+
+.ask-form input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 0;
+  border-color: var(--accent);
+}
+
+.ask-form .btn-primary {
+  min-height: var(--tap);
+}
+
+.ask-hint,
+.ask-status {
+  margin: 0;
+  font-size: var(--fs-body);
+}
+
+.ask-answer {
+  display: grid;
+  gap: 12px;
+}
+
+.ask-text {
+  margin: 0;
+  font-size: var(--fs-body-lg);
+}
+
+.ask-heading {
+  margin: 4px 0 0;
+  font-size: var(--fs-body);
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.ask-facts,
+.ask-missing {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0 0 0 18px;
+  font-size: var(--fs-body);
+}
+
+.ask-facts {
+  padding: 0;
+  list-style: none;
+}
+
+.ask-fact {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px 12px;
+}
+
+.ask-claim {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.ask-chip {
+  padding: 2px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  color: var(--muted);
+  font-size: var(--fs-caption);
+  white-space: nowrap;
+}
+
+.ask-checks {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: var(--fs-caption);
+}
+
+.ask-notice {
+  margin: 6px 4px 0;
+  font-size: var(--fs-caption);
+}

@@ -9,6 +9,7 @@
     "start": "node dist/server/server.js"
   },
   "dependencies": {
+    "@bostad/ai": "workspace:*",
     "@bostad/property": "workspace:*",
     "@fde/uikit": "workspace:*",
     "@tanstack/react-router": "^1.170.35",

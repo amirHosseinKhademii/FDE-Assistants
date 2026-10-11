@@ -535,6 +535,9 @@ importers:
 
   apps/web/bostad-app:
     dependencies:
+      '@bostad/ai':
+        specifier: workspace:*
+        version: link:../../ai/bostad
       '@bostad/property':
         specifier: workspace:*
         version: link:../../../packages/bostad

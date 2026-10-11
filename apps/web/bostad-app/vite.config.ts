@@ -22,7 +22,12 @@ const PROPERTY_SOURCE = fileURLToPath(new URL('../../../packages/bostad/src/prof
  * not the package root, because the root pulls in server-only modules (fs, the data folder).
  */
 const RENT_BENCHMARK_SOURCE = fileURLToPath(new URL('../../../packages/bostad/src/sources/rent-benchmark.ts', import.meta.url));
-const DOMAIN_EXTERNALS = ['dotenv'];
+/**
+ * @bostad/ai is the "Ask about this address" judgement layer, compiled to CommonJS dist/ like
+ * @vantis/steering. Left to Node, so its own @fde/* and OpenAI dependencies resolve the way they do
+ * when the CLI runs them, and not through Vite's bundler.
+ */
+const DOMAIN_EXTERNALS = ['dotenv', '@bostad/ai'];
 
 export default defineConfig({
   /**

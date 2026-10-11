@@ -15,3 +15,9 @@ export {
   type GetProfileSectionResult,
   type ProfileLoader,
 } from './tools/get-profile-section';
+export {
+  askAddress,
+  type AddressAskResult,
+  type AskOptions,
+  type AskUsage,
+} from './agent/ask';

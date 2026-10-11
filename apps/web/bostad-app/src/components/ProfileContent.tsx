@@ -10,6 +10,7 @@ import { LEVEL_ARROW, SafetyCard } from "./SafetyCard";
 import { LEVEL_ICON } from "./Badges";
 import { LEVEL_TONE, levelOf, pctDiff } from "../lib/safety";
 import { RentCard } from "./RentCard";
+import { AskCard } from "./AskCard";
 import type { AppMode } from "./ModeSwitch";
 import type { PlacesFilter } from "./placeFilter";
 import type { CardResult, Tone } from "./ProfileCard";
@@ -237,6 +238,7 @@ export function ProfileBody({
         result={placesRes}
       />
       <GroundCard check={ground} onRetry={onRetry} result={groundRes} />
+      <AskCard key={profile.address} address={profile.address} />
 
       <p className="more-row">
         {t("more.coming", {
