@@ -174,7 +174,8 @@ export function ProfileBody({
     ? {
         text: t("area.summary.income", { level: t(`level.${incomeLevel}` as MessageKey) }),
         short: t(`chip.level.${incomeLevel}` as MessageKey),
-        tone: incomeLevel === "high" || incomeLevel === "aboveAverage" ? "accent" : incomeLevel === "average" ? "neutral" : "warn",
+        // Price level is not good or bad for a buyer, so the tile stays neutral grey whatever the level.
+        tone: "muted",
         icon: LEVEL_ICON[incomeLevel],
       }
     : uncheckedResult(t);
