@@ -14,7 +14,7 @@ import { TopBar } from "./TopBar";
 import { HeroPhoto } from "./HeroPhoto";
 import { BottomSheet, type SheetMode } from "./BottomSheet";
 import { FloatingSearch } from "./FloatingSearch";
-import { ModeSwitch, type AppMode } from "./ModeSwitch";
+import type { AppMode } from "./ModeSwitch";
 
 const NO_STOPS: never[] = [];
 const NO_PLACES: PlaceItem[] = [];
@@ -142,7 +142,6 @@ export function ProfileView({ address, appMode = "buy", onSearch }: { address: s
         />
 
         <BottomSheet mode={mode} onMode={setMode}>
-          <ModeSwitch mode={appMode} address={address} />
           {coords && <HeroPhoto lat={coords.lat} lon={coords.lon} address={address} />}
           <AddressHeader address={address} profile={profile} />
           {loading && <ProfileSkeleton />}
