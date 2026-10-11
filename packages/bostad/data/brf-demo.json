@@ -26,5 +26,19 @@
       "planned_maintenance": null,
       "auditor_remarks": { "value": "remark", "page": 24, "quote": "Jag anmärker på att avgiftsuttaget inte är tillräckligt för att uppfylla stadgarna" }
     }
+  },
+  {
+    "name": "Brf Kronjuvelen i Göteborg",
+    "org_nr": "769637-1223",
+    "year": 2025,
+    "addresses": ["Bratteråsgatan 40"],
+    "source_url": "https://nyakvadrat.se/wp-content/uploads/2026/09/Arsredovisning-2025-4.pdf",
+    "figures": {
+      "debt_per_sqm": { "value": 16838, "page": 9 },
+      "annual_fee_per_sqm": { "value": 932, "page": 9 },
+      "interest_cost": { "value": -7306685, "page": 11 },
+      "planned_maintenance": null,
+      "auditor_remarks": { "value": "none", "page": 25, "quote": "Enligt vår uppfattning har årsredovisningen upprättats i enlighet med årsredovisningslagen och ger en i alla väsentliga avseenden rättvisande bild" }
+    }
   }
 ]
