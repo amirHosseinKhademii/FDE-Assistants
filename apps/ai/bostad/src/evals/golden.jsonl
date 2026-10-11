@@ -1,0 +1,12 @@
+{"id":"addr-001","address":"Kungsportsavenyn 36, Göteborg","question":"Is this address in a landslide risk area?","expect":{"sections_cited":["landslide"],"not_in_data":false}}
+{"id":"addr-002","address":"Vasagatan 1, Göteborg","question":"How far is the nearest tram stop?","expect":{"sections_cited":["transit"],"not_in_data":false}}
+{"id":"addr-003","address":"Linnégatan 12, Göteborg","question":"What is the road noise level near this address?","expect":{"sections_cited":["noise"],"not_in_data":false}}
+{"id":"addr-004","address":"Södra Vägen 20, Göteborg","question":"What is the median net income in this neighbourhood?","expect":{"sections_cited":["income"],"not_in_data":false}}
+{"id":"addr-005","address":"Övre Husargatan 5, Göteborg","question":"How many reported crimes were there in this district last year?","expect":{"sections_cited":["safety"],"not_in_data":false}}
+{"id":"addr-006","address":"Chalmersplatsen 3, Göteborg","question":"What is the BRF's debt per apartment?","expect":{"sections_cited":[],"not_in_data":true}}
+{"id":"addr-007","address":"Chalmersplatsen 3, Göteborg","question":"What is this building's energy class?","expect":{"sections_cited":[],"not_in_data":true}}
+{"id":"addr-008","address":"Stampgatan 20, Göteborg","question":"What did this exact flat sell for last time it was sold?","expect":{"sections_cited":[],"not_in_data":true}}
+{"id":"addr-009","address":"Lindholmspiren 7, Göteborg","question":"Which school nearby has the best quality ranking?","expect":{"sections_cited":[],"not_in_data":true}}
+{"id":"addr-010","address":"Kungsgatan 40, Göteborg","question":"Vilket buller finns vid den här adressen?","expect":{"sections_cited":["noise"],"not_in_data":false}}
+{"id":"addr-011","address":"Aschebergsgatan 20, Göteborg","question":"Hur långt är det till närmaste hållplats?","expect":{"sections_cited":["transit"],"not_in_data":false}}
+{"id":"addr-012","address":"Engelbrektsgatan 14, Göteborg","question":"Finns det matbutiker i närheten, och hur stor är bostadsrättsföreningens skuld?","expect":{"sections_cited":["places"],"not_in_data":true}}
