@@ -1,0 +1,820 @@
+{
+  "ts": "2026-10-11T10:08:07.612Z",
+  "setup": {
+    "model": "hosted/gemini-3.5-flash-lite",
+    "engine": "mastra",
+    "repeat": 1,
+    "cases": 12,
+    "golden": "src/evals/golden.jsonl"
+  },
+  "summary": {
+    "casesPassed": 11,
+    "cases": 12,
+    "runsPassed": 11,
+    "runs": 12,
+    "inputTokens": 32513,
+    "outputTokens": 2014,
+    "cachedInputTokens": 1638,
+    "costUsd": 0,
+    "unpricedRuns": 12,
+    "ms": 100937
+  },
+  "cases": [
+    {
+      "id": "addr-001",
+      "address": "Kungsportsavenyn 36, Göteborg",
+      "question": "Is this address in a landslide risk area?",
+      "expect": {
+        "sections_cited": [
+          "landslide"
+        ],
+        "not_in_data": false
+      },
+      "passed": 1,
+      "runs": [
+        {
+          "run": 1,
+          "pass": true,
+          "checks": [
+            {
+              "name": "schema",
+              "pass": true,
+              "detail": "valid"
+            },
+            {
+              "name": "coherence",
+              "pass": true,
+              "detail": "ok"
+            },
+            {
+              "name": "sections_cited",
+              "pass": true,
+              "detail": "ok (cited: landslide)"
+            },
+            {
+              "name": "not_in_data",
+              "pass": true,
+              "detail": "expected empty, got 0 item(s)"
+            }
+          ],
+          "errors": [],
+          "answer": {
+            "answer": "According to the landslide section, this address is not in a landslide risk area, as inRiskArea is false.",
+            "address": "Kungsportsavenyn 36, Göteborg",
+            "facts": [
+              {
+                "claim": "The address is not in a landslide risk area",
+                "section": "landslide",
+                "value": "false"
+              }
+            ],
+            "not_in_data": [],
+            "escalate": false
+          },
+          "usage": {
+            "model": "hosted/gemini-3.5-flash-lite",
+            "engine": "mastra",
+            "turns": 2,
+            "toolCalls": 1,
+            "inputTokens": 1689,
+            "cachedInputTokens": 0,
+            "outputTokens": 148,
+            "costUsd": null,
+            "ms": 12686,
+            "stoppedBecause": "model_finished"
+          }
+        }
+      ]
+    },
+    {
+      "id": "addr-002",
+      "address": "Vasagatan 1, Göteborg",
+      "question": "How far is the nearest tram stop?",
+      "expect": {
+        "sections_cited": [
+          "transit"
+        ],
+        "not_in_data": false
+      },
+      "passed": 1,
+      "runs": [
+        {
+          "run": 1,
+          "pass": true,
+          "checks": [
+            {
+              "name": "schema",
+              "pass": true,
+              "detail": "valid"
+            },
+            {
+              "name": "coherence",
+              "pass": true,
+              "detail": "ok"
+            },
+            {
+              "name": "sections_cited",
+              "pass": true,
+              "detail": "ok (cited: transit)"
+            },
+            {
+              "name": "not_in_data",
+              "pass": true,
+              "detail": "expected empty, got 0 item(s)"
+            }
+          ],
+          "errors": [],
+          "answer": {
+            "answer": "The nearest tram stop is 56 meters away.",
+            "address": "Vasagatan 1, Göteborg",
+            "facts": [
+              {
+                "claim": "Nearest tram stop is 56 meters away.",
+                "section": "transit",
+                "value": "56"
+              }
+            ],
+            "not_in_data": [],
+            "escalate": false
+          },
+          "usage": {
+            "model": "hosted/gemini-3.5-flash-lite",
+            "engine": "mastra",
+            "turns": 2,
+            "toolCalls": 1,
+            "inputTokens": 2388,
+            "cachedInputTokens": 0,
+            "outputTokens": 129,
+            "costUsd": null,
+            "ms": 3438,
+            "stoppedBecause": "model_finished"
+          }
+        }
+      ]
+    },
+    {
+      "id": "addr-003",
+      "address": "Linnégatan 12, Göteborg",
+      "question": "What is the road noise level near this address?",
+      "expect": {
+        "sections_cited": [
+          "noise"
+        ],
+        "not_in_data": false
+      },
+      "passed": 1,
+      "runs": [
+        {
+          "run": 1,
+          "pass": true,
+          "checks": [
+            {
+              "name": "schema",
+              "pass": true,
+              "detail": "valid"
+            },
+            {
+              "name": "coherence",
+              "pass": true,
+              "detail": "ok"
+            },
+            {
+              "name": "sections_cited",
+              "pass": true,
+              "detail": "ok (cited: noise)"
+            },
+            {
+              "name": "not_in_data",
+              "pass": true,
+              "detail": "expected empty, got 0 item(s)"
+            }
+          ],
+          "errors": [],
+          "answer": {
+            "answer": "According to the noise section, the street noise level for the building is 68 dB, with a guideline of 55 dB.",
+            "address": "Linnégatan 12, Göteborg",
+            "facts": [
+              {
+                "claim": "The street noise level for the building is 68 dB",
+                "section": "noise",
+                "value": "68 dB"
+              },
+              {
+                "claim": "The guideline noise level is 55 dB",
+                "section": "noise",
+                "value": "55 dB"
+              }
+            ],
+            "not_in_data": [],
+            "escalate": false
+          },
+          "usage": {
+            "model": "hosted/gemini-3.5-flash-lite",
+            "engine": "mastra",
+            "turns": 2,
+            "toolCalls": 1,
+            "inputTokens": 1642,
+            "cachedInputTokens": 0,
+            "outputTokens": 194,
+            "costUsd": null,
+            "ms": 11110,
+            "stoppedBecause": "model_finished"
+          }
+        }
+      ]
+    },
+    {
+      "id": "addr-004",
+      "address": "Södra Vägen 20, Göteborg",
+      "question": "What is the median net income in this neighbourhood?",
+      "expect": {
+        "sections_cited": [
+          "income"
+        ],
+        "not_in_data": false
+      },
+      "passed": 1,
+      "runs": [
+        {
+          "run": 1,
+          "pass": true,
+          "checks": [
+            {
+              "name": "schema",
+              "pass": true,
+              "detail": "valid"
+            },
+            {
+              "name": "coherence",
+              "pass": true,
+              "detail": "ok"
+            },
+            {
+              "name": "sections_cited",
+              "pass": true,
+              "detail": "ok (cited: income)"
+            },
+            {
+              "name": "not_in_data",
+              "pass": true,
+              "detail": "expected empty, got 0 item(s)"
+            }
+          ],
+          "errors": [],
+          "answer": {
+            "answer": "The median net income in this neighbourhood is 401.2 kSEK, according to the income section.",
+            "address": "Södra Vägen 20, Göteborg",
+            "facts": [
+              {
+                "claim": "The median net income in this neighbourhood is 401.2 kSEK",
+                "section": "income",
+                "value": "401.2"
+              }
+            ],
+            "not_in_data": [],
+            "escalate": false
+          },
+          "usage": {
+            "model": "hosted/gemini-3.5-flash-lite",
+            "engine": "mastra",
+            "turns": 2,
+            "toolCalls": 1,
+            "inputTokens": 1650,
+            "cachedInputTokens": 0,
+            "outputTokens": 159,
+            "costUsd": null,
+            "ms": 10021,
+            "stoppedBecause": "model_finished"
+          }
+        }
+      ]
+    },
+    {
+      "id": "addr-005",
+      "address": "Övre Husargatan 5, Göteborg",
+      "question": "How many reported crimes were there in this district last year?",
+      "expect": {
+        "sections_cited": [
+          "safety"
+        ],
+        "not_in_data": false
+      },
+      "passed": 0,
+      "runs": [
+        {
+          "run": 1,
+          "pass": false,
+          "checks": [
+            {
+              "name": "schema",
+              "pass": true,
+              "detail": "valid"
+            },
+            {
+              "name": "coherence",
+              "pass": true,
+              "detail": "ok"
+            },
+            {
+              "name": "sections_cited",
+              "pass": false,
+              "detail": "missing safety (cited: none)"
+            },
+            {
+              "name": "not_in_data",
+              "pass": false,
+              "detail": "expected empty, got 1 item(s)"
+            }
+          ],
+          "errors": [],
+          "answer": {
+            "answer": "Uppgifter om antal rapporterade brott i distriktet saknas eftersom säkerhetssektionen är otillgänglig.",
+            "address": "Övre Husargatan 5, Göteborg",
+            "facts": [],
+            "not_in_data": [
+              "reported crimes in this district last year"
+            ],
+            "escalate": true
+          },
+          "usage": {
+            "model": "hosted/gemini-3.5-flash-lite",
+            "engine": "mastra",
+            "turns": 2,
+            "toolCalls": 1,
+            "inputTokens": 1625,
+            "cachedInputTokens": 0,
+            "outputTokens": 119,
+            "costUsd": null,
+            "ms": 9789,
+            "stoppedBecause": "model_finished"
+          }
+        }
+      ]
+    },
+    {
+      "id": "addr-006",
+      "address": "Chalmersplatsen 3, Göteborg",
+      "question": "What is the BRF's debt per apartment?",
+      "expect": {
+        "sections_cited": [],
+        "not_in_data": true
+      },
+      "passed": 1,
+      "runs": [
+        {
+          "run": 1,
+          "pass": true,
+          "checks": [
+            {
+              "name": "schema",
+              "pass": true,
+              "detail": "valid"
+            },
+            {
+              "name": "coherence",
+              "pass": true,
+              "detail": "ok"
+            },
+            {
+              "name": "sections_cited",
+              "pass": true,
+              "detail": "ok (cited: none)"
+            },
+            {
+              "name": "not_in_data",
+              "pass": true,
+              "detail": "expected non-empty, got 1 item(s)"
+            }
+          ],
+          "errors": [],
+          "answer": {
+            "answer": "Uppgiften om bostadsrättsföreningens skuld per lägenhet finns inte i datan.",
+            "address": "Chalmersplatsen 3, Göteborg",
+            "facts": [],
+            "not_in_data": [
+              "BRF's debt per apartment"
+            ],
+            "escalate": true
+          },
+          "usage": {
+            "model": "hosted/gemini-3.5-flash-lite",
+            "engine": "mastra",
+            "turns": 2,
+            "toolCalls": 1,
+            "inputTokens": 1590,
+            "cachedInputTokens": 0,
+            "outputTokens": 116,
+            "costUsd": null,
+            "ms": 10315,
+            "stoppedBecause": "model_finished"
+          }
+        }
+      ]
+    },
+    {
+      "id": "addr-007",
+      "address": "Chalmersplatsen 3, Göteborg",
+      "question": "What is this building's energy class?",
+      "expect": {
+        "sections_cited": [],
+        "not_in_data": true
+      },
+      "passed": 1,
+      "runs": [
+        {
+          "run": 1,
+          "pass": true,
+          "checks": [
+            {
+              "name": "schema",
+              "pass": true,
+              "detail": "valid"
+            },
+            {
+              "name": "coherence",
+              "pass": true,
+              "detail": "ok"
+            },
+            {
+              "name": "sections_cited",
+              "pass": true,
+              "detail": "ok (cited: none)"
+            },
+            {
+              "name": "not_in_data",
+              "pass": true,
+              "detail": "expected non-empty, got 1 item(s)"
+            }
+          ],
+          "errors": [],
+          "answer": {
+            "answer": "The profile does not contain the building's energy class.",
+            "address": "Chalmersplatsen 3, Göteborg",
+            "facts": [],
+            "not_in_data": [
+              "Energy class"
+            ],
+            "escalate": true
+          },
+          "usage": {
+            "model": "hosted/gemini-3.5-flash-lite",
+            "engine": "mastra",
+            "turns": 4,
+            "toolCalls": 3,
+            "inputTokens": 3614,
+            "cachedInputTokens": 0,
+            "outputTokens": 162,
+            "costUsd": null,
+            "ms": 3916,
+            "stoppedBecause": "model_finished"
+          }
+        }
+      ]
+    },
+    {
+      "id": "addr-008",
+      "address": "Stampgatan 20, Göteborg",
+      "question": "What did this exact flat sell for last time it was sold?",
+      "expect": {
+        "sections_cited": [],
+        "not_in_data": true
+      },
+      "passed": 1,
+      "runs": [
+        {
+          "run": 1,
+          "pass": true,
+          "checks": [
+            {
+              "name": "schema",
+              "pass": true,
+              "detail": "valid"
+            },
+            {
+              "name": "coherence",
+              "pass": true,
+              "detail": "ok"
+            },
+            {
+              "name": "sections_cited",
+              "pass": true,
+              "detail": "ok (cited: none)"
+            },
+            {
+              "name": "not_in_data",
+              "pass": true,
+              "detail": "expected non-empty, got 1 item(s)"
+            }
+          ],
+          "errors": [],
+          "answer": {
+            "answer": "Uppgiften om vad denna exakta lägenhet såldes för senast finns inte i datan.",
+            "address": "Stampgatan 20, Göteborg",
+            "facts": [],
+            "not_in_data": [
+              "flat last sale price"
+            ],
+            "escalate": true
+          },
+          "usage": {
+            "model": "hosted/gemini-3.5-flash-lite",
+            "engine": "mastra",
+            "turns": 2,
+            "toolCalls": 1,
+            "inputTokens": 1753,
+            "cachedInputTokens": 0,
+            "outputTokens": 111,
+            "costUsd": null,
+            "ms": 12270,
+            "stoppedBecause": "model_finished"
+          }
+        }
+      ]
+    },
+    {
+      "id": "addr-009",
+      "address": "Lindholmspiren 7, Göteborg",
+      "question": "Which school nearby has the best quality ranking?",
+      "expect": {
+        "sections_cited": [],
+        "not_in_data": true
+      },
+      "passed": 1,
+      "runs": [
+        {
+          "run": 1,
+          "pass": true,
+          "checks": [
+            {
+              "name": "schema",
+              "pass": true,
+              "detail": "valid"
+            },
+            {
+              "name": "coherence",
+              "pass": true,
+              "detail": "ok"
+            },
+            {
+              "name": "sections_cited",
+              "pass": true,
+              "detail": "ok (cited: none)"
+            },
+            {
+              "name": "not_in_data",
+              "pass": true,
+              "detail": "expected non-empty, got 1 item(s)"
+            }
+          ],
+          "errors": [],
+          "answer": {
+            "answer": "The provided data does not contain quality rankings for the nearby schools.",
+            "address": "Lindholmspiren 7, Göteborg",
+            "facts": [],
+            "not_in_data": [
+              "school quality ranking"
+            ],
+            "escalate": true
+          },
+          "usage": {
+            "model": "hosted/gemini-3.5-flash-lite",
+            "engine": "mastra",
+            "turns": 2,
+            "toolCalls": 1,
+            "inputTokens": 4236,
+            "cachedInputTokens": 0,
+            "outputTokens": 101,
+            "costUsd": null,
+            "ms": 2713,
+            "stoppedBecause": "model_finished"
+          }
+        }
+      ]
+    },
+    {
+      "id": "addr-010",
+      "address": "Kungsgatan 40, Göteborg",
+      "question": "Vilket buller finns vid den här adressen?",
+      "expect": {
+        "sections_cited": [
+          "noise"
+        ],
+        "not_in_data": false
+      },
+      "passed": 1,
+      "runs": [
+        {
+          "run": 1,
+          "pass": true,
+          "checks": [
+            {
+              "name": "schema",
+              "pass": true,
+              "detail": "valid"
+            },
+            {
+              "name": "coherence",
+              "pass": true,
+              "detail": "ok"
+            },
+            {
+              "name": "sections_cited",
+              "pass": true,
+              "detail": "ok (cited: noise)"
+            },
+            {
+              "name": "not_in_data",
+              "pass": true,
+              "detail": "expected empty, got 0 item(s)"
+            }
+          ],
+          "errors": [],
+          "answer": {
+            "answer": "Vid Kungsgatan 40, Göteborg är bullernivån för byggnaden 64 dB vid gatan och 63 dB högst upp, med en maximal bullernivå på 64 dB. Riktvärdet är 55 dB och bullerbandet ligger mellan 55 dB och 60 dB.",
+            "address": "Kungsgatan 40, Göteborg",
+            "facts": [
+              {
+                "claim": "Byggnadens gatu-db är 64 dB",
+                "section": "noise",
+                "value": "64"
+              },
+              {
+                "claim": "Byggnadens top-db är 63 dB",
+                "section": "noise",
+                "value": "63"
+              },
+              {
+                "claim": "Byggnadens högsta bullernivå (loudestDb) är 64 dB",
+                "section": "noise",
+                "value": "64"
+              },
+              {
+                "claim": "Riktvärdet för buller är 55 dB",
+                "section": "noise",
+                "value": "55"
+              },
+              {
+                "claim": "Bullerbandets minsta värde är 55 dB",
+                "section": "noise",
+                "value": "55"
+              },
+              {
+                "claim": "Bullerbandets maximala värde är 60 dB",
+                "section": "noise",
+                "value": "60"
+              }
+            ],
+            "not_in_data": [],
+            "escalate": false
+          },
+          "usage": {
+            "model": "hosted/gemini-3.5-flash-lite",
+            "engine": "mastra",
+            "turns": 2,
+            "toolCalls": 1,
+            "inputTokens": 1652,
+            "cachedInputTokens": 0,
+            "outputTokens": 416,
+            "costUsd": null,
+            "ms": 10399,
+            "stoppedBecause": "model_finished"
+          }
+        }
+      ]
+    },
+    {
+      "id": "addr-011",
+      "address": "Aschebergsgatan 20, Göteborg",
+      "question": "Hur långt är det till närmaste hållplats?",
+      "expect": {
+        "sections_cited": [
+          "transit"
+        ],
+        "not_in_data": false
+      },
+      "passed": 1,
+      "runs": [
+        {
+          "run": 1,
+          "pass": true,
+          "checks": [
+            {
+              "name": "schema",
+              "pass": true,
+              "detail": "valid"
+            },
+            {
+              "name": "coherence",
+              "pass": true,
+              "detail": "ok"
+            },
+            {
+              "name": "sections_cited",
+              "pass": true,
+              "detail": "ok (cited: transit)"
+            },
+            {
+              "name": "not_in_data",
+              "pass": true,
+              "detail": "expected empty, got 0 item(s)"
+            }
+          ],
+          "errors": [],
+          "answer": {
+            "answer": "Närmaste hållplats är Vasaplatsen, Göteborg, som ligger 62 m bort.",
+            "address": "Aschebergsgatan 20, Göteborg",
+            "facts": [
+              {
+                "claim": "Närmaste hållplats är Vasaplatsen, Göteborg på 62 m avstånd",
+                "section": "transit",
+                "value": "62 m"
+              }
+            ],
+            "not_in_data": [],
+            "escalate": false
+          },
+          "usage": {
+            "model": "hosted/gemini-3.5-flash-lite",
+            "engine": "mastra",
+            "turns": 2,
+            "toolCalls": 1,
+            "inputTokens": 2941,
+            "cachedInputTokens": 0,
+            "outputTokens": 156,
+            "costUsd": null,
+            "ms": 3388,
+            "stoppedBecause": "model_finished"
+          }
+        }
+      ]
+    },
+    {
+      "id": "addr-012",
+      "address": "Engelbrektsgatan 14, Göteborg",
+      "question": "Finns det matbutiker i närheten, och hur stor är bostadsrättsföreningens skuld?",
+      "expect": {
+        "sections_cited": [
+          "places"
+        ],
+        "not_in_data": true
+      },
+      "passed": 1,
+      "runs": [
+        {
+          "run": 1,
+          "pass": true,
+          "checks": [
+            {
+              "name": "schema",
+              "pass": true,
+              "detail": "valid"
+            },
+            {
+              "name": "coherence",
+              "pass": true,
+              "detail": "ok"
+            },
+            {
+              "name": "sections_cited",
+              "pass": true,
+              "detail": "ok (cited: places)"
+            },
+            {
+              "name": "not_in_data",
+              "pass": true,
+              "detail": "expected non-empty, got 1 item(s)"
+            }
+          ],
+          "errors": [],
+          "answer": {
+            "answer": "Ja, det finns matbutiker i närheten, men uppgifter om bostadsrättsföreningens skuld saknas i datan.",
+            "address": "Engelbrektsgatan 14, Göteborg",
+            "facts": [
+              {
+                "claim": "Det finns matbutiker i närheten",
+                "section": "places",
+                "value": "4"
+              }
+            ],
+            "not_in_data": [
+              "bostadsrättsföreningens skuld"
+            ],
+            "escalate": true
+          },
+          "usage": {
+            "model": "hosted/gemini-3.5-flash-lite",
+            "engine": "mastra",
+            "turns": 3,
+            "toolCalls": 2,
+            "inputTokens": 7733,
+            "cachedInputTokens": 1638,
+            "outputTokens": 203,
+            "costUsd": null,
+            "ms": 10889,
+            "stoppedBecause": "model_finished"
+          }
+        }
+      ]
+    }
+  ]
+}

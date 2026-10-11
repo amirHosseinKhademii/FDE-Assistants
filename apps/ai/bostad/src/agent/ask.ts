@@ -21,6 +21,8 @@ import {
   engineLabel,
   loggedModelName,
   cachedInputTokensOf,
+  chatClient,
+  chatModelName,
   type LoopEvent,
 } from '@fde/agent';
 import { logRequest, priceOf } from '@fde/telemetry';
@@ -50,9 +52,10 @@ export interface AskOptions {
   /** Where the question came from: 'ask' | 'eval:addr-001#1'. */
   surface?: string;
   /**
-   * 'sdk' | 'mastra' | 'langgraph'. Defaults to 'sdk' here, not to the LOOP env
-   * var: this app's default is the Agents SDK on Azure Foundry, and a shared
-   * .env must not change that silently.
+   * 'sdk' | 'mastra' | 'langgraph'. Falls back to the LOOP env var, then 'sdk',
+   * the same as the other apps/ai packages. The provider comes from LLM_PROVIDER
+   * the same way, through chatClient, so the engine and the cloud are both
+   * chosen by .env and nothing here hard-codes either.
    */
   loop?: string;
   onEvent?: (e: LoopEvent) => void;
@@ -70,7 +73,7 @@ export interface AddressAskResult {
 
 export async function askAddress(address: string, question: string, opts: AskOptions = {}): Promise<AddressAskResult> {
   const started = Date.now();
-  const choice = loopChoice(opts.loop ?? 'sdk');
+  const choice = loopChoice(opts.loop);
 
   // One cache per question, so a cached profile never outlives the question.
   const loadProfile = createProfileCache();
@@ -79,8 +82,8 @@ export async function askAddress(address: string, question: string, opts: AskOpt
   const registry = new ToolRegistry([getProfileSectionTool(loadProfile)]);
   const result = await runLoop<AddressAnswer>(
     choice,
-    openaiClient(),
-    env.chatDeployment(),
+    chatClient(() => openaiClient()),
+    chatModelName(env.chatDeployment()),
     registry,
     buildAddressPrompt(address, question),
     {
