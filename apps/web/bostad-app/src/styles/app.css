@@ -1220,11 +1220,11 @@ a.btn-secondary {
 [data-tone="risk"] { --tone: var(--risk); }
 [data-tone="warn"] { --tone: var(--warn); }
 
-/* Status tiles: six, three columns on a phone. Plain icon, a small name, then the status word; no circles. */
+/* Status tiles: four per row on a phone too. Plain icon, a small name, then the status word; no circles. */
 .status-tiles {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
 }
 
 .status-tile {
@@ -1232,49 +1232,65 @@ a.btn-secondary {
   justify-items: center;
   align-content: center;
   gap: 2px;
+  min-width: 0;
   min-height: 44px;
   padding: 8px 4px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--tile-line, var(--line));
   border-radius: var(--radius-card);
-  background: var(--surface);
+  background: var(--tile-bg, var(--surface));
   color: var(--text);
   font: inherit;
   cursor: pointer;
   box-shadow: var(--shadow);
 }
 
-.status-tile[data-tone="ok"] { --tone: var(--ok); }
-.status-tile[data-tone="warn"] { --tone: var(--warn); }
-.status-tile[data-tone="risk"] { --tone: var(--risk); }
-.status-tile[data-tone="accent"] { --tone: var(--accent); }
-.status-tile[data-tone="neutral"] { --tone: var(--text); }
-.status-tile[data-tone="muted"] { --tone: var(--muted); }
+/* The status is the tile's background: a soft tint of the status colour, with a slightly stronger border
+   of the same hue. Icon and text stay the normal text colour, so contrast is set by --text on the tint
+   (the tints are 14% of a colour over the surface, so they stay light in light mode and dark in dark mode). */
+.status-tile[data-tone="ok"],
+.status-tile[data-tone="accent"] {
+  --tile-bg: color-mix(in srgb, var(--ok) 14%, var(--surface));
+  --tile-line: color-mix(in srgb, var(--ok) 45%, var(--line));
+}
+.status-tile[data-tone="warn"],
+.status-tile[data-tone="neutral"] {
+  --tile-bg: color-mix(in srgb, var(--warn) 16%, var(--surface));
+  --tile-line: color-mix(in srgb, var(--warn) 45%, var(--line));
+}
+.status-tile[data-tone="risk"] {
+  --tile-bg: color-mix(in srgb, var(--risk) 14%, var(--surface));
+  --tile-line: color-mix(in srgb, var(--risk) 45%, var(--line));
+}
+.status-tile[data-tone="muted"] {
+  --tile-bg: var(--surface-2);
+  --tile-line: var(--line);
+}
 
 .tile-icon {
   display: grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
-  color: var(--tone, var(--muted));
+  width: 18px;
+  height: 18px;
+  color: var(--text);
 }
 
 .tile-icon .icon {
-  width: 24px;
-  height: 24px;
+  width: 18px;
+  height: 18px;
   color: inherit;
 }
 
 .status-tile .tile-name {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 11px;
   line-height: 1.2;
   text-align: center;
 }
 
 .status-tile .tile-word {
-  color: var(--tone, var(--text));
-  font-size: 14px;
-  font-weight: 700;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
   line-height: 1.2;
   text-align: center;
   overflow-wrap: anywhere;
@@ -2947,107 +2963,526 @@ html[data-streetview="open"] .float-search {
   list-style: none;
 }
 
-/* "Ask about this address" (AskCard.tsx) */
-.ask-form {
+/* Address subtitle row: the district on the left, the Ask AI pill on the right */
+.address-sub {
   display: flex;
-  gap: 8px;
-  align-items: stretch;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
 }
 
-.ask-form input {
-  flex: 1;
+.address-sub p {
   min-width: 0;
-  height: var(--tap);
-  padding: 0 14px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-card);
-  background: var(--surface);
-  color: var(--text);
-  font-size: var(--fs-body);
 }
 
-.ask-form input::placeholder {
-  color: var(--muted);
+/* Ask AI pill (AskAi.tsx) */
+.ask-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--tap);
+  margin-left: auto;
+  padding: 0 16px 0 8px;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line));
+  border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, var(--accent-soft), color-mix(in srgb, var(--sec-brf) 14%, var(--surface)));
+  color: var(--accent);
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow);
 }
 
-.ask-form input:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 0;
+.ask-open:hover {
   border-color: var(--accent);
 }
 
-.ask-form .btn-primary {
-  min-height: var(--tap);
+.ask-open:focus-visible,
+.ui-dialog-close:focus-visible,
+.ask-chip:focus-visible,
+.ask-send:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
-.ask-hint,
-.ask-status {
-  margin: 0;
-  font-size: var(--fs-body);
+.ask-open-mark,
+.ask-head-mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--sec-brf));
+  color: var(--on-accent);
 }
 
-.ask-answer {
+.ask-open-mark {
+  width: 26px;
+  height: 26px;
+}
+
+.ask-open-mark .icon {
+  width: 15px;
+  height: 15px;
+}
+
+.ask-head-mark {
+  width: 40px;
+  height: 40px;
+}
+
+.ask-head-mark .icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Dialog shell. OriginDialog emits the ui-* classes; these are this app's own copies, in its tokens. */
+@keyframes ask-scrim-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ask-dialog-open {
+  from { opacity: 0; transform: scale(0.28); filter: blur(6px); }
+  60% { opacity: 1; }
+  to { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+.ui-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  backdrop-filter: blur(10px);
+  animation: ask-scrim-in 200ms ease both;
+}
+
+.ui-scrim[data-closing="true"] {
+  animation: ask-scrim-in 190ms ease reverse both;
+}
+
+.ui-dialog {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(560px, 100%);
+  max-height: min(760px, 88vh);
+  border: 1px solid color-mix(in srgb, var(--ui-tone, var(--accent)) 35%, var(--line));
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow-pop);
+  overflow: hidden;
+  animation: ask-dialog-open 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.ui-dialog:focus {
+  outline: none;
+}
+
+.ui-dialog[data-closing="true"] {
+  animation: ask-dialog-open 190ms cubic-bezier(0.4, 0, 0.7, 0) reverse both;
+}
+
+/* Phone: a full-height sheet. */
+@media (max-width: 639.98px) {
+  .ui-scrim {
+    padding: 0;
+    align-items: stretch;
+  }
+
+  .ui-dialog {
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    max-height: none;
+    border: 0;
+    border-radius: 0;
+  }
+}
+
+.ui-dialog-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: none;
+  padding: 14px 14px 14px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.ask-head-text {
+  min-width: 0;
+}
+
+.ask-head-title {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.ask-head-address {
+  color: var(--muted);
+  font-size: var(--fs-caption);
+  overflow-wrap: anywhere;
+}
+
+.ui-dialog-close {
+  flex: none;
+  margin-left: auto;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.ui-dialog-close:hover {
+  color: var(--text);
+  border-color: var(--muted);
+}
+
+.ui-dialog-close > span {
+  position: relative;
+  width: 14px;
+  height: 14px;
+}
+
+.ui-dialog-close > span::before,
+.ui-dialog-close > span::after {
+  content: "";
+  position: absolute;
+  inset: 50% 0 auto 0;
+  height: 1.5px;
+  background: currentColor;
+  border-radius: 1px;
+}
+
+.ui-dialog-close > span::before { transform: rotate(45deg); }
+.ui-dialog-close > span::after { transform: rotate(-45deg); }
+
+.ui-dialog-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 18px;
+  background: var(--surface);
+  overscroll-behavior: contain;
+}
+
+/* Thread and composer */
+.ask-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.ask-thread {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  flex: 1 1 auto;
+  padding: 16px 0 12px;
+}
+
+.ask-examples {
   display: grid;
   gap: 12px;
 }
 
-.ask-text {
-  margin: 0;
-  font-size: var(--fs-body-lg);
+.ask-examples-lead {
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.ask-chips {
+  display: grid;
+  gap: 8px;
+}
+
+.ask-chip {
+  min-height: var(--tap);
+  padding: 10px 14px;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line));
+  border-radius: 14px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ask-chip:hover {
+  border-color: var(--accent);
+}
+
+.ask-chip:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.ask-turn {
+  display: grid;
+  gap: 12px;
+}
+
+.ask-bubble {
+  justify-self: end;
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 16px 16px 4px 16px;
+  background: var(--accent-soft);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.ask-answer {
+  display: grid;
+  gap: 14px;
+}
+
+.ask-lead {
+  font-size: 17px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 640px) {
+  .ask-lead {
+    font-size: 18px;
+  }
 }
 
 .ask-heading {
-  margin: 4px 0 0;
-  font-size: var(--fs-body);
   color: var(--muted);
+  font-size: 13px;
   font-weight: 600;
-}
-
-.ask-facts,
-.ask-missing {
-  display: grid;
-  gap: 8px;
-  margin: 0;
-  padding: 0 0 0 18px;
-  font-size: var(--fs-body);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .ask-facts {
+  display: grid;
+  gap: 10px;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .ask-fact {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 4px 12px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+}
+
+.ask-badge {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--sec) 16%, var(--surface));
+  color: var(--sec);
+}
+
+.ask-badge .icon {
+  width: 18px;
+  height: 18px;
 }
 
 .ask-claim {
-  flex: 1 1 200px;
   min-width: 0;
+  padding-top: 5px;
+  font-size: 15px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
-.ask-chip {
-  padding: 2px 10px;
+.ask-claim strong {
+  font-weight: 700;
+}
+
+.ask-source {
+  justify-self: end;
+  margin-top: 5px;
+  padding: 2px 8px;
   border: 1px solid var(--line);
   border-radius: var(--radius-pill);
   color: var(--muted);
-  font-size: var(--fs-caption);
+  font-size: 12px;
   white-space: nowrap;
 }
 
-.ask-checks {
-  margin: 0;
-  padding: 10px 12px;
-  font-size: var(--fs-caption);
+.ask-missing {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--warn) 35%, var(--surface));
+  border-radius: 14px;
+  background: var(--warn-soft);
+  font-size: 14px;
 }
 
-.ask-notice {
-  margin: 6px 4px 0;
-  font-size: var(--fs-caption);
+.ask-missing-icon {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  color: var(--warn);
+}
+
+.ask-missing-title {
+  font-weight: 600;
+}
+
+.ask-missing ul {
+  margin: 4px 0 0;
+  padding-left: 18px;
+}
+
+.ask-escalate,
+.ask-status {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.ask-failed {
+  color: var(--risk);
+  font-size: 15px;
+}
+
+.ask-checks {
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--risk) 40%, var(--surface));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--risk) 10%, var(--surface));
+  font-size: 14px;
+}
+
+.ask-checks-title {
+  font-weight: 600;
+}
+
+.ask-checks summary {
+  margin-top: 4px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.ask-checks ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+/* Shimmer while the answer is on its way */
+@keyframes ask-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+.ask-skeleton {
+  display: grid;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.ask-skeleton span {
+  display: block;
+  height: 14px;
+  border-radius: 7px;
+  background: linear-gradient(90deg, var(--surface-2) 0%, var(--shimmer) 50%, var(--surface-2) 100%);
+  background-size: 200% 100%;
+  animation: ask-shimmer 1.4s ease-in-out infinite;
+}
+
+.ask-skeleton span:nth-child(1) { width: 92%; }
+.ask-skeleton span:nth-child(2) { width: 84%; }
+.ask-skeleton span:nth-child(3) { width: 56%; }
+
+.ask-dock {
+  position: sticky;
+  bottom: 0;
+  margin: 0 -18px;
+  padding: 10px 18px 0;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.ask-composer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ask-input {
+  flex: 1;
+  min-width: 0;
+  height: var(--tap);
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+}
+
+.ask-input::placeholder {
+  color: var(--muted);
+}
+
+.ask-input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 0;
+  border-color: var(--accent);
+}
+
+.ask-input:disabled {
+  opacity: 0.6;
+}
+
+.ask-send {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  cursor: pointer;
+}
+
+.ask-send .icon {
+  width: 20px;
+  height: 20px;
+}
+
+.ask-send:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.ask-hint {
+  padding-top: 6px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.ask-footer {
+  padding: 8px 0 14px;
+  color: var(--muted);
+  font-size: 12px;
 }
 
 /* BRF card (demo): quoted remark under the auditor row */

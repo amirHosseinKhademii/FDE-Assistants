@@ -36,6 +36,16 @@
   --place-park: #2F7D5B;
   --place-gym: #4F5D75;
   --place-eatery: #7A5A3A;
+  --sec-location: #2F6F62;
+  --sec-ground: #7D5A3C;
+  --sec-transit: #2E6FB0;
+  --sec-noise: #7A4FB5;
+  --sec-district: #6B7079;
+  --sec-price: #1F8A8A;
+  --sec-places: #2F7D4F;
+  --sec-safety: #C4631E;
+  --sec-brf: #4B56B8;
+  --sec-energy: #A87A00;
 }
 
 /* Dark values. Written twice on purpose: the media query covers "system"
@@ -73,6 +83,16 @@
     --place-park: #6FCB9F;
     --place-gym: #A9B6D0;
     --place-eatery: #C9A27E;
+    --sec-location: #5FB3A1;
+    --sec-ground: #C9A27E;
+    --sec-transit: #6BB0E8;
+    --sec-noise: #B69BE8;
+    --sec-district: #A3AAB2;
+    --sec-price: #4FC4B8;
+    --sec-places: #6FCB9F;
+    --sec-safety: #F09A5C;
+    --sec-brf: #8F95F0;
+    --sec-energy: #E7BE6E;
   }
 }
 
@@ -108,6 +128,16 @@
   --place-park: #6FCB9F;
   --place-gym: #A9B6D0;
   --place-eatery: #C9A27E;
+  --sec-location: #5FB3A1;
+  --sec-ground: #C9A27E;
+  --sec-transit: #6BB0E8;
+  --sec-noise: #B69BE8;
+  --sec-district: #A3AAB2;
+  --sec-price: #4FC4B8;
+  --sec-places: #6FCB9F;
+  --sec-safety: #F09A5C;
+  --sec-brf: #8F95F0;
+  --sec-energy: #E7BE6E;
 }
 
 :root {

@@ -45,6 +45,10 @@ const ICONS = {
   doc: ["M6 3h8l4 4v14H6z", "M14 3v4h4", "M9 12h6M9 16h6"],
   info: [circle(12, 12, 9), "M12 11v5.5", "M12 7.5v.5"],
   checkCircle: [circle(12, 12, 9), "M8 12.5l2.7 2.7L16 9.5"],
+  // Ask about this address: a four-point sparkle with a small one, send arrow, and a bolt for energy.
+  sparkle: ["M10 4.5l1.6 4.4L16 10.5l-4.4 1.6L10 16.5l-1.6-4.4L4 10.5l4.4-1.6z", "M18 14.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"],
+  send: ["M4.5 12h14.5", "M13 6l6 6-6 6"],
+  bolt: ["M13 3L5.5 13.5H11L10 21l7.5-10.5H12z"],
   external: ["M14 4h6v6", "M20 4l-9 9", "M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"],
 } as const;
 

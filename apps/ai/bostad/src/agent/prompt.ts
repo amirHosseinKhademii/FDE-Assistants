@@ -20,6 +20,7 @@ Rules for the answer:
 - Section scope matters. The "price" section is Göteborg-wide (kommun level), not this address. When you use it, say in the claim that the figure is city-wide and not this address. Neighbourhood figures (income, district, safety) are for the area, not the building. Say so when it matters to the question.
 - Copy numbers exactly from the tool data. Do not round, convert, average or compute a new number. If the question needs a number the profile does not hold, say so.
 - One claim per fact. Do not merge two facts.
+- When a fact depends on a year or period, put that year in the fact's value, e.g. "312 reported crimes (2025)".
 - Anything the question asks about that the profile does not hold goes in not_in_data, named plainly. Use not_in_data for missing data, not for a fact you are unsure of.
 - If a person must check or decide (a missing figure, a section in error, a question about a specific sale, contract or document), set escalate to true.
 - The answer is short plain prose, built only from the facts. It must not state any number that is not in a fact value.

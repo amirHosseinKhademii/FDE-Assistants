@@ -11,7 +11,7 @@ import { LEVEL_ICON } from "./Badges";
 import { LEVEL_TONE, levelOf, pctDiff } from "../lib/safety";
 import { RentCard } from "./RentCard";
 import { BrfCard, brfResult } from "./BrfCard";
-import { AskCard } from "./AskCard";
+import { AskAiButton } from "./AskAi";
 import type { AppMode } from "./ModeSwitch";
 import type { PlacesFilter } from "./placeFilter";
 import type { CardResult, Tone } from "./ProfileCard";
@@ -64,7 +64,10 @@ export function AddressHeader({ address, profile }: { address: string; profile: 
   return (
     <section className="address">
       <h1>{address}</h1>
-      {names.length > 0 && <p className="muted">{names.join(" · ")}</p>}
+      <div className="address-sub">
+        {names.length > 0 && <p className="muted">{names.join(" · ")}</p>}
+        {profile && <AskAiButton key={profile.address} address={profile.address} />}
+      </div>
     </section>
   );
 }
@@ -245,7 +248,6 @@ export function ProfileBody({
         result={placesRes}
       />
       <GroundCard check={ground} onRetry={onRetry} result={groundRes} />
-      <AskCard key={profile.address} address={profile.address} />
 
       <p className="more-row">
         {t("more.coming", {

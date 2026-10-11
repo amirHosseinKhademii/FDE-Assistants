@@ -106,8 +106,10 @@ export const AddressAnswerSchema = z.strictObject({
     .array(z.string())
     .describe(
       'Each thing the question asked about that the profile does not hold, named ' +
-        'plainly, e.g. "BRF debt per apartment (Bolagsverket not connected)". Empty ' +
-        'only when every part of the question is answered by a fact.',
+        'plainly, e.g. "Nearest tram stop (transit section not ok)". BRF figures ' +
+        'exist for some addresses only: use them when section brf is "ok", and ' +
+        'otherwise list the BRF topic here. Empty only when every part of the ' +
+        'question is answered by a fact.',
     ),
 
   escalate: z
