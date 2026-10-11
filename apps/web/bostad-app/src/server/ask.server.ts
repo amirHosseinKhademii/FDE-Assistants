@@ -6,7 +6,7 @@
  * Enabled only in the dev server, or when BOSTAD_ASK=1 is set. So the deployed
  * site does not change until that is decided.
  */
-import { askAddress, type AddressAnswer } from '@bostad/ai';
+import type { AddressAnswer } from '@bostad/ai';
 import { loadRepoEnv } from './load-env';
 
 export function askEnabled(): boolean {
@@ -15,6 +15,9 @@ export function askEnabled(): boolean {
 
 export async function askFor(address: string, question: string): Promise<{ answer: AddressAnswer | null; errors: string[] }> {
   loadRepoEnv();
+  // Loaded here, not at module top: the production image does not ship @bostad/ai,
+  // and a static import would crash the server at startup even with Ask off.
+  const { askAddress } = await import('@bostad/ai');
   const result = await askAddress(address, question, { surface: 'bostad-web' });
   return { answer: result.answer, errors: result.errors };
 }
