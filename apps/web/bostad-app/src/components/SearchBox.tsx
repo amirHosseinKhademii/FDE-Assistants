@@ -17,10 +17,13 @@ export function SearchBox({
   initial,
   onSearch,
   compact = false,
+  placeholder,
 }: {
   initial: string;
   onSearch: (address: string) => void;
   compact?: boolean;
+  /** Overrides the default prompt, e.g. the rent home's "Area or address to rent in". */
+  placeholder?: string;
 }) {
   const { t } = useLang();
   const [value, setValue] = useState(initial);
@@ -42,7 +45,7 @@ export function SearchBox({
   const shared = {
     inputId: SEARCH_INPUT_ID,
     value,
-    placeholder: t("search.placeholder"),
+    placeholder: placeholder ?? t("search.placeholder"),
     maxLength: ADDRESS_MAX_LENGTH,
     invalid: empty,
     describedBy: empty ? `${SEARCH_INPUT_ID}-hint` : undefined,

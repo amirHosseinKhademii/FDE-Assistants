@@ -3,26 +3,28 @@ import { useLang } from "../lib/lang";
 import { SearchBox } from "./SearchBox";
 import { RecentSearches } from "./RecentSearches";
 import { TopBar } from "./TopBar";
-import { ModeSwitch } from "./ModeSwitch";
+import { ModeSwitch, type AppMode } from "./ModeSwitch";
 
-export function HomeView({ onSearch }: { onSearch: (address: string) => void }) {
+/** The home page in either mode. Rent uses the same search box with its own prompt. */
+export function HomeView({ mode = "buy", onSearch }: { mode?: AppMode; onSearch: (address: string) => void }) {
   const { t } = useLang();
+  const rent = mode === "rent";
 
   useEffect(() => {
-    document.title = t("doc.home");
-  }, [t]);
+    document.title = t(rent ? "doc.rent" : "doc.home");
+  }, [t, rent]);
 
   return (
     <div className="wrap home">
       <TopBar />
-      <ModeSwitch mode="buy" />
+      <ModeSwitch mode={mode} />
 
       <section className="hero">
-        <h1>{t("home.title")}</h1>
-        <p>{t("home.subtitle")}</p>
+        <h1>{t(rent ? "rent.title" : "home.title")}</h1>
+        <p>{t(rent ? "rent.subtitle" : "home.subtitle")}</p>
       </section>
 
-      <SearchBox initial="" onSearch={onSearch} />
+      <SearchBox initial="" onSearch={onSearch} placeholder={rent ? t("search.rentPlaceholder") : undefined} />
 
       <RecentSearches onOpen={onSearch} />
 

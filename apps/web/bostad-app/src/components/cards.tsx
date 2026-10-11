@@ -295,6 +295,10 @@ export function placesSummary(data: PlacesResult, t: (k: MessageKey, v?: Record<
 }
 
 /** Area & prices: one card for the small area. Each row has its level word and one plain sentence, with the source below. */
+/**
+ * Buy: the district, income, the area's statistics and the price. Rent: the district only,
+ * because the rental share, the rent and the flats are on the rent card.
+ */
 export function AreaCard({
   district,
   income,
@@ -302,6 +306,7 @@ export function AreaCard({
   price,
   onRetry,
   result,
+  mode = "buy",
 }: {
   district: Check<DistrictResult>;
   income: Check<IncomeResult>;
@@ -309,9 +314,11 @@ export function AreaCard({
   price: Check<PriceResult>;
   onRetry: () => void;
   result?: CardResult;
+  mode?: "buy" | "rent";
 }) {
   const { t, lang } = useLang();
-  const parts = [district, income, area, price];
+  const rent = mode === "rent";
+  const parts = rent ? [district] : [district, income, area, price];
   const failed = parts.find((p): p is Extract<Check<unknown>, { kind: "failed" }> => p.kind === "failed");
   const anyOk = parts.some((p) => p.kind === "ok");
   const meta = anyOk
@@ -320,7 +327,14 @@ export function AreaCard({
   const pct = (v: number | null | undefined) => (v === null || v === undefined ? "–" : String(Math.round(v * 100)));
   const num = (v: number) => v.toLocaleString(localeOf(lang));
   return (
-    <ProfileCard id="card-area" icon="houseTag" title="area.title" explain="area.explain" result={result} {...meta}>
+    <ProfileCard
+      id="card-area"
+      icon="houseTag"
+      title={rent ? "rent.district.title" : "area.title"}
+      explain={rent ? "rent.district.explain" : "area.explain"}
+      result={rent ? undefined : result}
+      {...meta}
+    >
       {anyOk && (
         <>
           <NeighbourhoodPart check={district}>
@@ -335,84 +349,88 @@ export function AreaCard({
             )}
           </NeighbourhoodPart>
 
-          <NeighbourhoodPart check={income}>
-            {(i) => (
-              <AreaRow label="area.income.label" level={i.level}>
-                {i.medianDesoTkr !== null && i.percentile !== null
-                  ? t("area.income.sentence", {
-                      here: kronor(i.medianDesoTkr, lang),
-                      city: kronor(i.medianGothenburgTkr, lang),
-                      pct: Math.round(i.percentile),
-                      count: i.areaCount,
-                    })
-                  : "–"}
-              </AreaRow>
-            )}
-          </NeighbourhoodPart>
+          {!rent && (
+          <>
+            <NeighbourhoodPart check={income}>
+              {(i) => (
+                <AreaRow label="area.income.label" level={i.level}>
+                  {i.medianDesoTkr !== null && i.percentile !== null
+                    ? t("area.income.sentence", {
+                        here: kronor(i.medianDesoTkr, lang),
+                        city: kronor(i.medianGothenburgTkr, lang),
+                        pct: Math.round(i.percentile),
+                        count: i.areaCount,
+                      })
+                    : "–"}
+                </AreaRow>
+              )}
+            </NeighbourhoodPart>
 
-          <NeighbourhoodPart check={area}>
-            {(a) => {
-              const f = a.flats;
-              const mix = [
-                { k: "rental" as const, v: f.rental ?? 0 },
-                { k: "condo" as const, v: f.condo ?? 0 },
-                { k: "owned" as const, v: f.owned ?? 0 },
-              ];
-              const top = mix.reduce((best, m) => (m.v > best.v ? m : best), mix[0]);
-              const mixKey = top.k === "rental" ? "area.mix.rental" : top.k === "condo" ? "area.mix.condo" : "area.mix.owned";
-              return (
-                <>
-                  <AreaRow label="area.mix.label" word={t(mixKey)}>
-                    {t("area.mix.sentence", {
-                      r: pct(f.rental),
-                      c: pct(f.condo),
-                      o: pct(f.owned),
-                      gr: pct(f.gothenburg.rental),
-                      gc: pct(f.gothenburg.condo),
-                      go: pct(f.gothenburg.owned),
-                    })}
-                  </AreaRow>
-                  <AreaRow label="area.edu.label" level={a.higherEducation.level}>
-                    {t("area.edu.sentence", { v: pct(a.higherEducation.value), g: pct(a.higherEducation.gothenburg) })}
-                  </AreaRow>
-                  <AreaRow label="area.age.label" level={a.over65.level}>
-                    {t("area.age.sentence", { v: pct(a.over65.value), g: pct(a.over65.gothenburg), u: pct(a.under20) })}
-                  </AreaRow>
-                  <AreaRow label="area.kids.label" level={a.withChildren.level}>
-                    {t("area.kids.sentence", { v: pct(a.withChildren.value), g: pct(a.withChildren.gothenburg) })}
-                  </AreaRow>
-                  <AreaRow label="area.pop.label">
-                    {a.population !== null ? t("area.pop.sentence", { n: num(a.population) }) : "–"}
-                  </AreaRow>
-                  <PartSource name="area.src.scb" time={checkedTime(area, lang)} />
-                </>
-              );
-            }}
-          </NeighbourhoodPart>
+            <NeighbourhoodPart check={area}>
+              {(a) => {
+                const f = a.flats;
+                const mix = [
+                  { k: "rental" as const, v: f.rental ?? 0 },
+                  { k: "condo" as const, v: f.condo ?? 0 },
+                  { k: "owned" as const, v: f.owned ?? 0 },
+                ];
+                const top = mix.reduce((best, m) => (m.v > best.v ? m : best), mix[0]);
+                const mixKey = top.k === "rental" ? "area.mix.rental" : top.k === "condo" ? "area.mix.condo" : "area.mix.owned";
+                return (
+                  <>
+                    <AreaRow label="area.mix.label" word={t(mixKey)}>
+                      {t("area.mix.sentence", {
+                        r: pct(f.rental),
+                        c: pct(f.condo),
+                        o: pct(f.owned),
+                        gr: pct(f.gothenburg.rental),
+                        gc: pct(f.gothenburg.condo),
+                        go: pct(f.gothenburg.owned),
+                      })}
+                    </AreaRow>
+                    <AreaRow label="area.edu.label" level={a.higherEducation.level}>
+                      {t("area.edu.sentence", { v: pct(a.higherEducation.value), g: pct(a.higherEducation.gothenburg) })}
+                    </AreaRow>
+                    <AreaRow label="area.age.label" level={a.over65.level}>
+                      {t("area.age.sentence", { v: pct(a.over65.value), g: pct(a.over65.gothenburg), u: pct(a.under20) })}
+                    </AreaRow>
+                    <AreaRow label="area.kids.label" level={a.withChildren.level}>
+                      {t("area.kids.sentence", { v: pct(a.withChildren.value), g: pct(a.withChildren.gothenburg) })}
+                    </AreaRow>
+                    <AreaRow label="area.pop.label">
+                      {a.population !== null ? t("area.pop.sentence", { n: num(a.population) }) : "–"}
+                    </AreaRow>
+                    <PartSource name="area.src.scb" time={checkedTime(area, lang)} />
+                  </>
+                );
+              }}
+            </NeighbourhoodPart>
 
-          <NeighbourhoodPart check={price}>
-            {(p) => {
-              const value = kronor(p.value, lang);
-              const change = p.changePct !== null && p.baseYear !== null ? Math.round(p.changePct) : null;
-              return (
-                <>
-                  <AreaRow label="area.price.label">
-                    {change !== null && p.baseYear !== null
-                      ? t("area.price.sentence", {
-                          year: p.year,
-                          value,
-                          change: `${change >= 0 ? "+" : "\u2212"}${Math.abs(change)}`,
-                          from: p.baseYear,
-                        })
-                      : t("area.price.sentenceNoChange", { year: p.year, value })}
-                  </AreaRow>
-                  <p className="muted area-scope">{t("area.price.scope")}</p>
-                  <PartSource name="area.price.src" time={checkedTime(price, lang)} />
-                </>
-              );
-            }}
-          </NeighbourhoodPart>
-          <p className="muted area-compare">{t("area.compare", { count: 320 })}</p>
+            <NeighbourhoodPart check={price}>
+              {(p) => {
+                const value = kronor(p.value, lang);
+                const change = p.changePct !== null && p.baseYear !== null ? Math.round(p.changePct) : null;
+                return (
+                  <>
+                    <AreaRow label="area.price.label">
+                      {change !== null && p.baseYear !== null
+                        ? t("area.price.sentence", {
+                            year: p.year,
+                            value,
+                            change: `${change >= 0 ? "+" : "\u2212"}${Math.abs(change)}`,
+                            from: p.baseYear,
+                          })
+                        : t("area.price.sentenceNoChange", { year: p.year, value })}
+                    </AreaRow>
+                    <p className="muted area-scope">{t("area.price.scope")}</p>
+                    <PartSource name="area.price.src" time={checkedTime(price, lang)} />
+                  </>
+                );
+              }}
+            </NeighbourhoodPart>
+            <p className="muted area-compare">{t("area.compare", { count: 320 })}</p>
+          </>
+          )}
         </>
       )}
     </ProfileCard>

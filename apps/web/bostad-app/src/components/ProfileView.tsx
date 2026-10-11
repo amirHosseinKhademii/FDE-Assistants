@@ -14,12 +14,13 @@ import { TopBar } from "./TopBar";
 import { HeroPhoto } from "./HeroPhoto";
 import { BottomSheet, type SheetMode } from "./BottomSheet";
 import { FloatingSearch } from "./FloatingSearch";
+import { ModeSwitch, type AppMode } from "./ModeSwitch";
 
 const NO_STOPS: never[] = [];
 const NO_PLACES: PlaceItem[] = [];
 
 /** The profile for one address. Shareable: the address lives in the URL. */
-export function ProfileView({ address, onSearch }: { address: string; onSearch: (address: string) => void }) {
+export function ProfileView({ address, appMode = "buy", onSearch }: { address: string; appMode?: AppMode; onSearch: (address: string) => void }) {
   const { t } = useLang();
   const { state, retry } = useProfile(address);
 
@@ -141,6 +142,7 @@ export function ProfileView({ address, onSearch }: { address: string; onSearch: 
         />
 
         <BottomSheet mode={mode} onMode={setMode}>
+          <ModeSwitch mode={appMode} address={address} />
           {coords && <HeroPhoto lat={coords.lat} lon={coords.lon} address={address} />}
           <AddressHeader address={address} profile={profile} />
           {loading && <ProfileSkeleton />}
@@ -148,6 +150,7 @@ export function ProfileView({ address, onSearch }: { address: string; onSearch: 
           {profile && (
             <ProfileBody
               profile={profile}
+              mode={appMode}
               onRetry={retry}
               filter={filter}
               onFilter={setFilter}

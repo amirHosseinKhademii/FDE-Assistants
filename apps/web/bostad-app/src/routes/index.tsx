@@ -6,7 +6,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ADDRESS_MAX_LENGTH } from "../lib/address";
 import { HomeView } from "../components/HomeView";
 import { ProfileView } from "../components/ProfileView";
-import { RentView } from "../components/RentView";
+import type { AppMode } from "../components/ModeSwitch";
 import { addRecent } from "../lib/recents";
 
 export const Route = createFileRoute("/")({
@@ -21,11 +21,13 @@ export const Route = createFileRoute("/")({
 function Page() {
   const { address, mode } = Route.useSearch();
   const navigate = useNavigate();
+  const appMode: AppMode = mode === "rent" ? "rent" : "buy";
+  // A search from either mode stays in that mode: rent searches land on the rent profile.
   const search = (next: string) => {
     addRecent(next);
-    navigate({ to: "/", search: { address: next } });
+    navigate({ to: "/", search: appMode === "rent" ? { address: next, mode: "rent" } : { address: next } });
   };
 
-  if (mode === "rent") return <RentView />;
-  return address ? <ProfileView address={address} onSearch={search} /> : <HomeView onSearch={search} />;
+  if (address) return <ProfileView address={address} appMode={appMode} onSearch={search} />;
+  return <HomeView mode={appMode} onSearch={search} />;
 }

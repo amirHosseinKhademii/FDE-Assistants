@@ -9,6 +9,8 @@ import { AreaCard, GroundCard, NearbyPlacesCard, NoiseCard, TransportCard, place
 import { LEVEL_ARROW, SafetyCard } from "./SafetyCard";
 import { LEVEL_ICON } from "./Badges";
 import { LEVEL_TONE, levelOf, pctDiff } from "../lib/safety";
+import { RentCard } from "./RentCard";
+import type { AppMode } from "./ModeSwitch";
 import type { PlacesFilter } from "./placeFilter";
 import type { CardResult, Tone } from "./ProfileCard";
 
@@ -91,6 +93,7 @@ const TILE_NAME: Record<string, MessageKey> = {
 /** Every section of a loaded profile: three status tiles, the cards, then one row for what is coming. */
 export function ProfileBody({
   profile,
+  mode = "buy",
   onRetry,
   filter = "all",
   onFilter = () => {},
@@ -101,6 +104,8 @@ export function ProfileBody({
   onSafetyToggle = () => {},
 }: {
   profile: Profile;
+  /** Rent drops the price and BRF parts and leads with the rental card. */
+  mode?: AppMode;
   onRetry: () => void;
   filter?: ModeFilter;
   onFilter?: (f: ModeFilter) => void;
@@ -111,6 +116,7 @@ export function ProfileBody({
   onSafetyToggle?: (open: boolean) => void;
 }) {
   const { t } = useLang();
+  const rent = mode === "rent";
   const gate = gateOf(profile);
   const ground = gatedCheck(profile.landslide, gate);
   const noise = gatedCheck(profile.noise, gate);
@@ -168,11 +174,21 @@ export function ProfileBody({
       }
     : uncheckedResult(t);
 
+  // Rent: the share of rental flats here, in the first tile's place. The area tile (income and price) is buy-only.
+  const rentalShare = area.kind === "ok" ? area.data.flats.rental : null;
+  const rentRes: CardResult =
+    rentalShare !== null
+      ? { text: t("rent.share.sentence", { pct: Math.round(rentalShare * 100) }), short: t("rent.share.short", { pct: Math.round(rentalShare * 100) }), tone: "neutral" }
+      : uncheckedResult(t);
+  // The place HomeQ is asked about: the district, else the city.
+  const place = district.kind === "ok" ? (district.data.stadsomrade?.name ?? district.data.primaryArea?.name ?? "Göteborg") : "Göteborg";
+
   const tiles: Tile[] = [
+    ...(rent ? [{ id: "card-rent", icon: "houseDoor" as const, res: rentRes }] : []),
     { id: "card-safety", icon: "shield", res: safetyRes },
     { id: "card-transport", icon: "bus", res: transitRes },
     { id: "card-noise", icon: "sound", res: noiseRes },
-    { id: "card-area", icon: "houseTag", res: areaRes },
+    ...(rent ? [] : [{ id: "card-area", icon: "houseTag" as const, res: areaRes }]),
     { id: "card-places", icon: "pin", res: placesRes },
     { id: "card-ground", icon: "mountain", res: groundRes },
   ];
@@ -205,11 +221,12 @@ export function ProfileBody({
         </div>
       )}
 
-      {/* Card order matches the tiles: Safety, Transport, Noise, Area & prices, Nearby places, Ground. */}
+      {/* Card order matches the tiles. Rent: Renting here first, then the district where Area & prices sits in buy. */}
+      {rent && <RentCard rentalShare={rentalShare} rentalCity={area.kind === "ok" ? area.data.flats.gothenburg.rental : null} year={area.kind === "ok" ? area.data.year : ""} place={place} result={rentRes} />}
       <SafetyCard check={safety} result={safetyRes} onRetry={onRetry} onOpenChange={onSafetyToggle} />
       <TransportCard check={transit} onRetry={onRetry} filter={filter} onFilter={onFilter} result={transitRes} />
       <NoiseCard check={noise} onRetry={onRetry} result={noiseRes} />
-      <AreaCard district={district} income={income} area={area} price={price} onRetry={onRetry} result={areaRes} />
+      <AreaCard district={district} income={income} area={area} price={price} onRetry={onRetry} result={areaRes} mode={rent ? "rent" : "buy"} />
       <NearbyPlacesCard
         check={places}
         onRetry={onRetry}
@@ -222,7 +239,9 @@ export function ProfileBody({
       <GroundCard check={ground} onRetry={onRetry} result={groundRes} />
 
       <p className="more-row">
-        {t("more.coming", { items: [t("more.brf"), t("more.energy"), t("more.inspection"), t("more.flood")].join(" · ") })}
+        {t("more.coming", {
+          items: (rent ? [t("more.energy"), t("more.flood")] : [t("more.brf"), t("more.energy"), t("more.inspection"), t("more.flood")]).join(" · "),
+        })}
       </p>
     </>
   );
