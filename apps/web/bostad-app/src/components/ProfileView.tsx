@@ -10,7 +10,7 @@ import { SearchBox } from "./SearchBox";
 import type { ModeFilter } from "../lib/transport";
 import type { PlaceItem } from "@bostad/property";
 import type { PlacesFilter } from "./placeFilter";
-import { TopBar } from "./TopBar";
+import { MapHeader } from "./MapHeader";
 import { HeroPhoto } from "./HeroPhoto";
 import { BottomSheet, type SheetMode } from "./BottomSheet";
 import { FloatingSearch } from "./FloatingSearch";
@@ -107,8 +107,16 @@ export function ProfileView({ address, appMode = "buy", onSearch }: { address: s
 
   return (
     <div className="wrap">
-      <TopBar
-        overlay
+      <MapHeader
+        stops={stops}
+        filter={filter}
+        onFilter={setFilter}
+        places={placeItems}
+        placeFilter={placeFilter}
+        onPlaceFilter={setPlaceFilter}
+        placeCount={placeItems.length}
+        showPlaces={showPlaces}
+        onShowPlaces={setShowPlaces}
         searching={searching}
         search={
           !wide ? <FloatingSearch address={address} onSearch={onSearch} onOpenChange={setSearching} /> : undefined
@@ -126,16 +134,12 @@ export function ProfileView({ address, appMode = "buy", onSearch }: { address: s
           lon={coords?.lon}
           stops={stops}
           filter={filter}
-          onFilter={setFilter}
           places={placeItems}
           placeFilter={placeFilter}
-          onPlaceFilter={setPlaceFilter}
           selectedPlaceId={placeId}
           onSelectPlace={setPlaceId}
           focus={focus}
-          placeCount={placeItems.length}
           showPlaces={showPlaces}
-          onShowPlaces={setShowPlaces}
           loading={loading}
           resizeKey={mode === "collapsed" ? "collapsed" : "open"}
           district={safetyOpen ? district : null}

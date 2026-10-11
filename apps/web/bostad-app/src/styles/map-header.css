@@ -1,0 +1,236 @@
+/* The map header: one row of 36 px controls over the map, with the Filters dropdown under it. */
+
+.topbar.is-overlay.map-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 0;
+  padding-right: 0;
+  pointer-events: none;
+}
+
+.map-header > * {
+  pointer-events: auto;
+}
+
+.map-header-brand {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  box-shadow: var(--shadow);
+  white-space: nowrap;
+}
+
+.map-header-tools {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* Language: a compact segmented pill, 36 px tall. */
+.map-header .lang {
+  height: 36px;
+  padding: 3px;
+  box-sizing: border-box;
+  align-items: center;
+}
+
+.map-header .lang button {
+  position: relative;
+  min-width: 34px;
+  min-height: 30px;
+  height: 30px;
+  padding: 0 8px;
+  font-size: 12px;
+}
+
+/* Theme and search: 36 px circles. */
+.map-header .theme-toggle {
+  width: 36px;
+  height: 36px;
+  flex: none;
+}
+
+.map-header .theme-toggle .icon {
+  width: 18px;
+  height: 18px;
+}
+
+.map-header .float-search {
+  position: relative;
+  top: auto;
+  right: auto;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  display: block;
+  z-index: auto;
+  transition: none;
+}
+
+.map-header .float-search.is-open {
+  flex: 1 1 auto;
+  width: auto;
+}
+
+.map-header .float-search-btn {
+  width: 36px;
+  height: 36px;
+}
+
+.map-header .float-search-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.map-header .float-search-cancel {
+  width: 36px;
+  height: 36px;
+  font-size: 20px;
+}
+
+.map-header .float-search-box {
+  right: 40px;
+}
+
+/* While the search is open the row is only the search. */
+.map-header.is-searching .map-header-brand,
+.map-header.is-searching .map-filter,
+.map-header.is-searching .lang,
+.map-header.is-searching .theme-toggle {
+  display: none;
+}
+
+.map-header.is-searching .map-header-tools {
+  flex: 1 1 auto;
+}
+
+/* Filters button: layers icon, a count of active filters, a chevron. */
+.map-filter {
+  position: relative;
+  flex: none;
+}
+
+.map-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 36px;
+  min-width: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: border-color 160ms ease;
+}
+
+.map-filter-btn[data-active="true"] {
+  border-color: var(--accent);
+}
+
+.map-filter-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.map-filter-btn svg {
+  display: block;
+}
+
+.map-filter-chevron {
+  display: grid;
+  place-items: center;
+  transition: transform 160ms ease;
+}
+
+.map-filter-chevron svg {
+  width: 14px;
+  height: 14px;
+}
+
+.map-filter-btn[aria-expanded="true"] .map-filter-chevron {
+  transform: rotate(180deg);
+}
+
+.map-filter-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* The dropdown: fixed under the button, anchored and clamped by MapHeader. */
+.map-filter-panel {
+  position: fixed;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-sizing: border-box;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-pop);
+  transform-origin: top left;
+  opacity: 0;
+  transform: translateY(-6px) scale(0.97);
+  visibility: hidden;
+  transition: opacity 160ms ease, transform 160ms ease, visibility 0s linear 160ms;
+}
+
+.map-filter-panel.is-open {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+  transition: opacity 160ms ease, transform 160ms ease, visibility 0s linear 0s;
+}
+
+.map-chips-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.map-filter-panel .map-chip {
+  min-height: 36px;
+  padding: 0 12px 0 8px;
+}
+
+.map-filter-panel .map-chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-filter-panel,
+  .map-filter-panel.is-open,
+  .map-filter-btn,
+  .map-filter-chevron {
+    transition: none;
+  }
+}

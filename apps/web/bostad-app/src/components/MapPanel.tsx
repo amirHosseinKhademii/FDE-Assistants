@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import { useLang } from "../lib/lang";
 import { googleMapsHref, walkingDirectionsHref, walkMinutes } from "../lib/format";
 import { HAS_MAPS_KEY } from "../lib/maps";
-import { MODE_KEY, modesPresent, type MapStop, type ModeFilter } from "../lib/transport";
+import { type MapStop, type ModeFilter } from "../lib/transport";
 import { Icon } from "./Icons";
 import { GoogleMap } from "./GoogleMap";
 import { MapBoundary } from "./MapBoundary";
 import { LineBadge, ModeIcon } from "./ModeIcon";
 import type { PlaceCategory, PlaceItem } from "@bostad/property";
-import { PLACE_KEY, PLACE_ORDER } from "../lib/places";
+import { PLACE_KEY } from "../lib/places";
 import { PlaceBadge } from "./MapPins";
 import type { PlacesFilter } from "./placeFilter";
 import type { LatLng } from "@bostad/property";
@@ -31,8 +31,8 @@ function ExpandIcon({ close }: { close: boolean }) {
 }
 
 /**
- * The map panel: the map, its layer chips, the expand and recenter buttons and
- * the stop card. Owns the view state (fullscreen, selected stop). Without a key,
+ * The map panel: the map, the expand and recenter buttons and the stop card.
+ * The layer chips live in MapHeader. Owns the view state (fullscreen, selected stop). Without a key,
  * or before mount, it shows the placeholder card.
  */
 export function MapPanel({
@@ -40,16 +40,12 @@ export function MapPanel({
   lon,
   stops = [],
   filter = "all",
-  onFilter = () => {},
   places = [],
   placeFilter = "all",
-  onPlaceFilter = () => {},
   selectedPlaceId = null,
   onSelectPlace = () => {},
   focus = null,
-  placeCount = 0,
   showPlaces = false,
-  onShowPlaces = () => {},
   loading = false,
   resizeKey,
   district = null,
@@ -58,17 +54,13 @@ export function MapPanel({
   lon?: number;
   stops?: MapStop[];
   filter?: ModeFilter;
-  onFilter?: (f: ModeFilter) => void;
   /** Every everyday place found; the layer shows the ones that match placeFilter. */
   places?: PlaceItem[];
   placeFilter?: PlacesFilter;
-  onPlaceFilter?: (f: PlacesFilter) => void;
   selectedPlaceId?: string | null;
   onSelectPlace?: (id: string | null) => void;
   focus?: { lat: number; lon: number; nonce: number } | null;
-  placeCount?: number;
   showPlaces?: boolean;
-  onShowPlaces?: (on: boolean) => void;
   loading?: boolean;
   /** Changes when the map's box changes size (the sheet opened or collapsed): the map resizes, its centre and zoom stay. */
   resizeKey?: string;
@@ -122,8 +114,6 @@ export function MapPanel({
   const selected = stops.find((s) => (s.id || s.name) === selectedId) ?? null;
   const selectedPlace = places.find((p) => p.id === selectedPlaceId) ?? null;
   const shownPlaces = showPlaces ? places.filter((p) => placeFilter === "all" || p.category === placeFilter) : [];
-  const placeCategories = PLACE_ORDER.filter((c) => places.some((p) => p.category === c));
-  const present = modesPresent(stops);
   const className = `map-col${expanded ? " is-expanded" : ""}`;
 
   const placeholder = (
@@ -166,41 +156,6 @@ export function MapPanel({
         />
       </MapBoundary>
       </div>
-
-      <div className="map-chips" role="group" aria-label={t("map.layers")}>
-        {(["all", ...present] as ModeFilter[]).map((option) => (
-          <button
-            key={option}
-            type="button"
-            className="map-chip"
-            aria-pressed={filter === option}
-            onClick={() => onFilter(option)}
-          >
-            {option !== "all" && <ModeIcon mode={option} size={22} />}
-            <span>{option === "all" ? t("transport.filter.all") : t(MODE_KEY[option])}</span>
-          </button>
-        ))}
-        {placeCount > 0 && (
-          <button type="button" className="map-chip" aria-pressed={showPlaces} onClick={() => onShowPlaces(!showPlaces)}>
-            <span>{t(showPlaces ? "map.hidePlaces" : "map.showPlaces")}</span>
-          </button>
-        )}
-      </div>
-      {showPlaces && placeCategories.length > 0 && (
-        <div className="map-chips map-chips--places" role="group" aria-label={t("card.places.filter.label")}>
-          {(["all", ...placeCategories] as PlacesFilter[]).map((option) => (
-            <button
-              key={option}
-              type="button"
-              className="map-chip"
-              aria-pressed={placeFilter === option}
-              onClick={() => onPlaceFilter(option)}
-            >
-              <span>{option === "all" ? t("transport.filter.all") : t(PLACE_KEY[option])}</span>
-            </button>
-          ))}
-        </div>
-      )}
 
       <button
         type="button"
