@@ -13,11 +13,11 @@ export function askEnabled(): boolean {
   return import.meta.env.DEV || process.env.BOSTAD_ASK === '1';
 }
 
-export async function askFor(address: string, question: string): Promise<{ answer: AddressAnswer | null; errors: string[] }> {
+export async function askFor(address: string, question: string, lang: 'en' | 'sv' = 'en'): Promise<{ answer: AddressAnswer | null; errors: string[] }> {
   loadRepoEnv();
   // Loaded here, not at module top: the production image does not ship @bostad/ai,
   // and a static import would crash the server at startup even with Ask off.
   const { askAddress } = await import('@bostad/ai');
-  const result = await askAddress(address, question, { surface: 'bostad-web' });
+  const result = await askAddress(address, question, { surface: 'bostad-web', lang });
   return { answer: result.answer, errors: result.errors };
 }

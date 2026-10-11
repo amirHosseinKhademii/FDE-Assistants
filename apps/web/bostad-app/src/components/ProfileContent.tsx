@@ -1,7 +1,7 @@
 import type { Level, NoiseResult, PlaceItem, PriceResult, Profile } from "@bostad/property";
 import { useLang } from "../lib/lang";
 import { cityCheck, gatedCheck, gateOf, type Check } from "../lib/checks";
-import { walkMinutes } from "../lib/format";
+import { localeOf, walkMinutes } from "../lib/format";
 import type { ModeFilter } from "../lib/transport";
 import type { MessageKey } from "../lib/i18n";
 import { Icon, type IconName } from "./Icons";
@@ -11,7 +11,7 @@ import { LEVEL_ICON } from "./Badges";
 import { LEVEL_TONE, levelOf, pctDiff } from "../lib/safety";
 import { RentCard } from "./RentCard";
 import { BrfCard, brfResult } from "./BrfCard";
-import { MortgageCard } from "./MortgageCard";
+import { MortgageCard, mortgageResult, useMortgageRates } from "./MortgageCard";
 import { AskAiButton } from "./AskAi";
 import type { AppMode } from "./ModeSwitch";
 import type { PlacesFilter } from "./placeFilter";
@@ -95,6 +95,7 @@ const TILE_NAME: Record<string, MessageKey> = {
   "card-places": "tile.name.nearby",
   "card-ground": "tile.name.ground",
   "card-brf": "tile.name.brf",
+  "card-mortgage": "tile.name.mortgage",
 };
 
 /** Every section of a loaded profile: three status tiles, the cards, then one row for what is coming. */
@@ -160,9 +161,13 @@ export function ProfileBody({
         : { text: t("summary.transport.none"), short: t("tile.word.none"), tone: "muted" };
   const placesRes: CardResult = places.kind === "ok" ? placesSummary(places.data, t) : uncheckedResult(t);
   const area = gatedCheck(profile.area, "exact");
-  const brfRes = brfResult(brf, t, lang);
+  const brfRes = brfResult(brf, t);
   // Prices describe the whole kommun, so the address gate does not apply to them.
   const price: Check<PriceResult> = cityCheck(profile.price);
+  // The mortgage tile and the card show the same thing: the lowest 3-month bank list rate today.
+  const mortgage = useMortgageRates();
+  const mortgageRes: CardResult = mortgageResult(mortgage.rates, mortgage.loaded, t, lang);
+
   // Price shows the income level until house prices exist (see the card's sentence).
   const incomeLevel: Level | null = income.kind === "ok" ? income.data.level : null;
   const areaRes: CardResult = incomeLevel
@@ -193,15 +198,17 @@ export function ProfileBody({
   // The place HomeQ is asked about: the district, else the city.
   const place = district.kind === "ok" ? (district.data.stadsomrade?.name ?? district.data.primaryArea?.name ?? "Göteborg") : "Göteborg";
 
+  // One order for the tiles and the cards: Transport, Safety, Nearby places, Noise, Area (income and price), Ground, BRF, Mortgage.
   const tiles: Tile[] = [
     ...(rent ? [{ id: "card-rent", icon: "houseDoor" as const, res: rentRes }] : []),
-    { id: "card-safety", icon: "shield", res: safetyRes },
     { id: "card-transport", icon: "bus", res: transitRes },
+    { id: "card-safety", icon: "shield", res: safetyRes },
+    { id: "card-places", icon: "pin", res: placesRes },
     { id: "card-noise", icon: "sound", res: noiseRes },
     ...(rent ? [] : [{ id: "card-area", icon: "houseTag" as const, res: areaRes }]),
-    ...(rent ? [] : [{ id: "card-brf", icon: "building" as const, res: brfRes }]),
-    { id: "card-places", icon: "pin", res: placesRes },
     { id: "card-ground", icon: "mountain", res: groundRes },
+    ...(rent ? [] : [{ id: "card-brf", icon: "building" as const, res: brfRes }]),
+    ...(rent ? [] : [{ id: "card-mortgage", icon: "card" as const, res: mortgageRes }]),
   ];
 
   return (
@@ -232,14 +239,10 @@ export function ProfileBody({
         </div>
       )}
 
-      {/* Card order matches the tiles. Rent: Renting here first, then the district where Area & prices sits in buy. */}
+      {/* Card order matches the tiles. Rent: Renting here first, then the same order for the shared sections. */}
       {rent && <RentCard rentalShare={rentalShare} rentalCity={area.kind === "ok" ? area.data.flats.gothenburg.rental : null} year={area.kind === "ok" ? area.data.year : ""} place={place} result={rentRes} />}
-      <SafetyCard check={safety} result={safetyRes} onRetry={onRetry} onOpenChange={onSafetyToggle} />
       <TransportCard check={transit} onRetry={onRetry} filter={filter} onFilter={onFilter} result={transitRes} />
-      <NoiseCard check={noise} onRetry={onRetry} result={noiseRes} />
-      <AreaCard district={district} income={income} area={area} price={price} onRetry={onRetry} result={areaRes} mode={rent ? "rent" : "buy"} />
-      {!rent && <BrfCard check={brf} result={brfRes} />}
-      {!rent && <MortgageCard price={price.kind === "ok" ? price.data : null} brfFeePerSqm={brf.kind === "ok" ? (brf.data.annualFeePerSqm?.value ?? null) : null} />}
+      <SafetyCard check={safety} result={safetyRes} onRetry={onRetry} onOpenChange={onSafetyToggle} />
       <NearbyPlacesCard
         check={places}
         onRetry={onRetry}
@@ -249,7 +252,11 @@ export function ProfileBody({
         onPick={onPickPlace}
         result={placesRes}
       />
+      <NoiseCard check={noise} onRetry={onRetry} result={noiseRes} />
+      <AreaCard district={district} income={income} area={area} price={price} onRetry={onRetry} result={areaRes} mode={rent ? "rent" : "buy"} />
       <GroundCard check={ground} onRetry={onRetry} result={groundRes} />
+      {!rent && <BrfCard check={brf} result={brfRes} />}
+      {!rent && <MortgageCard brfFeePerSqm={brf.kind === "ok" ? (brf.data.annualFeePerSqm?.value ?? null) : null} />}
 
       <p className="more-row">
         {t("more.coming", {

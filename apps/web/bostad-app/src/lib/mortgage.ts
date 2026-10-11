@@ -91,7 +91,31 @@ export function calculate(input: MortgageInput): MortgageResult {
 }
 
 /** The lowest list rate for a fixation period, or null when no bank gives one. */
-export function lowestRate(rates: { period: string; rate: number }[], period: string): number | null {
-  const values = rates.filter((r) => r.period === period).map((r) => r.rate);
+/**
+ * Kronor from a typed price. Every character that is not a digit is dropped, so "3 500 000" (spaces, or the
+ * no-break space the browser may insert), "3,500,000", "3.500.000" and "3500000" all give 3500000.
+ */
+export function parseKr(text: string): number {
+  const digits = text.replace(/\D/g, "");
+  return digits ? Number(digits) : 0;
+}
+
+/** The price as the input shows it while typing: Swedish grouping, a space between thousands, e.g. 3 500 000. */
+export function groupKr(amount: number): string {
+  return amount > 0 ? Math.round(amount).toLocaleString("sv-SE") : "";
+}
+
+/** Below this a price is almost certainly typed in tkr, so the calculator shows a hint instead of numbers. */
+export const MIN_PRICE_KR = 100000;
+
+/** The cheapest bank list rate for a period, leaving out "from" rates, or null. */
+export function lowestListRate<T extends { period: string; rate: number; from?: boolean }>(rates: T[], period: string): T | null {
+  const hits = rates.filter((r) => r.period === period && !r.from);
+  return hits.length > 0 ? hits.reduce((a, b) => (b.rate < a.rate ? b : a)) : null;
+}
+
+/** The lowest list rate for a period. "From" rates are left out: they are the bottom of a range, not a rate a bank quotes. */
+export function lowestRate(rates: { period: string; rate: number; from?: boolean }[], period: string): number | null {
+  const values = rates.filter((r) => r.period === period && !r.from).map((r) => r.rate);
   return values.length > 0 ? Math.min(...values) : null;
 }

@@ -29,7 +29,7 @@ import { logRequest, priceOf } from '@fde/telemetry';
 import { env, openaiClient } from '../foundry/client';
 import { createProfileCache, getProfileSectionTool } from '../tools/get-profile-section';
 import { AddressAnswerSchema, coherenceErrors, type AddressAnswer } from '../schema/address-answer';
-import { ADDRESS_SYSTEM_PROMPT, buildAddressPrompt } from './prompt';
+import { addressSystemPrompt, buildAddressPrompt, type AnswerLang } from './prompt';
 
 const validateShape = createAnswerValidator<AddressAnswer>({ schema: AddressAnswerSchema });
 
@@ -61,6 +61,8 @@ export interface AskOptions {
   onEvent?: (e: LoopEvent) => void;
   /** Off only for callers that log the run themselves. */
   log?: boolean;
+  /** Reply language, the UI language of the asking page. English when not given. */
+  lang?: AnswerLang;
 }
 
 export interface AddressAskResult {
@@ -87,7 +89,7 @@ export async function askAddress(address: string, question: string, opts: AskOpt
     registry,
     buildAddressPrompt(address, question),
     {
-      system: ADDRESS_SYSTEM_PROMPT,
+      system: addressSystemPrompt(opts.lang ?? 'en'),
       responseFormat: AddressAnswerSchema,
       validate: validateShape,
       agentName: 'address',

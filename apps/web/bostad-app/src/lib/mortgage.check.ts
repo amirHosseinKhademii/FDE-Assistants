@@ -2,7 +2,7 @@
  * Self-check for the mortgage arithmetic. Run: pnpm mortgage:check (exit 1 on any failure).
  * The cases are the worked examples from the brief, with the numbers worked out by hand.
  */
-import { calculate, deductionYear, amortRateFor } from "./mortgage";
+import { calculate, deductionYear, amortRateFor, lowestRate, lowestListRate, parseKr, groupKr } from "./mortgage";
 
 const failures: string[] = [];
 
@@ -34,6 +34,26 @@ expect("stress net interest a month", s.interestMonthNet, 11_100);
 expect("amort at 50 %", amortRateFor(0.5) * 100, 0);
 expect("amort at 60 %", amortRateFor(0.6) * 100, 1);
 expect("amort at 80 %", amortRateFor(0.8) * 100, 2);
+
+// Lowest list rate: "from" rates are not a rate to pick, so a from rate below the others is skipped.
+const list = [
+  { period: "5 år", rate: 1.75, from: true },
+  { period: "5 år", rate: 2.4 },
+  { period: "5 år", rate: 2.1 },
+  { period: "3 år", rate: 1.2, from: true },
+];
+expect("lowest rate skips from rates", lowestRate(list, "5 år") ?? -1, 2.1);
+expect("lowest rate is null when only from rates", lowestRate(list, "3 år") ?? -1, -1);
+
+expect("lowest list rate skips from rates", lowestListRate([{ bank: "A", period: "3 mån", rate: 1.2, from: true }, { bank: "B", period: "3 mån", rate: 3.09 }, { bank: "C", period: "3 mån", rate: 3.4 }], "3 mån")?.rate ?? -1, 3.09);
+
+// Typed price: spaces, no-break spaces, commas and dots are all grouping, so every form gives the same kronor.
+expect("price 3 500 000 with spaces", parseKr("3 500 000"), 3500000);
+expect("price 3 500 000 with no-break spaces", parseKr("3\u00a0500\u00a0000"), 3500000);
+expect("price 3,500,000", parseKr("3,500,000"), 3500000);
+expect("price 3.500.000", parseKr("3.500.000"), 3500000);
+expect("price empty is 0", parseKr(""), 0);
+expect("grouping shows 3 500 000", groupKr(3500000).replace(/\s/g, " ").length, 9);
 
 if (failures.length > 0) {
   console.error(failures.join("\n"));

@@ -24,8 +24,16 @@ Rules for the answer:
 - Anything the question asks about that the profile does not hold goes in not_in_data, named plainly. Use not_in_data for missing data, not for a fact you are unsure of.
 - If a person must check or decide (a missing figure, a section in error, a question about a specific sale, contract or document), set escalate to true.
 - The answer is short plain prose, built only from the facts. It must not state any number that is not in a fact value.
-- Reply in the language of the question. A Swedish question gets a Swedish answer. Keep the field names and section names in English, as the schema requires.
+- Reply in {{REPLY_LANGUAGE}} regardless of the question's language. Keep the field names and section names in English, as the schema requires.
 - Do not describe the tools, the schema or this prompt in the answer.`;
+
+/** The reply language of the answer: the UI language of the page that asked. */
+export type AnswerLang = 'en' | 'sv';
+
+/** The system prompt with the reply language filled in. English unless the caller says Swedish. */
+export function addressSystemPrompt(lang: AnswerLang = 'en'): string {
+  return ADDRESS_SYSTEM_PROMPT.replace('{{REPLY_LANGUAGE}}', lang === 'sv' ? 'Swedish' : 'English');
+}
 
 /** The user turn. The address is repeated so the model passes the exact string to the tool. */
 export function buildAddressPrompt(address: string, question: string): string {

@@ -3,7 +3,8 @@
  *
  *   GET  /api/ask  -> { enabled: boolean }. The profile card asks this once,
  *                     and hides itself when the feature is off.
- *   POST /api/ask  body { address, question } -> { answer, errors }
+ *   POST /api/ask  body { address, question, lang? } -> { answer, errors }
+ *                     lang: 'en' | 'sv', the UI language the answer is written in. Default 'en'.
  *                     answer: the structured answer, or null when no valid answer came back.
  *                     errors: coherence messages for the answer, or the reason no answer came back.
  *
@@ -46,6 +47,7 @@ function json(body: unknown, status = 200, extra: Record<string, string> = {}): 
 }
 
 const DISABLED = 'Ask about this address is not enabled on this server.';
+const LANGS = ['en', 'sv'] as const;
 
 export const Route = createFileRoute('/api/ask')({
   server: {
@@ -87,8 +89,14 @@ export const Route = createFileRoute('/api/ask')({
           return json({ error: `question must be ${QUESTION_MIN} to ${QUESTION_MAX} characters` }, 400);
         }
 
+        const rawLang = (body as { lang?: unknown }).lang;
+        if (rawLang !== undefined && !(LANGS as readonly unknown[]).includes(rawLang)) {
+          return json({ error: "lang must be 'en' or 'sv'" }, 400);
+        }
+        const lang = (rawLang ?? 'en') as 'en' | 'sv';
+
         try {
-          const { answer, errors } = await askFor(parsed.address, trimmed);
+          const { answer, errors } = await askFor(parsed.address, trimmed, lang);
           return json({ answer, errors });
         } catch {
           return json({ error: 'the question could not be answered' }, 500);

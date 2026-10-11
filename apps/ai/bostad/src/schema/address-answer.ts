@@ -80,8 +80,8 @@ export const AddressAnswerSchema = z.strictObject({
   answer: z
     .string()
     .describe(
-      'The answer to the question, in plain prose, in the language of the ' +
-        'question. Built only from the facts list. If the profile does not hold ' +
+      'The answer to the question, in plain prose, in the reply language the ' +
+        'system prompt names. Built only from the facts list. If the profile does not hold ' +
         'the answer, say so in one plain sentence and point to not_in_data. Every ' +
         'number written here must also appear in a fact value.',
     ),

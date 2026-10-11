@@ -2,8 +2,9 @@ import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from
 import type { BankInfo, BankRate, MortgageRates, PriceResult } from "@bostad/property";
 import { OriginDialog, originOf, type Origin } from "@fde/uikit";
 import { useLang } from "../lib/lang";
+import { localeOf } from "../lib/format";
 import type { MessageKey } from "../lib/i18n";
-import { calculate, FIXATIONS, lowestRate, MAX_LTV, MIN_DOWN_SHARE, type Fixation } from "../lib/mortgage";
+import { calculate, FIXATIONS, groupKr, lowestListRate, lowestRate, MAX_LTV, MIN_DOWN_SHARE, MIN_PRICE_KR, parseKr, type Fixation } from "../lib/mortgage";
 import { fetchMortgageRates } from "../lib/mortgageRates";
 import { Icon } from "./Icons";
 import { ProfileCard, type CardResult } from "./ProfileCard";
@@ -21,6 +22,8 @@ const SV = "sv-SE";
 const kr = (v: number) => `${Math.round(v).toLocaleString(SV)} kr`;
 const pct = (v: number, digits = 2) => v.toLocaleString(SV, { minimumFractionDigits: digits, maximumFractionDigits: digits });
 const DEFAULT_PERIOD: Fixation = "5 år";
+/** The period the card and the profile tile quote: the cheapest 3-month list rate. */
+const LOWEST_PERIOD: Fixation = "3 mån";
 
 /** The number a text field holds, read leniently: a comma is a decimal point, spaces are ignored. */
 function num(text: string): number {
@@ -34,14 +37,14 @@ function averageFor(rates: MortgageRates | null, period: Fixation): number | nul
   return hit ? hit.rate : null;
 }
 
-/** The starting rate for a period: the lowest bank list rate, else SCB's average. */
-function startRate(rates: MortgageRates | null, period: Fixation): number | null {
+/** The starting rate for a period: the lowest bank list rate (not a "from" rate), else SCB's average. */
+export function startRate(rates: MortgageRates | null, period: Fixation): number | null {
   const list = rates?.banks.data?.rates ?? [];
   return lowestRate(list, period) ?? averageFor(rates, period);
 }
 
 /** The loaded rates, or null while loading or when the server has none. Fetched once per page. */
-function useMortgageRates(): { rates: MortgageRates | null; loaded: boolean } {
+export function useMortgageRates(): { rates: MortgageRates | null; loaded: boolean } {
   const [state, setState] = useState<{ rates: MortgageRates | null; loaded: boolean }>({ rates: null, loaded: false });
   useEffect(() => {
     let live = true;
@@ -55,30 +58,35 @@ function useMortgageRates(): { rates: MortgageRates | null; loaded: boolean } {
   return state;
 }
 
-export function MortgageCard({ price, brfFeePerSqm }: { price: PriceResult | null; brfFeePerSqm: number | null }) {
+/** The lowest 3-month list rate today, as the card's chip and sentence. The profile tile shows the same object. */
+export function mortgageResult(rates: MortgageRates | null, loaded: boolean, t: Translate, lang: Lang): CardResult {
+  const list = rates?.banks.data?.rates ?? [];
+  const lowest = lowestListRate(list, LOWEST_PERIOD);
+  if (!lowest) return { text: t(loaded ? "mortgage.noRates" : "summary.notChecked"), short: "–", tone: "muted" };
+  const rate = lowest.rate.toLocaleString(localeOf(lang), { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return {
+    text: t("mortgage.lowestToday", { rate, bank: lowest.bank, period: LOWEST_PERIOD }),
+    short: `${rate} %`,
+    tone: "muted",
+  };
+}
+
+export function MortgageCard({ brfFeePerSqm }: { brfFeePerSqm: number | null }) {
   const { t, lang } = useLang();
   const { rates, loaded } = useMortgageRates();
   const [origin, setOrigin] = useState<Origin | null>(null);
   const [open, setOpen] = useState(false);
-
-  // The card's own figure: the SCB price, 10 % down, the starting rate for the default period, no fee.
-  const basePrice = price ? price.value * 1000 : null;
-  const baseRate = startRate(rates, DEFAULT_PERIOD);
-  const headline = basePrice !== null && baseRate !== null ? calculate({ price: basePrice, down: basePrice * MIN_DOWN_SHARE, rate: baseRate, fee: 0 }).base.totalMonth : null;
-
-  const result: CardResult =
-    headline !== null && basePrice !== null && baseRate !== null
-      ? {
-          text: t("mortgage.lead", { amount: kr(headline), price: kr(basePrice), period: DEFAULT_PERIOD, rate: pct(baseRate) }),
-          short: `${Math.round(headline).toLocaleString(SV)} kr`,
-          tone: "neutral",
-        }
-      : { text: t(loaded ? "mortgage.noRates" : "summary.notChecked"), short: "–", tone: "muted" };
+  const result = mortgageResult(rates, loaded, t, lang);
+  const lowest = lowestListRate(rates?.banks.data?.rates ?? [], LOWEST_PERIOD);
+  const info = lowest ? (rates?.banks.data?.directory.find((b) => b.name === lowest.bank) ?? null) : null;
 
   return (
     <ProfileCard id="card-mortgage" icon="houseTag" title="card.mortgage.title" explain="card.mortgage.explain" result={result} status="checked">
-      {rates?.policyRate.data && (
-        <p className="muted">{t("mortgage.policy", { rate: pct(rates.policyRate.data.value), date: rates.policyRate.data.date })}</p>
+      {lowest && rates?.banks.data && (
+        <div className="mort-lowest">
+          <BankIcon name={lowest.bank} faviconUrl={info?.faviconUrl} />
+          <span className="muted">{t("mortgage.lowestDate", { date: rates.banks.data.updated })}</span>
+        </div>
       )}
       <button
         type="button"
@@ -99,7 +107,6 @@ export function MortgageCard({ price, brfFeePerSqm }: { price: PriceResult | nul
         <MortgageDialog
           from={origin}
           rates={rates}
-          price={basePrice}
           brfFeePerSqm={brfFeePerSqm}
           lang={lang}
           t={t}
@@ -116,7 +123,6 @@ export function MortgageCard({ price, brfFeePerSqm }: { price: PriceResult | nul
 function MortgageDialog({
   from,
   rates,
-  price,
   brfFeePerSqm,
   lang,
   t,
@@ -124,18 +130,18 @@ function MortgageDialog({
 }: {
   from: Origin;
   rates: MortgageRates | null;
-  price: number | null;
   brfFeePerSqm: number | null;
   lang: Lang;
   t: Translate;
   onClose: () => void;
 }) {
   const [period, setPeriod] = useState<Fixation>(DEFAULT_PERIOD);
-  const [priceText, setPriceText] = useState(price !== null ? String(Math.round(price)) : "");
+  // Every input starts empty: the calculator shows numbers only once a price is typed.
+  const [priceText, setPriceText] = useState("");
   const [downPct, setDownPct] = useState(Math.round(MIN_DOWN_SHARE * 100));
   const [incomeText, setIncomeText] = useState("");
   const [sizeText, setSizeText] = useState("");
-  const [feeText, setFeeText] = useState("0");
+  const [feeText, setFeeText] = useState("");
   const [rateText, setRateText] = useState(() => {
     const r = startRate(rates, DEFAULT_PERIOD);
     return r !== null ? String(r) : "";
@@ -154,7 +160,9 @@ function MortgageDialog({
     if (brfFeePerSqm !== null) setFeeText(String(Math.round((brfFeePerSqm * num(text)) / 12)));
   }
 
-  const priceKr = num(priceText);
+  const priceKr = parseKr(priceText);
+  // Under 100 000 kr the price is almost surely in tkr: a hint replaces the results.
+  const priceLow = priceKr > 0 && priceKr < MIN_PRICE_KR;
   const down = (priceKr * downPct) / 100;
   const rate = num(rateText);
   const fee = num(feeText);
@@ -168,6 +176,8 @@ function MortgageDialog({
     () => (ratesData?.rates ?? []).filter((r) => r.period === period).sort((a, b) => a.rate - b.rate),
     [ratesData, period],
   );
+  // The Lowest tag goes to the cheapest rate that is not a "from" rate.
+  const lowestIdx = bankRows.findIndex((r) => !r.from);
   const avg = averageFor(rates, period);
   const avgMonth = rates?.averages.data?.month ?? "";
   const seg = calc.base.totalMonth > 0 ? calc.base.totalMonth : 1;
@@ -191,8 +201,13 @@ function MortgageDialog({
       <div className="mortgage-modal">
         <section className="mort-section">
           <Field label={t("mortgage.price")} hint={t("mortgage.priceHint")} id="mort-price">
-            <input id="mort-price" className="mort-input" inputMode="numeric" value={priceText} onChange={(e) => setPriceText(e.target.value)} />
+            <input id="mort-price" className="mort-input" inputMode="numeric" value={priceText} onChange={(e) => setPriceText(groupKr(parseKr(e.target.value)))} />
           </Field>
+          {priceLow && (
+            <p className="mort-warn" role="status">
+              {t("mortgage.priceLow")}
+            </p>
+          )}
 
           <Field label={`${t("mortgage.down")}: ${kr(down)} (${downPct} %)`} hint={t("mortgage.downMin")} id="mort-down">
             <input
@@ -236,6 +251,11 @@ function MortgageDialog({
           </Field>
         </section>
 
+        {priceKr === 0 ? (
+          <section className="mort-section">
+            <p className="muted">{t("mortgage.enterPrice")}</p>
+          </section>
+        ) : !priceLow && (
         <section className="mort-section mort-results" aria-live="polite">
           <dl className="mort-kv">
             <dt>{t("mortgage.loan")}</dt>
@@ -298,6 +318,7 @@ function MortgageDialog({
             </strong>
           </div>
         </section>
+        )}
 
         <section className="mort-section">
           <h3 className="mort-heading">{t("mortgage.banks", { period })}</h3>
@@ -308,7 +329,7 @@ function MortgageDialog({
           ) : (
             <ol className="bank-list">
               {bankRows.map((row, i) => (
-                <BankRow key={row.bank} row={row} info={directory.get(row.bank) ?? null} lowest={i === 0} sourceUrl={sourceUrl} t={t} />
+                <BankRow key={row.bank} row={row} info={directory.get(row.bank) ?? null} lowest={i === lowestIdx} sourceUrl={sourceUrl} t={t} />
               ))}
             </ol>
           )}
@@ -378,8 +399,10 @@ function BankRow({ row, info, lowest, sourceUrl, t }: { row: BankRate; info: Ban
         <span className="muted bank-updated">{t("mortgage.banksUpdated", { date: row.updated })}</span>
       </div>
       <div className="bank-rate">
-        <strong>{pct(row.rate)} %</strong>
-        {row.from && <span className="muted">{t("mortgage.banksFrom", { rate: pct(row.rate) })}</span>}
+        <span className="bank-rate-value">
+          {row.from && <span className="bank-from" title={t("mortgage.banksFrom", { rate: pct(row.rate) })}>{t("mortgage.banksFromBadge")}</span>}
+          <strong>{pct(row.rate)} %</strong>
+        </span>
       </div>
       <a className="bank-go" href={info?.ratesUrl ?? sourceUrl} target="_blank" rel="noopener noreferrer">
         {t("mortgage.banksGo")}

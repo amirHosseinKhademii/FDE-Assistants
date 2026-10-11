@@ -1757,7 +1757,7 @@ html[data-streetview="open"] .float-search {
   text-decoration: underline;
 }
 
-/* ---------- phone profile: map on top (45 %), a scrolling sheet below; collapsed = full-screen map ---------- */
+/* ---------- phone profile: map on top (35 %), a scrolling sheet below; collapsed = full-screen map ---------- */
 .sheet-bar,
 .sheet-pill,
 .float-search,
@@ -1781,14 +1781,14 @@ html[data-streetview="open"] .float-search {
     min-height: 0;
   }
 
-  /* The map: top 45 % of the screen, full-bleed; full-screen when the sheet is collapsed. */
+  /* The map: top 35 % of the screen, full-bleed; full-screen when the sheet is collapsed. */
   .map-col {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 0;
-    height: 45dvh;
+    height: 35dvh;
     min-height: 0;
     border-radius: 0;
     transition: height 200ms ease-out;
@@ -3079,6 +3079,14 @@ html[data-streetview="open"] .float-search {
   animation: ask-scrim-in 190ms ease reverse both;
 }
 
+/* Ask AI panel (the only dialog with an .ask-head-mark header): a fixed 60 % of the viewport tall, 560 px wide.
+   The body scrolls inside it and the input row stays pinned at the bottom. */
+.ui-dialog:has(.ask-head-mark) {
+  width: min(560px, 100%);
+  height: 60vh;
+  max-height: 60vh;
+}
+
 /* Desktop: a centred floating panel that grows with its content, up to 70vh. */
 .ui-dialog {
   position: relative;
@@ -3118,6 +3126,16 @@ html[data-streetview="open"] .float-search {
     width: 100%;
     max-height: 75vh;
     max-height: 75dvh;
+  }
+
+  .ui-dialog:has(.ask-head-mark) {
+    height: 60vh;
+    height: 60dvh;
+    max-height: 60vh;
+    max-height: 60dvh;
+  }
+
+  .ui-dialog {
     border: 0;
     border-radius: 20px 20px 0 0;
     padding-top: 0;
@@ -3229,6 +3247,14 @@ html[data-streetview="open"] .float-search {
 .ask-thread {
   display: grid;
   align-content: start;
+}
+
+/* Empty state: the example chips sit in the middle of the fixed-height panel. */
+.ask-thread:has(> .ask-examples) {
+  align-content: center;
+}
+
+.ask-thread {
   gap: 18px;
   flex: 1 1 auto;
   padding: 16px 0 12px;
@@ -3534,6 +3560,226 @@ html[data-streetview="open"] .float-search {
   display: block;
   margin-top: 4px;
   font-style: italic;
+}
+
+/* BRF card: verdict lead with an info popover, three metric tiles, auditor box, maintenance row, footer. */
+.brf-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.brf-head .card-lead {
+  flex: 1;
+  margin: 0;
+  min-width: 0;
+}
+
+.brf-info {
+  position: relative;
+  flex: none;
+}
+
+.brf-info-btn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.brf-info-btn .icon {
+  width: 16px;
+  height: 16px;
+}
+
+.brf-info-pop {
+  position: absolute;
+  top: 38px;
+  right: 0;
+  z-index: 5;
+  width: min(300px, 78vw);
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  font-size: var(--fs-caption);
+  line-height: 1.4;
+}
+
+.brf-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.brf-metric {
+  display: grid;
+  align-content: start;
+  gap: 2px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+
+.brf-metric[data-tone="ok"] {
+  background: color-mix(in srgb, var(--ok) 14%, var(--surface));
+  border-color: color-mix(in srgb, var(--ok) 45%, var(--line));
+}
+
+.brf-metric[data-tone="warn"] {
+  background: color-mix(in srgb, var(--warn) 16%, var(--surface));
+  border-color: color-mix(in srgb, var(--warn) 45%, var(--line));
+}
+
+.brf-metric[data-tone="risk"] {
+  background: color-mix(in srgb, var(--risk) 14%, var(--surface));
+  border-color: color-mix(in srgb, var(--risk) 45%, var(--line));
+}
+
+.brf-metric-label {
+  color: var(--muted);
+  font-size: var(--fs-caption);
+  line-height: 1.2;
+}
+
+.brf-metric-value {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.brf-metric-unit {
+  color: var(--muted);
+  font-size: var(--fs-caption);
+  line-height: 1.2;
+}
+
+.brf-basis {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.brf-metric .brf-page {
+  margin-top: 4px;
+}
+
+.brf-page {
+  display: inline-flex;
+  width: fit-content;
+  align-self: start;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.brf-missing {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.brf-audit {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+
+.brf-audit[data-tone="risk"] {
+  border-color: color-mix(in srgb, var(--risk) 45%, var(--line));
+  background: color-mix(in srgb, var(--risk) 12%, var(--surface));
+}
+
+.brf-audit[data-tone="ok"] {
+  border-color: color-mix(in srgb, var(--ok) 45%, var(--line));
+  background: color-mix(in srgb, var(--ok) 12%, var(--surface));
+}
+
+.brf-audit-label {
+  color: var(--muted);
+  font-size: var(--fs-caption);
+}
+
+.brf-audit-box {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.brf-audit-box > .icon {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+}
+
+.brf-audit[data-tone="risk"] .brf-audit-box > .icon {
+  color: var(--risk);
+}
+
+.brf-audit[data-tone="ok"] .brf-audit-box > .icon {
+  color: var(--ok);
+}
+
+.brf-audit-box p {
+  margin: 0;
+}
+
+.brf-audit-box .brf-page {
+  margin-top: 6px;
+}
+
+.brf-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+
+.brf-row-value {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.brf-note {
+  margin: 8px 0 0;
+  font-size: var(--fs-caption);
+}
+
+.bank-from {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  vertical-align: middle;
 }
 
 /* Mortgage card and calculator (MortgageCard.tsx). Amounts are sv-SE; inputs are at least 44 px tall. */
@@ -3862,6 +4108,28 @@ html[data-streetview="open"] .float-search {
 
 .bank-rate strong {
   font-size: var(--fs-body);
+}
+
+.mort-lowest {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-size: var(--fs-caption);
+}
+
+.mort-warn {
+  margin: 6px 0 0;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--warn) 14%, var(--surface));
+  color: var(--text);
+  font-size: var(--fs-caption);
+}
+
+.bank-rate-value {
+  display: inline-flex;
+  align-items: baseline;
 }
 
 .bank-rate span {

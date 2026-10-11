@@ -114,7 +114,7 @@ export function AskAiButton({ address }: { address: string }) {
 }
 
 function AskDialog({ address, from, onClose }: { address: string; from: Origin; onClose: () => void }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [turns, setTurns] = useState<Turn[]>([]);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
@@ -151,7 +151,7 @@ function AskDialog({ address, from, onClose }: { address: string; from: Origin; 
       const res = await fetch("/api/ask", {
         method: "POST",
         headers: { "content-type": "application/json", accept: "application/json" },
-        body: JSON.stringify({ address, question }),
+        body: JSON.stringify({ address, question, lang }),
       });
       if (!res.ok) throw new Error(String(res.status));
       const response = (await res.json()) as AskResponse;

@@ -83,7 +83,7 @@ export function ProfileView({ address, appMode = "buy", onSearch }: { address: s
 
   // Wide screens keep the search bar in the column; phones get the floating icon over the map.
   const [wide, setWide] = useState(false);
-  // The phone sheet: open (the map is the top 45 %) or collapsed (the map is the whole screen).
+  // The phone sheet: open (the map is the top 35 %) or collapsed (the map is the whole screen).
   // Toggling changes only the sheet's top and the map's height; the map is never refitted.
   const [mode, setMode] = useState<SheetMode>("open");
   const [searching, setSearching] = useState(false);
