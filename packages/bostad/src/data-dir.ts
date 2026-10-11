@@ -8,7 +8,8 @@ import * as fs from "fs";
 import * as path from "path";
 
 function packageDataDir(): string {
-  if (typeof __dirname !== "undefined") return path.resolve(__dirname, "..", "..", "data");
+  // src/data-dir.ts and dist/data-dir.js both sit one level below the package root.
+  if (typeof __dirname !== "undefined") return path.resolve(__dirname, "..", "data");
   let dir = path.resolve(process.cwd());
   for (;;) {
     const candidate = path.join(dir, "packages", "bostad", "data");
