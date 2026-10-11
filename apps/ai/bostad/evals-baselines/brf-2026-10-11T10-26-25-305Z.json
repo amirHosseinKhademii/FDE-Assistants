@@ -1,0 +1,355 @@
+{
+  "ts": "2026-10-11T10:26:25.305Z",
+  "setup": {
+    "golden": "src/evals/brf-golden.json",
+    "goldenVersion": 1,
+    "samples": "/home/byron/Documents/Zahra/ahk/FDE/proptech-sweden/spike/brf/samples"
+  },
+  "summary": {
+    "figuresCorrect": {
+      "sorgarden-digital": 4,
+      "sorgarden-scanned": 4,
+      "chalmersgatan": 5
+    },
+    "figuresTotal": 5,
+    "inputTokens": 59786,
+    "outputTokens": 1078,
+    "ms": 57270
+  },
+  "docs": [
+    {
+      "id": "sorgarden-digital",
+      "file": "brf-sorgarden-2023.pdf",
+      "golden": "sorgarden-2023",
+      "error": null,
+      "pageCount": 26,
+      "ocrPages": 0,
+      "usage": {
+        "model": "gemini-3.5-flash-lite",
+        "inputTokens": 20861,
+        "outputTokens": 334,
+        "ms": 2167
+      },
+      "coherenceErrors": [],
+      "scores": [
+        {
+          "field": "org_nr",
+          "verdict": "ok",
+          "got": "757200-9087",
+          "gotPage": null,
+          "want": "757200-9087",
+          "wantPage": 5,
+          "unsure": false
+        },
+        {
+          "field": "year",
+          "verdict": "value",
+          "got": "2022",
+          "gotPage": null,
+          "want": 2023,
+          "wantPage": 5,
+          "unsure": true
+        },
+        {
+          "field": "debt_per_sqm",
+          "verdict": "ok",
+          "got": "2 103 kr/kvm",
+          "gotPage": 1,
+          "want": "2 103",
+          "wantPage": 2,
+          "unsure": false
+        },
+        {
+          "field": "annual_fee_per_sqm",
+          "verdict": "ok",
+          "got": "707 kr/kvm",
+          "gotPage": 1,
+          "want": "707",
+          "wantPage": 4,
+          "unsure": false
+        },
+        {
+          "field": "interest_cost",
+          "verdict": "ok",
+          "got": "-904 676",
+          "gotPage": 11,
+          "want": "-904 676",
+          "wantPage": 11,
+          "unsure": false
+        },
+        {
+          "field": "planned_maintenance",
+          "verdict": "missing",
+          "got": null,
+          "gotPage": null,
+          "want": "översyn av tak samt byte av fönster inom de närmaste 5 åren",
+          "wantPage": 8,
+          "unsure": true
+        },
+        {
+          "field": "auditor_remarks",
+          "verdict": "ok",
+          "got": "no remarks",
+          "gotPage": 19,
+          "want": "no remarks",
+          "wantPage": 19,
+          "unsure": false
+        }
+      ],
+      "figures": {
+        "org_nr": "757200-9087",
+        "year": 2022,
+        "debt_per_sqm": {
+          "value": "2 103 kr/kvm",
+          "page": 1,
+          "quote": "2 103\nkr/kvm"
+        },
+        "annual_fee_per_sqm": {
+          "value": "707 kr/kvm",
+          "page": 1,
+          "quote": "707\nkr/kvm"
+        },
+        "interest_cost": {
+          "value": "-904 676",
+          "page": 11,
+          "quote": "-904 676"
+        },
+        "planned_maintenance": {
+          "value": null,
+          "page": null,
+          "quote": null
+        },
+        "auditor_remarks": {
+          "value": "no remarks",
+          "page": 19,
+          "quote": "Enligt vår uppfattning har årsredovisningen upprättats i enlighet med årsredovisningslagen och ger en i alla väsentliga avseenden rättvisande bild av föreningens finansiella ställning per den 31 december 2022 och av dess finansiella resultat för året enligt årsredovisningslagen."
+        }
+      },
+      "raw": "{\n  \"org_nr\": \"757200-9087\",\n  \"year\": 2022,\n  \"debt_per_sqm\": {\n    \"value\": \"2 103 kr/kvm\",\n    \"page\": 1,\n    \"quote\": \"2 103\\nkr/kvm\"\n  },\n  \"annual_fee_per_sqm\": {\n    \"value\": \"707 kr/kvm\",\n    \"page\": 1,\n    \"quote\": \"707\\nkr/kvm\"\n  },\n  \"interest_cost\": {\n    \"value\": \"-904 676\",\n    \"page\": 11,\n    \"quote\": \"-904 676\"\n  },\n  \"planned_maintenance\": {\n    \"value\": null,\n    \"page\": null,\n    \"quote\": null\n  },\n  \"auditor_remarks\": {\n    \"value\": \"no remarks\",\n    \"page\": 19,\n    \"quote\": \"Enligt vår uppfattning har årsredovisningen upprättats i enlighet med årsredovisningslagen och ger en i alla väsentliga avseenden rättvisande bild av föreningens finansiella ställning per den 31 december 2022 och av dess finansiella resultat för året enligt årsredovisningslagen.\"\n  }\n}"
+    },
+    {
+      "id": "sorgarden-scanned",
+      "file": "scanned/brf-sorgarden-2023-scanned.pdf",
+      "golden": "sorgarden-2023",
+      "error": null,
+      "pageCount": 26,
+      "ocrPages": 26,
+      "usage": {
+        "model": "gemini-3.5-flash-lite",
+        "inputTokens": 20457,
+        "outputTokens": 350,
+        "ms": 52442
+      },
+      "coherenceErrors": [],
+      "scores": [
+        {
+          "field": "org_nr",
+          "verdict": "ok",
+          "got": "757200-9087",
+          "gotPage": null,
+          "want": "757200-9087",
+          "wantPage": 5,
+          "unsure": false
+        },
+        {
+          "field": "year",
+          "verdict": "ok",
+          "got": "2023",
+          "gotPage": null,
+          "want": 2023,
+          "wantPage": 5,
+          "unsure": true
+        },
+        {
+          "field": "debt_per_sqm",
+          "verdict": "ok",
+          "got": "2 103 kr/kvm",
+          "gotPage": 9,
+          "want": "2 103",
+          "wantPage": 2,
+          "unsure": false
+        },
+        {
+          "field": "annual_fee_per_sqm",
+          "verdict": "ok",
+          "got": "707 kr/kvm",
+          "gotPage": 9,
+          "want": "707",
+          "wantPage": 4,
+          "unsure": false
+        },
+        {
+          "field": "interest_cost",
+          "verdict": "ok",
+          "got": "-904 676",
+          "gotPage": 11,
+          "want": "-904 676",
+          "wantPage": 11,
+          "unsure": false
+        },
+        {
+          "field": "planned_maintenance",
+          "verdict": "missing",
+          "got": null,
+          "gotPage": null,
+          "want": "översyn av tak samt byte av fönster inom de närmaste 5 åren",
+          "wantPage": 8,
+          "unsure": true
+        },
+        {
+          "field": "auditor_remarks",
+          "verdict": "ok",
+          "got": "no remarks",
+          "gotPage": 19,
+          "want": "no remarks",
+          "wantPage": 19,
+          "unsure": false
+        }
+      ],
+      "figures": {
+        "org_nr": "757200-9087",
+        "year": 2023,
+        "debt_per_sqm": {
+          "value": "2 103 kr/kvm",
+          "page": 9,
+          "quote": "Skuldsättning, kr/kvm 2103 2105 2187 2199 2211"
+        },
+        "annual_fee_per_sqm": {
+          "value": "707 kr/kvm",
+          "page": 9,
+          "quote": "Årsavgifter, kr/kvm 707 694 680 667 654"
+        },
+        "interest_cost": {
+          "value": "-904 676",
+          "page": 11,
+          "quote": "Räntekostnader och liknande resultatposter Not 9 -904 676 -555 255"
+        },
+        "planned_maintenance": {
+          "value": null,
+          "page": null,
+          "quote": null
+        },
+        "auditor_remarks": {
+          "value": "no remarks",
+          "page": 19,
+          "quote": "Vi tillstyrker därför att föreningsstämman fastställer resultaträkningen och balansräkningen."
+        }
+      },
+      "raw": "{\n  \"org_nr\": \"757200-9087\",\n  \"year\": 2023,\n  \"debt_per_sqm\": {\n    \"value\": \"2 103 kr/kvm\",\n    \"page\": 9,\n    \"quote\": \"Skuldsättning, kr/kvm 2103 2105 2187 2199 2211\"\n  },\n  \"annual_fee_per_sqm\": {\n    \"value\": \"707 kr/kvm\",\n    \"page\": 9,\n    \"quote\": \"Årsavgifter, kr/kvm 707 694 680 667 654\"\n  },\n  \"interest_cost\": {\n    \"value\": \"-904 676\",\n    \"page\": 11,\n    \"quote\": \"Räntekostnader och liknande resultatposter Not 9 -904 676 -555 255\"\n  },\n  \"planned_maintenance\": {\n    \"value\": null,\n    \"page\": null,\n    \"quote\": null\n  },\n  \"auditor_remarks\": {\n    \"value\": \"no remarks\",\n    \"page\": 19,\n    \"quote\": \"Vi tillstyrker därför att föreningsstämman fastställer resultaträkningen och balansräkningen.\"\n  }\n}"
+    },
+    {
+      "id": "chalmersgatan",
+      "file": "brf-chalmersgatan-2023.pdf",
+      "golden": "chalmersgatan-2023",
+      "error": null,
+      "pageCount": 25,
+      "ocrPages": 1,
+      "usage": {
+        "model": "gemini-3.5-flash-lite",
+        "inputTokens": 18468,
+        "outputTokens": 394,
+        "ms": 2656
+      },
+      "coherenceErrors": [
+        "debt_per_sqm: quote \"Skuldsättning per kvm upplåten med bostadsrätt | 8 716\" is not on page 8.",
+        "annual_fee_per_sqm: quote \"Årsavgift per kvm upplåten med bostadsrätt | 515\" is not on page 8.",
+        "interest_cost: quote \"Räntekostnader och liknande resultatposter | -1 220 176\" is not on page 10."
+      ],
+      "scores": [
+        {
+          "field": "org_nr",
+          "verdict": "ok",
+          "got": "716444-4593",
+          "gotPage": null,
+          "want": "716444-4593",
+          "wantPage": 2,
+          "unsure": false
+        },
+        {
+          "field": "year",
+          "verdict": "ok",
+          "got": "2023",
+          "gotPage": null,
+          "want": 2023,
+          "wantPage": 2,
+          "unsure": false
+        },
+        {
+          "field": "debt_per_sqm",
+          "verdict": "ok",
+          "got": "8 716 kr/kvm",
+          "gotPage": 8,
+          "want": "8 716",
+          "wantPage": 8,
+          "unsure": true
+        },
+        {
+          "field": "annual_fee_per_sqm",
+          "verdict": "ok",
+          "got": "515 kr/kvm",
+          "gotPage": 8,
+          "want": "515",
+          "wantPage": 8,
+          "unsure": false
+        },
+        {
+          "field": "interest_cost",
+          "verdict": "ok",
+          "got": "1 220 176 kr",
+          "gotPage": 10,
+          "want": "-1 220 176",
+          "wantPage": 10,
+          "unsure": false
+        },
+        {
+          "field": "planned_maintenance",
+          "verdict": "ok",
+          "got": "2025 Underhåll/byte av tak 2024 Byte av 3 st balkonger",
+          "gotPage": 6,
+          "want": "underhåll/byte av tak 2025, byte av 3 balkonger 2024",
+          "wantPage": 6,
+          "unsure": true
+        },
+        {
+          "field": "auditor_remarks",
+          "verdict": "ok",
+          "got": "Jag anmärker på att avgiftsuttaget inte är tillräckligt för att uppfylla stadgarna.",
+          "gotPage": 24,
+          "want": "Jag anmärker på att avgiftsuttaget inte är tillräckligt för att uppfylla stadgarna",
+          "wantPage": 24,
+          "unsure": false
+        }
+      ],
+      "figures": {
+        "org_nr": "716444-4593",
+        "year": 2023,
+        "debt_per_sqm": {
+          "value": "8 716 kr/kvm",
+          "page": 8,
+          "quote": "Skuldsättning per kvm upplåten med bostadsrätt | 8 716"
+        },
+        "annual_fee_per_sqm": {
+          "value": "515 kr/kvm",
+          "page": 8,
+          "quote": "Årsavgift per kvm upplåten med bostadsrätt | 515"
+        },
+        "interest_cost": {
+          "value": "1 220 176 kr",
+          "page": 10,
+          "quote": "Räntekostnader och liknande resultatposter | -1 220 176"
+        },
+        "planned_maintenance": {
+          "value": "2025 Underhåll/byte av tak 2024 Byte av 3 st balkonger",
+          "page": 6,
+          "quote": "2025 Underhåll/byte av tak 2024 Byte av 3 st balkonger"
+        },
+        "auditor_remarks": {
+          "value": "Jag anmärker på att avgiftsuttaget inte är tillräckligt för att uppfylla stadgarna.",
+          "page": 24,
+          "quote": "Jag anmärker på att avgiftsuttaget inte är tillräckligt för att uppfylla stadgarna."
+        }
+      },
+      "raw": "{\n  \"org_nr\": \"716444-4593\",\n  \"year\": 2023,\n  \"debt_per_sqm\": {\n    \"value\": \"8 716 kr/kvm\",\n    \"page\": 8,\n    \"quote\": \"Skuldsättning per kvm upplåten med bostadsrätt | 8 716\"\n  },\n  \"annual_fee_per_sqm\": {\n    \"value\": \"515 kr/kvm\",\n    \"page\": 8,\n    \"quote\": \"Årsavgift per kvm upplåten med bostadsrätt | 515\"\n  },\n  \"interest_cost\": {\n    \"value\": \"1 220 176 kr\",\n    \"page\": 10,\n    \"quote\": \"Räntekostnader och liknande resultatposter | -1 220 176\"\n  },\n  \"planned_maintenance\": {\n    \"value\": \"2025 Underhåll/byte av tak 2024 Byte av 3 st balkonger\",\n    \"page\": 6,\n    \"quote\": \"2025 Underhåll/byte av tak 2024 Byte av 3 st balkonger\"\n  },\n  \"auditor_remarks\": {\n    \"value\": \"Jag anmärker på att avgiftsuttaget inte är tillräckligt för att uppfylla stadgarna.\",\n    \"page\": 24,\n    \"quote\": \"Jag anmärker på att avgiftsuttaget inte är tillräckligt för att uppfylla stadgarna.\"\n  }\n}"
+    }
+  ]
+}

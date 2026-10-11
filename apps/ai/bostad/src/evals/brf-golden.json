@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "about": "Answer key for the BRF extraction eval. Every value was read from the page text (pdftotext, no -layout) of the sample PDF. page is the PDF page index (1-based). alt_pages are other pages where the same figure is stated; a reply on those pages counts as the right page. keywords are OR-groups for text fields: every group must match one word of the group, case and accent insensitive. unsure marks a field where the report supports more than one reading, so a miss there is a question for the person, not a proof.",
+  "documents": {
+    "sorgarden-2023": {
+      "description": "HSB Brf Sörgården i Göteborg, årsredovisning 2022/2023 (digital PDF, 26 pages). The same report also exists as a scan (scanned/brf-sorgarden-2023-scanned.pdf) and uses this key.",
+      "fields": {
+        "org_nr": { "value": "757200-9087", "page": 5, "note": "Cover and report header say org.nr 757200-9087. The auditor report on p19 prints 757200-0987, a typo in the report itself." },
+        "year": { "value": 2023, "page": 5, "unsure": true, "note": "Fiscal year 2022-07-01 to 2023-06-30, reported as 2023. A reader could also say 2022/2023." },
+        "debt_per_sqm": { "value": "2 103", "page": 2, "alt_pages": [1, 9], "note": "Skuldsättning 2 103 kr/kvm in the nyckeltal section (p2). Same figure on the cover (p1) and in the flerårsöversikt (p9)." },
+        "annual_fee_per_sqm": { "value": "707", "page": 4, "alt_pages": [1, 9], "note": "Årsavgift 707 kr/kvm in the nyckeltal section (p4). Same figure on the cover (p1) and in the flerårsöversikt (p9)." },
+        "interest_cost": { "value": "-904 676", "page": 11, "note": "Räntekostnader och liknande resultatposter, 2022-07-01 to 2023-06-30 column (p11). The prior year is -555 255." },
+        "planned_maintenance": { "value": "översyn av tak samt byte av fönster inom de närmaste 5 åren", "keywords": [["tak"], ["fönster"]], "page": 8, "unsure": true, "note": "The plan is stated in words on p8: 'Föreningen följer underhållsplanen. De närmaste 5 åren ligger översyn av tak samt byte av fönster.' No planned amount is stated for it. The 2023 cost line Underhållskostnader -3 828 108 (p11) is not the plan. p2 gives a 50-year investment need of 284 kr/kvm, which some readers would take as the plan figure." },
+        "auditor_remarks": { "value": "no remarks", "keywords": [["no remark", "ingen anmärk", "inga anmärk", "utan anmärk"]], "page": 19, "note": "Clean opinion in the revisionsberättelse: 'Enligt vår uppfattning har årsredovisningen upprättats i enlighet med årsredovisningslagen'. No anmärkning appears on pp19-21." }
+      }
+    },
+    "chalmersgatan-2023": {
+      "description": "Brf Chalmersgatan i Göteborg, årsredovisning 2023 (digital PDF, 25 pages).",
+      "fields": {
+        "org_nr": { "value": "716444-4593", "page": 2, "note": "Org.nr 716444-4593 on p2 and every header. Matches the file name." },
+        "year": { "value": 2023, "page": 2, "note": "Räkenskapsåret 2023-01-01 to 2023-12-31 (p2)." },
+        "debt_per_sqm": { "value": "8 716", "page": 8, "unsure": true, "note": "Skuldsättning per kvm upplåten med bostadsrätt, 2023 column of the flerårsöversikt (p8). The same page also gives 6 853 per kvm totalyta. The schema asks for belåning per kvm, which points to the bostadsrätt figure, but the total-area figure is also stated." },
+        "annual_fee_per_sqm": { "value": "515", "page": 8, "note": "Årsavgift per kvm upplåten med bostadsrätt, 2023 column (p8). Earlier years show a dash." },
+        "interest_cost": { "value": "-1 220 176", "page": 10, "note": "Räntekostnader och liknande resultatposter, 2023 column (p10). The prior year is -488 838." },
+        "planned_maintenance": { "value": "underhåll/byte av tak 2025, byte av 3 balkonger 2024", "keywords": [["tak"], ["balkong"]], "page": 6, "alt_pages": [5], "unsure": true, "note": "The maintenance plan list on p6 under 'Planerade underhåll' (2024 balconies, 2025 roof). p5 says the plan runs to 2070. The NOT 6 'Planerade underhåll' note on p16 is the 2023 spend, Summa 56 546, which is a year's cost, not the plan." },
+        "auditor_remarks": { "value": "Jag anmärker på att avgiftsuttaget inte är tillräckligt för att uppfylla stadgarna", "keywords": [["anmärk"]], "page": 24, "note": "Anmärkning in the revisionsberättelse (p24): the fee level does not cover the stadgar requirement. The opinion on the annual accounts itself is clean (p23)." }
+      }
+    }
+  }
+}

@@ -13,7 +13,8 @@
     "ask": "ts-node src/cli/ask.ts",
     "eval": "ts-node src/evals/run.ts",
     "eval:smoke": "ts-node src/evals/run.ts --repeat 1",
-    "brf:extract": "ts-node src/cli/brf-extract.ts"
+    "brf:extract": "ts-node src/cli/brf-extract.ts",
+    "brf:eval": "ts-node src/evals/brf-run.ts"
   },
   "dependencies": {
     "@bostad/property": "workspace:*",

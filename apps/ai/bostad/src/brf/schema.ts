@@ -57,13 +57,17 @@ export const BrfFiguresSchema = z.strictObject({
       'not a rate in percent.',
   ),
   planned_maintenance: Figure.describe(
-    'Planned maintenance, Swedish "underhållsplan" or "planerat underhåll". Text or an amount in kr, ' +
-      'as the report states it. Null if the report has no such statement.',
+    'The maintenance PLAN: "underhållsplan" or "planerat underhåll", meaning the planned future works, ' +
+      'the years they are planned for, and the planned amount. Not the cost line for the year ' +
+      '("underhållskostnader" in the income statement or a maintenance expense note), which is a different figure. ' +
+      'Text or an amount in kr, as the plan states it. Null if the report has no maintenance plan.',
   ),
   auditor_remarks: Figure.describe(
-    'Remarks in the auditor report, Swedish "revisionsberättelse" or "anmärkning". Text as stated. ' +
-      'Use the statement of whether the auditor made remarks, if that is all the report says. Null if the ' +
-      'report has no auditor report text.',
+    'The auditor report ("revisionsberättelse"). If it contains any "anmärkning" or a modified opinion ' +
+      '(e.g. "med anmärkning", "jag anmärker", "ingen anmärkning" is NOT a remark), give that remark as stated. ' +
+      'If the auditor report gives a clean opinion with no remark, value is exactly "no remarks", and page and ' +
+      'quote are the sentence of the clean opinion (e.g. "Revisionen har utförts enligt god revisionssed..." or ' +
+      '"Vi tillstyrker..."). Null only when the report has no auditor report text at all.',
   ),
 });
 
@@ -82,9 +86,22 @@ export function normalise(text: string): string {
   return text.replace(/\s+/g, ' ').trim().toLowerCase();
 }
 
+/** Digits only: spaces, no-break spaces, dots and signs removed. "-1 220 176 kr" becomes "1220176". */
+export function digitsOf(text: string): string {
+  return text.replace(/[\s\u00a0.\-\u2212+]/g, '').replace(/[^0-9]/g, '');
+}
+
+/** Numeric figures are checked by their digits; text figures need a quote long enough to be evidence. */
+const NUMERIC_KEYS: ReadonlySet<keyof BrfFigures> = new Set(['debt_per_sqm', 'annual_fee_per_sqm', 'interest_cost']);
+export const MIN_TEXT_QUOTE_CHARS = 20;
+
 /**
  * Rules Zod cannot express. Messages are written for the model, since they are
  * handed back on retry, and for the person reading the output.
+ *
+ * Three checks per stated figure: the quote is on the given page; the value's
+ * digits (if it has any) are in the quote; a text figure's quote is at least
+ * MIN_TEXT_QUOTE_CHARS long, so a bare label cannot pass as evidence.
  */
 export function coherenceErrors(fig: BrfFigures, pages: string[]): string[] {
   const errs: string[] = [];
@@ -106,6 +123,19 @@ export function coherenceErrors(fig: BrfFigures, pages: string[]): string[] {
     }
     if (!normalise(text).includes(normalise(f.quote))) {
       errs.push(`${key}: quote "${f.quote}" is not on page ${f.page}.`);
+      continue;
+    }
+    const valueDigits = digitsOf(f.value);
+    if (NUMERIC_KEYS.has(key) && valueDigits.length === 0) {
+      errs.push(`${key}: value "${f.value}" has no digits.`);
+      continue;
+    }
+    if (valueDigits.length > 0 && !digitsOf(f.quote).includes(valueDigits)) {
+      errs.push(`${key}: value "${f.value}" is not in quote "${f.quote}" on page ${f.page}.`);
+      continue;
+    }
+    if (!NUMERIC_KEYS.has(key) && f.quote.trim().length < MIN_TEXT_QUOTE_CHARS) {
+      errs.push(`${key}: quote "${f.quote}" is too short to be evidence (under ${MIN_TEXT_QUOTE_CHARS} characters).`);
     }
   }
   return errs;

@@ -1,7 +1,8 @@
 /**
  * Page texts for one BRF annual report PDF.
  *
- * A digital page is read from its text layer (pdftotext -layout). A page with
+ * A digital page is read from its text layer in reading order (pdftotext without
+ * -layout, which keeps two-column pages in sentence order). A page with
  * fewer than MIN_TEXT_CHARS characters is treated as a scan and OCR'd with
  * tesseract (Swedish model). Tools are run with execFile and argument arrays,
  * never through a shell, because the PDF path is untrusted input.
@@ -42,7 +43,7 @@ export async function pageCount(pdfPath: string): Promise<number> {
 }
 
 async function digitalText(pdfPath: string, page: number): Promise<string> {
-  const { stdout } = await run('pdftotext', ['-layout', '-f', String(page), '-l', String(page), pdfPath, '-']);
+  const { stdout } = await run('pdftotext', ['-f', String(page), '-l', String(page), pdfPath, '-']);
   return stdout;
 }
 
