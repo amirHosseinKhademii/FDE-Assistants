@@ -17,7 +17,7 @@ const VERDICT_KEY: Record<RentVerdict, MessageKey> = {
 const LINKS: { key: MessageKey; href: string }[] = [
   { key: "rent.links.boplats", href: "https://boplats.se/sok?types=1hand" },
   { key: "rent.links.qasa", href: "https://qasa.se/" },
-  { key: "rent.links.homeq", href: "https://homeq.se/" },
+  { key: "rent.links.homeq", href: "https://www.homeq.se/search?location=G%C3%B6teborg" },
 ];
 
 /** Rent mode: the benchmark, a fair-rent check on typed numbers, and links out to the rental sites. */

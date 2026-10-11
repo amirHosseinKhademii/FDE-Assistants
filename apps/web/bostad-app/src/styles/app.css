@@ -1436,15 +1436,6 @@ a.btn-secondary {
   margin: 0;
 }
 
-.area-soon {
-  font-weight: 500;
-  color: var(--soon);
-}
-
-.area-row--soon a {
-  justify-self: start;
-}
-
 .area-compare {
   margin: 8px 0 0;
   font-size: var(--fs-caption);

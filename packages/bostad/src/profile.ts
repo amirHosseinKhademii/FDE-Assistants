@@ -12,11 +12,13 @@ import { incomeAt, type IncomeResult } from "./sources/income";
 import { placesAt, type PlacesResult } from "./sources/places";
 import { areaAt, type AreaResult } from "./sources/area";
 import { safetyAt, type SafetyResult } from "./sources/safety";
+import { gothenburgHousePrice, type PriceResult } from "./sources/prices";
 export type { TransitLine, TransitStop, TransportMode } from "./sources/transit";
 export type { NoiseBuilding, NoiseResult } from "./sources/noise";
 export type { AreaRef, DistrictResult } from "./sources/district";
 export type { IncomeResult } from "./sources/income";
 export type { AreaResult, Share } from "./sources/area";
+export type { PriceResult, PriceYear } from "./sources/prices";
 export type { Level } from "./sources/scb";
 export type { PlaceCategory, PlaceItem, PlacesResult } from "./sources/places";
 export type { SafetyKey, SafetyResult, SafetyYear, SafetyFigure } from "./sources/safety";
@@ -44,6 +46,8 @@ export interface Profile {
   income: Section<IncomeResult>;
   places: Section<PlacesResult>;
   area: Section<AreaResult>;
+  /** Göteborg kommun overall, not the address. Attempted even when geocoding fails. */
+  price: Section<PriceResult>;
   safety: Section<SafetyResult>;
   brf: Section<never>;
   energy: Section<never>;
@@ -71,6 +75,8 @@ function stub(source: string, reason: string): Section<never> {
 }
 
 export async function getProfile(address: string): Promise<Profile> {
+  // City-wide, so it does not wait for (or depend on) the geocoder.
+  const pricePromise = attempt("api.scb.se", () => gothenburgHousePrice());
   const location = await attempt("nominatim.openstreetmap.org", () => geocode(address));
   // Report the provider that actually answered, not the first one asked.
   if (location.data) location.source = location.data.source;
@@ -122,6 +128,7 @@ export async function getProfile(address: string): Promise<Profile> {
     income,
     places,
     area,
+    price: await pricePromise,
     safety,
     brf: stub("bolagsverket (värdefulla datamängder)", "awaiting Bolagsverket API access"),
     energy: stub("boverket energideklaration", "awaiting Boverket agreement"),

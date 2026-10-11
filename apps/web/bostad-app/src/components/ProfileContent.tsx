@@ -1,6 +1,6 @@
-import type { Level, NoiseResult, PlaceItem, Profile } from "@bostad/property";
+import type { Level, NoiseResult, PlaceItem, PriceResult, Profile } from "@bostad/property";
 import { useLang } from "../lib/lang";
-import { gatedCheck, gateOf, type Check } from "../lib/checks";
+import { cityCheck, gatedCheck, gateOf, type Check } from "../lib/checks";
 import { walkMinutes } from "../lib/format";
 import type { ModeFilter } from "../lib/transport";
 import type { MessageKey } from "../lib/i18n";
@@ -145,6 +145,8 @@ export function ProfileBody({
         : { text: t("summary.transport.none"), short: t("tile.word.none"), tone: "muted" };
   const placesRes: CardResult = places.kind === "ok" ? placesSummary(places.data, t) : uncheckedResult(t);
   const area = gatedCheck(profile.area, "exact");
+  // Prices describe the whole kommun, so the address gate does not apply to them.
+  const price: Check<PriceResult> = cityCheck(profile.price);
   // Price shows the income level until house prices exist (see the card's sentence).
   const incomeLevel: Level | null = income.kind === "ok" ? income.data.level : null;
   const areaRes: CardResult = incomeLevel
@@ -207,7 +209,7 @@ export function ProfileBody({
       <SafetyCard check={safety} result={safetyRes} onRetry={onRetry} onOpenChange={onSafetyToggle} />
       <TransportCard check={transit} onRetry={onRetry} filter={filter} onFilter={onFilter} result={transitRes} />
       <NoiseCard check={noise} onRetry={onRetry} result={noiseRes} />
-      <AreaCard district={district} income={income} area={area} onRetry={onRetry} result={areaRes} />
+      <AreaCard district={district} income={income} area={area} price={price} onRetry={onRetry} result={areaRes} />
       <NearbyPlacesCard
         check={places}
         onRetry={onRetry}

@@ -31,6 +31,14 @@ export function locationCheck(profile: Profile): Check<Location> {
   return { kind: "failed", reason: s.status === "error" ? "noMatch" : "sourceDown" };
 }
 
+/** For city-wide sections: the address gate does not apply, only whether the source answered. */
+export function cityCheck<T>(section: Section<T>): Check<T> {
+  if (section.status === "ok" && section.data !== undefined) {
+    return { kind: "ok", data: section.data, checkedAt: section.fetchedAt, source: section.source };
+  }
+  return { kind: "failed", reason: "sourceDown" };
+}
+
 export function gatedCheck<T>(section: Section<T>, gate: Gate): Check<T> {
   if (gate === "inexact") return { kind: "failed", reason: "notExact" };
   if (gate === "none") return { kind: "failed", reason: "noAddress" };

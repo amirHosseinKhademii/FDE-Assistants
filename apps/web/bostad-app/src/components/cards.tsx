@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { AreaResult, DistrictResult, IncomeResult, Level, NoiseResult, PlaceCategory, PlaceItem, PlacesResult, Profile } from "@bostad/property";
+import type { AreaResult, DistrictResult, IncomeResult, Level, NoiseResult, PlaceCategory, PlaceItem, PlacesResult, PriceResult, Profile } from "@bostad/property";
 import { useLang } from "../lib/lang";
 import type { Check, Reason } from "../lib/checks";
 import type { MessageKey } from "../lib/i18n";
@@ -299,17 +299,19 @@ export function AreaCard({
   district,
   income,
   area,
+  price,
   onRetry,
   result,
 }: {
   district: Check<DistrictResult>;
   income: Check<IncomeResult>;
   area: Check<AreaResult>;
+  price: Check<PriceResult>;
   onRetry: () => void;
   result?: CardResult;
 }) {
   const { t, lang } = useLang();
-  const parts = [district, income, area];
+  const parts = [district, income, area, price];
   const failed = parts.find((p): p is Extract<Check<unknown>, { kind: "failed" }> => p.kind === "failed");
   const anyOk = parts.some((p) => p.kind === "ok");
   const meta = anyOk
@@ -388,15 +390,28 @@ export function AreaCard({
             }}
           </NeighbourhoodPart>
 
-          <section className="area-row area-row--soon">
-            <p className="area-row-label">
-              {t("area.price.label")} <span className="area-soon">{t("area.price.soon")}</span>
-            </p>
-            <p className="muted">{t("area.price.reason")}</p>
-            <a href="https://www.maklarstatistik.se/omrade/riket/vastra-gotalands-lan/goteborg/" target="_blank" rel="noreferrer">
-              {t("area.price.link")}
-            </a>
-          </section>
+          <NeighbourhoodPart check={price}>
+            {(p) => {
+              const value = kronor(p.value, lang);
+              const change = p.changePct !== null && p.baseYear !== null ? Math.round(p.changePct) : null;
+              return (
+                <>
+                  <AreaRow label="area.price.label">
+                    {change !== null && p.baseYear !== null
+                      ? t("area.price.sentence", {
+                          year: p.year,
+                          value,
+                          change: `${change >= 0 ? "+" : "\u2212"}${Math.abs(change)}`,
+                          from: p.baseYear,
+                        })
+                      : t("area.price.sentenceNoChange", { year: p.year, value })}
+                  </AreaRow>
+                  <p className="muted area-scope">{t("area.price.scope")}</p>
+                  <PartSource name="area.price.src" time={checkedTime(price, lang)} />
+                </>
+              );
+            }}
+          </NeighbourhoodPart>
           <p className="muted area-compare">{t("area.compare", { count: 320 })}</p>
         </>
       )}

@@ -16,6 +16,7 @@ import type {
   PlacesResult,
   CrimeGroup,
   NeighbourhoodResult,
+  PriceResult,
   SafetyFigure,
   SafetyResult,
   SafetyYear,
@@ -205,6 +206,26 @@ function normaliseIncome(data: unknown) {
   };
 }
 
+function normalisePrice(data: unknown): PriceResult | undefined {
+  if (!isObject(data)) return undefined;
+  const year = str(data.year);
+  const value = finite(data.value);
+  if (!year || value === null) return undefined;
+  const series = arr(data.series).flatMap((s) =>
+    isObject(s) && str(s.year) ? [{ year: str(s.year), value: finite(s.value) }] : [],
+  );
+  return {
+    year,
+    value,
+    unit: "tkr",
+    changePct: finite(data.changePct),
+    baseYear: typeof data.baseYear === "string" ? data.baseYear : null,
+    series,
+    source: str(data.source),
+    tableId: str(data.tableId),
+  };
+}
+
 const LEVELS: Level[] = ["low", "belowAverage", "average", "aboveAverage", "high"];
 
 function normaliseShare(data: unknown): Share {
@@ -387,6 +408,7 @@ export function normaliseProfile(raw: unknown, now: string = new Date().toISOStr
     noise: normaliseSection(raw.noise, now, normaliseNoise),
     district: normaliseSection(raw.district, now, normaliseDistrict),
     income: normaliseSection(raw.income, now, normaliseIncome),
+    price: normaliseSection(raw.price, now, normalisePrice),
     area: normaliseSection(raw.area, now, normaliseAreaStats),
     safety: normaliseSection(raw.safety, now, normaliseSafety),
     places: normaliseSection(raw.places, now, normalisePlaces),
