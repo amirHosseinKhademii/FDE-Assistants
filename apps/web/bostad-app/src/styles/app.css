@@ -3049,3 +3049,10 @@ html[data-streetview="open"] .float-search {
   margin: 6px 4px 0;
   font-size: var(--fs-caption);
 }
+
+/* BRF card (demo): quoted remark under the auditor row */
+.brf-quote {
+  display: block;
+  margin-top: 4px;
+  font-style: italic;
+}

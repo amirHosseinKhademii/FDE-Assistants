@@ -1,0 +1,30 @@
+[
+  {
+    "name": "HSB Brf Sörgården i Göteborg",
+    "org_nr": "757200-9087",
+    "year": 2023,
+    "addresses": ["Barytongatan 5A", "Barytongatan 7A", "Barytongatan 9", "Barytongatan 18", "Barytongatan 24", "Barytongatan 28", "Tenorgatan 8"],
+    "source_url": "https://www.hsb.se/contentassets/20871446109741329347762f32f0b7f3/arsredovisning-hsbs-brf-sorgarden-i-goteborg-2023.pdf",
+    "figures": {
+      "debt_per_sqm": { "value": 2103, "page": 2 },
+      "annual_fee_per_sqm": { "value": 707, "page": 4 },
+      "interest_cost": { "value": -904676, "page": 11 },
+      "planned_maintenance": null,
+      "auditor_remarks": { "value": "none", "page": 19 }
+    }
+  },
+  {
+    "name": "Brf Chalmersgatan i Göteborg",
+    "org_nr": "716444-4593",
+    "year": 2023,
+    "addresses": ["Chalmersgatan 27"],
+    "source_url": "https://www.bjurfors.se/contentassets/0f5051f60f414103a3a791f1523c6398/brf-chalmersgatan-i-goteborg-716444-4593---arsredovisning-2023.pdf",
+    "figures": {
+      "debt_per_sqm": null,
+      "annual_fee_per_sqm": { "value": 515, "page": 8 },
+      "interest_cost": { "value": -1220176, "page": 10 },
+      "planned_maintenance": null,
+      "auditor_remarks": { "value": "remark", "page": 24, "quote": "Jag anmärker på att avgiftsuttaget inte är tillräckligt för att uppfylla stadgarna" }
+    }
+  }
+]

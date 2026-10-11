@@ -13,6 +13,7 @@ import { placesAt, type PlacesResult } from "./sources/places";
 import { areaAt, type AreaResult } from "./sources/area";
 import { safetyAt, type SafetyResult } from "./sources/safety";
 import { gothenburgHousePrice, type PriceResult } from "./sources/prices";
+import { brfAt, type BrfResult } from "./sources/brf";
 export type { TransitLine, TransitStop, TransportMode } from "./sources/transit";
 export type { NoiseBuilding, NoiseResult } from "./sources/noise";
 export type { AreaRef, DistrictResult } from "./sources/district";
@@ -23,6 +24,7 @@ export type { Level } from "./sources/scb";
 export type { PlaceCategory, PlaceItem, PlacesResult } from "./sources/places";
 export type { SafetyKey, SafetyResult, SafetyYear, SafetyFigure } from "./sources/safety";
 export type { LatLng } from "./sources/crime";
+export type { BrfResult, BrfFigure } from "./sources/brf";
 export type { NeighbourhoodResult, CrimeGroup } from "./sources/neighbourhood";
 export { RENT_BENCHMARK } from "./sources/rent-benchmark";
 
@@ -49,7 +51,7 @@ export interface Profile {
   /** Göteborg kommun overall, not the address. Attempted even when geocoding fails. */
   price: Section<PriceResult>;
   safety: Section<SafetyResult>;
-  brf: Section<never>;
+  brf: Section<BrfResult>;
   energy: Section<never>;
 }
 
@@ -72,6 +74,16 @@ async function attempt<T>(
 
 function stub(source: string, reason: string): Section<never> {
   return { status: "unavailable", reason, source, fetchedAt: new Date().toISOString() };
+}
+
+/** Demo BRF figures when the geocoded house is in the annual-report file; otherwise the Bolagsverket stub. */
+function brfSection(location: Section<GeocodeResult>): Section<BrfResult> {
+  const fetchedAt = new Date().toISOString();
+  if (location.status === "ok" && location.data) {
+    const hit = brfAt(location.data.displayName, location.data.precision);
+    if (hit) return { status: "ok", data: hit, source: "annual report (demo)", fetchedAt };
+  }
+  return stub("bolagsverket (värdefulla datamängder)", "awaiting Bolagsverket API access");
 }
 
 export async function getProfile(address: string): Promise<Profile> {
@@ -130,7 +142,7 @@ export async function getProfile(address: string): Promise<Profile> {
     area,
     price: await pricePromise,
     safety,
-    brf: stub("bolagsverket (värdefulla datamängder)", "awaiting Bolagsverket API access"),
+    brf: brfSection(location),
     energy: stub("boverket energideklaration", "awaiting Boverket agreement"),
   };
 }

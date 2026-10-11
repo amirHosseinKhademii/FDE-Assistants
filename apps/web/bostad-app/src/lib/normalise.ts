@@ -20,6 +20,7 @@ import type {
   SafetyFigure,
   SafetyResult,
   SafetyYear,
+  BrfResult,
   Profile,
   Section,
   TransitLine,
@@ -97,6 +98,12 @@ function normaliseStop(raw: unknown): TransitStop | null {
 }
 
 /** Wraps a raw section: keeps its status and metadata, runs `fix` on its data. */
+/** The demo BRF figures are passed through; only the shape the card reads is checked. */
+function normaliseBrf(data: unknown): BrfResult | undefined {
+  if (!isObject(data) || typeof data.name !== "string" || typeof data.sourceUrl !== "string") return undefined;
+  return data as unknown as BrfResult;
+}
+
 function normaliseSection<T>(raw: unknown, receivedAt: string, fix: (data: unknown) => T | undefined): Section<T> {
   const r = isObject(raw) ? raw : {};
   const status = STATUSES.includes(r.status as (typeof STATUSES)[number])
@@ -412,7 +419,7 @@ export function normaliseProfile(raw: unknown, now: string = new Date().toISOStr
     area: normaliseSection(raw.area, now, normaliseAreaStats),
     safety: normaliseSection(raw.safety, now, normaliseSafety),
     places: normaliseSection(raw.places, now, normalisePlaces),
-    brf: normaliseSection<never>(raw.brf, now, () => undefined),
+    brf: normaliseSection(raw.brf, now, normaliseBrf),
     energy: normaliseSection<never>(raw.energy, now, () => undefined),
   };
 }

@@ -10,6 +10,7 @@ import { LEVEL_ARROW, SafetyCard } from "./SafetyCard";
 import { LEVEL_ICON } from "./Badges";
 import { LEVEL_TONE, levelOf, pctDiff } from "../lib/safety";
 import { RentCard } from "./RentCard";
+import { BrfCard, brfResult } from "./BrfCard";
 import { AskCard } from "./AskCard";
 import type { AppMode } from "./ModeSwitch";
 import type { PlacesFilter } from "./placeFilter";
@@ -89,6 +90,7 @@ const TILE_NAME: Record<string, MessageKey> = {
   "card-area": "tile.name.price",
   "card-places": "tile.name.nearby",
   "card-ground": "tile.name.ground",
+  "card-brf": "tile.name.brf",
 };
 
 /** Every section of a loaded profile: three status tiles, the cards, then one row for what is coming. */
@@ -116,7 +118,7 @@ export function ProfileBody({
   onPickPlace?: (item: PlaceItem) => void;
   onSafetyToggle?: (open: boolean) => void;
 }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const rent = mode === "rent";
   const gate = gateOf(profile);
   const ground = gatedCheck(profile.landslide, gate);
@@ -128,6 +130,8 @@ export function ProfileBody({
   // Places are distances from the point, not a risk claim: shown even when the match is only a street (see profile.precision).
   const places = gatedCheck(profile.places, "exact");
   const safety = gatedCheck(profile.safety, "exact");
+  // BRF figures are per house (demo annual reports). Buy only: rent mode hides the BRF card and tile.
+  const brf = gatedCheck(profile.brf, "exact");
 
   // One result per card. The card's chip and the tile above it are the same object, so they cannot disagree.
   const groundRes: CardResult =
@@ -152,6 +156,7 @@ export function ProfileBody({
         : { text: t("summary.transport.none"), short: t("tile.word.none"), tone: "muted" };
   const placesRes: CardResult = places.kind === "ok" ? placesSummary(places.data, t) : uncheckedResult(t);
   const area = gatedCheck(profile.area, "exact");
+  const brfRes = brfResult(brf, t, lang);
   // Prices describe the whole kommun, so the address gate does not apply to them.
   const price: Check<PriceResult> = cityCheck(profile.price);
   // Price shows the income level until house prices exist (see the card's sentence).
@@ -190,6 +195,7 @@ export function ProfileBody({
     { id: "card-transport", icon: "bus", res: transitRes },
     { id: "card-noise", icon: "sound", res: noiseRes },
     ...(rent ? [] : [{ id: "card-area", icon: "houseTag" as const, res: areaRes }]),
+    ...(rent ? [] : [{ id: "card-brf", icon: "building" as const, res: brfRes }]),
     { id: "card-places", icon: "pin", res: placesRes },
     { id: "card-ground", icon: "mountain", res: groundRes },
   ];
@@ -228,6 +234,7 @@ export function ProfileBody({
       <TransportCard check={transit} onRetry={onRetry} filter={filter} onFilter={onFilter} result={transitRes} />
       <NoiseCard check={noise} onRetry={onRetry} result={noiseRes} />
       <AreaCard district={district} income={income} area={area} price={price} onRetry={onRetry} result={areaRes} mode={rent ? "rent" : "buy"} />
+      {!rent && <BrfCard check={brf} result={brfRes} />}
       <NearbyPlacesCard
         check={places}
         onRetry={onRetry}
@@ -242,7 +249,7 @@ export function ProfileBody({
 
       <p className="more-row">
         {t("more.coming", {
-          items: (rent ? [t("more.energy"), t("more.flood")] : [t("more.brf"), t("more.energy"), t("more.inspection"), t("more.flood")]).join(" · "),
+          items: (rent ? [t("more.energy"), t("more.flood")] : [t("more.energy"), t("more.inspection"), t("more.flood")]).join(" · "),
         })}
       </p>
     </>
