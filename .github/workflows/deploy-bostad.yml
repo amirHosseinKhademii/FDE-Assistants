@@ -61,11 +61,12 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      # Build dependencies first: @bostad/app typechecks against @bostad/property's dist/.
-      - name: Typecheck and build @bostad/property and @bostad/app
+      # Build every workspace dependency of @bostad/app first. Clean checkouts have no dist/
+      # folders, and @bostad/app imports @bostad/ai, @bostad/property and @fde/* from dist/.
+      # "@bostad/app^..." is the dependency closure without the app itself, in topological order.
+      - name: Typecheck and build workspace dependencies, then @bostad/app
         run: |
-          pnpm --filter @bostad/property run typecheck
-          pnpm --filter @bostad/property run build
+          pnpm --filter "@bostad/app^..." run build
           pnpm --filter @bostad/app run typecheck
           pnpm --filter @bostad/app run build
 
