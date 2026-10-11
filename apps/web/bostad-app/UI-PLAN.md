@@ -309,3 +309,4 @@ Server-only key: `GOOGLE_MAPS_SERVER_KEY` in repo-root `.env` (NO `VITE_` prefix
    - Pollen (Pollen API forecast: today's levels for grass/birch, "Spring is high birch season" etc.).
    Summary word: "Good air · Sunny roof · 12 m above sea".
 5. Status tile row stays 3 tiles (Ground · Noise · Transport); Environment shows in cards only.
+2026-10-11: rent mode, BRF card, mortgage calculator, Ask AI modal, compact header built; see proptech-sweden/STATUS.md
