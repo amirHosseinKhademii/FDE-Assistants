@@ -80,13 +80,11 @@ function stub(source: string, reason: string): Section<never> {
   return { status: "unavailable", reason, source, fetchedAt: new Date().toISOString() };
 }
 
-/** Demo BRF figures when the geocoded house is in the annual-report file; otherwise the Bolagsverket stub. */
-function brfSection(location: Section<GeocodeResult>): Section<BrfResult> {
+/** Demo BRF figures when the typed or geocoded house is in the annual-report file; otherwise the Bolagsverket stub. */
+function brfSection(address: string, location: Section<GeocodeResult>): Section<BrfResult> {
   const fetchedAt = new Date().toISOString();
-  if (location.status === "ok" && location.data) {
-    const hit = brfAt(location.data.displayName, location.data.precision);
-    if (hit) return { status: "ok", data: hit, source: "annual report (demo)", fetchedAt };
-  }
+  const hit = brfAt(address, location.status === "ok" && location.data ? location.data : null);
+  if (hit) return { status: "ok", data: hit, source: "annual report (demo)", fetchedAt };
   return stub("bolagsverket (värdefulla datamängder)", "awaiting Bolagsverket API access");
 }
 
@@ -146,7 +144,7 @@ export async function getProfile(address: string): Promise<Profile> {
     area,
     price: await pricePromise,
     safety,
-    brf: brfSection(location),
+    brf: brfSection(address, location),
     energy: stub("boverket energideklaration", "awaiting Boverket agreement"),
   };
 }

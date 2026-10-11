@@ -13,7 +13,8 @@
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "profile": "ts-node src/cli/profile.ts",
-    "rates:check": "ts-node src/cli/rates-check.ts"
+    "rates:check": "ts-node src/cli/rates-check.ts",
+    "brf:match:check": "ts-node src/cli/brf-match-check.ts"
   },
   "dependencies": {
     "dotenv": "^16.4.5"
