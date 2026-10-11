@@ -27,6 +27,10 @@ export type { LatLng } from "./sources/crime";
 export type { BrfResult, BrfFigure } from "./sources/brf";
 export type { NeighbourhoodResult, CrimeGroup } from "./sources/neighbourhood";
 export { RENT_BENCHMARK } from "./sources/rent-benchmark";
+export { mortgageRates } from "./sources/rates";
+export type { MortgageRates, BankRate, BankListResult, AverageResult, PolicyRate, Period, RateSection } from "./sources/rates";
+export { MORTGAGE_RULES } from "./sources/mortgage-rules";
+export { BANKS, type BankInfo } from "./sources/banks";
 
 export type SectionStatus = "ok" | "error" | "unavailable";
 

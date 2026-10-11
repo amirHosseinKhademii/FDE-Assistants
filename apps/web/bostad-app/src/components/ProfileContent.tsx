@@ -11,6 +11,7 @@ import { LEVEL_ICON } from "./Badges";
 import { LEVEL_TONE, levelOf, pctDiff } from "../lib/safety";
 import { RentCard } from "./RentCard";
 import { BrfCard, brfResult } from "./BrfCard";
+import { MortgageCard } from "./MortgageCard";
 import { AskAiButton } from "./AskAi";
 import type { AppMode } from "./ModeSwitch";
 import type { PlacesFilter } from "./placeFilter";
@@ -238,6 +239,7 @@ export function ProfileBody({
       <NoiseCard check={noise} onRetry={onRetry} result={noiseRes} />
       <AreaCard district={district} income={income} area={area} price={price} onRetry={onRetry} result={areaRes} mode={rent ? "rent" : "buy"} />
       {!rent && <BrfCard check={brf} result={brfRes} />}
+      {!rent && <MortgageCard price={price.kind === "ok" ? price.data : null} brfFeePerSqm={brf.kind === "ok" ? (brf.data.annualFeePerSqm?.value ?? null) : null} />}
       <NearbyPlacesCard
         check={places}
         onRetry={onRetry}

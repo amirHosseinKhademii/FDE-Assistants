@@ -12,7 +12,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "profile": "ts-node src/cli/profile.ts"
+    "profile": "ts-node src/cli/profile.ts",
+    "rates:check": "ts-node src/cli/rates-check.ts"
   },
   "dependencies": {
     "dotenv": "^16.4.5"

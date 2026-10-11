@@ -6,7 +6,8 @@
     "dev": "vite dev --host 127.0.0.1 --port 3600",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
-    "start": "node dist/server/server.js"
+    "start": "node dist/server/server.js",
+    "mortgage:check": "tsx src/lib/mortgage.check.ts"
   },
   "dependencies": {
     "@bostad/ai": "workspace:*",

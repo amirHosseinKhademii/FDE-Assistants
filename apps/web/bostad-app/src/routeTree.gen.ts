@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiAskRouteImport } from './routes/api.ask'
+import { Route as ApiMortgageRouteImport } from './routes/api.mortgage'
 import { Route as ApiProfileRouteImport } from './routes/api.profile'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const ApiAskRoute = ApiAskRouteImport.update({
   path: '/api/ask',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiMortgageRoute = ApiMortgageRouteImport.update({
+  id: '/api/mortgage',
+  path: '/api/mortgage',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiProfileRoute = ApiProfileRouteImport.update({
   id: '/api/profile',
   path: '/api/profile',
@@ -32,30 +38,34 @@ const ApiProfileRoute = ApiProfileRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/ask': typeof ApiAskRoute
+  '/api/mortgage': typeof ApiMortgageRoute
   '/api/profile': typeof ApiProfileRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/ask': typeof ApiAskRoute
+  '/api/mortgage': typeof ApiMortgageRoute
   '/api/profile': typeof ApiProfileRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api/ask': typeof ApiAskRoute
+  '/api/mortgage': typeof ApiMortgageRoute
   '/api/profile': typeof ApiProfileRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/ask' | '/api/profile'
+  fullPaths: '/' | '/api/ask' | '/api/mortgage' | '/api/profile'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/ask' | '/api/profile'
-  id: '__root__' | '/' | '/api/ask' | '/api/profile'
+  to: '/' | '/api/ask' | '/api/mortgage' | '/api/profile'
+  id: '__root__' | '/' | '/api/ask' | '/api/mortgage' | '/api/profile'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiAskRoute: typeof ApiAskRoute
+  ApiMortgageRoute: typeof ApiMortgageRoute
   ApiProfileRoute: typeof ApiProfileRoute
 }
 
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAskRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/mortgage': {
+      id: '/api/mortgage'
+      path: '/api/mortgage'
+      fullPath: '/api/mortgage'
+      preLoaderRoute: typeof ApiMortgageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/profile': {
       id: '/api/profile'
       path: '/api/profile'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiAskRoute: ApiAskRoute,
+  ApiMortgageRoute: ApiMortgageRoute,
   ApiProfileRoute: ApiProfileRoute,
 }
 export const routeTree = rootRouteImport
