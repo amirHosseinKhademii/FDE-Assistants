@@ -33,6 +33,8 @@
     "bostad:dev": "turbo run dev --filter=@bostad/app",
     "bostad:profile": "pnpm --filter @bostad/property profile",
     "bostad-ai:schema": "pnpm --filter @bostad/ai schema:check",
+    "bostad-ai:ask": "pnpm --filter @bostad/ai ask",
+    "bostad-ai:eval:smoke": "pnpm --filter @bostad/ai eval:smoke",
     "safety:dev": "turbo run dev --filter=@calder/safety-app",
     "safety:estate": "pnpm --filter @calder/safety-app estate",
     "steering:corpus-web": "pnpm --filter @vantis/steering corpus:web",

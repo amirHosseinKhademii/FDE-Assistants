@@ -25,9 +25,21 @@ importers:
       '@fde/agent':
         specifier: workspace:*
         version: link:../../../packages/agent
+      '@fde/foundry':
+        specifier: workspace:*
+        version: link:../../../packages/providers/foundry
       '@fde/schema':
         specifier: workspace:*
         version: link:../../../packages/schema
+      '@fde/telemetry':
+        specifier: workspace:*
+        version: link:../../../packages/telemetry
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.6.1
+      openai:
+        specifier: ^7.10.0
+        version: 7.10.0(@aws-sdk/credential-provider-node@3.972.83)(@smithy/signature-v4@5.7.3)(undici@7.29.1)(ws@8.21.3)(zod@4.5.4)
       zod:
         specifier: ^4.5.4
         version: 4.5.4
