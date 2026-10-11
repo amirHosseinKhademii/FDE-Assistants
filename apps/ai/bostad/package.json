@@ -12,7 +12,8 @@
     "schema:check": "ts-node src/cli/schema-check.ts",
     "ask": "ts-node src/cli/ask.ts",
     "eval": "ts-node src/evals/run.ts",
-    "eval:smoke": "ts-node src/evals/run.ts --repeat 1"
+    "eval:smoke": "ts-node src/evals/run.ts --repeat 1",
+    "brf:extract": "ts-node src/cli/brf-extract.ts"
   },
   "dependencies": {
     "@bostad/property": "workspace:*",
