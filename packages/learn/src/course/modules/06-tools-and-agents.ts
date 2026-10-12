@@ -11,20 +11,20 @@ const whatAToolIs: Lesson = {
   },
   steps: [
     {
-      title: 'Give the tool a name',
-      detail: 'Pick a short name that says what the tool does, such as get_order. The model uses this name when it asks for the tool.',
+      title: 'What the model sees',
+      detail: 'The model sees the name, the description, and the parameters. It never sees the body of the function. The sample removes run from the object with a rest pattern and prints what remains.',
     },
     {
-      title: 'Describe the tool',
-      detail: 'The description tells the model when to use the tool. For example: "Return the status of one order by its id."',
+      title: 'Writing the description',
+      detail: 'The description is the main hint that tells the model when to use the tool. For example: "Return the status of one order by its id." A vague description leads to wrong calls.',
     },
     {
-      title: 'List the inputs with types',
-      detail: 'Each input has a name and a type, such as orderId as a string. The model fills in these inputs when it asks for the tool.',
+      title: 'Typed inputs',
+      detail: 'Each parameter has a name and a type, such as orderId as a string. The model fills in these values when it asks for the tool. Your code should check them before it runs the function.',
     },
     {
-      title: 'Write the function',
-      detail: 'The function runs only when your code calls it. It returns plain text, so the model can read the result.',
+      title: 'Running the function',
+      detail: 'The run function executes only when your code calls it. The model never runs it directly. The sample calls run with orderId A-1042 and prints the text result.',
     },
   ],
   code: {
@@ -103,20 +103,20 @@ const toolCallingLoop: Lesson = {
   },
   steps: [
     {
-      title: 'Send the messages',
-      detail: 'The loop sends the question and every earlier message to the model. The model replies with a tool call or with text.',
+      title: 'Two kinds of reply',
+      detail: 'The model either asks for a tool or gives final text. The Reply type is a union that holds both shapes. The type field tells the loop which shape it received.',
     },
     {
-      title: 'Run the tool',
-      detail: 'For a tool call, the loop finds the tool by its name and runs it with the inputs. For example, get_order runs with orderId A-1042.',
+      title: 'Running a requested tool',
+      detail: 'The loop looks up the tool by name in the tools map. It then runs the function with the inputs from the reply. For example, get_order runs with orderId A-1042.',
     },
     {
-      title: 'Keep the result',
-      detail: 'The result is added to the messages, so the next request contains it. The model reads the result on its next turn.',
+      title: 'Feeding the result back',
+      detail: 'The sample prints each result. A real loop adds the result to the messages instead. The next request then contains the result, so the model can use it.',
     },
     {
-      title: 'Stop at text or at the cap',
-      detail: 'When the reply is text, the loop returns it. A turn cap of five stops a loop that never finishes.',
+      title: 'Stopping the loop',
+      detail: 'The loop stops at the first text reply. The maxTurns value of five stops a loop that never gets text. The sample stops on turn 2.',
     },
   ],
   diagram: ['Messages', 'Model', 'Run tool', 'Add result', 'Answer'],
@@ -199,20 +199,20 @@ const lookupVsSearchTools: Lesson = {
   },
   steps: [
     {
-      title: 'Use lookup for an exact key',
-      detail: 'A lookup takes a key, such as order id A-1042, and returns one record. If the key is missing, it says that no record was found.',
+      title: 'Looking up an exact key',
+      detail: 'A lookup takes one key, such as order id A-1042. It returns one record or a clear message. The Map in the sample stores each id with its status.',
     },
     {
-      title: 'Use search for words or topics',
-      detail: 'A search takes a question and scores each article. For example, "refund order number" scores the refund article with three shared words.',
+      title: 'Searching by shared words',
+      detail: 'Search scores each article by the words it shares with the query. The query "refund order number" gives the refund request article a score of 3. Scores set the order of the results.',
     },
     {
-      title: 'Return ranked results with scores',
-      detail: 'A search returns the best few results, each with its score. The model sees which result matched the most words.',
+      title: 'Results without a cutoff',
+      detail: 'The search returns the top results even when every score is zero. The rideshare query still returns one result, with score 0. The model decides whether that result answers the question.',
     },
     {
-      title: 'Let the model judge weak matches',
-      detail: 'A search returns the top results even when every score is zero. The code does not decide that nothing matches. The model reads the results and decides.',
+      title: 'Choosing between them',
+      detail: 'Use a lookup when the question names one record. Use a search when the question is about a topic or a symptom. Using search for an exact id can return a similar record instead.',
     },
   ],
   code: {
@@ -297,20 +297,20 @@ const wrappingAMessyApi: Lesson = {
   },
   steps: [
     {
-      title: 'Follow every page',
-      detail: 'A paged API returns part of the data and the number of the next page. The wrapper keeps asking until there is no next page.',
+      title: 'Following pages',
+      detail: 'Each page returns its items and the number of the next page. The wrapper keeps asking until the next page is null. The sample reads page 1, then page 2, and then stops.',
     },
     {
-      title: 'Retry a rate limit',
-      detail: 'The API may answer rate limited for a moment. The wrapper tries the same page again, up to a fixed number of attempts.',
+      title: 'Retrying a rate limit',
+      detail: 'The fake API returns null when it is rate limited. The loop tries the same page again, up to three attempts. In the sample, page 2 succeeds on the second try.',
     },
     {
-      title: 'Report the final failure',
-      detail: 'After the last attempt, the wrapper throws an error that names the page. The failure is never hidden as an empty list.',
+      title: 'Failing loudly',
+      detail: 'After the last attempt, the wrapper throws an error that names the page. The caller can then report the failure. An empty list would hide the failure from everyone.',
     },
     {
-      title: 'Return typed records',
-      detail: 'The wrapper returns a list of records with known types. The tools built on it never see the raw responses.',
+      title: 'Returning typed items',
+      detail: 'The result is a plain list of strings with a known type. Tools built on the wrapper never see raw responses. The output joins the items into one line.',
     },
   ],
   code: {
@@ -391,20 +391,20 @@ const routingQuestions: Lesson = {
   },
   steps: [
     {
-      title: 'List the routes',
-      detail: 'Each route is one way to find sources. Examples are an exact id lookup, a keyword search, a meaning search, and a table query.',
+      title: 'Writing a rule',
+      detail: 'A rule is a regular expression, a pattern that matches text. The pattern in the sample matches the word order, a space, a capital letter, a dash, and digits. It matches an order id such as A-1042.',
     },
     {
-      title: 'Write a rule for each route',
-      detail: 'A rule is a test on the question text. A question with "order A-1042" matches the exact id route.',
+      title: 'Ordering the rules',
+      detail: 'The first matching rule wins, so narrow rules come first. The question "What does error 4031 mean?" matches the keyword rule before the meaning default. The order of the checks decides the route.',
     },
     {
-      title: 'Check the rules in order',
-      detail: 'The first rule that matches wins. Put the most specific rules first, so a broad rule does not take their questions.',
+      title: 'The default route',
+      detail: 'The meaning search is the last line, so it catches every other question. For example, "Can I return an opened item?" matches no rule. It therefore takes the default route.',
     },
     {
-      title: 'Use a default route',
-      detail: 'The last route catches every other question. Here the meaning search is the default, because most questions are open.',
+      title: 'Reading the output',
+      detail: 'The sample routes four questions and prints each route name. Each route name is padded to eight characters so that the questions line up. The output shows one route per line.',
     },
   ],
   code: {
@@ -479,20 +479,20 @@ const frameworksOrOwnLoop: Lesson = {
   },
   steps: [
     {
-      title: 'Start with a loop you can read',
-      detail: 'Write the loop in your own code first. For one tool it is about twenty lines, and every step is visible.',
+      title: 'Reading the result',
+      detail: 'The LoopResult type records the answer, the turn count, and the stop reason. The sample prints a capped run with answer null. The caller can tell that the cap was reached.',
     },
     {
-      title: 'Record why the loop stopped',
-      detail: 'Return a stop reason with each result, such as answered or turn cap reached. A capped run is then reported, not hidden.',
+      title: 'A cap of five',
+      detail: 'The fake model asks for tools until turn 10. With a cap of five, the loop ends at turn 5 with no answer. The stop reason says turn cap reached.',
     },
     {
-      title: 'Set every limit yourself',
-      detail: 'Set the turn cap and the time limit in your own configuration. Do not rely on a default that you have not read.',
+      title: 'A cap of twelve',
+      detail: 'With a cap of twelve, the loop reaches turn 10 and gets text. It returns the answer done after 10 turns. The stop reason says answer.',
     },
     {
-      title: 'Adopt a framework for shared loops',
-      detail: 'A framework helps when many features share one loop and you need its tracing. Check its defaults against your own tests first.',
+      title: 'What a framework adds',
+      detail: 'A framework runs this loop for you, with its own defaults. The defaults can include turn caps and parallel calls. Read them before you rely on a framework in production.',
     },
   ],
   code: {
@@ -571,20 +571,20 @@ const manyAgentsAndFanOut: Lesson = {
   },
   steps: [
     {
-      title: 'Split the job',
-      detail: 'A planner splits the question into parts that do not depend on each other. For example: refund rules, shipping times, and gift card terms.',
+      title: 'Splitting the job',
+      detail: 'A planner splits one question into parts that do not depend on each other. The sample has three parts: refund rules, shipping times, and gift card terms.',
     },
     {
-      title: 'Start one worker per part',
-      detail: 'Each worker gets one part, with its own messages and tools. Workers do not wait for each other.',
+      title: 'One worker per part',
+      detail: 'The askWorker function handles one part and returns its answer. The map creates every job before any job finishes. In a real system, each worker would also have its own messages.',
     },
     {
-      title: 'Wait for all the workers',
-      detail: 'The code waits until every worker has finished. A failed worker is reported by its part name, not dropped.',
+      title: 'Waiting for all answers',
+      detail: 'Promise.all waits for every worker and keeps the input order. The answers print in the order of the parts, even when the workers finish at different times.',
     },
     {
-      title: 'Merge the answers in order',
-      detail: 'Keep the answers in the order of the parts. A final step can then join them into one reply.',
+      title: 'Costs and limits',
+      detail: 'Three workers make three model calls, so they cost about three calls. Rate limits can stop too many workers from running at once.',
     },
   ],
   code: {
