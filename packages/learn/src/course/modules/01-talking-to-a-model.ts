@@ -65,6 +65,32 @@ dimension -> 3`,
       { label: 'Stored list (the embedding)', value: '[0.9, 0.1, 0]' },
       { label: 'Dimension (numbers in the list)', value: '3' },
     ],
+    code: {
+      source: `// Two embeddings from the table above. The first is "refund".
+const refund = [0.9, 0.1, 0];
+// The second embedding is "money back".
+const moneyBack = [0.8, 0.2, 0.1];
+// Step 1: the dot product. Multiply the numbers in each position, then add the results.
+let dot = 0;
+for (let i = 0; i < refund.length; i++) {
+  // Multiply the two numbers at position i and add them to the total.
+  dot += refund[i] * moneyBack[i];
+} // End of the loop.
+// Step 2: the length of the first list. Square each number, add them, then take the square root.
+const lengthA = Math.sqrt(refund.reduce((sum, x) => sum + x * x, 0));
+// Step 3: the length of the second list, worked out the same way.
+const lengthB = Math.sqrt(moneyBack.reduce((sum, x) => sum + x * x, 0));
+// Print the value from each step.
+console.log(\`dot product -> \${dot}\`);
+console.log(\`length of refund -> \${lengthA}\`);
+console.log(\`length of money back -> \${lengthB}\`);
+// Step 4: divide the dot product by both lengths. The result shows how close the two lists point.
+console.log(\`similarity -> \${dot / (lengthA * lengthB)}\`);`,
+      output: `dot product -> 0.7400000000000001
+length of refund -> 0.9055385138137417
+length of money back -> 0.8306623862918076
+similarity -> 0.9837851170821987`,
+    },
   },
   mistakes: [
     'Reading one number as a meaning. The whole list carries the meaning, not one value.',

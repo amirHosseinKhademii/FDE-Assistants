@@ -1,9 +1,10 @@
 import { useState } from 'react';
+import { highlightLine } from './highlight';
 
-/** A code block with line numbers, a copy button, and muted comment lines. */
-export function CodeBlock({ code, label = 'Code' }: { code: string; label?: string }) {
+/** The dark editor-style code panel: window bar, line numbers, syntax colors, and a Copy button. */
+export function CodeBlock({ code, label = 'TypeScript' }: { code: string; label?: string }) {
   const [copied, setCopied] = useState(false);
-  const lines = code.split('\n');
+  const lines = code.replace(/\n$/, '').split('\n');
 
   async function copy() {
     try {
@@ -18,20 +19,35 @@ export function CodeBlock({ code, label = 'Code' }: { code: string; label?: stri
   return (
     <div className="course-code">
       <div className="course-code-bar">
-        <span>{label}</span>
-        <button type="button" onClick={copy}>
+        <span className="course-dots" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </span>
+        <span className="course-code-label">{label}</span>
+        <button type="button" className="course-copy" onClick={copy}>
           {copied ? 'Copied' : 'Copy'}
         </button>
       </div>
       <pre className="course-code-pre">
         <code>
           {lines.map((line, i) => (
-            <span key={i} className={'course-code-line' + (line.trim().startsWith('//') ? ' is-comment' : '')}>
-              {line || ' '}
+            <span key={i} className="course-code-line">
+              {line ? highlightLine(line) : ' '}
             </span>
           ))}
         </code>
       </pre>
+    </div>
+  );
+}
+
+/** The terminal-style panel that shows what the code prints. */
+export function OutputPanel({ output }: { output: string }) {
+  return (
+    <div className="course-term">
+      <div className="course-term-bar">Output</div>
+      <pre>{output}</pre>
     </div>
   );
 }

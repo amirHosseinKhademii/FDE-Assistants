@@ -11,7 +11,11 @@ export type Lesson = {
   steps: string[];
   diagram?: string[]; // box labels, drawn left to right
   code: { source: string; output: string };
-  hood: { paragraphs: string[]; example?: { label: string; value: string }[] };
+  hood: {
+    paragraphs: string[];
+    example?: { label: string; value: string }[];
+    code?: { source: string; output?: string }; // optional snippet shown in the Under the hood dialog
+  };
   mistakes: string[];
   useWhen: string[];
   skipWhen: string[];

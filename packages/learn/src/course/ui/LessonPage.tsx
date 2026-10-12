@@ -1,24 +1,68 @@
-import { Fragment, useEffect } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { COURSE_COUNTS, findLesson, prevNext } from '../index';
+import type { Lesson } from '../types';
 import { markVisited } from '../progress';
-import { CodeBlock } from './CodeBlock';
+import { CodeBlock, OutputPanel } from './CodeBlock';
 import { CourseLink } from './CourseLink';
+import { Modal } from './Modal';
 import './course.css';
+
+/** Words in every prose field of a lesson, for the reading-time estimate. */
+function countWords(lesson: Lesson): number {
+  const parts: string[] = [
+    lesson.oneLiner,
+    lesson.problem.without,
+    lesson.problem.with,
+    ...lesson.steps,
+    ...lesson.hood.paragraphs,
+    ...(lesson.hood.example ?? []).flatMap((e) => [e.label, e.value]),
+    ...lesson.mistakes,
+    ...lesson.useWhen,
+    ...lesson.skipWhen,
+    ...lesson.words.flatMap((w) => [w.term, w.meaning]),
+    ...lesson.check.flatMap((c) => [c.q, c.a]),
+  ];
+  return parts.join(' ').split(/\s+/).filter(Boolean).length;
+}
+
+function Section({ n, label, title, children }: { n: number; label: string; title: string; children: ReactNode }) {
+  return (
+    <section className="course-section">
+      <header className="course-sec-head">
+        <span className="course-sec-num" aria-hidden="true">
+          {n}
+        </span>
+        <div>
+          <p className="course-sec-label">{label}</p>
+          <h2 className="course-sec-title">{title}</h2>
+        </div>
+      </header>
+      {children}
+    </section>
+  );
+}
 
 /** One lesson, in the fixed section order from the redesign plan. */
 export function CourseLessonPage({ moduleSlug, lessonSlug }: { moduleSlug: string; lessonSlug: string }) {
   const found = findLesson(moduleSlug, lessonSlug);
   const isFound = found !== undefined;
+  const [codeOpen, setCodeOpen] = useState(false);
+  const [hoodOpen, setHoodOpen] = useState(false);
 
   useEffect(() => {
     if (isFound) markVisited(`${moduleSlug}/${lessonSlug}`);
   }, [moduleSlug, lessonSlug, isFound]);
 
+  useEffect(() => {
+    setCodeOpen(false);
+    setHoodOpen(false);
+  }, [moduleSlug, lessonSlug]);
+
   if (!found) {
     return (
       <article className="course-lesson">
-        <h1>Lesson not found</h1>
-        <p>There is no lesson at this address.</p>
+        <h1 className="course-title">Lesson not found</h1>
+        <p className="course-lead">There is no lesson at this address.</p>
         <p>
           <CourseLink path="" className="course-button">
             Back to the course
@@ -30,74 +74,165 @@ export function CourseLessonPage({ moduleSlug, lessonSlug }: { moduleSlug: strin
 
   const { module, lesson, position } = found;
   const { prev, next } = prevNext(moduleSlug, lessonSlug);
+  const moduleIndex = module.lessons.indexOf(lesson);
+  const moduleProgress = ((moduleIndex + 1) / module.lessons.length) * 100;
+  const minutes = Math.max(1, Math.round(countWords(lesson) / 200));
+  const hoodCode = lesson.hood.code ?? lesson.code;
 
   return (
     <article className="course-lesson">
-      <div className="course-topline">
-        <nav aria-label="Breadcrumb" className="course-crumbs">
-          Module {module.number} · {module.title} › {lesson.number} {lesson.title}
-        </nav>
-        <p className="course-position">
-          Lesson {position} of {COURSE_COUNTS.lessons}
-        </p>
-      </div>
-
-      <h1>
-        {lesson.number} {lesson.title}
-      </h1>
+      <p className="course-pill">
+        Module {module.number} · {module.title}
+      </p>
+      <p className="course-num">Lesson {lesson.number}</p>
+      <h1 className="course-title">{lesson.title}</h1>
 
       {lesson.draft ? (
         <p className="course-draft">This lesson is being written. Its title and place in the course are final.</p>
       ) : (
         <>
-          <h2>1. In one sentence</h2>
-          <p className="course-oneliner">{lesson.oneLiner}</p>
+          <p className="course-lead">{lesson.oneLiner}</p>
+        </>
+      )}
 
-          <h2>2. The problem</h2>
-          <div className="course-pair">
-            <div className="course-box">
-              <div className="course-box-label">Without it</div>
-              <p>{lesson.problem.without}</p>
-            </div>
-            <div className="course-box">
-              <div className="course-box-label">With it</div>
-              <p>{lesson.problem.with}</p>
-            </div>
-          </div>
+      <div className="course-meta">
+        <span>
+          Lesson {position} of {COURSE_COUNTS.lessons}
+        </span>
+        <span aria-hidden="true">·</span>
+        <span>{minutes} min read</span>
+      </div>
+      <div className="course-progress" role="img" aria-label={`Module progress: lesson ${moduleIndex + 1} of ${module.lessons.length}`}>
+        <span style={{ width: `${moduleProgress}%` }} />
+      </div>
 
-          <h2>3. How it works</h2>
-          <ol className="course-steps">
-            {lesson.steps.map((s) => (
-              <li key={s}>{s}</li>
-            ))}
-          </ol>
-          {lesson.diagram ? (
-            <div className="course-flow" role="img" aria-label={lesson.diagram.join(' to ')}>
-              {lesson.diagram.map((label, i) => (
-                <Fragment key={label}>
-                  <span className="course-flow-box">{label}</span>
-                  {i < lesson.diagram!.length - 1 ? (
-                    <span className="course-flow-arrow" aria-hidden="true">
-                      →
-                    </span>
-                  ) : null}
-                </Fragment>
+      {lesson.draft ? null : (
+        <>
+          <Section n={1} label="The problem" title="Why this step exists">
+            <div className="course-pair">
+              <div className="course-box is-without">
+                <p className="course-box-label">
+                  <span aria-hidden="true">✕</span> Without it
+                </p>
+                <p>{lesson.problem.without}</p>
+              </div>
+              <div className="course-box is-with">
+                <p className="course-box-label">
+                  <span aria-hidden="true">✓</span> With it
+                </p>
+                <p>{lesson.problem.with}</p>
+              </div>
+            </div>
+          </Section>
+
+          <Section n={2} label="How it works" title="The idea in steps">
+            <ol className="course-steps">
+              {lesson.steps.map((s) => (
+                <li key={s}>{s}</li>
               ))}
+            </ol>
+            {lesson.diagram ? (
+              <div className="course-flow" role="img" aria-label={lesson.diagram.join(' to ')}>
+                {lesson.diagram.map((label, i) => (
+                  <span key={label} className="course-flow-item">
+                    <span className="course-flow-box">{label}</span>
+                    {i < lesson.diagram!.length - 1 ? (
+                      <span className="course-flow-arrow" aria-hidden="true">
+                        →
+                      </span>
+                    ) : null}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+          </Section>
+
+          <Section n={3} label="The code" title="Read it, then run it">
+            <div className="course-teaser">
+              <p>See the code and what it prints.</p>
+              <button type="button" className="course-button" onClick={() => setCodeOpen(true)}>
+                Show the code →
+              </button>
             </div>
-          ) : null}
+          </Section>
 
-          <h2>4. The code</h2>
-          <CodeBlock code={lesson.code.source} label="TypeScript" />
-          <div className="course-output">
-            <div className="course-output-label">What it prints</div>
-            <pre>{lesson.code.output}</pre>
-          </div>
+          <Section n={4} label="Under the hood" title="The real data">
+            <div className="course-teaser is-hood">
+              <p>See the real data shapes and the values behind the example.</p>
+              <button type="button" className="course-button is-hood" onClick={() => setHoodOpen(true)}>
+                Look under the hood →
+              </button>
+            </div>
+          </Section>
 
-          <h2>5. Under the hood</h2>
-          <details className="course-details">
-            <summary>Show the real data shapes</summary>
+          <Section n={5} label="Common mistakes" title="What goes wrong">
+            <ul className="course-mistakes">
+              {lesson.mistakes.map((m) => (
+                <li key={m}>{m}</li>
+              ))}
+            </ul>
+          </Section>
+
+          <Section n={6} label="Use it when and skip it when" title="Is it the right tool?">
+            <div className="course-pair">
+              <div className="course-box is-plain">
+                <p className="course-box-label is-use">Use it when</p>
+                <ul className="course-check-list is-use">
+                  {lesson.useWhen.map((u) => (
+                    <li key={u}>{u}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="course-box is-plain">
+                <p className="course-box-label is-skip">Skip it when</p>
+                <ul className="course-check-list is-skip">
+                  {lesson.skipWhen.map((s) => (
+                    <li key={s}>{s}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </Section>
+
+          <Section n={7} label="Words to know" title="Terms in this lesson">
+            <dl className="course-words">
+              {lesson.words.map((w) => (
+                <div key={w.term} className="course-word">
+                  <dt>{w.term}</dt>
+                  <dd>{w.meaning}</dd>
+                </div>
+              ))}
+            </dl>
+          </Section>
+
+          <Section n={8} label="Check yourself" title="Test your understanding">
+            {lesson.check.map((c) => (
+              <div key={c.q} className="course-check">
+                <p className="course-q">{c.q}</p>
+                <details className="course-answer-wrap">
+                  <summary className="course-answer-btn">
+                    <span className="is-closed">Show answer</span>
+                    <span className="is-open">Hide answer</span>
+                  </summary>
+                  <p className="course-answer">{c.a}</p>
+                </details>
+              </div>
+            ))}
+          </Section>
+
+          <Modal open={codeOpen} onClose={() => setCodeOpen(false)} label="The code" title="The code">
+            <CodeBlock code={lesson.code.source} />
+            <div className="course-output-wrap">
+              <p className="course-output-label">What it prints</p>
+              <OutputPanel output={lesson.code.output} />
+            </div>
+          </Modal>
+
+          <Modal open={hoodOpen} onClose={() => setHoodOpen(false)} label="Under the hood" title="Under the hood">
             {lesson.hood.paragraphs.map((p) => (
-              <p key={p}>{p}</p>
+              <p key={p} className="course-hood-p">
+                {p}
+              </p>
             ))}
             {lesson.hood.example?.length ? (
               <dl className="course-example">
@@ -111,60 +246,25 @@ export function CourseLessonPage({ moduleSlug, lessonSlug }: { moduleSlug: strin
                 ))}
               </dl>
             ) : null}
-          </details>
-
-          <h2>6. Common mistakes</h2>
-          <ul>
-            {lesson.mistakes.map((m) => (
-              <li key={m}>{m}</li>
-            ))}
-          </ul>
-
-          <h2>7. Use it when and skip it when</h2>
-          <div className="course-pair">
-            <div className="course-box">
-              <div className="course-box-label">Use it when</div>
-              <ul>
-                {lesson.useWhen.map((u) => (
-                  <li key={u}>{u}</li>
-                ))}
-              </ul>
+            <div className="course-output-wrap">
+              <p className="course-output-label">{lesson.hood.code ? 'The code behind it' : 'The code'}</p>
+              <CodeBlock code={hoodCode.source} />
+              {hoodCode.output ? (
+                <div className="course-output-wrap">
+                  <p className="course-output-label">What it prints</p>
+                  <OutputPanel output={hoodCode.output} />
+                </div>
+              ) : null}
             </div>
-            <div className="course-box">
-              <div className="course-box-label">Skip it when</div>
-              <ul>
-                {lesson.skipWhen.map((s) => (
-                  <li key={s}>{s}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          <h2>8. Words to know</h2>
-          <dl className="course-words">
-            {lesson.words.map((w) => (
-              <div key={w.term}>
-                <dt>{w.term}</dt>
-                <dd>{w.meaning}</dd>
-              </div>
-            ))}
-          </dl>
-
-          <h2>9. Check yourself</h2>
-          {lesson.check.map((c) => (
-            <details key={c.q} className="course-check">
-              <summary>{c.q}</summary>
-              <p>{c.a}</p>
-            </details>
-          ))}
+          </Modal>
         </>
       )}
 
       <nav className="course-pager" aria-label="Previous and next lessons">
         {prev ? (
           <CourseLink path={`/${prev.module.slug}/${prev.lesson.slug}`} className="course-pager-link">
-            <span className="course-pager-dir">Previous</span>
-            <span>
+            <span className="course-pager-dir">← Previous</span>
+            <span className="course-pager-title">
               {prev.lesson.number} {prev.lesson.title}
             </span>
           </CourseLink>
@@ -173,8 +273,8 @@ export function CourseLessonPage({ moduleSlug, lessonSlug }: { moduleSlug: strin
         )}
         {next ? (
           <CourseLink path={`/${next.module.slug}/${next.lesson.slug}`} className="course-pager-link is-next">
-            <span className="course-pager-dir">Next</span>
-            <span>
+            <span className="course-pager-dir">Next →</span>
+            <span className="course-pager-title">
               {next.lesson.number} {next.lesson.title}
             </span>
           </CourseLink>
