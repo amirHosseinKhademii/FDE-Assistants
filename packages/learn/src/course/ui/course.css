@@ -226,7 +226,7 @@
 }
 .course-side-module li a {
   display: grid;
-  grid-template-columns: 32px minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 4px;
   height: 34px;
@@ -240,11 +240,6 @@
 .course-side-module li a:hover {
   background: var(--faint);
 }
-.course-side-lnum {
-  font-size: 13px;
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-muted);
-}
 .course-side-ltitle {
   min-width: 0;
   overflow: hidden;
@@ -256,9 +251,6 @@
 }
 .course-side-module li a.is-current {
   background: var(--accent-soft);
-  color: var(--accent-ink);
-}
-.course-side-module li a.is-current .course-side-lnum {
   color: var(--accent-ink);
 }
 .course-tick {

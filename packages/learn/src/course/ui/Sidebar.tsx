@@ -62,7 +62,6 @@ export function CourseSidebar() {
                           className={current ? 'is-current' : l.draft ? 'is-draft' : undefined}
                           title={l.title}
                         >
-                          <span className="course-side-lnum">{l.number}</span>
                           <span className="course-side-ltitle">{l.navTitle ?? l.title}</span>
                           {seen ? (
                             <span className="course-tick" aria-label="Visited">
