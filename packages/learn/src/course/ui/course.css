@@ -242,16 +242,17 @@
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 4px;
-  min-height: 36px;
+  min-height: 32px;
   margin: 2px 0;
-  padding: 7px 10px 7px 24px;
+  padding: 6px 10px 6px 36px;
   border-radius: 8px;
-  font: 500 14.5px/1.4 var(--sans);
-  color: var(--ink);
+  font: 500 13.5px/1.4 var(--sans);
+  color: var(--ink-muted);
   text-decoration: none;
 }
 .course-side-module li a:hover {
   background: var(--faint);
+  color: var(--ink);
 }
 /* Ellipsis needs overflow hidden, which clips on both axes. The padding (cancelled by the
    negative margin) pushes the clip edge past the glyphs, so descenders are never cut. */
@@ -266,7 +267,8 @@
 .course-side-module li a.is-draft {
   color: var(--ink-muted);
 }
-.course-side-module li a.is-current {
+.course-side-module li a.is-current,
+.course-side-module li a.is-current:hover {
   background: var(--accent-soft);
   color: var(--accent-ink);
 }
