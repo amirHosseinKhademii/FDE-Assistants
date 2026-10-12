@@ -11,23 +11,81 @@ const buildingTheContext: Lesson = {
   },
   steps: [
     {
-      title: 'What the context holds',
-      detail: 'The context is one text with three parts: the rules, the labeled sources, and the question. Each part sits under its own heading. The model reads the whole text before it writes an answer.',
+      title: 'Each source gets a label',
+      detail: 'Each retrieved chunk gets an id in square brackets, such as [faq-12]. The model copies that id when it names a source. Lesson 4.1 covers the search that finds these chunks.',
+      visual: {
+        kind: 'table',
+        caption: 'Three labeled lines. Length counts every character, the id included.',
+        columns: ['Labeled line', 'Length'],
+        rows: [
+          ['[faq-12] Refunds take 5 to 7 days.', '34'],
+          ['[faq-40] Gift cards never expire.', '33'],
+          ['[manual-3] Refunds need the order number.', '41'],
+        ],
+      },
+      snippet: {
+        source: `// One chunk, labeled with its id.
+const chunk = { id: "faq-12", text: "Refunds take 5 to 7 days." };
+const line = "[" + chunk.id + "] " + chunk.text;
+console.log(line);
+console.log("Length: " + line.length);
+`,
+        output: `[faq-12] Refunds take 5 to 7 days.
+Length: 34`,
+      },
     },
     {
-      title: 'Ordering the chunks',
-      detail: 'Chunks from the search arrive best match first. A question about refunds keeps the refund chunk ahead of the gift card chunk. The order decides which chunks survive a size limit.',
+      title: 'Lengths add up to a running total',
+      detail: 'The context builder adds each line length to a running total. Before a line is kept, the new total must stay at or under 100 characters. The first two lines reach 67, and the third would bring the total to 108.',
+      visual: {
+        kind: 'bars',
+        caption: 'Running total after each line, against a limit of 100 characters.',
+        unit: 'chars',
+        rows: [
+          { label: 'After faq-12', value: 34 },
+          { label: 'After faq-40', value: 67 },
+          { label: 'After manual-3', value: 108, highlight: true },
+        ],
+      },
     },
     {
-      title: 'Labeling each chunk',
-      detail: 'Each chunk gets an id in square brackets, such as [faq-12]. The model copies the id when it names a source. Without ids, a citation cannot point back to its chunk.',
+      title: 'The loop stops at the first line that does not fit',
+      detail: 'The loop keeps a line only when the total stays within the limit. It stops at the first line that would pass the limit, so every later line is skipped. Here faq-12 and faq-40 are kept, and manual-3 is left out.',
+      visual: {
+        kind: 'chips',
+        caption: 'Each line, its length, and whether the limit kept it.',
+        items: [
+          { text: '[faq-12]', note: '34, kept' },
+          { text: '[faq-40]', note: '33, kept' },
+          { text: '[manual-3]', note: '41, left out', highlight: true },
+        ],
+      },
+      snippet: {
+        source: `const maxCharacters = 100;
+const lengths = [34, 33, 41];
+let total = 0;
+let kept = 0;
+for (const length of lengths) {
+  if (total + length > maxCharacters) break;
+  total += length;
+  kept++;
+}
+console.log("Kept " + kept + " lines, " + total + " characters");
+`,
+        output: `Kept 2 lines, 67 characters`,
+      },
     },
     {
-      title: 'Stopping at the size limit',
-      detail: 'The sample counts characters with a limit of 100. Chunks are added until the next one would pass the limit. Here faq-12 and faq-40 fit, and the third chunk does not.',
+      title: 'The order decides which lines survive',
+      detail: 'The search ranks lines with the best match at the top, so the limit keeps the best ones. A different order keeps a different set of lines. Ranking must therefore happen before the limit is applied.',
+      visual: {
+        kind: 'compare',
+        caption: 'The same three lines in two orders, with a limit of 100 characters.',
+        left: { title: 'Best match first', items: ['faq-12, 34: kept', 'faq-40, 33: kept', 'manual-3, 41: left out'] },
+        right: { title: 'Longest first', items: ['manual-3, 41: kept', 'faq-12, 34: kept', 'faq-40, 33: left out'] },
+      },
     },
   ],
-  diagram: ['Best chunks', 'Label each', 'Stop at limit', 'Context text'],
   code: {
     source: `// Retrieved chunks, best match first. Each has an id and its text.
 const chunks = [
@@ -61,20 +119,6 @@ console.log("Chunks kept: " + context.split("\\n").length);
 [faq-40] Gift cards never expire.
 Chunks kept: 2`,
   },
-  hood: {
-    paragraphs: [
-      'The search that finds the chunks is covered in lesson 4.1. This lesson starts from a list that is already sorted.',
-      'The loop stops at the first chunk that does not fit. Chunks after it are not added, so the order of the list decides what is kept.',
-      'Each line starts with the id in square brackets. The model copies that id when it cites a source.',
-    ],
-    example: [
-      { label: 'Limit in characters', value: '100' },
-      { label: 'First chunk, length', value: '34 characters' },
-      { label: 'Second chunk, length', value: '33 characters' },
-      { label: 'Third chunk, length', value: '41 characters' },
-      { label: 'Total if the third chunk is added', value: '108, over the limit' },
-    ],
-  },
   mistakes: [
     'Sending every chunk for safety. More text costs more and can push the best chunk out of the limit.',
     'Counting lines instead of size. Chunks differ in length, so measure the characters or tokens.',
@@ -107,20 +151,69 @@ const thePrompt: Lesson = {
   },
   steps: [
     {
-      title: 'Parts of the prompt',
-      detail: 'A prompt holds three parts: fixed rules, the labeled sources, and the question. The rules stay the same for every question. Only the sources and the question change for each request.',
+      title: 'The rules never change',
+      detail: 'A prompt has three parts: fixed rules, labeled sources, and the question. The rules stay the same for every request. Only the sources and the question change.',
+      visual: {
+        kind: 'compare',
+        caption: 'What stays the same between requests, and what changes.',
+        left: { title: 'Same for every request', items: ['The rules', 'The rule numbers'] },
+        right: { title: 'Changes per request', items: ['The labeled sources', 'The question'] },
+      },
     },
     {
-      title: 'The rules',
-      detail: 'Each rule is one line in a numbered list. Example: "Answer only from the sources below." A new rule is one more line.',
+      title: 'Each rule is a numbered line',
+      detail: 'The code writes each rule as a numbered line. A new rule is one more string in the list. The numbers let a reader point to one rule by its number.',
+      snippet: {
+        source: `const rules = [
+  "Answer only from the sources below.",
+  "Name the source id for every fact you use.",
+];
+const numbered = rules.map((rule, i) => i + 1 + ". " + rule);
+console.log(numbered.join("\\n"));
+`,
+        output: `1. Answer only from the sources below.
+2. Name the source id for every fact you use.`,
+      },
     },
     {
-      title: 'Joining the parts',
-      detail: 'The function joins the parts with headings and blank lines. The result is one text that the model reads from top to bottom. The output shows that text exactly as the model would receive it.',
+      title: 'The parts join into one text',
+      detail: 'The parts are joined with headings and blank lines. The model reads this one text from top to bottom, so the order matters. The question comes last, after the sources it must use.',
+      visual: {
+        kind: 'flow',
+        caption: 'The three parts, joined top to bottom into one prompt.',
+        nodes: ['Rules', 'Sources', 'Question', 'One prompt text'],
+      },
+      snippet: {
+        source: `const sources = "[faq-12] Refunds take 5 to 7 days.";
+const question = "How long do refunds take?";
+const prompt = [
+  "Sources:",
+  sources,
+  "",
+  "Question: " + question,
+].join("\\n");
+console.log(prompt);
+`,
+        output: `Sources:
+[faq-12] Refunds take 5 to 7 days.
+
+Question: How long do refunds take?`,
+      },
     },
     {
-      title: 'Where the question goes',
-      detail: 'The question comes last, after the sources it must use. For example: "How long do refunds take?" The sources then sit between the rules and the question.',
+      title: 'Where each part sits',
+      detail: 'The rules sit at the top, so every source is read under them. The sources follow, and the question is last. Only the last two rows change from one request to the next.',
+      visual: {
+        kind: 'table',
+        caption: 'The order the model reads the parts in, and what changes.',
+        columns: ['Order', 'Part', 'Changes per request?'],
+        rows: [
+          ['1', 'Rules', 'no'],
+          ['2', 'Sources', 'yes'],
+          ['3', 'Question', 'yes'],
+        ],
+        highlightRow: 2,
+      },
     },
   ],
   code: {
@@ -161,18 +254,6 @@ Sources:
 
 Question: How long do refunds take?`,
   },
-  hood: {
-    paragraphs: [
-      'Many model interfaces accept a list of messages. A common layout puts the rules in one message and the sources and question in another.',
-      'The sample builds one text and does not call a model. Its output is the text that the model would receive.',
-      'The rules are a list, so a new rule is one more line. The code numbers each rule so a reader can refer to it.',
-    ],
-    example: [
-      { label: 'Rules in the prompt', value: '3' },
-      { label: 'Sources in the prompt', value: '1 chunk' },
-      { label: 'Question', value: '"How long do refunds take?"' },
-    ],
-  },
   mistakes: [
     'Mixing the question into the rules. Keep each part under its own heading, so the model can tell them apart.',
     'Writing a rule the sources cannot meet. If no source covers a case, the rules must say what to do.',
@@ -205,20 +286,73 @@ const structuredOutput: Lesson = {
   },
   steps: [
     {
-      title: 'The schema',
-      detail: 'A schema names each field and its type. Here the fields are answer as text, sourceIds as a list, and escalate as true or false. The model is asked to reply with exactly these fields.',
+      title: 'The schema names each field and its type',
+      detail: 'A schema lists each field, its type, and its meaning. Here answer is text, sourceIds is a list, and escalate is true or false. The model is asked to reply with exactly these fields.',
+      visual: {
+        kind: 'table',
+        caption: 'The three fields of one reply. The example reply breaks the escalate type.',
+        columns: ['Field', 'Type', 'Example value'],
+        rows: [
+          ['answer', 'text', '5 to 7 days'],
+          ['sourceIds', 'list of text', 'faq-12'],
+          ['escalate', 'true or false', 'no, as text'],
+        ],
+        highlightRow: 2,
+      },
     },
     {
-      title: 'Parsing the reply',
-      detail: 'JSON.parse turns the reply text into an object. If the text is not valid JSON, the parse throws an error. Code must catch that error and treat the reply as failed.',
+      title: 'JSON.parse turns text into an object',
+      detail: 'The model replies with text. JSON.parse reads that text and returns an object, so code can read each field by name. If the text is not valid JSON, the call throws an error.',
+      visual: {
+        kind: 'flow',
+        caption: 'From the reply text to the field checks.',
+        nodes: ['Reply text', 'JSON.parse', 'Object', 'Field checks'],
+      },
+      snippet: {
+        source: `const reply = '{"answer":"5 to 7 days","escalate":"no"}';
+const data = JSON.parse(reply);
+console.log(data.answer);
+console.log(typeof data.escalate);
+`,
+        output: `5 to 7 days
+string`,
+      },
     },
     {
-      title: 'Checking each type',
-      detail: 'findWrongFields checks one field at a time. The escalate value "no" is text, so it fails the boolean check. The function returns the names of the wrong fields.',
+      title: 'Each field gets a type check',
+      detail: 'The check uses typeof for text and booleans, and Array.isArray for lists. The escalate value is text, so it fails the boolean check. The function returns the names of the wrong fields.',
+      visual: {
+        kind: 'chips',
+        caption: 'Each field of the example reply and its result.',
+        items: [
+          { text: 'answer', note: 'text, ok' },
+          { text: 'sourceIds', note: 'list, ok' },
+          { text: 'escalate', note: 'text, not boolean', highlight: true },
+        ],
+      },
+      snippet: {
+        source: `function findWrongFields(data: Record<string, unknown>) {
+  const wrong: string[] = [];
+  if (typeof data.answer !== "string") wrong.push("answer");
+  if (!Array.isArray(data.sourceIds)) wrong.push("sourceIds");
+  if (typeof data.escalate !== "boolean") wrong.push("escalate");
+  return wrong;
+}
+const reply = { answer: "5", sourceIds: [], escalate: "no" };
+console.log(findWrongFields(reply));
+`,
+        output: `[ 'escalate' ]`,
+      },
     },
     {
-      title: 'Checking a fixed value',
-      detail: 'The sample sets escalate to false and checks again. Zero wrong fields means the reply has the right shape. It does not prove that the content is right.',
+      title: 'A fixed reply passes the check',
+      detail: 'Changing escalate to false gives a boolean, so the check passes. Zero wrong fields means the reply has the right shape. It does not prove the content is right, so the sources must still be checked.',
+      visual: {
+        kind: 'compare',
+        caption: 'The example reply before and after the fix.',
+        left: { title: 'Reply as sent', items: ['escalate: no, as text', '1 wrong field'] },
+        right: { title: 'Reply after the fix', items: ['escalate: false', '0 wrong fields'] },
+      },
     },
   ],
   code: {
@@ -255,18 +389,6 @@ console.log("Wrong fields after fix: " + remaining);
     output: `Rejected, wrong fields: escalate
 Wrong fields after fix: 0`,
   },
-  hood: {
-    paragraphs: [
-      'A model does not guarantee the shape of its reply. The check in code is still required.',
-      'Parsing turns the text into a value. JSON.parse returns an object, and its fields are plain values.',
-      'The check uses typeof for text and booleans, and Array.isArray for lists. Both are standard JavaScript.',
-    ],
-    example: [
-      { label: 'Reply text', value: '{"answer": "5 to 7 days", "sourceIds": ["faq-12"], "escalate": "no"}' },
-      { label: 'Type of escalate', value: 'text, but a boolean is expected' },
-      { label: 'Result', value: 'rejected, wrong field: escalate' },
-    ],
-  },
   mistakes: [
     'Trusting the reply without a check. A model can return a wrong type or leave a field out.',
     'Using a deep shape. Each extra level gives the model another chance to get a field wrong.',
@@ -298,20 +420,73 @@ const coherenceRules: Lesson = {
   },
   steps: [
     {
-      title: 'Shape and coherence',
-      detail: 'Shape checks the types of the fields. Coherence checks the meaning against the sources, such as the list of ids the search returned.',
+      title: 'Shape and meaning are checked apart',
+      detail: 'Shape checks the type of each field. Coherence checks the meaning, by comparing the reply with the sources that search returned. A reply can pass the shape check and still fail coherence.',
+      visual: {
+        kind: 'compare',
+        caption: 'The two layers of checks on one reply.',
+        left: { title: 'Shape', items: ['Each field has the right type', 'Checked with typeof'] },
+        right: { title: 'Coherence', items: ['Each cited id is a real source', 'A conflict is escalated'] },
+      },
     },
     {
-      title: 'Known source ids',
-      detail: 'The set knownIds holds the ids the search returned. Each id in sourceIds must appear in that set. The id manual-99 is not in the set, so it is reported.',
+      title: 'Each cited id must be a known source',
+      detail: 'knownIds holds the ids that search returned for this question. Each id in sourceIds must be in that set. The id manual-99 is not in the set, so the reply is reported.',
+      visual: {
+        kind: 'chips',
+        caption: 'Cited ids, checked against the ids that search returned.',
+        items: [
+          { text: 'faq-12', note: 'known' },
+          { text: 'manual-99', note: 'unknown, reported', highlight: true },
+        ],
+      },
+      snippet: {
+        source: `const knownIds = new Set(["faq-12", "faq-40"]);
+for (const id of ["faq-12", "manual-99"]) {
+  const ok = knownIds.has(id);
+  console.log(id + (ok ? " known" : " unknown"));
+}
+`,
+        output: `faq-12 known
+manual-99 unknown`,
+      },
     },
     {
-      title: 'Conflicts need escalation',
-      detail: 'A non-empty conflicts list means two sources disagree. In that case escalate must be true. The broken answer has a conflict and escalate set to false, so it is reported.',
+      title: 'A conflict needs escalation',
+      detail: 'A non-empty conflicts list means two sources disagree. In that case escalate must be true, so a person makes the decision. The broken reply has a conflict and escalate set to false, so it is reported.',
+      visual: {
+        kind: 'table',
+        caption: 'Three replies checked against the conflict rule.',
+        columns: ['Reply', 'Conflicts', 'Escalate', 'Result'],
+        rows: [
+          ['Good', '0', 'false', 'passes'],
+          ['Broken', '1', 'false', 'reported'],
+          ['Escalated', '1', 'true', 'passes'],
+        ],
+        highlightRow: 1,
+      },
+      snippet: {
+        source: `const conflicts = ["faq-12 says 5 to 7 days"];
+const escalate = false;
+if (conflicts.length > 0 && !escalate) {
+  console.log("conflict without escalation");
+}
+`,
+        output: `conflict without escalation`,
+      },
     },
     {
-      title: 'Returning every error',
-      detail: 'The function collects all errors into one list instead of stopping at the first. An empty list means the answer passes every rule.',
+      title: 'Every error is collected',
+      detail: 'The function gathers every error into one list instead of stopping at the first. A good reply gives an empty list. The broken reply gives two errors, so one check shows every problem at once.',
+      visual: {
+        kind: 'bars',
+        caption: 'Errors found for each reply.',
+        unit: 'errors',
+        rows: [
+          { label: 'Good reply', value: 0 },
+          { label: 'Broken reply', value: 2, highlight: true },
+        ],
+      },
     },
   ],
   code: {
@@ -348,18 +523,6 @@ console.log("Broken:", brokenErrors);
     output: `Good: []
 Broken: [ 'unknown source manual-99', 'conflict without escalation' ]`,
   },
-  hood: {
-    paragraphs: [
-      'A rule is a small check that returns a message or nothing. Many small rules are easier to test than one large check.',
-      'A Set is a container for unique values. Its has method answers yes or no for one value, quickly.',
-      'The sample returns every message at once. A reader or a retry step can then see all the problems in one pass.',
-    ],
-    example: [
-      { label: 'Known ids', value: 'faq-12, faq-40' },
-      { label: 'Cited id in the broken reply', value: 'manual-99, not known' },
-      { label: 'Conflicts in the broken reply', value: '1, with escalate set to false' },
-    ],
-  },
   mistakes: [
     'Treating a passed shape check as proof. A valid shape can still carry a wrong answer.',
     'Testing only good replies. Also test broken replies, so you know each rule fires.',
@@ -392,20 +555,40 @@ const citationsRefusingEscalating: Lesson = {
   },
   steps: [
     {
-      title: 'Checking escalation first',
-      detail: 'The route function checks escalate before anything else. A conflict is never shown as a plain answer, even when it has sources. The sample shows this with two sources and escalate set to true.',
+      title: 'Escalation is checked first',
+      detail: 'The route function checks escalate before anything else. A conflict is never shown as a plain answer, even when it has sources. Two sources with escalate set to true go to a person.',
+      snippet: {
+        source: `function route(sourceIds: string[], escalate: boolean): string {
+  if (escalate) return "escalate to a person";
+  if (sourceIds.length === 0) return "refuse: no source answers it";
+  return "show the answer with " + sourceIds.join(", ");
+}
+console.log(route(["faq-12", "manual-3"], true));
+`,
+        output: `escalate to a person`,
+      },
     },
     {
-      title: 'Refusing without sources',
-      detail: 'An empty sourceIds list means no source answers the question. The route then refuses instead of guessing. The sample passes an empty list and gets the refusal label.',
+      title: 'No source means refusal',
+      detail: 'An empty sourceIds list means no source answers the question. The route refuses instead of guessing, so an unsupported answer never reaches the reader. A refusal is a normal result, not an error.',
+      visual: {
+        kind: 'chips',
+        caption: 'Three cases and the route each one takes.',
+        items: [
+          { text: 'Two sources, no conflict', note: 'show' },
+          { text: 'No sources', note: 'refuse', highlight: true },
+          { text: 'Two conflicting sources', note: 'escalate' },
+        ],
+      },
     },
     {
-      title: 'Citing in the normal case',
-      detail: 'A normal answer names its source ids. In the sample, the route shows the answer with faq-12. The reader can open that source to verify the text.',
-    },
-    {
-      title: 'Passing routes onward',
-      detail: 'Each route returns a text label in the sample. A real system would send the reply to the next step of its pipeline. The labels make each route easy to test.',
+      title: 'A normal answer names its sources',
+      detail: 'When sources exist and do not conflict, the route shows the answer with their ids. The reader can open faq-12 to check the text. The ids come from the search, not from the model memory.',
+      visual: {
+        kind: 'flow',
+        caption: 'The checks that lead to a shown answer.',
+        nodes: ['Escalate flag', 'Source list', 'Answer with ids'],
+      },
     },
   ],
   code: {
@@ -428,18 +611,6 @@ console.log(route(["faq-12", "manual-3"], true));
     output: `show the answer with faq-12
 refuse: no source answers it
 escalate to a person`,
-  },
-  hood: {
-    paragraphs: [
-      'The order of the checks matters. Escalation is checked first, so a conflict is never shown as a plain answer.',
-      'A refusal is a normal result, not an error. It is correct when the sources truly do not cover the question.',
-      'The sample returns text for each route. A real system would hand the reply to the next step of its pipeline instead.',
-    ],
-    example: [
-      { label: 'Reply with a source', value: 'show the answer, with faq-12' },
-      { label: 'Reply with no source', value: 'refuse' },
-      { label: 'Reply with a conflict', value: 'escalate to a person' },
-    ],
   },
   mistakes: [
     'Asking the model to refuse, then not checking the source list. Check sourceIds in code as well.',
@@ -472,20 +643,58 @@ const longContextAndAttention: Lesson = {
   },
   steps: [
     {
-      title: 'Measuring the size',
-      detail: 'Tokens are the units that a model counts. The sample uses four characters per token as a rough estimate. Ten chunks give about 81 tokens in the example.',
+      title: 'Tokens measure the size',
+      detail: 'A token is a small piece of text, roughly four characters of English. This sample estimates tokens as characters divided by four, rounded up. A 25 character sentence is about 7 tokens.',
+      snippet: {
+        source: `function estimateTokens(text: string): number {
+  return Math.ceil(text.length / 4);
+}
+console.log(estimateTokens("Refunds take 5 to 7 days."));
+`,
+        output: `7`,
+      },
     },
     {
-      title: 'Fewer chunks, fewer tokens',
-      detail: 'The first three chunks give 25 tokens. The answer sits at position 8, so it is missing from that selection. A smaller context can drop the answer.',
+      title: 'Fewer chunks can drop the answer',
+      detail: 'The sample has ten chunks, and the answer sits in position 8. Sending only the first three chunks is smaller, but the answer is not in them. The size falls from 81 to 25 tokens, and the answer goes with it.',
+      visual: {
+        kind: 'table',
+        caption: 'Ten chunks in search order, and three ways to send them.',
+        columns: ['Sent', 'Tokens', 'Answer found'],
+        rows: [
+          ['All ten', '81', 'yes'],
+          ['First three', '25', 'no'],
+          ['First three, best moved first', '23', 'yes'],
+        ],
+        highlightRow: 1,
+      },
     },
     {
-      title: 'Putting the best chunk first',
-      detail: 'Moving the answer chunk to the front keeps it in the first three. That selection has 23 tokens and includes the answer. Order can matter as much as size.',
+      title: 'Order can keep the answer',
+      detail: 'Moving the best chunk to the front puts it inside the first three. The same three slots now hold the answer, at 23 tokens. Order can matter as much as size, so both need a check.',
+      snippet: {
+        source: `const chunks = [
+  "Filler one.",
+  "Filler two.",
+  "Refunds take 5 to 7 days.",
+];
+const best = chunks[2];
+const others = chunks.filter((chunk) => chunk !== best);
+const reordered = [best, ...others];
+console.log(reordered.slice(0, 2).join(" | "));
+`,
+        output: `Refunds take 5 to 7 days. | Filler one.`,
+      },
     },
     {
-      title: 'Attention and long inputs',
-      detail: 'Attention is the mechanism that lets a model weigh parts of its input. Long inputs can hide facts placed in the middle. The eval set shows whether a change to size or order helps.',
+      title: 'Attention weighs the input',
+      detail: 'Attention is the part of a model that decides which parts of the input to weigh. A very long input spreads that weight over more text. The eval set shows whether a fact placed in the middle is still used.',
+      visual: {
+        kind: 'compare',
+        caption: 'Where a fact sits in a long input.',
+        left: { title: 'Near the start', items: ['Usually read with a strong weight', 'Answer found in the tests'] },
+        right: { title: 'Deep in the middle', items: ['May get less weight', 'May be missed more often'] },
+      },
     },
   ],
   code: {
@@ -521,19 +730,6 @@ report("Reordered, first three", reordered.slice(0, 3));
     output: `All ten: 81 tokens, answer included
 First three: 25 tokens, answer missing
 Reordered, first three: 23 tokens, answer included`,
-  },
-  hood: {
-    paragraphs: [
-      'Four characters per token is a rough rule for English. The model tokenizer gives the real count, which may differ.',
-      'The reordered result moves the best chunk to the front. The answer then stays inside the first three chunks.',
-      'Attention is the part of a model that decides which parts of the input to weigh. Long inputs spread that weight across more text.',
-    ],
-    example: [
-      { label: 'Chunks available', value: '10' },
-      { label: 'Tokens for all ten', value: '81' },
-      { label: 'Tokens for the first three', value: '25, answer missing' },
-      { label: 'Tokens for the reordered first three', value: '23, answer included' },
-    ],
   },
   mistakes: [
     'Sending everything for safety. More text costs more and can bury the answer.',
