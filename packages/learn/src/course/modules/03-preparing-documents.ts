@@ -11,24 +11,76 @@ const formatDetection: Lesson = {
   },
   steps: [
     {
-      title: 'Signatures',
-      detail: 'Many file types start with a fixed pattern of bytes, called a signature. A PDF file starts with the text "%PDF-", which is the bytes 25 50 44 46.',
+      title: 'Files start with fixed bytes',
+      detail: 'Many file types start with a fixed pattern of bytes, called a signature. A byte is a number from 0 to 255, written here in hexadecimal. A PDF file starts with 25 50 44 46, which spells "%PDF" in text.',
+      visual: {
+        kind: 'table',
+        caption: 'The first four bytes of three uploaded files.',
+        columns: ['File', 'First bytes (hex)', 'Text they show'],
+        rows: [
+          ['manual.pdf', '25 50 44 46', '%PDF'],
+          ['logo.png', '89 50 4E 47', 'one non-text byte, then PNG'],
+          ['report.pdf', '52 65 66 75', 'Refu'],
+        ],
+      },
+      snippet: {
+        source: `const head = Buffer.from("%PDF-1.7 fake body").subarray(0, 4);
+const hex = [...head].map((b) => b.toString(16).toUpperCase());
+console.log("Bytes ->", hex.join(" "));
+`,
+        output: 'Bytes -> 25 50 44 46',
+      },
     },
     {
-      title: 'Known signatures',
-      detail: 'The program compares the first bytes with a short list. A PNG image starts with the bytes 89 50 4E 47 in hexadecimal.',
+      title: 'The first bytes are compared with known signatures',
+      detail: 'The program compares the first bytes of a file with a short list of known signatures. Only the first few bytes are read, so the check is fast. The PNG signature 89 50 4E 47 does not match the PDF signature, so the two files are told apart.',
+      visual: {
+        kind: 'flow',
+        caption: 'The check runs on the first bytes only, not the whole file.',
+        nodes: ['First bytes', 'Compare with known list', 'Matching type', 'Reader'],
+      },
+      snippet: {
+        source: `const signatures = [
+  { type: "pdf", bytes: [0x25, 0x50, 0x44, 0x46] },
+  { type: "png", bytes: [0x89, 0x50, 0x4e, 0x47] },
+];
+const head = [0x89, 0x50, 0x4e, 0x47, 0x0d];
+const match = signatures.find((s) =>
+  s.bytes.every((b, i) => head[i] === b),
+);
+console.log("Type ->", match?.type ?? "unknown");
+`,
+        output: 'Type -> png',
+      },
     },
     {
-      title: 'Name check',
-      detail: 'The extension, such as ".pdf", is only a label. If the bytes say PDF but the name says ".txt", the mismatch is logged.',
+      title: 'The name is only a label',
+      detail: 'The extension, such as ".pdf", is a label that anyone can set. For "report.pdf", the name says PDF, but the first bytes are plain text with no known signature. The name check then reports that the name and the content do not match. A matching signature does not prove the file is clean, so readers still handle errors.',
+      visual: {
+        kind: 'compare',
+        caption: 'The name and the content of report.pdf disagree.',
+        left: { title: 'File name', items: ['report.pdf', 'Name says: pdf'] },
+        right: { title: 'First bytes', items: ['Plain text: "Refu"', 'Detected: unknown'] },
+      },
+      snippet: {
+        source: `const name = "report.pdf";
+const ext = name.split(".").pop();
+// The byte check found no signature for this file.
+const detected = "unknown";
+const note = detected === ext ? "match" : "no name match";
+console.log(ext, "vs", detected, note);
+`,
+        output: 'pdf vs unknown no name match',
+      },
     },
     {
-      title: 'Unknown types',
-      detail: 'A file with no known signature, such as plain text in "report.pdf", goes to a review list. It is not guessed, because a wrong guess can corrupt the text.',
-    },
-    {
-      title: 'Routing',
-      detail: 'Each detected type goes to its own reader. A file such as "manual.pdf" goes to the PDF reader.',
+      title: 'Unknown types are not guessed',
+      detail: 'A file with no known signature goes to a review list. The program does not guess its type, because a wrong guess can corrupt the text. Plain text has no signature, so it needs a separate check that this lesson skips. Each detected type goes to its own reader, so manual.pdf goes to the PDF reader.',
+      visual: {
+        kind: 'flow',
+        caption: 'The path for a file with no known signature.',
+        nodes: ['report.pdf', 'No known signature', 'Review list'],
+      },
     },
   ],
   diagram: ['File', 'First bytes', 'Type', 'Reader'],
@@ -68,19 +120,6 @@ for (const [name, data] of samples) {
 logo.png -> png matches name
 report.pdf -> unknown no name match`,
   },
-  hood: {
-    paragraphs: [
-      'Signatures are short, so checking them is fast. The program reads only the first few bytes, not the whole file.',
-      'Bytes are numbers from 0 to 255. The code writes them in hexadecimal, where 0x25 is the number 37.',
-      'A signature does not prove the file is clean. A PDF can still be broken, so the reader must handle errors.',
-      'Plain text has no signature. It is recognized by checking that every byte is valid text, which this lesson skips.',
-    ],
-    example: [
-      { label: 'First bytes of manual.pdf', value: '25 50 44 46, the text "%PDF"' },
-      { label: 'Signature for PNG', value: '89 50 4E 47' },
-      { label: 'Result for report.pdf', value: 'unknown, no name match' },
-    ],
-  },
   mistakes: [
     'Trusting the extension alone. A renamed file then goes to the wrong reader.',
     'Reading the whole file to find its type. The first few bytes are enough.',
@@ -113,24 +152,104 @@ const deduplication: Lesson = {
   },
   steps: [
     {
-      title: 'Exact copies',
-      detail: 'Read each file as raw bytes. Two exact copies of "faq.txt" have the same bytes, so they get the same fingerprint.',
+      title: 'Exact copies have the same bytes',
+      detail: 'Read each file as raw bytes. Two exact copies of "faq.txt" have the same bytes, so they match. The file "2024.txt" has one different year, so its bytes differ and it does not match.',
+      visual: {
+        kind: 'table',
+        caption: 'Three files, compared with faq.txt.',
+        columns: ['File', 'Text', 'Matches faq.txt?'],
+        rows: [
+          ['faq.txt', 'Refunds take 5 to 7 business days', '-'],
+          ['copy.txt', 'Refunds take 5 to 7 business days', 'yes'],
+          ['2024.txt', 'Refunds take 5 to 7 days in 2024', 'no'],
+        ],
+        highlightRow: 1,
+      },
+      snippet: {
+        source: `const a = "Refunds take 5 to 7 business days";
+const b = "Refunds take 5 to 7 business days";
+console.log("Same bytes ->", Buffer.from(a).equals(Buffer.from(b)));
+`,
+        output: 'Same bytes -> true',
+      },
     },
     {
-      title: 'SHA-256 fingerprint',
-      detail: 'SHA-256 is a fixed function that turns any text into a 64-character code. Changing one letter gives a different code.',
+      title: 'A fingerprint is a short code',
+      detail: 'SHA-256 is a fixed function that turns any text into a 64-character hex code, called a fingerprint. Changing one letter gives a different code. Trimming extra spaces or line breaks first also helps, because those change the bytes.',
+      visual: {
+        kind: 'compare',
+        caption: 'One text and its SHA-256 fingerprint.',
+        left: { title: 'Text', items: ['Refunds take 5 to 7 business days'] },
+        right: { title: 'Fingerprint', items: ['5d8716d1d17ffb0a', 'Full code: 64 hex characters'] },
+      },
+      snippet: {
+        source: `import { createHash } from "node:crypto";
+const code = createHash("sha256")
+  .update("Refunds take 5 to 7 business days")
+  .digest("hex");
+console.log("Length ->", code.length);
+console.log("Start ->", code.slice(0, 16));
+`,
+        output: `Length -> 64
+Start -> 5d8716d1d17ffb0a`,
+      },
     },
     {
-      title: 'Seen codes',
-      detail: 'Store each fingerprint with its file name, such as "faq.txt". A later file whose fingerprint is already stored is a duplicate.',
+      title: 'Seen codes make the check',
+      detail: 'The store keeps each fingerprint with the name of the file that first had it. When a new file arrives, its fingerprint is looked up. If the code is already stored, the new file is a duplicate of the stored name.',
+      visual: {
+        kind: 'table',
+        caption: 'The store after three files. The first 8 characters of each code are shown.',
+        columns: ['Fingerprint', 'Stored file', 'Result'],
+        rows: [
+          ['5d8716d1', 'faq.txt', 'new'],
+          ['5d8716d1', 'faq.txt', 'copy.txt is a duplicate'],
+          ['0fa05e8b', '2024.txt', 'new'],
+        ],
+        highlightRow: 1,
+      },
+      snippet: {
+        source: `import { createHash } from "node:crypto";
+const hash = (t: string) =>
+  createHash("sha256").update(t).digest("hex").slice(0, 8);
+const faq = "Refunds take 5 to 7 business days";
+const seen = new Map([[hash(faq), "faq.txt"]]);
+const code = hash(faq);
+console.log(code, "->", seen.get(code));
+`,
+        output: '5d8716d1 -> faq.txt',
+      },
     },
     {
-      title: 'Skipping a duplicate',
-      detail: 'The duplicate is not chunked or embedded again. The log records the match, such as "copy.txt is a copy of faq.txt".',
+      title: 'A duplicate is skipped before chunking',
+      detail: 'A duplicate is not chunked or embedded again, so the index does not grow. The log records the match, such as "copy.txt is a copy of faq.txt". The check must run before chunking, because each copy would otherwise create its own chunks.',
+      visual: {
+        kind: 'flow',
+        caption: 'A file with a seen fingerprint is logged and skipped.',
+        nodes: ['copy.txt', 'Fingerprint seen before', 'Skip and log', 'Not chunked'],
+      },
     },
     {
-      title: 'Near duplicates',
-      detail: 'Near duplicates differ by a few words, such as the year "2024". MinHash estimates how much two texts overlap, so near copies can be grouped.',
+      title: 'Near duplicates share most words',
+      detail: 'Near duplicates differ by a few words, such as the year "2024". An exact fingerprint misses them. Word overlap measures the share of words two texts have in common, divided by all distinct words. Here it is 6 shared words out of 9 distinct words, or 0.67. At scale, MinHash keeps a short signature per document, so full texts are not compared in pairs.',
+      visual: {
+        kind: 'bars',
+        caption: 'Word overlap with faq.txt. The copy shares every word.',
+        rows: [
+          { label: 'copy.txt', value: 1, highlight: true },
+          { label: '2024.txt', value: 0.67 },
+        ],
+      },
+      snippet: {
+        source: `const words = (t: string) => new Set(t.toLowerCase().split(" "));
+const a = words("Refunds take 5 to 7 business days");
+const b = words("Refunds take 5 to 7 days in 2024");
+const shared = [...a].filter((w) => b.has(w)).length;
+const all = new Set([...a, ...b]).size;
+console.log("Overlap ->", (shared / all).toFixed(2));
+`,
+        output: 'Overlap -> 0.67',
+      },
     },
   ],
   diagram: ['Document', 'Fingerprint', 'Seen before?', 'Store or skip'],
@@ -171,19 +290,6 @@ copy.txt is a copy of faq.txt
 2024.txt is new
 Overlap -> 0.67`,
   },
-  hood: {
-    paragraphs: [
-      'A hash function turns input of any size into a code of fixed size. Different texts almost never share one code.',
-      'Exact matching fails on small changes. A trailing space gives a new fingerprint, so trim and normalize text first.',
-      'MinHash handles near duplicates at scale. It keeps a short signature per document, so no pair of full texts must be compared.',
-      'Remove duplicates before chunking. Otherwise each copy creates its own chunks, and search returns them all.',
-    ],
-    example: [
-      { label: 'Fingerprint of the FAQ sentence', value: '64 hex characters, the same for both copies' },
-      { label: 'Shared words with 2024.txt', value: '6 of 9 distinct words, so 0.67' },
-      { label: 'Result for copy.txt', value: 'skipped as a duplicate' },
-    ],
-  },
   mistakes: [
     'Hashing text before cleaning it. Extra spaces or line breaks change the fingerprint, so normalize first.',
     'Treating near duplicates as exact copies. A changed year gives a different answer, so review near copies.',
@@ -216,24 +322,87 @@ const piiScrubbing: Lesson = {
   },
   steps: [
     {
-      title: 'Kinds of data',
-      detail: 'Decide which values count as PII, such as email addresses, phone numbers, and account numbers. Write the list, for example "email" and "phone", before any code.',
+      title: 'Decide which values count as PII',
+      detail: 'PII is personal information that identifies a person. This lesson handles two kinds: email addresses and phone numbers in the 555-123-4567 format. Write the list before any code, so the rules can be reviewed.',
+      visual: {
+        kind: 'table',
+        caption: 'The two kinds handled in this lesson.',
+        columns: ['Kind', 'Example', 'Placeholder'],
+        rows: [
+          ['Email', 'ana.lee@example.com', '[EMAIL]'],
+          ['Phone', '555-123-4567', '[PHONE]'],
+        ],
+      },
     },
     {
-      title: 'Patterns',
-      detail: 'A pattern describes the shape of a value. The phone pattern matches "555-123-4567", which is three digits, a dash, three digits, a dash, and four digits.',
+      title: 'A pattern describes the shape of a value',
+      detail: 'A pattern is a regular expression, a short rule for the shape of text. The phone pattern matches three digits, a dash, three digits, a dash, and four digits. The g flag finds every match in the text, not only the first one.',
+      visual: {
+        kind: 'chips',
+        caption: 'The two values that the patterns find in one ticket.',
+        items: [
+          { text: 'ana.lee@example.com', note: 'email pattern', highlight: true },
+          { text: '555-123-4567', note: 'phone pattern', highlight: true },
+        ],
+      },
+      snippet: {
+        source: `const email = /[a-z0-9._]+@[a-z0-9.]+/g;
+const phone = /[0-9]{3}-[0-9]{3}-[0-9]{4}/g;
+const ticket = "Ana wrote from ana.lee@example.com, " +
+  "call 555-123-4567.";
+console.log("Emails ->", ticket.match(email));
+console.log("Phones ->", ticket.match(phone));
+`,
+        output: `Emails -> [ 'ana.lee@example.com' ]
+Phones -> [ '555-123-4567' ]`,
+      },
     },
     {
-      title: 'Replacement',
-      detail: 'Each match becomes a placeholder. For example, "ana.lee@example.com" becomes [EMAIL], and the sentence keeps its meaning.',
+      title: 'Each match becomes a placeholder',
+      detail: 'Each match is replaced with its placeholder, such as [EMAIL]. The sentence keeps its meaning, so a reader can still see that an email was present. These patterns cannot find names, so names need a separate review.',
+      visual: {
+        kind: 'compare',
+        caption: 'The ticket before and after scrubbing.',
+        left: { title: 'Before', items: ['Ana wrote from ana.lee@example.com,', 'call 555-123-4567.'] },
+        right: { title: 'After', items: ['Ana wrote from [EMAIL],', 'call [PHONE].'] },
+      },
+      snippet: {
+        source: `const pattern = /[a-z0-9._]+@[a-z0-9.]+/g;
+const ticket = "Ana wrote from ana.lee@example.com, " +
+  "call 555-123-4567.";
+console.log(ticket.replace(pattern, "[EMAIL]"));
+`,
+        output: 'Ana wrote from [EMAIL], call 555-123-4567.',
+      },
     },
     {
-      title: 'Scrub before storage',
-      detail: 'Scrub every document before chunking and embedding. A ticket stored before scrubbing keeps "ana.lee@example.com" in its copies.',
+      title: 'Scrub before anything is stored',
+      detail: 'Scrub each document before chunking and embedding. A ticket stored before scrubbing keeps "ana.lee@example.com" in every copy of its chunks. Scrubbing first means the address never reaches the store.',
+      visual: {
+        kind: 'flow',
+        caption: 'Scrubbing sits before the chunks and vectors are made.',
+        nodes: ['Document', 'Scrub PII', 'Chunk', 'Embed and store'],
+      },
     },
     {
-      title: 'Testing with known examples',
-      detail: 'Keep a small set of text with known PII and check that every value is replaced. Count the misses, such as 1 phone number left in place out of 20 tests.',
+      title: 'Test with known examples',
+      detail: 'Keep a small set of texts with known personal values. Run the scrubber on each one and check that every value is replaced. Count the misses, such as 1 phone number left in place out of 20 tests.',
+      visual: {
+        kind: 'bars',
+        caption: 'Replaced values in a test set of 20, with one miss.',
+        unit: 'of 20',
+        rows: [
+          { label: 'Replaced', value: 19, highlight: true },
+          { label: 'Missed', value: 1 },
+        ],
+      },
+      snippet: {
+        source: `const tests = 20;
+const missed = 1;
+console.log("Replaced ->", tests - missed, "of", tests);
+`,
+        output: 'Replaced -> 19 of 20',
+      },
     },
   ],
   diagram: ['Text', 'Find patterns', 'Replace with placeholders', 'Store'],
@@ -260,18 +429,6 @@ console.log("After ->", scrub(ticket));
 `,
     output: `Before -> Ana wrote from ana.lee@example.com, call 555-123-4567.
 After -> Ana wrote from [EMAIL], call [PHONE].`,
-  },
-  hood: {
-    paragraphs: [
-      'A pattern is a regular expression, a short rule that describes the shape of text. The g flag replaces every match, not only the first.',
-      'Patterns miss some PII. A name such as "Ana" looks like any other word, so names need a separate review step.',
-      'Placeholders keep the sentence readable. A reader can still see that an email was present, without seeing the address.',
-    ],
-    example: [
-      { label: 'Input', value: '"call 555-123-4567."' },
-      { label: 'Pattern for phone', value: 'three digits, dash, three digits, dash, four digits' },
-      { label: 'Output', value: '"call [PHONE]."' },
-    ],
   },
   mistakes: [
     'Trusting one pattern. A new format, such as "(555) 123 4567", slips through, so test on real samples.',
@@ -305,24 +462,93 @@ const chunking: Lesson = {
   },
   steps: [
     {
-      title: 'Natural breaks',
-      detail: 'Prefer paragraph and heading breaks. A heading such as "Refund steps" marks a natural start for a chunk.',
+      title: 'Start chunks at natural breaks',
+      detail: 'Prefer paragraph and heading breaks, because they follow the structure the author wrote. A heading such as "Shipping" marks a natural start for a chunk. A cut at a fixed count can land in the middle of a sentence.',
+      visual: {
+        kind: 'compare',
+        caption: 'Two ways to cut the same document.',
+        left: { title: 'Cut at a fixed count', items: ['Can land mid-sentence', 'A chunk may mix two topics'] },
+        right: { title: 'Cut at a heading', items: ['Each chunk starts at a natural break', 'A chunk stays on one topic'] },
+      },
     },
     {
-      title: 'Size limit',
-      detail: 'Pick a maximum size, such as 200 words per chunk. Small chunks are precise, and large chunks keep more context.',
+      title: 'Set a size limit',
+      detail: 'Pick a maximum size. This example counts words, and the limit is 8 words per chunk. Real systems often count tokens, because model limits are set in tokens. Smaller chunks give more precise matches, and larger chunks keep more context.',
+      visual: {
+        kind: 'table',
+        caption: 'The number of chunks made from the same 20 words, with two settings.',
+        columns: ['Size and overlap', 'Chunks from 20 words', 'Words per chunk'],
+        rows: [
+          ['8 and 2', '3', '8'],
+          ['4 and 0', '5', '4'],
+        ],
+        highlightRow: 0,
+      },
+      snippet: {
+        source: `const words = 20;
+const size = 8;
+const overlap = 2;
+const step = size - overlap;
+const count = Math.ceil((words - overlap) / step);
+console.log("Chunks ->", count);
+`,
+        output: 'Chunks -> 3',
+      },
     },
     {
-      title: 'Overlap',
-      detail: 'Repeat the last 20 words of one chunk at the start of the next. This keeps a sentence that crosses a border whole.',
+      title: 'Overlap keeps a sentence whole',
+      detail: 'Repeat the last 2 words of one chunk at the start of the next. Here chunk 2 starts with "days. Refunds", so a sentence at the border stays whole. Overlap costs storage, because each repeated word is stored twice.',
+      visual: {
+        kind: 'chips',
+        caption: 'The last two words of chunk 1 repeat at the start of chunk 2.',
+        items: [
+          { text: 'Chunk 1: Refunds take 5 to 7 business days. Refunds', note: '8 words' },
+          { text: 'Chunk 2: days. Refunds go to the original card. Contact', note: '8 words', highlight: true },
+        ],
+      },
+      snippet: {
+        source: `const text = "Refunds take 5 to 7 business days. " +
+  "Refunds go to the original card.";
+const words = text.split(" ");
+const size = 8;
+const overlap = 2;
+const second = words.slice(size - overlap, size * 2 - overlap);
+console.log(second.join(" "));
+`,
+        output: 'days. Refunds go to the original card.',
+      },
     },
     {
-      title: 'Source record',
-      detail: 'Each chunk records its document name and position, such as "faq, chunk 3 of 10". The record is used for citations.',
+      title: 'Each chunk records its position',
+      detail: 'Each chunk stores its document name and position, such as "faq, chunk 3 of 3". The record is used for citations, so an answer can name the exact part of the source. A chunk that starts with "It takes 3 days" is unclear alone, so each chunk should name its topic.',
+      visual: {
+        kind: 'table',
+        caption: 'Three chunks from the example text, with their position records.',
+        columns: ['Chunk', 'Position record', 'Starts with', 'Words'],
+        rows: [
+          ['1', 'faq, chunk 1 of 3', 'Refunds take', '8'],
+          ['2', 'faq, chunk 2 of 3', 'days. Refunds', '8'],
+          ['3', 'faq, chunk 3 of 3', 'card. Contact', '8'],
+        ],
+        highlightRow: 2,
+      },
+      snippet: {
+        source: `const doc = "faq";
+const total = 3;
+const record = doc + ", chunk 3 of " + total;
+console.log(record);
+`,
+        output: 'faq, chunk 3 of 3',
+      },
     },
     {
-      title: 'Reading samples',
-      detail: 'Print a few chunks and read them. A chunk that ends with "Refunds take" is cut in half, so the size or the overlap needs a change.',
+      title: 'Read sample chunks alone',
+      detail: 'Print a few chunks and read each one as if it were the only text. A chunk that ends with "Refunds take" is cut in half, so the size or the overlap needs a change. Check the samples again after each change.',
+      visual: {
+        kind: 'flow',
+        caption: 'The check that catches a bad cut.',
+        nodes: ['Print chunks', 'Read each one alone', 'Cut in half?', 'Change size or overlap'],
+      },
     },
   ],
   diagram: ['Document', 'Split', 'Overlap', 'Chunks'],
@@ -359,19 +585,6 @@ chunks.forEach((chunk, i) => {
 Chunk 2 has 8 words: days. Refunds go to the original card. Contact
 Chunk 3 has 8 words: card. Contact support if the card was closed.`,
   },
-  hood: {
-    paragraphs: [
-      'The size here counts words. Real systems often count tokens, because a model limit is set in tokens.',
-      'Overlap costs storage. Each repeated word is stored twice, so keep the overlap small.',
-      'A chunk may be read alone, so it should name its topic. A chunk that starts with "It takes 3 days" is unclear without the sentence before it.',
-    ],
-    example: [
-      { label: 'Words in the text', value: '20' },
-      { label: 'Chunk size and overlap', value: '8 and 2' },
-      { label: 'Words between chunk starts', value: '6' },
-      { label: 'Chunks produced', value: '3' },
-    ],
-  },
   mistakes: [
     'Cutting by characters only. A cut in the middle of a word or a number gives a broken chunk.',
     'Using one size for every document. A table and an essay need different sizes, so test each type.',
@@ -404,24 +617,93 @@ const metadata: Lesson = {
   },
   steps: [
     {
-      title: 'Fields',
-      detail: 'Pick the fields a reader needs, such as the source, the version, and the year. For a manual, the version might be "2.1".',
+      title: 'Metadata sits beside the text',
+      detail: 'Metadata is extra data stored beside each chunk, such as its source, version, and year. The text is what gets embedded, and the fields stay in their own columns. For a manual, the version might be "2.1".',
+      visual: {
+        kind: 'table',
+        caption: 'Two chunks, each with its text and two metadata fields.',
+        columns: ['Chunk text', 'src', 'year'],
+        rows: [
+          ['Refunds take 5 to 7 days.', '2.1', '2024'],
+          ['Refunds take 3 days.', '1.0', '2019'],
+        ],
+      },
+      snippet: {
+        source: `type Chunk = { text: string; src: string; year: number };
+const chunk: Chunk = {
+  text: "Refunds take 5 to 7 days.", src: "2.1", year: 2024,
+};
+console.log("Year ->", chunk.year);
+`,
+        output: 'Year -> 2024',
+      },
     },
     {
-      title: 'Attaching fields',
-      detail: 'Every chunk record gets the fields of its document. A chunk from the 2024 manual stores the year 2024.',
+      title: 'Fields come from the document',
+      detail: 'Every chunk record gets the fields of the document it came from. A chunk from the 2024 manual stores the year 2024. A wrong year in the record gives a wrong filter result, so check the fields when a document is added.',
+      visual: {
+        kind: 'compare',
+        caption: 'One document and the records of its chunks.',
+        left: { title: 'Document', items: ['Manual 2.1', 'Year 2024'] },
+        right: { title: 'Chunk records', items: ['Chunk 1: src 2.1, year 2024', 'Chunk 2: src 2.1, year 2024'] },
+      },
     },
     {
-      title: 'Consistent names',
-      detail: 'Use one name for each field in every document. "version" should not be "ver" in one file and "release" in another.',
+      title: 'Use one name for each field',
+      detail: 'Use one name for each field in every document. "version" should not be "ver" in one file and "release" in another. A filter on "version" misses any chunk stored under a different name.',
+      visual: {
+        kind: 'chips',
+        caption: 'Three names for one field. Only the first one matches the filter.',
+        items: [
+          { text: 'version', note: 'matched by the filter', highlight: true },
+          { text: 'ver', note: 'missed' },
+          { text: 'release', note: 'missed' },
+        ],
+      },
+      snippet: {
+        source: `const fields = ["version", "ver", "release"];
+const filterKey = "version";
+const matches = fields.filter((f) => f === filterKey);
+console.log("Matches ->", matches.length, "of", fields.length);
+`,
+        output: 'Matches -> 1 of 3',
+      },
     },
     {
-      title: 'Filters',
-      detail: 'A filter drops chunks that do not match, such as "year is 2020 or later". It runs before the search ranks the rest. Lesson 4.2 covers filters.',
+      title: 'A filter drops chunks before ranking',
+      detail: 'A filter keeps only the chunks that match a condition, such as "year is 2020 or later". It is a plain comparison, so it needs no model call and gives an exact result. In the example, the 2019 chunk is dropped and one chunk remains. Lesson 4.2 covers filters in search.',
+      visual: {
+        kind: 'bars',
+        caption: 'Chunks before and after the year filter.',
+        unit: 'chunks',
+        rows: [
+          { label: 'Before filter', value: 2 },
+          { label: 'After filter', value: 1, highlight: true },
+        ],
+      },
+      snippet: {
+        source: `const years = [2024, 2019];
+const kept = years.filter((y) => y >= 2020);
+console.log("Kept ->", kept.join(", "));
+`,
+        output: 'Kept -> 2024',
+      },
     },
     {
-      title: 'Citations',
-      detail: 'Build a citation from the fields, such as "Manual 2.1 (2024)". A reader can then find the passage in the source.',
+      title: 'Build a citation from the fields',
+      detail: 'A citation is built from the fields, such as "Manual 2.1 (2024)". A reader can then find the passage in the named source. An answer with no citation gives the reader nothing to check.',
+      visual: {
+        kind: 'flow',
+        caption: 'The fields of one chunk become its citation.',
+        nodes: ['Chunk text', 'Fields: src 2.1, year 2024', 'Citation: Manual 2.1 (2024)'],
+      },
+      snippet: {
+        source: `const src = "2.1";
+const year = 2024;
+console.log("Manual " + src + " (" + year + ")");
+`,
+        output: 'Manual 2.1 (2024)',
+      },
     },
   ],
   diagram: ['Chunk text', 'Metadata fields', 'Filter', 'Citation'],
@@ -449,19 +731,6 @@ console.log("Dropped ->", chunks.length - recent.length);
 `,
     output: `Manual 2.1 (2024) -> Refunds take 5 to 7 days.
 Dropped -> 1`,
-  },
-  hood: {
-    paragraphs: [
-      'Metadata sits beside the text, not inside it. The text is what gets embedded, and the fields stay in their own columns.',
-      'A filter checks fields with plain comparisons. It needs no model call, so it is fast and exact.',
-      'Metadata is only as good as its entry. A wrong year in the record gives a wrong filter result.',
-    ],
-    example: [
-      { label: 'Chunk text', value: '"Refunds take 5 to 7 days."' },
-      { label: 'Source field', value: '"2.1"' },
-      { label: 'Year field', value: '2024' },
-      { label: 'Citation', value: 'Manual 2.1 (2024)' },
-    ],
   },
   mistakes: [
     'Storing the source only in the file name. A name is hard to filter reliably, so store it as a field.',
@@ -495,24 +764,94 @@ const embedAndStore: Lesson = {
   },
   steps: [
     {
-      title: 'Embedding',
-      detail: 'Send the chunk text to an embedding model. For example, "Refunds take 5 to 7 days." becomes one list of several hundred numbers.',
+      title: 'Embedding turns text into a list',
+      detail: 'The chunk text goes to an embedding model, which returns a list of numbers. Real models return hundreds of numbers. This lesson uses a fake embedding that counts the letters a, e, and o. Changing the model changes every vector, so the whole store must be rebuilt.',
+      visual: {
+        kind: 'chips',
+        caption: 'The fake embedding of "Refunds take 5 to 7 days.", one count per letter.',
+        items: [
+          { text: 'a', note: '2' },
+          { text: 'e', note: '2' },
+          { text: 'o', note: '1' },
+        ],
+      },
+      snippet: {
+        source: `const text = "Refunds take 5 to 7 days.".toLowerCase();
+const counts = ["a", "e", "o"].map((l) => text.split(l).length - 1);
+console.log("Vector ->", JSON.stringify(counts));
+`,
+        output: 'Vector -> [2,2,1]',
+      },
     },
     {
-      title: 'Stable ids',
-      detail: 'Build the id from the source and position, such as "manual-2.1-chunk-3". The same chunk always gets the same id.',
+      title: 'Stable ids come from the location',
+      detail: 'The id is built from the source and the position, such as "manual-2.1-chunk-1". The same chunk always gets the same id, on every run. A random id would be new each time, so each run would add a new row.',
+      visual: {
+        kind: 'table',
+        caption: 'What a second load does with each kind of id.',
+        columns: ['Id type', 'Example', 'Result on a second load'],
+        rows: [
+          ['Stable', 'manual-2.1-chunk-1', 'Replaces the same row'],
+          ['Random', 'a new value each run', 'Adds a new row'],
+        ],
+        highlightRow: 0,
+      },
+      snippet: {
+        source: `const stableId = (src: string, pos: number) =>
+  "manual-" + src + "-chunk-" + pos;
+console.log(stableId("2.1", 1));
+`,
+        output: 'manual-2.1-chunk-1',
+      },
     },
     {
-      title: 'Upsert',
-      detail: 'An upsert inserts a row, or updates it when the id already exists. A second load of "manual-2.1-chunk-1" replaces its row and adds nothing.',
+      title: 'An upsert replaces a repeated row',
+      detail: 'An upsert inserts a row, or updates it when the id already exists. A second load of "manual-2.1-chunk-1" replaces its row and adds nothing. After two loads of the two chunks, the store still holds two rows.',
+      visual: {
+        kind: 'bars',
+        caption: 'Rows in the store after each load of the same two chunks.',
+        unit: 'rows',
+        rows: [
+          { label: 'After load 1', value: 2 },
+          { label: 'After load 2', value: 2, highlight: true },
+        ],
+      },
+      snippet: {
+        source: `const store = new Map<string, string>();
+const load = (id: string, text: string) => store.set(id, text);
+load("manual-2.1-chunk-1", "Refunds take 5 to 7 days.");
+load("manual-2.1-chunk-1", "Refunds take 5 to 7 days.");
+console.log("Rows ->", store.size);
+`,
+        output: 'Rows -> 1',
+      },
     },
     {
-      title: 'Row contents',
-      detail: 'The table holds the id, the text, the metadata, and the vector. A row might hold "2.1" as its source and a vector of 300 numbers.',
+      title: 'Each row holds text, metadata, and a vector',
+      detail: 'The table holds the id, the text, the metadata, and the vector. In a real project the table is often PostgreSQL with pgvector, an extension for vector columns. This lesson uses a Map, so the code runs without a database.',
+      visual: {
+        kind: 'table',
+        caption: 'One row for the first chunk.',
+        columns: ['Column', 'Value'],
+        rows: [
+          ['id', 'manual-2.1-chunk-1'],
+          ['text', 'Refunds take 5 to 7 days.'],
+          ['src', '2.1'],
+          ['vector', '[2, 2, 1]'],
+        ],
+      },
     },
     {
-      title: 'Index for speed',
-      detail: 'An HNSW index lets search skip most rows. With 1,000,000 rows, search then checks a small share of them, at a small cost in accuracy.',
+      title: 'An index keeps search fast',
+      detail: 'Without an index, search compares the query with every row. An HNSW index links each vector to nearby vectors, so search can skip most rows. With 1,000,000 rows, search checks a small share of them, at a small cost in accuracy.',
+      visual: {
+        kind: 'chips',
+        caption: 'How much of the store a search compares.',
+        items: [
+          { text: 'Without an index', note: 'every row' },
+          { text: 'With an HNSW index', note: 'a small share of rows', highlight: true },
+        ],
+      },
     },
   ],
   diagram: ['Chunk', 'Embedding model', 'Upsert by id', 'Store with index'],
@@ -549,19 +888,6 @@ console.log("Vector ->", JSON.stringify(row?.vector));
     output: `After run 1 rows -> 2
 After run 2 rows -> 2
 Vector -> [2,2,1]`,
-  },
-  hood: {
-    paragraphs: [
-      'pgvector is an extension for PostgreSQL that adds a vector column and distance search. This lesson uses a Map, so the code runs without a database.',
-      'An HNSW index links each vector to its nearby vectors in a graph. Search walks the graph to close points, so it skips most rows.',
-      'Upsert means update or insert. Running the loader again is safe, because the ids stay the same.',
-      'Changing the embedding model changes every vector, so the whole store must be rebuilt.',
-    ],
-    example: [
-      { label: 'Rows after run 1', value: '2' },
-      { label: 'Rows after run 2', value: '2, because the ids matched' },
-      { label: 'Vector for "Refunds take 5 to 7 days."', value: '[2, 2, 1]' },
-    ],
   },
   mistakes: [
     'Using random ids. Every run then adds new rows, and the store fills with copies.',
