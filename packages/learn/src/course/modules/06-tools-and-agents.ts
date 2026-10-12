@@ -11,20 +11,66 @@ const whatAToolIs: Lesson = {
   },
   steps: [
     {
-      title: 'What the model sees',
-      detail: 'The model sees the name, the description, and the parameters. It never sees the body of the function. The sample removes run from the object with a rest pattern and prints what remains.',
+      title: 'The model sees a name and a description',
+      detail: 'The model receives the tool name, its description, and its parameters. It never receives the body of the run function. The sample removes run from the object and prints the rest.',
+      visual: {
+        kind: 'compare',
+        caption: 'What goes to the model, and what stays in your code.',
+        left: { title: 'Sent to the model', items: ['name: get_order', 'description', 'parameters: orderId'] },
+        right: { title: 'Kept in your code', items: ['The run function', 'The code that reads the orders'] },
+      },
     },
     {
-      title: 'Writing the description',
-      detail: 'The description is the main hint that tells the model when to use the tool. For example: "Return the status of one order by its id." A vague description leads to wrong calls.',
+      title: 'The description guides the choice',
+      detail: 'The description tells the model when to use the tool. A clear sentence leads to correct calls. A vague one leads to wrong calls or to no call at all.',
+      visual: {
+        kind: 'chips',
+        caption: 'Two descriptions for the same tool.',
+        items: [
+          { text: 'Get the order info', note: 'vague, wrong calls' },
+          { text: 'Return the status of one order by its id.', note: 'clear', highlight: true },
+        ],
+      },
+      snippet: {
+        source: `const getOrder = {
+  name: "get_order",
+  description: "Return the status of one order by its id.",
+};
+console.log(getOrder.description);
+`,
+        output: `Return the status of one order by its id.`,
+      },
     },
     {
-      title: 'Typed inputs',
-      detail: 'Each parameter has a name and a type, such as orderId as a string. The model fills in these values when it asks for the tool. Your code should check them before it runs the function.',
+      title: 'Typed inputs are checked before a run',
+      detail: 'Each parameter has a name and a type. The model fills in the values, and it can send a value of the wrong type. Your code checks each value before it calls run.',
+      visual: {
+        kind: 'table',
+        caption: 'Two calls that pass one orderId value to the tool.',
+        columns: ['Value sent', 'Type', 'Check'],
+        rows: [
+          ['A-1042', 'text', 'passes'],
+          ['1042', 'number', 'rejected'],
+        ],
+        highlightRow: 1,
+      },
+      snippet: {
+        source: `const parameters = { orderId: "string" };
+const input: Record<string, unknown> = { orderId: 1042 };
+const typeOk = typeof input.orderId === parameters.orderId;
+console.log("orderId is a string: " + typeOk);
+`,
+        output: `orderId is a string: false`,
+      },
     },
     {
-      title: 'Running the function',
-      detail: 'The run function executes only when your code calls it. The model never runs it directly. The sample calls run with orderId A-1042 and prints the text result.',
+      title: 'The run function runs only on request',
+      detail: 'Your code calls run only after the checks pass. The model never runs the function itself. The sample calls run with A-1042 and prints the text that goes back to the model.',
+      visual: {
+        kind: 'flow',
+        caption: 'The order of events for one tool call.',
+        nodes: ['Model asks', 'Your code checks', 'run() executes', 'Text returned'],
+      },
     },
   ],
   code: {
@@ -60,18 +106,6 @@ console.log(getOrder.run({ orderId: "A-1042" }));
 }
 Order A-1042 shipped on Monday.`,
   },
-  hood: {
-    paragraphs: [
-      'The model sees only the name, the description, and the parameters. It never sees the body of the function.',
-      'The line that starts with const removes the run function and keeps the rest. That rest is what the model receives.',
-      'The description is the main hint to the model, so write it as one plain sentence.',
-    ],
-    example: [
-      { label: 'Name', value: 'get_order' },
-      { label: 'Input', value: 'orderId, a string' },
-      { label: 'Result text', value: 'Order A-1042 shipped on Monday.' },
-    ],
-  },
   mistakes: [
     'Writing a vague description. The model then calls the tool at the wrong time, or never calls it.',
     'Returning raw data with no labels. Return text that a reader could understand without the code.',
@@ -103,20 +137,68 @@ const toolCallingLoop: Lesson = {
   },
   steps: [
     {
-      title: 'Two kinds of reply',
-      detail: 'The model either asks for a tool or gives final text. The Reply type is a union that holds both shapes. The type field tells the loop which shape it received.',
+      title: 'The model returns one of two replies',
+      detail: 'A reply is either a tool request or final text. The Reply type holds both shapes, and its type field says which one arrived. The loop reads that field first.',
+      visual: {
+        kind: 'table',
+        caption: 'The two reply shapes the loop handles.',
+        columns: ['type', 'Fields', 'What the loop does'],
+        rows: [
+          ['tool_call', 'name, orderId', 'Runs the tool, then sends the result back'],
+          ['text', 'text', 'Returns the answer and stops'],
+        ],
+      },
     },
     {
-      title: 'Running a requested tool',
-      detail: 'The loop looks up the tool by name in the tools map. It then runs the function with the inputs from the reply. For example, get_order runs with orderId A-1042.',
+      title: 'The loop looks up the tool by name',
+      detail: 'The tools map links each name to a function. The loop picks the function with the name from the reply, then passes the inputs. Here get_order runs with orderId A-1042.',
+      visual: {
+        kind: 'flow',
+        caption: 'One tool call, from the reply to the result text.',
+        nodes: ['Reply', 'Find by name', 'Run with inputs', 'Result text'],
+      },
+      snippet: {
+        source: `const tools: Record<string, (id: string) => string> = {
+  get_order: (id) => "Order " + id + " shipped.",
+};
+const reply = { name: "get_order", orderId: "A-1042" };
+console.log(tools[reply.name](reply.orderId));
+`,
+        output: `Order A-1042 shipped.`,
+      },
     },
     {
-      title: 'Feeding the result back',
-      detail: 'The sample prints each result. A real loop adds the result to the messages instead. The next request then contains the result, so the model can use it.',
+      title: 'The result joins the messages',
+      detail: 'The messages list is what the model reads on each turn. The tool result is added to that list, so the next request contains it. Without this step, the model cannot use the data.',
+      visual: {
+        kind: 'chips',
+        caption: 'The message list after the tool runs.',
+        items: [
+          { text: 'User: Where is order A-1042?' },
+          { text: 'Tool: Order A-1042 shipped.', highlight: true },
+        ],
+      },
+      snippet: {
+        source: `const messages: string[] = ["User: Where is order A-1042?"];
+const result = "Order A-1042 shipped.";
+messages.push("Tool: " + result);
+console.log("Messages now: " + messages.length);
+`,
+        output: `Messages now: 2`,
+      },
     },
     {
-      title: 'Stopping the loop',
-      detail: 'The loop stops at the first text reply. The maxTurns value of five stops a loop that never gets text. The sample stops on turn 2.',
+      title: 'The turn cap stops a loop that never ends',
+      detail: 'A turn is one request to the model and its reply. The maxTurns value of five stops a model that keeps asking for tools. This sample ends on turn 2, well under the cap.',
+      visual: {
+        kind: 'bars',
+        caption: 'Turns used against the cap of five.',
+        unit: 'turns',
+        rows: [
+          { label: 'Turn cap', value: 5 },
+          { label: 'Turns used', value: 2, highlight: true },
+        ],
+      },
     },
   ],
   diagram: ['Messages', 'Model', 'Run tool', 'Add result', 'Answer'],
@@ -153,19 +235,6 @@ for (let turn = 1; turn <= maxTurns; turn++) {
     output: `Turn 1 ran get_order: Order A-1042 shipped.
 Answer on turn 2: Order A-1042 shipped on Monday.`,
   },
-  hood: {
-    paragraphs: [
-      'The model does not run anything. It writes a request, and the loop decides whether to run it.',
-      'The sample uses a fixed list of replies in place of a real model. The output shows the steps a real loop takes.',
-      'A real loop must report an unknown tool name as an error. It must not skip the request in silence.',
-    ],
-    example: [
-      { label: 'Turn 1 reply', value: 'tool call, get_order, orderId A-1042' },
-      { label: 'Turn 1 result', value: 'Order A-1042 shipped.' },
-      { label: 'Turn 2 reply', value: 'text, shipped on Monday' },
-      { label: 'Turns used', value: '2' },
-    ],
-  },
   mistakes: [
     'No turn cap. A model that keeps asking for tools would run forever.',
     'Dropping tool results from the messages. The model then cannot use them on the next turn.',
@@ -199,20 +268,72 @@ const lookupVsSearchTools: Lesson = {
   },
   steps: [
     {
-      title: 'Looking up an exact key',
-      detail: 'A lookup takes one key, such as order id A-1042. It returns one record or a clear message. The Map in the sample stores each id with its status.',
+      title: 'A lookup takes one exact key',
+      detail: 'A lookup takes one key, such as order id A-1042, and returns one record. The Map stores each id with its status. A missing key returns undefined, which the code turns into a clear message.',
+      visual: {
+        kind: 'table',
+        caption: 'Two lookups in the orders map.',
+        columns: ['Key', 'Map returns'],
+        rows: [
+          ['A-1042', 'shipped'],
+          ['A-9999', 'undefined, no record'],
+        ],
+        highlightRow: 1,
+      },
+      snippet: {
+        source: `const orders = new Map([["A-1042", "shipped"]]);
+console.log(orders.get("A-1042"));
+console.log(orders.get("A-9999"));
+`,
+        output: `shipped
+undefined`,
+      },
     },
     {
-      title: 'Searching by shared words',
-      detail: 'Search scores each article by the words it shares with the query. The query "refund order number" gives the refund request article a score of 3. Scores set the order of the results.',
+      title: 'A search counts shared words',
+      detail: 'A search splits the query into words and counts how many appear in each article. The query refund order number shares three words with the refund request article. Scores set the order of the results.',
+      visual: {
+        kind: 'bars',
+        caption: 'Scores for the query "refund order number".',
+        rows: [
+          { label: 'Refund requests need the order number.', value: 3, highlight: true },
+          { label: 'Refunds take 5 to 7 days.', value: 1 },
+          { label: 'Gift cards never expire.', value: 0 },
+        ],
+      },
+      snippet: {
+        source: `const query = "refund order number".split(" ");
+const article = "Refund requests need the order number.";
+const text = article.toLowerCase();
+const hits = query.filter((word) => text.includes(word));
+const label = "Shared: " + hits.join(", ");
+console.log(label + " (" + hits.length + ")");
+`,
+        output: `Shared: refund, order, number (3)`,
+      },
     },
     {
-      title: 'Results without a cutoff',
-      detail: 'The search returns the top results even when every score is zero. The rideshare query still returns one result, with score 0. The model decides whether that result answers the question.',
+      title: 'Results come back without a cutoff',
+      detail: 'The search returns the best few results even when every score is zero. A rideshare query shares no words with any article, yet one result still comes back, with score 0. The model must judge whether that result answers the question.',
+      visual: {
+        kind: 'table',
+        caption: 'Two searches, each with its top result.',
+        columns: ['Query', 'Top result', 'Score'],
+        rows: [
+          ['refund order number', 'Refund requests need the order number.', '3'],
+          ['rideshare', 'Refunds take 5 to 7 days.', '0'],
+        ],
+      },
     },
     {
-      title: 'Choosing between them',
-      detail: 'Use a lookup when the question names one record. Use a search when the question is about a topic or a symptom. Using search for an exact id can return a similar record instead.',
+      title: 'Choose by the question',
+      detail: 'Use a lookup when the question names one record. Use a search when the question is about a topic or a symptom. A search for an exact id can return a similar record instead.',
+      visual: {
+        kind: 'compare',
+        caption: 'Which tool fits which question.',
+        left: { title: 'Use a lookup', items: ['The question names one id', 'Returns one record or not found'] },
+        right: { title: 'Use a search', items: ['The question names a topic or symptom', 'Returns ranked matches with scores'] },
+      },
     },
   ],
   code: {
@@ -253,19 +374,6 @@ Refund requests need the order number. (score 3)
 Refunds take 5 to 7 days. (score 1)
 Refunds take 5 to 7 days. (score 0)`,
   },
-  hood: {
-    paragraphs: [
-      'Counting shared words is the simplest kind of search. Later lessons replace it with a search by meaning.',
-      'The Map stores one status for each key. A missing key returns undefined, and the code turns that into a clear message.',
-      'The sort puts the highest score first. Two results with the same score keep their original order.',
-    ],
-    example: [
-      { label: 'Query', value: '"refund order number"' },
-      { label: 'Shared words with the third article', value: '3' },
-      { label: 'Top result', value: 'Refund requests need the order number.' },
-      { label: 'Lookup for A-9999', value: 'No order A-9999' },
-    ],
-  },
   mistakes: [
     'Searching for an exact id. A search can return a similar record instead of the one asked for.',
     'Expecting the search to have a score cutoff. Without one, the model must judge weak results.',
@@ -297,20 +405,69 @@ const wrappingAMessyApi: Lesson = {
   },
   steps: [
     {
-      title: 'Following pages',
-      detail: 'Each page returns its items and the number of the next page. The wrapper keeps asking until the next page is null. The sample reads page 1, then page 2, and then stops.',
+      title: 'Each page gives items and a next page',
+      detail: 'A paged API returns part of the list and the number of the next page. The wrapper keeps asking until the next page is null. Page 1 holds A-1 and A-2, and it points to page 2.',
+      visual: {
+        kind: 'table',
+        caption: 'The calls the wrapper makes to read every order.',
+        columns: ['Call', 'Reply', 'Next page'],
+        rows: [
+          ['Page 1', 'A-1, A-2', '2'],
+          ['Page 2, try 1', 'null, rate limited', 'not known'],
+          ['Page 2, try 2', 'A-3', 'none'],
+        ],
+        highlightRow: 1,
+      },
     },
     {
-      title: 'Retrying a rate limit',
-      detail: 'The fake API returns null when it is rate limited. The loop tries the same page again, up to three attempts. In the sample, page 2 succeeds on the second try.',
+      title: 'A rate-limited call is retried',
+      detail: 'A null reply means the API refused the call for now. The loop tries the same page again, up to three attempts in total. The second attempt on page 2 works.',
+      visual: {
+        kind: 'chips',
+        caption: 'The attempts on page 2.',
+        items: [
+          { text: 'Try 1', note: 'null, rate limited' },
+          { text: 'Try 2', note: 'A-3, ok', highlight: true },
+        ],
+      },
+      snippet: {
+        source: `let result: string[] | null = null;
+for (let attempt = 1; attempt <= 3 && !result; attempt++) {
+  result = attempt === 1 ? null : ["A-3"];
+  const label = result ? "ok" : "null";
+  console.log("attempt " + attempt + ": " + label);
+}
+`,
+        output: `attempt 1: null
+attempt 2: ok`,
+      },
     },
     {
-      title: 'Failing loudly',
-      detail: 'After the last attempt, the wrapper throws an error that names the page. The caller can then report the failure. An empty list would hide the failure from everyone.',
+      title: 'Failure after three attempts is an error',
+      detail: 'If all three attempts fail, the wrapper throws an error that names the page. An empty list would look like a real result with no orders. The error lets the caller report the failure instead.',
+      snippet: {
+        source: `try {
+  const result: string[] | null = null;
+  if (!result) throw new Error("Page 2 failed");
+} catch (error) {
+  console.log((error as Error).message);
+}
+`,
+        output: `Page 2 failed`,
+      },
     },
     {
-      title: 'Returning typed items',
-      detail: 'The result is a plain list of strings with a known type. Tools built on the wrapper never see raw responses. The output joins the items into one line.',
+      title: 'Typed items reach the tools',
+      detail: 'The wrapper returns a plain list of strings. Tools built on it never see raw API replies or null values. The list joins into one line, as the full program shows.',
+      visual: {
+        kind: 'chips',
+        caption: 'The list that the wrapper returns to a tool.',
+        items: [
+          { text: 'A-1', note: 'string' },
+          { text: 'A-2', note: 'string' },
+          { text: 'A-3', note: 'string' },
+        ],
+      },
     },
   ],
   code: {
@@ -347,19 +504,6 @@ console.log("Items: " + fetchAll().join(", "));
 `,
     output: `Items: A-1, A-2, A-3`,
   },
-  hood: {
-    paragraphs: [
-      'A null reply stands for a rate limit here. A real API reply would carry a status code, such as 429.',
-      'The while loop runs until the next page is null. The for loop stops after three attempts or at the first success.',
-      'The wrapper throws an error instead of returning an empty list. An empty list would look like a real result with no data.',
-    ],
-    example: [
-      { label: 'Page 1', value: 'A-1 and A-2, next page 2' },
-      { label: 'Page 2, first try', value: 'rate limited, returns null' },
-      { label: 'Page 2, second try', value: 'A-3, no next page' },
-      { label: 'Items returned', value: '3' },
-    ],
-  },
   mistakes: [
     'Retrying forever. Use a fixed number of attempts, then report the failure.',
     'Hiding a failure as an empty result. The model would then answer as if no data exists.',
@@ -391,20 +535,60 @@ const routingQuestions: Lesson = {
   },
   steps: [
     {
-      title: 'Writing a rule',
-      detail: 'A rule is a regular expression, a pattern that matches text. The pattern in the sample matches the word order, a space, a capital letter, a dash, and digits. It matches an order id such as A-1042.',
+      title: 'A rule is a pattern that matches text',
+      detail: 'A regular expression is a pattern that matches text. This pattern reads the word order, a space, a capital letter, a dash, and digits. It matches an order id such as A-1042, and the test method returns true when it matches.',
+      snippet: {
+        source: `const pattern = /order [A-Z]-\\d+/;
+console.log(pattern.test("Where is order A-1042?"));
+console.log(pattern.test("Can I return an opened item?"));
+`,
+        output: `true
+false`,
+      },
     },
     {
-      title: 'Ordering the rules',
-      detail: 'The first matching rule wins, so narrow rules come first. The question "What does error 4031 mean?" matches the keyword rule before the meaning default. The order of the checks decides the route.',
+      title: 'The first matching rule wins',
+      detail: 'Rules are checked from top to bottom, and the first match decides the route. Narrow rules sit at the top, so a broad rule cannot take their questions. The last route has no rule, so it catches every question left over.',
+      visual: {
+        kind: 'table',
+        caption: 'The rules in the order the router checks them.',
+        columns: ['Order', 'Rule matches', 'Example', 'Route'],
+        rows: [
+          ['1', 'an order id like A-1042', 'Where is order A-1042?', 'exactId'],
+          ['2', 'the word error and a number', 'What does error 4031 mean?', 'keyword'],
+          ['3', 'how many or total', 'How many orders shipped?', 'count'],
+          ['4', 'no rule matches', 'Can I return an opened item?', 'meaning'],
+        ],
+        highlightRow: 3,
+      },
     },
     {
-      title: 'The default route',
-      detail: 'The meaning search is the last line, so it catches every other question. For example, "Can I return an opened item?" matches no rule. It therefore takes the default route.',
+      title: 'The router as code',
+      detail: 'The route function holds the rules in order. The keyword rule takes the error question, because it is the first rule that matches. The sample prints the route name for that question.',
+      snippet: {
+        source: `function route(question: string): string {
+  if (/order [A-Z]-\\d+/.test(question)) return "exactId";
+  if (/error \\d+/i.test(question)) return "keyword";
+  return "meaning";
+}
+console.log(route("What does error 4031 mean?"));
+`,
+        output: `keyword`,
+      },
     },
     {
-      title: 'Reading the output',
-      detail: 'The sample routes four questions and prints each route name. Each route name is padded to eight characters so that the questions line up. The output shows one route per line.',
+      title: 'The default route catches the rest',
+      detail: 'A question that matches no rule takes the default route, which is the meaning search. The sample sends four questions through the router, and each one gets a route name.',
+      visual: {
+        kind: 'chips',
+        caption: 'Four questions and the route each one takes.',
+        items: [
+          { text: 'Where is order A-1042?', note: 'exactId' },
+          { text: 'What does error 4031 mean?', note: 'keyword' },
+          { text: 'How many orders shipped last week?', note: 'count' },
+          { text: 'Can I return an opened item?', note: 'meaning, default', highlight: true },
+        ],
+      },
     },
   ],
   code: {
@@ -412,7 +596,7 @@ const routingQuestions: Lesson = {
 function route(question: string): string {
   if (/order [A-Z]-\\d+/.test(question)) return "exactId";
   if (/error \\d+/i.test(question)) return "keyword";
-  if (/how many|total/i.test(question)) return "sql";
+  if (/how many|total/i.test(question)) return "count";
   return "meaning";
 }
 
@@ -431,21 +615,8 @@ for (const question of questions) {
 `,
     output: `exactId  Where is order A-1042?
 keyword  What does error 4031 mean?
-sql      How many orders shipped last week?
+count    How many orders shipped last week?
 meaning  Can I return an opened item?`,
-  },
-  hood: {
-    paragraphs: [
-      'A regular expression is a pattern that matches text. The pattern order then a letter, a dash, and digits matches an order id.',
-      'A model can also choose the route, when the routes are listed to it as tools. Rules are easier to test, so start with rules.',
-      'The rules run from top to bottom. A question can match more than one rule, and only the first match is used.',
-    ],
-    example: [
-      { label: 'Question', value: 'Where is order A-1042?' },
-      { label: 'Rule that matches', value: 'exactId, the first rule' },
-      { label: 'Question', value: 'Can I return an opened item?' },
-      { label: 'Rule that matches', value: 'none, so meaning is the default' },
-    ],
   },
   mistakes: [
     'Writing one broad rule first. It takes questions that a narrow rule should have caught.',
@@ -479,20 +650,59 @@ const frameworksOrOwnLoop: Lesson = {
   },
   steps: [
     {
-      title: 'Reading the result',
-      detail: 'The LoopResult type records the answer, the turn count, and the stop reason. The sample prints a capped run with answer null. The caller can tell that the cap was reached.',
+      title: 'The loop has a turn cap',
+      detail: 'A fake model asks for a tool on every turn before turn 10, and it answers on turn 10. The loop must stop somewhere, so it checks a cap first. The first five turns all ask for a tool.',
+      snippet: {
+        source: `function fakeModelTurn(turn: number): "tool" | "text" {
+  return turn < 10 ? "tool" : "text";
+}
+for (let turn = 1; turn <= 5; turn++) {
+  console.log(turn + ": " + fakeModelTurn(turn));
+}
+`,
+        output: `1: tool
+2: tool
+3: tool
+4: tool
+5: tool`,
+      },
     },
     {
-      title: 'A cap of five',
-      detail: 'The fake model asks for tools until turn 10. With a cap of five, the loop ends at turn 5 with no answer. The stop reason says turn cap reached.',
+      title: 'A cap of five stops early',
+      detail: 'With a cap of five, the loop stops after turn 5, before the model answers. It returns no answer, so the caller must treat the run as a failure. The model needed 10 turns in total.',
+      visual: {
+        kind: 'bars',
+        caption: 'Turns used before the loop stops, for each cap.',
+        unit: 'turns',
+        rows: [
+          { label: 'Cap of 5', value: 5, highlight: true },
+          { label: 'Cap of 12', value: 10 },
+        ],
+      },
     },
     {
-      title: 'A cap of twelve',
-      detail: 'With a cap of twelve, the loop reaches turn 10 and gets text. It returns the answer done after 10 turns. The stop reason says answer.',
+      title: 'The result records the stop reason',
+      detail: 'LoopResult holds the answer, the turn count, and the stop reason. The caller reads the reason instead of guessing why the loop ended. A cap of twelve lets the model answer on turn 10.',
+      visual: {
+        kind: 'table',
+        caption: 'Both runs, as the loop reports them.',
+        columns: ['Cap', 'Answer', 'Turns', 'Stop reason'],
+        rows: [
+          ['5', 'null', '5', 'turn cap reached'],
+          ['12', 'done', '10', 'answer'],
+        ],
+        highlightRow: 0,
+      },
     },
     {
-      title: 'What a framework adds',
-      detail: 'A framework runs this loop for you, with its own defaults. The defaults can include turn caps and parallel calls. Read them before you rely on a framework in production.',
+      title: 'A framework runs this loop for you',
+      detail: 'A framework runs the same loop with its own defaults, such as the turn cap. Read those defaults before you rely on them in production. A hand-written loop shows every default in one file.',
+      visual: {
+        kind: 'compare',
+        caption: 'The trade-off between a framework and a hand-written loop.',
+        left: { title: 'Hand-written loop', items: ['Every stop condition is in your code', 'Easy to test each rule'] },
+        right: { title: 'Framework', items: ['Less code to write', 'Defaults set for you, so read them first'] },
+      },
     },
   ],
   code: {
@@ -529,17 +739,6 @@ console.log(runLoop(12));
     output: `{ answer: null, turns: 5, stopReason: 'turn cap reached' }
 { answer: 'done', turns: 10, stopReason: 'answer' }`,
   },
-  hood: {
-    paragraphs: [
-      'The LoopResult type is the record of one run. Any caller can read the turn count and the stop reason without guessing.',
-      'The fake model answers on turn 10. With a cap of five, the loop stops and reports the cap, with no answer.',
-      'A framework saves code, but its errors and caps still need tests. The evals in module 2 check the behavior.',
-    ],
-    example: [
-      { label: 'Cap of 5', value: 'turn cap reached, answer null' },
-      { label: 'Cap of 12', value: 'answered on turn 10' },
-    ],
-  },
   mistakes: [
     'Trusting a framework default. Read the defaults for turn caps and parallel calls before production use.',
     'Reporting a capped run as a normal answer. A capped run is a failure, not a reply.',
@@ -571,20 +770,61 @@ const manyAgentsAndFanOut: Lesson = {
   },
   steps: [
     {
-      title: 'Splitting the job',
-      detail: 'A planner splits one question into parts that do not depend on each other. The sample has three parts: refund rules, shipping times, and gift card terms.',
+      title: 'A planner splits the job',
+      detail: 'A planner splits one question into parts that do not depend on each other. The sample has three parts: refund rules, shipping times, and gift card terms. Each part can go to its own worker.',
+      visual: {
+        kind: 'flow',
+        caption: 'One question, split into three parts.',
+        nodes: ['One question', 'Planner', 'Refund rules', 'Shipping times', 'Gift card terms'],
+      },
     },
     {
-      title: 'One worker per part',
-      detail: 'The askWorker function handles one part and returns its answer. The map creates every job before any job finishes. In a real system, each worker would also have its own messages.',
+      title: 'Each worker answers one part',
+      detail: 'The askWorker function handles one part and returns its answer. Each answer carries the worker name, so the reader can see which part it came from. The map creates one worker call for each part.',
+      snippet: {
+        source: `async function askWorker(name: string, part: string) {
+  return name + " answered: " + part;
+}
+askWorker("worker 1", "refund rules").then(console.log);
+`,
+        output: `worker 1 answered: refund rules`,
+      },
     },
     {
-      title: 'Waiting for all answers',
-      detail: 'Promise.all waits for every worker and keeps the input order. The answers print in the order of the parts, even when the workers finish at different times.',
+      title: 'Promise.all waits for every worker',
+      detail: 'Promise.all waits until every worker has finished, then returns the answers in input order. A Promise is a value for a result that is not ready yet. The answers print in the order of the parts, even if a worker finishes later.',
+      snippet: {
+        source: `const jobs = [
+  Promise.resolve("refund rules done"),
+  Promise.resolve("shipping times done"),
+];
+Promise.all(jobs).then((answers) => console.log(answers));
+`,
+        output: `[ 'refund rules done', 'shipping times done' ]`,
+      },
+      visual: {
+        kind: 'table',
+        caption: 'Three workers, with the position of each answer.',
+        columns: ['Worker', 'Part', 'Position in result'],
+        rows: [
+          ['worker 1', 'refund rules', '1'],
+          ['worker 2', 'shipping times', '2'],
+          ['worker 3', 'gift card terms', '3'],
+        ],
+      },
     },
     {
-      title: 'Costs and limits',
-      detail: 'Three workers make three model calls, so they cost about three calls. Rate limits can stop too many workers from running at once.',
+      title: 'Parallel workers cut the wait, not the cost',
+      detail: 'Three workers make three model calls, the same number as one agent working in turn. The sample waits 10 milliseconds per worker, so running together takes about 10 milliseconds, not 30. Rate limits can still stop too many workers at once.',
+      visual: {
+        kind: 'bars',
+        caption: 'Waiting time for the three parts, in milliseconds.',
+        unit: 'ms',
+        rows: [
+          { label: 'One agent, in turn', value: 30 },
+          { label: 'Three workers, at once', value: 10, highlight: true },
+        ],
+      },
     },
   ],
   code: {
@@ -615,18 +855,6 @@ fanOut();
     output: `worker 1 answered: refund rules
 worker 2 answered: shipping times
 worker 3 answered: gift card terms`,
-  },
-  hood: {
-    paragraphs: [
-      'Promise.all starts every job at once. It returns the results in input order, and it waits for the slowest job.',
-      'The short delay stands in for a model call, which takes time. The sample makes no network call.',
-      'Parallel workers cost more tokens in total. Measure the cost before you add more workers.',
-    ],
-    example: [
-      { label: 'Parts', value: '3' },
-      { label: 'Workers running at once', value: '3' },
-      { label: 'Order of the answers', value: 'the same as the parts' },
-    ],
   },
   mistakes: [
     'Splitting parts that depend on each other. A worker then needs an answer that is not ready yet.',
