@@ -108,7 +108,7 @@ const thePrompt: Lesson = {
   steps: [
     {
       title: 'Write the rules once',
-      detail: 'Rules say what the model must do, such as "Answer only from the sources below." The same rules are sent with every question.',
+      detail: 'Rules say what the model must do. Example: "Answer only from the sources below." The same rules go with every question.',
     },
     {
       title: 'Add the sources',
@@ -116,7 +116,7 @@ const thePrompt: Lesson = {
     },
     {
       title: 'Add the question last',
-      detail: 'End with the question the user typed, such as "How long do refunds take?" Each request has its own question, so only that part changes.',
+      detail: 'End with the question the user typed. Example: "How long do refunds take?" Each request has its own question, so only that part changes.',
     },
     {
       title: 'Join the parts into one text',
