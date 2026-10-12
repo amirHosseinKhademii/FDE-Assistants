@@ -11,24 +11,24 @@ const formatDetection: Lesson = {
   },
   steps: [
     {
-      title: 'Read the first bytes',
-      detail: 'Many file types start with a fixed pattern of bytes, called a signature. A PDF file starts with the text "%PDF-".',
+      title: 'Signatures',
+      detail: 'Many file types start with a fixed pattern of bytes, called a signature. A PDF file starts with the text "%PDF-", which is the bytes 25 50 44 46.',
     },
     {
-      title: 'Compare with known signatures',
-      detail: 'The program checks the first bytes against a short list. A PNG image starts with the bytes 89, 50, 4E, and 47 in hexadecimal.',
+      title: 'Known signatures',
+      detail: 'The program compares the first bytes with a short list. A PNG image starts with the bytes 89 50 4E 47 in hexadecimal.',
     },
     {
-      title: 'Compare with the file name',
+      title: 'Name check',
       detail: 'The extension, such as ".pdf", is only a label. If the bytes say PDF but the name says ".txt", the mismatch is logged.',
     },
     {
-      title: 'Route to a reader',
-      detail: 'Each detected type goes to its own reader. A file such as "manual.pdf" goes to the PDF reader, and plain text goes to the text reader.',
+      title: 'Unknown types',
+      detail: 'A file with no known signature, such as plain text in "report.pdf", goes to a review list. It is not guessed, because a wrong guess can corrupt the text.',
     },
     {
-      title: 'Set aside unknown types',
-      detail: 'A file with no known signature, such as plain text in "report.pdf", goes to a review list. It is not guessed, because a wrong guess can corrupt the text.',
+      title: 'Routing',
+      detail: 'Each detected type goes to its own reader. A file such as "manual.pdf" goes to the PDF reader.',
     },
   ],
   diagram: ['File', 'First bytes', 'Type', 'Reader'],
@@ -113,23 +113,23 @@ const deduplication: Lesson = {
   },
   steps: [
     {
-      title: 'Read the exact bytes',
+      title: 'Exact copies',
       detail: 'Read each file as raw bytes. Two exact copies of "faq.txt" have the same bytes, so they get the same fingerprint.',
     },
     {
-      title: 'Compute a SHA-256 fingerprint',
+      title: 'SHA-256 fingerprint',
       detail: 'SHA-256 is a fixed function that turns any text into a 64-character code. Changing one letter gives a different code.',
     },
     {
-      title: 'Keep a record of seen codes',
+      title: 'Seen codes',
       detail: 'Store each fingerprint with its file name, such as "faq.txt". A later file whose fingerprint is already stored is a duplicate.',
     },
     {
-      title: 'Skip the duplicate',
+      title: 'Skipping a duplicate',
       detail: 'The duplicate is not chunked or embedded again. The log records the match, such as "copy.txt is a copy of faq.txt".',
     },
     {
-      title: 'Find near duplicates',
+      title: 'Near duplicates',
       detail: 'Near duplicates differ by a few words, such as the year "2024". MinHash estimates how much two texts overlap, so near copies can be grouped.',
     },
   ],
@@ -216,15 +216,15 @@ const piiScrubbing: Lesson = {
   },
   steps: [
     {
-      title: 'Name the kinds of data',
+      title: 'Kinds of data',
       detail: 'Decide which values count as PII, such as email addresses, phone numbers, and account numbers. Write the list, for example "email" and "phone", before any code.',
     },
     {
-      title: 'Match each pattern',
+      title: 'Patterns',
       detail: 'A pattern describes the shape of a value. The phone pattern matches "555-123-4567", which is three digits, a dash, three digits, a dash, and four digits.',
     },
     {
-      title: 'Replace each match',
+      title: 'Replacement',
       detail: 'Each match becomes a placeholder. For example, "ana.lee@example.com" becomes [EMAIL], and the sentence keeps its meaning.',
     },
     {
@@ -232,7 +232,7 @@ const piiScrubbing: Lesson = {
       detail: 'Scrub every document before chunking and embedding. A ticket stored before scrubbing keeps "ana.lee@example.com" in its copies.',
     },
     {
-      title: 'Test with known examples',
+      title: 'Testing with known examples',
       detail: 'Keep a small set of text with known PII and check that every value is replaced. Count the misses, such as 1 phone number left in place out of 20 tests.',
     },
   ],
@@ -305,23 +305,23 @@ const chunking: Lesson = {
   },
   steps: [
     {
-      title: 'Split at natural breaks',
+      title: 'Natural breaks',
       detail: 'Prefer paragraph and heading breaks. A heading such as "Refund steps" marks a natural start for a chunk.',
     },
     {
-      title: 'Set a size limit',
+      title: 'Size limit',
       detail: 'Pick a maximum size, such as 200 words per chunk. Small chunks are precise, and large chunks keep more context.',
     },
     {
-      title: 'Add overlap',
+      title: 'Overlap',
       detail: 'Repeat the last 20 words of one chunk at the start of the next. This keeps a sentence that crosses a border whole.',
     },
     {
-      title: 'Keep the source',
+      title: 'Source record',
       detail: 'Each chunk records its document name and position, such as "faq, chunk 3 of 10". The record is used for citations.',
     },
     {
-      title: 'Read a sample of chunks',
+      title: 'Reading samples',
       detail: 'Print a few chunks and read them. A chunk that ends with "Refunds take" is cut in half, so the size or the overlap needs a change.',
     },
   ],
@@ -404,23 +404,23 @@ const metadata: Lesson = {
   },
   steps: [
     {
-      title: 'Choose the fields',
+      title: 'Fields',
       detail: 'Pick the fields a reader needs, such as the source, the version, and the year. For a manual, the version might be "2.1".',
     },
     {
-      title: 'Attach them to each chunk',
+      title: 'Attaching fields',
       detail: 'Every chunk record gets the fields of its document. A chunk from the 2024 manual stores the year 2024.',
     },
     {
-      title: 'Use the same field names',
+      title: 'Consistent names',
       detail: 'Use one name for each field in every document. "version" should not be "ver" in one file and "release" in another.',
     },
     {
-      title: 'Filter before search',
-      detail: 'A filter drops chunks that do not match, such as "year is 2020 or later", before the search ranks them. Lesson 4.2 covers filters.',
+      title: 'Filters',
+      detail: 'A filter drops chunks that do not match, such as "year is 2020 or later". It runs before the search ranks the rest. Lesson 4.2 covers filters.',
     },
     {
-      title: 'Build the citation',
+      title: 'Citations',
       detail: 'Build a citation from the fields, such as "Manual 2.1 (2024)". A reader can then find the passage in the source.',
     },
   ],
@@ -495,23 +495,23 @@ const embedAndStore: Lesson = {
   },
   steps: [
     {
-      title: 'Embed each chunk',
+      title: 'Embedding',
       detail: 'Send the chunk text to an embedding model. For example, "Refunds take 5 to 7 days." becomes one list of several hundred numbers.',
     },
     {
-      title: 'Give each chunk a stable id',
+      title: 'Stable ids',
       detail: 'Build the id from the source and position, such as "manual-2.1-chunk-3". The same chunk always gets the same id.',
     },
     {
-      title: 'Write with an upsert',
+      title: 'Upsert',
       detail: 'An upsert inserts a row, or updates it when the id already exists. A second load of "manual-2.1-chunk-1" replaces its row and adds nothing.',
     },
     {
-      title: 'Store the vector beside the text',
+      title: 'Row contents',
       detail: 'The table holds the id, the text, the metadata, and the vector. A row might hold "2.1" as its source and a vector of 300 numbers.',
     },
     {
-      title: 'Add an index for speed',
+      title: 'Index for speed',
       detail: 'An HNSW index lets search skip most rows. With 1,000,000 rows, search then checks a small share of them, at a small cost in accuracy.',
     },
   ],
