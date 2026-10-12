@@ -227,7 +227,7 @@ const resources: Record<string, string> = {
 
 // Prompts are reusable message templates that take named arguments.
 const prompts: Record<string, (topic: string) => string> = {
-  summarize_faq: (topic) => "Summary of the " + topic + " FAQ entry.",
+  summarize_faq: (topic) => "Summary of " + topic + " FAQ.",
 };
 
 // Answer one request by its method name.
@@ -248,7 +248,7 @@ console.log(handle("prompts/get", prompt));
 `,
     output: `[ 'docs://refunds', 'docs://shipping' ]
 Refunds take 5 to 7 days.
-Summary of the refund FAQ entry.`,
+Summary of refund FAQ.`,
   },
   hood: {
     paragraphs: [
@@ -260,7 +260,7 @@ Summary of the refund FAQ entry.`,
       { label: 'Resource uri', value: 'docs://refunds' },
       { label: 'Resource text', value: 'Refunds take 5 to 7 days.' },
       { label: 'Prompt name', value: 'summarize_faq' },
-      { label: 'Prompt output', value: 'Summary of the refund FAQ entry.' },
+      { label: 'Prompt output', value: 'Summary of refund FAQ.' },
     ],
   },
   mistakes: [
