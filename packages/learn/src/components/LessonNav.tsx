@@ -322,13 +322,12 @@ export function LessonNav({
           </div>
         ) : (
           <>
-          {/* THE WAY OUT TO THE FULL TOPIC INDEX. The topic view is the rail's
-              grouping only; /learn/topics is the page that lists every topic. */}
+          {/* THE WAY OUT TO THE FULL COURSE INDEX. */}
           <Link
-            to={`${indexHref}/topics`}
+            to={indexHref}
             className="learn-rail-progress block font-mono text-[0.75rem] tracking-[0.04em] text-ui-accent underline-offset-4 hover:underline"
           >
-            Browse all topics →
+            Full course index →
           </Link>
           {tracks.map((track, ti) => (
             <section key={track.id} className={ti === 0 ? 'mt-4' : 'mt-7'}>

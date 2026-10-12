@@ -296,7 +296,7 @@ function Primer() {
           </p>
           {VERESK && (
             <p>
-              <a className="cal-a" href={`${VERESK}/learn/retrieval`}>
+              <a className="cal-a" href={`${VERESK}/learn/retrieval/vector-search`}>
                 More on retrieval
               </a>
             </p>
@@ -313,7 +313,7 @@ function Primer() {
           </p>
           {VERESK && (
             <p>
-              <a className="cal-a" href={`${VERESK}/learn/loop`}>
+              <a className="cal-a" href={`${VERESK}/learn/tools-and-agents/tool-calling-loop`}>
                 More on the loop
               </a>
             </p>
@@ -329,7 +329,7 @@ function Primer() {
           </p>
           {VERESK && (
             <p>
-              <a className="cal-a" href={`${VERESK}/learn/answer-key`}>
+              <a className="cal-a" href={`${VERESK}/learn/measure-first-evals/severity-and-control-cases`}>
                 More on answer keys
               </a>
             </p>

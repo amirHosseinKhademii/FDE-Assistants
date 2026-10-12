@@ -308,7 +308,7 @@ function Primer() {
           </p>
           {VERESK && (
             <p>
-              <a className="thb-a" href={`${VERESK}/learn/loop`}>
+              <a className="thb-a" href={`${VERESK}/learn/tools-and-agents/tool-calling-loop`}>
                 More on the loop
               </a>
             </p>
@@ -1248,7 +1248,7 @@ function Step8() {
           {VERESK && (
             <>
               {' '}
-              <a className="thb-a" href={`${VERESK}/learn/credentials`}>
+              <a className="thb-a" href={`${VERESK}/learn/safety/credentials`}>
                 More on failing closed
               </a>
             </>
@@ -1583,7 +1583,7 @@ function Step12() {
           {VERESK && (
             <>
               {' '}
-              <a className="thb-a" href={`${VERESK}/learn/caching`}>
+              <a className="thb-a" href={`${VERESK}/learn/running-it-for-real/caching`}>
                 More on caching
               </a>
             </>
