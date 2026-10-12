@@ -14,7 +14,7 @@ export function CourseIndex() {
   return (
     <div className="course-index">
       <section className="course-hero">
-        <h1 className="course-hero-title">Build an AI assistant, step by step</h1>
+        <h1 className="course-hero-title">Build an AI assistant, one piece at a time</h1>
         <p className="course-hero-sub">
           By the end you can build an assistant that answers questions from your own documents. It finds the right
           passage, writes an answer, and names its sources.

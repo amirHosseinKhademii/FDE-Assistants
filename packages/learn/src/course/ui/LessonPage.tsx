@@ -25,7 +25,7 @@ function countWords(lesson: Lesson): number {
   return parts.join(' ').split(/\s+/).filter(Boolean).length;
 }
 
-function Section({ n, label, title, bare, children }: { n: number; label: string; title: string; bare?: boolean; children: ReactNode }) {
+function Section({ n, label, title, bare, children }: { n: number; label?: string; title: string; bare?: boolean; children: ReactNode }) {
   return (
     <section className={'course-section' + (bare ? ' is-bare' : '')}>
       <header className="course-sec-head">
@@ -33,7 +33,7 @@ function Section({ n, label, title, bare, children }: { n: number; label: string
           {n}
         </span>
         <div>
-          <p className="course-sec-label">{label}</p>
+          {label ? <p className="course-sec-label">{label}</p> : null}
           <h2 className="course-sec-title">{title}</h2>
         </div>
       </header>
@@ -103,7 +103,7 @@ export function CourseLessonPage({ moduleSlug, lessonSlug }: { moduleSlug: strin
 
       {lesson.draft ? null : (
         <>
-          <Section n={1} label="The problem" title="Why this step exists">
+          <Section n={1} label="The problem" title="Why it matters">
             <div className="course-pair">
               <div className="course-box is-without">
                 <p className="course-box-label">
@@ -120,7 +120,7 @@ export function CourseLessonPage({ moduleSlug, lessonSlug }: { moduleSlug: strin
             </div>
           </Section>
 
-          <Section n={2} label="The idea" title="How it works">
+          <Section n={2} title="How it works">
             <ul className="course-steps">
               {lesson.steps.map((s, i) => (
                 <li key={s.title} className="course-step">
