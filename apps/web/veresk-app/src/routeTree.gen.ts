@@ -41,6 +41,7 @@ import { Route as LearnRetrievalRouteImport } from './routes/learn.retrieval'
 import { Route as LearnToolsRouteImport } from './routes/learn.tools'
 import { Route as LearnTopicsRouteImport } from './routes/learn.topics'
 import { Route as LearnVectorsRouteImport } from './routes/learn.vectors'
+import { Route as LearnModuleLessonRouteImport } from './routes/learn.$module.$lesson'
 import { Route as LearnPhaseIdRouteImport } from './routes/learn.phase.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -203,6 +204,11 @@ const LearnVectorsRoute = LearnVectorsRouteImport.update({
   path: '/vectors',
   getParentRoute: () => LearnRoute,
 } as any)
+const LearnModuleLessonRoute = LearnModuleLessonRouteImport.update({
+  id: '/$module/$lesson',
+  path: '/$module/$lesson',
+  getParentRoute: () => LearnRoute,
+} as any)
 const LearnPhaseIdRoute = LearnPhaseIdRouteImport.update({
   id: '/phase/$id',
   path: '/phase/$id',
@@ -242,6 +248,7 @@ export interface FileRoutesByFullPath {
   '/learn/topics': typeof LearnTopicsRoute
   '/learn/vectors': typeof LearnVectorsRoute
   '/learn/': typeof LearnIndexRoute
+  '/learn/$module/$lesson': typeof LearnModuleLessonRoute
   '/learn/phase/$id': typeof LearnPhaseIdRoute
 }
 export interface FileRoutesByTo {
@@ -276,6 +283,7 @@ export interface FileRoutesByTo {
   '/learn/topics': typeof LearnTopicsRoute
   '/learn/vectors': typeof LearnVectorsRoute
   '/learn': typeof LearnIndexRoute
+  '/learn/$module/$lesson': typeof LearnModuleLessonRoute
   '/learn/phase/$id': typeof LearnPhaseIdRoute
 }
 export interface FileRoutesById {
@@ -312,6 +320,7 @@ export interface FileRoutesById {
   '/learn/topics': typeof LearnTopicsRoute
   '/learn/vectors': typeof LearnVectorsRoute
   '/learn/': typeof LearnIndexRoute
+  '/learn/$module/$lesson': typeof LearnModuleLessonRoute
   '/learn/phase/$id': typeof LearnPhaseIdRoute
 }
 export interface FileRouteTypes {
@@ -349,6 +358,7 @@ export interface FileRouteTypes {
     | '/learn/topics'
     | '/learn/vectors'
     | '/learn/'
+    | '/learn/$module/$lesson'
     | '/learn/phase/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -383,6 +393,7 @@ export interface FileRouteTypes {
     | '/learn/topics'
     | '/learn/vectors'
     | '/learn'
+    | '/learn/$module/$lesson'
     | '/learn/phase/$id'
   id:
     | '__root__'
@@ -418,6 +429,7 @@ export interface FileRouteTypes {
     | '/learn/topics'
     | '/learn/vectors'
     | '/learn/'
+    | '/learn/$module/$lesson'
     | '/learn/phase/$id'
   fileRoutesById: FileRoutesById
 }
@@ -652,6 +664,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LearnVectorsRouteImport
       parentRoute: typeof LearnRoute
     }
+    '/learn/$module/$lesson': {
+      id: '/learn/$module/$lesson'
+      path: '/$module/$lesson'
+      fullPath: '/learn/$module/$lesson'
+      preLoaderRoute: typeof LearnModuleLessonRouteImport
+      parentRoute: typeof LearnRoute
+    }
     '/learn/phase/$id': {
       id: '/learn/phase/$id'
       path: '/phase/$id'
@@ -693,6 +712,7 @@ interface LearnRouteChildren {
   LearnTopicsRoute: typeof LearnTopicsRoute
   LearnVectorsRoute: typeof LearnVectorsRoute
   LearnIndexRoute: typeof LearnIndexRoute
+  LearnModuleLessonRoute: typeof LearnModuleLessonRoute
   LearnPhaseIdRoute: typeof LearnPhaseIdRoute
 }
 
@@ -727,6 +747,7 @@ const LearnRouteChildren: LearnRouteChildren = {
   LearnTopicsRoute: LearnTopicsRoute,
   LearnVectorsRoute: LearnVectorsRoute,
   LearnIndexRoute: LearnIndexRoute,
+  LearnModuleLessonRoute: LearnModuleLessonRoute,
   LearnPhaseIdRoute: LearnPhaseIdRoute,
 }
 

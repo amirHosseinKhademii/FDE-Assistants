@@ -27,6 +27,9 @@
  *   --steps-accent        the how-it-works kit: what we learned, links, focus, "under the hood"
  */
 
+/* The course at /learn: its plain theme and layout. */
+@import './src/course/ui/course.css';
+
 /* ── THE NEXT / BACK LINKS ──────────────────────────────────────────────────
    The two cards at the foot of a lesson: the same declarations as the firm's
    `.case-card`, under this package's own class, so a consumer does not need the

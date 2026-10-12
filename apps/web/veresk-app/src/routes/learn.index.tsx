@@ -1,8 +1,8 @@
-/** `/learn` — the path, in nine phases. The topic grouping is at `/learn/topics`. */
+/** `/learn`: the course map, one card per module. */
 import { createFileRoute } from '@tanstack/react-router';
-import { PathOverview } from '@veresk/learn';
+import { CourseIndex } from '@veresk/learn';
 
 export const Route = createFileRoute('/learn/')({
-  head: () => ({ meta: [{ title: 'Learn — from an empty folder to a working assistant · Veresk' }] }),
-  component: PathOverview,
+  head: () => ({ meta: [{ title: 'Learn · Veresk' }] }),
+  component: CourseIndex,
 });

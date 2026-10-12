@@ -104,3 +104,21 @@ export { LearnIndex } from './lessons/LearnIndex';
 export { PhasePage } from './phases/PhasePage';
 export { PathOverview } from './phases/PathOverview';
 export { BuildStep } from './phases/BuildStep';
+
+// The course at /learn: one linear list of modules and lessons, with the plain
+// theme and the lesson template in `course/`. The names are prefixed or
+// re-aliased so they do not collide with the lesson records above.
+export {
+  COURSE,
+  COURSE_COUNTS,
+  allLessons,
+  findLesson,
+  prevNext,
+  CourseIndex,
+  CourseLessonPage,
+  CourseSidebar,
+  CodeBlock,
+  type FlatLesson,
+  type Lesson as CourseLesson,
+  type Module as CourseModule,
+} from './course';
