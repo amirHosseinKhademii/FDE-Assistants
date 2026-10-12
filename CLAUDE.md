@@ -183,7 +183,9 @@ apps/web/veresk-app/    @veresk/app                TanStack Start. The firm's do
                                 no `ssr.external` list: every figure under
                                 `/learn` is baked in at build time from a
                                 document in `docs/`. Port 3300,
-                                `pnpm veresk:dev`.
+                                `pnpm veresk:dev`. `/learn` is now one generic
+                                course defined in `packages/learn/src/course/`
+                                (see `docs/learn/REDESIGN-PLAN.md`).
 apps/web/pharma-app/    @meridian/pharma-app       TanStack Start. Meridian Pharma's whole
                                 surface: `/` the landing, `/desk`,
                                 `/supplier`, `/data-flow` and the `/api/*`

@@ -1,5 +1,12 @@
 # /learn redesign plan (2026-10-12)
 
+## Status (2026-10-12)
+
+- All 11 modules (0 to 10) are written in `packages/learn/src/course/modules/`.
+- How it works is rewritten as walkthroughs with visuals and code snippets.
+- Old veresk single-segment learn routes are removed, along with `components/learn/`. Links to them now point at `/learn`.
+- Open: `packages/learn/src/components/LessonNav.tsx` still links to `/learn/topics`, which fails `pnpm --filter @veresk/app typecheck`. The old rail is not removed yet.
+
 ## Why
 
 The learner's verdict on the current veresk `/learn`: vague, not plain, hard to read, scattered (two navs: phases and topics, lessons written about our own apps), and the under-the-hood code is hard to follow.

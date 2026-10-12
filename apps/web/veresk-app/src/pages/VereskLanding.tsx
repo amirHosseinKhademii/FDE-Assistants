@@ -530,7 +530,7 @@ function Learn() {
               {lessonsIn(track.id).map((l) => (
                 <li key={l.slug}>
                   <Link
-                    to={`/learn/${l.slug}`}
+                    to="/learn"
                     className="flex items-baseline gap-2 rounded-lg border border-ui-line bg-ui-surface px-3 py-2 transition-colors hover:border-ui-line-lit"
                   >
                     <span className="font-mono text-[0.6875rem]" style={{ color: hueOf(l) }}>
@@ -555,7 +555,7 @@ function Learn() {
           and the repo itself
         </p>
         <Link
-          to={`/learn/${MAP.slug}`}
+          to="/learn"
           className="mt-2 inline-flex items-baseline gap-2 rounded-lg border border-ui-line bg-ui-surface px-3 py-2 transition-colors hover:border-ui-line-lit"
         >
           <span className="font-mono text-[0.6875rem] text-ui-accent" aria-hidden>
@@ -569,7 +569,7 @@ function Learn() {
         <Link to="/learn" className="text-sm text-ui-accent transition-opacity hover:opacity-80">
           Start at lesson one &rarr;
         </Link>
-        <Link to={`/learn/${MAP.slug}`} className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
+        <Link to="/learn" className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
           Or see where it all lives &rarr;
         </Link>
       </p>
