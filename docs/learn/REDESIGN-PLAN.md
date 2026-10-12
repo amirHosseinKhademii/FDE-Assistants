@@ -14,7 +14,7 @@ One course, start to finish, that teaches every concept used across all our apps
 2. **Fixed lesson template.** Every lesson has the same sections in the same order, so the reader always knows where to look:
    1. **In one sentence**: what it is (25 words max).
    2. **The problem**: "Without it" vs "With it", two short boxes side by side.
-   3. **How it works**: 3 to 6 steps. Each step has a small "Step N" label, a bold title and 2 to 3 plain sentences with a concrete example value. No number column on the left. Optional simple left-to-right box diagram.
+   3. **How it works**: 2 to 6 explanation blocks, each one idea with a plain subheading, 2 to 4 sentences and a concrete example value. Not forced into a sequence: only order them as steps when the concept truly is a sequence. Use a step visual (bars, points, table, flow, chips, compare, line) wherever a picture explains the block better than words: numbers, comparisons, rankings, data shapes, pipelines. Aim for at least 2 visuals per lesson.
    4. **Code and under the hood (one button, one modal)**: a single compact row on the page with one "Open →" button. The modal holds, in order: (a) one self-contained TypeScript snippet (30 lines max, no imports from this repo, descriptive variable names, comments on their own line above a block, not trailing) with its literal output; (b) an "Under the hood" heading with the real data shapes: paragraphs, an example input and intermediate values, and an optional second snippet with its output.
    5. **Common mistakes**: 2 to 4 bullets.
    6. **Use it when / Skip it when**: two short lists.
@@ -60,8 +60,8 @@ export type Lesson = {
   navTitle?: string;         // short sidebar label, about 26 characters or fewer
   oneLiner: string;
   problem: { without: string; with: string };
-  steps: { title: string; detail: string }[];
-  diagram?: string[];        // box labels, drawn left to right
+  steps: { title: string; detail: string; visual?: StepVisual }[];  // "How it works" blocks, not forced into a sequence
+  diagram?: string[];        // box labels, drawn left to right (optional; a flow visual can replace it)
   code: { source: string; output: string };
   hood: { paragraphs: string[]; example?: { label: string; value: string }[] };
   mistakes: string[];

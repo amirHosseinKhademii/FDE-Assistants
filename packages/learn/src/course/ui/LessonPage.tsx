@@ -5,6 +5,7 @@ import { markVisited } from '../progress';
 import { CodeBlock, OutputPanel } from './CodeBlock';
 import { CourseLink } from './CourseLink';
 import { Modal } from './Modal';
+import { StepVisual } from './StepVisual';
 import './course.css';
 
 /** Words in every prose field of a lesson, for the reading-time estimate. */
@@ -119,16 +120,16 @@ export function CourseLessonPage({ moduleSlug, lessonSlug }: { moduleSlug: strin
             </div>
           </Section>
 
-          <Section n={2} label="How it works" title="The idea in steps">
-            <ol className="course-steps">
+          <Section n={2} label="How it works" title="The idea, one piece at a time">
+            <ul className="course-steps">
               {lesson.steps.map((s, i) => (
                 <li key={s.title} className="course-step">
-                  <p className="course-step-label">Step {i + 1}</p>
                   <h3 className="course-step-title">{s.title}</h3>
                   <p className="course-step-detail">{s.detail}</p>
+                  {s.visual ? <StepVisual visual={s.visual} /> : null}
                 </li>
               ))}
-            </ol>
+            </ul>
             {lesson.diagram ? (
               <div className="course-flow" role="img" aria-label={lesson.diagram.join(' to ')}>
                 {lesson.diagram.map((label, i) => (

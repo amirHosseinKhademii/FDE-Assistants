@@ -11,27 +11,76 @@ const whatYouWillBuild: Lesson = {
   },
   steps: [
     {
-      title: 'Prepare the documents',
-      detail: 'Split each document into small parts, called chunks. A 2,000-word manual can become 10 chunks of about 200 words.',
+      title: 'What the assistant is made of',
+      detail: 'Five parts work together. The documents are split into chunks, the find part picks the best chunks for a question, and the model writes the answer.',
+      visual: {
+        kind: 'flow',
+        caption: 'The five parts, left to right. Each answer comes from the documents, not from memory alone.',
+        nodes: ['Documents', 'Chunks', 'Find', 'Model', 'Answer with sources'],
+      },
     },
     {
-      title: 'Find the matching chunks',
-      detail: 'Compare the question with every chunk and keep the best matches. "My password does not work" matches the password chunk.',
+      title: 'Chunks: small parts of a document',
+      detail: 'A 2,000-word manual becomes 10 chunks of about 200 words each. Each chunk is stored on its own, so the find part can return only the relevant part.',
+      visual: {
+        kind: 'chips',
+        caption: 'One 2,000-word manual, cut into 10 chunks of about 200 words each.',
+        items: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => ({ text: `Chunk ${n}`, note: '200 words' })),
+      },
     },
     {
-      title: 'Ask the model',
-      detail: 'Send the question and the matching chunks to a model. Ask it to answer only from those chunks and to name each source.',
+      title: 'Ranking: the best matches for a question',
+      detail: 'The find part scores the question against every entry and keeps the best matches. "My password does not work" scores highest on the password entry, because it shares two words with it.',
+      visual: {
+        kind: 'chips',
+        caption: 'The three FAQ entries from the sample program, ranked for "My password does not work".',
+        items: [
+          { text: 'How do I reset my password', note: 'score 2, best match', highlight: true },
+          { text: 'When will my order ship', note: 'score 1' },
+          { text: 'How do I get a refund', note: 'score 0' },
+        ],
+      },
     },
     {
-      title: 'Check the answers',
-      detail: 'Run the assistant on a fixed list of questions after each change. Fewer correct answers means the change made things worse.',
+      title: 'Sources in every answer',
+      detail: 'The model gets the question and the matching chunks. It is told to answer only from those chunks and to name the source of each claim.',
+      visual: {
+        kind: 'compare',
+        caption: 'The same answer, with and without a named source.',
+        left: { title: 'Answer alone', items: ['Refunds take 5 to 7 days.'] },
+        right: { title: 'Answer with source', items: ['Refunds take 5 to 7 days.', 'Source: refund policy, section 2'] },
+      },
     },
     {
-      title: 'Watch it in use',
-      detail: 'Record each request, its answer, and its cost. Real questions show problems that the fixed list did not cover.',
+      title: 'Checks with a fixed list',
+      detail: 'Run the assistant on the same 20 questions after each change. Fewer correct answers means the change made things worse.',
+      visual: {
+        kind: 'bars',
+        caption: 'Correct answers out of 20 fixed questions, after each of three changes.',
+        unit: 'of 20',
+        rows: [
+          { label: 'First version', value: 13 },
+          { label: 'Smaller chunks', value: 16 },
+          { label: 'Clearer source rule', value: 19, highlight: true },
+        ],
+      },
+    },
+    {
+      title: 'A log of real use',
+      detail: 'Record each request, its answer, its sources, and its cost. A request with no source, like the gift card question, shows a gap in the documents.',
+      visual: {
+        kind: 'table',
+        caption: 'Three logged requests. The highlighted one found no source, so the documents do not cover it.',
+        columns: ['Time', 'Question', 'Sources', 'Cost'],
+        rows: [
+          ['09:14', 'Can I get a refund?', '1', '$0.002'],
+          ['09:20', 'Gift cards for kids', '0', '$0.002'],
+          ['09:25', 'How do I reset my password?', '1', '$0.002'],
+        ],
+        highlightRow: 1,
+      },
     },
   ],
-  diagram: ['Documents', 'Chunks', 'Find', 'Model', 'Answer with sources'],
   code: {
     source: `// A help-center FAQ. Each entry is a question and its answer.
 const faq: [string, string][] = [
@@ -111,24 +160,42 @@ const howToReadALesson: Lesson = {
   },
   steps: [
     {
-      title: 'Read the summary',
-      detail: 'The one-line summary sits under the title. In lesson 0.1 it says you will build a document assistant.',
+      title: 'The reading order',
+      detail: 'The one-line summary sits under the title. Six numbered sections follow, in the same order in every lesson.',
+      visual: {
+        kind: 'flow',
+        caption: 'The order of a lesson, from the summary to the words to know.',
+        nodes: ['Summary', 'The problem', 'How it works', 'Code', 'Common mistakes', 'Use and skip', 'Words to know'],
+      },
     },
     {
-      title: 'Read the problem',
-      detail: 'Lesson 0.1 shows a manual search without the assistant, then with it. Compare the two boxes.',
+      title: 'Example values',
+      detail: 'Each block of a lesson gives an example value you can check by hand. This table scores three FAQ entries for the question "My password does not work".',
+      visual: {
+        kind: 'table',
+        caption: 'Shared words and scores for the FAQ entries in lesson 0.1. The password entry scores highest.',
+        columns: ['FAQ question', 'Shared words', 'Score'],
+        rows: [
+          ['How do I get a refund', 'none', '0'],
+          ['How do I reset my password', 'my, password', '2'],
+          ['When will my order ship', 'my', '1'],
+        ],
+        highlightRow: 1,
+      },
     },
     {
-      title: 'Read how it works',
-      detail: 'Each step gives an example value. In lesson 1.4, the sentence "How do I get a refund?" becomes three numbers.',
+      title: 'The code and its Output',
+      detail: 'The code section holds two things. The code is the program, and the Output is the exact text the program prints when it runs.',
+      visual: {
+        kind: 'compare',
+        caption: 'What each part of the code section is for.',
+        left: { title: 'Code', items: ['A program you can copy and run', 'Comments above each block explain it'] },
+        right: { title: 'Output', items: ['The exact text the program prints', 'Compare your run with it to check your copy'] },
+      },
     },
     {
-      title: 'Open the code and under the hood',
-      detail: 'Open the code to read the program. Its Output block shows what the program prints, such as "No answer found".',
-    },
-    {
-      title: 'Finish with the lists',
-      detail: 'Read the common mistakes, then the use and skip lists. In lesson 0.1, skip the assistant when you need one exact record.',
+      title: 'The lists at the end',
+      detail: 'The common mistakes come before the use and skip lists. In lesson 0.1, the skip list says to use a direct lookup for one exact record.',
     },
   ],
   code: {
