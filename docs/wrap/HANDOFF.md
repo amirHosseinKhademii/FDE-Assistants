@@ -218,3 +218,5 @@ Open items for the next UI pass:
 - Active state for a build stop follows the URL hash only; it does not follow scrolling (no scroll-spy). Fine for now.
 - Light mode: the site has no light palette; only dark is checked.
 - Wrap-app does not mount `/learn` yet (one-stop plan step E), and wrap `/steps` is still on its forked kit (stash "WIP 2c").
+
+2026-10-12: the first three open items above are done (clickable stop chips on phase pages, "Browse all topics" link in the rail topic view, and the lesson header now reads "Phase N of 9 · P-code" like the rail). The scroll-spy and light-mode items stay open.

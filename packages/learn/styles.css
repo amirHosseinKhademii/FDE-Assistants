@@ -163,6 +163,7 @@ a.learn-next:focus-visible {
 .learn-rail-seg-btn:focus-visible,
 .learn-rail-phase:focus-visible,
 .learn-rail-stop:focus-visible,
+.learn-stop-chip:focus-visible,
 .learn-rail-item:focus-visible {
   outline: 2px solid var(--color-ui-accent, #2dd4bf);
   outline-offset: 2px;
@@ -2011,4 +2012,33 @@ a.lesson-card:focus-visible {
    target to land below the top edge rather than under it. */
 .phase-stop {
   scroll-margin-top: 5rem;
+}
+
+/* The stop chips at the top of a phase page. A lesson chip takes its lesson's
+   hue; a build or planned chip takes the accent. The current stop is the one the
+   URL names, the same rule as the rail. */
+.learn-stop-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.25rem 0.625rem;
+  border: 1px solid var(--color-ui-line, #232838);
+  border-radius: 999px;
+  color: var(--color-ui-dim, #98a2b3);
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.learn-stop-chip:hover {
+  color: var(--color-ui-fg, #eef2f7);
+  border-color: var(--chip-hue, var(--color-ui-accent, #2dd4bf));
+}
+
+.learn-stop-chip[data-kind='gap'] {
+  border-style: dashed;
+}
+
+.learn-stop-chip[aria-current='page'] {
+  color: var(--color-ui-fg, #eef2f7);
+  border-color: var(--chip-hue, var(--color-ui-accent, #2dd4bf));
+  background: color-mix(in oklab, var(--chip-hue, var(--color-ui-accent, #2dd4bf)) 14%, transparent);
 }

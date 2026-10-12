@@ -26,8 +26,8 @@ export interface LessonFacts {
   source: string;
   /** What a reader needs first, or null when it reads cold. */
   needs: string | null;
-  /** Where the page sits in the path: its phase, and its stop within it. */
-  path?: { phase: number; stop: number; of: number };
+  /** Where the page sits in the path, as the rail words it: "Phase 1 of 9 · P0". */
+  path?: string;
 }
 
 /**
@@ -67,7 +67,7 @@ export function LessonPage({
           </span>
           {lesson.path && (
             <span className="text-ui-dim">
-              {`Phase ${lesson.path.phase} · stop ${lesson.path.stop} of ${lesson.path.of}`}
+              {lesson.path}
             </span>
           )}
           <span className="text-ui-faint">≈ {lesson.minutes} min, roughly</span>

@@ -216,6 +216,14 @@ export function phaseOf(key: LessonSlug | string): PathPhase | undefined {
   return PATH.find((p) => p.stops.some((s) => stopKey(s) === key));
 }
 
+/**
+ * The phase's name as the rail and every header write it: "Phase 1 of 9 · P0".
+ * Counted from 1 in path order; the P-code is the phase's own number.
+ */
+export function phaseLabel(phase: PathPhase): string {
+  return `Phase ${PATH.indexOf(phase) + 1} of ${PATH.length} · P${phase.n}`;
+}
+
 /** Where a stop sits inside its phase: 1-based, out of the phase's total. */
 export function stopPosition(key: LessonSlug | string): { phase: PathPhase; stop: number; of: number } | undefined {
   const phase = phaseOf(key);

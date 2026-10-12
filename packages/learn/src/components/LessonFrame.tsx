@@ -12,10 +12,10 @@ import { LessonPage as LessonShell, type NeighbourLink } from './LessonPage';
 import { hueOf, lessonBySlug, lessonsIn, TRACKS, type LessonSlug } from '../data/lessons';
 import {
   linkableNeighbours,
+  phaseLabel,
   phaseOf,
   stopHref,
   stopLabel,
-  stopPosition,
   stopTitle,
   type Stop,
 } from '../data/path';
@@ -35,7 +35,6 @@ export function LessonFrame({ slug, children }: { slug: LessonSlug; children: Re
   const { prev, next } = linkableNeighbours(slug);
   const trackTitle = TRACKS.find((t) => t.id === lesson.track)!.title;
   const total = lessonsIn(lesson.track).length;
-  const here = stopPosition(slug);
   const herePhase = phaseOf(slug);
 
   const link = (s: Stop): NeighbourLink => {
@@ -45,7 +44,7 @@ export function LessonFrame({ slug, children }: { slug: LessonSlug; children: Re
       label: stopLabel(s),
       title: stopTitle(s),
       crossesTo:
-        there && herePhase && there.id !== herePhase.id ? `Phase ${there.n} · ${there.title}` : undefined,
+        there && herePhase && there.id !== herePhase.id ? `${phaseLabel(there)} ${there.title}` : undefined,
     };
   };
 
@@ -61,7 +60,7 @@ export function LessonFrame({ slug, children }: { slug: LessonSlug; children: Re
         minutes: lesson.minutes,
         source: lesson.source,
         needs: lesson.needs,
-        path: here ? { phase: here.phase.n, stop: here.stop, of: here.of } : undefined,
+        path: herePhase ? phaseLabel(herePhase) : undefined,
       }}
       prev={prev && link(prev)}
       next={next && link(next)}

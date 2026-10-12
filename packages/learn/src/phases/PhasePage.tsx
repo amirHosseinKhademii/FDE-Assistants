@@ -7,7 +7,7 @@
  * a link from the rail or the overview lands on the stop itself.
  */
 import { Link, type LinkProps } from '@tanstack/react-router';
-import { PATH, phaseCounts, type PathPhase, type Stop, type PhaseId } from '../data/path';
+import { PATH, phaseCounts, phaseLabel, stopHref, stopLabel, type PathPhase, type Stop, type PhaseId } from '../data/path';
 import { lessonBySlug, type LessonSlug } from '../data/lessons';
 import { PHASES as WRAP_PHASES, type StepDef } from '../data/wrap-steps';
 import { GLOSSARY, termId, type TermKey } from '../data/wrap-glossary';
@@ -65,7 +65,7 @@ export function PhasePage({ id }: { id: string }) {
     <GlossaryProvider value={{ entries: GLOSSARY, idOf: (key: string) => termId(key as TermKey) }}>
       <article className="min-w-0">
         <header className="border-b border-ui-line pb-8">
-          <p className="font-mono text-[0.6875rem] tracking-[0.08em] text-ui-faint uppercase">Phase {phase.n}</p>
+          <p className="font-mono text-[0.6875rem] tracking-[0.08em] text-ui-faint uppercase">{phaseLabel(phase)}</p>
           <h1 className="mt-3 font-mono text-3xl leading-[1.1] font-semibold tracking-tighter text-ui-fg md:text-4xl">
             {phase.title}
           </h1>
@@ -75,14 +75,31 @@ export function PhasePage({ id }: { id: string }) {
             {counts.lessons} lessons · {counts.builds} builds · {counts.planned} planned
           </p>
 
-          <ol className="mt-5 flex flex-wrap gap-x-4 gap-y-2 font-mono text-[0.75rem]">
-            {phase.stops.map((s) => (
-              <li key={anchorOf(s)}>
-                <a href={`#${anchorOf(s)}`} className="text-ui-dim underline-offset-4 hover:text-ui-fg hover:underline">
-                  {s.kind === 'lesson' ? lessonBySlug(s.slug).short : s.step}
-                </a>
-              </li>
-            ))}
+          {/* THE SAME LINKS THE RAIL USES: a lesson opens its page, a build or
+              planned stop is a hash on this phase page. The hash rule is copied
+              from the rail, so only the stop named in the URL reads as current. */}
+          <ol className="mt-5 flex flex-wrap gap-2 font-mono text-[0.75rem]">
+            {phase.stops.map((s) => {
+              const href = stopHref(s, base);
+              // A build or planned chip reads "2.2 Dedup", as the rail names it.
+              const label = s.kind === 'lesson' ? lessonBySlug(s.slug).short : `${s.step} ${stopLabel(s).replace(/^(Build|Planned) · [\d.]+ /, '')}`;
+              const hue = s.kind === 'lesson' ? hueOf(lessonBySlug(s.slug)) : undefined;
+              return (
+                <li key={anchorOf(s)}>
+                  <Link
+                    to={href.split('#')[0] as LinkProps['to']}
+                    hash={href.split('#')[1]}
+                    activeOptions={{ exact: true, includeHash: true }}
+                    activeProps={{ 'aria-current': 'page' }}
+                    className="learn-stop-chip"
+                    data-kind={s.kind}
+                    style={{ ['--chip-hue' as string]: hue ?? 'var(--color-ui-accent)' }}
+                  >
+                    {label}
+                  </Link>
+                </li>
+              );
+            })}
           </ol>
         </header>
 
@@ -124,8 +141,8 @@ export function PhasePage({ id }: { id: string }) {
         )}
 
         <nav className="mt-12 grid gap-4 border-t border-ui-line pt-8 sm:grid-cols-2" aria-label="Phases">
-          {prev ? <PhaseStep id={prev.id} n={prev.n} title={prev.title} base={base} dir="prev" /> : <span />}
-          {next ? <PhaseStep id={next.id} n={next.n} title={next.title} base={base} dir="next" /> : <span />}
+          {prev ? <PhaseStep id={prev.id} label={phaseLabel(prev)} title={prev.title} base={base} dir="prev" /> : <span />}
+          {next ? <PhaseStep id={next.id} label={phaseLabel(next)} title={next.title} base={base} dir="next" /> : <span />}
         </nav>
       </article>
     </GlossaryProvider>
@@ -160,13 +177,13 @@ function BuildCard({ step }: { step: string }) {
 
 function PhaseStep({
   id,
-  n,
+  label,
   title,
   base,
   dir,
 }: {
   id: PhaseId;
-  n: number;
+  label: string;
   title: string;
   base: string;
   dir: 'prev' | 'next';
@@ -180,7 +197,7 @@ function PhaseStep({
         {dir === 'prev' ? '← Previous phase' : 'Next phase →'}
       </span>
       <span className="mt-2 block font-mono text-base text-ui-fg">
-        Phase {n} · {title}
+        {label} {title}
       </span>
     </Link>
   );
