@@ -5,7 +5,7 @@ import { markVisited } from '../progress';
 import { CodeBlock, OutputPanel } from './CodeBlock';
 import { CourseLink } from './CourseLink';
 import { Modal } from './Modal';
-import { StepVisual } from './StepVisual';
+import { StepSnippet, StepVisual } from './StepVisual';
 import './course.css';
 
 /** Words in every prose field of a lesson, for the reading-time estimate. */
@@ -15,8 +15,8 @@ function countWords(lesson: Lesson): number {
     lesson.problem.without,
     lesson.problem.with,
     ...lesson.steps.flatMap((s) => [s.title, s.detail]),
-    ...lesson.hood.paragraphs,
-    ...(lesson.hood.example ?? []).flatMap((e) => [e.label, e.value]),
+    ...(lesson.hood?.paragraphs ?? []),
+    ...(lesson.hood?.example ?? []).flatMap((e) => [e.label, e.value]),
     ...lesson.mistakes,
     ...lesson.useWhen,
     ...lesson.skipWhen,
@@ -120,13 +120,14 @@ export function CourseLessonPage({ moduleSlug, lessonSlug }: { moduleSlug: strin
             </div>
           </Section>
 
-          <Section n={2} label="How it works" title="The idea, one piece at a time">
+          <Section n={2} label="The idea" title="How it works">
             <ul className="course-steps">
               {lesson.steps.map((s, i) => (
                 <li key={s.title} className="course-step">
                   <h3 className="course-step-title">{s.title}</h3>
                   <p className="course-step-detail">{s.detail}</p>
                   {s.visual ? <StepVisual visual={s.visual} /> : null}
+                  {s.snippet ? <StepSnippet snippet={s.snippet} /> : null}
                 </li>
               ))}
             </ul>
@@ -146,12 +147,12 @@ export function CourseLessonPage({ moduleSlug, lessonSlug }: { moduleSlug: strin
             ) : null}
           </Section>
 
-          <Section n={3} label="Code and under the hood" title="Read the program" bare>
+          <Section n={3} label="Full code" title="Read the program" bare>
             <div className="course-row">
               <svg className="course-row-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M16 18l6-6-6-6M8 6l-6 6 6 6" />
               </svg>
-              <span className="course-row-text">Code and under the hood</span>
+              <span className="course-row-text">See the full code</span>
               <button type="button" className="course-button is-secondary is-small" onClick={() => setCodeOpen(true)}>
                 Open →
               </button>
@@ -198,33 +199,38 @@ export function CourseLessonPage({ moduleSlug, lessonSlug }: { moduleSlug: strin
             </dl>
           </Section>
 
-          <Modal open={codeOpen} onClose={() => setCodeOpen(false)} label="Code and under the hood" title="Code and under the hood">
+          <Modal open={codeOpen} onClose={() => setCodeOpen(false)} label="Full code" title="Full code">
             <CodeBlock code={lesson.code.source} />
             <OutputPanel output={lesson.code.output} />
 
-            <h3 className="course-modal-h">Under the hood</h3>
-            {lesson.hood.paragraphs.map((p) => (
-              <p key={p} className="course-hood-p">
-                {p}
-              </p>
-            ))}
-            {lesson.hood.example?.length ? (
-              <dl className="course-example">
-                {lesson.hood.example.map((e) => (
-                  <div key={e.label}>
-                    <dt>{e.label}</dt>
-                    <dd>
-                      <code>{e.value}</code>
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            ) : null}
-            {lesson.hood.code ? (
+            {/* Older "Under the hood" content, kept here until it is merged into How it works. */}
+            {lesson.hood ? (
               <>
-                <div className="course-modal-gap" />
-                <CodeBlock code={lesson.hood.code.source} />
-                {lesson.hood.code.output ? <OutputPanel output={lesson.hood.code.output} /> : null}
+                <h3 className="course-modal-h">Under the hood</h3>
+                {lesson.hood.paragraphs.map((p) => (
+                  <p key={p} className="course-hood-p">
+                    {p}
+                  </p>
+                ))}
+                {lesson.hood.example?.length ? (
+                  <dl className="course-example">
+                    {lesson.hood.example.map((e) => (
+                      <div key={e.label}>
+                        <dt>{e.label}</dt>
+                        <dd>
+                          <code>{e.value}</code>
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                ) : null}
+                {lesson.hood.code ? (
+                  <>
+                    <div className="course-modal-gap" />
+                    <CodeBlock code={lesson.hood.code.source} />
+                    {lesson.hood.code.output ? <OutputPanel output={lesson.hood.code.output} /> : null}
+                  </>
+                ) : null}
               </>
             ) : null}
           </Modal>

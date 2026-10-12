@@ -1530,3 +1530,53 @@
     margin-left: 14px;
   }
 }
+
+/* ---- step snippets ---- */
+.viz-snip {
+  position: relative;
+  margin-top: 16px;
+}
+.viz-snip-copy {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  margin: 0;
+  padding: 2px 8px;
+  font-size: 12px;
+  z-index: 1;
+}
+.viz-snip-pre {
+  margin: 0;
+  padding: 14px 16px;
+  overflow-x: auto;
+  font: 14px/1.6 var(--mono);
+  color: var(--code-ink);
+}
+.viz-snip-line {
+  display: block;
+  white-space: pre;
+}
+.viz-snip .course-output {
+  margin: 0;
+  padding: 10px 16px 14px;
+  border-top: 1px solid var(--border);
+}
+.viz-snip .course-output-label {
+  font-size: 12px;
+}
+.viz-snip .course-output-pre {
+  font-size: 13px;
+}
+
+/* ---- how it works: plain blocks, no numbers, no timeline ---- */
+.course-steps .course-step {
+  padding: 0;
+  border-top: 0;
+}
+.course-steps .course-step + .course-step {
+  margin-top: 28px;
+}
+.course-steps .course-step-title {
+  margin: 0;
+  font: 600 18px/1.4 var(--sans);
+}

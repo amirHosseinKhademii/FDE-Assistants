@@ -34,10 +34,13 @@ export type Lesson = {
   oneLiner: string;
   problem: { without: string; with: string };
   // "How it works" blocks: each is one idea with a plain subheading. Not a forced sequence.
-  steps: { title: string; detail: string; visual?: StepVisual }[];
+  // snippet: a short code example (about 10 lines) shown inline under the block, with its output.
+  steps: { title: string; detail: string; visual?: StepVisual; snippet?: { source: string; output?: string } }[];
   diagram?: string[]; // box labels, drawn left to right
   code: { source: string; output: string };
-  hood: {
+  // Older "Under the hood" content. Optional: it is being merged into "How it works", and the modal
+  // still renders it under the full code until then.
+  hood?: {
     paragraphs: string[];
     example?: { label: string; value: string }[];
     code?: { source: string; output?: string }; // optional second snippet, shown after the main code

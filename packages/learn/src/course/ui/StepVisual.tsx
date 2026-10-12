@@ -1,4 +1,7 @@
+import { useState } from 'react';
 import type { StepVisual as Visual } from '../types';
+import { highlightLine } from './highlight';
+import { OutputPanel } from './CodeBlock';
 
 /*
  * One renderer per visual kind. Pure React, inline SVG and CSS, no chart library.
@@ -321,4 +324,38 @@ export function StepVisual({ visual }: { visual: Visual }) {
     case 'line':
       return <LineVisual v={visual} />;
   }
+}
+
+/** A short code example inside a "How it works" block: no window chrome, no line numbers, Copy in the corner, output below. */
+export function StepSnippet({ snippet }: { snippet: { source: string; output?: string } }) {
+  const [copied, setCopied] = useState(false);
+  const lines = snippet.source.replace(/\n$/, '').split('\n');
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(snippet.source);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1500);
+    } catch {
+      setCopied(false);
+    }
+  }
+
+  return (
+    <div className="course-code viz-snip">
+      <button type="button" className="course-copy viz-snip-copy" onClick={copy}>
+        {copied ? 'Copied' : 'Copy'}
+      </button>
+      <pre className="viz-snip-pre">
+        <code>
+          {lines.map((line, i) => (
+            <span key={i} className="viz-snip-line">
+              {line ? highlightLine(line) : ' '}
+            </span>
+          ))}
+        </code>
+      </pre>
+      {snippet.output ? <OutputPanel output={snippet.output} /> : null}
+    </div>
+  );
 }
