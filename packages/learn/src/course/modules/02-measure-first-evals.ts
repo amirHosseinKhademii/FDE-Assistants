@@ -11,24 +11,24 @@ const goldenSet: Lesson = {
   },
   steps: [
     {
-      title: 'Pick real questions',
-      detail: 'Collect questions that real users asked, such as "How long does a refund take?" A first set of 50 questions is a good start.',
+      title: 'Real questions',
+      detail: 'Collect questions that users really asked, such as "How long does a refund take?" A first set of 50 questions is a good start.',
     },
     {
-      title: 'Write the required fact',
+      title: 'Required facts',
       detail: 'For each question, write the fact a correct answer must contain. The refund question needs the text "5 to 7".',
     },
     {
-      title: 'Name the source',
+      title: 'Source record',
       detail: 'Record which document holds the answer, such as "refund-guide, section 2". Lesson 2.2 uses this record to score search.',
     },
     {
-      title: 'Store the set as data',
+      title: 'Storage',
       detail: 'Keep the set in a file under version control, such as "golden.json". Each case has an id, a question, and its required fact.',
     },
     {
-      title: 'Run the set after each change',
-      detail: 'Run every case and count the passes. A score of 42 out of 50 before a change and 45 after it shows the change helped.',
+      title: 'Score after a change',
+      detail: 'Run every case after each change and count the passes. A score of 42 out of 50 before a change and 45 after it shows the change helped.',
     },
   ],
   diagram: ['Real questions', 'Required facts', 'Run after each change', 'Score'],
@@ -110,23 +110,23 @@ const retrievalMetrics: Lesson = {
   },
   steps: [
     {
-      title: 'Mark the right chunks',
+      title: 'Right chunks per question',
       detail: 'For each question, list the chunk ids that hold the answer. The refund question might point to the chunk "refund-2".',
     },
     {
-      title: 'Take the top results',
-      detail: 'Run the search and keep the top k results. The letter k is the number of results you check, such as the top 2 chunks.',
+      title: 'Top k results',
+      detail: 'Search returns a ranked list. The letter k is how many results you check, such as the top 2 chunks.',
     },
     {
-      title: 'Hit rate: was one found?',
+      title: 'Hit rate',
       detail: 'Hit rate at k is the share of questions with at least one right chunk in the top k. Two hits out of three questions give 0.67.',
     },
     {
-      title: 'Recall: how many were found?',
-      detail: 'Recall at k is the share of the right chunks found in the top k. A question with 2 right chunks and 1 found has recall 0.5.',
+      title: 'Recall',
+      detail: 'Recall at k is the share of right chunks found in the top k. A question with 2 right chunks and 1 found has recall 0.5.',
     },
     {
-      title: 'MRR: how high was the first hit?',
+      title: 'Mean reciprocal rank',
       detail: 'Mean reciprocal rank (MRR) gives 1 for a first-place hit, 0.5 for second place, and 0.33 for third. It is averaged over all questions.',
     },
   ],
@@ -210,23 +210,23 @@ const checkingAnswers: Lesson = {
   },
   steps: [
     {
-      title: 'Start with a rule',
+      title: 'Rules first',
       detail: 'A rule checks for a fact, such as the text "5 to 7". It is fast, costs nothing to run, and is easy to explain.',
     },
     {
-      title: 'Accept more than one wording',
+      title: 'Accepted wordings',
       detail: 'Give each fact a list of accepted forms, such as "5 to 7" and "five to seven". An answer passes when it contains any one form.',
     },
     {
-      title: 'Ask a judge when wording varies',
-      detail: 'Send the question, the required fact, and the answer to a judge model. Ask for one word, "yes" or "no", which is easy to read in code.',
+      title: 'Judge model',
+      detail: 'A judge is a second model call. It receives the question, the required fact, and the answer, and it replies "yes" or "no".',
     },
     {
-      title: 'Test the judge',
-      detail: 'Run the judge on 20 answers that a person already graded. If the judge disagrees often, fix its instructions before you trust it.',
+      title: 'Testing the judge',
+      detail: 'Run the judge on 20 answers that a person already graded. If it disagrees often, fix its instructions before you trust it.',
     },
     {
-      title: 'Record the reason',
+      title: 'Recording reasons',
       detail: 'Store each pass or fail with a reason, such as "missing fact: 5 to 7". The reason shows what to fix.',
     },
   ],
@@ -308,23 +308,23 @@ const repeatRuns: Lesson = {
   },
   steps: [
     {
-      title: 'Run each case several times',
-      detail: 'Run the same case five times with the same settings. The model may give five different replies to "How long does a refund take?"',
+      title: 'Why repeat',
+      detail: 'The model may give different replies to one question, such as "How long does a refund take?" One run can pass by luck or fail by bad luck.',
     },
     {
-      title: 'Count the passes',
+      title: 'Counting passes',
       detail: 'A case that passes 5 times out of 5 is stable. A case that passes 3 times out of 5 is flaky.',
     },
     {
-      title: 'Set a pass rule first',
+      title: 'The pass rule',
       detail: 'Decide before the run: a case passes if at least 4 of its 5 runs pass. Keep the same rule for later comparisons.',
     },
     {
-      title: 'Mark flaky cases',
-      detail: 'A case that passes 3 of 5 runs and fails 2 is flaky. Report it on its own line, so it is not hidden in a plain fail.',
+      title: 'Reporting flaky cases',
+      detail: 'A flaky case gets its own line in the report, so it is not hidden in a plain fail. For example, "password" with 3 of 5 is flaky.',
     },
     {
-      title: 'Compare totals over runs',
+      title: 'Comparing totals',
       detail: 'Compare the total pass count of two versions. A change of one case out of 50 can be noise, so repeat before you decide.',
     },
   ],
@@ -406,23 +406,23 @@ const baselinesAndDiffs: Lesson = {
   },
   steps: [
     {
-      title: 'Save the baseline',
+      title: 'Saved baseline',
       detail: 'After a run you trust, save the result of each case under its version name, such as "v1.3". That file is the baseline.',
     },
     {
-      title: 'Run the new version',
-      detail: 'Run the same cases with the same settings. Save the new result under a new version name, such as "v1.4".',
+      title: 'New run',
+      detail: 'Run the same cases with the same settings and save the result as "v1.4". The cases must match, or the diff mixes two kinds of change.',
     },
     {
-      title: 'Compare case by case',
-      detail: 'For each case, note whether it moved from pass to fail, from fail to pass, or stayed the same. "password" stayed a pass, so it is labeled same.',
+      title: 'Labels for each case',
+      detail: 'Each case gets one label: same, fixed, or regression. For example, "password" stayed a pass, so it is labeled same.',
     },
     {
-      title: 'Name the regressions',
+      title: 'Regressions',
       detail: 'A regression is a case that passed in the baseline and fails now. For example, "refund" passed in v1.3 and fails in v1.4.',
     },
     {
-      title: 'Fix or explain each one',
+      title: 'Resolving a regression',
       detail: 'A regression blocks the change until it is fixed or explained. For example, "refund" needs a fix or a written reason before v1.4 ships.',
     },
   ],
@@ -505,23 +505,23 @@ const severityAndControls: Lesson = {
   },
   steps: [
     {
-      title: 'Define the buckets',
-      detail: 'Use three buckets: critical, major, and minor. Critical means a wrong fact a reader would act on, such as "refund in 2 days".',
+      title: 'Three buckets',
+      detail: 'Use three buckets: critical, major, and minor. Critical means a wrong fact that a reader would act on, such as "refund in 2 days".',
     },
     {
-      title: 'Assign each failure',
+      title: 'Sorting failures',
       detail: 'A wrong refund time, such as "2 days", is critical. A reply with no source is major. Awkward wording with the right fact is minor.',
     },
     {
-      title: 'Add control cases',
+      title: 'Control cases',
       detail: 'A control case asks about something the documents do not cover, such as "Do you sell gift cards for kids?" The right reply says the answer is not in the documents.',
     },
     {
-      title: 'Score the controls',
+      title: 'Scoring controls',
       detail: 'A control case passes only when the assistant refuses or escalates. An invented answer, such as "Gift cards cost 25 dollars.", is a critical failure.',
     },
     {
-      title: 'Set a release rule',
+      title: 'Release rule',
       detail: 'A change ships only when it has zero critical failures and all 2 control cases pass. One critical failure blocks the release.',
     },
   ],
