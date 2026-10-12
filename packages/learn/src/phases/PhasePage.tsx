@@ -1,8 +1,9 @@
 /**
  * `/learn/phase/pN` — one phase of the path, every stop in build order.
  *
- * A BUILD STOP IS THE FULL HOW-IT-WORKS STEP, drawn with the canonical kit. A
- * GAP IS A PLANNED CARD and carries no invented code. A LESSON IS A CARD that
+ * A BUILD STOP AND A PLANNED STOP (a gap) are both the FULL HOW-IT-WORKS STEP,
+ * drawn with the canonical kit through `BuildStep`. A planned one carries its
+ * "Planned, not built yet" badge and prints nothing. A LESSON IS A CARD that
  * opens its page. Every stop has an anchor (`step-X.Y` or `lesson-<slug>`), so
  * a link from the rail or the overview lands on the stop itself.
  */
@@ -55,7 +56,7 @@ export function PhasePage({ id }: { id: string }) {
   const terms = Array.from(
     new Set(
       phase.stops.flatMap((s) => {
-        if (s.kind !== 'build') return [];
+        if (s.kind === 'lesson') return [];
         return wrapStep(s.step)?.terms ?? [];
       }),
     ),
@@ -107,18 +108,7 @@ export function PhasePage({ id }: { id: string }) {
           {phase.stops.map((s) => (
             <div key={anchorOf(s)} id={anchorOf(s)} className="phase-stop">
               {s.kind === 'lesson' && <LessonCard slug={s.slug} />}
-              {s.kind === 'build' && <BuildCard step={s.step} />}
-              {s.kind === 'gap' && (
-                <section className="rounded-2xl border border-dashed border-ui-line px-5 py-5 text-ui-dim">
-                  <p className="font-mono text-[0.6875rem] tracking-[0.08em] text-ui-faint uppercase">
-                    Step {s.step} · Planned
-                  </p>
-                  <h2 className="mt-2 font-mono text-base text-ui-fg">{s.title}</h2>
-                  <p className="mt-2 leading-relaxed">
-                    Not built yet — this is where the wrap plan builds it; the lesson above explains the idea.
-                  </p>
-                </section>
-              )}
+              {s.kind !== 'lesson' && <BuildCard step={s.step} />}
             </div>
           ))}
         </div>

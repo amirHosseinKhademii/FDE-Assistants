@@ -12,8 +12,12 @@ import { Code } from '@veresk/surface';
 
 export function BuildStep({ step }: { step: StepDef }) {
   const state = step.status as StepState;
+  // A planned step has not run, so it prints nothing and has no hood. Its code
+  // is a sketch, labelled as one by the kit's "Planned, not built yet" badge.
+  const planned = state === 'planned';
   const code = step.code;
-  const hood = step.hood;
+  const hood = planned ? undefined : step.hood;
+  const printed = planned ? undefined : code?.printed;
   const hoodBlurb = hood ? hood.title.replace(/^Under the hood:\s*/i, '') : '';
 
   return (
@@ -30,7 +34,7 @@ export function BuildStep({ step }: { step: StepDef }) {
           code ? (
             <Figure caption={code.caption} from={code.from} source={code.source}>
               <Code path={code.path} lang={code.lang} lines={code.code.split('\n')} />
-              {code.printed && <Raw>{code.printed}</Raw>}
+              {printed && <Raw>{printed}</Raw>}
             </Figure>
           ) : undefined
         }

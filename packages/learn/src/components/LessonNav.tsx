@@ -306,8 +306,9 @@ export function LessonNav({
                             <span className="sr-only">{s.srLabel}</span>
                             <span className="learn-rail-stop-name" aria-hidden>{text}</span>
                             {tag && (
-                              <span className="learn-rail-tag" aria-hidden>
-                                {tag}
+                              <span className="learn-rail-end" aria-hidden>
+                                <span className="learn-rail-tag">{tag}</span>
+                                {s.kind === 'gap' && <span className="learn-rail-planned">planned</span>}
                               </span>
                             )}
                           </Link>

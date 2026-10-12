@@ -243,17 +243,15 @@ export function prevStop(key: LessonSlug | string): Stop | undefined {
 }
 
 /**
- * The neighbours a reader can actually land on. A gap has no page, so it is
- * skipped: "next" from the end of retrieval goes to hybrid, not to 3.1.
- * A build is reachable, as an anchor on its phase page.
+ * The neighbours a reader can land on. A build and a planned step are both
+ * anchors on their phase page, so both count: "next" from the end of retrieval
+ * goes to 3.1, the next stop in path order.
  */
 export function linkableNeighbours(key: LessonSlug | string): { prev?: Stop; next?: Stop } {
   const all = pathOrder();
   const i = stopIndexOf(key);
   if (i < 0) return {};
-  const prev = all.slice(0, i).reverse().find((s) => s.kind !== 'gap');
-  const next = all.slice(i + 1).find((s) => s.kind !== 'gap');
-  return { prev, next };
+  return { prev: all[i - 1], next: all[i + 1] };
 }
 
 /** Where a stop links. Lessons have a page; builds and gaps point into their phase. */

@@ -25,8 +25,8 @@ import { useLearnBase } from '../context';
  * A lesson page, looked up by slug.
  *
  * THE PREV AND NEXT FOLLOW THE PATH, not the topic. "Next" is the next lesson
- * or build in path order; a planned step has no page, so it is skipped rather
- * than linked to. A build links to its anchor on its phase page. The card says
+ * or build in path order. A build and a planned step both link to their anchor
+ * on their phase page, since both have a full step page there. The card says
  * "starts “Phase 3 · The RAG ladder”" only when it crosses into another phase.
  */
 export function LessonFrame({ slug, children }: { slug: LessonSlug; children: ReactNode }) {
