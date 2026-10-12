@@ -11,24 +11,93 @@ const goldenSet: Lesson = {
   },
   steps: [
     {
-      title: 'Real questions',
-      detail: 'Collect questions that users really asked, such as "How long does a refund take?" A first set of 50 questions is a good start.',
+      title: 'Start with questions users asked',
+      detail: 'A golden set starts with questions that real users asked, such as "How long does a refund take?" Each question is written down once and then kept fixed. A first set of 50 questions is a good start for a small help center.',
+      visual: {
+        kind: 'table',
+        caption: 'The two cases in this lesson. Each has an id and a question.',
+        columns: ['Id', 'Question'],
+        rows: [
+          ['r1', 'How long does a refund take?'],
+          ['p1', 'How do I reset it?'],
+        ],
+      },
+      snippet: {
+        source: `type GoldenCase = { id: string; q: string; fact: string };
+const goldenSet: GoldenCase[] = [
+  { id: "r1", q: "How long does a refund take?", fact: "5 to 7" },
+  { id: "p1", q: "How do I reset it?", fact: "Forgot password" },
+];
+console.log("Cases ->", goldenSet.length);
+`,
+        output: 'Cases -> 2',
+      },
     },
     {
-      title: 'Required facts',
-      detail: 'For each question, write the fact a correct answer must contain. The refund question needs the text "5 to 7".',
+      title: 'Each case has a required fact',
+      detail: 'For each question, the set stores the fact a correct answer must contain. The refund answer must contain "5 to 7". Each case also names its source, such as "refund-guide, section 2", which lesson 2.2 uses to score search.',
+      visual: {
+        kind: 'compare',
+        caption: 'Each case pairs a question with one required fact.',
+        left: { title: 'Question', items: ['How long does a refund take?'] },
+        right: { title: 'Required fact', items: ['5 to 7', 'Source: refund-guide, section 2'] },
+      },
+      snippet: {
+        source: `const fact = "5 to 7";
+const answer = "Refunds take 5 to 7 business days.";
+// The check is a plain text search, so the wording can vary.
+console.log("Fact found ->", answer.includes(fact));
+`,
+        output: 'Fact found -> true',
+      },
     },
     {
-      title: 'Source record',
-      detail: 'Record which document holds the answer, such as "refund-guide, section 2". Lesson 2.2 uses this record to score search.',
+      title: 'The set lives in a file the team shares',
+      detail: 'Keep the set in a file under version control, such as "golden.json". Each case has an id, a question, and its required fact. The team agrees on the set before any change, so everyone uses the same meaning of a correct answer.',
+      visual: {
+        kind: 'flow',
+        caption: 'The set is written once, saved, and reused for every change.',
+        nodes: ['Write the cases', 'Save golden.json', 'Run after each change', 'Compare scores'],
+      },
     },
     {
-      title: 'Storage',
-      detail: 'Keep the set in a file under version control, such as "golden.json". Each case has an id, a question, and its required fact.',
+      title: 'Each run scores the set',
+      detail: 'The run gives each question to the assistant and checks its answer for the required fact. A case passes when the fact appears. In this set, the refund answer passes and the password answer fails, so the score is 1 of 2.',
+      visual: {
+        kind: 'chips',
+        caption: 'The two cases after one run.',
+        items: [
+          { text: 'r1: refund time', note: 'PASS', highlight: true },
+          { text: 'p1: password reset', note: 'FAIL' },
+        ],
+      },
+      snippet: {
+        source: `const refundAnswer = "Refunds take 5 to 7 business days.";
+const passwordAnswer = "Contact support for help.";
+const passes = [
+  refundAnswer.includes("5 to 7"),
+  passwordAnswer.includes("Forgot password"),
+];
+console.log("Pass flags ->", passes.join(", "));
+const score = passes.filter(Boolean).length;
+console.log("Score ->", score + " of " + passes.length);
+`,
+        output: `Pass flags -> true, false
+Score -> 1 of 2`,
+      },
     },
     {
-      title: 'Score after a change',
-      detail: 'Run every case after each change and count the passes. A score of 42 out of 50 before a change and 45 after it shows the change helped.',
+      title: 'Compare the score before and after a change',
+      detail: 'Run every case after each change and count the passes. A score of 42 out of 50 before a change and 45 after it shows the change helped. The cases stay the same, so the two scores can be compared directly.',
+      visual: {
+        kind: 'bars',
+        caption: 'Passing cases out of 50, before and after one change.',
+        unit: 'of 50',
+        rows: [
+          { label: 'Before change', value: 42 },
+          { label: 'After change', value: 45, highlight: true },
+        ],
+      },
     },
   ],
   diagram: ['Real questions', 'Required facts', 'Run after each change', 'Score'],
@@ -65,19 +134,6 @@ console.log("Score ->", passed + " of " + goldenSet.length);
 p1 FAIL
 Score -> 1 of 2`,
   },
-  hood: {
-    paragraphs: [
-      'Each case stores the question and the required fact, not a full model answer. Many correct answers use different words for the same fact.',
-      'The check in the code is a plain text search. It misses correct answers that are worded differently, and lesson 2.3 covers better checks.',
-      'The set is a contract for the team. Everyone agrees on what a correct answer must contain before any change is made.',
-    ],
-    example: [
-      { label: 'Case id', value: 'r1' },
-      { label: 'Question', value: '"How long does a refund take?"' },
-      { label: 'Required fact', value: '"5 to 7"' },
-      { label: 'Answer found', value: '"Refunds take 5 to 7 business days."' },
-    ],
-  },
   mistakes: [
     'Writing the cases after seeing the answers. The set then measures the old system, not what users need.',
     'Keeping the set too small. Five cases cannot show a small change in quality.',
@@ -110,24 +166,116 @@ const retrievalMetrics: Lesson = {
   },
   steps: [
     {
-      title: 'Right chunks per question',
-      detail: 'For each question, list the chunk ids that hold the answer. The refund question might point to the chunk "refund-2".',
+      title: 'Each question lists its right chunks',
+      detail: 'Each question gets the ids of the chunks that hold its answer. The refund answer sits in chunk "c2". The address question needs two chunks, "c5" and "c9", so a question can have more than one right chunk.',
+      visual: {
+        kind: 'table',
+        caption: 'The right chunk ids for three questions from the help center.',
+        columns: ['Question', 'Right chunks'],
+        rows: [
+          ['How long does a refund take?', 'c2'],
+          ['How do I change my address?', 'c5, c9'],
+          ['When will my order ship?', 'c8'],
+        ],
+      },
+      snippet: {
+        source: `const relevant: Record<string, string[]> = {
+  refund: ["c2"],
+  address: ["c5", "c9"],
+};
+const list = relevant.address.join(", ");
+console.log("Address ->", list);
+`,
+        output: 'Address -> c5, c9',
+      },
     },
     {
-      title: 'Top k results',
-      detail: 'Search returns a ranked list. The letter k is how many results you check, such as the top 2 chunks.',
+      title: 'Search returns a ranked list',
+      detail: 'Search returns chunks in order, with the best match first. The letter k is how many results you check. For the address question, the ranked list is c3, c9, c4, so the top 2 are c3 and c9.',
+      visual: {
+        kind: 'chips',
+        caption: 'The ranked search results for the address question. The top 2 are checked.',
+        items: [
+          { text: 'c3', note: 'rank 1' },
+          { text: 'c9', note: 'rank 2, right chunk', highlight: true },
+          { text: 'c4', note: 'rank 3, not checked' },
+        ],
+      },
+      snippet: {
+        source: `const ranked = ["c3", "c9", "c4"];
+const k = 2;
+const top = ranked.slice(0, k);
+console.log("Top", k, "->", top.join(", "));
+`,
+        output: 'Top 2 -> c3, c9',
+      },
     },
     {
-      title: 'Hit rate',
-      detail: 'Hit rate at k is the share of questions with at least one right chunk in the top k. Two hits out of three questions give 0.67.',
+      title: 'Hit rate counts questions with a right chunk',
+      detail: 'Hit rate at k is the share of questions with at least one right chunk in the top k. The refund and address questions both hit. The shipping question misses, because c8 is not in its top 2. Two hits out of three questions give 0.67.',
+      visual: {
+        kind: 'table',
+        caption: 'Hit or miss for each question, with the top 2 results checked.',
+        columns: ['Question', 'Right chunk in top 2', 'Hit'],
+        rows: [
+          ['Refund', 'c2', '1'],
+          ['Address', 'c9', '1'],
+          ['Shipping', 'none', '0'],
+        ],
+        highlightRow: 2,
+      },
+      snippet: {
+        source: `const hits = [1, 1, 0];
+const hitRate = hits.reduce((s, h) => s + h, 0) / hits.length;
+console.log("Hit rate at 2 ->", hitRate.toFixed(2));
+`,
+        output: 'Hit rate at 2 -> 0.67',
+      },
     },
     {
-      title: 'Recall',
-      detail: 'Recall at k is the share of right chunks found in the top k. A question with 2 right chunks and 1 found has recall 0.5.',
+      title: 'Recall counts the right chunks found',
+      detail: 'Recall at k is the share of the right chunks found in the top k. The address question has 2 right chunks, and only c9 is in its top 2, so its recall is 0.5. Averaged over the three questions, recall at 2 is 0.5.',
+      visual: {
+        kind: 'bars',
+        caption: 'Recall at 2 for each question. The average is 0.5.',
+        rows: [
+          { label: 'Refund', value: 1 },
+          { label: 'Address', value: 0.5, highlight: true },
+          { label: 'Shipping', value: 0 },
+        ],
+      },
+      snippet: {
+        source: `const relevant = ["c5", "c9"];
+const top = ["c3", "c9"];
+const found = relevant.filter((id) => top.includes(id)).length;
+console.log("Recall at 2 ->", (found / relevant.length).toFixed(1));
+`,
+        output: 'Recall at 2 -> 0.5',
+      },
     },
     {
-      title: 'Mean reciprocal rank',
-      detail: 'Mean reciprocal rank (MRR) gives 1 for a first-place hit, 0.5 for second place, and 0.33 for third. It is averaged over all questions.',
+      title: 'Reciprocal rank rewards an early hit',
+      detail: 'Reciprocal rank is one divided by the position of the first right chunk. The refund answer is in first place, so it scores 1. The address answer is in second place, so it scores 0.5, and the shipping question scores 0. The mean over the three questions is 0.5.',
+      visual: {
+        kind: 'chips',
+        caption: 'Reciprocal rank for the first right chunk at each position.',
+        items: [
+          { text: 'Position 1', note: '1' },
+          { text: 'Position 2', note: '0.5' },
+          { text: 'Position 3', note: '0.33' },
+          { text: 'Not found', note: '0' },
+        ],
+      },
+      snippet: {
+        source: `const ranked = ["c3", "c9", "c4"];
+const relevant = ["c5", "c9"];
+const position = ranked.findIndex((id) => relevant.includes(id));
+console.log("Position ->", position + 1);
+console.log("Reciprocal rank ->", 1 / (position + 1));
+`,
+        output: `Position -> 2
+Reciprocal rank -> 0.5`,
+      },
     },
   ],
   diagram: ['Question', 'Search', 'Top k chunks', 'Compare with right ids'],
@@ -164,19 +312,6 @@ console.log("MRR ->", average("rr").toFixed(2));
 Recall at 2 -> 0.50
 MRR -> 0.50`,
   },
-  hood: {
-    paragraphs: [
-      'Each metric is a share between 0 and 1. The average over all questions gives the score for the whole set.',
-      'MRR rewards a right chunk at the top most. It suits systems where the model reads only the first few chunks.',
-      'Metrics measure search only. An answer can still be wrong when the right chunks were found.',
-    ],
-    example: [
-      { label: 'Question 2 right chunks', value: 'c5, c9' },
-      { label: 'Found in the top 2', value: 'c9' },
-      { label: 'Recall at 2 for question 2', value: '0.5' },
-      { label: 'Reciprocal rank for question 2', value: '0.5 (c9 is in second place)' },
-    ],
-  },
   mistakes: [
     'Scoring search by comparing answer wording. The check then depends on wording, not on whether search worked.',
     'Choosing k after seeing the scores. Pick k first, then compare settings at the same k.',
@@ -210,24 +345,100 @@ const checkingAnswers: Lesson = {
   },
   steps: [
     {
-      title: 'Rules first',
-      detail: 'A rule checks for a fact, such as the text "5 to 7". It is fast, costs nothing to run, and is easy to explain.',
+      title: 'A rule looks for an accepted form',
+      detail: 'The refund fact has two accepted forms: "5 to 7" and "five to seven". The rule lowercases the answer, then checks whether any accepted form appears in it. The check runs in microseconds and costs nothing per answer.',
+      visual: {
+        kind: 'table',
+        caption: 'The rule result for three answers to the refund question.',
+        columns: ['Answer', 'Rule result'],
+        rows: [
+          ['Refunds take 5 to 7 business days.', 'pass'],
+          ['Refunds take about a week.', 'fail'],
+          ['Refunds take 2 days.', 'fail'],
+        ],
+        highlightRow: 0,
+      },
+      snippet: {
+        source: `const accepted = ["5 to 7", "five to seven"];
+const answer = "Refunds take 5 to 7 business days.";
+const lower = answer.toLowerCase();
+const pass = accepted.some((f) => lower.includes(f));
+console.log("Rule ->", pass ? "pass" : "fail");
+`,
+        output: 'Rule -> pass',
+      },
     },
     {
-      title: 'Accepted wordings',
-      detail: 'Give each fact a list of accepted forms, such as "5 to 7" and "five to seven". An answer passes when it contains any one form.',
+      title: 'A rule misses other wording',
+      detail: 'The rule fails "Refunds take about a week." because no accepted form appears in it. That answer is correct, so the rule is too strict for it. Rules are cheap, so they run before the judge. A judge model checks only the answers the rule fails.',
+      visual: {
+        kind: 'flow',
+        caption: 'Rules run first. The judge checks the answers that the rule fails.',
+        nodes: ['Answer', 'Rule check', 'Judge check, if the rule fails', 'Pass or fail'],
+      },
     },
     {
-      title: 'Judge model',
-      detail: 'A judge is a second model call. It receives the question, the required fact, and the answer, and it replies "yes" or "no".',
+      title: 'A judge model reads the answer',
+      detail: 'A judge is a second model call. It receives the question, the required fact, and the answer, then replies yes or no. The code uses a fake judge that says yes for "about a week". A real judge reads the answer and decides.',
+      visual: {
+        kind: 'chips',
+        caption: 'What the judge receives, and what it returns.',
+        items: [
+          { text: 'Question', note: 'input' },
+          { text: 'Required fact', note: 'input' },
+          { text: 'Answer', note: 'input' },
+          { text: 'yes or no', note: 'output', highlight: true },
+        ],
+      },
+      snippet: {
+        source: `// A fake judge. A real one is a second model call.
+function fakeJudge(answer: string): string {
+  return answer.includes("about a week") ? "yes" : "no";
+}
+console.log("Judge ->", fakeJudge("Refunds take about a week."));
+`,
+        output: 'Judge -> yes',
+      },
     },
     {
-      title: 'Testing the judge',
-      detail: 'Run the judge on 20 answers that a person already graded. If it disagrees often, fix its instructions before you trust it.',
+      title: 'Test the judge before trusting it',
+      detail: 'A judge can be wrong, so test it first. A person grades about 20 answers, then the same answers go to the judge. If the two disagree often, fix the judge instructions before using them. The instructions must name the fact and the accepted wording.',
+      visual: {
+        kind: 'compare',
+        caption: 'The same answers are graded twice, then the results are compared.',
+        left: { title: 'Person grades', items: ['About 20 answers', 'Pass or fail for each'] },
+        right: { title: 'Judge grades', items: ['The same 20 answers', 'Count the matches'] },
+      },
+      snippet: {
+        source: `const person = [true, true, false, true];
+const judge = [true, false, false, true];
+const same = person.filter((p, i) => p === judge[i]).length;
+console.log("Agreement ->", same + " of " + person.length);
+`,
+        output: 'Agreement -> 3 of 4',
+      },
     },
     {
-      title: 'Recording reasons',
-      detail: 'Store each pass or fail with a reason, such as "missing fact: 5 to 7". The reason shows what to fix.',
+      title: 'Record a reason with each result',
+      detail: 'Store each pass or fail with a reason, such as "missing fact: 5 to 7". The reason shows what to fix, so a failure is not only a count. Ask the judge a narrow question, such as "Does the answer state the required fact?"',
+      visual: {
+        kind: 'table',
+        caption: 'Each result keeps its reason, so the fix is clear.',
+        columns: ['Answer', 'Result', 'Reason'],
+        rows: [
+          ['Refunds take 5 to 7 business days.', 'pass', 'fact found'],
+          ['Refunds take 2 days.', 'fail', 'missing fact: 5 to 7'],
+        ],
+        highlightRow: 1,
+      },
+      snippet: {
+        source: `const answer = "Refunds take 2 days.";
+const ok = answer.includes("5 to 7");
+const reason = ok ? "fact found" : "missing fact: 5 to 7";
+console.log(ok ? "pass" : "fail", "-", reason);
+`,
+        output: 'fail - missing fact: 5 to 7',
+      },
     },
   ],
   diagram: ['Answer', 'Rule', 'Judge if needed', 'Pass or fail'],
@@ -263,18 +474,6 @@ for (const answer of answers) {
 Rule fail | Judge pass | Refunds take about a week.
 Rule fail | Judge fail | Refunds take 2 days.`,
   },
-  hood: {
-    paragraphs: [
-      'A judge is also a model, so it can be wrong. Its instructions must name the fact that counts and the wording to accept.',
-      'Rules are cheap and exact. A judge costs one model call for each answer, so use rules first and the judge only where needed.',
-      'Ask the judge a narrow question. A question such as "Does the answer state the required fact?" is easier to test than "Is this good?"',
-    ],
-    example: [
-      { label: 'Answer "Refunds take 5 to 7 business days."', value: 'rule pass, judge fail' },
-      { label: 'Answer "Refunds take about a week."', value: 'rule fail, judge pass' },
-      { label: 'Required fact', value: '"5 to 7 days" or "about a week"' },
-    ],
-  },
   mistakes: [
     'Trusting a judge without testing it. A judge can pass wrong answers, so grade a sample by hand first.',
     'Asking a vague question, such as "Is this good?" Name the fact to check instead.',
@@ -308,24 +507,113 @@ const repeatRuns: Lesson = {
   },
   steps: [
     {
-      title: 'Why repeat',
-      detail: 'The model may give different replies to one question, such as "How long does a refund take?" One run can pass by luck or fail by bad luck.',
+      title: 'One run can mislead',
+      detail: 'The model may give a different reply to the same question, because of the sampling described in lesson 1.3. One run can pass by luck or fail by bad luck. Running the case five times shows how often it passes.',
+      visual: {
+        kind: 'chips',
+        caption: 'Five runs of the password question. Two runs fail.',
+        items: [
+          { text: 'Run 1', note: 'pass' },
+          { text: 'Run 2', note: 'fail', highlight: true },
+          { text: 'Run 3', note: 'pass' },
+          { text: 'Run 4', note: 'pass' },
+          { text: 'Run 5', note: 'fail', highlight: true },
+        ],
+      },
+      snippet: {
+        source: `const runs = [true, false, true, true, false];
+const passes = runs.filter((ok) => ok).length;
+console.log("Passes ->", passes + " of " + runs.length);
+`,
+        output: 'Passes -> 3 of 5',
+      },
     },
     {
-      title: 'Counting passes',
-      detail: 'A case that passes 5 times out of 5 is stable. A case that passes 3 times out of 5 is flaky.',
+      title: 'Stable and flaky cases',
+      detail: 'A case that gives the same outcome on every run is stable. The refund question passes 5 times out of 5, so it is stable. The password question passes 3 times out of 5, so it is flaky.',
+      visual: {
+        kind: 'bars',
+        caption: 'Passes out of 5 runs for three cases.',
+        unit: 'of 5',
+        rows: [
+          { label: 'refund-1', value: 5 },
+          { label: 'password-1', value: 3, highlight: true },
+          { label: 'ship-1', value: 0 },
+        ],
+      },
+      snippet: {
+        source: `const runs = [true, false, true, true, false];
+const stable = runs.every((ok) => ok === runs[0]);
+console.log("Stable ->", stable);
+`,
+        output: 'Stable -> false',
+      },
     },
     {
-      title: 'The pass rule',
-      detail: 'Decide before the run: a case passes if at least 4 of its 5 runs pass. Keep the same rule for later comparisons.',
+      title: 'Choose the pass rule before the run',
+      detail: 'A case passes when at least 4 of its 5 runs pass. Decide this rule before the run and keep it for later comparisons. At least 4 of 5 is strict, and at least 3 of 5 is lenient, so write the choice down.',
+      visual: {
+        kind: 'table',
+        caption: 'The verdict for each count of passes under the rule of 4 of 5.',
+        columns: ['Runs passed', 'Verdict'],
+        rows: [
+          ['5', 'pass'],
+          ['4', 'pass'],
+          ['3', 'fail'],
+          ['0', 'fail'],
+        ],
+        highlightRow: 2,
+      },
+      snippet: {
+        source: `const PASS_RULE = 4;
+const passes = 3;
+console.log("Verdict ->", passes >= PASS_RULE ? "pass" : "fail");
+`,
+        output: 'Verdict -> fail',
+      },
     },
     {
-      title: 'Reporting flaky cases',
-      detail: 'A flaky case gets its own line in the report, so it is not hidden in a plain fail. For example, "password" with 3 of 5 is flaky.',
+      title: 'Report flaky cases on their own line',
+      detail: 'A flaky case gets its own line in the report, so it does not hide inside a plain fail. The count, such as 3/5, appears next to the label. Save every run, not only the summary, so you can see which runs failed.',
+      visual: {
+        kind: 'chips',
+        caption: 'The report lines for three cases.',
+        items: [
+          { text: 'refund-1', note: '5/5 stable, pass' },
+          { text: 'password-1', note: '3/5 flaky, fail', highlight: true },
+          { text: 'ship-1', note: '0/5 stable, fail' },
+        ],
+      },
+      snippet: {
+        source: `const runs = [true, false, true, true, false];
+const passes = runs.filter((ok) => ok).length;
+const allSame = passes === 0 || passes === runs.length;
+const kind = allSame ? "stable" : "flaky";
+console.log("password-1", passes + "/" + runs.length, kind);
+`,
+        output: 'password-1 3/5 flaky',
+      },
     },
     {
-      title: 'Comparing totals',
-      detail: 'Compare the total pass count of two versions. A change of one case out of 50 can be noise, so repeat before you decide.',
+      title: 'Compare totals with care',
+      detail: 'Compare the total pass count of two versions, not one run. A change of one case out of 50 can be noise, so repeat the run before deciding. Five runs of 50 cases means 250 model calls, so set that budget first.',
+      visual: {
+        kind: 'table',
+        caption: 'The size of one full run with five repeats.',
+        columns: ['Setting', 'Value'],
+        rows: [
+          ['Runs per case', '5'],
+          ['Cases', '50'],
+          ['Model calls', '250'],
+        ],
+      },
+      snippet: {
+        source: `const runsPerCase = 5;
+const cases = 50;
+console.log("Model calls ->", runsPerCase * cases);
+`,
+        output: 'Model calls -> 250',
+      },
     },
   ],
   diagram: ['One case', 'Five runs', 'Count passes', 'Verdict'],
@@ -360,19 +648,6 @@ for (const [id, outcomes] of Object.entries(runs)) {
 password-1 3/5 flaky fail
 ship-1 0/5 stable fail`,
   },
-  hood: {
-    paragraphs: [
-      'Repeated runs cost more model calls. Five runs of 50 cases means 250 calls, so set the budget before you start.',
-      'The pass rule is a choice. At least 4 of 5 is strict, and at least 3 of 5 is lenient. Write the choice down.',
-      'Save every run, not only the summary. The raw outcomes show which runs failed and why.',
-    ],
-    example: [
-      { label: 'Runs per case', value: '5' },
-      { label: 'Model calls for 50 cases', value: '250' },
-      { label: 'Pass rule', value: 'at least 4 of 5' },
-      { label: 'password-1 result', value: '3 of 5, so fail' },
-    ],
-  },
   mistakes: [
     'Running each case once and calling it stable. One pass says little about the next run.',
     'Changing the pass rule after seeing the results. Set the rule first, then keep it.',
@@ -406,24 +681,92 @@ const baselinesAndDiffs: Lesson = {
   },
   steps: [
     {
-      title: 'Saved baseline',
-      detail: 'After a run you trust, save the result of each case under its version name, such as "v1.3". That file is the baseline.',
+      title: 'Save a baseline from a trusted run',
+      detail: 'After a run you trust, save the result of each case under a version name, such as "v1.3". That saved file is the baseline. A diff is only as good as its baseline, so use a run you trust.',
+      visual: {
+        kind: 'table',
+        caption: 'The saved baseline for version v1.3.',
+        columns: ['Case', 'v1.3 result'],
+        rows: [
+          ['refund', 'pass'],
+          ['password', 'pass'],
+          ['ship', 'fail'],
+        ],
+      },
+      snippet: {
+        source: `const baseline: Record<string, boolean> = {
+  refund: true, password: true, ship: false,
+};
+console.log("Saved cases ->", Object.keys(baseline).length);
+`,
+        output: 'Saved cases -> 3',
+      },
     },
     {
-      title: 'New run',
-      detail: 'Run the same cases with the same settings and save the result as "v1.4". The cases must match, or the diff mixes two kinds of change.',
+      title: 'A new run uses the same cases',
+      detail: 'Run the same cases with the same settings and save the result as "v1.4". If the cases differ, the diff mixes two kinds of change. The version name also links each result to the code and settings that made it.',
+      visual: {
+        kind: 'compare',
+        caption: 'The two saved versions, case by case.',
+        left: { title: 'v1.3 baseline', items: ['refund: pass', 'password: pass', 'ship: fail'] },
+        right: { title: 'v1.4 new run', items: ['refund: fail', 'password: pass', 'ship: pass'] },
+      },
     },
     {
-      title: 'Labels for each case',
-      detail: 'Each case gets one label: same, fixed, or regression. For example, "password" stayed a pass, so it is labeled same.',
+      title: 'Each case gets one label',
+      detail: 'Each case gets one label: same, fixed, or regression. The password case passed in both versions, so it is labeled same. The ship case failed before and passes now, so it is fixed.',
+      visual: {
+        kind: 'chips',
+        caption: 'The label for each case in the diff.',
+        items: [
+          { text: 'refund', note: 'regression', highlight: true },
+          { text: 'password', note: 'same' },
+          { text: 'ship', note: 'fixed' },
+        ],
+      },
+      snippet: {
+        source: `const before = { refund: true, password: true, ship: false };
+const after = { refund: false, password: true, ship: true };
+for (const id of Object.keys(before)) {
+  let label = "same";
+  if (before[id] && !after[id]) label = "regression";
+  if (!before[id] && after[id]) label = "fixed";
+  console.log(id, label);
+}
+`,
+        output: `refund regression
+password same
+ship fixed`,
+      },
     },
     {
-      title: 'Regressions',
-      detail: 'A regression is a case that passed in the baseline and fails now. For example, "refund" passed in v1.3 and fails in v1.4.',
+      title: 'A total can hide a regression',
+      detail: 'A regression is a case that passed in the baseline and fails now. The refund case passed in v1.3 and fails in v1.4. The ship fix offsets it, so both totals are 2 of 3. Only the case list shows the regression.',
+      visual: {
+        kind: 'bars',
+        caption: 'The passes in each version. The totals match, so the case labels matter.',
+        unit: 'of 3',
+        rows: [
+          { label: 'v1.3 passes', value: 2 },
+          { label: 'v1.4 passes', value: 2, highlight: true },
+        ],
+      },
+      snippet: {
+        source: `const baselineTotal = [true, true, false].filter(Boolean).length;
+const newTotal = [false, true, true].filter(Boolean).length;
+console.log("Totals ->", baselineTotal, newTotal);
+`,
+        output: 'Totals -> 2 2',
+      },
     },
     {
-      title: 'Resolving a regression',
-      detail: 'A regression blocks the change until it is fixed or explained. For example, "refund" needs a fix or a written reason before v1.4 ships.',
+      title: 'Fix or explain a regression before shipping',
+      detail: 'A regression blocks the change until it is fixed or explained in writing. The refund case needs a fix or a written reason before v1.4 ships. Never update the baseline to match the new result, because that hides the regression.',
+      visual: {
+        kind: 'flow',
+        caption: 'The path for a regression, from detection to release.',
+        nodes: ['Regression found', 'Fix or written reason', 'Run again', 'Ship v1.4'],
+      },
     },
   ],
   diagram: ['Baseline v1.3', 'New run v1.4', 'Diff', 'Regressions'],
@@ -459,19 +802,6 @@ password pass -> pass same
 ship fail -> pass fixed
 Regressions -> refund`,
   },
-  hood: {
-    paragraphs: [
-      'A diff is only as good as its baseline. Save the baseline from a run you trust, with the same cases and settings.',
-      'A total can rise while one case regresses. Check each case, not only the total.',
-      'The version name links a result to the code and settings that made it, so a regression can be traced.',
-    ],
-    example: [
-      { label: 'Baseline v1.3', value: '2 of 3 pass' },
-      { label: 'New run v1.4', value: '2 of 3 pass' },
-      { label: 'Regression', value: 'refund-1' },
-      { label: 'Fixed', value: 'ship-1' },
-    ],
-  },
   mistakes: [
     'Comparing against a baseline with different cases. The diff then mixes two kinds of change.',
     'Updating the baseline to match the new result. That hides the regression instead of fixing it.',
@@ -505,24 +835,115 @@ const severityAndControls: Lesson = {
   },
   steps: [
     {
-      title: 'Three buckets',
-      detail: 'Use three buckets: critical, major, and minor. Critical means a wrong fact that a reader would act on, such as "refund in 2 days".',
+      title: 'Three buckets sort failures by harm',
+      detail: 'Each failure goes in one bucket: critical, major, or minor. Critical means a wrong fact that a reader would act on, such as "refund in 2 days". Define the buckets before the run, so the labels do not drift toward the result you hoped for.',
+      visual: {
+        kind: 'table',
+        caption: 'The three buckets, with an example and its effect on the release.',
+        columns: ['Bucket', 'Example', 'Effect on release'],
+        rows: [
+          ['Critical', 'Refund in 2 days', 'Blocks the release'],
+          ['Major', 'Reply with no source', 'Reviewed before release'],
+          ['Minor', 'Awkward wording, right fact', 'Does not block'],
+        ],
+        highlightRow: 0,
+      },
+      snippet: {
+        source: `type Failure = { id: string; bucket: string };
+const failures: Failure[] = [
+  { id: "refund", bucket: "critical" },
+  { id: "ship", bucket: "minor" },
+];
+console.log("Buckets ->", failures.map((f) => f.bucket).join(", "));
+`,
+        output: 'Buckets -> critical, minor',
+      },
     },
     {
-      title: 'Sorting failures',
-      detail: 'A wrong refund time, such as "2 days", is critical. A reply with no source is major. Awkward wording with the right fact is minor.',
+      title: 'Sorting the failures',
+      detail: 'A wrong refund time, such as "2 days", is critical. A reply with no source is major, because the reader cannot check it. Awkward wording with the right fact is minor.',
+      visual: {
+        kind: 'chips',
+        caption: 'Three failures, each in its bucket.',
+        items: [
+          { text: 'Refund in 2 days', note: 'critical', highlight: true },
+          { text: 'No source given', note: 'major' },
+          { text: 'Awkward wording', note: 'minor' },
+        ],
+      },
+      snippet: {
+        source: `const failures = [
+  { id: "refund", bucket: "critical" },
+  { id: "password", bucket: "major" },
+  { id: "ship", bucket: "minor" },
+];
+const count = (b: string) =>
+  failures.filter((f) => f.bucket === b).length;
+console.log("Critical ->", count("critical"));
+`,
+        output: 'Critical -> 1',
+      },
     },
     {
-      title: 'Control cases',
-      detail: 'A control case asks about something the documents do not cover, such as "Do you sell gift cards for kids?" The right reply says the answer is not in the documents.',
+      title: 'Control cases check for refusal',
+      detail: 'A control case asks about something the documents do not cover, such as "Do you sell gift cards for kids?" The right reply says the answer is not in the documents. A plain score does not reward that reply, so the control must be counted on purpose.',
+      visual: {
+        kind: 'compare',
+        caption: 'A right reply and a wrong reply to the same control question.',
+        left: { title: 'Right reply', items: ['The answer is not in the documents.'] },
+        right: { title: 'Wrong reply', items: ['Gift cards cost 25 dollars.'] },
+      },
+      snippet: {
+        source: `const refuses = (reply: string) =>
+  reply.includes("not in the documents");
+console.log(refuses("The answer is not in the documents."));
+console.log(refuses("Gift cards cost 25 dollars."));
+`,
+        output: `true
+false`,
+      },
     },
     {
-      title: 'Scoring controls',
-      detail: 'A control case passes only when the assistant refuses or escalates. An invented answer, such as "Gift cards cost 25 dollars.", is a critical failure.',
+      title: 'Scoring the controls',
+      detail: 'A control passes only when the assistant refuses or escalates. An invented answer, such as "Gift cards cost 25 dollars.", is a critical failure. Keep control cases in the same set as the other cases, so every run checks both kinds of behavior.',
+      visual: {
+        kind: 'chips',
+        caption: 'The two control replies after one run.',
+        items: [
+          { text: 'Refusal', note: 'pass', highlight: true },
+          { text: 'Invented price', note: 'critical failure' },
+        ],
+      },
+      snippet: {
+        source: `const controlReplies = [
+  "The answer is not in the documents.",
+  "Gift cards cost 25 dollars.",
+];
+const phrase = "not in the documents";
+const passes = controlReplies.filter((r) => r.includes(phrase));
+const total = controlReplies.length;
+console.log("Control passes ->", passes.length, "of", total);
+`,
+        output: 'Control passes -> 1 of 2',
+      },
     },
     {
-      title: 'Release rule',
-      detail: 'A change ships only when it has zero critical failures and all 2 control cases pass. One critical failure blocks the release.',
+      title: 'The release rule',
+      detail: 'A change ships only when it has zero critical failures and every control case passes. One critical failure blocks the release. Here the refund failure and the invented price both block it.',
+      visual: {
+        kind: 'flow',
+        caption: 'Both conditions must hold before a release is allowed.',
+        nodes: ['Zero critical failures', 'Every control passes', 'Release allowed'],
+      },
+      snippet: {
+        source: `const critical = 1;
+const controlsPassed = 1;
+const controlsTotal = 2;
+const ok = critical === 0 && controlsPassed === controlsTotal;
+console.log("Release ->", ok ? "allowed" : "blocked");
+`,
+        output: 'Release -> blocked',
+      },
     },
   ],
   diagram: ['Failure', 'Bucket', 'Control cases', 'Release rule'],
@@ -560,19 +981,6 @@ console.log("Release ->", releaseOk ? "allowed" : "blocked");
     output: `Critical failures -> 1
 Control passes -> 1 of 2
 Release -> blocked`,
-  },
-  hood: {
-    paragraphs: [
-      'A bucket is a rule, so write the definitions before the run. Otherwise the labels drift toward the result you hoped for.',
-      'Control cases test refusal. A plain score does not reward refusal by default, so the control cases must be counted on purpose.',
-      'Keep control cases in the same set as the other cases, so every run checks both kinds of behavior.',
-    ],
-    example: [
-      { label: 'Control question', value: 'gift cards, not in the documents' },
-      { label: 'Right reply', value: '"The answer is not in the documents."' },
-      { label: 'Wrong reply', value: 'an invented price' },
-      { label: 'Release rule', value: 'zero critical failures and every control passes' },
-    ],
   },
   mistakes: [
     'Putting every failure in the major bucket. The buckets then stop separating harm from annoyance.',
