@@ -37,6 +37,9 @@
   --tok-com: #6b665c;
   --out-bg: #efede6;
   --topbar-h: 56px;
+  /* Same page container as veresk-app's home (max-w-6xl, px-5 / sm:px-6). */
+  --wrap: 72rem;
+  --gutter: 20px;
   --serif: Fraunces, Georgia, 'Times New Roman', serif;
   --sans: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -107,7 +110,8 @@
   display: flex;
   align-items: center;
   gap: 20px;
-  padding: 0 24px;
+  /* Line the brand up with the container's left edge at every width. */
+  padding: 0 max(var(--gutter), calc((100% - var(--wrap)) / 2 + var(--gutter)));
   background: var(--page);
   border-bottom: 1px solid var(--border);
 }
@@ -128,8 +132,17 @@
   color: var(--ink);
 }
 
+/* The page container: sidebar and content sit inside the same max-width and gutters as the home page. */
 .course-frame {
   display: block;
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+@media (min-width: 640px) {
+  .course-shell {
+    --gutter: 24px;
+  }
 }
 .course-main {
   min-width: 0;
@@ -147,7 +160,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 10px 16px;
+  padding: 10px 0;
 }
 .course-contents-btn {
   font: 600 14px var(--sans);
@@ -229,22 +242,26 @@
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 4px;
-  height: 34px;
+  min-height: 36px;
   margin: 2px 0;
-  padding: 0 10px 0 24px;
+  padding: 7px 10px 7px 24px;
   border-radius: 8px;
-  font: 500 14.5px/1 var(--sans);
+  font: 500 14.5px/1.4 var(--sans);
   color: var(--ink);
   text-decoration: none;
 }
 .course-side-module li a:hover {
   background: var(--faint);
 }
+/* Ellipsis needs overflow hidden, which clips on both axes. The padding (cancelled by the
+   negative margin) pushes the clip edge past the glyphs, so descenders are never cut. */
 .course-side-ltitle {
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  padding-block: 0.2em;
+  margin-block: -0.2em;
 }
 .course-side-module li a.is-draft {
   color: var(--ink-muted);
@@ -348,7 +365,7 @@
 .course-lesson {
   max-width: 760px;
   margin: 0 auto;
-  padding: 48px 24px 120px;
+  padding: 48px 0 120px;
   font-size: 17.5px;
   line-height: 1.7;
   color: var(--ink);
@@ -985,7 +1002,7 @@
   position: relative;
   max-width: 1040px;
   margin: 0 auto;
-  padding: 0 32px 110px;
+  padding: 0 0 110px;
   isolation: isolate;
 }
 .course-hero {
@@ -1153,7 +1170,7 @@
 /* ---------- Narrow screens ---------- */
 @media (max-width: 599px) {
   .course-lesson {
-    padding: 28px 16px 96px;
+    padding: 28px 0 96px;
     font-size: 17px;
   }
   .course-title {
@@ -1179,11 +1196,8 @@
     text-align: left;
     align-items: flex-start;
   }
-  .course-topbar {
-    padding: 0 16px;
-  }
   .course-index {
-    padding: 0 16px 80px;
+    padding: 0 0 80px;
   }
   .course-hero {
     padding: 36px 0 36px;
