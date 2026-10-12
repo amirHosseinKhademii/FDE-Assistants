@@ -11,24 +11,108 @@ const vectorSearch: Lesson = {
   },
   steps: [
     {
-      title: 'What a chunk vector holds',
-      detail: 'Each chunk is stored with a list of numbers, its embedding. The chunk "Refunds take 5 to 7 days." holds the list 0.9, 0.1, and 0. The list is computed once, before any question arrives.',
+      title: 'Each chunk is stored with a vector',
+      detail: 'A vector is a list of numbers that stands for the meaning of a chunk. Each chunk gets its vector once, when the documents are loaded. The example has three chunks, and each vector has three numbers.',
+      visual: {
+        kind: 'table',
+        caption: 'The three FAQ chunks and their vectors, as stored before any question arrives.',
+        columns: ['Chunk', 'Vector'],
+        rows: [
+          ['Refunds take 5 to 7 days.', '0.9, 0.1, 0'],
+          ['Use Forgot password to reset.', '0, 0.9, 0.2'],
+          ['Orders ship in 2 days.', '0.1, 0.1, 0.9'],
+        ],
+      },
+      snippet: {
+        source: `// Three chunks, each with the vector stored at load time.
+const chunks = [
+  { text: "Refunds take 5 to 7 days.", vector: [0.9, 0.1, 0] },
+  { text: "Use Forgot password to reset.", vector: [0, 0.9, 0.2] },
+  { text: "Orders ship in 2 days.", vector: [0.1, 0.1, 0.9] },
+];
+for (const c of chunks) console.log(c.vector, c.text);
+`,
+        output: `[ 0.9, 0.1, 0 ] Refunds take 5 to 7 days.
+[ 0, 0.9, 0.2 ] Use Forgot password to reset.
+[ 0.1, 0.1, 0.9 ] Orders ship in 2 days.`,
+      },
     },
     {
-      title: 'The question vector',
-      detail: 'A question is turned into a list in the same way, at search time. "Money back" becomes 0.85, 0.15, and 0 in this lesson.',
+      title: 'The question gets a vector the same way',
+      detail: 'The question goes through the same embedding process at search time. The words "money back" become the vector 0.85, 0.15, and 0 in this example. The plot puts each vector at its first number on the x axis and its second on the y axis.',
+      visual: {
+        kind: 'points',
+        caption: 'Each chunk and the question, plotted by their first two numbers. The question sits closest to the refund chunk.',
+        points: [
+          { label: 'Refunds', x: 0.9, y: 0.1 },
+          { label: 'Password', x: 0, y: 0.9 },
+          { label: 'Orders', x: 0.1, y: 0.1 },
+          { label: 'Question', x: 0.85, y: 0.15, highlight: true },
+        ],
+      },
     },
     {
-      title: 'Scoring with a dot product',
-      detail: 'Multiply the matching numbers of two lists, then add the products. The question and the refund chunk score 0.78, a high score. A higher score means closer meaning.',
+      title: 'The dot product scores each chunk',
+      detail: 'The dot product multiplies matching numbers in the two lists, then adds the products. For the refund chunk it is 0.85 times 0.9, plus 0.15 times 0.1, plus 0 times 0, which is 0.78. The password chunk scores 0.14 and the orders chunk scores 0.10.',
+      visual: {
+        kind: 'bars',
+        caption: 'Scores for the question "money back", one bar per chunk. A higher score means a closer match.',
+        rows: [
+          { label: 'Refunds', value: 0.78, highlight: true },
+          { label: 'Password', value: 0.14 },
+          { label: 'Orders', value: 0.1 },
+        ],
+      },
+      snippet: {
+        source: `// Multiply matching numbers, then add the products.
+function dot(a: number[], b: number[]): number {
+  return a.reduce((sum, value, i) => sum + value * b[i], 0);
+}
+const question = [0.85, 0.15, 0];
+const refund = [0.9, 0.1, 0];
+console.log(dot(question, refund).toFixed(2));
+`,
+        output: `0.78`,
+      },
     },
     {
-      title: 'Top k results',
-      detail: 'Sort the scores from high to low and keep the first k. With k set to 2, two chunks come back.',
+      title: 'Sort the scores and keep the top k',
+      detail: 'Sort the scores from high to low, then keep the first k of them. With k set to 2, the refund chunk and the password chunk come back. The orders chunk, at 0.10, is dropped.',
+      visual: {
+        kind: 'chips',
+        caption: 'Results for "money back" with k set to 2. The highlighted chunks are returned.',
+        items: [
+          { text: 'Refunds take 5 to 7 days.', note: '0.78, returned', highlight: true },
+          { text: 'Use Forgot password to reset.', note: '0.14, returned', highlight: true },
+          { text: 'Orders ship in 2 days.', note: '0.10, dropped' },
+        ],
+      },
+      snippet: {
+        source: `// Sort the scores from high to low, then keep k.
+const scored = [
+  { text: "Refunds take 5 to 7 days.", score: 0.78 },
+  { text: "Use Forgot password to reset.", score: 0.14 },
+  { text: "Orders ship in 2 days.", score: 0.1 },
+];
+const k = 2;
+const top = scored.sort((a, b) => b.score - a.score).slice(0, k);
+console.log(top.map((t) => t.text));
+`,
+        output: `[ 'Refunds take 5 to 7 days.', 'Use Forgot password to reset.' ]`,
+      },
     },
     {
-      title: 'Weak matches still return',
-      detail: 'A question with no good match still gets k chunks. The unrelated question here scores 0.09 and 0.02, so those results are weak.',
+      title: 'Weak matches still come back',
+      detail: 'A question with no good match still gets k chunks. The question "gift cards" has the vector 0, 0, and 0.1 in this example. The best score is only 0.09, so the results are weak, yet two chunks still come back. Real systems use a vector index to skip most chunks, but this example scores every chunk.',
+      visual: {
+        kind: 'bars',
+        caption: 'Scores for "gift cards". No chunk is about gift cards, and the top score is only 0.09.',
+        rows: [
+          { label: 'Orders', value: 0.09 },
+          { label: 'Password', value: 0.02 },
+          { label: 'Refunds', value: 0 },
+        ],
+      },
     },
   ],
   diagram: ['Question', 'Embed', 'Score each chunk', 'Top k'],
@@ -53,7 +137,7 @@ function vectorSearch(query: number[], k: number) {
     .slice(0, k);
 }
 
-// A fake model turned "money back" and "unrelated" into vectors.
+// A fake model turned "money back" and "gift cards" into vectors.
 const queries = [[0.85, 0.15, 0], [0, 0, 0.1]];
 for (const query of queries) {
   for (const hit of vectorSearch(query, 2)) {
@@ -68,20 +152,6 @@ for (const query of queries) {
 0.09 Orders ship in 2 days.
 0.02 Use Forgot password to reset.
 ---`,
-  },
-  hood: {
-    paragraphs: [
-      'The chunk vectors are computed once and stored. Only the question needs a model call at search time.',
-      'The dot product multiplies matching positions and adds the results. For the first two lists it is 0.85 times 0.9, plus 0.15 times 0.1, which is 0.78.',
-      'The sort puts the highest score first. The slice keeps the first k items, so the search returns exactly k results.',
-      'Real systems use a vector index, a structure that finds close vectors without scoring every chunk. This lesson scores every chunk, which is fine for a short list.',
-    ],
-    example: [
-      { label: 'Question embedding', value: '[0.85, 0.15, 0]' },
-      { label: 'Best chunk and its score', value: '"Refunds take 5 to 7 days." with 0.78' },
-      { label: 'Results returned for k = 2', value: '2, even when the scores are low' },
-      { label: 'Best score for the unrelated question', value: '0.09' },
-    ],
   },
   mistakes: [
     'Assuming a high score proves the answer is right. The score only shows how close two lists are.',
@@ -115,24 +185,98 @@ const metadataFilters: Lesson = {
   },
   steps: [
     {
-      title: 'Labels on each chunk',
-      detail: 'Each chunk is stored with labels called metadata. The label version 2 says which edition of the manual the chunk came from. The label must be set when the chunk is stored.',
+      title: 'Each chunk is stored with labels',
+      detail: 'Metadata is a set of labels saved with each chunk when it is loaded. The version label says which edition of the manual the text came from. Each label must be set before any question arrives.',
+      visual: {
+        kind: 'table',
+        caption: 'Three chunks from a device manual. Two editions are mixed in one set.',
+        columns: ['Chunk', 'Version', 'Vector'],
+        rows: [
+          ['Hold 10 seconds.', '2', '0.9, 0.1'],
+          ['Hold 3 seconds.', '1', '0.95, 0.05'],
+          ['Hold the power key.', '2', '0.8, 0.2'],
+        ],
+        highlightRow: 1,
+      },
+      snippet: {
+        source: `// Each chunk carries its text and a version label.
+const chunks = [
+  { text: "Hold 10 seconds.", version: 2 },
+  { text: "Hold 3 seconds.", version: 1 },
+  { text: "Hold the power key.", version: 2 },
+];
+for (const c of chunks) console.log(c.version, c.text);
+`,
+        output: `2 Hold 10 seconds.
+1 Hold 3 seconds.
+2 Hold the power key.`,
+      },
     },
     {
-      title: 'The filter condition',
-      detail: 'A filter is a test on a label, such as version equal to 2. The app or a model chooses it for each question. In this lesson it is set by hand.',
+      title: 'A filter drops chunks before scoring',
+      detail: 'A filter is a test on a label, such as version equal to 2. Chunks that fail the test are removed before any scoring happens. The version 1 chunk fails, so it is never scored and cannot rank first.',
+      visual: {
+        kind: 'chips',
+        caption: 'The three chunks after the version 2 filter. The version 1 chunk is dropped.',
+        items: [
+          { text: 'Hold 10 seconds.', note: 'version 2, kept', highlight: true },
+          { text: 'Hold 3 seconds.', note: 'version 1, dropped' },
+          { text: 'Hold the power key.', note: 'version 2, kept', highlight: true },
+        ],
+      },
+      snippet: {
+        source: `// Keep only the chunks whose version label is 2.
+const chunks = [
+  { text: "Hold 10 seconds.", version: 2 },
+  { text: "Hold 3 seconds.", version: 1 },
+  { text: "Hold the power key.", version: 2 },
+];
+const kept = chunks.filter((c) => c.version === 2);
+console.log(kept.length, "of", chunks.length, "kept");
+`,
+        output: `2 of 3 kept`,
+      },
     },
     {
-      title: 'Filtering before scoring',
-      detail: 'Chunks that fail the test are removed before the search scores anything. The old 3-second article, version 1, never reaches scoring.',
+      title: 'Scores decide the order of what is left',
+      detail: 'Each kept chunk is scored with a dot product against the question vector, 0.9 and 0.1. Without the filter, the old 3-second chunk scores 0.86 and ranks first. With the filter, the current 10-second chunk scores 0.82 and ranks first.',
+      visual: {
+        kind: 'compare',
+        caption: 'The ranking for the same question, with and without the version 2 filter.',
+        left: { title: 'No filter', items: ['Hold 3 seconds. (0.86)', 'Hold 10 seconds. (0.82)', 'Hold the power key. (0.74)'] },
+        right: { title: 'Version 2 only', items: ['Hold 10 seconds. (0.82)', 'Hold the power key. (0.74)'] },
+      },
+      snippet: {
+        source: `// Dot product of the question with a chunk vector.
+const dot = (a: number[], b: number[]) => a[0] * b[0] + a[1] * b[1];
+const question = [0.9, 0.1];
+const old = dot(question, [0.95, 0.05]).toFixed(2);
+console.log("Old 3 seconds:", old);
+const current = dot(question, [0.9, 0.1]).toFixed(2);
+console.log("Current 10 seconds:", current);
+`,
+        output: `Old 3 seconds: 0.86
+Current 10 seconds: 0.82`,
+      },
     },
     {
-      title: 'Why the filter matters',
-      detail: 'Without a filter, the old 3-second article scores 0.86 and ranks first. The current article scores 0.82 and ranks below it.',
-    },
-    {
-      title: 'Missing labels fail',
-      detail: 'A chunk with no version label fails every version filter. Check the labels when a document is loaded, not when a user asks.',
+      title: 'Labels must match exactly',
+      detail: 'The filter compares labels with exact equality. A label typed as "Version 2" fails a test for the number 2. A chunk with no version label fails every version test, so check labels when the documents are loaded.',
+      visual: {
+        kind: 'compare',
+        caption: 'Which labels pass a version 2 test and which fail.',
+        left: { title: 'Passes', items: ['version = 2, a number', 'Label set by the loader'] },
+        right: { title: 'Fails', items: ['version = "Version 2", text not a number', 'No version label at all'] },
+      },
+      snippet: {
+        source: `// A chunk loaded with no version label at all.
+const chunk: { text: string; version?: number } = {
+  text: "Hold the power key.",
+};
+console.log("Passes version 2:", chunk.version === 2);
+`,
+        output: `Passes version 2: false`,
+      },
     },
   ],
   diagram: ['Labeled chunks', 'Filter', 'Score', 'Top k'],
@@ -173,20 +317,6 @@ Filter version 2:
 Hold 10 seconds.
 Hold the power key.`,
   },
-  hood: {
-    paragraphs: [
-      'Each chunk is an object with its text, its vector, and its labels. The filter checks the labels with a simple equality test.',
-      'The filter runs before the score. A removed chunk costs no multiplication, and it cannot win the ranking.',
-      'With no filter, the old 3-second article scores 0.86 and ranks first. The filter removes it, so the 10-second article ranks first.',
-      'Filters need exact labels. A typo in a label name removes every chunk that should have matched.',
-    ],
-    example: [
-      { label: 'Question vector', value: '[0.9, 0.1]' },
-      { label: 'Old article score (version 1)', value: '0.86' },
-      { label: 'Current article score (version 2)', value: '0.82' },
-      { label: 'Chunks left after the version 2 filter', value: '2 of 3' },
-    ],
-  },
   mistakes: [
     'Filtering on a label that was never set. Every chunk fails the filter, and the answer is empty.',
     'Filtering too hard. A question that names no version still needs the chunks of every version.',
@@ -219,20 +349,95 @@ const keywordSearch: Lesson = {
   },
   steps: [
     {
-      title: 'Words in each chunk',
-      detail: 'The index splits each chunk into words. "The refund form is on the account page" becomes eight separate words.',
+      title: 'The index splits each chunk into words',
+      detail: 'A real index stores each word with the chunks that hold it. This example splits each chunk on spaces and scans every chunk for a match. The table shows how many words each of the four FAQ chunks has.',
+      visual: {
+        kind: 'table',
+        caption: 'Four FAQ chunks and their word counts.',
+        columns: ['Chunk', 'Words'],
+        rows: [
+          ['refund the order within 7 days', '6'],
+          ['reset the password from sign-in', '5'],
+          ['the refund form is on the account page', '8'],
+          ['orders ship in 2 business days', '6'],
+        ],
+        highlightRow: 2,
+      },
+      snippet: {
+        source: `// Split each chunk on spaces and count its words.
+const chunks = [
+  "refund the order within 7 days",
+  "reset the password from sign-in",
+  "the refund form is on the account page",
+  "orders ship in 2 business days",
+];
+for (const text of chunks) {
+  console.log(text.split(" ").length, text);
+}
+`,
+        output: `6 refund the order within 7 days
+5 reset the password from sign-in
+8 the refund form is on the account page
+6 orders ship in 2 business days`,
+      },
     },
     {
-      title: 'Rare words count more',
-      detail: 'Each word gets a weight from how many chunks contain it. "form" appears in 1 of 4 chunks, so it gets a high weight.',
+      title: 'Rare words weigh more',
+      detail: 'Each query word gets a weight from the number of chunks that contain it. "Refund" appears in 2 of the 4 chunks, so its weight is 0.69. "Form" appears in only 1 chunk, so its weight is the higher 1.20. The common word "the" appears in 3 chunks and gets only 0.36.',
+      visual: {
+        kind: 'bars',
+        caption: 'Weight of each word. A word found in fewer chunks gets a larger weight.',
+        rows: [
+          { label: 'form', value: 1.2, highlight: true },
+          { label: 'refund', value: 0.69 },
+          { label: 'the', value: 0.36 },
+        ],
+      },
+      snippet: {
+        source: `// N is the number of chunks. n is how many contain the word.
+const N = 4;
+const idf = (n: number) => Math.log((N - n + 0.5) / (n + 0.5) + 1);
+console.log("form", idf(1).toFixed(2));
+console.log("refund", idf(2).toFixed(2));
+console.log("the", idf(3).toFixed(2));
+`,
+        output: `form 1.20
+refund 0.69
+the 0.36`,
+      },
     },
     {
-      title: 'Repeats and length',
-      detail: 'A repeated word adds points, but the points level off at a limit. A long chunk gets fewer points than a short one with the same hits.',
+      title: 'Length and repeats change the points',
+      detail: 'Each word score is divided by a length term, so a longer chunk gets fewer points. The term is 2.5 for a 6-word chunk and 2.875 for an 8-word chunk. The constant k1, set to 1.5, limits how fast repeated words add points.',
+      visual: {
+        kind: 'compare',
+        caption: 'The same hit for "refund" in two chunks of different length.',
+        left: { title: '6-word chunk', items: ['Length term: 2.5', 'Score for refund: 0.69'] },
+        right: { title: '8-word chunk', items: ['Length term: 2.875', 'Score for refund: 0.60'] },
+      },
+      snippet: {
+        source: `// Denominator for one hit, by chunk length in words.
+const k1 = 1.5;
+const lengthTerm = (len: number) => 0.25 + 0.125 * len;
+const part = (len: number) => 1 + k1 * lengthTerm(len);
+console.log(part(6), part(8));
+`,
+        output: `2.5 2.875`,
+      },
     },
     {
-      title: 'Ranking a query',
-      detail: 'For "refund form", the chunk with both words scores 1.65. A chunk with only "refund" scores 0.69, and chunks with neither word score 0.00.',
+      title: 'Ranking the query "refund form"',
+      detail: 'Each chunk gets the sum of its scores for the query words. The chunk with both words, "the refund form is on the account page", scores 1.65. The chunk about the refund order scores 0.69 from refund alone. The two chunks with neither word score 0.00.',
+      visual: {
+        kind: 'bars',
+        caption: 'Keyword scores for the query "refund form", highest first.',
+        rows: [
+          { label: 'Refund form page', value: 1.65, highlight: true },
+          { label: 'Refund order 7 days', value: 0.69 },
+          { label: 'Password reset', value: 0 },
+          { label: 'Order shipping', value: 0 },
+        ],
+      },
     },
   ],
   code: {
@@ -272,20 +477,6 @@ for (const r of ranked) console.log(r.score.toFixed(2), r.text);
 0.00 reset the password from sign-in
 0.00 orders ship in 2 business days`,
   },
-  hood: {
-    paragraphs: [
-      'A real index stores each word with the chunks that contain it. The code here scans every chunk, which is simple but slow for a large set.',
-      'Rarity uses a formula called inverse document frequency. The formula gives a larger weight when fewer chunks contain the word.',
-      'The score for one word is its weight times its repeat count, scaled by the chunk length. The constant 1.5 controls how fast repeats stop adding points.',
-      'Common words such as "the" and "on" get a small weight, because many chunks contain them.',
-    ],
-    example: [
-      { label: 'Query words', value: '"refund", "form"' },
-      { label: 'Chunk with both words', value: '1.65' },
-      { label: 'Chunk with only "refund"', value: '0.69' },
-      { label: 'Chunks with neither word', value: '0.00' },
-    ],
-  },
   mistakes: [
     'Expecting a synonym match. "Money back" does not match "refund" because the words differ.',
     'Forgetting to lowercase the text. "Refund" and "refund" are different words unless both are lowercased.',
@@ -318,24 +509,96 @@ const hybridSearch: Lesson = {
   },
   steps: [
     {
-      title: 'Two ranked lists',
-      detail: 'Vector search returns refund-guide, order-page, then refund-form. Keyword search returns refund-form, refund-guide, then faq. Rank 1 is the best.',
+      title: 'Both searches read the same question',
+      detail: 'Vector search and keyword search each run on the same question. Each returns a list ordered from best to worst, where rank 1 is the best. The two searches can run at the same time, so the wait is the slower one.',
+      visual: {
+        kind: 'table',
+        caption: 'The top three chunks from each search for one question.',
+        columns: ['Rank', 'Vector search', 'Keyword search'],
+        rows: [
+          ['1', 'refund-guide', 'refund-form'],
+          ['2', 'order-page', 'refund-guide'],
+          ['3', 'refund-form', 'faq'],
+        ],
+      },
+      snippet: {
+        source: `// Two ranked lists for one question, best first.
+const vectorRanking = ["refund-guide", "order-page", "refund-form"];
+const keywordRanking = ["refund-form", "refund-guide", "faq"];
+console.log("Vector rank 1:", vectorRanking[0]);
+console.log("Keyword rank 1:", keywordRanking[0]);
+`,
+        output: `Vector rank 1: refund-guide
+Keyword rank 1: refund-form`,
+      },
     },
     {
-      title: 'Why ranks, not scores',
-      detail: 'Raw scores sit on different scales, so they cannot be added fairly. RRF uses only the rank of each chunk in each list.',
+      title: 'Raw scores cannot be added',
+      detail: 'A vector score of 0.78 and a keyword score of 1.65 use different scales. Adding them has no fair meaning, because each scale comes from its own formula. Only the rank of each chunk in each list is used.',
+      visual: {
+        kind: 'compare',
+        caption: 'Two ways to combine the two lists.',
+        left: { title: 'Raw scores', items: ['Vector score: 0.78 for one chunk', 'Keyword score: 1.65 for one chunk', 'Different scales, so no fair sum'] },
+        right: { title: 'Ranks', items: ['Rank 1 means best in that list', 'Rank 3 means third in that list', 'Ranks from both lists can be combined'] },
+      },
     },
     {
-      title: 'The RRF formula',
-      detail: 'Each list adds 1 / (60 + rank) for every chunk it contains. A rank 1 chunk adds 1/61, which is about 0.0164.',
+      title: 'Each rank becomes a small score',
+      detail: 'RRF gives a chunk 1 divided by (60 plus its rank) for each list that contains it. Rank 1 gives 1/61, which is 0.0164, and rank 3 gives 1/63, which is 0.0159. The constant 60 is a common choice, and it keeps the top ranks from dominating the sum.',
+      visual: {
+        kind: 'bars',
+        caption: 'RRF score for one list, by rank. The gap between ranks is small, so no single list dominates.',
+        rows: [
+          { label: 'Rank 1', value: 0.0164, highlight: true },
+          { label: 'Rank 2', value: 0.0161 },
+          { label: 'Rank 3', value: 0.0159 },
+        ],
+      },
+      snippet: {
+        source: `// RRF gives a rank score of 1 / (60 + rank).
+for (const rank of [1, 2, 3]) {
+  console.log("Rank", rank, (1 / (60 + rank)).toFixed(4));
+}
+`,
+        output: `Rank 1 0.0164
+Rank 2 0.0161
+Rank 3 0.0159`,
+      },
     },
     {
-      title: 'A chunk in both lists',
-      detail: 'refund-guide is rank 1 in one list and rank 2 in the other. Its total is 1/61 plus 1/62, which is 0.0325.',
+      title: 'A chunk in both lists adds two scores',
+      detail: 'refund-guide is rank 1 in the vector list and rank 2 in the keyword list. Its total is 1/61 plus 1/62, which is 0.0325. The refund-form chunk is rank 3 and rank 1, so its total is 0.0323.',
+      visual: {
+        kind: 'table',
+        caption: 'The rank scores added for the two chunks that both searches found.',
+        columns: ['Chunk', 'Vector list', 'Keyword list', 'Total'],
+        rows: [
+          ['refund-guide', '0.0164 (rank 1)', '0.0161 (rank 2)', '0.0325'],
+          ['refund-form', '0.0159 (rank 3)', '0.0164 (rank 1)', '0.0323'],
+        ],
+        highlightRow: 0,
+      },
+      snippet: {
+        source: `// refund-guide is rank 1 in one list and rank 2 in the other.
+const total = 1 / (60 + 1) + 1 / (60 + 2);
+console.log(total.toFixed(4));
+`,
+        output: `0.0325`,
+      },
     },
     {
       title: 'The fused order',
-      detail: 'The final order is refund-guide (0.0325), refund-form (0.0323), order-page (0.0161), then faq (0.0159). A chunk found by only one search still appears.',
+      detail: 'The totals are sorted from high to low. The final order is refund-guide, refund-form, order-page, and faq last. A chunk found by only one search still appears, but its total is smaller.',
+      visual: {
+        kind: 'bars',
+        caption: 'Fused totals in the final order. order-page and faq appear in only one list.',
+        rows: [
+          { label: 'refund-guide', value: 0.0325, highlight: true },
+          { label: 'refund-form', value: 0.0323 },
+          { label: 'order-page', value: 0.0161 },
+          { label: 'faq', value: 0.0159 },
+        ],
+      },
     },
   ],
   diagram: ['Question', 'Vector list', 'Keyword list', 'RRF', 'Final order'],
@@ -366,20 +629,6 @@ for (const [id, score] of fuse([vectorRanking, keywordRanking])) {
 refund-form 0.0323
 order-page 0.0161
 faq 0.0159`,
-  },
-  hood: {
-    paragraphs: [
-      'The constant 60 is a common choice. It keeps the top ranks from dominating the sum.',
-      'Raw scores cannot be compared. A dot product of 0.78 and a BM25 score of 1.65 cannot be added, but their ranks can.',
-      'A chunk missing from one list adds nothing from that list. It can still rank well from the other list alone.',
-      'Hybrid search runs two searches per question. Run them in parallel, so the wait is the slower search, not both added together.',
-    ],
-    example: [
-      { label: 'Vector ranks', value: 'refund-guide 1, order-page 2, refund-form 3' },
-      { label: 'Keyword ranks', value: 'refund-form 1, refund-guide 2, faq 3' },
-      { label: 'Fused score for refund-guide', value: '0.0325' },
-      { label: 'Fused score for faq', value: '0.0159' },
-    ],
   },
   mistakes: [
     'Adding the raw scores of the two searches. Their scales differ, so one search always dominates.',
@@ -413,20 +662,90 @@ const reranking: Lesson = {
   },
   steps: [
     {
-      title: 'Candidates from the first search',
-      detail: 'The first search returns more candidates than the model needs, such as 20. The example has four candidates in first-pass order.',
+      title: 'The first search returns a short list',
+      detail: 'The first search returns more candidates than the answer needs, such as 20. This example keeps four candidates, in the order the first search gave them. That order is rough, so the best candidate may sit lower in the list.',
+      visual: {
+        kind: 'chips',
+        caption: 'Four candidates in first-pass order, from the fast search.',
+        items: [
+          { text: 'Refunds take 5 to 7 days after the item arrives', note: 'position 1' },
+          { text: 'Order status is shown on the account page', note: 'position 2' },
+          { text: 'Refunds for gift cards are not possible', note: 'position 3' },
+          { text: 'Shipping takes 2 business days in most areas', note: 'position 4' },
+        ],
+      },
+      snippet: {
+        source: `// Four candidates in the order the fast search returned them.
+const candidates = [
+  "Refunds take 5 to 7 days after the item arrives.",
+  "Order status is shown on the account page.",
+  "Refunds for gift cards are not possible.",
+  "Shipping takes 2 business days in most areas.",
+];
+console.log(candidates.length, "candidates");
+`,
+        output: `4 candidates`,
+      },
     },
     {
-      title: 'Reading a pair together',
-      detail: 'The reranker reads the question and one candidate as one input. It sees the words of both at once, which the first search does not do.',
+      title: 'A reranker reads the question with each candidate',
+      detail: 'The reranker takes the question and one candidate as a single input. It returns one relevance score for that pair, so the score reflects both texts. Each pair needs its own model run, so only a short list is reranked.',
+      visual: {
+        kind: 'flow',
+        caption: 'One pair goes through the reranker to produce one score.',
+        nodes: ['Question', 'One candidate', 'Reranker model', 'Relevance score'],
+      },
     },
     {
-      title: 'A scoring example',
-      detail: 'A fake scorer counts the share of question words found in the candidate. "Refunds take 5 to 7 days after the item arrives" scores 0.40.',
+      title: 'The fake scorer counts shared words',
+      detail: 'The fake scorer counts the question words that appear in the candidate. The question "how long do refunds take" has five words, and the top candidate shares "refunds" and "take". That gives 2 of 5, or 0.40, while a real reranker is a trained model.',
+      visual: {
+        kind: 'bars',
+        caption: 'Fake scores for "how long do refunds take". Each score is shared words divided by 5.',
+        rows: [
+          { label: 'Refunds take 5 to 7 days', value: 0.4, highlight: true },
+          { label: 'Refunds for gift cards', value: 0.2 },
+          { label: 'Order status is shown', value: 0 },
+          { label: 'Shipping takes 2 business', value: 0 },
+        ],
+      },
+      snippet: {
+        source: `// Count the question words found in the candidate.
+const question = ["how", "long", "do", "refunds", "take"];
+const candidate =
+  "refunds take 5 to 7 days after the item arrives.";
+const words = candidate.split(" ");
+const shared = question.filter((w) => words.includes(w));
+console.log(shared, (shared.length / question.length).toFixed(2));
+`,
+        output: `[ 'refunds', 'take' ] 0.40`,
+      },
     },
     {
-      title: 'Sorting and keeping the top',
-      detail: 'The candidates are sorted by the new score, highest first. Keeping the best n, here 2, sends only two passages to the model.',
+      title: 'Sort and keep the top n',
+      detail: 'The candidates are sorted by the new score, highest first. Keeping the top n, here 2, sends only two passages to the answer model. The order from the first search no longer matters after this sort.',
+      visual: {
+        kind: 'chips',
+        caption: 'The two highest scores are kept. The other two are dropped.',
+        items: [
+          { text: 'Refunds take 5 to 7 days after the item arrives.', note: '0.40, kept', highlight: true },
+          { text: 'Refunds for gift cards are not possible.', note: '0.20, kept', highlight: true },
+          { text: 'Order status is shown on the account page.', note: '0.00, dropped' },
+          { text: 'Shipping takes 2 business days in most areas.', note: '0.00, dropped' },
+        ],
+      },
+      snippet: {
+        source: `// Sort by the new score, highest first. Keep the top n.
+const scored = [
+  { passage: "Order status", score: 0 },
+  { passage: "Refunds take 5 to 7 days", score: 0.4 },
+  { passage: "Refunds for gift cards", score: 0.2 },
+];
+const top = scored.sort((a, b) => b.score - a.score).slice(0, 2);
+console.log(top.map((t) => t.passage));
+`,
+        output: `[ 'Refunds take 5 to 7 days', 'Refunds for gift cards' ]`,
+      },
     },
   ],
   diagram: ['Candidates', 'Pair with question', 'Score', 'Sort', 'Keep top n'],
@@ -464,20 +783,6 @@ for (const hit of rerank(question, candidates, 2)) {
     output: `0.40 Refunds take 5 to 7 days after the item arrives.
 0.20 Refunds for gift cards are not possible.`,
   },
-  hood: {
-    paragraphs: [
-      'A real reranker is a model that reads the question and a passage together. Each pair costs more than a vector comparison, so it runs only on a short list.',
-      'The fake scorer is simple. It counts shared words and divides by the number of question words, so every score is between 0 and 1.',
-      'The sort uses a comparison function. Subtracting the scores puts the larger score first.',
-      'Reranking changes only the order. It cannot find new chunks, so a missing answer stays missing.',
-    ],
-    example: [
-      { label: 'Question', value: '"how long do refunds take"' },
-      { label: 'Question words', value: '5' },
-      { label: 'Shared words with the top passage', value: '2 (refunds, take)' },
-      { label: 'Top passage score', value: '0.40' },
-    ],
-  },
   mistakes: [
     'Reranking too few candidates. The reranker cannot promote a chunk that the first search dropped.',
     'Reranking a long list for every query. Each pair costs a model call, so the cost grows with the list.',
@@ -510,20 +815,91 @@ const queryRewriting: Lesson = {
   },
   steps: [
     {
-      title: 'Variants of the question',
-      detail: 'A model writes two or three variants of the question. For "my card was charged twice" it writes "duplicate card charge" and "refund for a double payment".',
+      title: 'The question words miss the documents',
+      detail: 'A user writes "my card was charged twice". None of the three chunks shares a whole word with that question, so the search returns 0 chunks. The documents say "duplicate charges" and "double payment" instead.',
+      visual: {
+        kind: 'table',
+        caption: 'Chunks found by each query, using whole-word matches over three chunks.',
+        columns: ['Query', 'Chunks found'],
+        rows: [
+          ['my card was charged twice', '0'],
+          ['duplicate card charge', '1'],
+          ['refund for a double payment', '1'],
+        ],
+        highlightRow: 0,
+      },
+      snippet: {
+        source: `// A fake model. A real model writes these from the question.
+const fakeModel = (question: string): string[] => {
+  return ["duplicate card charge", "refund for a double payment"];
+};
+console.log(fakeModel("my card was charged twice"));
+`,
+        output: `[ 'duplicate card charge', 'refund for a double payment' ]`,
+      },
     },
     {
-      title: 'One search per query',
-      detail: 'Each query runs its own search, and the original question runs too. The original alone finds 0 chunks in the example.',
+      title: 'A model writes other wordings',
+      detail: 'A model writes two or three variants of the question, using the words that documents tend to use. Here a fake model returns two fixed variants, so the example runs without a network call. Each variant is searched next to the original question.',
+      visual: {
+        kind: 'chips',
+        caption: 'The original question and its two variants.',
+        items: [
+          { text: 'my card was charged twice', note: 'original' },
+          { text: 'duplicate card charge', note: 'variant 1', highlight: true },
+          { text: 'refund for a double payment', note: 'variant 2', highlight: true },
+        ],
+      },
     },
     {
-      title: 'Merging the hits',
-      detail: 'The results are combined, and repeats are removed. The three queries together find 2 different chunks.',
+      title: 'Each query runs its own search',
+      detail: 'A chunk matches when it shares at least one whole word with the query. The word "charged" does not match "charges", so the original question finds nothing. Each variant finds one chunk of its own.',
+      visual: {
+        kind: 'bars',
+        caption: 'Chunks found by each query.',
+        rows: [
+          { label: 'Original', value: 0 },
+          { label: 'Variant 1', value: 1, highlight: true },
+          { label: 'Variant 2', value: 1, highlight: true },
+        ],
+      },
+      snippet: {
+        source: `// Whole-word match: "charged" is not the same word as "charges".
+const query = "my card was charged twice".split(" ");
+const chunk = "Duplicate charges are refunded in 5 days".split(" ");
+console.log(query.filter((w) => chunk.includes(w)));
+`,
+        output: `[]`,
+      },
     },
     {
-      title: 'What rewriting does not change',
-      detail: 'Rewriting changes what is searched, not how the answer is written. The merged chunks still go to ranking or to the model.',
+      title: 'Merging the hits without repeats',
+      detail: 'The hits from all queries are joined into one list. A Set keeps one copy of each chunk, so repeats are dropped. The three queries together find 2 different chunks, one from each variant.',
+      visual: {
+        kind: 'chips',
+        caption: 'The two chunks found after merging, with the query that found each.',
+        items: [
+          { text: 'Duplicate charges are refunded within 5 days', note: 'found by variant 1', highlight: true },
+          { text: 'A double payment is reversed by the bank', note: 'found by variant 2', highlight: true },
+        ],
+      },
+      snippet: {
+        source: `// A Set keeps one copy of each value.
+const hits = ["chunk A", "chunk B", "chunk A"];
+console.log(new Set(hits).size, [...new Set(hits)]);
+`,
+        output: `2 [ 'chunk A', 'chunk B' ]`,
+      },
+    },
+    {
+      title: 'A made-up answer can be searched instead',
+      detail: 'HyDE, short for hypothetical document embeddings, asks the model for a short made-up answer. That answer often uses the words the documents use, so its search can find chunks the question missed. The made-up answer can be wrong, so a check is still needed.',
+      visual: {
+        kind: 'compare',
+        caption: 'Two ways to build the search from the question.',
+        left: { title: 'Query variants', items: ['Rewrites the question', 'Several short queries', 'Hits merged without repeats'] },
+        right: { title: 'HyDE', items: ['Writes one made-up answer', 'Searches with that answer', 'Can be wrong, so it needs a check'] },
+      },
     },
   ],
   diagram: ['Question', 'Rewrite', 'Search each', 'Merge'],
@@ -564,20 +940,6 @@ Merged found: 2
 - Duplicate charges are refunded within 5 days
 - A double payment is reversed by the bank`,
   },
-  hood: {
-    paragraphs: [
-      'The variants come from a fake model here. The code returns fixed strings, so the example runs without a network call.',
-      'The search matches whole words. "Duplicate" matches "Duplicate", but "charged" does not match "charges".',
-      'A Set keeps one copy of each chunk. The flatMap call joins the hits of every query into one list before the Set removes repeats.',
-      'HyDE, short for hypothetical document embeddings, asks the model for a made-up short answer. Searching with that answer often uses the words the documents use.',
-    ],
-    example: [
-      { label: 'Original question', value: '"my card was charged twice"' },
-      { label: 'Hits for the original alone', value: '0' },
-      { label: 'Queries run', value: '3' },
-      { label: 'Merged hits', value: '2' },
-    ],
-  },
   mistakes: [
     'Writing variants that drift from the intent. A variant about replacing a card finds the wrong chunks.',
     'Adding too many variants. Each one is a search and a model call, and the merged list grows with noise.',
@@ -611,20 +973,93 @@ const parentChildAndCompression: Lesson = {
   },
   steps: [
     {
-      title: 'Small children, one parent',
-      detail: 'Each section is cut into child pieces, here one per sentence. Every child stores the id of its parent section, such as reset.',
+      title: 'Cut the section into child pieces',
+      detail: 'Each sentence of a section becomes one child piece. Every child stores the id of its parent, which is the section named reset. In a real system the parent id is saved with each child in the database.',
+      visual: {
+        kind: 'table',
+        caption: 'The three children of the reset section. Each one points to the same parent.',
+        columns: ['Child text', 'Parent id'],
+        rows: [
+          ['Hold the button for 10 seconds', 'reset'],
+          ['The light then blinks blue', 'reset'],
+          ['Wait one minute before you sign in', 'reset'],
+        ],
+      },
+      snippet: {
+        source: `const section = { id: "reset" };
+const sentences = [
+  "Hold the button for 10 seconds",
+  "The light then blinks blue",
+  "Wait one minute before you sign in",
+];
+const children = sentences.map((text) => {
+  return { text, parent: section.id };
+});
+console.log(children[1]);
+`,
+        output: `{ text: 'The light then blinks blue', parent: 'reset' }`,
+      },
     },
     {
-      title: 'Scoring the children',
-      detail: 'The question is scored against each child, not against the whole section. "What does the light do" matches "The light then blinks blue" best, with 2 shared words.',
+      title: 'Score each child against the question',
+      detail: 'The question is compared with each child, not with the whole section. The question words share 1 word with the first child, 2 with the second, and 0 with the third. A short child gives a sharper score, since no other sentence dilutes it.',
+      visual: {
+        kind: 'bars',
+        caption: 'Shared words between the question and each child.',
+        rows: [
+          { label: 'Hold the button', value: 1 },
+          { label: 'The light then blinks', value: 2, highlight: true },
+          { label: 'Wait one minute', value: 0 },
+        ],
+      },
+      snippet: {
+        source: `const query = ["what", "does", "the", "light", "do"];
+const children = [
+  "Hold the button for 10 seconds",
+  "The light then blinks blue",
+  "Wait one minute before you sign in",
+];
+for (const text of children) {
+  const words = text.toLowerCase().split(" ");
+  console.log(query.filter((w) => words.includes(w)).length, text);
+}
+`,
+        output: `1 Hold the button for 10 seconds
+2 The light then blinks blue
+0 Wait one minute before you sign in`,
+      },
     },
     {
-      title: 'Returning the parent',
-      detail: 'The best child points to its parent. The whole section is returned, so the model gets the steps around the matched sentence.',
+      title: 'The best child points to its parent',
+      detail: 'The best child is "The light then blinks blue", with 2 shared words. The search returns its parent, the whole reset section, so the model reads the instructions around the matched sentence. Those neighbors often hold the warning or the next action.',
+      visual: {
+        kind: 'flow',
+        caption: 'The path from the matched child to the text the model reads.',
+        nodes: ['Matched child', 'Parent id: reset', 'Whole section'],
+      },
+      snippet: {
+        source: `const sentences = [
+  "Hold the button for 10 seconds",
+  "The light then blinks blue",
+  "Wait one minute before you sign in",
+];
+const best = sentences[1];
+console.log("Best child:", best);
+console.log("Parent text:", sentences.join(". ") + ".");
+`,
+        output: `Best child: The light then blinks blue
+Parent text: Hold the button for 10 seconds. The light then blinks blue. Wait one minute before you sign in.`,
+      },
     },
     {
-      title: 'When compression helps',
-      detail: 'A long parent can be cut down to the sentences that answer the question. This keeps the prompt short, and the snippet leaves it out.',
+      title: 'Compression keeps the sentences that help',
+      detail: 'A long parent can be cut down to the sentences that answer the question. The wait sentence does not help with the light question, so compression drops it. The model gets two sentences instead of three, which keeps the prompt short.',
+      visual: {
+        kind: 'compare',
+        caption: 'The parent text before and after compression, for the light question.',
+        left: { title: 'Full parent', items: ['Hold the button for 10 seconds', 'The light then blinks blue', 'Wait one minute before you sign in'] },
+        right: { title: 'Compressed', items: ['Hold the button for 10 seconds', 'The light then blinks blue'] },
+      },
     },
   ],
   code: {
@@ -656,20 +1091,6 @@ console.log("Parent section:", section.sentences.join(". ") + ".");
 `,
     output: `Matched child: The light then blinks blue
 Parent section: Hold the button for 10 seconds. The light then blinks blue. Wait one minute before you sign in.`,
-  },
-  hood: {
-    paragraphs: [
-      'Children are short, so each child vector stands for one idea. That makes the best match sharper than a match against a long section.',
-      'The findChild function counts shared whole words. The child with the highest count wins, and the first child wins a tie.',
-      'The snippet returns the parent as one string. A real system stores the parent id with each child in the database.',
-      'Compression removes sentences that do not help the answer. The snippet leaves it out to stay short.',
-    ],
-    example: [
-      { label: 'Question', value: '"what does the light do"' },
-      { label: 'Best child', value: '"The light then blinks blue"' },
-      { label: 'Shared words in the best child', value: '2 (the, light)' },
-      { label: 'Parent returned', value: 'the section with id reset' },
-    ],
   },
   mistakes: [
     'Cutting children too small. A single word has no meaning, so it matches the wrong parents.',
@@ -703,24 +1124,90 @@ const correctiveRetrieval: Lesson = {
   },
   steps: [
     {
-      title: 'A search with no good result',
-      detail: 'For "how long until my money is back" the words differ from the documents. The first search returns 0 chunks.',
+      title: 'The first search finds nothing useful',
+      detail: 'Users write "how long until my money is back". The words do not match the documents, which say "refund". The first search therefore returns 0 chunks from the two-chunk library.',
+      visual: {
+        kind: 'table',
+        caption: 'Results for each query over the two-chunk library.',
+        columns: ['Query', 'Chunks found'],
+        rows: [
+          ['how long until my money is back', '0'],
+          ['refund', '1'],
+        ],
+        highlightRow: 1,
+      },
+      snippet: {
+        source: `// Fake search: chunks that share a whole word with the query.
+const library = [
+  "Gift card balances are on the account page",
+  "Refund takes 5 to 7 days",
+];
+const words = "how long until my money is back".split(" ");
+const hits = library.filter((c) => {
+  return words.some((w) => c.toLowerCase().split(" ").includes(w));
+});
+console.log(hits.length);
+`,
+        output: `0`,
+      },
     },
     {
-      title: 'A grader decides',
-      detail: 'A grader judges whether each chunk answers the question. In this lesson a fake grader accepts only the "Refund takes 5 to 7 days" chunk.',
+      title: 'A grader keeps only chunks that answer',
+      detail: 'A grader is a check that decides whether a chunk answers the question. In this example a fake grader accepts only the refund chunk. A real grader is a model call for each chunk, so systems grade only the top few results.',
+      visual: {
+        kind: 'chips',
+        caption: 'The two library chunks after the grader has read them.',
+        items: [
+          { text: 'Refund takes 5 to 7 days', note: 'kept', highlight: true },
+          { text: 'Gift card balances are on the account page', note: 'rejected' },
+        ],
+      },
+      snippet: {
+        source: `// Fake grader: accept only the chunk that answers the question.
+const answering = new Set(["Refund takes 5 to 7 days"]);
+const grade = (chunk: string) => answering.has(chunk);
+console.log(grade("Refund takes 5 to 7 days"));
+console.log(grade("Gift card balances are on the account page"));
+`,
+        output: `true
+false`,
+      },
     },
     {
-      title: 'A rewritten query',
-      detail: 'When grading keeps nothing, a rewriter writes a better query. The rewrite "refund" matches the chunk words, so the second search keeps 1 chunk.',
+      title: 'A rewrite uses the document words',
+      detail: 'The rewriter replaces "money back" with "refund", a word the refund chunk uses. A plain search for "refund" finds that chunk, and the grader keeps it, so the second search keeps 1 chunk. Matching is by whole word, so the plural "Refunds" would not match.',
+      visual: {
+        kind: 'bars',
+        caption: 'Chunks kept after grading, for each search.',
+        rows: [
+          { label: 'First search', value: 0 },
+          { label: 'Rewritten search', value: 1, highlight: true },
+        ],
+      },
+      snippet: {
+        source: `// The library and the rewritten query.
+const library = [
+  "Gift card balances are on the account page",
+  "Refund takes 5 to 7 days",
+];
+const rewritten = "refund";
+const hits = library.filter((chunk) => {
+  return chunk.toLowerCase().split(" ").includes(rewritten);
+});
+console.log(hits);
+`,
+        output: `[ 'Refund takes 5 to 7 days' ]`,
+      },
     },
     {
       title: 'Refusing when nothing passes',
-      detail: 'If the second round also keeps nothing, the system says the documents do not cover the question. It does not guess.',
-    },
-    {
-      title: 'Limiting the rounds',
-      detail: 'Set a maximum number of rounds, such as two. The loop then always stops, even when no chunk passes.',
+      detail: 'Each round is one search, one grading pass, and one rewrite. If a round keeps nothing, the system tries again. It stops after a set number of rounds, such as two. If nothing still passes, it says the documents do not cover the question instead of guessing.',
+      visual: {
+        kind: 'compare',
+        caption: 'What the system returns after the last round, in two cases.',
+        left: { title: 'A chunk passed', items: ['Answer from the kept chunk', 'Show its source'] },
+        right: { title: 'Nothing passed', items: ['Say the documents do not cover it', 'Do not guess an answer'] },
+      },
     },
   ],
   diagram: ['Search', 'Grade', 'Rewrite', 'Search again', 'Answer or refuse'],
@@ -760,20 +1247,6 @@ console.log("Second kept:", search(rewritten).filter(grade));
 Rewritten query: refund
 Second kept: [ 'Refund takes 5 to 7 days' ]`,
   },
-  hood: {
-    paragraphs: [
-      'The grader is the costly part. A model call for each chunk takes time, so systems grade only the top few results.',
-      'The grader here is a lookup set. A real grader asks a model whether the chunk answers the question, yes or no.',
-      'The search matches whole words only. "Refunds" does not match "refund", so the rewrite uses the singular form.',
-      'A corrective system needs a stop rule. Without one, the rewrite loop can run forever, so the system limits the number of rounds.',
-    ],
-    example: [
-      { label: 'Question', value: '"how long until my money is back"' },
-      { label: 'First search result', value: '0 chunks' },
-      { label: 'Rewritten query', value: '"refund"' },
-      { label: 'Second search kept', value: '1 chunk, "Refund takes 5 to 7 days"' },
-    ],
-  },
   mistakes: [
     'Grading with the same signal that found the chunk. A grader that only repeats the search adds no check.',
     'Rewriting without a limit. Set a maximum number of rounds, such as two.',
@@ -806,27 +1279,111 @@ const textToSql: Lesson = {
   },
   steps: [
     {
-      title: 'Table layout in the prompt',
-      detail: 'Send the table and column names with the question. Without them, the model guesses, and the query often fails.',
+      title: 'The table layout goes into the prompt',
+      detail: 'The model needs the table and column names to write a valid query. Send them with the question, or the model guesses names and the query often fails. The example table has three rows and two columns, name and price.',
+      visual: {
+        kind: 'table',
+        caption: 'The products table that the question is about.',
+        columns: ['name', 'price'],
+        rows: [
+          ['Basic plan', '12'],
+          ['Pro plan', '30'],
+          ['Team plan', '80'],
+        ],
+      },
+      snippet: {
+        source: `// The schema text sent to the model with the question.
+const schema = "products(name TEXT, price INTEGER)";
+const question = "Plans under 40?";
+console.log("Schema:", schema);
+console.log("Question:", question);
+`,
+        output: `Schema: products(name TEXT, price INTEGER)
+Question: Plans under 40?`,
+      },
     },
     {
-      title: 'One SQL string',
-      detail: 'For "Plans under 40?" the fake model returns SELECT name FROM products WHERE price < 40. The model writes text, and it does not return rows.',
+      title: 'The model writes one SQL string',
+      detail: 'For "Plans under 40?" the fake model returns one SQL string, SELECT name FROM products WHERE price < 40. SQL is the language databases use to read rows. The model returns text, not rows, so a program must still run the query.',
+      visual: {
+        kind: 'flow',
+        caption: 'The path from the question to the rows, left to right.',
+        nodes: ['Question', 'SQL text', 'Check', 'Database rows'],
+      },
+      snippet: {
+        source: `// A fake model. It returns one SQL string for the question.
+const fakeModel = (question: string) => {
+  if (question.includes("under")) {
+    return "SELECT name FROM products WHERE price < 40";
+  }
+  return "DROP TABLE products";
+};
+console.log(fakeModel("Plans under 40?"));
+`,
+        output: `SELECT name FROM products WHERE price < 40`,
+      },
     },
     {
-      title: 'The check before running',
-      detail: 'The check allows one plain SELECT and refuses words such as DELETE or DROP. The output "DROP TABLE products" is refused.',
+      title: 'The check runs before the query',
+      detail: 'The check accepts one plain SELECT and refuses any write word, such as DROP or DELETE. The SELECT passes, and "DROP TABLE products" is refused before it reaches the database. A real check parses the SQL, which is stricter than a word search.',
+      visual: {
+        kind: 'compare',
+        caption: 'Two model outputs and the result of the check for each.',
+        left: { title: 'Accepted', items: ['SELECT name FROM products WHERE price < 40'] },
+        right: { title: 'Refused', items: ['DROP TABLE products'] },
+      },
+      snippet: {
+        source: `// Accept only one SELECT with no write words.
+function isSafe(sql: string): boolean {
+  const upper = sql.toUpperCase();
+  const banned = ["DROP", "DELETE"].some((w) => upper.includes(w));
+  return upper.startsWith("SELECT ") && !banned;
+}
+console.log(isSafe("SELECT name FROM products WHERE price < 40"));
+console.log(isSafe("DROP TABLE products"));
+`,
+        output: `true
+false`,
+      },
     },
     {
-      title: 'A read-only login',
-      detail: 'The database login can read rows but cannot change them. A bad query then cannot alter the data, even if the check misses it.',
+      title: 'Only matching rows come back',
+      detail: 'The filter price < 40 runs on each row, and it keeps the rows that pass. Basic plan at 12 and Pro plan at 30 pass, while Team plan at 80 does not. The snippet applies the same filter to an array, so the example runs with no database.',
+      visual: {
+        kind: 'table',
+        caption: 'Each row checked against price < 40.',
+        columns: ['Name', 'Price', 'Returned'],
+        rows: [
+          ['Basic plan', '12', 'yes'],
+          ['Pro plan', '30', 'yes'],
+          ['Team plan', '80', 'no'],
+        ],
+      },
+      snippet: {
+        source: `// The same filter as the SQL, applied to an array of rows.
+const products = [
+  { name: "Basic plan", price: 12 },
+  { name: "Pro plan", price: 30 },
+  { name: "Team plan", price: 80 },
+];
+console.log(products.filter((r) => r.price < 40));
+`,
+        output: `[ { name: 'Basic plan', price: 12 }, { name: 'Pro plan', price: 30 } ]`,
+      },
     },
     {
-      title: 'Showing the query with the rows',
-      detail: 'Show the user the rows and the query text. A person can then see which filter produced the answer.',
+      title: 'A read-only login is the last guard',
+      detail: 'A checker can miss a clever query, so it is not the only guard. A read-only database login can read rows but cannot change them, so a bad query cannot alter the data. Show the query next to the rows, so a person can see which filter was used.',
+      visual: {
+        kind: 'chips',
+        caption: 'Two guards, before any row can change.',
+        items: [
+          { text: 'Check on the SQL text', note: 'stops most bad text' },
+          { text: 'Read-only login', note: 'stops any write', highlight: true },
+        ],
+      },
     },
   ],
-  diagram: ['Question', 'Model writes SQL', 'Check', 'Run', 'Rows'],
   code: {
     source: `// A small table of plans. A real database would hold this.
 const products = [
@@ -861,20 +1418,6 @@ for (const q of ["Plans under 40?", "Remove plans"]) {
 [ { name: 'Basic plan', price: 12 }, { name: 'Pro plan', price: 30 } ]
 SQL: DROP TABLE products (refused)`,
   },
-  hood: {
-    paragraphs: [
-      'The table layout belongs in the prompt. Without column names, the model guesses, and the query often fails.',
-      'The check here is simple. It looks for a leading SELECT and for forbidden words. A real system parses the query, which is stricter.',
-      'The snippet does not run SQL. It applies the same price filter to an array, so the example runs with no database.',
-      'The read-only account is the main safeguard. A checker can miss a clever query, so the database must also refuse writes.',
-    ],
-    example: [
-      { label: 'Question', value: '"Plans under 40?"' },
-      { label: 'Generated SQL', value: 'SELECT name FROM products WHERE price < 40' },
-      { label: 'Check result', value: 'safe' },
-      { label: 'Rows returned', value: 'Basic plan (12) and Pro plan (30)' },
-    ],
-  },
   mistakes: [
     'Running the model output without a check. A model can write a DELETE as easily as a SELECT.',
     'Giving the model a login with write access. Use a read-only database account.',
@@ -907,24 +1450,113 @@ const graphRetrieval: Lesson = {
   },
   steps: [
     {
-      title: 'Facts as links',
-      detail: 'A fact has three parts: from, relation, and to. "Basic plan includes Email support" is one link with the relation includes.',
+      title: 'A fact is one link',
+      detail: 'A fact has three parts: the name it starts from, a relation, and the name it points to. "Basic plan includes Email support" is one link with the relation includes. The example stores three links in this form.',
+      visual: {
+        kind: 'table',
+        caption: 'The three stored links.',
+        columns: ['From', 'Relation', 'To'],
+        rows: [
+          ['Basic plan', 'includes', 'Email support'],
+          ['Pro plan', 'includes', 'Phone support'],
+          ['Email support', 'hours', '9 to 5 weekdays'],
+        ],
+        highlightRow: 0,
+      },
+      snippet: {
+        source: `// One stored fact: from, relation, and to.
+const edge = {
+  from: "Basic plan",
+  rel: "includes",
+  to: "Email support",
+};
+console.log(edge.from, edge.rel, edge.to);
+`,
+        output: `Basic plan includes Email support`,
+      },
     },
     {
-      title: 'Starting at a name',
-      detail: 'The question names "Basic plan", so the walk starts there. A real system finds the name with a search or a model.',
+      title: 'A lookup table from each name',
+      detail: 'A Map connects each name to the links that start there. Finding the links of one name is a single lookup, so the search does not scan every link. The map entry for Basic plan holds one link in this example.',
+      visual: {
+        kind: 'chips',
+        caption: 'The map entry for each starting name.',
+        items: [
+          { text: 'Basic plan', note: '1 link: includes Email support', highlight: true },
+          { text: 'Pro plan', note: '1 link: includes Phone support' },
+          { text: 'Email support', note: '1 link: hours 9 to 5 weekdays' },
+        ],
+      },
+      snippet: {
+        source: `const edges = [
+  { from: "Basic plan", rel: "includes", to: "Email support" },
+  { from: "Pro plan", rel: "includes", to: "Phone support" },
+  { from: "Email support", rel: "hours", to: "9 to 5 weekdays" },
+];
+const graph = new Map<string, typeof edges>();
+for (const e of edges) {
+  graph.set(e.from, [...(graph.get(e.from) ?? []), e]);
+}
+console.log(graph.get("Basic plan"));
+`,
+        output: `[ { from: 'Basic plan', rel: 'includes', to: 'Email support' } ]`,
+      },
     },
     {
-      title: 'One hop',
-      detail: 'One hop reads the links that start at Basic plan. It finds "Basic plan includes Email support".',
+      title: 'One hop reads the links of a name',
+      detail: 'A hop is one move along a link. The walk starts at Basic plan, and one hop reads the links that start there. That hop finds "includes Email support" and the new name Email support.',
+      visual: {
+        kind: 'flow',
+        caption: 'One hop from the starting name.',
+        nodes: ['Basic plan', 'includes', 'Email support'],
+      },
+      snippet: {
+        source: `const edges = [
+  { from: "Basic plan", rel: "includes", to: "Email support" },
+  { from: "Pro plan", rel: "includes", to: "Phone support" },
+  { from: "Email support", rel: "hours", to: "9 to 5 weekdays" },
+];
+const next = edges.filter((e) => e.from === "Basic plan");
+console.log(next.map((e) => e.from + " " + e.rel + " " + e.to));
+`,
+        output: `[ 'Basic plan includes Email support' ]`,
+      },
     },
     {
-      title: 'Two hops',
-      detail: 'The second hop starts at Email support. It finds "Email support hours 9 to 5 weekdays", a fact the first search would miss.',
+      title: 'A second hop reaches the support hours',
+      detail: 'The second hop starts at Email support, the name the first hop found. It reads one link, "hours 9 to 5 weekdays", which the first hop could not reach. Two hops return two facts in total.',
+      visual: {
+        kind: 'table',
+        caption: 'Facts found after each hop from Basic plan.',
+        columns: ['Hop', 'Names read', 'Facts found'],
+        rows: [
+          ['1', 'Basic plan', '1'],
+          ['2', 'Email support', '2 in total'],
+        ],
+      },
+      snippet: {
+        source: `const edges = [
+  { from: "Basic plan", rel: "includes", to: "Email support" },
+  { from: "Pro plan", rel: "includes", to: "Phone support" },
+  { from: "Email support", rel: "hours", to: "9 to 5 weekdays" },
+];
+const first = edges.filter((e) => e.from === "Basic plan");
+const names = first.map((e) => e.to);
+const second = edges.filter((e) => names.includes(e.from));
+console.log(second.map((e) => e.from + " " + e.rel + " " + e.to));
+`,
+        output: `[ 'Email support hours 9 to 5 weekdays' ]`,
+      },
     },
     {
-      title: 'Keeping a source',
-      detail: 'Each link in a real system also names its document. An answer can then be checked against the original text.',
+      title: 'Each link keeps its source',
+      detail: 'A link in a real system also names the document and section it came from. An answer can then be checked against the original text. A link with no source cannot be verified, so it should not be trusted.',
+      visual: {
+        kind: 'compare',
+        caption: 'The same link with and without a source.',
+        left: { title: 'Link alone', items: ['Basic plan includes Email support'] },
+        right: { title: 'Link with source', items: ['Basic plan includes Email support', 'Source: plans page, section 2'] },
+      },
     },
   ],
   code: {
@@ -956,7 +1588,7 @@ function walk(start: string, hops: number): string[] {
 }
 
 console.log("One hop:", walk("Basic plan", 1));
-// One hop, then two hops, which reaches the support hours.
+// Two hops reach the support hours.
 console.log("Two hops:", walk("Basic plan", 2));
 `,
     output: `One hop: [ 'Basic plan includes Email support' ]
@@ -964,20 +1596,6 @@ Two hops: [
   'Basic plan includes Email support',
   'Email support hours 9 to 5 weekdays'
 ]`,
-  },
-  hood: {
-    paragraphs: [
-      'The graph is a Map from each name to its outgoing links. Finding the links of one name takes a single lookup.',
-      'Hops set the reach. Each hop adds the next layer of links, so two hops reach facts one link further away.',
-      'The walk keeps a list of names for the next hop. Each hop replaces that list with the targets of the links it just followed.',
-      'Graphs help with links between named things. Long prose still needs chunks and vector search.',
-    ],
-    example: [
-      { label: 'Start name', value: '"Basic plan"' },
-      { label: 'Facts after hop 1', value: '1 (includes Email support)' },
-      { label: 'Facts after hop 2', value: '2 (adds the support hours)' },
-      { label: 'Links stored in this example', value: '3' },
-    ],
   },
   mistakes: [
     'Too many hops. Each hop can pull in unrelated facts, so the answer grows noisy.',
@@ -1011,23 +1629,97 @@ const multimodalRetrieval: Lesson = {
   },
   steps: [
     {
-      title: 'Captions for pictures',
-      detail: 'A vision model writes a caption for each picture. "Front panel with a red light." is one caption in this lesson.',
+      title: 'Each picture gets a caption',
+      detail: 'A vision model reads each picture once, when the manual is loaded, and writes a caption. The caption then goes through the same search as a text chunk. Some systems embed the pixels directly, which can match pictures without a caption, but that costs more.',
+      visual: {
+        kind: 'table',
+        caption: 'Three pictures from a device manual, with their captions.',
+        columns: ['File', 'Caption'],
+        rows: [
+          ['front.png', 'Front panel with a red light.'],
+          ['back.png', 'Back view with two cables.'],
+          ['side.png', 'Side view with a power button.'],
+        ],
+      },
+      snippet: {
+        source: `// Each picture has a file name and a caption.
+const images = [
+  { file: "front.png", caption: "Front panel with a red light." },
+  { file: "back.png", caption: "Back view with two cables." },
+];
+for (const i of images) console.log(i.file, i.caption);
+`,
+        output: `front.png Front panel with a red light.
+back.png Back view with two cables.`,
+      },
     },
     {
-      title: 'Numbers from a caption',
-      detail: 'This lesson uses a fake embedding that counts the words light, cable, and red. The front panel caption gives the list [1, 0, 1].',
+      title: 'Counting words gives numbers',
+      detail: 'The fake embedding counts how often the words light, cable, and red appear in a caption. The front panel caption has light once and red once, so its vector is 1, 0, 1. The back view has none of the three words, so its vector is 0, 0, 0. The side view is also 0, 0, 0.',
+      visual: {
+        kind: 'table',
+        caption: 'The vector for each caption. The columns count light, cable, and red.',
+        columns: ['Caption', 'light', 'cable', 'red'],
+        rows: [
+          ['Front panel with a red light.', '1', '0', '1'],
+          ['Back view with two cables.', '0', '0', '0'],
+          ['Side view with a power button.', '0', '0', '0'],
+        ],
+        highlightRow: 0,
+      },
+      snippet: {
+        source: `const keys = ["light", "cable", "red"];
+const embed = (text: string) => {
+  const words = text.toLowerCase().replace(".", "").split(" ");
+  return keys.map((k) => words.filter((w) => w === k).length);
+};
+console.log(embed("Front panel with a red light."));
+console.log(embed("Back view with two cables."));
+`,
+        output: `[ 1, 0, 1 ]
+[ 0, 0, 0 ]`,
+      },
     },
     {
-      title: 'The question as numbers',
-      detail: 'The question "blinking red light" gets the same counts, [1, 0, 1]. Each image vector is then compared with it.',
+      title: 'The question gets the same counts',
+      detail: 'The question "blinking red light" goes through the same count, which gives 1, 0, 1. Each caption vector is then compared with it by a dot product. The front panel scores 2, and the back and side views score 0.',
+      visual: {
+        kind: 'bars',
+        caption: 'Dot product of the question vector with each caption vector.',
+        rows: [
+          { label: 'Front panel', value: 2, highlight: true },
+          { label: 'Back view', value: 0 },
+          { label: 'Side view', value: 0 },
+        ],
+      },
+      snippet: {
+        source: `const keys = ["light", "cable", "red"];
+const embed = (text: string) => {
+  const words = text.toLowerCase().replace(".", "").split(" ");
+  return keys.map((k) => words.filter((w) => w === k).length);
+};
+const dot = (a: number[], b: number[]) =>
+  a.reduce((sum, v, i) => sum + v * b[i], 0);
+const query = embed("blinking red light");
+console.log(dot(query, embed("Front panel with a red light.")));
+`,
+        output: `2`,
+      },
     },
     {
-      title: 'Ranking the images',
-      detail: 'The front panel scores 2, and the other two score 0. The top file, front.png, is returned with its caption.',
+      title: 'Ranking returns the image file',
+      detail: 'Each image is scored with the dot product, and the list is sorted from high to low. The top file, front.png, is returned with its caption, so the reader can see what the picture shows. Small text inside a picture needs OCR, a method that reads printed text from an image.',
+      visual: {
+        kind: 'chips',
+        caption: 'Images ranked for "blinking red light".',
+        items: [
+          { text: 'front.png', note: 'score 2, returned', highlight: true },
+          { text: 'back.png', note: 'score 0' },
+          { text: 'side.png', note: 'score 0' },
+        ],
+      },
     },
   ],
-  diagram: ['Image', 'Caption', 'Embed', 'Score', 'Image file'],
   code: {
     source: `// Images in a manual. A fake vision model wrote each caption.
 const images = [
@@ -1063,20 +1755,6 @@ for (const row of ranked) console.log(row.score, row.file);
 0 back.png
 0 side.png`,
   },
-  hood: {
-    paragraphs: [
-      'Some systems embed the pixels with an image model. They can match pictures that have no caption, at a higher cost.',
-      'A caption is a simple route. The vision model reads each picture once, when the document loads. The caption then uses the same search as a chunk.',
-      'The fake embedding counts keywords, which is far weaker than a real model. Real vectors also match synonyms.',
-      'A caption can miss small detail. A diagram with small labels needs a text reader for images, called OCR, as well.',
-    ],
-    example: [
-      { label: 'Question vector (light, cable, red)', value: '[1, 0, 1]' },
-      { label: 'Front panel caption vector', value: '[1, 0, 1]' },
-      { label: 'Front panel score', value: '2' },
-      { label: 'Back view score', value: '0' },
-    ],
-  },
   mistakes: [
     'Captioning only the title. A caption must describe what is visible, or the search cannot find it.',
     'Searching images with keyword counts and expecting meaning. Use a real embedding model for meaning.',
@@ -1105,24 +1783,61 @@ const whatRetrievalCannotFix: Lesson = {
   oneLiner: 'Retrieval finds the closest chunks, but it cannot add missing facts or pick the newest edition.',
   problem: {
     without: 'A user expects the search to know the answer. It returns the closest chunks anyway, and the closest chunk can be outdated or unrelated.',
-    with: 'Each failure has a known cause and a known fix. Name the failure first, then choose the fix from the lessons in this module.',
+    with: 'Each failure has a known cause and a known fix. Name the failure, then choose the fix from the lessons in this module.',
   },
   steps: [
     {
-      title: 'Missing content',
-      detail: 'If no chunk holds the answer, no search can find it. The fix is to add the document or to say the answer is not in the documents.',
+      title: 'Missing content cannot be ranked into view',
+      detail: 'If no chunk holds the answer, no search can return it. Ranking only puts existing chunks in order, so it cannot add a missing fact. The fix is to add the document, or to say the answer is not in the documents.',
     },
     {
-      title: 'Two editions of one answer',
-      detail: 'The 2019 and 2024 refund chunks both score 0.82 for "refund time". The fix is a metadata filter (lesson 4.2).',
+      title: 'Two editions can tie',
+      detail: 'The 2019 and 2024 refund chunks have the same vector, so both score 0.82 for "refund time". A tie like this is a warning sign, so check the labels first. The fix is a metadata filter on the edition label (lesson 4.2).',
+      visual: {
+        kind: 'bars',
+        caption: 'Scores for "refund time". The two editions tie at the top.',
+        rows: [
+          { label: '2019 refund', value: 0.82, highlight: true },
+          { label: '2024 refund', value: 0.82, highlight: true },
+          { label: 'Office closed', value: 0.18 },
+        ],
+      },
+      snippet: {
+        source: `const dot = (a: number[], b: number[]) => a[0] * b[0] + a[1] * b[1];
+const query = [0.9, 0.1];
+console.log("2019:", dot(query, [0.9, 0.1]).toFixed(2));
+console.log("2024:", dot(query, [0.9, 0.1]).toFixed(2));
+`,
+        output: `2019: 0.82
+2024: 0.82`,
+      },
     },
     {
-      title: 'Unrelated questions still return results',
-      detail: 'A question about gift cards returns two chunks, though neither answers it. The top score is only 0.29. The fix is a grader that can say no (lesson 4.8).',
+      title: 'Unrelated questions still get results',
+      detail: 'The question "do you sell gift cards" has no matching chunk, yet search returns 2 anyway. The top score is only 0.29, for a chunk about office holidays, and scores are relative. No cutoff is safe until tests show where it belongs. A grader that can say no is the fix (lesson 4.8).',
+      visual: {
+        kind: 'chips',
+        caption: 'The two results for "do you sell gift cards", with their scores.',
+        items: [
+          { text: 'Our office is closed on holidays.', note: 'score 0.29, unrelated', highlight: true },
+          { text: 'Refunds take 5 days. (2019)', note: 'score 0.21, unrelated' },
+        ],
+      },
     },
     {
-      title: 'Vague wording',
-      detail: 'Words the documents do not use cause misses. The fix is query rewriting (lesson 4.6).',
+      title: 'A table of causes and fixes',
+      detail: 'Four failures explain most wrong answers from retrieval. Each has a cause that ranking cannot fix on its own. Test each one on purpose by adding no-answer questions and two-edition questions to the golden set.',
+      visual: {
+        kind: 'table',
+        caption: 'Four failures, the sign that shows each one, and the fix.',
+        columns: ['Failure', 'Sign', 'Fix'],
+        rows: [
+          ['Missing content', 'Top results do not answer', 'Add the document, or say not covered'],
+          ['Two editions', 'Equal top scores', 'Metadata filter (lesson 4.2)'],
+          ['Unrelated results', 'Low top score, still returned', 'Grader that can say no (lesson 4.8)'],
+          ['Vague wording', 'Zero hits for the question', 'Query rewriting (lesson 4.6)'],
+        ],
+      },
     },
   ],
   code: {
@@ -1160,20 +1875,6 @@ for (const hit of topK([0.2, 0.3], 2)) {
 Query: do you sell gift cards
 0.29 Our office is closed on holidays.
 0.21 Refunds take 5 days. (2019)`,
-  },
-  hood: {
-    paragraphs: [
-      'Retrieval ranks what exists. It cannot create a fact, and no ranking order fixes a document that is missing.',
-      'Equal scores are a warning sign. The two editions tie at 0.82, so a tie should trigger a check of the labels.',
-      'Low scores do not mean no answer. Vector scores are relative, so any cutoff must be tested on real questions first.',
-      'Test the failure cases on purpose. Add questions with no answer, and questions with two editions, to the golden set.',
-    ],
-    example: [
-      { label: 'Question', value: '"do you sell gift cards"' },
-      { label: 'Top result score', value: '0.29' },
-      { label: '2019 refund chunk for "refund time"', value: '0.82' },
-      { label: '2024 refund chunk for "refund time"', value: '0.82' },
-    ],
   },
   mistakes: [
     'Tuning the ranking for a missing answer. Ranking cannot create a document that is not there.',
