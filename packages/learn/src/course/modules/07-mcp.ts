@@ -12,20 +12,78 @@ const hostClientServer: Lesson = {
   },
   steps: [
     {
-      title: 'The three roles',
-      detail: 'The host is the app the user runs. The client lives inside the host and talks to one server. The server offers tools and data.',
+      title: 'Three roles, one protocol',
+      detail: 'The host is the app the user runs. Its client talks to one server, and the server offers tools and data. A tool such as get_order is the function the model can finally ask for.',
+      visual: {
+        kind: 'flow',
+        caption: 'The roles in one chain, from left to right.',
+        nodes: ['Host app', 'Client', 'Server', 'get_order tool'],
+      },
     },
     {
-      title: 'Message format',
-      detail: 'Every JSON-RPC message is a JSON object. A request has an id, a method name, and optional params. For example, tools/call names the tool get_order.',
+      title: 'A request is one JSON object',
+      detail: 'Each message is a JSON object with a version, an id, a method, and params. The method names the action, such as tools/call. The params hold its inputs, such as the tool name and the order id.',
+      visual: {
+        kind: 'table',
+        caption: 'The fields of the request in the snippet.',
+        columns: ['Field', 'Value', 'Meaning'],
+        rows: [
+          ['jsonrpc', '2.0', 'the protocol version'],
+          ['id', '3', 'matches the reply'],
+          ['method', 'tools/call', 'the action to run'],
+          ['params', 'name and arguments', 'the inputs'],
+        ],
+      },
+      snippet: {
+        source: `const callTool = {
+  jsonrpc: "2.0",
+  id: 3,
+  method: "tools/call",
+  params: { name: "get_order", arguments: { orderId: "A-1042" } },
+};
+console.log(JSON.stringify(callTool));
+`,
+        output: `{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"get_order","arguments":{"orderId":"A-1042"}}}`,
+      },
     },
     {
-      title: 'Starting the session',
-      detail: 'The client sends initialize first, with a protocol version such as 2024-11-05. Other requests follow after the server answers that first request.',
+      title: 'The id matches a reply to its request',
+      detail: 'A reply repeats the id of the request it answers. The client compares the two ids to find the match. Ids let many requests share one connection without mixing up the answers.',
+      visual: {
+        kind: 'chips',
+        caption: 'Two messages on one connection, linked by their ids.',
+        items: [
+          { text: 'Request, id 3', note: 'tools/call' },
+          { text: 'Reply, id 3', note: 'Shipped Monday.', highlight: true },
+        ],
+      },
+      snippet: {
+        source: `const request = { id: 3, method: "tools/call" };
+const reply = { id: 3, result: { text: "Shipped Monday." } };
+console.log("Reply matches call:", reply.id === request.id);
+`,
+        output: `Reply matches call: true`,
+      },
     },
     {
-      title: 'Matching replies',
-      detail: 'A reply repeats the id of the request it answers. The sample prints true because reply id 3 matches call id 3. Ids let several requests share one connection.',
+      title: 'Initialize opens the session',
+      detail: 'The client sends the initialize request, with a protocol version such as 2024-11-05. Other requests follow only after the server answers. After that, the client can list the tools and call them.',
+      visual: {
+        kind: 'flow',
+        caption: 'The order of the first messages in a session.',
+        nodes: ['initialize', 'Server reply', 'tools/list', 'tools/call'],
+      },
+      snippet: {
+        source: `const initialize = {
+  jsonrpc: "2.0",
+  id: 1,
+  method: "initialize",
+  params: { protocolVersion: "2024-11-05" },
+};
+console.log(JSON.stringify(initialize));
+`,
+        output: `{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05"}}`,
+      },
     },
   ],
   diagram: ['Host app', 'Client', 'Server', 'Tool'],
@@ -63,19 +121,6 @@ console.log("Reply matches call:", reply.id === callTool.id);
 {"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"get_order","arguments":{"orderId":"A-1042"}}}
 Reply matches call: true`,
   },
-  hood: {
-    paragraphs: [
-      'JSON-RPC is a message format. Each message is a JSON object with a version, a method name, and params, or a result for an id.',
-      'The id lets many requests share one connection. A reply with the same id belongs to that request.',
-      'A message without an id is a notification, and it gets no reply. A request with an id always gets a reply.',
-    ],
-    example: [
-      { label: 'Method in the request', value: 'tools/call' },
-      { label: 'Id in the request', value: '3' },
-      { label: 'Id in the reply', value: '3' },
-      { label: 'Reply matches the request', value: 'true' },
-    ],
-  },
   mistakes: [
     'Mixing up the roles. The client belongs to the host, and each client talks to one server.',
     'Reusing an id while the first request is still open. Each open request needs its own id.',
@@ -107,20 +152,53 @@ const stdioServer: Lesson = {
   },
   steps: [
     {
-      title: 'Standard input and output',
+      title: 'Lines in, lines out',
       detail: 'The host starts the server as a child process. It writes one JSON line per request to standard input. The server writes one JSON line per reply to standard output.',
+      visual: {
+        kind: 'flow',
+        caption: 'One request and its reply, through the two text streams.',
+        nodes: ['Host writes a line', 'Standard input', 'Handler runs', 'Standard output', 'Host reads a line'],
+      },
     },
     {
-      title: 'Listing the tools',
-      detail: 'A tools/list request returns the names of the tools. The sample returns get_order as the only name. The client can then show that list to the model.',
+      title: 'tools/list names the tools',
+      detail: 'A tools/list request asks which tools exist. The reply carries their names in a list, so the client can show them to the model. The sample has one tool, get_order.',
+      snippet: {
+        source: `const tools: Record<string, unknown> = { get_order: () => "" };
+const reply = { id: 1, result: { tools: Object.keys(tools) } };
+console.log(JSON.stringify(reply));
+`,
+        output: `{"id":1,"result":{"tools":["get_order"]}}`,
+      },
     },
     {
-      title: 'Calling a tool',
-      detail: 'A tools/call request names a tool and passes its arguments. The handler returns text, which goes into a content list. The sample returns the text Order A-1042 shipped.',
+      title: 'tools/call runs a handler',
+      detail: 'A tools/call request names a tool and passes its arguments. The handler returns text, which goes into a content list. For A-1042, the sample returns the text Order A-1042 shipped.',
+      snippet: {
+        source: `const tools: Record<string, (id: string) => string> = {
+  get_order: (id) => "Order " + id + " shipped.",
+};
+const text = tools.get_order("A-1042");
+const content = [{ type: "text", text }];
+console.log(JSON.stringify({ id: 2, result: { content } }));
+`,
+        output: `{"id":2,"result":{"content":[{"type":"text","text":"Order A-1042 shipped."}]}}`,
+      },
     },
     {
-      title: 'Unknown methods',
-      detail: 'The ping method is not in the sample, so the server returns an error. The code -32601 means method not found. The error reply still carries the id of the request.',
+      title: 'An unknown method gets an error',
+      detail: 'A ping request is not in the sample, so the server returns an error. The code -32601 means method not found. The error reply still carries the id of the request it answers.',
+      visual: {
+        kind: 'table',
+        caption: 'Three requests and the replies the server gives.',
+        columns: ['Id', 'Method', 'Reply'],
+        rows: [
+          ['1', 'tools/list', 'tools: get_order'],
+          ['2', 'tools/call', 'text: Order A-1042 shipped.'],
+          ['3', 'ping', 'error -32601, method not found'],
+        ],
+        highlightRow: 2,
+      },
     },
   ],
   code: {
@@ -159,18 +237,6 @@ for (const request of requests) {
 {"id":2,"result":{"content":[{"type":"text","text":"Order A-1042 shipped."}]}}
 {"id":3,"error":{"code":-32601,"message":"Unknown"}}`,
   },
-  hood: {
-    paragraphs: [
-      'Stdio means standard input and standard output. The host starts the server as a child process and writes to its input.',
-      'A real server uses a line reader to feed each line to the handler. The sample uses a fixed list of requests in its place.',
-      'The sample reply omits the jsonrpc field for brevity. A real reply must include it, as lesson 7.1 shows.',
-    ],
-    example: [
-      { label: 'Request line', value: 'id 2, tools/call, get_order' },
-      { label: 'Handler result', value: 'Order A-1042 shipped.' },
-      { label: 'Reply line', value: 'id 2, with one text item' },
-    ],
-  },
   mistakes: [
     'Writing logs to standard output. Log lines there corrupt the message stream, so write logs to standard error.',
     'Printing a reply across several lines. The client reads one line as one message.',
@@ -202,20 +268,52 @@ const resourcesAndPrompts: Lesson = {
   },
   steps: [
     {
-      title: 'Resources',
-      detail: 'A resource is readable data, identified by a uri. A uri is an address such as docs://refunds. resources/list returns the uris, and resources/read returns the text.',
+      title: 'A resource is data with a uri',
+      detail: 'A resource is readable data, identified by a uri. A uri is an address such as docs://refunds. The resources/read request returns the text stored at that address.',
+      visual: {
+        kind: 'table',
+        caption: 'Two resources that the server offers.',
+        columns: ['Uri', 'Text returned'],
+        rows: [
+          ['docs://refunds', 'Refunds take 5 to 7 days.'],
+          ['docs://shipping', 'Orders ship in 2 business days.'],
+        ],
+      },
+      snippet: {
+        source: `const resources: Record<string, string> = {
+  "docs://refunds": "Refunds take 5 to 7 days.",
+};
+console.log(resources["docs://refunds"]);
+`,
+        output: `Refunds take 5 to 7 days.`,
+      },
     },
     {
-      title: 'Prompts',
-      detail: 'A prompt is a reusable message template with named arguments. The sample fills the template with topic refund and returns Summary of refund FAQ.',
+      title: 'A prompt fills a template',
+      detail: 'A prompt is a reusable message template with a named argument. The client sends the topic, and the server fills it in. For the topic refund, the filled text is Summary of refund FAQ.',
+      visual: {
+        kind: 'flow',
+        caption: 'One prompt, filled in by one argument.',
+        nodes: ['Summary of [topic] FAQ', 'topic = refund', 'Summary of refund FAQ.'],
+      },
+      snippet: {
+        source: `const summarize = (topic: string) => {
+  return "Summary of " + topic + " FAQ.";
+};
+console.log(summarize("refund"));
+`,
+        output: `Summary of refund FAQ.`,
+      },
     },
     {
-      title: 'Data and actions',
-      detail: 'Resources are data that the client reads. Tools are actions that the model asks for. Reading a resource should never change any data.',
-    },
-    {
-      title: 'Where the data lives',
-      detail: 'The sample keeps its data in plain objects. A real server reads the same shape from files or a database. The client does not need to know where the data is stored.',
+      title: 'Reading never changes data',
+      detail: 'A resource read returns text and changes nothing. A tool is different, because the model asks for it and the tool may change data. Keeping reads and actions apart makes each read safe to repeat.',
+      visual: {
+        kind: 'compare',
+        caption: 'Resources and tools, compared.',
+        left: { title: 'Resource', items: ['The client reads the text', 'Changes no data'] },
+        right: { title: 'Tool', items: ['The model asks for it', 'May change data'] },
+      },
     },
   ],
   code: {
@@ -250,19 +348,6 @@ console.log(handle("prompts/get", prompt));
 Refunds take 5 to 7 days.
 Summary of refund FAQ.`,
   },
-  hood: {
-    paragraphs: [
-      'The sample keeps the server data in plain objects. A real server reads its data from files or a database.',
-      'The params argument holds the request fields. Each branch reads only the fields that its method needs.',
-      'Here a prompt is a function from its arguments to text. The text is the message that the client sends on.',
-    ],
-    example: [
-      { label: 'Resource uri', value: 'docs://refunds' },
-      { label: 'Resource text', value: 'Refunds take 5 to 7 days.' },
-      { label: 'Prompt name', value: 'summarize_faq' },
-      { label: 'Prompt output', value: 'Summary of refund FAQ.' },
-    ],
-  },
   mistakes: [
     'Using a resource to trigger an action. Reading a resource should never change any data.',
     'Listing a uri that cannot be read. Each listed uri must work with resources/read.',
@@ -295,20 +380,50 @@ const httpTransportAndTokens: Lesson = {
   },
   steps: [
     {
-      title: 'Sending over HTTP',
-      detail: 'Each JSON message travels in the body of an HTTP request. The server sends its JSON reply in the response body. The messages are the same as over standard input.',
+      title: 'Messages travel in HTTP bodies',
+      detail: 'Each JSON message is sent in the body of an HTTP request. The server returns its JSON reply in the response body. The messages are the same as the ones sent over standard input.',
+      visual: {
+        kind: 'flow',
+        caption: 'One request and its reply over HTTP.',
+        nodes: ['Client sends POST', 'Authorization header', 'Server checks token', 'JSON reply'],
+      },
     },
     {
-      title: 'The bearer token',
-      detail: 'The client adds an Authorization header with the word Bearer and a token. The server looks up the token in its table. The token shows which client is calling.',
+      title: 'The token names the caller',
+      detail: 'The client adds an Authorization header with the word Bearer and a secret token. The server looks the token up to find the caller. An unknown token is refused before any method runs.',
+      snippet: {
+        source: `const tokens = new Map([["svc-reader-7f3a", "reader"]]);
+const header = "Bearer svc-reader-7f3a";
+const caller = tokens.get(header.replace("Bearer ", ""));
+console.log("Caller: " + caller);
+`,
+        output: `Caller: reader`,
+      },
     },
     {
-      title: 'Status codes',
-      detail: 'An unknown or missing token gets status 401, which means not authenticated. A known token that asks for a forbidden method gets 403, which means forbidden. A valid call gets 200.',
+      title: 'Status codes give the outcome',
+      detail: '401 means the token is missing or unknown. 403 means the token is known, but the method is not allowed. 200 means the call worked.',
+      visual: {
+        kind: 'table',
+        caption: 'Three requests and their status codes.',
+        columns: ['Request', 'Token', 'Method', 'Status'],
+        rows: [
+          ['1', 'none', 'tools/list', '401'],
+          ['2', 'reader', 'tools/list', '200'],
+          ['3', 'reader', 'resources/read', '403'],
+        ],
+        highlightRow: 2,
+      },
     },
     {
-      title: 'Allowed methods per token',
-      detail: 'The table maps each token to a list of methods. The sample allows tools/list and tools/call for the reader token. A resources/read call with the same token gets 403.',
+      title: 'Each token has its own methods',
+      detail: 'The server keeps a list of allowed methods for each token. The reader token may list and call tools, but it may not read resources. Give each client only the methods it needs.',
+      visual: {
+        kind: 'compare',
+        caption: 'What the reader token may call, and what it may not.',
+        left: { title: 'Allowed for the reader token', items: ['tools/list', 'tools/call'] },
+        right: { title: 'Refused for the reader token', items: ['resources/read, status 403'] },
+      },
     },
   ],
   code: {
@@ -346,18 +461,6 @@ console.log(handleHttp(readResource));
 { status: 200, body: 'ok' }
 { status: 403, body: 'method not allowed' }`,
   },
-  hood: {
-    paragraphs: [
-      'A bearer token travels as plain text in the header. It must only be sent over HTTPS.',
-      'The sample maps each token to its allowed methods. A real server stores tokens in hashed form, not as plain text.',
-      'The status codes come from HTTP. 401 means no valid credential, and 403 means a known caller may not do that.',
-    ],
-    example: [
-      { label: 'No token sent', value: '401, unknown token' },
-      { label: 'Valid token, tools/list', value: '200, ok' },
-      { label: 'Valid token, resources/read', value: '403, method not allowed' },
-    ],
-  },
   mistakes: [
     'Sending tokens over plain HTTP. Anyone on the network path can read the header.',
     'Storing tokens as plain text. A leaked table then exposes every token.',
@@ -389,20 +492,67 @@ const writingAClient: Lesson = {
   },
   steps: [
     {
-      title: 'Starting the session',
-      detail: 'The client sends initialize first and waits for its reply. Other requests are sent only after that reply arrives. The sample does this before it lists the tools.',
+      title: 'Open the session first',
+      detail: 'A client sends initialize first and waits for the reply. The other requests go out only after that reply arrives. The sample does this before it lists the tools.',
+      visual: {
+        kind: 'flow',
+        caption: 'The order of requests in one session.',
+        nodes: ['initialize', 'Wait for reply', 'tools/list', 'tools/call'],
+      },
     },
     {
-      title: 'Numbering requests',
-      detail: 'The nextId counter goes up by one for each request. Every request therefore has a unique id. The sample uses the ids 1, 2, and 3.',
+      title: 'Each request gets its own number',
+      detail: 'A counter goes up by one for each request, so every request has a unique id. The reply to request 2 carries the id 2. The sample uses the ids 1, 2, and 3.',
+      visual: {
+        kind: 'table',
+        caption: 'The ids in the sample session.',
+        columns: ['Call', 'Request id', 'Reply id'],
+        rows: [
+          ['initialize', '1', '1'],
+          ['tools/list', '2', '2'],
+          ['tools/call', '3', '3'],
+        ],
+      },
+      snippet: {
+        source: `let nextId = 1;
+const first = nextId++;
+const second = nextId++;
+console.log(first + ", " + second);
+`,
+        output: `1, 2`,
+      },
     },
     {
-      title: 'Checking the id',
-      detail: 'The client compares the reply id with the request id. A mismatch throws an error, because the reply belongs to another request. The sample never sees a mismatch.',
+      title: 'A mismatched id is an error',
+      detail: 'The client compares the reply id with the request id. A mismatch means the reply belongs to another request, so the client throws an error. The sample never gets a mismatch, but the check protects every call.',
+      visual: {
+        kind: 'chips',
+        caption: 'Two ids that do not match.',
+        items: [
+          { text: 'Request id 2' },
+          { text: 'Reply id 3', note: 'belongs to another request', highlight: true },
+        ],
+      },
+      snippet: {
+        source: `const requestId = 2;
+const replyId = 3;
+if (replyId !== requestId) {
+  const message = "id mismatch: got " + replyId;
+  console.log(message + ", expected " + requestId);
+}
+`,
+        output: `id mismatch: got 3, expected 2`,
+      },
     },
     {
-      title: 'Using the result',
-      detail: 'The client returns the result field to its caller. The sample prints the tool list, then the call result. The output shows both values.',
+      title: 'The result goes back to the caller',
+      detail: 'After the check, the client returns the result field to its caller. The tool list and the call text both come back this way. A reply that fails the check never reaches the caller.',
+      visual: {
+        kind: 'compare',
+        caption: 'What the client returns, and what it refuses.',
+        left: { title: 'Returned to the caller', items: ['The result field', 'The tool list and the call text'] },
+        right: { title: 'Refused by the client', items: ['A reply with a wrong id', 'A reply for a request that was never sent'] },
+      },
     },
   ],
   code: {
@@ -433,18 +583,6 @@ console.log("Call:", request("tools/call"));
 `,
     output: `Tools: { tools: [ 'get_order' ] }
 Call: { text: 'Shipped.' }`,
-  },
-  hood: {
-    paragraphs: [
-      'The fake server is a function. A real client sends each message through a transport, such as standard input or HTTP.',
-      'Each reply carries the id of its message. The client can match replies even when they arrive out of order.',
-      'The sample throws on a mismatch. Logging the mismatch and carrying on would hide a broken connection.',
-    ],
-    example: [
-      { label: 'Id for initialize', value: '1' },
-      { label: 'Id for tools/list', value: '2' },
-      { label: 'Id for tools/call', value: '3' },
-    ],
   },
   mistakes: [
     'Skipping the id check. A wrong reply is then used as the answer.',
