@@ -5,91 +5,115 @@ const embeddings: Lesson = {
   slug: 'embeddings',
   number: '1.4',
   title: 'Embeddings: text as numbers',
+  navTitle: 'Embeddings',
   oneLiner: 'An embedding is a list of numbers that stands for the meaning of a piece of text.',
   problem: {
     without: 'A computer compares text by letters. The phrases "refund" and "money back" share no word, so an exact match misses the link.',
     with: 'Each text becomes a list of numbers. Texts with similar meaning get similar lists, so the computer can compare them.',
   },
   steps: [
-    'A model reads the text and outputs a list of numbers. This list is the embedding.',
-    'The list has a fixed length, called the dimension. Real models use hundreds or thousands of numbers. This lesson uses 3.',
-    'Each number is a position on one axis. Together the numbers place the text at one point in space.',
-    'Texts that mean similar things land at nearby points.',
-    'Other code can now compare texts with arithmetic instead of letter matching.',
+    {
+      title: 'Read the sentence',
+      detail: 'A model is a program that reads text and writes text back. It reads "How do I get a refund?" and outputs a list of numbers. That list is the embedding.',
+    },
+    {
+      title: 'Fix the length',
+      detail: 'Every embedding has the same length, called the dimension. Real models use hundreds of numbers. This lesson uses three, such as 0.9, 0.1, and 0.',
+    },
+    {
+      title: 'Place the text in space',
+      detail: 'Each number is a position on one axis. Together the numbers place the sentence at one point in space.',
+    },
+    {
+      title: 'Put similar meanings close',
+      detail: 'Sentences with similar meaning land at nearby points. "Can I get my money back?" gets 0.8, 0.2, and 0.1, close to the refund list.',
+    },
+    {
+      title: 'Compare with arithmetic',
+      detail: 'Code can compare two lists with arithmetic instead of matching letters. The two refund lists score 0.98, and a score near 1 means they point the same way.',
+    },
   ],
   diagram: ['Text', 'Model', 'List of numbers'],
   code: {
-    source: `// Create an empty table. It maps a text to its list of numbers.
-const table = new Map<string, number[]>();
-// Store the embedding for "refund". It has 3 numbers.
-table.set("refund", [0.9, 0.1, 0]);
-// Store the embedding for "money back". Its numbers are close to "refund".
-table.set("money back", [0.8, 0.2, 0.1]);
-// Store the embedding for "password". Its numbers are far from "refund".
-table.set("password", [0, 0.9, 0.2]);
-// Store the embedding for "shipping". It is also far from "refund".
-table.set("shipping", [0.1, 0.1, 0.9]);
-// Return the stored list for a text. Return undefined when the text is not in the table.
-function embed(text: string): number[] | undefined {
-  // Ignore capital letters, so "Refund" and "refund" match.
-  return table.get(text.toLowerCase());
-} // End of embed.
-// Print the embedding for "refund" as text.
-console.log(\`refund -> \${JSON.stringify(embed("refund"))}\`);
-// Print the embedding for "money back".
-console.log(\`money back -> \${JSON.stringify(embed("money back"))}\`);
-// Print the embedding for "Refund" with a capital letter. The lookup still works.
-console.log(\`Refund -> \${JSON.stringify(embed("Refund"))}\`);
-// Print the result for a text the table does not know.
-console.log(\`gift card -> \${JSON.stringify(embed("gift card"))}\`);
-// Print how many numbers one embedding has. This is the dimension.
-console.log(\`dimension -> \${embed("refund")?.length}\`);
+    source: `// A tiny embedding table. Each sentence maps to three numbers.
+const embeddingTable = new Map<string, number[]>([
+  ["How do I get a refund?", [0.9, 0.1, 0]],
+  ["Can I get my money back?", [0.8, 0.2, 0.1]],
+  ["How do I reset my password?", [0, 0.9, 0.2]],
+]);
+
+// Print a sentence and its numbers, or undefined if unknown.
+function show(sentence: string): void {
+  const numbers = embeddingTable.get(sentence);
+  console.log(sentence, "->", JSON.stringify(numbers));
+}
+
+// Show the refund sentence. It becomes three numbers.
+show("How do I get a refund?");
+
+// A sentence with the same meaning gets close numbers.
+show("Can I get my money back?");
+
+// A sentence with a different meaning gets far numbers.
+show("How do I reset my password?");
+
+// A sentence that is not in the table has no numbers.
+show("Do you sell gift cards?");
+
+// The length of the list is the dimension.
+const refundNumbers = embeddingTable.get("How do I get a refund?");
+console.log("Dimension ->", refundNumbers?.length);
 `,
-    output: `refund -> [0.9,0.1,0]
-money back -> [0.8,0.2,0.1]
-Refund -> [0.9,0.1,0]
-gift card -> undefined
-dimension -> 3`,
+    output: `How do I get a refund? -> [0.9,0.1,0]
+Can I get my money back? -> [0.8,0.2,0.1]
+How do I reset my password? -> [0,0.9,0.2]
+Do you sell gift cards? -> undefined
+Dimension -> 3`,
   },
   hood: {
     paragraphs: [
-      'The table is hand-made, so every number is known. A real model produces the numbers by reading the text.',
-      'A Map is a lookup table. You give it a key, here the text, and it returns the value stored for that key.',
-      'Before the lookup, the code lowercases the text. This turns "Refund" into "refund", so both find the same entry.',
-      'Compare the two stored lists. The first numbers are 0.9 and 0.8. The second numbers are 0.1 and 0.2. Close numbers mean close meaning.',
-      'The result for "gift card" is undefined. The table only knows the texts someone added. A real model can make a list for any text.',
+      'The table is hand-made, so every list is known in advance. A real model produces the numbers by reading the text.',
+      'A Map is a lookup table. You give it a key, here the sentence, and it returns the value stored for that key.',
+      'The similarity compares the refund list with the money-back list. The score 0.98 is close to 1, so the lists point the same way.',
+      'The gift card question returns undefined because the table has no list for it. A real model can make a list for any text.',
     ],
     example: [
-      { label: 'Input text', value: '"Refund"' },
-      { label: 'After lowercasing', value: '"refund"' },
+      { label: 'Input sentence', value: '"How do I get a refund?"' },
       { label: 'Stored list (the embedding)', value: '[0.9, 0.1, 0]' },
       { label: 'Dimension (numbers in the list)', value: '3' },
+      { label: 'Similarity with the money-back list', value: '0.98' },
     ],
     code: {
-      source: `// Two embeddings from the table above. The first is "refund".
+      source: `// Two embeddings from the table in the lesson.
 const refund = [0.9, 0.1, 0];
-// The second embedding is "money back".
 const moneyBack = [0.8, 0.2, 0.1];
-// Step 1: the dot product. Multiply the numbers in each position, then add the results.
-let dot = 0;
+
+// Step 1: the dot product. Multiply each pair, then add them up.
+let dotProduct = 0;
 for (let i = 0; i < refund.length; i++) {
-  // Multiply the two numbers at position i and add them to the total.
-  dot += refund[i] * moneyBack[i];
-} // End of the loop.
-// Step 2: the length of the first list. Square each number, add them, then take the square root.
-const lengthA = Math.sqrt(refund.reduce((sum, x) => sum + x * x, 0));
-// Step 3: the length of the second list, worked out the same way.
-const lengthB = Math.sqrt(moneyBack.reduce((sum, x) => sum + x * x, 0));
-// Print the value from each step.
-console.log(\`dot product -> \${dot}\`);
-console.log(\`length of refund -> \${lengthA}\`);
-console.log(\`length of money back -> \${lengthB}\`);
-// Step 4: divide the dot product by both lengths. The result shows how close the two lists point.
-console.log(\`similarity -> \${dot / (lengthA * lengthB)}\`);`,
-      output: `dot product -> 0.7400000000000001
-length of refund -> 0.9055385138137417
-length of money back -> 0.8306623862918076
-similarity -> 0.9837851170821987`,
+  dotProduct += refund[i] * moneyBack[i];
+}
+
+// Step 2: the length of a list. Square, add, then take the root.
+function lengthOf(list: number[]): number {
+  const squares = list.map((value) => value * value);
+  return Math.sqrt(squares.reduce((sum, s) => sum + s, 0));
+}
+
+// Step 3: divide the dot product by both lengths.
+const refundLength = lengthOf(refund);
+const moneyBackLength = lengthOf(moneyBack);
+const similarity = dotProduct / (refundLength * moneyBackLength);
+
+console.log("Dot product ->", dotProduct);
+console.log("Length of refund ->", lengthOf(refund));
+console.log("Length of money back ->", lengthOf(moneyBack));
+console.log("Similarity ->", similarity);
+`,
+      output: `Dot product -> 0.7400000000000001
+Length of refund -> 0.9055385138137417
+Length of money back -> 0.8306623862918076
+Similarity -> 0.9837851170821987`,
     },
   },
   mistakes: [
@@ -111,11 +135,6 @@ similarity -> 0.9837851170821987`,
     { term: 'Dimension', meaning: 'The number of values in one embedding.' },
     { term: 'Map', meaning: 'A container that stores a value under a key, so you can look it up later.' },
   ],
-  check: [
-    { q: 'Why does the table return undefined for "gift card"?', a: 'The table only holds the texts someone added. A real model can make a list for any text.' },
-    { q: 'What does similar meaning look like in the numbers?', a: 'Similar texts have similar numbers, so their lists are close in value.' },
-    { q: 'What is the dimension of the embeddings in this lesson?', a: '3. Each embedding has three numbers.' },
-  ],
 };
 
 export const talkingToAModel: Module = {
@@ -126,7 +145,7 @@ export const talkingToAModel: Module = {
   lessons: [
     draftLesson('one-model-call', '1.1', 'One model call'),
     draftLesson('tokens-and-cost', '1.2', 'Tokens and cost'),
-    draftLesson('temperature', '1.3', 'Temperature and why answers vary'),
+    draftLesson('temperature', '1.3', 'Temperature and why answers vary', 'Temperature'),
     embeddings,
     draftLesson('cosine-similarity', '1.5', 'Cosine similarity'),
   ],

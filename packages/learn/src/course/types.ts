@@ -6,21 +6,21 @@ export type Lesson = {
   slug: string; // 'hybrid-search'
   number: string; // '4.4'
   title: string;
+  navTitle?: string; // a short label for the sidebar, at most about 26 characters; falls back to title
   oneLiner: string;
   problem: { without: string; with: string };
-  steps: string[];
+  steps: { title: string; detail: string }[];
   diagram?: string[]; // box labels, drawn left to right
   code: { source: string; output: string };
   hood: {
     paragraphs: string[];
     example?: { label: string; value: string }[];
-    code?: { source: string; output?: string }; // optional snippet shown in the Under the hood dialog
+    code?: { source: string; output?: string }; // optional second snippet, shown after the main code
   };
   mistakes: string[];
   useWhen: string[];
   skipWhen: string[];
   words: { term: string; meaning: string }[];
-  check: { q: string; a: string }[];
   draft?: boolean; // true while the lesson is a stub: the page says "being written"
 };
 

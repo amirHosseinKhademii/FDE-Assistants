@@ -60,9 +60,10 @@ export function CourseSidebar() {
                           ariaCurrent={current ? 'page' : undefined}
                           onClick={() => setOpen(false)}
                           className={current ? 'is-current' : l.draft ? 'is-draft' : undefined}
+                          title={l.title}
                         >
                           <span className="course-side-lnum">{l.number}</span>
-                          <span className="course-side-ltitle">{l.title}</span>
+                          <span className="course-side-ltitle">{l.navTitle ?? l.title}</span>
                           {seen ? (
                             <span className="course-tick" aria-label="Visited">
                               ✓

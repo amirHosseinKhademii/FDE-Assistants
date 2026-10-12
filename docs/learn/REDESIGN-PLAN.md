@@ -14,14 +14,12 @@ One course, start to finish, that teaches every concept used across all our apps
 2. **Fixed lesson template.** Every lesson has the same sections in the same order, so the reader always knows where to look:
    1. **In one sentence**: what it is (25 words max).
    2. **The problem**: "Without it" vs "With it", two short boxes side by side.
-   3. **How it works**: 3 to 6 numbered steps, plus an optional simple left-to-right box diagram.
-   4. **The code**: one self-contained TypeScript snippet (40 lines max), a plain comment on every line, no imports from this repo, then a block labeled **"What it prints"** with the literal output.
-   5. **Under the hood**: an expandable section (native `<details>`, not a modal) that shows the real data shapes: an example input, the intermediate values, the output. Plain words, no jargon left undefined.
-   6. **Common mistakes**: 2 to 4 bullets.
-   7. **Use it when / Skip it when**: two short lists.
-   8. **Words to know**: term plus a one-line meaning.
-   9. **Check yourself**: 2 or 3 questions, answer revealed on click.
-   10. Previous / Next buttons.
+   3. **How it works**: 3 to 6 steps. Each step has a small "Step N" label, a bold title and 2 to 3 plain sentences with a concrete example value. No number column on the left. Optional simple left-to-right box diagram.
+   4. **Code and under the hood (one button, one modal)**: a single compact row on the page with one "Open →" button. The modal holds, in order: (a) one self-contained TypeScript snippet (30 lines max, no imports from this repo, descriptive variable names, comments on their own line above a block, not trailing) with its literal output; (b) an "Under the hood" heading with the real data shapes: paragraphs, an example input and intermediate values, and an optional second snippet with its output.
+   5. **Common mistakes**: 2 to 4 bullets.
+   6. **Use it when / Skip it when**: two short lists.
+   7. **Words to know**: term plus a one-line meaning.
+   8. Previous / Next buttons. (No quiz: "Check yourself" was removed on 2026-10-12 at the learner's request.)
 3. **Plain writing.** Sentences of 20 words or fewer. Define every term the first time it appears. No metaphors, no "we", no hype. American spelling. No em dashes, no en dashes, no semicolons.
 4. **Generic.** Examples use neutral data (a help-center FAQ, a product manual, a support ticket). Never mention our apps, customers, or their domains. Any number copied from this repo's docs keeps a source note, otherwise drop it.
 5. **No hard-coded counts.** Lesson and module counts are derived from the data, like `TOTALS` does today.
@@ -30,7 +28,7 @@ One course, start to finish, that teaches every concept used across all our apps
 
 - **`/learn`** (index): one short paragraph "What you will be able to build", a "Start lesson 0.1" button, then the whole map: one card per module, listing its lessons with numbers.
 - **`/learn/$module/$lesson`** (lesson page):
-  - Left sidebar (about 260px): every module, collapsible, current lesson highlighted, visited lessons ticked (`localStorage`, wrapped in try/catch).
+  - Left sidebar (300px on desktop; each lesson is one line, with `navTitle` as the short label): every module, collapsible, current lesson highlighted, visited lessons ticked (`localStorage`, wrapped in try/catch).
   - Top bar: breadcrumb `Module 4 · Retrieval › 4.4 Hybrid search` and `Lesson 23 of N`.
   - Reading column 720px max, body text 17px with line-height 1.65, section headings numbered.
   - Code block: line numbers, copy button, monospace. "What it prints" block underneath in a muted style.
@@ -59,9 +57,10 @@ export type Lesson = {
   slug: string;              // 'hybrid-search'
   number: string;            // '4.4'
   title: string;
+  navTitle?: string;         // short sidebar label, about 26 characters or fewer
   oneLiner: string;
   problem: { without: string; with: string };
-  steps: string[];
+  steps: { title: string; detail: string }[];
   diagram?: string[];        // box labels, drawn left to right
   code: { source: string; output: string };
   hood: { paragraphs: string[]; example?: { label: string; value: string }[] };
@@ -69,7 +68,6 @@ export type Lesson = {
   useWhen: string[];
   skipWhen: string[];
   words: { term: string; meaning: string }[];
-  check: { q: string; a: string }[];
 };
 export type Module = { slug: string; number: number; title: string; summary: string; lessons: Lesson[] };
 ```

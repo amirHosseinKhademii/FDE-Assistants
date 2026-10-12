@@ -13,21 +13,20 @@ function countWords(lesson: Lesson): number {
     lesson.oneLiner,
     lesson.problem.without,
     lesson.problem.with,
-    ...lesson.steps,
+    ...lesson.steps.flatMap((s) => [s.title, s.detail]),
     ...lesson.hood.paragraphs,
     ...(lesson.hood.example ?? []).flatMap((e) => [e.label, e.value]),
     ...lesson.mistakes,
     ...lesson.useWhen,
     ...lesson.skipWhen,
     ...lesson.words.flatMap((w) => [w.term, w.meaning]),
-    ...lesson.check.flatMap((c) => [c.q, c.a]),
   ];
   return parts.join(' ').split(/\s+/).filter(Boolean).length;
 }
 
-function Section({ n, label, title, children }: { n: number; label: string; title: string; children: ReactNode }) {
+function Section({ n, label, title, bare, children }: { n: number; label: string; title: string; bare?: boolean; children: ReactNode }) {
   return (
-    <section className="course-section">
+    <section className={'course-section' + (bare ? ' is-bare' : '')}>
       <header className="course-sec-head">
         <span className="course-sec-num" aria-hidden="true">
           {n}
@@ -47,7 +46,6 @@ export function CourseLessonPage({ moduleSlug, lessonSlug }: { moduleSlug: strin
   const found = findLesson(moduleSlug, lessonSlug);
   const isFound = found !== undefined;
   const [codeOpen, setCodeOpen] = useState(false);
-  const [hoodOpen, setHoodOpen] = useState(false);
 
   useEffect(() => {
     if (isFound) markVisited(`${moduleSlug}/${lessonSlug}`);
@@ -55,7 +53,6 @@ export function CourseLessonPage({ moduleSlug, lessonSlug }: { moduleSlug: strin
 
   useEffect(() => {
     setCodeOpen(false);
-    setHoodOpen(false);
   }, [moduleSlug, lessonSlug]);
 
   if (!found) {
@@ -77,7 +74,6 @@ export function CourseLessonPage({ moduleSlug, lessonSlug }: { moduleSlug: strin
   const moduleIndex = module.lessons.indexOf(lesson);
   const moduleProgress = ((moduleIndex + 1) / module.lessons.length) * 100;
   const minutes = Math.max(1, Math.round(countWords(lesson) / 200));
-  const hoodCode = lesson.hood.code ?? lesson.code;
 
   return (
     <article className="course-lesson">
@@ -90,9 +86,7 @@ export function CourseLessonPage({ moduleSlug, lessonSlug }: { moduleSlug: strin
       {lesson.draft ? (
         <p className="course-draft">This lesson is being written. Its title and place in the course are final.</p>
       ) : (
-        <>
-          <p className="course-lead">{lesson.oneLiner}</p>
-        </>
+        <p className="course-lead">{lesson.oneLiner}</p>
       )}
 
       <div className="course-meta">
@@ -127,8 +121,12 @@ export function CourseLessonPage({ moduleSlug, lessonSlug }: { moduleSlug: strin
 
           <Section n={2} label="How it works" title="The idea in steps">
             <ol className="course-steps">
-              {lesson.steps.map((s) => (
-                <li key={s}>{s}</li>
+              {lesson.steps.map((s, i) => (
+                <li key={s.title} className="course-step">
+                  <p className="course-step-label">Step {i + 1}</p>
+                  <h3 className="course-step-title">{s.title}</h3>
+                  <p className="course-step-detail">{s.detail}</p>
+                </li>
               ))}
             </ol>
             {lesson.diagram ? (
@@ -147,25 +145,19 @@ export function CourseLessonPage({ moduleSlug, lessonSlug }: { moduleSlug: strin
             ) : null}
           </Section>
 
-          <Section n={3} label="The code" title="Read it, then run it">
-            <div className="course-teaser">
-              <p>See the code and what it prints.</p>
-              <button type="button" className="course-button" onClick={() => setCodeOpen(true)}>
-                Show the code →
+          <Section n={3} label="Code and under the hood" title="Read the program" bare>
+            <div className="course-row">
+              <svg className="course-row-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M16 18l6-6-6-6M8 6l-6 6 6 6" />
+              </svg>
+              <span className="course-row-text">Code and under the hood</span>
+              <button type="button" className="course-button is-secondary is-small" onClick={() => setCodeOpen(true)}>
+                Open →
               </button>
             </div>
           </Section>
 
-          <Section n={4} label="Under the hood" title="The real data">
-            <div className="course-teaser is-hood">
-              <p>See the real data shapes and the values behind the example.</p>
-              <button type="button" className="course-button is-hood" onClick={() => setHoodOpen(true)}>
-                Look under the hood →
-              </button>
-            </div>
-          </Section>
-
-          <Section n={5} label="Common mistakes" title="What goes wrong">
+          <Section n={4} label="Common mistakes" title="What goes wrong">
             <ul className="course-mistakes">
               {lesson.mistakes.map((m) => (
                 <li key={m}>{m}</li>
@@ -173,7 +165,7 @@ export function CourseLessonPage({ moduleSlug, lessonSlug }: { moduleSlug: strin
             </ul>
           </Section>
 
-          <Section n={6} label="Use it when and skip it when" title="Is it the right tool?">
+          <Section n={5} label="Use it when and skip it when" title="Is it the right tool?">
             <div className="course-pair">
               <div className="course-box is-plain">
                 <p className="course-box-label is-use">Use it when</p>
@@ -194,7 +186,7 @@ export function CourseLessonPage({ moduleSlug, lessonSlug }: { moduleSlug: strin
             </div>
           </Section>
 
-          <Section n={7} label="Words to know" title="Terms in this lesson">
+          <Section n={6} label="Words to know" title="Terms in this lesson">
             <dl className="course-words">
               {lesson.words.map((w) => (
                 <div key={w.term} className="course-word">
@@ -205,30 +197,11 @@ export function CourseLessonPage({ moduleSlug, lessonSlug }: { moduleSlug: strin
             </dl>
           </Section>
 
-          <Section n={8} label="Check yourself" title="Test your understanding">
-            {lesson.check.map((c) => (
-              <div key={c.q} className="course-check">
-                <p className="course-q">{c.q}</p>
-                <details className="course-answer-wrap">
-                  <summary className="course-answer-btn">
-                    <span className="is-closed">Show answer</span>
-                    <span className="is-open">Hide answer</span>
-                  </summary>
-                  <p className="course-answer">{c.a}</p>
-                </details>
-              </div>
-            ))}
-          </Section>
-
-          <Modal open={codeOpen} onClose={() => setCodeOpen(false)} label="The code" title="The code">
+          <Modal open={codeOpen} onClose={() => setCodeOpen(false)} label="Code and under the hood" title="Code and under the hood">
             <CodeBlock code={lesson.code.source} />
-            <div className="course-output-wrap">
-              <p className="course-output-label">What it prints</p>
-              <OutputPanel output={lesson.code.output} />
-            </div>
-          </Modal>
+            <OutputPanel output={lesson.code.output} />
 
-          <Modal open={hoodOpen} onClose={() => setHoodOpen(false)} label="Under the hood" title="Under the hood">
+            <h3 className="course-modal-h">Under the hood</h3>
             {lesson.hood.paragraphs.map((p) => (
               <p key={p} className="course-hood-p">
                 {p}
@@ -246,16 +219,13 @@ export function CourseLessonPage({ moduleSlug, lessonSlug }: { moduleSlug: strin
                 ))}
               </dl>
             ) : null}
-            <div className="course-output-wrap">
-              <p className="course-output-label">{lesson.hood.code ? 'The code behind it' : 'The code'}</p>
-              <CodeBlock code={hoodCode.source} />
-              {hoodCode.output ? (
-                <div className="course-output-wrap">
-                  <p className="course-output-label">What it prints</p>
-                  <OutputPanel output={hoodCode.output} />
-                </div>
-              ) : null}
-            </div>
+            {lesson.hood.code ? (
+              <>
+                <div className="course-modal-gap" />
+                <CodeBlock code={lesson.hood.code.source} />
+                {lesson.hood.code.output ? <OutputPanel output={lesson.hood.code.output} /> : null}
+              </>
+            ) : null}
           </Modal>
         </>
       )}

@@ -1,11 +1,12 @@
 import type { Lesson } from './types';
 
 /** A lesson that is not written yet: its slug, number and title only. */
-export function draftLesson(slug: string, number: string, title: string): Lesson {
+export function draftLesson(slug: string, number: string, title: string, navTitle?: string): Lesson {
   return {
     slug,
     number,
     title,
+    ...(navTitle ? { navTitle } : {}),
     oneLiner: '',
     problem: { without: '', with: '' },
     steps: [],
@@ -15,7 +16,6 @@ export function draftLesson(slug: string, number: string, title: string): Lesson
     useWhen: [],
     skipWhen: [],
     words: [],
-    check: [],
     draft: true,
   };
 }

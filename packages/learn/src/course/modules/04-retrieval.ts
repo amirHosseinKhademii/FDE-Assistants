@@ -13,7 +13,7 @@ export const retrieval: Module = {
     draftLesson('hybrid-search', '4.4', 'Hybrid search and RRF'),
     draftLesson('reranking', '4.5', 'Reranking'),
     draftLesson('query-rewriting', '4.6', 'Query rewriting'),
-    draftLesson('parent-child-and-compression', '4.7', 'Parent-child and compression'),
+    draftLesson('parent-child-and-compression', '4.7', 'Parent-child and compression', 'Parent-child, compression'),
     draftLesson('corrective-retrieval', '4.8', 'Corrective retrieval'),
     draftLesson('text-to-sql', '4.9', 'Text to SQL'),
     draftLesson('graph-retrieval', '4.10', 'Graph retrieval'),

@@ -8,12 +8,14 @@ export function CourseLink({
   className,
   onClick,
   ariaCurrent,
+  title,
   children,
 }: {
   path: string; // '/talking-to-a-model/embeddings' or '' for the index
   className?: string;
   onClick?: () => void;
   ariaCurrent?: 'page';
+  title?: string;
   children: ReactNode;
 }) {
   const base = useLearnBase();
@@ -25,6 +27,7 @@ export function CourseLink({
       className={className}
       onClick={onClick}
       aria-current={ariaCurrent}
+      title={title}
     >
       {children}
     </Link>

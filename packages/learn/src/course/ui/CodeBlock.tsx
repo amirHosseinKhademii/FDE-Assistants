@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { highlightLine } from './highlight';
 
-/** The dark editor-style code panel: window bar, line numbers, syntax colors, and a Copy button. */
-export function CodeBlock({ code, label = 'TypeScript' }: { code: string; label?: string }) {
+/** A compact code view: a slim bar with the language and Copy, then the code with faint line numbers. */
+export function CodeBlock({ code }: { code: string }) {
   const [copied, setCopied] = useState(false);
   const lines = code.replace(/\n$/, '').split('\n');
 
@@ -19,12 +19,7 @@ export function CodeBlock({ code, label = 'TypeScript' }: { code: string; label?
   return (
     <div className="course-code">
       <div className="course-code-bar">
-        <span className="course-dots" aria-hidden="true">
-          <i />
-          <i />
-          <i />
-        </span>
-        <span className="course-code-label">{label}</span>
+        <span className="course-code-label">TypeScript</span>
         <button type="button" className="course-copy" onClick={copy}>
           {copied ? 'Copied' : 'Copy'}
         </button>
@@ -42,12 +37,12 @@ export function CodeBlock({ code, label = 'TypeScript' }: { code: string; label?
   );
 }
 
-/** The terminal-style panel that shows what the code prints. */
+/** What the code prints. A small muted label, then the text in the code font. */
 export function OutputPanel({ output }: { output: string }) {
   return (
-    <div className="course-term">
-      <div className="course-term-bar">Output</div>
-      <pre>{output}</pre>
+    <div className="course-output">
+      <p className="course-output-label">Output</p>
+      <pre className="course-output-pre">{output}</pre>
     </div>
   );
 }
