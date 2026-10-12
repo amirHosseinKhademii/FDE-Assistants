@@ -147,24 +147,20 @@ const oneModelCall: Lesson = {
   },
   steps: [
     {
-      title: 'Write the instructions',
-      detail: 'The first message has the role "system". It says how to answer, such as "Answer only from the FAQ."',
+      title: 'The message list',
+      detail: 'A request is a list of messages, and each message has a role and content. The system message holds the rules, such as "Answer only from the FAQ."',
     },
     {
-      title: 'Add the question',
-      detail: 'The next message has the role "user" and holds the question, such as "How long does a refund take?"',
+      title: 'The user question',
+      detail: 'The user message holds the question, such as "How long does a refund take?" The model reads it together with the system message.',
     },
     {
-      title: 'Send the whole list',
-      detail: 'The program sends the system message and the question, "How long does a refund take?", in one request. The model keeps no memory between calls, so earlier turns must be sent again.',
+      title: 'The reply',
+      detail: 'The model returns one piece of plain text. For this question, the reply might be "Refunds take 5 to 7 business days."',
     },
     {
-      title: 'Read the reply',
-      detail: 'The model returns plain text, such as "Refunds take 5 to 7 business days." The program then shows that text to the reader.',
-    },
-    {
-      title: 'Store the reply',
-      detail: 'To continue the chat, add the reply as a message with the role "assistant". The next request then includes it.',
+      title: 'No memory between calls',
+      detail: 'Each request stands alone. To continue a chat, resend earlier messages, such as "How long does a refund take?", with the new one.',
     },
   ],
   diagram: ['Messages', 'Model', 'Reply text'],
@@ -246,24 +242,20 @@ const tokensAndCost: Lesson = {
   },
   steps: [
     {
-      title: 'Cut the text into tokens',
+      title: 'What a token is',
       detail: 'A token is a piece of text, often a short word or part of a long word. As a rough rule, English has about four characters per token. The word "refund" has 6 characters, so this lesson counts it as 2 tokens.',
     },
     {
-      title: 'Count the input tokens',
-      detail: 'Every token you send counts as input, including the instructions. A 1,200-word passage plus a short question gives 1,208 input tokens in this lesson.',
+      title: 'Input and output tokens',
+      detail: 'Input tokens are everything sent to the model, including the instructions. Output tokens are the reply, and many providers charge more for them. The reply "Refunds take 5 to 7 business days." counts as 10 tokens here.',
     },
     {
-      title: 'Count the output tokens',
-      detail: 'The reply counts too. The reply "Refunds take 5 to 7 business days." counts as 10 tokens here, and many providers charge more per output token.',
+      title: 'Price per million tokens',
+      detail: 'Providers list prices per million tokens. At 2 dollars per million input tokens and 8 per million output, one request costs about 0.0025 dollars.',
     },
     {
-      title: 'Multiply by the price',
-      detail: 'Prices are listed per million tokens. At an example price of 2 dollars per million input tokens, 1,208 input tokens cost about 0.0024 dollars.',
-    },
-    {
-      title: 'Add up the calls',
-      detail: 'A daily bill is the sum of all request costs. At the same size, 10,000 requests a day cost about 25 dollars.',
+      title: 'Totals over many requests',
+      detail: 'A daily bill is the sum of all request costs. At this size, 10,000 requests a day cost about 25 dollars.',
     },
   ],
   diagram: ['Text', 'Count tokens', 'Multiply by price', 'Cost'],
@@ -350,24 +342,20 @@ const temperature: Lesson = {
   },
   steps: [
     {
-      title: 'Score the next words',
-      detail: 'At each step the model gives every possible next word a score. After "Refunds take", the word "5" might score high and "10" lower.',
+      title: 'Chances for the next word',
+      detail: 'At each step the model scores every possible next word. After "Refunds take", the chances might be 50 percent for "5", 30 percent for "7", and 20 percent for "10".',
     },
     {
-      title: 'Turn the scores into chances',
-      detail: 'The scores become chances that add up to 1. In this lesson the chances are 50 percent for "5", 30 percent for "7", and 20 percent for "10".',
+      title: 'What temperature does',
+      detail: 'Temperature reshapes those chances before one word is chosen. A temperature of 0.5 turns them into about 66, 24, and 11 percent. A temperature of 2 flattens them to 42, 32, and 26 percent.',
     },
     {
-      title: 'Apply the temperature',
-      detail: 'A temperature of 0.5 turns the chances into about 66, 24, and 11 percent. A temperature of 2 flattens them to 42, 32, and 26 percent.',
+      title: 'Picking by chance',
+      detail: 'The program picks one word using a random number between 0 and 1. At temperature 1, a roll of 0.55 picks "7", because it passes the first 50 percent.',
     },
     {
-      title: 'Pick one word by chance',
-      detail: 'The program picks one word with a random number between 0 and 1. At temperature 1, a roll of 0.55 picks "7", because it passes the first 50 percent.',
-    },
-    {
-      title: 'Repeat for each word',
-      detail: 'The chosen word is added to the reply, such as "Refunds take 5". The model then scores the next word, such as "days".',
+      title: 'Repeating for each word',
+      detail: 'The chosen word joins the reply, such as "Refunds take 5". The model then scores the next word, such as "days", and the loop continues.',
     },
   ],
   diagram: ['Scores', 'Chances', 'Temperature', 'Pick one word'],
@@ -452,24 +440,20 @@ const cosineSimilarity: Lesson = {
   },
   steps: [
     {
-      title: 'Line up the two lists',
-      detail: 'Both lists must have the same length. The refund list [0.9, 0.1, 0] pairs with the money-back list [0.8, 0.2, 0.1].',
+      title: 'Lists of the same length',
+      detail: 'Both lists must have the same number of values. The refund list [0.9, 0.1, 0] pairs with the money-back list [0.8, 0.2, 0.1].',
     },
     {
-      title: 'Multiply and add',
-      detail: 'Multiply each pair of numbers, then add the products. For these two lists the sum is about 0.74.',
+      title: 'Multiply, add, and divide',
+      detail: 'Multiply each pair of values and add the products. For these lists the sum is about 0.74. Divide it by the two lengths, about 0.91 and 0.83, to get a score near 0.98.',
     },
     {
-      title: 'Divide by both lengths',
-      detail: 'The length of a list is the square root of the sum of its squared values. The refund list has length about 0.91, and the money-back list about 0.83.',
-    },
-    {
-      title: 'Read the score',
+      title: 'Reading the score',
       detail: 'A score of 1 means the lists point the same way. A score of 0 means they point at right angles and share no direction.',
     },
     {
-      title: 'Ignore the scale',
-      detail: 'The list [1, 2] and the list [2, 4] point the same way, so their score is 1. Only the direction counts, not the length.',
+      title: 'Length does not count',
+      detail: 'The list [1, 2] and the list [2, 4] point the same way, so their score is 1. Only the direction counts, not the size of the numbers.',
     },
   ],
   diagram: ['Two lists', 'Multiply and add', 'Divide by lengths', 'Score'],
