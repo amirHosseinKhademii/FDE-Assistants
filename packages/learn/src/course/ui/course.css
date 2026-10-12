@@ -1535,21 +1535,31 @@
 
 /* ---- step snippets ---- */
 .viz-snip {
-  position: relative;
   margin-top: 16px;
+  min-width: 0;
+  max-width: 100%;
+}
+.viz-snip-bar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
 }
 .viz-snip-copy {
-  position: absolute;
-  top: 8px;
-  right: 8px;
   margin: 0;
-  padding: 2px 8px;
+  padding: 1px 8px;
+  border-color: transparent;
+  color: var(--code-muted);
   font-size: 12px;
-  z-index: 1;
+  line-height: 1.6;
+}
+.viz-snip-copy:hover {
+  color: var(--code-ink);
 }
 .viz-snip-pre {
   margin: 0;
   padding: 14px 16px;
+  max-width: 100%;
   overflow-x: auto;
   font: 14px/1.6 var(--mono);
   color: var(--code-ink);

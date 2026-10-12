@@ -343,9 +343,11 @@ export function StepSnippet({ snippet }: { snippet: { source: string; output?: s
 
   return (
     <div className="course-code viz-snip">
-      <button type="button" className="course-copy viz-snip-copy" onClick={copy}>
-        {copied ? 'Copied' : 'Copy'}
-      </button>
+      <div className="viz-snip-bar">
+        <button type="button" className="course-copy viz-snip-copy" onClick={copy}>
+          {copied ? 'Copied' : 'Copy'}
+        </button>
+      </div>
       <pre className="viz-snip-pre">
         <code>
           {lines.map((line, i) => (
