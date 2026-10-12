@@ -11,24 +11,24 @@ const vectorSearch: Lesson = {
   },
   steps: [
     {
-      title: 'Embed each chunk once',
-      detail: 'Before any question arrives, a model turns each chunk into an embedding. The chunk "Refunds take 5 to 7 days." becomes a list such as 0.9, 0.1, and 0. The lists are stored with the text.',
+      title: 'What a chunk vector holds',
+      detail: 'Each chunk is stored with a list of numbers, its embedding. The chunk "Refunds take 5 to 7 days." holds the list 0.9, 0.1, and 0. The list is computed once, before any question arrives.',
     },
     {
-      title: 'Embed the question',
-      detail: 'When a question arrives, the same model turns it into a list of numbers. In this lesson "money back" becomes 0.85, 0.15, and 0.',
+      title: 'The question vector',
+      detail: 'A question is turned into a list in the same way, at search time. "Money back" becomes 0.85, 0.15, and 0 in this lesson.',
     },
     {
-      title: 'Score every chunk',
-      detail: 'The code multiplies the question list with each chunk list and adds the products. A higher score means closer meaning. The best score here is 0.78.',
+      title: 'Scoring with a dot product',
+      detail: 'Multiply the matching numbers of two lists, then add the products. The question and the refund chunk score 0.78, a high score. A higher score means closer meaning.',
     },
     {
-      title: 'Keep the top k',
-      detail: 'Sort the scores and keep the best k chunks. Here k is 2, so two chunks come back.',
+      title: 'Top k results',
+      detail: 'Sort the scores from high to low and keep the first k. With k set to 2, two chunks come back.',
     },
     {
-      title: 'Return results even when none fit',
-      detail: 'A question with no good match still returns k chunks. Here the scores are 0.09 and 0.02, so the answer would be weak.',
+      title: 'Weak matches still return',
+      detail: 'A question with no good match still gets k chunks. The unrelated question here scores 0.09 and 0.02, so those results are weak.',
     },
   ],
   diagram: ['Question', 'Embed', 'Score each chunk', 'Top k'],
@@ -115,24 +115,24 @@ const metadataFilters: Lesson = {
   },
   steps: [
     {
-      title: 'Attach labels to each chunk',
-      detail: 'When a chunk is stored, add labels called metadata. The label version 2 says which edition of the manual the chunk came from.',
+      title: 'Labels on each chunk',
+      detail: 'Each chunk is stored with labels called metadata. The label version 2 says which edition of the manual the chunk came from. The label must be set when the chunk is stored.',
     },
     {
-      title: 'Set the filter for the question',
-      detail: 'The app or a model picks the filter. In this lesson the filter is version equal to 2, set by hand.',
+      title: 'The filter condition',
+      detail: 'A filter is a test on a label, such as version equal to 2. The app or a model chooses it for each question. In this lesson it is set by hand.',
     },
     {
-      title: 'Drop the chunks that fail the filter',
-      detail: 'Chunks whose version is not 2 are removed. The old 3-second article never reaches the scoring step.',
+      title: 'Filtering before scoring',
+      detail: 'Chunks that fail the test are removed before the search scores anything. The old 3-second article, version 1, never reaches scoring.',
     },
     {
-      title: 'Score what is left',
-      detail: 'The vector score runs on the remaining chunks only. The two version 2 chunks are ranked as before.',
+      title: 'Why the filter matters',
+      detail: 'Without a filter, the old 3-second article scores 0.86 and ranks first. The current article scores 0.82 and ranks below it.',
     },
     {
-      title: 'Set labels when the chunk is stored',
-      detail: 'A label must exist before the search. A chunk with no version label fails every version filter.',
+      title: 'Missing labels fail',
+      detail: 'A chunk with no version label fails every version filter. Check the labels when a document is loaded, not when a user asks.',
     },
   ],
   diagram: ['Labeled chunks', 'Filter', 'Score', 'Top k'],
@@ -219,27 +219,22 @@ const keywordSearch: Lesson = {
   },
   steps: [
     {
-      title: 'Split chunks into words',
+      title: 'Words in each chunk',
       detail: 'The index splits each chunk into words. "The refund form is on the account page" becomes eight separate words.',
     },
     {
-      title: 'Weigh rare words more',
-      detail: 'The index records how many chunks contain each word. "form" appears in 1 of 4 chunks, so it is rare and counts for more.',
+      title: 'Rare words count more',
+      detail: 'Each word gets a weight from how many chunks contain it. "form" appears in 1 of 4 chunks, so it gets a high weight.',
     },
     {
-      title: 'Score each chunk',
-      detail: 'Each query word adds points when the chunk contains it. Repeats add points up to a limit, and long chunks get fewer points.',
+      title: 'Repeats and length',
+      detail: 'A repeated word adds points, but the points level off at a limit. A long chunk gets fewer points than a short one with the same hits.',
     },
     {
-      title: 'Rank the chunks',
-      detail: 'Sort by the total score. For the query "refund form", the chunk with both words scores 1.65.',
-    },
-    {
-      title: 'Return the top chunks',
-      detail: 'Keep the best k chunks, as in vector search. The chunk with "refund" but not "form" scores 0.69.',
+      title: 'Ranking a query',
+      detail: 'For "refund form", the chunk with both words scores 1.65. A chunk with only "refund" scores 0.69, and chunks with neither word score 0.00.',
     },
   ],
-  diagram: ['Words', 'Weigh rare words', 'Score', 'Rank'],
   code: {
     source: `// Chunks of a FAQ, each split into lowercase words.
 const chunks = [
@@ -323,24 +318,24 @@ const hybridSearch: Lesson = {
   },
   steps: [
     {
-      title: 'Run both searches',
-      detail: 'Send the question to vector search and to keyword search. Each returns its own ranked list of chunk ids.',
+      title: 'Two ranked lists',
+      detail: 'Vector search returns refund-guide, order-page, then refund-form. Keyword search returns refund-form, refund-guide, then faq. Rank 1 is the best.',
     },
     {
-      title: 'Read each chunk rank',
-      detail: 'Rank 1 is the best. The vector list is refund-guide, order-page, then refund-form. The keyword list is refund-form, refund-guide, then faq.',
+      title: 'Why ranks, not scores',
+      detail: 'Raw scores sit on different scales, so they cannot be added fairly. RRF uses only the rank of each chunk in each list.',
     },
     {
-      title: 'Score by rank, not raw score',
-      detail: 'Raw scores are on different scales, so RRF ignores them. Each list adds 1 / (60 + rank) for every chunk it contains.',
+      title: 'The RRF formula',
+      detail: 'Each list adds 1 / (60 + rank) for every chunk it contains. A rank 1 chunk adds 1/61, which is about 0.0164.',
     },
     {
-      title: 'Add the scores for each chunk',
-      detail: 'A chunk in both lists gets two additions. refund-guide gets 1/61 plus 1/62, which is 0.0325.',
+      title: 'A chunk in both lists',
+      detail: 'refund-guide is rank 1 in one list and rank 2 in the other. Its total is 1/61 plus 1/62, which is 0.0325.',
     },
     {
-      title: 'Sort the fused scores',
-      detail: 'The final order is refund-guide (0.0325), refund-form (0.0323), order-page (0.0161), then faq (0.0159).',
+      title: 'The fused order',
+      detail: 'The final order is refund-guide (0.0325), refund-form (0.0323), order-page (0.0161), then faq (0.0159). A chunk found by only one search still appears.',
     },
   ],
   diagram: ['Question', 'Vector list', 'Keyword list', 'RRF', 'Final order'],
@@ -418,24 +413,20 @@ const reranking: Lesson = {
   },
   steps: [
     {
-      title: 'Take the candidates',
+      title: 'Candidates from the first search',
       detail: 'The first search returns more candidates than the model needs, such as 20. The example has four candidates in first-pass order.',
     },
     {
-      title: 'Pair the question with one candidate',
-      detail: 'The reranker reads the question and one candidate as one input. It sees the words of both at once, which the first search does not.',
+      title: 'Reading a pair together',
+      detail: 'The reranker reads the question and one candidate as one input. It sees the words of both at once, which the first search does not do.',
     },
     {
-      title: 'Score each pair',
-      detail: 'The reranker gives each pair a score. A fake scorer here counts the share of question words found in the candidate. "Refunds take 5 to 7 days" scores 0.40.',
+      title: 'A scoring example',
+      detail: 'A fake scorer counts the share of question words found in the candidate. "Refunds take 5 to 7 days after the item arrives" scores 0.40.',
     },
     {
-      title: 'Sort by the new score',
-      detail: 'Sort the candidates by the reranker score, highest first. The candidate about refund time now ranks first.',
-    },
-    {
-      title: 'Keep only the top few',
-      detail: 'Keep the best n candidates for the model. In the example n is 2, so two passages remain.',
+      title: 'Sorting and keeping the top',
+      detail: 'The candidates are sorted by the new score, highest first. Keeping the best n, here 2, sends only two passages to the model.',
     },
   ],
   diagram: ['Candidates', 'Pair with question', 'Score', 'Sort', 'Keep top n'],
@@ -519,20 +510,20 @@ const queryRewriting: Lesson = {
   },
   steps: [
     {
-      title: 'Write variants of the question',
-      detail: 'A model reads the question and writes two or three variants. For "my card was charged twice" it writes "duplicate card charge" and "refund for a double payment".',
+      title: 'Variants of the question',
+      detail: 'A model writes two or three variants of the question. For "my card was charged twice" it writes "duplicate card charge" and "refund for a double payment".',
     },
     {
-      title: 'Run each query',
-      detail: 'Each query runs its own search, and the original question runs too. In the example, the original question alone finds 0 chunks.',
+      title: 'One search per query',
+      detail: 'Each query runs its own search, and the original question runs too. The original alone finds 0 chunks in the example.',
     },
     {
-      title: 'Merge the hits',
-      detail: 'The results are combined and repeats are removed. The three queries together find 2 different chunks.',
+      title: 'Merging the hits',
+      detail: 'The results are combined, and repeats are removed. The three queries together find 2 different chunks.',
     },
     {
-      title: 'Send the merged set on',
-      detail: 'The merged chunks go to ranking or to the model. Rewriting changes what is searched, not how the answer is written.',
+      title: 'What rewriting does not change',
+      detail: 'Rewriting changes what is searched, not how the answer is written. The merged chunks still go to ranking or to the model.',
     },
   ],
   diagram: ['Question', 'Rewrite', 'Search each', 'Merge'],
@@ -620,23 +611,22 @@ const parentChildAndCompression: Lesson = {
   },
   steps: [
     {
-      title: 'Split each section into children',
-      detail: 'Each section is cut into child pieces, here one per sentence. Every child keeps the id of its parent section.',
+      title: 'Small children, one parent',
+      detail: 'Each section is cut into child pieces, here one per sentence. Every child stores the id of its parent section, such as reset.',
     },
     {
-      title: 'Search the children',
-      detail: 'The question is scored against each child. "What does the light do" matches the sentence about the light best.',
+      title: 'Scoring the children',
+      detail: 'The question is scored against each child, not against the whole section. "What does the light do" matches "The light then blinks blue" best, with 2 shared words.',
     },
     {
-      title: 'Follow the pointer to the parent',
-      detail: 'The best child points to its parent section, which has the id reset. The whole section is returned, not only the matched sentence.',
+      title: 'Returning the parent',
+      detail: 'The best child points to its parent. The whole section is returned, so the model gets the steps around the matched sentence.',
     },
     {
-      title: 'Compress a long parent when needed',
-      detail: 'If the parent is too long, a rule or a model can cut it down. Keep only the sentences that answer the question.',
+      title: 'When compression helps',
+      detail: 'A long parent can be cut down to the sentences that answer the question. This keeps the prompt short, and the snippet leaves it out.',
     },
   ],
-  diagram: ['Section', 'Child pieces', 'Best child', 'Parent section'],
   code: {
     source: `// One manual section. Each sentence is a small child piece.
 const section = {
@@ -713,24 +703,24 @@ const correctiveRetrieval: Lesson = {
   },
   steps: [
     {
-      title: 'Search with the question',
-      detail: 'Run the normal search. For "how long until my money is back" the words differ from the documents, so the search finds nothing.',
+      title: 'A search with no good result',
+      detail: 'For "how long until my money is back" the words differ from the documents. The first search returns 0 chunks.',
     },
     {
-      title: 'Grade each chunk',
-      detail: 'A grader, often a model, judges whether each chunk answers the question. In this lesson a fake grader accepts only the refund chunk.',
+      title: 'A grader decides',
+      detail: 'A grader judges whether each chunk answers the question. In this lesson a fake grader accepts only the "Refund takes 5 to 7 days" chunk.',
     },
     {
-      title: 'Rewrite the query',
-      detail: 'When grading keeps nothing, the system asks for a better query, such as "refund". The rewrite here comes from a fake rewriter.',
+      title: 'A rewritten query',
+      detail: 'When grading keeps nothing, a rewriter writes a better query. The rewrite "refund" matches the chunk words, so the second search keeps 1 chunk.',
     },
     {
-      title: 'Search again and keep the graded chunks',
-      detail: 'The second search finds "Refund takes 5 to 7 days". The grader accepts it, so it goes to the model.',
-    },
-    {
-      title: 'Answer or admit a gap',
+      title: 'Refusing when nothing passes',
       detail: 'If the second round also keeps nothing, the system says the documents do not cover the question. It does not guess.',
+    },
+    {
+      title: 'Limiting the rounds',
+      detail: 'Set a maximum number of rounds, such as two. The loop then always stops, even when no chunk passes.',
     },
   ],
   diagram: ['Search', 'Grade', 'Rewrite', 'Search again', 'Answer or refuse'],
@@ -816,24 +806,24 @@ const textToSql: Lesson = {
   },
   steps: [
     {
-      title: 'Give the model the table layout',
-      detail: 'Send the table and column names with the question. The model needs them to write a query that works against your tables.',
+      title: 'Table layout in the prompt',
+      detail: 'Send the table and column names with the question. Without them, the model guesses, and the query often fails.',
     },
     {
-      title: 'Take one SQL string from the model',
-      detail: 'For "Plans under 40?" the fake model returns SELECT name FROM products WHERE price < 40. The model writes text, not results.',
+      title: 'One SQL string',
+      detail: 'For "Plans under 40?" the fake model returns SELECT name FROM products WHERE price < 40. The model writes text, and it does not return rows.',
     },
     {
-      title: 'Check the query before running it',
-      detail: 'A check allows one plain SELECT and refuses words such as DELETE or DROP. The output "DROP TABLE products" is refused.',
+      title: 'The check before running',
+      detail: 'The check allows one plain SELECT and refuses words such as DELETE or DROP. The output "DROP TABLE products" is refused.',
     },
     {
-      title: 'Run it with a read-only account',
-      detail: 'The database login can read rows but cannot change them. Even a bad query cannot alter the data.',
+      title: 'A read-only login',
+      detail: 'The database login can read rows but cannot change them. A bad query then cannot alter the data, even if the check misses it.',
     },
     {
-      title: 'Show the rows and the query',
-      detail: 'Show the user the rows and the query text. A person can then see exactly which filter produced the answer.',
+      title: 'Showing the query with the rows',
+      detail: 'Show the user the rows and the query text. A person can then see which filter produced the answer.',
     },
   ],
   diagram: ['Question', 'Model writes SQL', 'Check', 'Run', 'Rows'],
@@ -917,27 +907,26 @@ const graphRetrieval: Lesson = {
   },
   steps: [
     {
-      title: 'Store facts as links',
+      title: 'Facts as links',
       detail: 'A fact has three parts: from, relation, and to. "Basic plan includes Email support" is one link with the relation includes.',
     },
     {
-      title: 'Find the starting name',
+      title: 'Starting at a name',
       detail: 'The question names "Basic plan", so the walk starts there. A real system finds the name with a search or a model.',
     },
     {
-      title: 'Follow one hop',
+      title: 'One hop',
       detail: 'One hop reads the links that start at Basic plan. It finds "Basic plan includes Email support".',
     },
     {
-      title: 'Follow a second hop',
-      detail: 'The second hop starts at Email support. It finds "Email support hours 9 to 5 weekdays", a fact the first search missed.',
+      title: 'Two hops',
+      detail: 'The second hop starts at Email support. It finds "Email support hours 9 to 5 weekdays", a fact the first search would miss.',
     },
     {
-      title: 'Keep a source with each fact',
-      detail: 'In a real system each link also names the document it came from, so an answer can be checked.',
+      title: 'Keeping a source',
+      detail: 'Each link in a real system also names its document. An answer can then be checked against the original text.',
     },
   ],
-  diagram: ['Question', 'Start name', 'Hop 1', 'Hop 2', 'Facts'],
   code: {
     source: `// Facts stored as edges: from, relation, and to.
 const edges = [
@@ -1022,24 +1011,20 @@ const multimodalRetrieval: Lesson = {
   },
   steps: [
     {
-      title: 'Describe each image',
+      title: 'Captions for pictures',
       detail: 'A vision model writes a caption for each picture. "Front panel with a red light." is one caption in this lesson.',
     },
     {
-      title: 'Turn each caption into numbers',
-      detail: 'The caption becomes an embedding. This lesson uses a fake embedding that counts the words light, cable, and red.',
+      title: 'Numbers from a caption',
+      detail: 'This lesson uses a fake embedding that counts the words light, cable, and red. The front panel caption gives the list [1, 0, 1].',
     },
     {
-      title: 'Embed the question',
-      detail: 'The question "blinking red light" gets the same kind of numbers. Its counts are light 1, cable 0, and red 1.',
+      title: 'The question as numbers',
+      detail: 'The question "blinking red light" gets the same counts, [1, 0, 1]. Each image vector is then compared with it.',
     },
     {
-      title: 'Score and rank the images',
-      detail: 'Each image vector is scored against the question. The front panel scores 2, and the other two score 0.',
-    },
-    {
-      title: 'Return the image file',
-      detail: 'The top image file is shown with its caption. The image itself is never read as text, only its caption is.',
+      title: 'Ranking the images',
+      detail: 'The front panel scores 2, and the other two score 0. The top file, front.png, is returned with its caption.',
     },
   ],
   diagram: ['Image', 'Caption', 'Embed', 'Score', 'Image file'],
@@ -1125,19 +1110,19 @@ const whatRetrievalCannotFix: Lesson = {
   steps: [
     {
       title: 'Missing content',
-      detail: 'If no chunk holds the answer, no search can find it. The fix is to add the document, or to say the answer is not in the documents.',
+      detail: 'If no chunk holds the answer, no search can find it. The fix is to add the document or to say the answer is not in the documents.',
     },
     {
       title: 'Two editions of one answer',
-      detail: 'The 2019 and 2024 refund chunks score the same, so search cannot pick the current one. The fix is a metadata filter (lesson 4.2).',
+      detail: 'The 2019 and 2024 refund chunks both score 0.82 for "refund time". The fix is a metadata filter (lesson 4.2).',
     },
     {
-      title: 'Unrelated question',
-      detail: 'A question about gift cards still returns two chunks, though neither answers it. The fix is a grader that can say no (lesson 4.8).',
+      title: 'Unrelated questions still return results',
+      detail: 'A question about gift cards returns two chunks, though neither answers it. The top score is only 0.29. The fix is a grader that can say no (lesson 4.8).',
     },
     {
       title: 'Vague wording',
-      detail: 'The question uses words the documents do not use, so the search misses. The fix is query rewriting (lesson 4.6).',
+      detail: 'Words the documents do not use cause misses. The fix is query rewriting (lesson 4.6).',
     },
   ],
   code: {
