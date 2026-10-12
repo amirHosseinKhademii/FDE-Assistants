@@ -12,20 +12,72 @@ const streamingWithCitations: Lesson = {
   },
   steps: [
     {
-      title: 'Event shapes',
-      detail: 'Each stream event is either text or citations. A text event has a value with one piece of the answer. The citations event holds the list of source ids.',
+      title: 'Text arrives one piece at a time',
+      detail: 'The model writes its answer in small pieces, and each piece is sent as soon as it exists. The sample answer arrives as six pieces, each with a trailing space. The screen can show each piece at once.',
+      visual: {
+        kind: 'chips',
+        caption: 'The six pieces of the sample answer, in arrival order.',
+        items: [
+          { text: 'Refunds ' },
+          { text: 'take ' },
+          { text: '5 ' },
+          { text: 'to ' },
+          { text: '7 ' },
+          { text: 'days. ', note: 'last text piece' },
+        ],
+      },
     },
     {
-      title: 'Yielding the pieces',
-      detail: 'The generator yields one text event per word, each with a trailing space. It then yields one citations event. The sample has six words, so six text events come first.',
+      title: 'A generator yields each piece',
+      detail: 'An async generator is a function that yields values over time. Each yield hands one piece to the caller, and the caller reads it with for await. The sample yields two pieces to show the pattern.',
+      snippet: {
+        source: `async function* streamWords() {
+  for (const word of ["Refunds", "take"]) {
+    yield word + " ";
+  }
+}
+(async () => {
+  for await (const piece of streamWords()) {
+    console.log(JSON.stringify(piece));
+  }
+})();
+`,
+        output: `"Refunds "
+"take "`,
+      },
     },
     {
-      title: 'Reading the stream',
-      detail: 'The for await loop takes each event as it arrives. Text is printed right away, and the citations are printed when they arrive. The full answer is joined at the end.',
+      title: 'Citations come last',
+      detail: 'The stream carries two kinds of event. Text events hold one piece of the answer each. The citations event holds the source ids, and it arrives only after the last text piece.',
+      visual: {
+        kind: 'table',
+        caption: 'The two event kinds in the sample stream.',
+        columns: ['Event', 'Holds', 'When it arrives'],
+        rows: [
+          ['text', 'one piece of the answer', 'as each piece is written'],
+          ['citations', 'the source ids, such as faq-12', 'after the last text piece'],
+        ],
+        highlightRow: 1,
+      },
     },
     {
-      title: 'Keeping the spaces',
-      detail: 'Each piece keeps its own trailing space. The full answer is trimmed once at the end. This keeps the words from running together.',
+      title: 'The screen joins the pieces',
+      detail: 'Each piece keeps its own trailing space, so the pieces join with the right gaps. The full answer is trimmed once at the end, which removes the last space. The sample joins six pieces into one sentence.',
+      visual: {
+        kind: 'flow',
+        caption: 'The path of one answer from the model to the screen.',
+        nodes: ['Model', 'Text events', 'Screen', 'Citations'],
+      },
+      snippet: {
+        source: `const pieces = ["Refunds ", "take ", "5 to 7 days."];
+let shown = "";
+for (const piece of pieces) {
+  shown += piece;
+}
+console.log(shown.trim());
+`,
+        output: `Refunds take 5 to 7 days.`,
+      },
     },
   ],
   diagram: ['Model', 'Text events', 'Screen', 'Citations'],
@@ -69,19 +121,6 @@ text: "days. "
 citations: faq-12
 Full answer: Refunds take 5 to 7 days.`,
   },
-  hood: {
-    paragraphs: [
-      'An async generator is a function that yields values over time. The for await loop takes each value as it arrives.',
-      'StreamEvent is a union of two shapes. The if statement checks the type field, so each branch sees the right fields.',
-      'The sample stream has no delay. A real stream waits on the network between events.',
-    ],
-    example: [
-      { label: 'First event', value: 'text, "Refunds "' },
-      { label: 'Last text event', value: 'text, "days. "' },
-      { label: 'Final event', value: 'citations, faq-12' },
-      { label: 'Full answer', value: 'Refunds take 5 to 7 days.' },
-    ],
-  },
   mistakes: [
     'Showing citations before the answer ends. The list can change, so wait for the citations event.',
     'Losing the text when the stream fails halfway. Show an error and keep what arrived, marked as partial.',
@@ -114,20 +153,67 @@ const tracingAndLogs: Lesson = {
   },
   steps: [
     {
-      title: 'The span record',
-      detail: 'A span has a request id, a step name, a start time, a duration, and an ok flag. For example, the generate span starts at 40 and lasts 900 milliseconds.',
+      title: 'A span records one step',
+      detail: 'A span holds a request id, a step name, a start time, a duration, and an ok flag. The generate span in the sample starts at 40 milliseconds and lasts 900 milliseconds. Its ok flag is false, so it failed.',
+      visual: {
+        kind: 'table',
+        caption: 'The fields of the generate span.',
+        columns: ['Field', 'Value'],
+        rows: [
+          ['requestId', 'req-0042'],
+          ['step', 'generate'],
+          ['startMs', '40'],
+          ['durationMs', '900'],
+          ['ok', 'false'],
+        ],
+        highlightRow: 4,
+      },
     },
     {
-      title: 'Clock and start times',
-      detail: 'The clock starts at zero and moves forward by each duration. A step starts where the previous one ended. The cite step therefore starts at 940.',
+      title: 'The clock adds up the durations',
+      detail: 'The clock starts at zero and moves forward by each duration. A step starts where the previous step ended. The retrieve step takes 40 milliseconds, so generate starts at 40, and cite starts at 940.',
+      visual: {
+        kind: 'bars',
+        caption: 'How long each step of the sample request took.',
+        unit: 'ms',
+        rows: [
+          { label: 'retrieve', value: 40 },
+          { label: 'generate', value: 900, highlight: true },
+          { label: 'cite', value: 5 },
+        ],
+      },
     },
     {
-      title: 'One line per span',
-      detail: 'JSON.stringify turns each span into one line of text. A log reader can then search the lines by requestId or by step name.',
+      title: 'Each span is one JSON line',
+      detail: 'JSON.stringify turns a span into one line of text. A log file holds one line per span. A reader can then search the lines by requestId or by step name.',
+      snippet: {
+        source: `const span = {
+  requestId: "req-0042",
+  step: "generate",
+  startMs: 40,
+  durationMs: 900,
+  ok: false,
+};
+console.log(JSON.stringify(span));
+`,
+        output: `{"requestId":"req-0042","step":"generate","startMs":40,"durationMs":900,"ok":false}`,
+      },
     },
     {
-      title: 'Finding the failure',
-      detail: 'The generate line has ok set to false, so filtering on that flag finds the failed step. Its duration shows whether the failed step was also slow.',
+      title: 'The ok flag finds the failure',
+      detail: 'Filtering the lines on ok set to false finds the failed step. The sample log has two lines, and only the generate line is marked as failed. Its duration then shows whether the failure was also slow.',
+      snippet: {
+        source: `const lines = [
+  '{"step":"retrieve","ok":true}',
+  '{"step":"generate","ok":false}',
+];
+for (const line of lines) {
+  const span = JSON.parse(line);
+  if (!span.ok) console.log("Failed step: " + span.step);
+}
+`,
+        output: `Failed step: generate`,
+      },
     },
   ],
   code: {
@@ -166,19 +252,6 @@ for (const span of spans) {
 {"requestId":"req-0042","step":"generate","startMs":40,"durationMs":900,"ok":false}
 {"requestId":"req-0042","step":"cite","startMs":940,"durationMs":5,"ok":true}`,
   },
-  hood: {
-    paragraphs: [
-      'The times here come from fixed numbers, so the output is the same on every run. A real trace reads the clock at each step.',
-      'A start time is the sum of the durations before it. The cite step starts at 940, which is 40 plus 900.',
-      'Logs must not hold secrets or full user text. Keep ids and counts, and store text only where your rules allow.',
-    ],
-    example: [
-      { label: 'Request id', value: 'req-0042' },
-      { label: 'Step that failed', value: 'generate' },
-      { label: 'Its duration', value: '900 milliseconds' },
-      { label: 'Start of the cite step', value: '940 milliseconds' },
-    ],
-  },
   mistakes: [
     'Logging without a request id. Lines from many requests then mix together.',
     'Logging only failures. Without normal timings, a failure has nothing to compare with.',
@@ -210,20 +283,65 @@ const trackingCost: Lesson = {
   },
   steps: [
     {
-      title: 'Input and output prices',
-      detail: 'The sample uses 2 for input and 8 for output, per million tokens. These prices are invented for the example. Real prices come from the current list that a model provider publishes.',
+      title: 'Prices are per million tokens',
+      detail: 'The sample uses 2 for input tokens and 8 for output tokens, per million tokens. These prices are invented for the example. Real prices come from the current price list that a model provider publishes.',
+      visual: {
+        kind: 'table',
+        caption: 'The example prices used in the sample, per million tokens.',
+        columns: ['Token type', 'Price per million'],
+        rows: [
+          ['input', '2'],
+          ['output', '8'],
+        ],
+      },
     },
     {
-      title: 'Cost of one request',
-      detail: 'Each cost is the token count divided by one million, times the price. For example, 1,200 input tokens cost 0.0024. The 150 output tokens add 0.0012.',
+      title: 'The cost of one request',
+      detail: 'Each token count is divided by one million and then multiplied by its price. The 1,200 input tokens cost 0.0024, and the 150 output tokens cost 0.0012. Together they cost 0.0036.',
+      visual: {
+        kind: 'bars',
+        caption: 'The two parts of the cost of request 1, in dollars.',
+        unit: 'USD',
+        rows: [
+          { label: 'Input, 1,200 tokens', value: 0.0024 },
+          { label: 'Output, 150 tokens', value: 0.0012 },
+        ],
+      },
+      snippet: {
+        source: `const price = { input: 2, output: 8 };
+const usage = { input: 1200, output: 150 };
+const cost = (usage.input / 1_000_000) * price.input
+  + (usage.output / 1_000_000) * price.output;
+console.log(cost.toFixed(6));
+`,
+        output: `0.003600`,
+      },
     },
     {
-      title: 'The day total',
-      detail: 'The day total adds up the cost of every request. The three example requests cost 0.0036, 0.00232, and 0.0112. Their sum is 0.01712.',
+      title: 'The day total adds the requests',
+      detail: 'The day total adds up the cost of every request. The three example requests cost 0.0036, 0.00232, and 0.0112. Their sum is 0.01712, which prints as 0.017120 with six decimal places.',
+      visual: {
+        kind: 'bars',
+        caption: 'Cost of each request, in dollars.',
+        unit: 'USD',
+        rows: [
+          { label: 'Request 1', value: 0.0036 },
+          { label: 'Request 2', value: 0.00232 },
+          { label: 'Request 3', value: 0.0112, highlight: true },
+        ],
+      },
     },
     {
-      title: 'Rounding for display',
-      detail: 'Floating-point math can leave tiny errors. The toFixed call rounds each printed value to six decimal places. The stored numbers do not change.',
+      title: 'Rounding changes only the display',
+      detail: 'Floating-point math can leave tiny errors, because a computer stores decimals in binary. The toFixed call rounds the value only for printing. The stored number keeps its full precision.',
+      snippet: {
+        source: `const total = 0.1 + 0.2;
+console.log(total);
+console.log(total.toFixed(6));
+`,
+        output: `0.30000000000000004
+0.300000`,
+      },
     },
   ],
   code: {
@@ -262,20 +380,6 @@ request 2: $0.002320
 request 3: $0.011200
 day total: $0.017120`,
   },
-  hood: {
-    paragraphs: [
-      'Divide by one million first, then multiply by the price. The result is in dollars, because the price is in dollars.',
-      'Floating-point arithmetic can show tiny errors. The toFixed call rounds the printed value to six decimal places.',
-      'Real prices change and differ by model. Store the price with each request, so old costs stay correct when prices change.',
-    ],
-    example: [
-      { label: 'Input tokens', value: '1,200' },
-      { label: 'Output tokens', value: '150' },
-      { label: 'Input cost', value: '0.0024' },
-      { label: 'Output cost', value: '0.0012' },
-      { label: 'Total', value: '0.0036' },
-    ],
-  },
   mistakes: [
     'Using a price from memory. Prices change, so read the current price list each time you set them.',
     'Ignoring output tokens. Long answers can cost more than the question that caused them.',
@@ -307,20 +411,56 @@ const caching: Lesson = {
   },
   steps: [
     {
-      title: 'The normalized question',
-      detail: 'The question is trimmed and lowercased before it is hashed. For example, "  how long do REFUNDS take? " becomes the same text as "How long do refunds take?"',
+      title: 'Normalize before hashing',
+      detail: 'The question is trimmed and lowercased before it is hashed. Two questions that differ only in spacing or case then give the same key. The sample turns the question into one plain form.',
+      snippet: {
+        source: `const raw = "  how long do REFUNDS take? ";
+const normal = raw.trim().toLowerCase();
+console.log(JSON.stringify(normal));
+`,
+        output: `"how long do refunds take?"`,
+      },
     },
     {
-      title: 'The hash key',
-      detail: 'The key hashes the model name and the normalized question with SHA-256. The same text always gives the same 64 character hex key. The key is short enough to store as a map key.',
+      title: 'The key is a SHA-256 hash',
+      detail: 'SHA-256 is a hash function, which turns any text into a fixed-length code. The key hashes the model name and the normalized question together. The same text always gives the same code, so it works as a lookup key.',
+      snippet: {
+        source: `import { createHash } from "node:crypto";
+const text = "model-a|how long do refunds take?";
+const key = createHash("sha256").update(text).digest("hex");
+console.log("Key starts with " + key.slice(0, 12));
+console.log("Key length: " + key.length);
+`,
+        output: `Key starts with 27384c6a4ec6
+Key length: 64`,
+      },
     },
     {
-      title: 'A hit and a miss',
-      detail: 'A hit returns the saved answer and makes no model call. A miss calls the model once and saves the answer under the key. The sample has one miss for each model.',
+      title: 'A hit skips the model',
+      detail: 'A hit finds the saved answer under the key and makes no model call. A miss calls the model once and saves the answer under the key. The table shows three requests, and only the first and third miss.',
+      visual: {
+        kind: 'table',
+        caption: 'Three requests, and whether each one reaches the model.',
+        columns: ['Request', 'Key found', 'Model call'],
+        rows: [
+          ['How long do refunds take? (model-a)', 'no', 'yes'],
+          ['Same question, extra spaces (model-a)', 'yes', 'no'],
+          ['Same question (model-b)', 'no', 'yes'],
+        ],
+        highlightRow: 1,
+      },
     },
     {
-      title: 'Counting the savings',
-      detail: 'The modelCalls counter counts how many times the model runs. The sample asks three times, and the model runs twice. The cache holds two entries, one for each model.',
+      title: 'Counting calls shows the saving',
+      detail: 'The modelCalls counter counts how many times the model runs. The sample makes three requests, and the model runs only twice. The cache holds two entries, one for each model.',
+      visual: {
+        kind: 'bars',
+        caption: 'Requests made, and model calls actually made.',
+        rows: [
+          { label: 'Requests', value: 3 },
+          { label: 'Model calls', value: 2, highlight: true },
+        ],
+      },
     },
   ],
   code: {
@@ -359,19 +499,6 @@ Answer to: How long do refunds take?
 Model calls: 2
 Cache entries: 2`,
   },
-  hood: {
-    paragraphs: [
-      'SHA-256 is a hash function from the Node.js crypto module. The same input always gives the same hash.',
-      'The key holds the model name, because two models give different answers. A real key also holds the prompt version and the source version.',
-      'Normalizing is a choice. Two questions with different meanings must not share a key, so keep the normalizing simple.',
-    ],
-    example: [
-      { label: 'Repeat with other spacing', value: 'same key, cache hit' },
-      { label: 'Same question, other model', value: 'new key, model call' },
-      { label: 'Model calls', value: '2' },
-      { label: 'Cache entries', value: '2' },
-    ],
-  },
   mistakes: [
     'Leaving the model name out of the key. An answer from one model is then served for another.',
     'Leaving the sources or the prompt version out of the key. Old answers then survive a change to the documents.',
@@ -404,20 +531,75 @@ const drift: Lesson = {
   },
   steps: [
     {
-      title: 'The fixed test set',
-      detail: 'Each weekly run asks the same questions and checks the same expected sources. A pass rate is the passed checks divided by all checks. For example, 0.92 means that 92 of 100 checks passed.',
+      title: 'A pass rate is a share of checks',
+      detail: 'Each weekly run asks the same questions and checks the same expected sources. The pass rate is the passed checks divided by all checks. A rate of 0.92 means that 92 of 100 checks passed.',
+      visual: {
+        kind: 'table',
+        caption: 'Two weeks of the fixed test set, as checks passed.',
+        columns: ['Week', 'Checks passed', 'Pass rate'],
+        rows: [
+          ['1', '92 of 100', '0.92'],
+          ['5', '84 of 100', '0.84'],
+        ],
+      },
     },
     {
-      title: 'The baseline',
-      detail: 'The baseline is the average of the first four weeks. The sample adds 0.92, 0.91, 0.93, and 0.90, which sum to 3.66. Dividing 3.66 by 4 gives 0.915.',
+      title: 'The baseline averages the first four weeks',
+      detail: 'The baseline is the average pass rate of the first four weeks. The four rates add up to 3.66, and dividing by four gives a baseline of 0.915. Later weeks are compared with that line.',
+      visual: {
+        kind: 'line',
+        caption: 'Pass rate by week, from the sample runs.',
+        xLabel: 'Week',
+        yLabel: 'Pass rate',
+        series: [
+          {
+            name: 'Pass rate',
+            points: [
+              { x: 1, y: 0.92 },
+              { x: 2, y: 0.91 },
+              { x: 3, y: 0.93 },
+              { x: 4, y: 0.9 },
+              { x: 5, y: 0.84 },
+            ],
+          },
+        ],
+      },
+      snippet: {
+        source: `const weeks = [0.92, 0.91, 0.93, 0.9];
+const sum = weeks.reduce((total, rate) => total + rate, 0);
+console.log("Baseline: " + (sum / weeks.length).toFixed(3));
+`,
+        output: `Baseline: 0.915`,
+      },
     },
     {
-      title: 'The threshold',
-      detail: 'A week is flagged when it is more than 0.05 below the baseline. Week 4 is 0.015 below, so it is ok. Week 5 is 0.075 below, so it is flagged.',
+      title: 'The threshold flags a drop of more than 0.05',
+      detail: 'A week is flagged when its rate is more than 0.05 below the baseline. Weeks 1 to 4 are within that range. Week 5 is 0.075 below the baseline, so it is flagged.',
+      visual: {
+        kind: 'table',
+        caption: 'Each week, its drop below the baseline of 0.915, and its flag.',
+        columns: ['Week', 'Rate', 'Drop', 'Flag'],
+        rows: [
+          ['1', '0.92', '-0.005', 'ok'],
+          ['2', '0.91', '0.005', 'ok'],
+          ['3', '0.93', '-0.015', 'ok'],
+          ['4', '0.90', '0.015', 'ok'],
+          ['5', '0.84', '0.075', 'DRIFT'],
+        ],
+        highlightRow: 4,
+      },
     },
     {
-      title: 'Reading the output',
-      detail: 'Each line shows the week, its rate to two decimals, and a flag. Only week 5 shows DRIFT. A flag starts an investigation, not a fix.',
+      title: 'A flag starts a check, not a fix',
+      detail: 'A flag tells you that quality dropped, but not why. The next step is to find the changed document, prompt, or model. Only then does a fix follow.',
+      snippet: {
+        source: `const baseline = 0.915;
+const rate = 0.84;
+const drop = baseline - rate;
+console.log(drop > 0.05 ? "DRIFT" : "ok");
+`,
+        output: `DRIFT`,
+      },
     },
   ],
   code: {
@@ -443,18 +625,6 @@ week 2: 0.91 ok
 week 3: 0.93 ok
 week 4: 0.90 ok
 week 5: 0.84 DRIFT`,
-  },
-  hood: {
-    paragraphs: [
-      'The pass rate is the passed checks divided by all checks, on the same set. It stays comparable when the set does not change.',
-      'Drift has many causes. New documents, changed prompts, and model updates can each shift answers, so a flag starts an investigation.',
-      'The threshold is a choice. A tight threshold flags noise, and a loose one misses real drops.',
-    ],
-    example: [
-      { label: 'Baseline', value: '0.915' },
-      { label: 'Week 4', value: '0.90, drop 0.015, ok' },
-      { label: 'Week 5', value: '0.84, drop 0.075, DRIFT' },
-    ],
   },
   mistakes: [
     'Changing the test set each week. The scores then measure the new set, not the drift.',
@@ -487,20 +657,70 @@ const debuggingABadAnswer: Lesson = {
   },
   steps: [
     {
-      title: 'Stages in order',
-      detail: 'A request passes through retrieval, context, and generation, in that order. Each stage can fail on its own. The check goes through the stages in the same order.',
+      title: 'Stages run in a fixed order',
+      detail: 'A request passes through retrieval, context, and generation, in that order. Retrieval finds the source chunks, context builds the text the model reads, and generation writes the answer. Each stage can fail on its own.',
+      visual: {
+        kind: 'flow',
+        caption: 'The stages of one request, from left to right.',
+        nodes: ['Retrieval', 'Context', 'Generation', 'Answer'],
+      },
     },
     {
-      title: 'Retrieval failure',
-      detail: 'Run A retrieved only faq-40, so the expected faq-12 was never found. Changing the prompt cannot help a run like this. The search must change.',
+      title: 'Retrieval checks the found ids',
+      detail: 'The expected source is faq-12. In run A, retrieval found only faq-40, so faq-12 never reached the context. A prompt change cannot fix that run, so the search must change.',
+      visual: {
+        kind: 'table',
+        caption: 'Four logged runs. Each should have used faq-12.',
+        columns: ['Run', 'Found', 'Sent', 'Answer right', 'First failed stage'],
+        rows: [
+          ['A', 'faq-40', 'faq-40', 'no', 'retrieval'],
+          ['B', 'faq-12, faq-40', 'faq-40', 'no', 'context'],
+          ['C', 'faq-12', 'faq-12', 'no', 'generation'],
+          ['D', 'faq-12', 'faq-12', 'yes', 'none'],
+        ],
+        highlightRow: 0,
+      },
+      snippet: {
+        source: `const found = ["faq-40"];
+if (!found.includes("faq-12")) console.log("retrieval");
+`,
+        output: `retrieval`,
+      },
     },
     {
-      title: 'Context failure',
-      detail: 'Run B retrieved faq-12 but sent only faq-40 to the model. The context builder dropped the source. A size limit or a sorting bug is a likely cause.',
+      title: 'Context checks the sent ids',
+      detail: 'Run B found faq-12, but the context sent only faq-40 to the model. The context builder dropped the source. A size limit or a sorting bug is a likely cause.',
+      snippet: {
+        source: `const found = ["faq-12", "faq-40"];
+const sent = ["faq-40"];
+if (found.includes("faq-12") && !sent.includes("faq-12")) {
+  console.log("context");
+}
+`,
+        output: `context`,
+      },
     },
     {
-      title: 'Generation failure',
-      detail: 'Run C sent faq-12, and the answer was still wrong. The prompt, the rules, or the model is the cause now. Change the prompt, then run the eval set again.',
+      title: 'Generation fails last',
+      detail: 'Run C sent faq-12, and the answer was still wrong. The prompt, the rules, or the model is the cause now. Change the prompt, then run the eval set again to confirm the fix.',
+      visual: {
+        kind: 'chips',
+        caption: 'The stage that failed for each logged run.',
+        items: [
+          { text: 'A', note: 'retrieval' },
+          { text: 'B', note: 'context' },
+          { text: 'C', note: 'generation', highlight: true },
+          { text: 'D', note: 'no failure' },
+        ],
+      },
+      snippet: {
+        source: `const sent = ["faq-12"];
+const answerRight = false;
+const sentSource = sent.includes("faq-12");
+if (sentSource && !answerRight) console.log("generation");
+`,
+        output: `generation`,
+      },
     },
   ],
   code: {
@@ -530,19 +750,6 @@ for (const [name, found, sent, ok] of runs) {
 B: context
 C: generation
 D: no failure`,
-  },
-  hood: {
-    paragraphs: [
-      'The order matters. A missing source at retrieval makes every later stage look wrong, so check the earliest stage first.',
-      'Each check returns a stage name. The same names let you group many failed requests in one report.',
-      'The sample has four logged runs. Run A failed at retrieval, run B at context, run C at generation, and run D passed.',
-    ],
-    example: [
-      { label: 'Run A', value: 'retrieval, faq-12 not retrieved' },
-      { label: 'Run B', value: 'context, faq-12 retrieved but not sent' },
-      { label: 'Run C', value: 'generation, source sent but answer wrong' },
-      { label: 'Run D', value: 'no failure' },
-    ],
   },
   mistakes: [
     'Changing the prompt first. Many bad answers start at retrieval or context, not at the wording.',
