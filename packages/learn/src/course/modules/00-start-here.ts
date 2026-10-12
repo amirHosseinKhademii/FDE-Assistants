@@ -11,8 +11,8 @@ const whatYouWillBuild: Lesson = {
   },
   steps: [
     {
-      title: 'What the assistant is made of',
-      detail: 'Five parts work together. The documents are split into chunks, the find part picks the best chunks for a question, and the model writes the answer.',
+      title: 'The five parts of the assistant',
+      detail: 'Five parts work together: the documents, the chunks, the find part, the model, and the answer with its sources. The sample program in this lesson does not call a model. It shows only the shape of the find part.',
       visual: {
         kind: 'flow',
         caption: 'The five parts, left to right. Each answer comes from the documents, not from memory alone.',
@@ -21,7 +21,7 @@ const whatYouWillBuild: Lesson = {
     },
     {
       title: 'Chunks: small parts of a document',
-      detail: 'A 2,000-word manual becomes 10 chunks of about 200 words each. Each chunk is stored on its own, so the find part can return only the relevant part.',
+      detail: 'A 2,000-word manual becomes 10 chunks of about 200 words each. Each chunk is stored on its own, so the find part can return only the relevant part. The sample program uses three short FAQ entries instead.',
       visual: {
         kind: 'chips',
         caption: 'One 2,000-word manual, cut into 10 chunks of about 200 words each.',
@@ -29,8 +29,8 @@ const whatYouWillBuild: Lesson = {
       },
     },
     {
-      title: 'Ranking: the best matches for a question',
-      detail: 'The find part scores the question against every entry and keeps the best matches. "My password does not work" scores highest on the password entry, because it shares two words with it.',
+      title: 'Keyword count scores each FAQ entry',
+      detail: 'The find part splits the question and each FAQ question into lowercase words. It counts the shared words, and that count is the score. "My password does not work" shares "my" and "password" with the reset entry. That entry scores 2, so its answer is returned. Later lessons replace this word count with a better measure of meaning.',
       visual: {
         kind: 'chips',
         caption: 'The three FAQ entries from the sample program, ranked for "My password does not work".',
@@ -40,20 +40,31 @@ const whatYouWillBuild: Lesson = {
           { text: 'How do I get a refund', note: 'score 0' },
         ],
       },
+      snippet: {
+        source: `// The question and one FAQ question, split into words.
+const asked = new Set("my password does not work".split(" "));
+const faq = "how do i reset my password".split(" ");
+const shared = faq.filter((w) => asked.has(w));
+console.log("Shared ->", shared.join(", "));
+console.log("Score ->", shared.length);
+`,
+        output: `Shared -> my, password
+Score -> 2`,
+      },
     },
     {
-      title: 'Sources in every answer',
-      detail: 'The model gets the question and the matching chunks. It is told to answer only from those chunks and to name the source of each claim.',
+      title: 'The model writes from the matching chunks',
+      detail: 'The model gets the question and the matching chunks. It is told to answer only from those chunks and to name the source of each statement. Without the source, a reader cannot check the answer.',
       visual: {
         kind: 'compare',
         caption: 'The same answer, with and without a named source.',
         left: { title: 'Answer alone', items: ['Refunds take 5 to 7 days.'] },
-        right: { title: 'Answer with source', items: ['Refunds take 5 to 7 days.', 'Source: refund policy, section 2'] },
+        right: { title: 'Answer with source', items: ['Refunds take 5 to 7 days.', 'Source: refund guide, section 2'] },
       },
     },
     {
-      title: 'Checks with a fixed list',
-      detail: 'Run the assistant on the same 20 questions after each change. Fewer correct answers means the change made things worse.',
+      title: 'Checks with a fixed list of questions',
+      detail: 'Run the assistant on the same 20 questions after each change. The count of correct answers is the score. Fewer correct answers than before means the change made things worse.',
       visual: {
         kind: 'bars',
         caption: 'Correct answers out of 20 fixed questions, after each of three changes.',
@@ -67,7 +78,7 @@ const whatYouWillBuild: Lesson = {
     },
     {
       title: 'A log of real use',
-      detail: 'Record each request, its answer, its sources, and its cost. A request with no source, like the gift card question, shows a gap in the documents.',
+      detail: 'Each request is logged with its question, its sources, and its cost. A request with no source, like the gift card question, shows a gap in the documents.',
       visual: {
         kind: 'table',
         caption: 'Three logged requests. The highlighted one found no source, so the documents do not cover it.',
@@ -115,19 +126,6 @@ console.log(findAnswer("Gift cards for kids"));
 Use Forgot password on sign-in.
 No answer found`,
   },
-  hood: {
-    paragraphs: [
-      'The sample program does not call a model. It shows the shape of the find step only.',
-      'Each question is compared with each FAQ question. The entry with the most shared words wins.',
-      'Later lessons replace this word counting with a better way to measure meaning.',
-    ],
-    example: [
-      { label: 'Question', value: '"My password does not work"' },
-      { label: 'Shared words with the password entry', value: '"my", "password"' },
-      { label: 'Score for the password entry', value: '2' },
-      { label: 'Answer returned', value: '"Use Forgot password on sign-in."' },
-    ],
-  },
   mistakes: [
     'Expecting word counting to understand meaning. It only counts shared words.',
     'Skipping the check step. Without tests, a change can make answers worse and nobody notices.',
@@ -160,17 +158,27 @@ const howToReadALesson: Lesson = {
   },
   steps: [
     {
-      title: 'The reading order',
-      detail: 'The one-line summary sits under the title. Six numbered sections follow, in the same order in every lesson.',
+      title: 'The order of the sections',
+      detail: 'The one-line summary sits under the title, followed by six sections in the same order in every lesson. The layout is fixed on purpose, so a reader can go to any section in one move.',
       visual: {
         kind: 'flow',
         caption: 'The order of a lesson, from the summary to the words to know.',
         nodes: ['Summary', 'The problem', 'How it works', 'Code', 'Common mistakes', 'Use and skip', 'Words to know'],
       },
+      snippet: {
+        source: `const sections = [
+  "The problem", "How it works", "The code and its output",
+  "Common mistakes", "Use it when and skip it when",
+  "Words to know",
+];
+console.log("Sections ->", sections.length);
+`,
+        output: 'Sections -> 6',
+      },
     },
     {
-      title: 'Example values',
-      detail: 'Each block of a lesson gives an example value you can check by hand. This table scores three FAQ entries for the question "My password does not work".',
+      title: 'Example values you can check by hand',
+      detail: 'Each block of a lesson gives an example value that you can check by hand. This table scores three FAQ entries for "My password does not work", the same example as lesson 0.1. The password entry scores highest.',
       visual: {
         kind: 'table',
         caption: 'Shared words and scores for the FAQ entries in lesson 0.1. The password entry scores highest.',
@@ -184,13 +192,19 @@ const howToReadALesson: Lesson = {
       },
     },
     {
-      title: 'The code and its Output',
-      detail: 'The code section holds two things. The code is the program, and the Output is the exact text the program prints when it runs.',
+      title: 'The code and its output',
+      detail: 'The code section holds two things. The code is a program you can copy and run. The output is the exact text the program prints, so compare your run with it to check your copy.',
       visual: {
         kind: 'compare',
         caption: 'What each part of the code section is for.',
         left: { title: 'Code', items: ['A program you can copy and run', 'Comments above each block explain it'] },
         right: { title: 'Output', items: ['The exact text the program prints', 'Compare your run with it to check your copy'] },
+      },
+      snippet: {
+        source: `const score = 2;
+console.log("Score ->", score);
+`,
+        output: 'Score -> 2',
       },
     },
     {
@@ -203,7 +217,7 @@ const howToReadALesson: Lesson = {
 const sections = [
   "The problem",
   "How it works",
-  "The code and under the hood",
+  "The code and its output",
   "Common mistakes",
   "Use it when and skip it when",
   "Words to know",
@@ -219,21 +233,11 @@ console.log("Sections: " + sections.length);
 `,
     output: `1. The problem
 2. How it works
-3. The code and under the hood
+3. The code and its output
 4. Common mistakes
 5. Use it when and skip it when
 6. Words to know
 Sections: 6`,
-  },
-  hood: {
-    paragraphs: [
-      'The layout is fixed on purpose. A reader who knows where a section is can go to it in one move.',
-      'The code section holds two things. The code is the program. The Output is what the program prints when it runs.',
-    ],
-    example: [
-      { label: 'Section 3 holds', value: 'the code, its Output, and the real data shapes' },
-      { label: 'Sections 1 and 2 hold', value: 'the problem and the steps' },
-    ],
   },
   mistakes: [
     'Skipping the Output block. Compare your run with it, so you know the code works.',
