@@ -12,20 +12,20 @@ const hostClientServer: Lesson = {
   },
   steps: [
     {
-      title: 'Name the three roles',
-      detail: 'The host is the app the user runs, such as a chat window. The client lives inside the host and talks to one server. The server offers tools and data.',
+      title: 'The three roles',
+      detail: 'The host is the app the user runs. The client lives inside the host and talks to one server. The server offers tools and data.',
     },
     {
-      title: 'Open a session',
-      detail: 'The client sends initialize first, with a protocol version such as 2024-11-05. The server replies with what it supports.',
+      title: 'Message format',
+      detail: 'Every JSON-RPC message is a JSON object. A request has an id, a method name, and optional params. For example, tools/call names the tool get_order.',
     },
     {
-      title: 'Ask for the tool list',
-      detail: 'The client sends tools/list. The server replies with the name and description of each tool it offers.',
+      title: 'Starting the session',
+      detail: 'The client sends initialize first, with a protocol version such as 2024-11-05. Other requests follow after the server answers that first request.',
     },
     {
-      title: 'Call a tool by its id',
-      detail: 'The client sends tools/call with a tool name and its arguments. Every request has an id, and the reply repeats that id.',
+      title: 'Matching replies',
+      detail: 'A reply repeats the id of the request it answers. The sample prints true because reply id 3 matches call id 3. Ids let several requests share one connection.',
     },
   ],
   diagram: ['Host app', 'Client', 'Server', 'Tool'],
@@ -107,20 +107,20 @@ const stdioServer: Lesson = {
   },
   steps: [
     {
-      title: 'Read one line at a time',
-      detail: 'The server reads standard input one line at a time. Each line holds one complete JSON message.',
+      title: 'Standard input and output',
+      detail: 'The host starts the server as a child process. It writes one JSON line per request to standard input. The server writes one JSON line per reply to standard output.',
     },
     {
-      title: 'Answer tools/list',
-      detail: 'The server replies with the names of its tools. The client can then show the list or choose from it.',
+      title: 'Listing the tools',
+      detail: 'A tools/list request returns the names of the tools. The sample returns get_order as the only name. The client can then show that list to the model.',
     },
     {
-      title: 'Run tools/call',
-      detail: 'The server finds the tool by name and calls its handler with the arguments. The handler returns text in a content list.',
+      title: 'Calling a tool',
+      detail: 'A tools/call request names a tool and passes its arguments. The handler returns text, which goes into a content list. The sample returns the text Order A-1042 shipped.',
     },
     {
-      title: 'Reject unknown methods',
-      detail: 'For a method it does not know, the server returns an error with a code. The code -32601 means method not found.',
+      title: 'Unknown methods',
+      detail: 'The ping method is not in the sample, so the server returns an error. The code -32601 means method not found. The error reply still carries the id of the request.',
     },
   ],
   code: {
@@ -202,20 +202,20 @@ const resourcesAndPrompts: Lesson = {
   },
   steps: [
     {
-      title: 'List the resources',
-      detail: 'The resources/list method returns each resource with its uri. A uri is an address, such as docs://refunds.',
+      title: 'Resources',
+      detail: 'A resource is readable data, identified by a uri. A uri is an address such as docs://refunds. resources/list returns the uris, and resources/read returns the text.',
     },
     {
-      title: 'Read one resource',
-      detail: 'The resources/read method takes a uri and returns the text. The client can then add that text to the context.',
+      title: 'Prompts',
+      detail: 'A prompt is a reusable message template with named arguments. The sample fills the template with topic refund and returns Summary of refund FAQ.',
     },
     {
-      title: 'Fill in a prompt',
-      detail: 'The prompts/get method takes a prompt name and its arguments. The server returns the message with the arguments filled in.',
+      title: 'Data and actions',
+      detail: 'Resources are data that the client reads. Tools are actions that the model asks for. Reading a resource should never change any data.',
     },
     {
-      title: 'Keep data and actions apart',
-      detail: 'A resource is data that the client reads. A tool is an action that the model asks for. Reading a resource must never change data.',
+      title: 'Where the data lives',
+      detail: 'The sample keeps its data in plain objects. A real server reads the same shape from files or a database. The client does not need to know where the data is stored.',
     },
   ],
   code: {
@@ -295,20 +295,20 @@ const httpTransportAndTokens: Lesson = {
   },
   steps: [
     {
-      title: 'Send each message over HTTP',
-      detail: 'The client sends each JSON message in the body of an HTTP request. The server sends its JSON reply back in the response.',
+      title: 'Sending over HTTP',
+      detail: 'Each JSON message travels in the body of an HTTP request. The server sends its JSON reply in the response body. The messages are the same as over standard input.',
     },
     {
-      title: 'Attach the token',
-      detail: 'The client adds an Authorization header that holds the word Bearer and a token. The token is a long random string.',
+      title: 'The bearer token',
+      detail: 'The client adds an Authorization header with the word Bearer and a token. The server looks up the token in its table. The token shows which client is calling.',
     },
     {
-      title: 'Look up the token',
-      detail: 'The server finds the token in its table. A missing or unknown token gets status 401, which means not authenticated.',
+      title: 'Status codes',
+      detail: 'An unknown or missing token gets status 401, which means not authenticated. A known token that asks for a forbidden method gets 403, which means forbidden. A valid call gets 200.',
     },
     {
-      title: 'Check the method',
-      detail: 'The token lists the methods it may call. A call to any other method gets status 403, which means forbidden.',
+      title: 'Allowed methods per token',
+      detail: 'The table maps each token to a list of methods. The sample allows tools/list and tools/call for the reader token. A resources/read call with the same token gets 403.',
     },
   ],
   code: {
@@ -389,20 +389,20 @@ const writingAClient: Lesson = {
   },
   steps: [
     {
-      title: 'Start the session',
-      detail: 'Send initialize first and wait for its reply. Send other requests only after the session is open.',
+      title: 'Starting the session',
+      detail: 'The client sends initialize first and waits for its reply. Other requests are sent only after that reply arrives. The sample does this before it lists the tools.',
     },
     {
-      title: 'Number each request',
-      detail: 'Keep a counter that goes up by one for each request. The counter gives every request a unique id.',
+      title: 'Numbering requests',
+      detail: 'The nextId counter goes up by one for each request. Every request therefore has a unique id. The sample uses the ids 1, 2, and 3.',
     },
     {
-      title: 'Match each reply',
-      detail: 'Compare the reply id with the request id. A mismatch means the reply belongs to another request, so it is an error.',
+      title: 'Checking the id',
+      detail: 'The client compares the reply id with the request id. A mismatch throws an error, because the reply belongs to another request. The sample never sees a mismatch.',
     },
     {
-      title: 'Use the result',
-      detail: 'Read the result field and pass it to the next step. For example, list the tools first, then call one of them.',
+      title: 'Using the result',
+      detail: 'The client returns the result field to its caller. The sample prints the tool list, then the call result. The output shows both values.',
     },
   ],
   code: {
