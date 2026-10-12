@@ -11,20 +11,20 @@ const buildingTheContext: Lesson = {
   },
   steps: [
     {
-      title: 'Order the chunks',
-      detail: 'Put the best match first. A question about refunds puts the refund chunk before the gift card chunk.',
+      title: 'What the context holds',
+      detail: 'The context is one text with three parts: the rules, the labeled sources, and the question. Each part sits under its own heading. The model reads the whole text before it writes an answer.',
     },
     {
-      title: 'Label each chunk',
-      detail: 'Give each chunk an id in square brackets, such as [faq-12]. The model copies that id when it names a source.',
+      title: 'Ordering the chunks',
+      detail: 'Chunks from the search arrive best match first. A question about refunds keeps the refund chunk ahead of the gift card chunk. The order decides which chunks survive a size limit.',
     },
     {
-      title: 'Stop at the size limit',
-      detail: 'Add chunks until the next one would pass the limit. This lesson counts characters. Real systems count tokens, the small pieces of text a model reads.',
+      title: 'Labeling each chunk',
+      detail: 'Each chunk gets an id in square brackets, such as [faq-12]. The model copies the id when it names a source. Without ids, a citation cannot point back to its chunk.',
     },
     {
-      title: 'Join the chunks into text',
-      detail: 'Put one labeled chunk on each line. The result is the sources part of the context. Lesson 5.2 adds the rules and the question.',
+      title: 'Stopping at the size limit',
+      detail: 'The sample counts characters with a limit of 100. Chunks are added until the next one would pass the limit. Here faq-12 and faq-40 fit, and the third chunk does not.',
     },
   ],
   diagram: ['Best chunks', 'Label each', 'Stop at limit', 'Context text'],
@@ -107,20 +107,20 @@ const thePrompt: Lesson = {
   },
   steps: [
     {
-      title: 'Write the rules once',
-      detail: 'Rules say what the model must do. Example: "Answer only from the sources below." The same rules go with every question.',
+      title: 'Parts of the prompt',
+      detail: 'A prompt holds three parts: fixed rules, the labeled sources, and the question. The rules stay the same for every question. Only the sources and the question change for each request.',
     },
     {
-      title: 'Add the sources',
-      detail: 'Paste the labeled text from lesson 5.1 under a Sources heading. The model reads the sources before it reads the question.',
+      title: 'The rules',
+      detail: 'Each rule is one line in a numbered list. Example: "Answer only from the sources below." A new rule is one more line.',
     },
     {
-      title: 'Add the question last',
-      detail: 'End with the question the user typed. Example: "How long do refunds take?" Each request has its own question, so only that part changes.',
+      title: 'Joining the parts',
+      detail: 'The function joins the parts with headings and blank lines. The result is one text that the model reads from top to bottom. The output shows that text exactly as the model would receive it.',
     },
     {
-      title: 'Join the parts into one text',
-      detail: 'Put each part under its own heading, with a blank line between parts. The model reads the whole text from top to bottom.',
+      title: 'Where the question goes',
+      detail: 'The question comes last, after the sources it must use. For example: "How long do refunds take?" The sources then sit between the rules and the question.',
     },
   ],
   code: {
@@ -205,20 +205,20 @@ const structuredOutput: Lesson = {
   },
   steps: [
     {
-      title: 'Name the fields',
-      detail: 'Pick the fields the code needs, such as answer, sourceIds, and escalate. Each field has one type, such as text, a list, or true or false.',
+      title: 'The schema',
+      detail: 'A schema names each field and its type. Here the fields are answer as text, sourceIds as a list, and escalate as true or false. The model is asked to reply with exactly these fields.',
     },
     {
-      title: 'Ask for that shape',
-      detail: 'The prompt asks for one JSON object with those fields. JSON is a text format for objects, lists, and simple values.',
+      title: 'Parsing the reply',
+      detail: 'JSON.parse turns the reply text into an object. If the text is not valid JSON, the parse throws an error. Code must catch that error and treat the reply as failed.',
     },
     {
-      title: 'Parse the reply',
-      detail: 'Code turns the text into an object. If the text is not valid JSON, the reply is rejected at once.',
+      title: 'Checking each type',
+      detail: 'findWrongFields checks one field at a time. The escalate value "no" is text, so it fails the boolean check. The function returns the names of the wrong fields.',
     },
     {
-      title: 'Check each field type',
-      detail: 'The escalate field must be a boolean. The reply escalate: "no" is text, so the check rejects it and names the field.',
+      title: 'Checking a fixed value',
+      detail: 'The sample sets escalate to false and checks again. Zero wrong fields means the reply has the right shape. It does not prove that the content is right.',
     },
   ],
   code: {
@@ -298,20 +298,20 @@ const coherenceRules: Lesson = {
   },
   steps: [
     {
-      title: 'Keep shape and coherence apart',
-      detail: 'Shape checks the types. Coherence checks the meaning against the sources, such as the list of ids that the search returned.',
+      title: 'Shape and coherence',
+      detail: 'Shape checks the types of the fields. Coherence checks the meaning against the sources, such as the list of ids the search returned.',
     },
     {
-      title: 'Check every cited id',
-      detail: 'Each id in sourceIds must be in the set of ids the search returned. An id that was never retrieved is an error.',
+      title: 'Known source ids',
+      detail: 'The set knownIds holds the ids the search returned. Each id in sourceIds must appear in that set. The id manual-99 is not in the set, so it is reported.',
     },
     {
-      title: 'Require escalation for conflicts',
-      detail: 'If two sources disagree, the conflicts list is not empty. The reply must set escalate to true, so a person decides.',
+      title: 'Conflicts need escalation',
+      detail: 'A non-empty conflicts list means two sources disagree. In that case escalate must be true. The broken answer has a conflict and escalate set to false, so it is reported.',
     },
     {
-      title: 'Return every error',
-      detail: 'The function returns every broken rule, not only the first. An empty list means the reply passes.',
+      title: 'Returning every error',
+      detail: 'The function collects all errors into one list instead of stopping at the first. An empty list means the answer passes every rule.',
     },
   ],
   code: {
@@ -392,20 +392,20 @@ const citationsRefusingEscalating: Lesson = {
   },
   steps: [
     {
-      title: 'Cite when the sources answer',
-      detail: 'The answer names the source ids it used, such as faq-12. The reader can open that source and check the answer.',
+      title: 'Checking escalation first',
+      detail: 'The route function checks escalate before anything else. A conflict is never shown as a plain answer, even when it has sources. The sample shows this with two sources and escalate set to true.',
     },
     {
-      title: 'Refuse when the sources are silent',
-      detail: 'If no source answers the question, sourceIds is empty. The system says the sources do not cover it, instead of guessing.',
+      title: 'Refusing without sources',
+      detail: 'An empty sourceIds list means no source answers the question. The route then refuses instead of guessing. The sample passes an empty list and gets the refusal label.',
     },
     {
-      title: 'Escalate when the sources conflict',
-      detail: 'Two sources that disagree set escalate to true. A person reads both sources and decides which one applies.',
+      title: 'Citing in the normal case',
+      detail: 'A normal answer names its source ids. In the sample, the route shows the answer with faq-12. The reader can open that source to verify the text.',
     },
     {
-      title: 'Route each reply',
-      detail: 'Code checks escalate first, then the source list. Each reply takes exactly one route, and the route is recorded.',
+      title: 'Passing routes onward',
+      detail: 'Each route returns a text label in the sample. A real system would send the reply to the next step of its pipeline. The labels make each route easy to test.',
     },
   ],
   code: {
@@ -472,20 +472,20 @@ const longContextAndAttention: Lesson = {
   },
   steps: [
     {
-      title: 'Measure the size',
-      detail: 'Count the tokens in the context before each request. In plain English, about four characters make one token.',
+      title: 'Measuring the size',
+      detail: 'Tokens are the units that a model counts. The sample uses four characters per token as a rough estimate. Ten chunks give about 81 tokens in the example.',
     },
     {
-      title: 'Keep the strongest sources',
-      detail: 'Send the first few chunks from the search. In the example, three chunks make 25 tokens instead of 81.',
+      title: 'Fewer chunks, fewer tokens',
+      detail: 'The first three chunks give 25 tokens. The answer sits at position 8, so it is missing from that selection. A smaller context can drop the answer.',
     },
     {
-      title: 'Put the best source first',
-      detail: 'Research reports that models often miss facts placed in the middle of a long input. The best chunk goes first.',
+      title: 'Putting the best chunk first',
+      detail: 'Moving the answer chunk to the front keeps it in the first three. That selection has 23 tokens and includes the answer. Order can matter as much as size.',
     },
     {
-      title: 'Check that the answer is still included',
-      detail: 'Run the eval set after each change to the size or the order. A smaller context that drops the answer is worse, even if it is cheaper.',
+      title: 'Attention and long inputs',
+      detail: 'Attention is the mechanism that lets a model weigh parts of its input. Long inputs can hide facts placed in the middle. The eval set shows whether a change to size or order helps.',
     },
   ],
   code: {
