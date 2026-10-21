@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiAskRouteImport } from './routes/api.ask'
+import { Route as ApiBrfRouteImport } from './routes/api.brf'
+import { Route as ApiBrfSearchRouteImport } from './routes/api.brf-search'
 import { Route as ApiMortgageRouteImport } from './routes/api.mortgage'
 import { Route as ApiProfileRouteImport } from './routes/api.profile'
 
@@ -22,6 +24,16 @@ const IndexRoute = IndexRouteImport.update({
 const ApiAskRoute = ApiAskRouteImport.update({
   id: '/api/ask',
   path: '/api/ask',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiBrfRoute = ApiBrfRouteImport.update({
+  id: '/api/brf',
+  path: '/api/brf',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiBrfSearchRoute = ApiBrfSearchRouteImport.update({
+  id: '/api/brf-search',
+  path: '/api/brf-search',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiMortgageRoute = ApiMortgageRouteImport.update({
@@ -38,12 +50,16 @@ const ApiProfileRoute = ApiProfileRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/ask': typeof ApiAskRoute
+  '/api/brf': typeof ApiBrfRoute
+  '/api/brf-search': typeof ApiBrfSearchRoute
   '/api/mortgage': typeof ApiMortgageRoute
   '/api/profile': typeof ApiProfileRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/ask': typeof ApiAskRoute
+  '/api/brf': typeof ApiBrfRoute
+  '/api/brf-search': typeof ApiBrfSearchRoute
   '/api/mortgage': typeof ApiMortgageRoute
   '/api/profile': typeof ApiProfileRoute
 }
@@ -51,20 +67,43 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api/ask': typeof ApiAskRoute
+  '/api/brf': typeof ApiBrfRoute
+  '/api/brf-search': typeof ApiBrfSearchRoute
   '/api/mortgage': typeof ApiMortgageRoute
   '/api/profile': typeof ApiProfileRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/ask' | '/api/mortgage' | '/api/profile'
+  fullPaths:
+    | '/'
+    | '/api/ask'
+    | '/api/brf'
+    | '/api/brf-search'
+    | '/api/mortgage'
+    | '/api/profile'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/ask' | '/api/mortgage' | '/api/profile'
-  id: '__root__' | '/' | '/api/ask' | '/api/mortgage' | '/api/profile'
+  to:
+    | '/'
+    | '/api/ask'
+    | '/api/brf'
+    | '/api/brf-search'
+    | '/api/mortgage'
+    | '/api/profile'
+  id:
+    | '__root__'
+    | '/'
+    | '/api/ask'
+    | '/api/brf'
+    | '/api/brf-search'
+    | '/api/mortgage'
+    | '/api/profile'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiAskRoute: typeof ApiAskRoute
+  ApiBrfRoute: typeof ApiBrfRoute
+  ApiBrfSearchRoute: typeof ApiBrfSearchRoute
   ApiMortgageRoute: typeof ApiMortgageRoute
   ApiProfileRoute: typeof ApiProfileRoute
 }
@@ -83,6 +122,20 @@ declare module '@tanstack/react-router' {
       path: '/api/ask'
       fullPath: '/api/ask'
       preLoaderRoute: typeof ApiAskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/brf': {
+      id: '/api/brf'
+      path: '/api/brf'
+      fullPath: '/api/brf'
+      preLoaderRoute: typeof ApiBrfRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/brf-search': {
+      id: '/api/brf-search'
+      path: '/api/brf-search'
+      fullPath: '/api/brf-search'
+      preLoaderRoute: typeof ApiBrfSearchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/mortgage': {
@@ -105,6 +158,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiAskRoute: ApiAskRoute,
+  ApiBrfRoute: ApiBrfRoute,
+  ApiBrfSearchRoute: ApiBrfSearchRoute,
   ApiMortgageRoute: ApiMortgageRoute,
   ApiProfileRoute: ApiProfileRoute,
 }

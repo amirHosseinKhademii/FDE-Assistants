@@ -27,6 +27,8 @@ export type { SafetyKey, SafetyResult, SafetyYear, SafetyFigure } from "./source
 export type { LatLng } from "./sources/crime";
 export type { BrfResult, BrfFigure } from "./sources/brf";
 export type { RegistryFacts } from "./sources/bolagsverket";
+export { lookupOrganisation } from "./sources/bolagsverket";
+export { searchBrf, brfByOrg, matchBrfByAddress, type BrfIndexEntry, type BrfSearchHit } from "./sources/brf-index";
 export type { NeighbourhoodResult, CrimeGroup } from "./sources/neighbourhood";
 export { RENT_BENCHMARK } from "./sources/rent-benchmark";
 export { mortgageRates } from "./sources/rates";
