@@ -16,9 +16,9 @@ const VERDICT_KEY: Record<RentVerdict, MessageKey> = {
  * Search pages only: we never fetch or copy listings from these sites. HomeQ is
  * asked for the district the address is in (or the city when no district is known).
  */
-function linksFor(place: string): { key: MessageKey; href: string }[] {
+function linksFor(place: string): { key: MessageKey; href: string; credit?: MessageKey }[] {
   return [
-    { key: "rent.links.boplats", href: "https://boplats.se/sok?types=1hand" },
+    { key: "rent.links.boplats", href: "https://boplats.se/sok?types=1hand", credit: "rent.links.boplatsCredit" },
     { key: "rent.links.qasa", href: "https://qasa.se/" },
     { key: "rent.links.homeq", href: `https://www.homeq.se/search?location=${encodeURIComponent(place)}` },
   ];
@@ -117,6 +117,7 @@ export function RentCard({
               <a className="btn-secondary" href={link.href} target="_blank" rel="noopener noreferrer">
                 {t(link.key)}
               </a>
+              {link.credit && <p className="card-explain">{t(link.credit)}</p>}
             </li>
           ))}
         </ul>
