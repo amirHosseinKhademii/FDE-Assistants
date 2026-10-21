@@ -14,6 +14,7 @@ import { areaAt, type AreaResult } from "./sources/area";
 import { safetyAt, type SafetyResult } from "./sources/safety";
 import { gothenburgHousePrice, type PriceResult } from "./sources/prices";
 import { brfAt, type BrfResult } from "./sources/brf";
+import { lookupOrganisation, type RegistryFacts } from "./sources/bolagsverket";
 export type { TransitLine, TransitStop, TransportMode } from "./sources/transit";
 export type { NoiseBuilding, NoiseResult } from "./sources/noise";
 export type { AreaRef, DistrictResult } from "./sources/district";
@@ -25,6 +26,7 @@ export type { PlaceCategory, PlaceItem, PlacesResult } from "./sources/places";
 export type { SafetyKey, SafetyResult, SafetyYear, SafetyFigure } from "./sources/safety";
 export type { LatLng } from "./sources/crime";
 export type { BrfResult, BrfFigure } from "./sources/brf";
+export type { RegistryFacts } from "./sources/bolagsverket";
 export type { NeighbourhoodResult, CrimeGroup } from "./sources/neighbourhood";
 export { RENT_BENCHMARK } from "./sources/rent-benchmark";
 export { mortgageRates } from "./sources/rates";
@@ -80,11 +82,14 @@ function stub(source: string, reason: string): Section<never> {
   return { status: "unavailable", reason, source, fetchedAt: new Date().toISOString() };
 }
 
-/** Demo BRF figures when the typed or geocoded house is in the annual-report file; otherwise the Bolagsverket stub. */
-function brfSection(address: string, location: Section<GeocodeResult>): Section<BrfResult> {
+/**
+ * Demo BRF figures when the typed or geocoded house is in the annual-report file, with the live
+ * Bolagsverket registry facts for that association (null when the registry is not reached).
+ * Otherwise the Bolagsverket stub. The registry promise never rejects.
+ */
+async function brfSection(hit: BrfResult | null, registry: Promise<RegistryFacts | null>): Promise<Section<BrfResult>> {
   const fetchedAt = new Date().toISOString();
-  const hit = brfAt(address, location.status === "ok" && location.data ? location.data : null);
-  if (hit) return { status: "ok", data: hit, source: "annual report (demo)", fetchedAt };
+  if (hit) return { status: "ok", data: { ...hit, registry: await registry }, source: "annual report (demo)", fetchedAt };
   return stub("bolagsverket (värdefulla datamängder)", "awaiting Bolagsverket API access");
 }
 
@@ -94,6 +99,9 @@ export async function getProfile(address: string): Promise<Profile> {
   const location = await attempt("nominatim.openstreetmap.org", () => geocode(address));
   // Report the provider that actually answered, not the first one asked.
   if (location.data) location.source = location.data.source;
+  // The file match is synchronous, as before. Only the network call starts early, so it runs alongside the other sources.
+  const brfHit = brfAt(address, location.status === "ok" && location.data ? location.data : null);
+  const registryPromise = brfHit ? lookupOrganisation(brfHit.orgNr) : Promise.resolve(null);
 
   let landslide: Section<LandslideResult>;
   let transit: Section<TransitResult>;
@@ -144,7 +152,7 @@ export async function getProfile(address: string): Promise<Profile> {
     area,
     price: await pricePromise,
     safety,
-    brf: brfSection(address, location),
+    brf: await brfSection(brfHit, registryPromise),
     energy: stub("boverket energideklaration", "awaiting Boverket agreement"),
   };
 }

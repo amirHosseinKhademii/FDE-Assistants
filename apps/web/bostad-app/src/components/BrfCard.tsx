@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { BrfFigure, BrfResult } from "@bostad/property";
+import type { BrfFigure, BrfResult, RegistryFacts } from "@bostad/property";
 import { useLang } from "../lib/lang";
 import type { Check } from "../lib/checks";
 import type { MessageKey } from "../lib/i18n";
@@ -134,6 +134,16 @@ function Metric({
   );
 }
 
+/** The live Bolagsverket line: registration year and status. Status is one of three words, deregistered first. */
+function RegistryRow({ registry, t }: { registry: RegistryFacts; t: Translate }) {
+  const key: MessageKey = registry.deregistered
+    ? "brf.registry.deregistered"
+    : registry.inLiquidation
+      ? "brf.registry.liquidation"
+      : "brf.registry.active";
+  return <p className="muted brf-note">{t(key, { year: registry.registered.slice(0, 4) })}</p>;
+}
+
 function BrfBody({ data, result, t }: { data: BrfResult; result: CardResult; t: Translate }) {
   const debt: BrfFigure<number> | null = data.debtPerSqm;
   const fee = data.annualFeePerSqm;
@@ -151,6 +161,7 @@ function BrfBody({ data, result, t }: { data: BrfResult; result: CardResult; t: 
       </div>
 
       <p className="muted">{t("brf.assoc", { name: data.name, org: data.orgNr })}</p>
+      {data.registry && <RegistryRow registry={data.registry} t={t} />}
 
       <div className="brf-metrics">
         <Metric

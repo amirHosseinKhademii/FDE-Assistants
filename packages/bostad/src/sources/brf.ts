@@ -8,6 +8,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { DATA_DIR } from "../data-dir";
 import type { GeocodeResult } from "./geocode";
+import type { RegistryFacts } from "./bolagsverket";
 
 export interface BrfFigure<T> {
   value: T;
@@ -34,6 +35,8 @@ export interface BrfResult {
   plannedMaintenance: BrfFigure<string> | null;
   /** "none" when the auditor's report has no remark, "remark" when it has one. */
   auditorRemarks: BrfFigure<"none" | "remark"> | null;
+  /** Live Bolagsverket registry facts, added by the profile. Null when the registry was not reached. */
+  registry?: RegistryFacts | null;
 }
 
 interface RawFigure<T> {
