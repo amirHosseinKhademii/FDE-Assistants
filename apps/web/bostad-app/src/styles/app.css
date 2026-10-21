@@ -3770,6 +3770,91 @@ html[data-streetview="open"] .float-search {
   font-size: var(--fs-caption);
 }
 
+/* "Find your BRF" search and the picked association (BrfCard.tsx). Full width at phone size. */
+.brf-find {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.brf-find-title {
+  margin: 0;
+  color: var(--text);
+  font-size: var(--fs-body-lg);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.brf-find .search input {
+  width: 100%;
+}
+
+.brf-hits {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+
+.brf-hit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  width: 100%;
+  min-height: var(--tap);
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-body);
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.brf-hit:hover {
+  background: var(--accent-soft);
+}
+
+.brf-hit:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.brf-hit-tag {
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.brf-text-btn {
+  justify-self: start;
+  min-height: var(--tap);
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: var(--fs-caption);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.brf-text-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
 .bank-from {
   display: inline-block;
   margin-right: 6px;

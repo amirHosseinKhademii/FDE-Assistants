@@ -256,7 +256,7 @@ export function ProfileBody({
       <NoiseCard check={noise} onRetry={onRetry} result={noiseRes} />
       <AreaCard district={district} income={income} area={area} price={price} onRetry={onRetry} result={areaRes} mode={rent ? "rent" : "buy"} />
       <GroundCard check={ground} onRetry={onRetry} result={groundRes} />
-      {!rent && <BrfCard check={brf} result={brfRes} />}
+      {!rent && <BrfCard key={profile.address} address={profile.address} check={brf} result={brfRes} />}
       {!rent && <MortgageCard brfFeePerSqm={brf.kind === "ok" ? (brf.data.annualFeePerSqm?.value ?? null) : null} />}
 
       <p className="more-row">

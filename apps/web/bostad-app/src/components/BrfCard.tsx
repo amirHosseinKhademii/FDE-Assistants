@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import type { BrfFigure, BrfResult, RegistryFacts } from "@bostad/property";
 import { useLang } from "../lib/lang";
 import type { Check } from "../lib/checks";
 import type { MessageKey } from "../lib/i18n";
-import { ProfileCard, type CardResult, type CardStatus, type Tone } from "./ProfileCard";
+import { sameAddressKey } from "../lib/recents";
+import { ProfileCard, type CardResult, type Tone } from "./ProfileCard";
 import { Icon } from "./Icons";
 import { REASON } from "./cards";
 
@@ -47,28 +48,203 @@ export function brfResult(check: Check<BrfResult>, t: Translate): CardResult {
   return { text: t(reason, vars), short: t(`brf.verdict.${verdict}` as MessageKey), tone: VERDICT_TONE[verdict] };
 }
 
+const ORG_NR = /^\d{6}-\d{4}$/;
+const PICK_PREFIX = "bostad.brfPick.";
+const MIN_CHARS = 2;
+const DEBOUNCE_MS = 250;
+const HITS_MAX = 8;
+
+type Hit = { org: string; name: string; active: boolean };
+type Detail = { org: string; status: "loading" | "error" } | { org: string; status: "ok"; name: string; registry: RegistryFacts | null };
+
+/** The org number picked for this address. localStorage can be missing or throw (private mode): then there is no pick. */
+function readPick(address: string): string | null {
+  try {
+    const org = window.localStorage.getItem(PICK_PREFIX + sameAddressKey(address));
+    return org && ORG_NR.test(org) ? org : null;
+  } catch {
+    return null;
+  }
+}
+
+function writePick(address: string, org: string): void {
+  try {
+    window.localStorage.setItem(PICK_PREFIX + sameAddressKey(address), org);
+  } catch {
+    /* storage unavailable: the pick still holds for this page view */
+  }
+}
+
 /**
  * BRF figures from the association's annual report (demo, a few associations only). Buy mode only.
- * Each figure links to its PDF page. Addresses outside the demo keep the "awaiting Bolagsverket" reason.
+ * Each figure links to its PDF page. When the address has no BRF in the demo, the card offers a search of the
+ * Göteborg BRF index instead. A picked association is remembered per address and shows its registry facts,
+ * and a pick overrides a matched BRF, because the user chose it.
  */
-export function BrfCard({ check, result }: { check: Check<BrfResult>; result: CardResult }) {
+export function BrfCard({ address, check, result }: { address: string; check: Check<BrfResult>; result: CardResult }) {
   const { t } = useLang();
   const data = check.kind === "ok" ? check.data : null;
-  const failed = check.kind === "failed";
+  const [pick, setPick] = useState<string | null>(null);
+  const [searching, setSearching] = useState(false);
+  const [detail, setDetail] = useState<Detail | null>(null);
+
+  // Read after mount, not during render: the server has no localStorage, and reading it there would mismatch the page.
+  useEffect(() => {
+    setPick(readPick(address));
+  }, [address]);
+
+  useEffect(() => {
+    if (!pick) return;
+    const ac = new AbortController();
+    setDetail({ org: pick, status: "loading" });
+    fetch(`/api/brf?org=${encodeURIComponent(pick)}`, { signal: ac.signal })
+      .then((res) => {
+        if (!res.ok) throw new Error(`status ${res.status}`);
+        return res.json();
+      })
+      .then((body: { name?: unknown; registry?: RegistryFacts | null }) => {
+        setDetail({ org: pick, status: "ok", name: String(body.name ?? ""), registry: body.registry ?? null });
+      })
+      .catch(() => {
+        if (!ac.signal.aborted) setDetail({ org: pick, status: "error" });
+      });
+    return () => ac.abort();
+  }, [pick]);
+
+  const current = detail && pick !== null && detail.org === pick ? detail : null;
+  const pickFailed = current?.status === "error";
+  const pickShown = pick !== null && !searching && !pickFailed;
+  const pickedOrg = pickShown ? pick : null;
+  const showMatch = data !== null && !pickShown && !searching;
+  const canCancel = (pick !== null && !pickFailed) || data !== null;
+  const reasonKey: MessageKey | null = check.kind === "failed" ? (check.reason === "notExact" ? REASON.notExact : "brf.awaiting") : null;
+  const openSearch = () => setSearching(true);
+  const choose = (org: string) => {
+    writePick(address, org);
+    setPick(org);
+    setSearching(false);
+  };
+
+  let body: ReactNode;
+  if (pickedOrg !== null) {
+    body = <PickView org={pickedOrg} current={current} onChange={openSearch} t={t} />;
+  } else if (data && showMatch) {
+    body = (
+      <>
+        <BrfBody data={data} result={result} t={t} />
+        <button type="button" className="brf-text-btn" onClick={openSearch}>
+          {t("brf.find.notYours")}
+        </button>
+      </>
+    );
+  } else {
+    body = (
+      <FindView
+        note={reasonKey ? t(reasonKey) : undefined}
+        canCancel={canCancel}
+        onPick={choose}
+        onCancel={() => setSearching(false)}
+        t={t}
+      />
+    );
+  }
 
   return (
-    <ProfileCard
-      id="card-brf"
-      icon="building"
-      title="card.brf.title"
-      explain="card.brf.explain"
-      ownIntro
-      result={result}
-      status={(failed ? "failed" : "checked") as CardStatus}
-      reason={failed ? (check.reason === "notExact" ? REASON.notExact : "brf.awaiting") : undefined}
-    >
-      {data && <BrfBody data={data} result={result} t={t} />}
+    <ProfileCard id="card-brf" icon="building" title="card.brf.title" explain="card.brf.explain" ownIntro result={result}>
+      {body}
     </ProfileCard>
+  );
+}
+
+/** "Find your BRF": a type-ahead over the Göteborg index. Picking a row reports its org number. */
+function FindView({
+  note,
+  canCancel,
+  onPick,
+  onCancel,
+  t,
+}: {
+  note?: string;
+  canCancel: boolean;
+  onPick: (org: string) => void;
+  onCancel: () => void;
+  t: Translate;
+}) {
+  const [query, setQuery] = useState("");
+  const [hits, setHits] = useState<Hit[] | null>(null);
+  const q = query.trim();
+
+  useEffect(() => {
+    setHits(null);
+    if (q.length < MIN_CHARS) return;
+    const ac = new AbortController();
+    const timer = window.setTimeout(() => {
+      fetch(`/api/brf-search?q=${encodeURIComponent(q)}`, { signal: ac.signal })
+        .then((res) => (res.ok ? res.json() : { results: [] }))
+        .then((body: { results?: Hit[] }) => {
+          if (!ac.signal.aborted) setHits((body.results ?? []).slice(0, HITS_MAX));
+        })
+        .catch(() => {
+          if (!ac.signal.aborted) setHits([]);
+        });
+    }, DEBOUNCE_MS);
+    return () => {
+      window.clearTimeout(timer);
+      ac.abort();
+    };
+  }, [q]);
+
+  return (
+    <div className="brf-find">
+      <h3 className="brf-find-title">{t("brf.find.title")}</h3>
+      {note && <p className="muted brf-note">{note}</p>}
+      <div className="search">
+        <input
+          type="search"
+          value={query}
+          placeholder={t("brf.find.placeholder")}
+          aria-label={t("brf.find.placeholder")}
+          autoComplete="off"
+          autoCapitalize="off"
+          spellCheck={false}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+      </div>
+      {hits && hits.length > 0 && (
+        <ul className="brf-hits">
+          {hits.map((h) => (
+            <li key={h.org}>
+              <button type="button" className="brf-hit" onClick={() => onPick(h.org)}>
+                <span>{h.name}</span>
+                {!h.active && <span className="brf-hit-tag">{t("brf.find.inactive")}</span>}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {hits && hits.length === 0 && <p className="muted brf-note">{t("brf.find.none")}</p>}
+      {canCancel && (
+        <button type="button" className="brf-text-btn" onClick={onCancel}>
+          {t("search.cancel")}
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** The picked association: name, org nr, the live registry line, and the no-finances note. */
+function PickView({ org, current, onChange, t }: { org: string; current: Detail | null; onChange: () => void; t: Translate }) {
+  const ok = current && current.status === "ok" ? current : null;
+  return (
+    <div className="brf-find">
+      {ok && <p className="card-lead">{ok.name}</p>}
+      <p className="muted">{t("brf.find.org", { org })}</p>
+      {ok?.registry && <RegistryRow registry={ok.registry} t={t} />}
+      <p className="muted brf-note">{t("brf.find.noFinances")}</p>
+      <button type="button" className="brf-text-btn" onClick={onChange}>
+        {t("brf.find.change")}
+      </button>
+    </div>
   );
 }
 
