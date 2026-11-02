@@ -57,7 +57,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { assessRequirement } from '@vantis/steering/assess';
 import { fetchRequirement } from '@vantis/steering/requirements';
-import { authorize, publicError } from '@fde/guard';
+import { authorize, clientIdFrom, publicDemoEnabled, publicError, sharedDemoLimiter } from '@fde/guard';
 import { recordAssessment } from '../server/assess-history';
 
 const encoder = new TextEncoder();
@@ -84,6 +84,7 @@ export const Route = createFileRoute('/api/assess')({
           configuredKey: process.env.API_KEY,
           presentedKey: request.headers.get('x-api-key'),
           isDev: Boolean(import.meta.env.DEV),
+          publicDemo: publicDemoEnabled(),
         });
         if (!allowed.ok) {
           return new Response(JSON.stringify({ error: allowed.reason }), {
@@ -95,6 +96,21 @@ export const Route = createFileRoute('/api/assess')({
         const body: any = await request.json().catch(() => ({}));
         const ref = String(body?.ref ?? '').trim().toUpperCase();
         const typed = String(body?.text ?? '').trim();
+        // The public demo's spend gate. Only a request that names a requirement
+        // reaches the model, so an empty one is not counted; an admin key never
+        // reaches this branch.
+        if (allowed.metered && (ref || typed)) {
+          const limit = sharedDemoLimiter().admit(clientIdFrom(request.headers));
+          if (!limit.ok) {
+            return new Response(JSON.stringify({ error: limit.error }), {
+              status: limit.status,
+              headers: {
+                'content-type': 'application/json',
+                'retry-after': String(limit.retryAfterSeconds),
+              },
+            });
+          }
+        }
         // ENV BEFORE THE HARDCODED DEFAULT, and the omission made `LOOP`
         // unreachable on this route.
         //

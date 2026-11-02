@@ -26,3 +26,4 @@
  */
 export * from './guard';
 export * from './public-error';
+export * from './demo-limit';

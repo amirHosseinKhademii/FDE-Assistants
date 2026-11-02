@@ -446,13 +446,16 @@ jobs:
           # is the one where it matters most — `/api/assess` is the expensive
           # route, so an open one is an open wallet on the Foundry resource.
           #
-          # The guard runs before the body is parsed, so the payload only has to
-          # be valid JSON; 401 is a fact about the key, not about the request.
+          # The probe sends a WRONG key, not no key. With PUBLIC_DEMO=true a
+          # missing key is allowed (and metered), so a no-key probe would reach
+          # the model on every deploy. A wrong key is refused in both modes and
+          # never reaches the model. The guard runs before the body is parsed,
+          # so the payload only has to be valid JSON.
           guard=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 \
             -X POST "$url/api/assess" \
-            -H 'content-type: application/json' -d '{"ref":"ping"}')
-          echo "POST /api/assess without a key -> $guard"
-          [ "$guard" = "401" ] || { echo "::error::the guard did not refuse an unauthenticated request (got $guard — 503 means API_KEY is unset on the app, 200 means it is not guarded at all)"; exit 1; }
+            -H 'content-type: application/json' -H 'x-api-key: deploy-probe-wrong-key' -d '{"ref":"ping"}')
+          echo "POST /api/assess with a wrong key -> $guard"
+          [ "$guard" = "401" ] || { echo "::error::the guard did not refuse a wrong key (got $guard — 503 means API_KEY is unset on the app, 200 means it is not guarded at all)"; exit 1; }
 
           echo "✅ **2a · steering deployed** — <$url>" >> "$GITHUB_STEP_SUMMARY"
 
@@ -601,11 +604,14 @@ jobs:
             [ "$code" = "200" ] || { echo "::error::$path did not return 200"; exit 1; }
           done
 
+          # A WRONG key, not no key: with PUBLIC_DEMO=true a missing key is
+          # allowed and metered, so a no-key probe would spend the model budget
+          # on every deploy. A wrong key is refused in both modes.
           guard=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 \
             -X POST "$url/api/ask" \
-            -H 'content-type: application/json' -d '{"question":"ping"}')
-          echo "POST /api/ask without a key -> $guard"
-          [ "$guard" = "401" ] || { echo "::error::the guard did not refuse an unauthenticated request"; exit 1; }
+            -H 'content-type: application/json' -H 'x-api-key: deploy-probe-wrong-key' -d '{"question":"ping"}')
+          echo "POST /api/ask with a wrong key -> $guard"
+          [ "$guard" = "401" ] || { echo "::error::the guard did not refuse a wrong key"; exit 1; }
 
           echo "✅ **2b · pharma deployed** — <$url>" >> "$GITHUB_STEP_SUMMARY"
 

@@ -28,8 +28,9 @@
  */
 import {
   Mono, Field, Select, SubmitButton,
-  BoxIcon, GlobeIcon, ChipIcon, KeyIcon, SearchIcon,
+  BoxIcon, GlobeIcon, ChipIcon, SearchIcon,
 } from '@fde/uikit';
+import { AdminKey } from './AdminKey';
 
 export interface AskFormProps {
   question: string;
@@ -129,16 +130,7 @@ export function AskForm(p: AskFormProps) {
         </div>
       </div>
 
-      {p.showKey && (
-        <Field label="API key" hint="required here" icon={<KeyIcon />} className="max-w-sm">
-          <input
-            type="password"
-            value={p.apiKey}
-            onChange={(e) => p.onApiKey(e.target.value)}
-            className="ui-control ui-control--icon font-mono text-sm"
-          />
-        </Field>
-      )}
+      <AdminKey value={p.apiKey} onChange={p.onApiKey} open={p.showKey} />
 
       <p className="max-w-3xl border-t border-ui-line pt-4 text-xs leading-relaxed text-ui-dim sm:text-sm">
         {chosen ? (

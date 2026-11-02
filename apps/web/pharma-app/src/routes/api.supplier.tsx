@@ -64,7 +64,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { askSupplierImpact } from '@meridian/pharma/supplier';
 import { askSupplierImpactFanout } from '@meridian/pharma/fanout';
 import { debateTopLot } from '@meridian/pharma/debate';
-import { authorize, publicError } from '@fde/guard';
+import { authorize, clientIdFrom, publicDemoEnabled, publicError, sharedDemoLimiter } from '@fde/guard';
 import { recordAsk } from '../server/ask-history';
 
 const encoder = new TextEncoder();
@@ -80,6 +80,7 @@ export const Route = createFileRoute('/api/supplier')({
           configuredKey: process.env.API_KEY,
           presentedKey: request.headers.get('x-api-key'),
           isDev: Boolean(import.meta.env.DEV),
+          publicDemo: publicDemoEnabled(),
         });
         if (!allowed.ok) {
           return new Response(JSON.stringify({ error: allowed.reason }), {
@@ -90,6 +91,20 @@ export const Route = createFileRoute('/api/supplier')({
 
         const body: any = await request.json().catch(() => ({}));
         const question = String(body?.question ?? '').trim();
+        // The public demo's spend gate. Only a question reaches the model, so an
+        // empty one is not counted; an admin key never reaches this branch.
+        if (allowed.metered && question) {
+          const limit = sharedDemoLimiter().admit(clientIdFrom(request.headers));
+          if (!limit.ok) {
+            return new Response(JSON.stringify({ error: limit.error }), {
+              status: limit.status,
+              headers: {
+                'content-type': 'application/json',
+                'retry-after': String(limit.retryAfterSeconds),
+              },
+            });
+          }
+        }
         // `body?.loop ?? 'sdk'` IGNORED `LOOP` ENTIRELY, and it looked like an
         // engine bug rather than a setting. `loopChoice(flag)` gives an explicit
         // flag precedence over `process.env.LOOP` — correct, so one run can be

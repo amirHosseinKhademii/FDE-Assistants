@@ -7,7 +7,7 @@
  */
 import { createFileRoute } from '@tanstack/react-router';
 import { listLots } from '@meridian/pharma/directory';
-import { authorize } from '@fde/guard';
+import { authorize, publicDemoEnabled } from '@fde/guard';
 
 export const Route = createFileRoute('/api/lots')({
   server: {
@@ -17,6 +17,7 @@ export const Route = createFileRoute('/api/lots')({
           configuredKey: process.env.API_KEY,
           presentedKey: request.headers.get('x-api-key'),
           isDev: Boolean(import.meta.env.DEV),
+          publicDemo: publicDemoEnabled(),
         });
         if (!allowed.ok) {
           return new Response(JSON.stringify({ error: allowed.reason }), {

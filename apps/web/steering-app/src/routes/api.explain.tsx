@@ -19,7 +19,7 @@
  * the history, and the day they disagree the stored pair is worse than either.
  */
 import { createFileRoute } from '@tanstack/react-router';
-import { authorize, publicError } from '@fde/guard';
+import { authorize, clientIdFrom, publicDemoEnabled, publicError, sharedDemoLimiter } from '@fde/guard';
 import { explainAssessment } from '@vantis/steering/explain';
 
 export const Route = createFileRoute('/api/explain')({
@@ -30,6 +30,7 @@ export const Route = createFileRoute('/api/explain')({
           configuredKey: process.env.API_KEY,
           presentedKey: request.headers.get('x-api-key'),
           isDev: Boolean(import.meta.env.DEV),
+          publicDemo: publicDemoEnabled(),
         });
         if (!allowed.ok) {
           return new Response(JSON.stringify({ error: allowed.reason }), {
@@ -45,6 +46,21 @@ export const Route = createFileRoute('/api/explain')({
             status: 400,
             headers: { 'content-type': 'application/json' },
           });
+        }
+
+        // The public demo's spend gate. An explanation is a model call, so it is
+        // counted; an admin key never reaches this branch.
+        if (allowed.metered) {
+          const limit = sharedDemoLimiter().admit(clientIdFrom(request.headers));
+          if (!limit.ok) {
+            return new Response(JSON.stringify({ error: limit.error }), {
+              status: limit.status,
+              headers: {
+                'content-type': 'application/json',
+                'retry-after': String(limit.retryAfterSeconds),
+              },
+            });
+          }
         }
 
         try {

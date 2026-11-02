@@ -77,6 +77,37 @@ const TOOL: Record<string, string> = {
  */
 type KeyState = 'none' | 'needed' | 'unconfigured';
 
+/**
+ * The admin key, collapsed. Public visitors need none: the demo is open and
+ * metered. The field opens when the server refused a typed key (`open`) or a
+ * key is already stored in this browser.
+ */
+function AdminKey(p: { value: string; onChange: (v: string) => void; open: boolean }) {
+  const [shown, setShown] = useState(false);
+  const expanded = p.open || shown || Boolean(p.value);
+  return (
+    <div className="x-key">
+      {expanded ? (
+        <label>
+          <span className="x-key-label">Admin key (optional)</span>
+          <input
+            type="password"
+            className="x-key-input"
+            value={p.value}
+            autoComplete="off"
+            onChange={(e) => p.onChange(e.target.value)}
+          />
+        </label>
+      ) : (
+        <button type="button" className="x-btn x-btn--quiet" onClick={() => setShown(true)}>
+          Admin key (optional)
+        </button>
+      )}
+      <span className="x-key-hint">Public demo, limited to a few questions per hour.</span>
+    </div>
+  );
+}
+
 export function BidDesk() {
   const [apiKey, setApiKey] = useState(() => load('apiKey', ''));
   /*
@@ -383,22 +414,15 @@ function Ask({
         </div>
       </div>
 
-      {/* Only for the refusal a key can fix — see `KeyState`. */}
-      {keyState === 'needed' && (
-        <label className="x-key">
-          <span className="x-key-label">API key</span>
-          <input
-            type="password"
-            className="x-key-input"
-            value={apiKey}
-            autoComplete="off"
-            onChange={(e) => onApiKey(e.target.value)}
-          />
-          <span className="x-key-hint">
-            This deployment requires one. It is kept in this browser and sent as{' '}
-            <Mono>x-api-key</Mono>.
-          </span>
-        </label>
+      {/* The public demo needs no key, so the admin key is collapsed behind a
+          toggle. It opens for the refusal a typed key can fix (`needed`), or when
+          one is already stored here. See `KeyState`. */}
+      {keyState !== 'unconfigured' && (
+        <AdminKey
+          value={apiKey}
+          onChange={onApiKey}
+          open={keyState === 'needed'}
+        />
       )}
 
       {keyState === 'unconfigured' && (

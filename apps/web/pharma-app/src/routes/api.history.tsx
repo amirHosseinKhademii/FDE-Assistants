@@ -20,7 +20,7 @@
  * mid-answer.
  */
 import { createFileRoute } from '@tanstack/react-router';
-import { authorize, publicError } from '@fde/guard';
+import { authorize, publicDemoEnabled, publicError } from '@fde/guard';
 import { listAsks, type AskKind } from '../server/ask-history';
 
 const KINDS: AskKind[] = ['release', 'supplier'];
@@ -33,6 +33,7 @@ export const Route = createFileRoute('/api/history')({
           configuredKey: process.env.API_KEY,
           presentedKey: request.headers.get('x-api-key'),
           isDev: Boolean(import.meta.env.DEV),
+          publicDemo: publicDemoEnabled(),
         });
         if (!allowed.ok) {
           return new Response(JSON.stringify({ error: allowed.reason }), {

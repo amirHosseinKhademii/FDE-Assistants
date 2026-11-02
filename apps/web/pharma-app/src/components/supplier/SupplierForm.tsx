@@ -23,8 +23,9 @@
  */
 import {
   Field, Select, SubmitButton, Mono,
-  BoxIcon, ChipIcon, KeyIcon, SearchIcon, StepsIcon,
+  BoxIcon, ChipIcon, SearchIcon, StepsIcon,
 } from '@fde/uikit';
+import { AdminKey } from '../desk/AdminKey';
 
 export interface SupplierFormProps {
   question: string;
@@ -127,16 +128,7 @@ export function SupplierForm(p: SupplierFormProps) {
         </div>
       </div>
 
-      {p.showKey && (
-        <Field label="API key" hint="required here" icon={<KeyIcon />} className="max-w-sm">
-          <input
-            type="password"
-            value={p.apiKey}
-            onChange={(e) => p.onApiKey(e.target.value)}
-            className="ui-control ui-control--icon font-mono text-sm"
-          />
-        </Field>
-      )}
+      <AdminKey value={p.apiKey} onChange={p.onApiKey} open={p.showKey} />
 
       {/* SAID ONLY WHEN IT APPLIES. A permanent warning about a route nobody
           picked is noise that trains people to skip the whole line. */}

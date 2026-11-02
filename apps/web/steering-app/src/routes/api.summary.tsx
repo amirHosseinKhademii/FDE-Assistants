@@ -30,7 +30,7 @@
  * widest endpoint in the app rather than the most innocent one.
  */
 import { createFileRoute } from '@tanstack/react-router';
-import { authorize, publicError } from '@fde/guard';
+import { authorize, clientIdFrom, publicDemoEnabled, publicError, sharedDemoLimiter } from '@fde/guard';
 import { listRequirements, DEFAULT_PROGRAMME } from '@vantis/steering/requirements';
 import { fetchFiledAssessments } from '@vantis/steering/history';
 import { rollUp, NOT_THE_QUOTE } from '@vantis/steering/roll-up';
@@ -48,6 +48,7 @@ function guard(request: Request) {
     configuredKey: process.env.API_KEY,
     presentedKey: request.headers.get('x-api-key'),
     isDev: Boolean(import.meta.env.DEV),
+    publicDemo: publicDemoEnabled(),
   });
 }
 
@@ -92,6 +93,15 @@ export const Route = createFileRoute('/api/summary')({
           const { history, rollUp: r } = await state();
           if (!history.answered.length) {
             return json({ error: 'nothing has been assessed yet' }, 409);
+          }
+          // The public demo's spend gate. Only the two written paragraphs cost a
+          // model call, so only this POST is counted; the GET counts and the 409
+          // above are free. An admin key never reaches this branch.
+          if (allowed.metered) {
+            const limit = sharedDemoLimiter().admit(clientIdFrom(request.headers));
+            if (!limit.ok) {
+              return json({ error: limit.error }, limit.status);
+            }
           }
           const result = await summariseBid({
             rollUp: r,

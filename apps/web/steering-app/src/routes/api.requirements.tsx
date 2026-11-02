@@ -13,7 +13,7 @@
  */
 import { createFileRoute } from '@tanstack/react-router';
 import { listRequirements } from '@vantis/steering/requirements';
-import { authorize, publicError } from '@fde/guard';
+import { authorize, publicDemoEnabled, publicError } from '@fde/guard';
 
 export const Route = createFileRoute('/api/requirements')({
   server: {
@@ -23,6 +23,7 @@ export const Route = createFileRoute('/api/requirements')({
           configuredKey: process.env.API_KEY,
           presentedKey: request.headers.get('x-api-key'),
           isDev: Boolean(import.meta.env.DEV),
+          publicDemo: publicDemoEnabled(),
         });
         if (!allowed.ok) {
           return new Response(JSON.stringify({ error: allowed.reason }), {

@@ -39,11 +39,23 @@ export interface GuardInput {
   presentedKey?: string | null;
   /** True only for a dev server known to bind loopback. */
   isDev: boolean;
+  /**
+   * Opt-in public demo (`PUBLIC_DEMO=true`, read by the caller). Relaxes ONE
+   * branch: a configured key with NO key presented is allowed, but metered.
+   * A wrong key still refuses, and an unset key in production still refuses.
+   */
+  publicDemo?: boolean;
 }
 
 export type GuardResult =
-  | { ok: true; reason: 'key matched' | 'dev loopback' }
+  | { ok: true; reason: 'key matched' | 'dev loopback'; metered: false }
+  | { ok: true; reason: 'public demo'; metered: true }
   | { ok: false; status: 401 | 503; reason: string };
+
+/** The one place that reads the public-demo switch. Exact match, so "1" or "yes" do nothing. */
+export function publicDemoEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
+  return env.PUBLIC_DEMO === 'true';
+}
 
 /**
  * Compare without leaking length or position through timing.
@@ -63,7 +75,7 @@ export function authorize(input: GuardInput): GuardResult {
   const configured = (input.configuredKey ?? '').trim();
 
   if (!configured) {
-    if (input.isDev) return { ok: true, reason: 'dev loopback' };
+    if (input.isDev) return { ok: true, reason: 'dev loopback', metered: false };
     return {
       ok: false,
       status: 503,
@@ -76,10 +88,11 @@ export function authorize(input: GuardInput): GuardResult {
 
   const presented = (input.presentedKey ?? '').trim();
   if (!presented) {
+    if (input.publicDemo) return { ok: true, reason: 'public demo', metered: true };
     return { ok: false, status: 401, reason: 'missing x-api-key header' };
   }
   if (!sameSecret(configured, presented)) {
     return { ok: false, status: 401, reason: 'x-api-key does not match' };
   }
-  return { ok: true, reason: 'key matched' };
+  return { ok: true, reason: 'key matched', metered: false };
 }
