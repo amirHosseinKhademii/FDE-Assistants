@@ -12,7 +12,7 @@
  */
 import { z } from 'zod';
 import { verifyValidator, verifyDescriptions, type ValidatorCase } from '@fde/schema';
-import { BrfAnswerSchema, validateBrfAnswer, type BrfAnswer } from './answer-schema';
+import { BrfAnswerSchema, REFUSAL_TEXT, validateBrfAnswer, type BrfAnswer } from './answer-schema';
 
 const fullAnswer: BrfAnswer = {
   answer:
@@ -76,6 +76,53 @@ const CASES: ValidatorCase[] = [
   },
 
   {
+    name: 'refusal in the agreed sentence, nothing cited',
+    expect: 'accept',
+    body: {
+      answer: REFUSAL_TEXT,
+      citations: [],
+      unverified_claims: [],
+      conflicts: [],
+      escalate: {
+        reason: 'No document addresses paid parking for members.',
+        suggested_owner: 'styrelsen',
+      },
+    } satisfies BrfAnswer,
+    why: 'a refusal makes no claim, so it needs no citation. This is the answer the board sees when the documents are silent.',
+  },
+
+  {
+    name: 'house rule conflicts with the statutes, the statutes win',
+    expect: 'accept',
+    body: {
+      answer:
+        'Andrahandsuthyrning kräver styrelsens samtycke, och samtycke ska ges när det finns beaktansvärda skäl. ' +
+        'Stadgarna gäller före ordningsreglerna.',
+      citations: [
+        {
+          file: 'stadgar.md',
+          section: '§ 7',
+          claim: 'samtycke ska ges när det finns beaktansvärda skäl',
+          detail: 'Styrelsens samtycke krävs, och samtycke ska lämnas om det finns beaktansvärda skäl.',
+        },
+      ],
+      unverified_claims: [],
+      conflicts: [
+        {
+          topic: 'andrahandsuthyrning',
+          positions: [
+            { file: 'ordningsregler.md', section: '§ 9', says: 'Andrahandsuthyrning är inte tillåten.' },
+            { file: 'stadgar.md', section: '§ 7', says: 'Samtycke ska lämnas vid beaktansvärda skäl.' },
+          ],
+          resolved_by: 'stadgar.md § 17',
+        },
+      ],
+      escalate: null,
+    } satisfies BrfAnswer,
+    why: 'the statutes state that house rules that conflict with them do not apply, so the conflict is settled and answering is correct',
+  },
+
+  {
     name: 'partial answer plus a flag',
     expect: 'accept',
     body: {
@@ -117,6 +164,20 @@ const CASES: ValidatorCase[] = [
     expect: 'must be in one list or the other',
     body: { ...fullAnswer, citations: [], unverified_claims: [], conflicts: [] },
     why: 'a confident answer backed by nothing and admitting nothing',
+  },
+
+  {
+    name: 'DANGEROUS: a refusal with a claim tacked on',
+    expect: 'must be in one list or the other',
+    body: {
+      ...fullAnswer,
+      answer: 'Det framgår inte av föreningens dokument. Grillning med kol är förbjudet.',
+      citations: [],
+      unverified_claims: [],
+      conflicts: [],
+      escalate: { reason: 'Nothing settles it.', suggested_owner: 'styrelsen' },
+    },
+    why: 'the refusal sentence is not a licence to add unsourced claims after it',
   },
 
   {

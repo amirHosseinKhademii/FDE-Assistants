@@ -1,84 +1,126 @@
 /**
- * The answer, set as a document. Escalation comes first. Conflicts quote both
- * sides. Every claim carries its document and § number and the exact wording.
+ * The answer, set as a board file. A refusal is a result, shown as one. Escalation comes
+ * first. Conflicts quote both sides. Each source is a card with its document and §.
  */
-import { Mono, Quote } from './typography';
+import { Mono, Panel } from '@fde/uikit';
 
 export function Answer({ data }: { data: any }) {
+  if (data.refusal) {
+    return (
+      <article className="ui-rise grid gap-6">
+        <Panel tone="warn" title="Står inte i dokumenten" count={undefined}>
+          <div className="grid gap-3 px-5 py-5">
+            <p className="text-xl leading-snug text-ui-fg">{data.refusalText}</p>
+            {data.escalate && (
+              <>
+                <p className="leading-relaxed text-ui-dim">{data.escalate.reason}</p>
+                <p className="text-sm text-ui-faint">Går till: {data.escalate.suggested_owner}.</p>
+              </>
+            )}
+          </div>
+        </Panel>
+        <RunLine run={data.run} />
+      </article>
+    );
+  }
+
   const escalated = Boolean(data.escalate);
 
   return (
-    <article className="grid gap-8">
+    <article className="ui-rise grid gap-6">
       {escalated && (
-        <div className="border border-ochre bg-ochre-wash px-5 py-4">
-          <h2 className="mb-1.5 font-semibold text-ochre">Styrelsen måste avgöra detta</h2>
-          <p className="leading-relaxed">{data.escalate.reason}</p>
-          <p className="mt-2 text-sm text-muted">Går till: {data.escalate.suggested_owner}.</p>
-        </div>
+        <Panel tone="warn" title="Styrelsen måste avgöra detta">
+          <div className="grid gap-2 px-5 py-4">
+            <p className="leading-relaxed text-ui-fg/90">{data.escalate.reason}</p>
+            <p className="text-sm text-ui-faint">Går till: {data.escalate.suggested_owner}.</p>
+          </div>
+        </Panel>
       )}
 
-      <div>
-        <h2 className="mb-2 text-sm text-muted">{escalated ? 'Det dokumenten säger' : 'Svar'}</h2>
-        <p className="max-w-2xl text-2xl leading-snug tracking-tight">{data.answer ?? '—'}</p>
-      </div>
+      <section className="card-aura p-5 sm:p-6">
+        <h2 className="mb-2 font-mono text-xs tracking-widest text-ui-faint uppercase">
+          {escalated ? 'Det dokumenten säger' : 'Svar'}
+        </h2>
+        <p className="text-xl leading-relaxed text-ui-fg sm:text-2xl">{data.answer ?? '—'}</p>
+      </section>
 
       {data.conflicts?.length > 0 && (
-        <div className="border-l-2 border-claret pl-5">
-          <h2 className="mb-3 font-semibold text-claret">Dokumenten säger olika saker</h2>
-          {data.conflicts.map((c: any, i: number) => (
-            <div key={i} className="mb-5 last:mb-0">
-              <p className="mb-2">{c.topic}</p>
-              {c.positions.map((pos: any, j: number) => (
-                <Quote key={j} source={`${pos.file}, ${pos.section}`} text={pos.says} />
-              ))}
-              <p className="mt-2 text-sm text-muted">
-                {c.resolved_by ? (
-                  <>
-                    Avgörs av <Mono className="text-xs">{c.resolved_by}</Mono>.
-                  </>
-                ) : (
-                  <span className="text-claret">
-                    Inget dokument anger vilket som gäller, därför går frågan till styrelsen.
-                  </span>
-                )}
-              </p>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {data.citations?.length > 0 && (
-        <div>
-          <h2 className="mb-3 text-sm text-muted">Källor ({data.citations.length})</h2>
-          <div className="grid gap-5">
-            {data.citations.map((c: any, i: number) => (
-              <div key={i}>
-                <p className="mb-1.5">{c.claim}</p>
-                <Quote source={`${c.file}, ${c.section}`} text={c.detail} />
+        <Panel tone="danger" title="Dokumenten säger olika saker" count={data.conflicts.length}>
+          <div className="grid gap-5 px-5 py-4">
+            {data.conflicts.map((c: any, i: number) => (
+              <div key={i} className="grid gap-2">
+                <p className="text-ui-fg">{c.topic}</p>
+                {c.positions.map((pos: any, j: number) => (
+                  <blockquote key={j} className="border-l-2 border-ui-line-lit pl-4 text-sm leading-relaxed text-ui-fg/90">
+                    {pos.says}
+                    <span className="mt-1 block font-mono text-xs text-ui-faint">
+                      {pos.file} · {pos.section}
+                    </span>
+                  </blockquote>
+                ))}
+                <p className="text-sm text-ui-dim">
+                  {c.resolved_by ? (
+                    <>
+                      Avgörs av <Mono className="text-xs text-ui-fg">{c.resolved_by}</Mono>.
+                    </>
+                  ) : (
+                    <span className="text-ui-danger">
+                      Inget dokument anger vilket som gäller, därför går frågan till styrelsen.
+                    </span>
+                  )}
+                </p>
               </div>
             ))}
           </div>
-        </div>
+        </Panel>
+      )}
+
+      {data.citations?.length > 0 && (
+        <section className="grid gap-3">
+          <h2 className="font-mono text-xs tracking-widest text-ui-faint uppercase">
+            Källor ({data.citations.length})
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {data.citations.map((c: any, i: number) => (
+              <article key={i} className="grid content-start gap-3 rounded-xl border border-ui-line bg-ui-surface p-4">
+                <div className="flex items-center justify-between gap-2">
+                  <Mono className="truncate text-xs text-ui-accent">{c.file}</Mono>
+                  <span className="shrink-0 rounded-full border border-ui-accent/30 bg-ui-accent/10 px-2.5 py-0.5 font-mono text-xs text-ui-accent">
+                    {c.section}
+                  </span>
+                </div>
+                <p className="text-sm leading-relaxed text-ui-fg/90">{c.claim}</p>
+                <blockquote className="border-l-2 border-ui-line-lit pl-3 text-sm leading-relaxed text-ui-dim">
+                  {c.detail}
+                </blockquote>
+              </article>
+            ))}
+          </div>
+        </section>
       )}
 
       {data.unverified_claims?.length > 0 && (
-        <div className="border-l-2 border-rule pl-5">
-          <h2 className="mb-2 text-sm text-muted">Påstått utan källa</h2>
-          <ul className="grid gap-2">
+        <Panel tone="neutral" title="Påstått utan källa" count={data.unverified_claims.length}>
+          <ul className="grid gap-2 px-5 py-4">
             {data.unverified_claims.map((u: string, i: number) => (
-              <li key={i} className="leading-relaxed">
+              <li key={i} className="leading-relaxed text-ui-fg/90">
                 {u}
               </li>
             ))}
           </ul>
-        </div>
+        </Panel>
       )}
 
-      {data.run && (
-        <p className="border-t border-rule pt-4 font-mono text-xs text-muted">
-          {data.run.toolCalls} sökningar, {(data.run.ms / 1000).toFixed(1)} s
-        </p>
-      )}
+      <RunLine run={data.run} />
     </article>
+  );
+}
+
+function RunLine({ run }: { run?: { toolCalls: number; ms: number } }) {
+  if (!run) return null;
+  return (
+    <p className="border-t border-ui-line pt-4 font-mono text-xs text-ui-faint">
+      {run.toolCalls} {run.toolCalls === 1 ? 'sökning' : 'sökningar'} · {(run.ms / 1000).toFixed(1)} s
+    </p>
   );
 }

@@ -1,9 +1,10 @@
 /**
- * The page. Composition only: the banner, the header, the question form, the
- * working notes and the answer. useAsk owns the stream state.
+ * The page. Composition only: the header, the hero, the question box, the answer, and the
+ * step trace in a side panel. useAsk owns the stream state.
  */
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
+import { Header } from '../components/Header';
 import { AskForm } from '../components/AskForm';
 import { WorkingNotes } from '../components/WorkingNotes';
 import { Answer } from '../components/Answer';
@@ -36,56 +37,48 @@ function BrfPage() {
 
   return (
     <div className="min-h-screen">
-      <div
-        role="note"
-        className="bg-claret px-6 py-2.5 text-center text-sm font-semibold text-white"
-      >
-        Demo med påhittade dokument. Skicka inga riktiga personuppgifter.
-      </div>
+      <Header />
 
-      <header className="border-b border-rule">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-6 gap-y-3 px-6 py-5">
-          <div className="grid">
-            <span className="font-mono text-xs tracking-tight text-muted">Brf Exempelgården</span>
-            <h1 className="text-xl font-semibold tracking-tight">Brf Exempelgården, frågor och svar</h1>
+      <main className="mx-auto max-w-6xl px-5 pb-24 sm:px-6">
+        <section className="ui-rise pt-10 sm:pt-14">
+          <span className="inline-flex items-center gap-2 rounded-full border border-ui-warn/40 bg-ui-warn/10 px-3 py-1 text-xs text-ui-warn">
+            <span className="h-1.5 w-1.5 rounded-full bg-ui-warn" aria-hidden />
+            Demo med påhittade dokument. Skicka inga riktiga personuppgifter.
+          </span>
+          <h1 className="mt-5 font-mono text-3xl font-semibold tracking-tight sm:text-5xl">
+            Frågor till föreningens dokument
+          </h1>
+          <p className="mt-3 max-w-2xl text-base leading-relaxed text-ui-dim sm:text-lg">
+            Varje svar visar dokument och paragraf. När dokumenten inte säger något säger assistenten det.
+          </p>
+        </section>
+
+        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+          <div className="grid gap-8">
+            <AskForm
+              question={question}
+              onQuestion={setQuestion}
+              apiKey={apiKey}
+              onApiKey={setApiKey}
+              showKey={keyNeeded || Boolean(apiKey)}
+              busy={busy}
+              onSubmit={onSubmit}
+              onExample={(text) => {
+                setQuestion(text);
+                run(text);
+              }}
+            />
+
+            <section>
+              {!answer && !failure && !busy && <EmptyState />}
+              {failure && <Failure {...failure} />}
+              {answer && <Answer data={answer} />}
+            </section>
           </div>
-          <a
-            href="https://veresk.se"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ml-auto flex items-center gap-2 text-sm text-muted hover:text-ink"
-          >
-            <img src="/veresk-logo.svg" alt="" width={24} height={24} />
-            <span>Veresk</span>
-          </a>
-        </div>
-      </header>
 
-      <main className="mx-auto max-w-5xl px-6 pb-24">
-        <AskForm
-          question={question}
-          onQuestion={setQuestion}
-          apiKey={apiKey}
-          onApiKey={setApiKey}
-          showKey={keyNeeded || Boolean(apiKey)}
-          busy={busy}
-          onSubmit={onSubmit}
-          onExample={(text) => {
-            setQuestion(text);
-            run(text);
-          }}
-        />
-
-        <div className="grid gap-10 py-8 lg:grid-cols-[15rem_1fr]">
-          <aside className="lg:pt-1">
+          <aside className="lg:sticky lg:top-24">
             <WorkingNotes lines={trace} busy={busy} />
           </aside>
-
-          <section>
-            {!answer && !failure && !busy && <EmptyState />}
-            {failure && <Failure {...failure} />}
-            {answer && <Answer data={answer} />}
-          </section>
         </div>
       </main>
     </div>

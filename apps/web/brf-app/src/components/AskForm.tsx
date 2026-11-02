@@ -1,6 +1,7 @@
 /**
- * The question, the example questions, and the API key when the server asks for one.
+ * The question box, the example chips, and the API key when the server asks for one.
  */
+import { Field, SubmitButton, SearchIcon, KeyIcon } from '@fde/uikit';
 import { EXAMPLE_QUESTIONS } from '../lib/examples';
 
 export interface AskFormProps {
@@ -14,24 +15,20 @@ export interface AskFormProps {
   onExample: (text: string) => void;
 }
 
-const field =
-  'rounded-sm border border-rule bg-white px-3 py-2 outline-none focus:border-navy focus:ring-1 focus:ring-navy';
-
 export function AskForm(p: AskFormProps) {
   return (
-    <form onSubmit={p.onSubmit} className="grid gap-4 border-b border-rule py-7">
-      <label className="grid gap-1.5">
-        <span className="text-sm text-muted">Vad vill du veta?</span>
+    <form onSubmit={p.onSubmit} className="ui-rise card-aura lift-in grid gap-5 p-4 sm:p-6">
+      <Field label="Fråga" labelIcon={<SearchIcon />}>
         <textarea
           value={p.question}
           onChange={(e) => p.onQuestion(e.target.value)}
           rows={2}
-          className={`${field} w-full resize-y text-lg leading-snug`}
+          className="ui-control w-full resize-y"
         />
-      </label>
+      </Field>
 
       <div className="grid gap-2">
-        <span className="text-sm text-muted">Exempelfrågor</span>
+        <span className="text-xs font-medium tracking-wide text-ui-dim uppercase">Exempelfrågor</span>
         <ul className="flex flex-wrap gap-2">
           {EXAMPLE_QUESTIONS.map((ex) => (
             <li key={ex.text}>
@@ -39,42 +36,36 @@ export function AskForm(p: AskFormProps) {
                 type="button"
                 disabled={p.busy}
                 onClick={() => p.onExample(ex.text)}
-                className="rounded-sm border border-rule bg-white px-3 py-1.5 text-left text-sm transition-colors hover:border-navy disabled:opacity-40"
+                className="rounded-xl border border-ui-line bg-ui-surface px-3 py-2 text-left text-sm text-ui-fg transition-colors hover:border-ui-accent/50 disabled:opacity-40"
               >
                 {ex.text}
-                <span className="block text-xs text-muted">{ex.hint}</span>
+                <span className="mt-0.5 block text-xs text-ui-faint">{ex.hint}</span>
               </button>
             </li>
           ))}
         </ul>
       </div>
 
-      <div className="flex flex-wrap items-end gap-4">
-        {p.showKey && (
-          <label className="grid w-56 gap-1.5">
-            <span className="text-sm text-muted">API-nyckel, krävs här</span>
+      <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
+        {p.showKey ? (
+          <Field label="API-nyckel, krävs här" labelIcon={<KeyIcon />}>
             <input
               type="password"
               value={p.apiKey}
               onChange={(e) => p.onApiKey(e.target.value)}
-              className={`${field} font-mono text-sm`}
+              className="ui-control w-full font-mono"
             />
-          </label>
+          </Field>
+        ) : (
+          <p className="text-sm leading-relaxed text-ui-dim">
+            Svaret bygger bara på föreningens dokument. Om dokumenten inte räcker till säger assistenten det
+            och lämnar frågan till styrelsen.
+          </p>
         )}
-
-        <button
-          type="submit"
-          disabled={p.busy || !p.question.trim()}
-          className="rounded-sm bg-navy px-6 py-2.5 text-white transition-colors hover:bg-ink disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          {p.busy ? 'Läser dokumenten…' : 'Fråga'}
-        </button>
+        <SubmitButton busy={p.busy} disabled={p.busy || !p.question.trim()} busyLabel="Läser dokumenten…">
+          Fråga
+        </SubmitButton>
       </div>
-
-      <p className="max-w-2xl text-sm leading-relaxed text-muted">
-        Svaret bygger bara på föreningens dokument. Om dokumenten inte räcker till lämnas frågan till
-        styrelsen, i stället för att gissa.
-      </p>
     </form>
   );
 }

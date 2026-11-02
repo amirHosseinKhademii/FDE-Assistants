@@ -14,6 +14,7 @@
  */
 import { createFileRoute } from '@tanstack/react-router';
 import { askBrf } from '@brf/ai';
+import { isRefusal, REFUSAL_TEXT } from '@brf/ai/schema';
 import { authorize, publicError } from '@fde/guard';
 
 const encoder = new TextEncoder();
@@ -99,7 +100,14 @@ export const Route = createFileRoute('/api/ask')({
                 stoppedBecause: result.stoppedBecause,
               };
 
-              if (result.structured) send('answer', { ...result.structured, run });
+              if (result.structured)
+                send('answer', {
+                  ...result.structured,
+                  // Computed by the same rule the validator used, so the page cannot disagree with it.
+                  refusal: isRefusal(result.structured),
+                  refusalText: REFUSAL_TEXT,
+                  run,
+                });
               else
                 send('error', {
                   // No valid structured answer is a failure, not an empty answer.

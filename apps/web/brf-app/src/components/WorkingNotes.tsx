@@ -1,35 +1,40 @@
 /**
- * What the assistant is doing, as it does it, in the margin. These are real events
- * from the loop, not a progress animation.
+ * The step trace, in the side panel. These are real events from the loop, in Swedish.
+ * The uikit WorkingNotes carries English labels, so this page keeps its own.
  */
 import type { TraceLine } from '../lib/use-ask';
-import { Mono } from './typography';
+import { Mono } from '@fde/uikit';
+
+const LABEL = { call: 'frågar', result: 'får', retry: 'försöker om' } as const;
 
 export function WorkingNotes({ lines, busy }: { lines: TraceLine[]; busy: boolean }) {
   if (!busy && lines.length === 0) return null;
 
   return (
-    <>
-      <h2 className="mb-3 text-sm text-muted">Så här går det till</h2>
-      <ol className="grid gap-4 border-l border-rule pl-4">
+    <section className="ui-rise card-aura p-4 sm:p-5">
+      <h2 className="mb-4 flex items-center justify-between text-sm font-medium text-ui-dim">
+        Så här går det till
+        <span className="font-mono text-xs text-ui-faint">{lines.length} steg</span>
+      </h2>
+      <ol className="grid gap-4 border-l border-ui-line pl-4">
         {lines.map((line, i) => (
-          <li key={i} className="note-in grid gap-1">
+          <li key={i} className="ui-note-in grid gap-1">
             <p className="flex items-baseline gap-1.5 text-sm">
               <span
                 className={
-                  line.kind === 'result' ? (line.ok ? 'text-moss' : 'text-claret') : 'text-navy'
+                  line.kind === 'result' ? (line.ok ? 'text-ui-ok' : 'text-ui-danger') : 'text-ui-accent'
                 }
               >
-                {line.kind === 'call' ? 'frågar' : line.kind === 'retry' ? 'försöker om' : 'får'}
+                {LABEL[line.kind]}
               </span>
-              <Mono className="text-xs">{line.name}</Mono>
+              <Mono className="text-xs text-ui-dim">{line.name}</Mono>
             </p>
-            <p className="text-sm leading-snug">{line.detail}</p>
-            <p className="text-xs leading-relaxed text-muted">{line.why}</p>
+            <p className="text-sm leading-snug text-ui-fg/90">{line.detail}</p>
+            <p className="text-xs leading-relaxed text-ui-faint">{line.why}</p>
           </li>
         ))}
-        {busy && <li className="text-sm text-muted">Arbetar…</li>}
+        {busy && <li className="text-sm text-ui-dim">Arbetar…</li>}
       </ol>
-    </>
+    </section>
   );
 }
