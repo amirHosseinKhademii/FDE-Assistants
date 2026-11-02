@@ -125,9 +125,13 @@ on:
     # image and no job that deploys one.
     paths:
       - 'apps/ai/**'
-      # BRF ships from deploy-brf.yml, so its own sources must not rebuild the site.
-      # A change to packages/** still does, because the grounding package is shared.
-      - '!apps/ai/brf/**'
+      # BRF and Bostad ship from this file now (brf-build, bostad-build), so their
+      # sources are listed here rather than excluded.
+      - 'apps/ai/brf/**'
+      - 'apps/web/brf-app/**'
+      - 'infra/brf/Dockerfile'
+      - 'apps/web/bostad-app/**'
+      - 'apps/web/bostad-app/Dockerfile'
       - 'apps/web/veresk-app/**'
       - 'apps/web/steering-app/**'
       - 'apps/web/pharma-app/**'
@@ -137,7 +141,7 @@ on:
       - 'apps/api/commerce/**'
       - 'apps/mcp/commerce/**'
       - 'packages/**'
-      - '!packages/bostad/**'
+      - 'packages/bostad/**'
       - 'infra/veresk/Dockerfile'
       - 'infra/steering/Dockerfile'
       - 'infra/pharma/Dockerfile'
@@ -220,6 +224,18 @@ env:
   # apps/ai/wrap is not in it. No secrets, same as safety.
   WRAP_APP: wrap-app
   WRAP_REPO: docker.io/amir2575/wrap
+  # The seventh and eighth engagements' surfaces: BRF (housing-association Q&A,
+  # apps/ai/brf + apps/web/brf-app) and Bostad (Gothenburg property profiles,
+  # packages/bostad + apps/web/bostad-app). Both were deployed by their own
+  # workflows until this file took them over. Each container app already exists
+  # with its secrets, so these jobs change the image and nothing else, and they
+  # never create the app. Neither is linked from the firm's build-time URLs
+  # except BRF, whose URL is hardcoded in veresk-build, so veresk-deploy does not
+  # wait for them.
+  BRF_APP: brf-app
+  BRF_REPO: docker.io/amir2575/brf-demo
+  BOSTAD_APP: bostad-app
+  BOSTAD_REPO: docker.io/amir2575/bostad-app
   # The host — the firm's door and Meridian Pharma's pages.
   #
   # RENAMED FROM `pharma-app` ON 2026-09-13, which meant recreating it: Azure
@@ -1412,6 +1428,219 @@ jobs:
           [ "$code" = "200" ] || { echo "::error::/steps did not serve"; exit 1; }
 
       - run: echo "✅ **2g · wrap deployed** — ${{ steps.smoke.outputs.url }}" >> "$GITHUB_STEP_SUMMARY"
+
+  # ── 1h ── BRF, the housing-association Q&A ──────────────────────────────
+  brf-build:
+    name: 1h · build brf image
+    if: ${{ (inputs.scope || 'all') == 'all' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # The Dockerfile carries its own build, so no build args: BRF's secrets are
+      # set on the container app and the browser bundle has nothing to bake in.
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/brf/Dockerfile
+          push: true
+          tags: ${{ env.BRF_REPO }}:sha-${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=min,scope=brf
+      - run: echo "✅ **1h · brf image built** — \`${BRF_REPO}:sha-${GITHUB_SHA}\`" >> "$GITHUB_STEP_SUMMARY"
+
+  # ── 2h ── BRF, live ───────────────────────────────────────────────────────
+  brf-deploy:
+    name: 2h · deploy brf
+    needs: brf-build
+    if: ${{ (inputs.scope || 'all') == 'all' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # UPDATE ONLY, with no create branch. The app carries three secrets this
+      # workflow does not hold (api-key, hosted-key, brf-db-url), so a create here
+      # would answer 503 on every question while the page answers 200. If the app
+      # is ever gone, recreate it by hand with its secrets (docs/brf).
+      - name: Point brf-app at the new image
+        run: |
+          image="${BRF_REPO}:sha-${GITHUB_SHA}"
+          echo "IMAGE=$image" >> "$GITHUB_ENV"
+          if ! names=$(az containerapp list -g "$RG" --query "[].name" -o tsv 2>/tmp/az-err); then
+            echo "::error::cannot list container apps in $RG. Azure said: $(cat /tmp/az-err)"
+            exit 1
+          fi
+          if ! printf '%s\n' "$names" | grep -qx "$BRF_APP"; then
+            echo "::error::$BRF_APP does not exist in $RG. Create it by hand with its secrets first."
+            exit 1
+          fi
+          echo "updating $BRF_APP -> $image"
+          az containerapp update -n "$BRF_APP" -g "$RG" --image "$image" \
+            --set-env-vars PUBLIC_DEMO=true LLM_PROVIDER=hosted HOSTED_MODEL=gemini-3.5-flash-lite \
+              LOOP=mastra EMBEDDINGS=local \
+            --output none
+
+      - name: Wait for the revision
+        run: |
+          for i in $(seq 1 40); do
+            state=$(az containerapp revision list -n "$BRF_APP" -g "$RG" \
+              --query "[?properties.active] | [0].properties.provisioningState" -o tsv)
+            image=$(az containerapp show -n "$BRF_APP" -g "$RG" \
+              --query "properties.template.containers[0].image" -o tsv)
+            echo "attempt $i — provisioning=$state image=$image"
+            if [ "$state" = "Provisioned" ] && [ "$image" = "$IMAGE" ]; then
+              echo "revision is provisioned and carries the expected sha"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::error::no active revision reached Provisioned with $IMAGE"
+          exit 1
+
+      # min-replicas is 0, so the first request after idle pays a cold start.
+      # GET / gets up to five minutes: eight tries of at most 30 seconds plus a
+      # 10-second pause.
+      - name: Smoke test
+        id: smoke
+        run: |
+          fqdn=$(az containerapp show -n "$BRF_APP" -g "$RG" \
+            --query "properties.configuration.ingress.fqdn" -o tsv)
+          url="https://$fqdn"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          ok=
+          for i in $(seq 1 8); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "$url/")
+            echo "attempt $i — GET / -> $code"
+            [ "$code" = "200" ] && { ok=yes; break; }
+            sleep 10
+          done
+          [ "$ok" = "yes" ] || { echo "::error::brf never returned 200 on / within five minutes"; exit 1; }
+
+          # A WRONG key, not no key: PUBLIC_DEMO=true allows a missing key and meters
+          # it, so a no-key probe would spend model budget on every deploy. The guard
+          # refuses a wrong key before any model call. Retried, because the first
+          # request after idle can answer before the revision is fully routed.
+          guard=
+          for i in $(seq 1 4); do
+            guard=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 \
+              -X POST "$url/api/ask" \
+              -H 'content-type: application/json' -H 'x-api-key: deploy-probe-wrong-key' \
+              -d '{"question":"ping"}')
+            echo "attempt $i — POST /api/ask with a wrong key -> $guard"
+            [ "$guard" = "401" ] && break
+            sleep 10
+          done
+          [ "$guard" = "401" ] || { echo "::error::the guard did not refuse a wrong key (got $guard)"; exit 1; }
+
+          echo "✅ **2h · brf deployed** — <$url>" >> "$GITHUB_STEP_SUMMARY"
+
+  # ── 1i ── Bostad, the Gothenburg property profiles ───────────────────────
+  bostad-build:
+    name: 1i · build bostad image
+    if: ${{ (inputs.scope || 'all') == 'all' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # The two Google browser keys are public, and Vite bakes them into the client
+      # bundle, so they are build args. Server secrets are not passed here.
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/web/bostad-app/Dockerfile
+          push: true
+          tags: ${{ env.BOSTAD_REPO }}:sha-${{ github.sha }}
+          build-args: |
+            VITE_GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_BROWSER_KEY }}
+            VITE_GOOGLE_MAPS_MAP_ID=${{ secrets.GOOGLE_MAPS_MAP_ID }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=min,scope=bostad
+      - run: echo "✅ **1i · bostad image built** — \`${BOSTAD_REPO}:sha-${GITHUB_SHA}\`" >> "$GITHUB_STEP_SUMMARY"
+
+  # ── 2i ── Bostad, live ───────────────────────────────────────────────────
+  bostad-deploy:
+    name: 2i · deploy bostad
+    needs: bostad-build
+    if: ${{ (inputs.scope || 'all') == 'all' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # Image only. The app's runtime secrets (Västtrafik credentials) are set on it
+      # and are not touched here. No create branch: a create would stand the app up
+      # without them.
+      - name: Point bostad-app at the new image
+        run: |
+          image="${BOSTAD_REPO}:sha-${GITHUB_SHA}"
+          echo "IMAGE=$image" >> "$GITHUB_ENV"
+          if ! names=$(az containerapp list -g "$RG" --query "[].name" -o tsv 2>/tmp/az-err); then
+            echo "::error::cannot list container apps in $RG. Azure said: $(cat /tmp/az-err)"
+            exit 1
+          fi
+          if ! printf '%s\n' "$names" | grep -qx "$BOSTAD_APP"; then
+            echo "::error::$BOSTAD_APP does not exist in $RG. Create it once by hand first."
+            exit 1
+          fi
+          echo "updating $BOSTAD_APP -> $image"
+          az containerapp update -n "$BOSTAD_APP" -g "$RG" --image "$image" --output none
+
+      - name: Wait for the revision
+        run: |
+          for i in $(seq 1 40); do
+            state=$(az containerapp revision list -n "$BOSTAD_APP" -g "$RG" \
+              --query "[?properties.active] | [0].properties.provisioningState" -o tsv)
+            image=$(az containerapp show -n "$BOSTAD_APP" -g "$RG" \
+              --query "properties.template.containers[0].image" -o tsv)
+            echo "attempt $i — provisioning=$state image=$image"
+            if [ "$state" = "Provisioned" ] && [ "$image" = "$IMAGE" ]; then
+              echo "revision is provisioned and carries the expected sha"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::error::no active revision reached Provisioned with $IMAGE"
+          exit 1
+
+      # min-replicas is 0, so the first request after idle pays a cold start.
+      # GET / gets up to five minutes: eight tries of at most 30 seconds plus a
+      # 10-second pause.
+      - name: Smoke test
+        id: smoke
+        run: |
+          fqdn=$(az containerapp show -n "$BOSTAD_APP" -g "$RG" \
+            --query "properties.configuration.ingress.fqdn" -o tsv)
+          url="https://$fqdn"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          ok=
+          for i in $(seq 1 8); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "$url/")
+            echo "attempt $i — GET / -> $code"
+            [ "$code" = "200" ] && { ok=yes; break; }
+            sleep 10
+          done
+          [ "$ok" = "yes" ] || { echo "::error::bostad never returned 200 on / within five minutes"; exit 1; }
+
+          echo "✅ **2i · bostad deployed** — <$url>" >> "$GITHUB_STEP_SUMMARY"
 
   # ── 3 ── the host's image, built after both engagements are live ─────────
   veresk-build:
