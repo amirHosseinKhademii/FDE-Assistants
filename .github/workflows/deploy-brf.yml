@@ -1,18 +1,21 @@
-# DRAFT. NOT ENABLED. Manual trigger only, and it refuses to run without a typed confirmation.
+# Manual trigger only, and it refuses to run without a typed confirmation.
 #
-# Builds the Brf Exempelgården demo image (infra/brf/Dockerfile) and deploys it as a
-# Container App in the existing environment. Copied from the pharma jobs in
-# deploy.yml, not wired into the site pipeline: brf is not linked from veresk.se yet,
-# so there is no reason to rebuild the host when it changes.
+# Builds the Brf Exempelgården demo image (infra/brf/Dockerfile) and deploys it as the
+# Container App brf-app in the existing environment cae-pharma. Modelled on the pharma
+# jobs in deploy.yml, and not wired into the site pipeline: brf is not linked from
+# veresk.se, so there is no reason to rebuild the host when it changes.
 #
-# Running it CREATES an Azure Container App, which is a resource change. Do not run it
-# until the learner has approved the deploy step.
+# Running it UPDATES the container app's image. The app itself is created once, by hand,
+# with its secrets (see the create branch below), because the secrets are not GitHub
+# secrets and this workflow does not hold them.
 #
-# The app's secrets are set on the container app by hand, not by this workflow:
-#   BRF_DATABASE_URL, HOSTED_API_KEY, API_KEY
-# The workflow sets only the image, the port and the scale.
+# The app's secrets, set on the container app and never in this file:
+#   api-key      the visitor-facing key (x-api-key), used by the owner and by the guard
+#   hosted-key   the hosted model key, HOSTED_API_KEY
+#   brf-db-url   BRF_DATABASE_URL, the Neon database pharma uses, own tables only
+# The workflow sets the image, the non-secret settings, and the scale.
 
-name: deploy-brf (draft)
+name: deploy-brf
 
 on:
   workflow_dispatch:
@@ -81,8 +84,11 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      # Create-or-update, as in pharma-deploy. The create branch stands the app up with no
-      # secrets, so it answers 503 on the question endpoint until they are set by hand.
+      # UPDATE ONLY, and no create branch that stands the app up on its own. The app
+      # carries three secrets that this workflow does not hold, so a create here would
+      # answer 503 on every question while the page in front of it answers 200. The app
+      # was created by hand with its secrets. If it is ever gone, recreate it the same way
+      # (see docs/brf for the runbook), rather than letting this job do it half-configured.
       - name: Point the app at the new image
         run: |
           image="${BRF_REPO}:sha-${GITHUB_SHA}"
@@ -91,17 +97,30 @@ jobs:
             echo "::error::cannot list container apps in $RG. Azure said: $(cat /tmp/az-err)"
             exit 1
           fi
-          if printf '%s\n' "$names" | grep -qx "$BRF_APP"; then
-            az containerapp update -n "$BRF_APP" -g "$RG" --image "$image" --output none
-          else
-            az containerapp create \
-              --name "$BRF_APP" --resource-group "$RG" --environment "$ENVIRONMENT" \
-              --image "$image" \
-              --target-port 8080 --ingress external \
-              --cpu 0.5 --memory 1.0Gi \
-              --min-replicas 0 --max-replicas 1 \
-              --output none
+          if ! printf '%s\n' "$names" | grep -qx "$BRF_APP"; then
+            echo "::error::$BRF_APP does not exist in $RG. Create it by hand with its secrets first."
+            exit 1
           fi
+          az containerapp update -n "$BRF_APP" -g "$RG" --image "$image" \
+            --set-env-vars PUBLIC_DEMO=true LLM_PROVIDER=hosted HOSTED_MODEL=gemini-3.5-flash-lite \
+              LOOP=mastra EMBEDDINGS=local \
+            --output none
+
+      - name: Wait for the revision
+        run: |
+          for i in $(seq 1 40); do
+            state=$(az containerapp revision list -n "$BRF_APP" -g "$RG" \
+              --query "[?properties.active] | [0].properties.provisioningState" -o tsv)
+            image=$(az containerapp show -n "$BRF_APP" -g "$RG" \
+              --query "properties.template.containers[0].image" -o tsv)
+            echo "attempt $i, provisioning=$state image=$image"
+            if [ "$state" = "Provisioned" ] && [ "$image" = "$IMAGE" ]; then
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::error::no active revision reached Provisioned with $IMAGE"
+          exit 1
 
       - name: Smoke test
         id: smoke
@@ -118,9 +137,12 @@ jobs:
             sleep 10
           done
           [ "$ok" = "yes" ] || { echo "::error::brf never returned 200 on /"; exit 1; }
+          # With PUBLIC_DEMO=true a request with NO key is allowed, metered. The probe sends a
+          # WRONG key instead, which must still be refused before any model call is made.
           guard=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 \
             -X POST "$url/api/ask" \
-            -H 'content-type: application/json' -d '{"question":"ping"}')
-          echo "POST /api/ask without a key -> $guard"
-          [ "$guard" = "401" ] || { echo "::error::the guard did not refuse an unauthenticated request (got $guard)"; exit 1; }
+            -H 'content-type: application/json' -H 'x-api-key: wrong-key-smoke-probe' \
+            -d '{"question":"ping"}')
+          echo "POST /api/ask with a wrong key -> $guard"
+          [ "$guard" = "401" ] || { echo "::error::the guard did not refuse a wrong key (got $guard)"; exit 1; }
           echo "✅ **2 · brf deployed**, <$url>" >> "$GITHUB_STEP_SUMMARY"

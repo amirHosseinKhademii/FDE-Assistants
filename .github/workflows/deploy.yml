@@ -125,6 +125,9 @@ on:
     # image and no job that deploys one.
     paths:
       - 'apps/ai/**'
+      # BRF ships from deploy-brf.yml, so its own sources must not rebuild the site.
+      # A change to packages/** still does, because the grounding package is shared.
+      - '!apps/ai/brf/**'
       - 'apps/web/veresk-app/**'
       - 'apps/web/steering-app/**'
       - 'apps/web/pharma-app/**'

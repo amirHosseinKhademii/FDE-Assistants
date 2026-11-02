@@ -15,7 +15,13 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { askBrf } from '@brf/ai';
 import { isRefusal, REFUSAL_TEXT } from '@brf/ai/schema';
-import { authorize, publicError } from '@fde/guard';
+import {
+  authorize,
+  clientIdFrom,
+  publicDemoEnabled,
+  publicError,
+  sharedDemoLimiter,
+} from '@fde/guard';
 
 const encoder = new TextEncoder();
 
@@ -32,6 +38,7 @@ export const Route = createFileRoute('/api/ask')({
           configuredKey: process.env.API_KEY,
           presentedKey: request.headers.get('x-api-key'),
           isDev: Boolean(import.meta.env.DEV),
+          publicDemo: publicDemoEnabled(),
         });
         if (!allowed.ok) {
           return new Response(JSON.stringify({ error: allowed.reason }), {
@@ -42,6 +49,21 @@ export const Route = createFileRoute('/api/ask')({
 
         const body: any = await request.json().catch(() => ({}));
         const question = String(body?.question ?? '').trim();
+
+        // The public demo's spend gate. Only a request that reaches the model is
+        // counted; a request with the real key is not metered.
+        if (allowed.metered) {
+          const limit = sharedDemoLimiter().admit(clientIdFrom(request.headers));
+          if (!limit.ok) {
+            return new Response(JSON.stringify({ error: limit.error }), {
+              status: limit.status,
+              headers: {
+                'content-type': 'application/json',
+                'retry-after': String(limit.retryAfterSeconds),
+              },
+            });
+          }
+        }
 
         const stream = new ReadableStream({
           async start(controller) {
