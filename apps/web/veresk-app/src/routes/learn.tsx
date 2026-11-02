@@ -17,6 +17,13 @@ function LearnLayout() {
       <div className="course-shell">
         <header className="course-topbar">
           <Link to="/" className="course-home">
+            <img
+              src="/veresk-logo.svg"
+              alt=""
+              width={24}
+              height={24}
+              style={{ verticalAlign: 'middle', marginRight: 8, borderRadius: 6 }}
+            />
             Veresk
           </Link>
           <Link to="/learn">Learn</Link>

@@ -38,9 +38,9 @@ import { FlowMap } from '@fde/uikit';
 import type { FlowEdge, FlowNode, FlowStage } from '@fde/uikit';
 import { Aurora } from '@veresk/surface';
 import { AURORA } from '../lib/aurora';
-import { COMMERCE, PHARMA, SAFETY, STEERING, WRAP } from '../lib/links';
-import { BoxIcon } from '@fde/uikit';
+import { COMMERCE, PHARMA, SAFETY, STEERING } from '../lib/links';
 import { CaseGlyph, PackageGlyph } from '../components/flow/veresk-glyphs';
+import { AppIcon } from '../components/nav-icons';
 import { hueOf, lessonsIn, MAP, TOTALS, TRACKS } from '@veresk/learn';
 
 /* ── The graph, as data ────────────────────────────────────────────────────
@@ -147,49 +147,49 @@ function figureFor(node: FlowNode) {
   return node.kind === 'engagement' ? <CaseGlyph /> : <PackageGlyph />;
 }
 
+const NAV_LINK = 'inline-flex items-center gap-1.5 text-sm text-ui-dim transition-colors hover:text-ui-fg';
+
 export function VereskLanding() {
   return (
     <div className="relative min-h-screen overflow-hidden">
       <Aurora tones={AURORA} />
 
       <nav className="relative z-10 mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-3 px-5 py-5 sm:px-6 sm:py-6">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-ui-accent/15 text-ui-accent ring-1 ring-ui-accent/30">
-          <BoxIcon />
-        </span>
+        <img src="/veresk-logo.svg" alt="" width={28} height={28} className="h-7 w-7 rounded-lg" />
         <span className="font-medium tracking-tight">Veresk</span>
         {/* A TYPED LINK, and the only one in this nav. `/learn` is served by
             this application; the engagements are separate deployments on
             separate origins and have to be plain anchors. The difference is
             invisible until one of them is deployed — see `lib/links.ts`. */}
-        <Link to="/learn" className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
+        <Link to="/learn" className={NAV_LINK}>
+          <AppIcon name="learn" />
           Learn
         </Link>
         {PHARMA && (
-          <a href={PHARMA} className="text-sm text-ui-dim transition-colors hover:text-ui-fg sm:ml-auto">
+          <a href={PHARMA} className={`${NAV_LINK} sm:ml-auto`}>
+            <AppIcon name="pharma" />
             Meridian Pharma
           </a>
         )}
         {/* Absent rather than dead when there is nowhere to send anybody. */}
         {SAFETY && (
-          <a href={SAFETY} className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
+          <a href={SAFETY} className={NAV_LINK}>
+            <AppIcon name="safety" />
             Calder Safety
           </a>
         )}
         {STEERING && (
-          <a href={STEERING} className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
+          <a href={STEERING} className={NAV_LINK}>
+            <AppIcon name="steering" />
             Vantis Steering
           </a>
         )}
         {/* Null in a production build until the pipeline passes a URL — see
             `COMMERCE` in lib/links.ts. */}
         {COMMERCE && (
-          <a href={COMMERCE} className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
+          <a href={COMMERCE} className={NAV_LINK}>
+            <AppIcon name="commerce" />
             Thornbury Goods
-          </a>
-        )}
-        {WRAP && (
-          <a href={WRAP} className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
-            Wrap
           </a>
         )}
       </nav>
@@ -299,6 +299,7 @@ function ReuseGraph() {
 const CASES = [
   {
     href: PHARMA,
+    icon: 'pharma' as const,
     customer: 'Meridian Pharma',
     persona: 'a Qualified Person with a batch waiting',
     asks: 'Can this batch ship to this market?',
@@ -307,6 +308,7 @@ const CASES = [
   },
   {
     href: STEERING,
+    icon: 'steering' as const,
     customer: 'Vantis Steering',
     persona: 'a systems engineer with an RFQ on the desk',
     asks: 'What of this do we already have, and what will the rest cost?',
@@ -315,6 +317,7 @@ const CASES = [
   },
   {
     href: SAFETY,
+    icon: 'safety' as const,
     customer: 'Calder Safety',
     persona: 'an analyst running four hundred vans',
     asks: 'Is this a known defect with a remedy, and is the remedy holding?',
@@ -327,19 +330,12 @@ const CASES = [
   },
   {
     href: COMMERCE,
+    icon: 'commerce' as const,
     customer: 'Thornbury Goods',
     persona: 'a claims assessor, five operational databases in hand',
     asks: 'What is this customer owed, and what proves it?',
     state: 'Grounded in 5 operational databases, 12 policy documents, and one MCP server. The `/steps` page is built; the `/desk` awaits the HTTP transport.',
     elsewhere: 'Runs as its own application — pnpm commerce:dev, port 3600',
-  },
-  {
-    href: WRAP,
-    customer: 'Wrap',
-    persona: 'an engineer searching a messy document dump for one requirement',
-    asks: 'Where in the corpus is this requirement written down?',
-    state: 'Ingestion is built from scratch: format detection, dedup, PII scrubbing, type-aware chunking and metadata. Embedding and retrieval are not built yet.',
-    elsewhere: 'Runs as its own application — pnpm wrap:dev, port 3700',
   },
 ];
 
@@ -363,7 +359,10 @@ function Engagements() {
           const inside = (
             <>
               <p className="font-mono text-sm text-ui-faint">{c.persona}</p>
-              <p className="mt-3 font-mono text-lg font-medium text-ui-fg">{c.customer}</p>
+              <p className="mt-3 flex items-center gap-2 font-mono text-lg font-medium text-ui-fg">
+                {c.icon && <AppIcon name={c.icon} />}
+                {c.customer}
+              </p>
               <p className="mt-3 text-[0.9375rem] leading-relaxed text-ui-dim">“{c.asks}”</p>
               <p className="mt-4 text-xs leading-relaxed text-ui-faint">{c.state}</p>
               <p className="mt-5 text-sm text-ui-accent">Open the engagement →</p>
@@ -382,7 +381,10 @@ function Engagements() {
           return (
             <div key={c.customer} className="case-card case-card--elsewhere">
               <p className="font-mono text-sm text-ui-faint">{c.persona}</p>
-              <p className="mt-3 font-mono text-lg font-medium text-ui-dim">{c.customer}</p>
+              <p className="mt-3 flex items-center gap-2 font-mono text-lg font-medium text-ui-dim">
+                {c.icon && <AppIcon name={c.icon} />}
+                {c.customer}
+              </p>
               <p className="mt-3 text-[0.9375rem] leading-relaxed text-ui-faint">“{c.asks}”</p>
               <p className="mt-4 text-xs leading-relaxed text-ui-faint">{c.state}</p>
               <p className="mt-5 font-mono text-xs text-ui-faint">{c.elsewhere}</p>

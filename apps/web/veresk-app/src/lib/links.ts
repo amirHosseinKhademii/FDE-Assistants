@@ -24,21 +24,28 @@
  * contains `null` and the page renders that engagement the way it has always
  * rendered Meridian Mutual: visibly not a link, saying where it runs.
  *
+ * PRODUCTION DEFAULTS ARE THE CUSTOM DOMAINS, AND THE PIPELINE STILL WINS. An
+ * unset build-time value falls back to `https://<engagement>.veresk.se` (bound
+ * with infra bind-domains.sh). In the deployed image the pipeline passes a value
+ * on every build (deploy.yml, the `veresk-build` job's build-args, resolved from
+ * each engagement's Azure FQDN), and an empty string stays empty rather than
+ * falling back, so an unresolved engagement is still hidden, not guessed at.
+ *
  * THE URLS ARE RESOLVED BY THE PIPELINE, NOT WRITTEN DOWN ANYWHERE. Hard-coding
  * one put a 404 on the live site, because the URL was baked in before the app
  * it named existed. `.github/workflows/deploy.yml` looks each one up from Azure
  * after deploying it, so the value is always one something has just watched
  * return 200. See that file for the ordering that makes it true.
  */
-function url(configured: string | undefined, devPort: number): string | null {
-  return configured ?? (import.meta.env.DEV ? `http://localhost:${devPort}` : null);
+function url(configured: string | undefined, devPort: number, deployed: string | null): string | null {
+  return configured ?? (import.meta.env.DEV ? `http://localhost:${devPort}` : deployed);
 }
 
 /** Meridian Pharma — the release desk, the supplier walk, the data-flow page. */
-export const PHARMA = url(import.meta.env.VITE_PHARMA_URL as string | undefined, 3301);
+export const PHARMA = url(import.meta.env.VITE_PHARMA_URL as string | undefined, 3301, 'https://pharma.veresk.se');
 
 /** Vantis Steering — the bid page. */
-export const STEERING = url(import.meta.env.VITE_STEERING_URL as string | undefined, 3400);
+export const STEERING = url(import.meta.env.VITE_STEERING_URL as string | undefined, 3400, 'https://steering.veresk.se');
 
 /**
  * Calder Safety — the public vehicle-safety record.
@@ -48,7 +55,7 @@ export const STEERING = url(import.meta.env.VITE_STEERING_URL as string | undefi
  * its URL up from Azure AFTER watching it return 200, so this value is never a
  * guess about something that might exist.
  */
-export const SAFETY = url(import.meta.env.VITE_SAFETY_URL as string | undefined, 3500);
+export const SAFETY = url(import.meta.env.VITE_SAFETY_URL as string | undefined, 3500, 'https://safety.veresk.se');
 
 /**
  * Thornbury Goods — the MCP build, told step by step on its `/steps` page.
@@ -61,11 +68,11 @@ export const SAFETY = url(import.meta.env.VITE_SAFETY_URL as string | undefined,
  * put `commerce-deploy` in the host's `needs:` and pass its resolved URL as
  * `VITE_COMMERCE_URL`, the way `VITE_SAFETY_URL` is passed.
  */
-export const COMMERCE = url(import.meta.env.VITE_COMMERCE_URL as string | undefined, 3600);
+export const COMMERCE = url(import.meta.env.VITE_COMMERCE_URL as string | undefined, 3600, 'https://commerce.veresk.se');
 
 /**
  * Wrap — the document ingestion and retrieval pipeline, built from scratch over
  * the Vantis steering corpus. Its own deployment, resolved and deployed the same
  * way as the others: the pipeline looks its URL up AFTER watching it return 200.
  */
-export const WRAP = url(import.meta.env.VITE_WRAP_URL as string | undefined, 3700);
+export const WRAP = url(import.meta.env.VITE_WRAP_URL as string | undefined, 3700, null);
