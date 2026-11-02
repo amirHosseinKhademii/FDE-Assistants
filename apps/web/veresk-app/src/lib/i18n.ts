@@ -43,6 +43,8 @@ export interface Copy {
   hero: {
     heading: string;
     lead: string;
+    agents: string;
+    privacy: string;
     demosIntro: string;
   };
   hub: {
@@ -82,9 +84,11 @@ export const COPY: Record<Lang, Copy> = {
       languageLabel: 'Language',
     },
     hero: {
-      heading: 'AI assistants that answer from your own documents, with sources.',
-      lead: 'Veresk builds AI assistants for companies. They read your documents and systems, answer questions in plain language, and show exactly where each answer comes from. When the answer is not in your data, they say so. On top of that, we build AI agents that do the work for you, not just answer questions.',
-      demosIntro: 'Six working demos. Click one to try it.',
+      heading: 'Stop asking AI questions. Start giving it jobs.',
+      lead: 'A chatbot gives you an answer and leaves the work to you. Veresk builds your own private AI agent colleague, made for your company and nobody else. It has read every document you own, knows your rules by heart and works inside the systems your team already uses.',
+      agents: 'It works through the pile while you sleep. Every case checked against your rules, the paperwork done, your systems updated, and the proof attached to each step. Nights, weekends, holidays. It never forgets a rule and never drops a case. The only thing it leaves on your desk is the decision that needs you.',
+      privacy: 'Your data stays yours. It is never used to train anyone’s AI, never shared with other customers, and your agent only sees what you let it see.',
+      demosIntro: 'Six are on shift right now. Give one a job.',
     },
     hub: {
       groupLabel: 'Six demos, connected to Veresk',
@@ -188,9 +192,11 @@ export const COPY: Record<Lang, Copy> = {
       languageLabel: 'Språk',
     },
     hero: {
-      heading: 'AI-assistenter som svarar ur era egna dokument, med källa.',
-      lead: 'Veresk bygger AI-assistenter för företag. De läser era dokument och system, svarar på frågor med vanligt språk och visar exakt varifrån varje svar kommer. Om svaret inte finns i era uppgifter säger de det. Vi bygger också AI-agenter som gör jobbet åt dig, inte bara svarar på frågor.',
-      demosIntro: 'Sex fungerande demoversioner. Klicka på en för att prova den.',
+      heading: 'Sluta ställa frågor till AI. Börja ge den jobb.',
+      lead: 'En chattbot ger dig ett svar och lämnar jobbet åt dig. Veresk bygger er egen privata AI-agentkollega, gjord för ert företag och ingen annan. Den har läst varje dokument ni äger, kan era regler utantill och arbetar i de system ert team redan använder.',
+      agents: 'Den betar av högen medan ni sover. Varje ärende kontrollerat mot era regler, pappersarbetet klart, systemen uppdaterade och beviset bifogat i varje steg. Nätter, helger, röda dagar. Den glömmer aldrig en regel och tappar aldrig ett ärende. Det enda den lämnar på ditt bord är beslutet som behöver dig.',
+      privacy: 'Er data förblir er. Den används aldrig för att träna någons AI, delas aldrig med andra kunder, och agenten ser bara det ni låter den se.',
+      demosIntro: 'Sex av dem är i tjänst just nu. Ge en ett jobb.',
     },
     hub: {
       groupLabel: 'Sex demoversioner, kopplade till Veresk',

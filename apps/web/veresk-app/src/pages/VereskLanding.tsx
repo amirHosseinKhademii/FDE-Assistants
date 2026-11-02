@@ -117,13 +117,27 @@ export function VereskLanding({ lang }: { lang: Lang }) {
           </p>
 
           <p
-            className="lift-in mt-10 font-mono text-sm text-ui-faint"
+            className="lift-in mt-4 max-w-[56ch] leading-relaxed text-ui-dim sm:text-lg md:text-xl"
+            style={{ animationDelay: '260ms' }}
+          >
+            {t.hero.agents}
+          </p>
+
+          <p
+            className="lift-in mt-4 max-w-[56ch] border-l-2 border-ui-accent pl-4 leading-relaxed text-ui-fg sm:text-lg md:text-xl"
             style={{ animationDelay: '320ms' }}
+          >
+            {t.hero.privacy}
+          </p>
+
+          <p
+            className="lift-in mt-10 font-mono text-sm text-ui-faint"
+            style={{ animationDelay: '380ms' }}
           >
             {t.hero.demosIntro}
           </p>
 
-          <div className="lift-in mt-4" style={{ animationDelay: '380ms' }}>
+          <div className="lift-in mt-4" style={{ animationDelay: '440ms' }}>
             <NeuralHub spokes={demos} groupLabel={t.hub.groupLabel} notOpenLabel={t.hub.notOpen} />
           </div>
         </section>
