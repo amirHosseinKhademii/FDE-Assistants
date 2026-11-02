@@ -97,6 +97,22 @@ export class BatchedEmbeddings extends Embeddings {
 }
 
 /**
+ * How token vectors are combined into one vector per text.
+ *
+ * `cls` takes the first token. bge was trained that way, and it stays the
+ * default because every existing caller already gets it. `mean` averages the
+ * tokens, which is how the sentence-transformers models were trained (for
+ * paraphrase-multilingual-MiniLM-L12-v2 it is written down in its 1_Pooling
+ * config).
+ *
+ * Nothing infers this from the model name. A wrong pooling does not fail: the
+ * vectors have the right length and look like vectors, they are just worse, so
+ * the choice is always explicit. Changing it on an existing index needs a
+ * re-ingest, the same as changing the model.
+ */
+export type LocalPooling = 'cls' | 'mean';
+
+/**
  * A local, offline embedding model. No credentials, no network after the first
  * download.
  *
@@ -112,8 +128,11 @@ export class LocalEmbeddings extends Embeddings {
   private extractor?: Promise<(t: string | string[], o: Record<string, unknown>) => Promise<any>>;
   private readonly model: string;
   private readonly queryPrefix: string;
+  private readonly pooling: LocalPooling;
 
-  constructor(args: EmbeddingsParams & { model?: string; queryPrefix?: string } = {}) {
+  constructor(
+    args: EmbeddingsParams & { model?: string; queryPrefix?: string; pooling?: LocalPooling } = {},
+  ) {
     super(args);
     this.model = args.model ?? process.env.LOCAL_EMBEDDING_MODEL ?? 'Xenova/bge-small-en-v1.5';
     // bge is asymmetric: passages bare, questions behind this instruction.
@@ -121,6 +140,17 @@ export class LocalEmbeddings extends Embeddings {
       args.queryPrefix ??
       process.env.LOCAL_EMBEDDING_QUERY_PREFIX ??
       'Represent this sentence for searching relevant passages: ';
+    // Checked here, so a bad LOCAL_EMBEDDING_POOLING stops the process at startup
+    // instead of on the first embed. Only 'cls' and 'mean' are accepted, the two
+    // this class has been measured with.
+    const pooling: string = args.pooling ?? process.env.LOCAL_EMBEDDING_POOLING ?? 'cls';
+    if (pooling !== 'cls' && pooling !== 'mean') {
+      throw new Error(
+        `LocalEmbeddings pooling must be 'cls' or 'mean', got '${pooling}'. ` +
+          'Set LOCAL_EMBEDDING_POOLING, or the pooling option, to one of those.',
+      );
+    }
+    this.pooling = pooling;
   }
 
   /** Loaded lazily and once: the first call pays the model download. */
@@ -157,12 +187,17 @@ export class LocalEmbeddings extends Embeddings {
       // conventions and this library reads neither — setting them changed
       // nothing, which is the kind of fix that looks applied and is not.
       //
-      // `LOCAL_EMBEDDING_CACHE` overrides; the default is the OS temp directory,
-      // which is writable in every container this repo deploys to. The cost of
-      // a temp path is re-downloading ~130MB after the filesystem is wiped,
-      // which is a cold-start cost and not a failure.
+      // `LOCAL_EMBEDDING_CACHE_DIR` overrides. `LOCAL_EMBEDDING_CACHE` is the older
+      // name for the same setting and is still read, so existing deployments keep
+      // their cache. The default is the OS temp directory, which is writable in
+      // every container this repo deploys to. The cost of a temp path is
+      // re-downloading ~130MB after the filesystem is wiped, which is a cold-start
+      // cost and not a failure.
       if (hfEnv) {
-        const dir = process.env.LOCAL_EMBEDDING_CACHE ?? join(tmpdir(), 'fde-embeddings');
+        const dir =
+          process.env.LOCAL_EMBEDDING_CACHE_DIR ??
+          process.env.LOCAL_EMBEDDING_CACHE ??
+          join(tmpdir(), 'fde-embeddings');
         hfEnv.cacheDir = dir;
         if (hfEnv.backends?.onnx?.wasm) hfEnv.backends.onnx.wasm.wasmPaths = undefined;
       }
@@ -173,9 +208,9 @@ export class LocalEmbeddings extends Embeddings {
 
   private async run(texts: string[]): Promise<number[][]> {
     const extract = await this.pipeline();
-    // CLS pooling is what bge was trained with; normalised so cosine distance
-    // in pgvector means what the store's `distanceStrategy` says it means.
-    const out = await extract(texts, { pooling: 'cls', normalize: true });
+    // Pooling is the one this instance was given (see LocalPooling). Normalized so
+    // cosine distance in pgvector means what the store's `distanceStrategy` says it means.
+    const out = await extract(texts, { pooling: this.pooling, normalize: true });
     return out.tolist() as number[][];
   }
 

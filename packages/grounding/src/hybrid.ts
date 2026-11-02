@@ -63,17 +63,50 @@ export interface HybridResult {
 }
 
 /**
+ * The names one text search configuration lives under.
+ *
+ * English keeps `content_ts` and `<table>_fts_idx`, so an index built before this
+ * option existed is still the one every existing caller reads. Any other
+ * configuration gets a column of its own. Reusing `content_ts` would fail
+ * silently: `add column if not exists` does nothing once the column is there, so
+ * a table indexed as English and then ingested as Swedish would keep the English
+ * tsvector, and nothing would report it.
+ *
+ * The name is written into SQL, and DDL cannot take bind parameters, so it is
+ * held to a plain lowercase identifier. A dotted name such as `pg_catalog.english`
+ * is refused.
+ */
+function ftsNames(textSearchConfig: string = 'english') {
+  if (!/^[a-z][a-z_]*$/.test(textSearchConfig)) {
+    throw new Error(
+      `textSearchConfig must be a lowercase Postgres text search configuration, got '${textSearchConfig}'`,
+    );
+  }
+  const suffix = textSearchConfig === 'english' ? '' : `_${textSearchConfig}`;
+  return {
+    config: textSearchConfig,
+    column: `content_ts${suffix}`,
+    indexSuffix: `_fts${suffix}_idx`,
+  };
+}
+
+/**
  * Create the full-text column and its index. Idempotent; safe to call on every
  * ingest.
  *
  * Called from `ingestDocuments` rather than `openStore` so that opening the store
  * to READ never issues DDL — a query path that quietly alters schema is a
  * surprise waiting for a read-only database role.
+ *
+ * `textSearchConfig` names the Postgres text search configuration the column is
+ * built with. It defaults to 'english', which every existing caller gets, and it
+ * must be the same value passed to `hybridSearch` for the same table.
  */
 export async function ensureFullTextIndex(
-  opts: { connectionString?: string; tableName?: string } = {},
+  opts: { connectionString?: string; tableName?: string; textSearchConfig?: string } = {},
 ): Promise<void> {
   const table = opts.tableName ?? DEFAULT_CHUNK_TABLE;
+  const fts = ftsNames(opts.textSearchConfig);
   const client = survivesDisconnect(
     new Client({ connectionString: opts.connectionString ?? connectionString(), ...PG_OPTIONS }),
     { label: 'hybrid-search' },
@@ -81,11 +114,11 @@ export async function ensureFullTextIndex(
   await client.connect();
   try {
     await client.query(
-      `alter table ${table} add column if not exists content_ts tsvector
-         generated always as (to_tsvector('english', content)) stored`,
+      `alter table ${table} add column if not exists ${fts.column} tsvector
+         generated always as (to_tsvector('${fts.config}', content)) stored`,
     );
     await client.query(
-      `create index if not exists ${table}_fts_idx on ${table} using gin (content_ts)`,
+      `create index if not exists ${table}${fts.indexSuffix} on ${table} using gin (${fts.column})`,
     );
   } finally {
     await client.end();
@@ -109,14 +142,24 @@ export async function ensureFullTextIndex(
  * passage containing both "livery" and "hire" should outrank one containing
  * only "hire".
  *
- * Sanitising to `[a-z0-9]` also makes injection impossible by construction:
- * `to_tsquery` has real syntax, and the model writes queries full of quotes,
- * apostrophes and ampersands that would otherwise be a syntax error at best.
+ * LETTERS MEANS LETTERS IN EVERY SCRIPT. Splitting on `[^a-z0-9]` was harmless for
+ * English and wrong for Swedish: "bostadsrätt" became "bostadsr" and "tt", and "är"
+ * vanished, because the split treated å and ä as separators. The Unicode property
+ * classes keep them. Input made only of ASCII is unchanged, since every ASCII letter
+ * and digit still matches.
+ *
+ * Keeping only letters and digits also makes injection impossible by construction.
+ * `to_tsquery` has real syntax (`&`, `|`, `!`, `:`, `*`, parentheses and quotes), and
+ * the model writes queries full of quotes, apostrophes and ampersands. None of those
+ * is a letter or a digit, so none of them can reach the tsquery.
+ *
+ * EXPORTED SO THE TOKENIZER CAN BE CHECKED ON ITS OWN. What it returns decides what
+ * a query can match, and nothing else in this file exposes it.
  */
-function orQuery(raw: string): string {
+export function orQuery(raw: string): string {
   const terms = raw
     .toLowerCase()
-    .split(/[^a-z0-9]+/)
+    .split(/[^\p{L}\p{N}]+/u)
     .filter((t) => t.length > 1);
   return [...new Set(terms)].join(' | ');
 }
@@ -135,6 +178,7 @@ async function keywordSearch(
   filter: StoreFilter | undefined,
   table: string,
   connString?: string,
+  textSearchConfig?: string,
 ): Promise<LCDocument[]> {
   // The dense arm already honoured an explicit connection string and this arm
   // did not, so a hybrid search against a non-default database would have run
@@ -149,8 +193,9 @@ async function keywordSearch(
     const tsq = orQuery(query);
     if (!tsq) return [];
 
+    const fts = ftsNames(textSearchConfig);
     const params: unknown[] = [tsq, k];
-    let where = `content_ts @@ to_tsquery('english', $1)`;
+    let where = `${fts.column} @@ to_tsquery('${fts.config}', $1)`;
     if (filter && Object.keys(filter).length) {
       params.push(JSON.stringify(filter));
       where += ` and metadata @> $3::jsonb`;
@@ -159,7 +204,7 @@ async function keywordSearch(
       `select content, metadata
          from ${table}
         where ${where}
-        order by ts_rank(content_ts, to_tsquery('english', $1)) desc
+        order by ts_rank(${fts.column}, to_tsquery('${fts.config}', $1)) desc
         limit $2`,
       params,
     );
@@ -190,16 +235,30 @@ export async function hybridSearch(
   // `connectionString` must match the one the STORE was opened with. It is not
   // defaulted independently for a reason: the two arms fusing results from two
   // different databases is a failure with no symptom.
-  opts: { overFetch?: number; tableName?: string; connectionString?: string } = {},
+  // `textSearchConfig` must match the one the index was built with. It is checked
+  // here, before either arm starts, so a bad name is a thrown error and not a quiet
+  // `fullText: false`. 'english' is the default, and what every existing caller gets.
+  opts: {
+    overFetch?: number;
+    tableName?: string;
+    connectionString?: string;
+    textSearchConfig?: string;
+  } = {},
 ): Promise<HybridResult> {
   const depth = k * (opts.overFetch ?? 4);
+  ftsNames(opts.textSearchConfig);
 
   const densePromise = store.similaritySearchWithScore(query, depth, filter);
   // A keyword failure must never be silent: if the column is missing because
   // ingest has not run since this was added, the caller is TOLD it got
   // dense-only results rather than quietly receiving worse retrieval.
   const sparsePromise = keywordSearch(
-    query, depth, filter, opts.tableName ?? DEFAULT_CHUNK_TABLE, opts.connectionString,
+    query,
+    depth,
+    filter,
+    opts.tableName ?? DEFAULT_CHUNK_TABLE,
+    opts.connectionString,
+    opts.textSearchConfig,
   ).then(
     (r) => ({ ok: true as const, docs: r }),
     () => ({ ok: false as const, docs: [] as LCDocument[] }),

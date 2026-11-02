@@ -120,7 +120,14 @@ export async function ingestDocuments(
   // table, and adding it to a table of that name in a DIFFERENT database is a
   // failure with no symptom — the dense arm works, the keyword arm silently
   // finds nothing, and hybrid search quietly degrades to half of itself.
-  opts: { onProgress?: (msg: string) => void; tableName?: string; connectionString?: string } = {},
+  // `textSearchConfig` must match the one given to `hybridSearch` for this table.
+  // It defaults to 'english', which is what every existing caller gets.
+  opts: {
+    onProgress?: (msg: string) => void;
+    tableName?: string;
+    connectionString?: string;
+    textSearchConfig?: string;
+  } = {},
 ): Promise<IngestResult> {
   const sourceDocs = await source.list();
   const docs = sourceDocs.map(asLoaderDocument);
@@ -143,7 +150,11 @@ export async function ingestDocuments(
   // The keyword half of retrieval. A GENERATED column, so it cannot fall out of
   // step with `content`, and created here rather than in `openStore` so that
   // opening the store to read never issues DDL.
-  await ensureFullTextIndex({ tableName: opts.tableName, connectionString: opts.connectionString });
+  await ensureFullTextIndex({
+    tableName: opts.tableName,
+    connectionString: opts.connectionString,
+    textSearchConfig: opts.textSearchConfig,
+  });
   opts.onProgress?.('full-text index ready');
 
   return { documents: docs.length, chunks: chunks.length };
