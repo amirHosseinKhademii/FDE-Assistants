@@ -1558,11 +1558,13 @@ jobs:
           fqdn=$(az containerapp show -n "$VERESK_APP" -g "$RG" \
             --query "properties.configuration.ingress.fqdn" -o tsv)
           url="https://$fqdn"
-          pharma="${{ needs.pharma-deploy.outputs.url }}"
-          steering="${{ needs.steering-deploy.outputs.url }}"
-          safety="${{ needs.safety-deploy.outputs.url }}"
-          commerce="${{ needs.commerce-deploy.outputs.url }}"
-          wrap="${{ needs.wrap-deploy.outputs.url }}"
+          # The page links the custom domains baked in at build time (veresk-build
+          # build-args), so those are the URLs to look for.
+          pharma="https://pharma.veresk.se"
+          steering="https://steering.veresk.se"
+          safety="https://safety.veresk.se"
+          commerce="https://commerce.veresk.se"
+          wrap=""
 
           # ── AN ABSENT URL IS NOT A URL TO LOOK FOR ─────────────────────────
           #
