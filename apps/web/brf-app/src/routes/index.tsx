@@ -46,10 +46,13 @@ function BrfPage() {
             Demo med påhittade dokument. Skicka inga riktiga personuppgifter.
           </span>
           <h1 className="mt-5 font-mono text-3xl font-semibold tracking-tight sm:text-5xl">
-            Frågor till föreningens dokument
+            Låt föreningens AI-kollega ta frågorna.
           </h1>
           <p className="mt-3 max-w-2xl text-base leading-relaxed text-ui-dim sm:text-lg">
-            Varje svar visar dokument och paragraf. När dokumenten inte säger något säger assistenten det.
+            Boende och styrelse frågar när de vill, dygnet runt. AI-kollegan svarar ur föreningens egna
+            stadgar och ordningsregler och visar vilken paragraf svaret kommer från, så förvaltaren slipper
+            samma samtal om och om igen. När något kräver ett beslut skickar den vidare till styrelsen.
+            Föreningens dokument stannar hos er och används aldrig för att träna någons AI.
           </p>
         </section>
 

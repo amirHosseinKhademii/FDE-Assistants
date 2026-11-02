@@ -106,23 +106,24 @@ export function PharmaLanding() {
               inside `max-w-4xl` (896px) steering's "Four hundred requirements."
               is 936px and breaks after "Four hundred" — a three-line hero. At
               56px it is 874px and breaks at the full stop, which is where the
-              sentence breaks anyway. This one reads "Can this batch ship?" and
-              fits on one line either way; it takes the smaller size so that the
-              two doors match rather than because it needs to. */}
+              sentence breaks anyway. This one reads "Give it a batch. Get back
+              the release file." and wraps after the full stop at either size; it
+              takes the smaller size so that the two doors match. */}
           <h1
             className="lift-in title-spectrum max-w-4xl font-mono text-[1.75rem] leading-[1.08] font-semibold tracking-tighter break-words sm:text-[2.5rem] md:text-[3.5rem]"
             style={{ animationDelay: '60ms' }}
           >
-            Can this batch ship?
+            Give it a batch. Get back the release file.
           </h1>
 
           <p
             className="lift-in mt-5 max-w-[48ch] leading-relaxed text-ui-dim md:mt-6 md:text-lg"
             style={{ animationDelay: '200ms' }}
           >
-            Six systems hold the answer and none can see the other five. Today a reviewer opens all
-            six and joins them by hand. This walks them in about a minute and names what would stop
-            the batch leaving.
+            The answer lives in six systems and none can see the other five. Your AI colleague walks
+            all six in about a minute, checks the batch against every rule, and hands your Qualified
+            Person a file with each blocker named and the clause behind it. It prepares. A person
+            signs. Your records stay yours and nothing you ask ever trains anyone's AI.
           </p>
 
           <div

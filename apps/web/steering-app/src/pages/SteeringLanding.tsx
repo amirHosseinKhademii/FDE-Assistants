@@ -142,7 +142,7 @@ export function SteeringLanding() {
             className="lift-in title-spectrum max-w-4xl font-mono text-[1.75rem] leading-[1.08] font-semibold tracking-tighter break-words sm:text-[2.5rem] md:text-[3.5rem]"
             style={{ animationDelay: '60ms' }}
           >
-            Four hundred requirements. Two weeks.
+            Four hundred requirements. One AI colleague.
           </h1>
 
           {/* ONE PARAGRAPH, AND THE 180 HOURS SURVIVED THE CUT because it is
@@ -152,9 +152,11 @@ export function SteeringLanding() {
             className="lift-in mt-5 max-w-[54ch] leading-relaxed text-ui-dim md:mt-6 md:text-lg"
             style={{ animationDelay: '200ms' }}
           >
-            Every one of them is the same question — have we built this before? — and the answer is
-            spread across four systems and six colleagues' memories. The industry allows up to 180
-            hours for the reply; that is their figure, not ours.
+            Every one is the same question, have we built this before? The answer is spread across
+            four systems and six colleagues' memories. Your AI colleague finds the closest thing you
+            have built, says whether to reuse it, change it or build it new, and shows the evidence,
+            so an engineer checks the reasoning instead of doing the search. Your designs stay yours
+            and nothing here trains anyone's AI.
           </p>
 
           {/* THE PARAGRAPH THAT WAS HERE SAID "we have not measured anything

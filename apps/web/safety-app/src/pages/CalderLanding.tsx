@@ -133,17 +133,19 @@ function Hero() {
       </p>
 
       <h1 className="lift-in title-spectrum mt-4 max-w-4xl font-mono text-[1.75rem] leading-[1.08] font-semibold tracking-tighter break-words sm:text-[2.5rem] md:text-[3.25rem]">
-        Is it a known defect with a remedy, and is the remedy holding?
+        Point it at your fleet. It reads every complaint.
       </h1>
 
       <p
         className="lift-in mt-5 max-w-[58ch] leading-relaxed text-ui-dim md:mt-6 md:text-lg"
         style={{ animationDelay: '90ms' }}
       >
-        An analyst running four hundred vans reads hundreds of complaint
-        narratives by hand to answer that. The filings are public and free; what
-        is missing is somebody to hold two of them side by side and say what they
-        do and do not settle.
+        An analyst running four hundred vans reads hundreds of complaint narratives
+        by hand to learn whether a problem is a known defect and whether the
+        remedy is holding. Your AI colleague does that reading from the public
+        NHTSA filings, sets two records side by side and says what they prove,
+        with the source filing behind every line. The call stays with your
+        analyst. Your fleet data stays yours and never trains anyone's AI.
       </p>
     </section>
   );

@@ -111,15 +111,19 @@ function Hero() {
     <section className="pt-10 pb-4 md:pt-16">
       <p className="lift-in thb-label">Customer resolutions, for a mid-size online shop</p>
 
-      <h1 className="lift-in mt-3 max-w-[20ch] text-[2.25rem] leading-[1.1] font-bold tracking-tight text-ui-fg sm:text-[3.25rem]">
-        What is this customer owed, and what proves it?
+      <h1 className="lift-in mt-3 max-w-[22ch] text-[2.25rem] leading-[1.1] font-bold tracking-tight text-ui-fg sm:text-[3.25rem]">
+        Give it the claim. It opens all seven tabs.
       </h1>
 
       <p className="lift-in thb-prose mt-6 max-w-[60ch]" style={{ animationDelay: '90ms' }}>
         <span className="block text-[1.1875rem] leading-relaxed text-ui-dim">
-          Not “what would be nice”. What the policy actually grants, which policy
-          said so, and which record backs it up — with the places where two
-          sources contradict each other left standing rather than quietly resolved.
+          Order admin, warehouse, carrier portal, policy wiki, returns tool, CRM and
+          Slack: a person opens them all to settle one refund. Your AI colleague
+          does it in one pass, works out what the policy actually grants and which
+          record proves it, leaves contradictions standing instead of quietly
+          picking a side, and drafts the refund. Then it waits for your yes before
+          any money moves. Your customers’ data stays yours and never trains
+          anyone’s AI.
         </span>
       </p>
 
