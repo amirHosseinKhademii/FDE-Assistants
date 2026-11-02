@@ -2,13 +2,26 @@
  * One small line icon per engagement, drawn in `currentColor` so it takes the
  * same colour as the text beside it, including on hover.
  *
- * Sized for the nav at 16px. Stroke matches the house figures in
+ * Sized for the nav at 16px by default. Stroke matches the house figures in
  * `flow/veresk-glyphs.tsx` (round caps and joins) so the two read as one set.
  */
 
 import type { ReactElement } from 'react';
 
-export type AppIconName = 'pharma' | 'safety' | 'steering' | 'commerce' | 'learn';
+export type AppIconName =
+  | 'pharma'
+  | 'safety'
+  | 'steering'
+  | 'commerce'
+  | 'learn'
+  | 'connect'
+  | 'ask'
+  | 'proof'
+  | 'measure'
+  | 'prepare'
+  | 'check'
+  | 'act'
+  | 'approve';
 
 const paths: Record<AppIconName, ReactElement> = {
   /* Pharma: a flask, for the release desk and the lab-side estate. */
@@ -45,14 +58,56 @@ const paths: Record<AppIconName, ReactElement> = {
       <path d="M12 6.5v13" />
     </>
   ),
+  /* How it works: plug, speech bubble, document with lines, checklist. */
+  connect: (
+    <>
+      <path d="M9 3v4M15 3v4" />
+      <path d="M7 7h10v4a5 5 0 0 1-10 0z" />
+      <path d="M12 16v5" />
+    </>
+  ),
+  ask: <path d="M4 5h16v11H9l-5 4z" />,
+  proof: (
+    <>
+      <path d="M6 3h8l4 4v14H6z" />
+      <path d="M9 12h6M9 16h4" />
+    </>
+  ),
+  measure: (
+    <>
+      <path d="M5 6l2 2 3-3" />
+      <path d="M5 15l2 2 3-3" />
+      <path d="M13 7h6M13 16h6" />
+    </>
+  ),
+  /* Agents: clipboard, tick in a circle, bolt, person. */
+  prepare: (
+    <>
+      <rect x="6" y="4" width="12" height="17" rx="2" />
+      <path d="M9 4h6v3H9zM9 12h6M9 16h4" />
+    </>
+  ),
+  check: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M8 12.5l2.5 2.5L16 9.5" />
+    </>
+  ),
+  act: <path d="M13 3L5 14h6l-1 7 8-11h-6z" />,
+  approve: (
+    <>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" />
+    </>
+  ),
 };
 
-export function AppIcon({ name }: { name: AppIconName }) {
+export function AppIcon({ name, size = 16 }: { name: AppIconName; size?: number }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      width={16}
-      height={16}
+      width={size}
+      height={size}
       aria-hidden
       className="inline-block shrink-0"
       style={{ fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round' }}

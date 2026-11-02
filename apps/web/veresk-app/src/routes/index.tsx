@@ -9,6 +9,6 @@ import { createFileRoute } from '@tanstack/react-router';
 import { VereskLanding } from '../pages/VereskLanding';
 
 export const Route = createFileRoute('/')({
-  head: () => ({ meta: [{ title: 'Veresk — forward-deployed engineering' }] }),
+  head: () => ({ meta: [{ title: 'Veresk: AI assistants that answer from your documents' }] }),
   component: VereskLanding,
 });

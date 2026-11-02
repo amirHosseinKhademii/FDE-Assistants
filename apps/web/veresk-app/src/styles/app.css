@@ -112,23 +112,11 @@ body {
   );
 }
 
-/* ── THE FLOW MAP, AT THE SIZES THIS PAGE USES ──────────────────────────────
-   `FlowMap` is `@fde/uikit`'s and knows nothing about what it is drawing. How
-   wide a card has to be for each KIND of node is this page's vocabulary, so it
-   is set here. The pharma deployment has its own six kinds and its own file.
-   ────────────────────────────────────────────────────────────────────────── */
-.ui-flow-card[data-kind='engagement'] { width: 14rem; height: 5.75rem; }
-.ui-flow-card[data-kind='package'] { width: 15rem; height: 5.25rem; }
-
-/* ── THE FIRM'S PAGE ────────────────────────────────────────────────────────
-   `/` has no palette of its own on purpose — see `pages/VereskLanding.tsx`.
-   These are layout only, and the accent appears on exactly the things that can
-   be pressed.
+/* ── THE FRONT PAGE ────────────────────────────────────────────────────────
+   Layout and motion only. The colours are the demos' own hues, passed in as
+   `--tone`, and the accent marks the things that can be pressed.
    ────────────────────────────────────────────────────────────────────────── */
 
-/* An engagement card. The two live ones lift and take the accent on their
-   border; the one that lives in another application does neither, because it
-   cannot be opened from here and should not look as if it could. */
 .case-card {
   display: block;
   padding: 1.25rem 1.25rem 1.375rem;
@@ -148,23 +136,247 @@ a.case-card:focus-visible {
   outline-offset: 3px;
 }
 
-/* Five engagement cards in a two-column grid: the fifth (odd, and last) takes
-   the whole row at sm and up, so it does not sit alone. Phones stay one column. */
-@media (min-width: 40rem) {
-  .cases-grid > :last-child:nth-child(odd) {
-    grid-column: 1 / -1;
-  }
-}
-
 .case-card--elsewhere {
   background: transparent;
   border-style: dashed;
 }
 
+/* The hub. Two layouts are drawn and one is shown: the wide one from 48rem up,
+   the stacked one below. Both sit in a box with a fixed shape, so the cards and
+   the lines always line up with each other. */
+.hub-wrap {
+  width: 100%;
+}
 
-/* The map's engagement cards need more room than a database's name. */
-.ui-flow-card[data-kind='engagement'] { width: 14rem; height: 5.75rem; }
-.ui-flow-card[data-kind='package'] { width: 15rem; height: 5.25rem; }
+.hub {
+  position: relative;
+  width: 100%;
+}
 
+.hub--desk {
+  display: none;
+}
 
+.hub--mobile {
+  aspect-ratio: 350 / 520;
+}
 
+@media (min-width: 48rem) {
+  .hub--desk {
+    display: block;
+    aspect-ratio: 1000 / 440;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  .hub--mobile {
+    display: none;
+  }
+}
+
+.hub-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.hub-glow {
+  fill: color-mix(in oklab, var(--color-ui-accent) 9%, transparent);
+  filter: blur(18px);
+}
+
+/* The tangle behind the centre. Faint, and each fibre flickers on its own. */
+.hub-fibre {
+  fill: none;
+  stroke: var(--color-ui-dim);
+  stroke-width: 1;
+  stroke-opacity: 0.18;
+  animation: hub-fibre 9s ease-in-out infinite;
+}
+
+.hub-fibre--far {
+  stroke-opacity: 0.1;
+  stroke-dasharray: 2 4;
+}
+
+@keyframes hub-fibre {
+  0%, 4%   { stroke-opacity: 0.18; }
+  9%       { stroke-opacity: 0.85; }
+  26%, 100% { stroke-opacity: 0.18; }
+}
+
+/* The line that is always there. The pulses travel over it. */
+.hub-base {
+  fill: none;
+  stroke: var(--color-ui-line-lit);
+  stroke-width: 1;
+  stroke-opacity: 0.8;
+}
+
+.hub-pulse {
+  fill: none;
+  stroke-linecap: round;
+  animation-duration: 8s;
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1);
+}
+
+/* Out to the demo: neutral, because a request has no colour. */
+.hub-pulse--out {
+  stroke: var(--color-ui-dim);
+  stroke-width: 1.5;
+  stroke-dasharray: 8 92;
+  animation-name: hub-out;
+}
+
+/* Back from the demo: the demo's own colour. */
+.hub-pulse--back {
+  stroke: var(--tone);
+  stroke-width: 2;
+  stroke-dasharray: 12 88;
+  animation-name: hub-back;
+}
+
+@keyframes hub-out {
+  0%       { stroke-dashoffset: 100; opacity: 0; }
+  4%       { opacity: 0.9; }
+  16%      { stroke-dashoffset: 0; opacity: 0.9; }
+  20%, 100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+@keyframes hub-back {
+  0%       { stroke-dashoffset: 0; opacity: 0; }
+  4%       { opacity: 1; }
+  18%      { stroke-dashoffset: 100; opacity: 1; }
+  24%, 100% { stroke-dashoffset: 100; opacity: 0; }
+}
+
+.hub-edge {
+  transition: opacity 240ms ease;
+}
+
+.hub-card {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--color-ui-line);
+  border-radius: 1rem;
+  background: var(--color-ui-surface);
+  color: var(--color-ui-fg);
+  text-decoration: none;
+  transition: border-color 200ms ease, box-shadow 200ms ease, opacity 240ms ease;
+}
+
+.hub-card--core {
+  align-items: center;
+  width: 10rem;
+  padding: 0.8rem;
+  border-color: color-mix(in oklab, var(--color-ui-accent) 40%, var(--color-ui-line));
+}
+
+.hub-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+}
+
+.hub-core-name {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.hub-card--spoke {
+  width: 14rem;
+}
+
+.hub-card-top {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.hub-card-name {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.hub-card-sub {
+  font-size: 0.8125rem;
+  color: var(--color-ui-faint);
+}
+
+.hub-card-note {
+  font-size: 0.75rem;
+  color: var(--color-ui-faint);
+}
+
+.hub-card--spoke.is-off {
+  border-style: dashed;
+  background: transparent;
+}
+
+.hub-card--spoke:hover,
+.hub-card--spoke:focus-visible {
+  border-color: var(--tone);
+  outline: none;
+}
+
+.hub-card--spoke.is-active {
+  border-color: var(--tone);
+  box-shadow: 0 0 0 1px var(--tone), 0 0 24px -6px var(--tone);
+}
+
+a.hub-card--spoke:focus-visible {
+  outline: 2px solid var(--color-ui-accent);
+  outline-offset: 3px;
+}
+
+.hub--mobile .hub-card--core {
+  width: 8.5rem;
+  padding: 0.6rem;
+}
+
+.hub--mobile .hub-logo {
+  width: 36px;
+  height: 36px;
+}
+
+.hub--mobile .hub-card--spoke {
+  width: 9.25rem;
+  padding: 0.6rem 0.7rem;
+}
+
+.hub--mobile .hub-card-name {
+  font-size: 0.85rem;
+}
+
+.hub--mobile .hub-card-sub {
+  font-size: 0.75rem;
+}
+
+/* Reduced motion keeps every line and stops everything that moves. The
+   connections stay drawn, so the picture still says what is connected. */
+@media (prefers-reduced-motion: reduce) {
+  .hub-pulse {
+    display: none;
+  }
+  .hub-fibre {
+    animation: none;
+    stroke-opacity: 0.3;
+  }
+  .hub-edge,
+  .hub-card,
+  a.case-card {
+    transition: none;
+  }
+  a.case-card:hover,
+  a.hub-card--spoke:hover {
+    transform: none;
+  }
+}
