@@ -43,8 +43,10 @@ export interface Copy {
   hero: {
     heading: string;
     lead: string;
+    messy: string;
     agents: string;
     privacy: string;
+    closer: string;
     demosIntro: string;
   };
   hub: {
@@ -71,23 +73,25 @@ export interface Copy {
 
 export const COPY: Record<Lang, Copy> = {
   en: {
-    title: 'Veresk: AI assistants that answer from your documents',
+    title: 'Veresk: private AI agent colleagues for businesses',
     description: '',
     nav: {
       learn: 'Learn',
-      pharma: 'Meridian Pharma',
-      safety: 'Calder Safety',
-      steering: 'Vantis Steering',
-      commerce: 'Thornbury Goods',
+      pharma: 'Pharma',
+      safety: 'Safety',
+      steering: 'Steering',
+      commerce: 'Commerce',
       bostad: 'Bostad',
       brf: 'BRF',
       languageLabel: 'Language',
     },
     hero: {
-      heading: 'Stop asking AI questions. Start giving it jobs.',
-      lead: 'A chatbot gives you an answer and leaves the work to you. Veresk builds your own private AI agent colleague, made for your company and nobody else. It has read every document you own, knows your rules by heart and works inside the systems your team already uses.',
-      agents: 'It works through the pile while you sleep. Every case checked against your rules, the paperwork done, your systems updated, and the proof attached to each step. Nights, weekends, holidays. It never forgets a rule and never drops a case. The only thing it leaves on your desk is the decision that needs you.',
-      privacy: 'Your data stays yours. It is never used to train anyone’s AI, never shared with other customers, and your agent only sees what you let it see.',
+      heading: 'Veresk builds private AI agent colleagues for businesses.',
+      lead: 'Unlike traditional chatbots that just answer questions, Veresk agents get work done. They learn your documents, processes and rules, work within the systems your team already uses, and handle operational tasks from start to finish.',
+      messy: 'And your documents don’t need to be perfect. Scattered files, inconsistent formats, outdated structures or knowledge buried across folders: Veresk turns messy, unstructured information into something valuable and actionable. Think of it as turning document chaos into gold.',
+      agents: 'Your agent checks cases against your rules, completes paperwork, updates systems and documents every step, around the clock. When human judgment is needed, it hands the decision back to your team.',
+      privacy: 'Your data stays yours: never used to train anyone else’s AI, never shared with other customers, and only accessible where you allow it.',
+      closer: 'Veresk turns the knowledge you already have, even when it’s messy, into work that gets done.',
       demosIntro: 'Six are on shift right now. Give one a job.',
     },
     hub: {
@@ -96,23 +100,23 @@ export const COPY: Record<Lang, Copy> = {
     },
     demos: {
       pharma: {
-        sub: 'Meridian Pharma',
+        sub: 'Medicine batch release',
         label: 'Batch release.',
         text: 'Checks whether a medicine batch can ship, using the lab records and procedures, and names what would stop it.',
         agent: 'An agent checks the batch record against the procedures and flags any gap.',
       },
       safety: {
-        sub: 'Calder Safety',
+        sub: 'Vehicle safety record',
         label: 'Vehicle safety and recalls.',
         text: 'Answers recall and safety questions from public NHTSA complaint filings. It says so when the filings do not settle the question.',
       },
       steering: {
-        sub: 'Vantis Steering',
+        sub: 'Engineering bids',
         label: 'Engineering requirements.',
         text: 'Reads a customer’s requirements and says, for each one, whether we have built it before, need to change it, or must build it new.',
       },
       commerce: {
-        sub: 'Thornbury Goods',
+        sub: 'Customer returns',
         label: 'Customer service.',
         text: 'Handles a return or refund case, checks it against the store’s policy, and asks a person before any money moves.',
         agent: 'An agent drafts the refund and waits for a person to approve it.',
@@ -179,23 +183,25 @@ export const COPY: Record<Lang, Copy> = {
     footer: 'Veresk. Companies, people and documents in the business demos are made up. Bostad uses public data.',
   },
   sv: {
-    title: 'Veresk: AI-assistenter som svarar ur era egna dokument',
-    description: 'Veresk bygger AI-assistenter för företag. De svarar på frågor ur era egna dokument och visar källan till varje svar.',
+    title: 'Veresk: privata AI-agentkollegor för företag',
+    description: 'Veresk bygger privata AI-agentkollegor för företag. De får jobbet gjort, inte bara svarar på frågor.',
     nav: {
       learn: 'Lektioner',
-      pharma: 'Meridian Pharma',
-      safety: 'Calder Safety',
-      steering: 'Vantis Steering',
-      commerce: 'Thornbury Goods',
+      pharma: 'Pharma',
+      safety: 'Safety',
+      steering: 'Steering',
+      commerce: 'Commerce',
       bostad: 'Bostad',
       brf: 'BRF',
       languageLabel: 'Språk',
     },
     hero: {
-      heading: 'Sluta ställa frågor till AI. Börja ge den jobb.',
-      lead: 'En chattbot ger dig ett svar och lämnar jobbet åt dig. Veresk bygger er egen privata AI-agentkollega, gjord för ert företag och ingen annan. Den har läst varje dokument ni äger, kan era regler utantill och arbetar i de system ert team redan använder.',
-      agents: 'Den betar av högen medan ni sover. Varje ärende kontrollerat mot era regler, pappersarbetet klart, systemen uppdaterade och beviset bifogat i varje steg. Nätter, helger, röda dagar. Den glömmer aldrig en regel och tappar aldrig ett ärende. Det enda den lämnar på ditt bord är beslutet som behöver dig.',
-      privacy: 'Er data förblir er. Den används aldrig för att träna någons AI, delas aldrig med andra kunder, och agenten ser bara det ni låter den se.',
+      heading: 'Veresk bygger privata AI-agentkollegor för företag.',
+      lead: 'Till skillnad från vanliga chattbottar som bara svarar på frågor får Veresk-agenter jobbet gjort. De lär sig era dokument, processer och regler, arbetar i de system ert team redan använder och sköter operativa uppgifter från start till mål.',
+      messy: 'Och era dokument behöver inte vara perfekta. Utspridda filer, olika format, föråldrade strukturer eller kunskap gömd i mappar: Veresk förvandlar rörig, ostrukturerad information till något värdefullt och användbart. Tänk på det som att förvandla dokumentkaos till guld.',
+      agents: 'Er agent kontrollerar ärenden mot era regler, slutför pappersarbete, uppdaterar system och dokumenterar varje steg, dygnet runt. När det krävs mänskligt omdöme lämnar den beslutet tillbaka till ert team.',
+      privacy: 'Er data förblir er: den används aldrig för att träna någon annans AI, delas aldrig med andra kunder och är bara åtkomlig där ni tillåter det.',
+      closer: 'Veresk förvandlar kunskapen ni redan har, även när den är rörig, till arbete som blir gjort.',
       demosIntro: 'Sex av dem är i tjänst just nu. Ge en ett jobb.',
     },
     hub: {
@@ -204,23 +210,23 @@ export const COPY: Record<Lang, Copy> = {
     },
     demos: {
       pharma: {
-        sub: 'Meridian Pharma',
+        sub: 'Frisläppning av läkemedel',
         label: 'Frisläppning av batch.',
         text: 'Kontrollerar om en batch med läkemedel får släppas ut, med hjälp av labbjournalerna och rutinerna, och pekar ut vad som skulle stoppa den.',
         agent: 'En agent jämför batchjournalen med rutinerna och flaggar alla brister.',
       },
       safety: {
-        sub: 'Calder Safety',
+        sub: 'Fordonssäkerhet',
         label: 'Fordonssäkerhet och återkallelser.',
         text: 'Svarar på frågor om återkallelser och säkerhet utifrån offentliga klagomålsanmälningar till NHTSA. Den säger det när anmälningarna inte räcker för att avgöra frågan.',
       },
       steering: {
-        sub: 'Vantis Steering',
+        sub: 'Tekniska anbud',
         label: 'Tekniska krav.',
         text: 'Läser en kunds krav och säger för varje krav om vi har byggt det förut, behöver ändra det eller måste bygga det nytt.',
       },
       commerce: {
-        sub: 'Thornbury Goods',
+        sub: 'Kundreturer',
         label: 'Kundservice.',
         text: 'Hanterar ett returärende eller ett återbetalningsärende, kontrollerar det mot butikens regler och frågar en person innan några pengar flyttas.',
         agent: 'En agent skriver ett utkast till återbetalningen och väntar på att en person godkänner den.',

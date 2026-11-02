@@ -204,7 +204,7 @@ export function BidDesk() {
             href="/"
             className="rounded-lg border border-ui-line bg-ui-raised/60 px-4 py-2 text-sm text-ui-dim transition-colors hover:border-ui-accent/50 hover:text-ui-fg sm:ml-auto"
           >
-            Back to Vantis Steering
+            Back to Steering
           </a>
         </div>
       </header>

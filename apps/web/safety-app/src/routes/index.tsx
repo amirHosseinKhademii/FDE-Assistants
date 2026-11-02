@@ -5,7 +5,7 @@ import { CalderLanding } from '../pages/CalderLanding';
 export const Route = createFileRoute('/')({
   head: () => ({
     meta: [
-      { title: 'Calder Safety — the public safety record, read for you' },
+      { title: 'Safety — the public safety record, read for you' },
       {
         name: 'description',
         content:

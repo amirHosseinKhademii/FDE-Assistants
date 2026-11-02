@@ -38,7 +38,7 @@ export const Route = createRootRoute({
       /* THE FALLBACK, NOT THE TITLE. Every page below sets its own; this is what
          a route that forgets gets, and it names the customer because that is the
          only thing true of all of them. */
-      { title: 'Thornbury Goods' },
+      { title: 'Commerce' },
     ],
     links: [
       { rel: 'stylesheet', href: appCss },

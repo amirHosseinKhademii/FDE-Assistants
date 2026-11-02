@@ -10,6 +10,6 @@ import { createFileRoute } from '@tanstack/react-router';
 import { SteeringLanding } from '../pages/SteeringLanding';
 
 export const Route = createFileRoute('/')({
-  head: () => ({ meta: [{ title: 'Vantis Steering — Veresk' }] }),
+  head: () => ({ meta: [{ title: 'Steering — Veresk' }] }),
   component: SteeringLanding,
 });

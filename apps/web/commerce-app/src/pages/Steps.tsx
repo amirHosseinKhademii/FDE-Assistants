@@ -206,7 +206,7 @@ function Nav() {
         <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-thb-1/15 text-thb-1 ring-1 ring-thb-1/30" aria-hidden>
           <BoxGlyph />
         </span>
-        Thornbury Goods
+        Commerce
       </Link>
 
       <Link to="/desk" className="text-[0.9375rem] text-ui-dim transition-colors hover:text-ui-fg">
@@ -1665,7 +1665,7 @@ function NotYet() {
 function Footer() {
   return (
     <footer className="relative z-10 mx-auto max-w-6xl border-t border-ui-line px-5 py-10 text-[0.9375rem] text-ui-faint sm:px-6">
-      Thornbury Goods and Iris are fictional. The protocol, the SDK and every
+      The shop and Iris are fictional. The protocol, the SDK and every
       figure marked “Real output” are real — read off a server that ran.
     </footer>
   );

@@ -14,6 +14,6 @@ import { createFileRoute } from '@tanstack/react-router';
 import { PharmaLanding } from '../pages/PharmaLanding';
 
 export const Route = createFileRoute('/')({
-  head: () => ({ meta: [{ title: 'Meridian Pharma — Veresk' }] }),
+  head: () => ({ meta: [{ title: 'Pharma — Veresk' }] }),
   component: PharmaLanding,
 });

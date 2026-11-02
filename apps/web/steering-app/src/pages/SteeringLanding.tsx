@@ -114,7 +114,7 @@ export function SteeringLanding() {
           <span className="font-medium tracking-tight">Veresk</span>
           </span>
         )}
-        <span className="text-sm text-ui-faint">/ Vantis Steering</span>
+        <span className="text-sm text-ui-faint">/ Steering</span>
         <a
           href="/desk"
           className="text-sm text-ui-dim transition-colors hover:text-ui-fg sm:ml-auto"
@@ -126,7 +126,7 @@ export function SteeringLanding() {
         </a>
         {PHARMA && (
           <a href={PHARMA} className="text-sm text-ui-dim transition-colors hover:text-ui-fg">
-            Meridian Pharma
+            Pharma
           </a>
         )}
       </nav>
@@ -226,7 +226,7 @@ export function SteeringLanding() {
         <State />
 
         <footer className="border-t border-ui-line py-10 text-sm text-ui-faint">
-          A practice engagement. Vantis Steering Systems is fictional; the estate, the requirements
+          A practice engagement. The company is fictional; the estate, the requirements
           and the code base behind it are generated.
         </footer>
       </main>

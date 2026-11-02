@@ -9,6 +9,6 @@ import { createFileRoute } from '@tanstack/react-router';
 import { ReleaseDesk } from '../pages/ReleaseDesk';
 
 export const Route = createFileRoute('/desk')({
-  head: () => ({ meta: [{ title: 'Release desk — Meridian Pharma' }] }),
+  head: () => ({ meta: [{ title: 'Release desk — Pharma' }] }),
   component: ReleaseDesk,
 });

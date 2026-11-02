@@ -456,7 +456,7 @@ jobs:
           done
           [ "$ok" = "yes" ] || { echo "::error::steering never served its estate data"; exit 1; }
 
-          grep -qa 'Vantis Steering' /tmp/page.html \
+          grep -qa '<title>Steering' /tmp/page.html \
             || { echo "::error::the page rendered without its own name in it"; exit 1; }
 
           # THE SAME ASSERTION THE PHARMA JOB MAKES, and for the same reason: a
@@ -853,7 +853,7 @@ jobs:
           done
           [ "$ok" = "yes" ] || { echo "::error::safety never served its estate data"; exit 1; }
 
-          grep -qa 'Calder Safety' /tmp/page.html \
+          grep -qa '<title>Safety' /tmp/page.html \
             || { echo "::error::the page rendered without its own name in it"; exit 1; }
 
           # THE OTHER TWO PAGES ARE ASSERTED TOO, because this deployment is
@@ -1066,7 +1066,7 @@ jobs:
           for i in $(seq 1 12); do
             code=$(curl -s --max-time 180 -o /tmp/page.html -w '%{http_code}' "$url/")
             echo "attempt $i — GET / -> $code"
-            if [ "$code" = "200" ] && grep -qa 'Thornbury Goods' /tmp/page.html; then ok=yes; break; fi
+            if [ "$code" = "200" ] && grep -qa '<title>Commerce' /tmp/page.html; then ok=yes; break; fi
             sleep 10
           done
           [ "$ok" = "yes" ] || { echo "::error::commerce never served its landing page"; exit 1; }
@@ -1508,8 +1508,9 @@ jobs:
           exit 1
 
       # min-replicas is 0, so the first request after idle pays a cold start.
-      # GET / gets up to five minutes: eight tries of at most 30 seconds plus a
-      # 10-second pause.
+      # GET / gets up to eight tries of at most 60 seconds plus a 10-second
+      # pause. `|| true` is needed: under `bash -e` a curl timeout (exit 28)
+      # in the assignment would end the step on the very first cold start.
       - name: Smoke test
         id: smoke
         run: |
@@ -1519,12 +1520,12 @@ jobs:
           echo "url=$url" >> "$GITHUB_OUTPUT"
           ok=
           for i in $(seq 1 8); do
-            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "$url/")
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 "$url/" || true)
             echo "attempt $i — GET / -> $code"
             [ "$code" = "200" ] && { ok=yes; break; }
             sleep 10
           done
-          [ "$ok" = "yes" ] || { echo "::error::brf never returned 200 on / within five minutes"; exit 1; }
+          [ "$ok" = "yes" ] || { echo "::error::brf never returned 200 on / within nine minutes"; exit 1; }
 
           # A WRONG key, not no key: PUBLIC_DEMO=true allows a missing key and meters
           # it, so a no-key probe would spend model budget on every deploy. The guard
@@ -1622,8 +1623,9 @@ jobs:
           exit 1
 
       # min-replicas is 0, so the first request after idle pays a cold start.
-      # GET / gets up to five minutes: eight tries of at most 30 seconds plus a
-      # 10-second pause.
+      # GET / gets up to eight tries of at most 60 seconds plus a 10-second
+      # pause. `|| true` is needed: under `bash -e` a curl timeout (exit 28)
+      # in the assignment would end the step on the very first cold start.
       - name: Smoke test
         id: smoke
         run: |
@@ -1633,12 +1635,12 @@ jobs:
           echo "url=$url" >> "$GITHUB_OUTPUT"
           ok=
           for i in $(seq 1 8); do
-            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "$url/")
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 "$url/" || true)
             echo "attempt $i — GET / -> $code"
             [ "$code" = "200" ] && { ok=yes; break; }
             sleep 10
           done
-          [ "$ok" = "yes" ] || { echo "::error::bostad never returned 200 on / within five minutes"; exit 1; }
+          [ "$ok" = "yes" ] || { echo "::error::bostad never returned 200 on / within nine minutes"; exit 1; }
 
           echo "✅ **2i · bostad deployed** — <$url>" >> "$GITHUB_STEP_SUMMARY"
 
@@ -1866,10 +1868,10 @@ jobs:
             echo "| | |"
             echo "|---|---|"
             echo "| veresk — the firm's door | <$url> |"
-            echo "| pharma — Meridian Pharma | ${pharma:+<$pharma>}${pharma:-not deployed — run with scope: all} |"
-            echo "| steering — Vantis Steering | ${steering:+<$steering>}${steering:-not deployed — run with scope: all} |"
-            echo "| safety — Calder Safety | ${safety:+<$safety>}${safety:-not deployed — run with scope: all} |"
-            echo "| commerce — Thornbury Goods | ${commerce:+<$commerce>}${commerce:-not deployed — run with scope: all} |"
+            echo "| pharma | ${pharma:+<$pharma>}${pharma:-not deployed — run with scope: all} |"
+            echo "| steering | ${steering:+<$steering>}${steering:-not deployed — run with scope: all} |"
+            echo "| safety | ${safety:+<$safety>}${safety:-not deployed — run with scope: all} |"
+            echo "| commerce | ${commerce:+<$commerce>}${commerce:-not deployed — run with scope: all} |"
             echo "| brf — Housing association Q&A | ${brf:+<$brf>}${brf:-not deployed — run with scope: all} |"
             echo "| wrap — Wrap | ${wrap:+<$wrap>}${wrap:-not deployed — run with scope: all} |"
             echo "| image tag | \`sha-${GITHUB_SHA}\` |"

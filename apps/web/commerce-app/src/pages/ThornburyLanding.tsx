@@ -70,7 +70,7 @@ function Header() {
         <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-thb-1/15 text-thb-1 ring-1 ring-thb-1/30">
           <BoxIcon />
         </span>
-        <span className="font-semibold tracking-tight">Thornbury Goods</span>
+        <span className="font-semibold tracking-tight">Commerce</span>
       </span>
 
       <Link to="/desk" className="text-[0.9375rem] text-ui-dim transition-colors hover:text-ui-fg sm:ml-auto">
@@ -455,7 +455,7 @@ function Status() {
 function Footer() {
   return (
     <footer className="relative z-10 w-full border-t border-ui-line px-6 py-10 md:px-10 xl:px-16 text-[0.9375rem] text-ui-faint">
-      Thornbury Goods and Iris are fictional. The protocol, the SDK and every
+      The shop and Iris are fictional. The protocol, the SDK and every
       correction on{' '}
       <Link to="/steps" className="thb-a">
         the steps page

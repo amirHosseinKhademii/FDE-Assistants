@@ -72,7 +72,7 @@ export function PharmaLanding() {
         <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-ui-accent/15 text-ui-accent ring-1 ring-ui-accent/30">
           <BoxIcon />
         </span>
-        <span className="font-medium tracking-tight">Meridian Pharma</span>
+        <span className="font-medium tracking-tight">Pharma</span>
         <Link
           to="/data-flow"
           className="text-sm text-ui-dim transition-colors hover:text-ui-fg sm:ml-auto"
@@ -110,7 +110,7 @@ export function PharmaLanding() {
               the release file." and wraps after the full stop at either size; it
               takes the smaller size so that the two doors match. */}
           <h1
-            className="lift-in title-spectrum max-w-4xl font-mono text-[1.75rem] leading-[1.08] font-semibold tracking-tighter break-words sm:text-[2.5rem] md:text-[3.5rem]"
+            className="lift-in title-spectrum max-w-4xl font-mono text-balance text-[1.75rem] leading-[1.08] font-semibold tracking-tighter break-words sm:text-[2.5rem] md:text-[3.5rem]"
             style={{ animationDelay: '60ms' }}
           >
             Give it a batch. Get back the release file.

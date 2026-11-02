@@ -269,7 +269,7 @@ export function Desk() {
 
       <nav className="relative z-10 mx-auto flex max-w-5xl flex-wrap items-center gap-x-4 gap-y-3 px-5 py-5 sm:px-6 sm:py-6">
         <Link to="/" className="font-medium tracking-tight">
-          Calder Safety
+          Safety
         </Link>
         <span className="text-sm text-ui-faint sm:ml-auto">Ask it</span>
         <Link to="/steps" className="text-sm text-ui-dim transition-colors hover:text-ui-fg">

@@ -5,7 +5,7 @@ import { ThornburyLanding } from '../pages/ThornburyLanding';
 export const Route = createFileRoute('/')({
   head: () => ({
     meta: [
-      { title: 'Thornbury Goods — what is this customer entitled to?' },
+      { title: 'Commerce — what is this customer entitled to?' },
       {
         name: 'description',
         content:

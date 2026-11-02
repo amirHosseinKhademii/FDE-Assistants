@@ -36,7 +36,7 @@ export const Route = createRootRoute({
       /* THE FALLBACK, NOT THE TITLE. Every page below sets its own; this is
          what a route that forgets gets, and it names the firm because the firm
          is the only thing true of all of them. */
-      { title: 'Meridian Pharma — Veresk' },
+      { title: 'Pharma — Veresk' },
     ],
     links: [
       { rel: 'stylesheet', href: appCss },

@@ -190,7 +190,7 @@ export function DataFlow() {
             href="/"
             className="rounded-lg border border-ui-line bg-ui-raised/60 px-4 py-2 text-sm text-ui-dim transition-colors hover:border-ui-accent/50 hover:text-ui-fg sm:ml-auto"
           >
-            Back to Vantis Steering
+            Back to Steering
           </a>
         </div>
       </header>
@@ -465,7 +465,7 @@ function Kept() {
         added here, with the same column saying how it is known.{' '}
         {PHARMA && (
           <>
-            Meridian Pharma’s equivalent is <a href={`${PHARMA}/data-flow`} className="text-ui-dim underline underline-offset-2 hover:text-ui-fg">here</a>.
+            The Pharma app’s equivalent is <a href={`${PHARMA}/data-flow`} className="text-ui-dim underline underline-offset-2 hover:text-ui-fg">here</a>.
           </>
         )}
       </p>

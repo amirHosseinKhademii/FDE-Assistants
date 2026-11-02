@@ -8,6 +8,6 @@ import { createFileRoute } from '@tanstack/react-router';
 import { DataFlow } from '../pages/DataFlow';
 
 export const Route = createFileRoute('/data-flow')({
-  head: () => ({ meta: [{ title: 'Where your data goes — Vantis Steering' }] }),
+  head: () => ({ meta: [{ title: 'Where your data goes — Steering' }] }),
   component: DataFlow,
 });

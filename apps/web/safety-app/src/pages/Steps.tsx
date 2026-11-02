@@ -190,7 +190,7 @@ function Nav() {
         <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-cal-1/15 text-cal-1 ring-1 ring-cal-1/30" aria-hidden>
           <ShieldGlyph />
         </span>
-        Calder Safety
+        Safety
       </Link>
       <Link to="/desk" className="text-[0.9375rem] text-ui-dim transition-colors hover:text-ui-fg sm:ml-auto">
         Ask it
@@ -1347,7 +1347,7 @@ function Limits() {
 function Footer() {
   return (
     <footer className="relative z-10 mx-auto max-w-6xl border-t border-ui-line px-5 py-10 text-[0.9375rem] text-ui-faint sm:px-6">
-      Calder Safety and its analysts are fictional. The NHTSA data is real and
+      The firm and its analysts are fictional. The NHTSA data is real and
       public, and every figure marked “Real output” was produced by running the
       code on it.
     </footer>

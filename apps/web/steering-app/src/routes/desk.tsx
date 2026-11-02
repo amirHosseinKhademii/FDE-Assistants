@@ -8,6 +8,6 @@ import { createFileRoute } from '@tanstack/react-router';
 import { BidDesk } from '../pages/BidDesk';
 
 export const Route = createFileRoute('/desk')({
-  head: () => ({ meta: [{ title: 'Assess a requirement — Vantis Steering' }] }),
+  head: () => ({ meta: [{ title: 'Assess a requirement — Steering' }] }),
   component: BidDesk,
 });

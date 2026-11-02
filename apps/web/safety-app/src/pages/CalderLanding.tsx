@@ -82,7 +82,7 @@ export function CalderLanding() {
       </main>
 
       <footer className="relative z-10 mx-auto max-w-5xl border-t border-ui-line px-5 py-10 text-sm text-ui-faint sm:px-6">
-        Calder Safety is a fictional customer. The filings are not — every record
+        The customer here is fictional. The filings are not — every record
         quoted here is public and can be looked up at nhtsa.gov.
       </footer>
     </div>
@@ -96,7 +96,7 @@ function Header() {
         <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-cal-1/15 text-cal-1 ring-1 ring-cal-1/30">
           <BoxIcon />
         </span>
-        <span className="font-medium tracking-tight">Calder Safety</span>
+        <span className="font-medium tracking-tight">Safety</span>
       </span>
 
       <Link to="/desk" className="text-sm text-ui-dim transition-colors hover:text-ui-fg sm:ml-auto">
@@ -132,7 +132,7 @@ function Hero() {
         the public safety record, read for you
       </p>
 
-      <h1 className="lift-in title-spectrum mt-4 max-w-4xl font-mono text-[1.75rem] leading-[1.08] font-semibold tracking-tighter break-words sm:text-[2.5rem] md:text-[3.25rem]">
+      <h1 className="lift-in title-spectrum mt-4 max-w-4xl text-balance font-mono text-[1.75rem] leading-[1.08] font-semibold tracking-tighter break-words sm:text-[2.5rem] md:text-[3.25rem]">
         Point it at your fleet. It reads every complaint.
       </h1>
 

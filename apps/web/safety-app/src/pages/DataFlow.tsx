@@ -42,7 +42,7 @@ export function DataFlow() {
 
       <nav className="relative z-10 mx-auto flex max-w-5xl flex-wrap items-center gap-x-4 gap-y-3 px-5 py-5 sm:px-6 sm:py-6">
         <Link to="/" className="font-medium tracking-tight">
-          Calder Safety
+          Safety
         </Link>
         <Link to="/desk" className="text-sm text-ui-dim transition-colors hover:text-ui-fg sm:ml-auto">
           Ask it
@@ -68,7 +68,7 @@ export function DataFlow() {
       </main>
 
       <footer className="relative z-10 mx-auto max-w-5xl border-t border-ui-line px-5 py-10 text-sm text-ui-faint sm:px-6">
-        Calder Safety is a fictional customer. The filings are not.
+        The customer here is fictional. The filings are not.
       </footer>
     </div>
   );

@@ -65,7 +65,7 @@ export function DeskHeader({
             to="/"
             className="font-mono text-[0.6875rem] tracking-widest text-ui-faint uppercase transition-colors hover:text-ui-dim"
           >
-            Meridian Pharma
+            Pharma
           </Link>
           <h1 className="text-[1.0625rem] font-semibold tracking-tight">{title}</h1>
         </div>

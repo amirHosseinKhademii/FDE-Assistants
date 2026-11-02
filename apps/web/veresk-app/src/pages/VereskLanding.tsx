@@ -103,7 +103,7 @@ export function VereskLanding({ lang }: { lang: Lang }) {
       <main className="relative z-10 mx-auto max-w-6xl px-5 sm:px-6">
         <section className="pt-10 pb-12 sm:pt-16 md:pt-20">
           <h1
-            className="lift-in title-spectrum max-w-4xl font-mono text-[1.75rem] leading-[1.1] font-semibold tracking-tighter break-words sm:text-5xl md:text-6xl"
+            className="lift-in title-spectrum max-w-4xl font-mono text-[1.6rem] leading-[1.12] font-semibold tracking-tighter break-words sm:text-4xl md:text-5xl"
             style={{ animationDelay: '60ms' }}
           >
             {t.hero.heading}
@@ -120,24 +120,38 @@ export function VereskLanding({ lang }: { lang: Lang }) {
             className="lift-in mt-4 max-w-[56ch] leading-relaxed text-ui-dim sm:text-lg md:text-xl"
             style={{ animationDelay: '260ms' }}
           >
+            {t.hero.messy}
+          </p>
+
+          <p
+            className="lift-in mt-4 max-w-[56ch] leading-relaxed text-ui-dim sm:text-lg md:text-xl"
+            style={{ animationDelay: '320ms' }}
+          >
             {t.hero.agents}
           </p>
 
           <p
             className="lift-in mt-4 max-w-[56ch] border-l-2 border-ui-accent pl-4 leading-relaxed text-ui-fg sm:text-lg md:text-xl"
-            style={{ animationDelay: '320ms' }}
+            style={{ animationDelay: '380ms' }}
           >
             {t.hero.privacy}
           </p>
 
           <p
+            className="lift-in title-spectrum mt-10 max-w-3xl font-mono text-balance text-lg leading-snug font-semibold tracking-tight sm:text-xl md:text-2xl"
+            style={{ animationDelay: '440ms' }}
+          >
+            {t.hero.closer}
+          </p>
+
+          <p
             className="lift-in mt-10 font-mono text-sm text-ui-faint"
-            style={{ animationDelay: '380ms' }}
+            style={{ animationDelay: '500ms' }}
           >
             {t.hero.demosIntro}
           </p>
 
-          <div className="lift-in mt-4" style={{ animationDelay: '440ms' }}>
+          <div className="lift-in mt-4" style={{ animationDelay: '560ms' }}>
             <NeuralHub spokes={demos} groupLabel={t.hub.groupLabel} notOpenLabel={t.hub.notOpen} />
           </div>
         </section>

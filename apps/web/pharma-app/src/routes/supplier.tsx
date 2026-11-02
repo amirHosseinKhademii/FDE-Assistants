@@ -8,6 +8,6 @@ import { createFileRoute } from '@tanstack/react-router';
 import { SupplierDesk } from '../pages/SupplierDesk';
 
 export const Route = createFileRoute('/supplier')({
-  head: () => ({ meta: [{ title: 'Supplier impact — Meridian Pharma' }] }),
+  head: () => ({ meta: [{ title: 'Supplier impact — Pharma' }] }),
   component: SupplierDesk,
 });
