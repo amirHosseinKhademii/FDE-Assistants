@@ -16,6 +16,7 @@
     "brf:ingest": "pnpm --filter @brf/ai ingest",
     "brf:ask": "pnpm --filter @brf/ai ask",
     "brf:eval:smoke": "pnpm --filter @brf/ai eval:smoke",
+    "brf:dev": "turbo run dev --filter=@brf/app",
     "holder": "pnpm --filter @claims/insurance holder",
     "env:check": "pnpm --filter @claims/insurance env:check",
     "schema:check": "pnpm --filter @claims/insurance schema:check",

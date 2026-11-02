@@ -154,7 +154,7 @@ export async function askBrf(opts: AskOptions): Promise<AskResult> {
       agentName: 'brf-board',
       // The one-line summary a tool result gets in the --trace output.
       summariseResult: (r: any) =>
-        Array.isArray(r?.results) ? `${r.results.length} passage(s)` : null,
+        Array.isArray(r?.results) ? `${r.results.length} stycke(n)` : null,
       onEvent: opts.onEvent,
       onTurn: opts.onTurn,
       // maxTurns is deliberately not set. Every surface gets the same cap.

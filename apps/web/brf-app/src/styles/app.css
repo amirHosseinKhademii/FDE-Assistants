@@ -1,0 +1,42 @@
+@import 'tailwindcss';
+
+/**
+ * The design brief, in tokens.
+ *
+ * The subject is a housing cooperative's own documents: statutes, house rules,
+ * minutes and maintenance plans. The product delivers a CITED ANSWER, so the page
+ * is set like a board file, not like a chat app.
+ *
+ * Serif for everything readable. A typewriter mono ONLY for document names and
+ * citation sources, so a reference looks like the typed reference it is.
+ */
+@theme {
+  --color-paper: #fafaf8;
+  --color-ink: #1b2430;
+  --color-muted: #6b7684;
+  --color-rule: #dde1e6;
+  --color-navy: #173a5e;      /* actions, links */
+  --color-claret: #8c2f39;    /* documents disagreeing — red pen */
+  --color-ochre: #7a5b12;     /* escalation — a stamp on the file */
+  --color-ochre-wash: #fdf8e9;
+  --color-moss: #2f5d3a;      /* a tool returned something */
+
+  --font-sans: 'Source Serif 4', Georgia, serif;
+  --font-mono: 'Courier Prime', 'Courier New', monospace;
+}
+
+html {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+/* One considered motion: working notes arrive as the work happens. */
+@keyframes note-in {
+  from { opacity: 0; transform: translateY(2px); }
+  to   { opacity: 1; transform: none; }
+}
+.note-in { animation: note-in 220ms ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .note-in { animation: none; }
+}

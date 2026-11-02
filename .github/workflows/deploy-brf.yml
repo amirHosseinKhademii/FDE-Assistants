@@ -1,0 +1,126 @@
+# DRAFT. NOT ENABLED. Manual trigger only, and it refuses to run without a typed confirmation.
+#
+# Builds the Brf Exempelgården demo image (infra/brf/Dockerfile) and deploys it as a
+# Container App in the existing environment. Copied from the pharma jobs in
+# deploy.yml, not wired into the site pipeline: brf is not linked from veresk.se yet,
+# so there is no reason to rebuild the host when it changes.
+#
+# Running it CREATES an Azure Container App, which is a resource change. Do not run it
+# until the learner has approved the deploy step.
+#
+# The app's secrets are set on the container app by hand, not by this workflow:
+#   BRF_DATABASE_URL, HOSTED_API_KEY, API_KEY
+# The workflow sets only the image, the port and the scale.
+
+name: deploy-brf (draft)
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type yes-deploy-brf to run. Anything else stops before Azure is touched.'
+        required: true
+        type: string
+
+concurrency:
+  group: deploy-brf
+  cancel-in-progress: false
+
+env:
+  RG: rg-claims-fde
+  ENVIRONMENT: cae-pharma
+  BRF_APP: brf-app
+  BRF_REPO: docker.io/amir2575/brf-demo
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  guard:
+    name: 0 · confirm
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          if [ "${{ inputs.confirm }}" != "yes-deploy-brf" ]; then
+            echo "::error::not confirmed. Re-run with yes-deploy-brf in the confirm box."
+            exit 1
+          fi
+
+  brf-build:
+    name: 1 · build brf image
+    needs: guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/brf/Dockerfile
+          push: true
+          tags: ${{ env.BRF_REPO }}:sha-${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=min,scope=brf
+      - run: echo "✅ **1 · brf image built**, \`${BRF_REPO}:sha-${GITHUB_SHA}\`" >> "$GITHUB_STEP_SUMMARY"
+
+  brf-deploy:
+    name: 2 · deploy brf
+    needs: brf-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # Create-or-update, as in pharma-deploy. The create branch stands the app up with no
+      # secrets, so it answers 503 on the question endpoint until they are set by hand.
+      - name: Point the app at the new image
+        run: |
+          image="${BRF_REPO}:sha-${GITHUB_SHA}"
+          echo "IMAGE=$image" >> "$GITHUB_ENV"
+          if ! names=$(az containerapp list -g "$RG" --query "[].name" -o tsv 2>/tmp/az-err); then
+            echo "::error::cannot list container apps in $RG. Azure said: $(cat /tmp/az-err)"
+            exit 1
+          fi
+          if printf '%s\n' "$names" | grep -qx "$BRF_APP"; then
+            az containerapp update -n "$BRF_APP" -g "$RG" --image "$image" --output none
+          else
+            az containerapp create \
+              --name "$BRF_APP" --resource-group "$RG" --environment "$ENVIRONMENT" \
+              --image "$image" \
+              --target-port 8080 --ingress external \
+              --cpu 0.5 --memory 1.0Gi \
+              --min-replicas 0 --max-replicas 1 \
+              --output none
+          fi
+
+      - name: Smoke test
+        id: smoke
+        run: |
+          fqdn=$(az containerapp show -n "$BRF_APP" -g "$RG" \
+            --query "properties.configuration.ingress.fqdn" -o tsv)
+          url="https://$fqdn"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          ok=
+          for i in $(seq 1 12); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 180 "$url/")
+            echo "attempt $i, GET / -> $code"
+            [ "$code" = "200" ] && { ok=yes; break; }
+            sleep 10
+          done
+          [ "$ok" = "yes" ] || { echo "::error::brf never returned 200 on /"; exit 1; }
+          guard=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 \
+            -X POST "$url/api/ask" \
+            -H 'content-type: application/json' -d '{"question":"ping"}')
+          echo "POST /api/ask without a key -> $guard"
+          [ "$guard" = "401" ] || { echo "::error::the guard did not refuse an unauthenticated request (got $guard)"; exit 1; }
+          echo "✅ **2 · brf deployed**, <$url>" >> "$GITHUB_STEP_SUMMARY"
