@@ -59,7 +59,8 @@ ENV NODE_ENV=production \
     HOSTED_MODEL=gemini-3.5-flash-lite \
     LOOP=mastra \
     EMBEDDINGS=local \
-    LOCAL_EMBEDDING_CACHE_DIR=/tmp/brf-embeddings
+    LOCAL_EMBEDDING_CACHE_DIR=/tmp/brf-embeddings \
+    BRF_CORPUS_DIR=/app/docs/brf/corpus
 
 WORKDIR /app
 
