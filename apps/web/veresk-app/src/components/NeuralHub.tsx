@@ -7,9 +7,10 @@
  * the demo and back. The pulse coming back takes the colour of that demo.
  *
  * Two layouts are drawn and CSS shows one of them. Wide screens get the hub in
- * the middle with four demos in the corners and the fifth centred below. Phones
- * get the hub on top, the demos in a 2 by 2 grid under it, and the fifth centred
- * at the bottom. The lines are drawn in both, so they stay visible on a phone.
+ * the middle with four demos in the corners and one centred above and one below.
+ * Phones get the hub on top and the demos in a grid of two columns under it, with
+ * the last row holding the two that come last. The lines are drawn in both, so
+ * they stay visible on a phone.
  *
  * Hovering or focusing a demo lights its own line and dims the others.
  * Reduced motion stops the pulses and keeps the lines.

@@ -14,6 +14,7 @@ export type AppIconName =
   | 'steering'
   | 'commerce'
   | 'bostad'
+  | 'brf'
   | 'learn'
   | 'connect'
   | 'ask'
@@ -58,6 +59,14 @@ const paths: Record<AppIconName, ReactElement> = {
       <path d="M4 11l8-7 8 7" />
       <path d="M6 9.5V20h12V9.5" />
       <path d="M10 20v-5h4v5" />
+    </>
+  ),
+  /* BRF: an apartment block with windows and a door. */
+  brf: (
+    <>
+      <rect x="5" y="3" width="14" height="18" rx="1" />
+      <path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2" />
+      <path d="M10.5 21v-3h3v3" />
     </>
   ),
   /* Learn: an open book. */

@@ -2,7 +2,7 @@
  * Veresk. The front page, in English and Swedish.
  *
  * Who reads it: someone deciding whether an AI assistant is worth it for their
- * company. The page explains what Veresk builds, shows five working demos, and
+ * company. The page explains what Veresk builds, shows six working demos, and
  * says how the work goes.
  *
  * One layout renders both languages. Every visible string comes from
@@ -12,21 +12,22 @@
 import { Link } from '@tanstack/react-router';
 import { Aurora } from '@veresk/surface';
 import { AURORA } from '../lib/aurora';
-import { BOSTAD, COMMERCE, PHARMA, SAFETY, STEERING } from '../lib/links';
+import { BOSTAD, BRF, COMMERCE, PHARMA, SAFETY, STEERING } from '../lib/links';
 import { COPY, type DemoId, type Lang } from '../lib/i18n';
 import { AppIcon, type AppIconName } from '../components/nav-icons';
 import { NeuralHub, type HubSpoke } from '../components/NeuralHub';
 
 const NAV_LINK = 'inline-flex items-center gap-1.5 text-sm text-ui-dim transition-colors hover:text-ui-fg';
 
-/* The five demos. Layout and links here, words in `lib/i18n.ts`. The same
+/* The six demos. Layout and links here, words in `lib/i18n.ts`. The same
    links the nav uses, so the two never disagree. */
 const DEMO_LAYOUT: Array<HubSpoke & { id: DemoId }> = [
   { id: 'pharma', name: 'Pharma', sub: '', icon: 'pharma', href: PHARMA || null, tone: 'var(--color-hop-1)', desk: [18, 24], mobile: [27, 40] },
   { id: 'safety', name: 'Safety', sub: '', icon: 'safety', href: SAFETY || null, tone: 'var(--color-hop-3)', desk: [82, 24], mobile: [73, 40] },
   { id: 'steering', name: 'Steering', sub: '', icon: 'steering', href: STEERING || null, tone: 'var(--color-hop-4)', desk: [18, 76], mobile: [27, 64] },
   { id: 'commerce', name: 'Commerce', sub: '', icon: 'commerce', href: COMMERCE || null, tone: 'var(--color-hop-5)', desk: [82, 76], mobile: [73, 64] },
-  { id: 'bostad', name: 'Bostad', sub: '', icon: 'bostad', href: BOSTAD || null, tone: 'var(--color-hop-2)', desk: [50, 88], mobile: [50, 88] },
+  { id: 'brf', name: 'BRF', sub: '', icon: 'brf', href: BRF || null, tone: 'var(--color-hop-3)', desk: [50, 12], mobile: [73, 88] },
+  { id: 'bostad', name: 'Bostad', sub: '', icon: 'bostad', href: BOSTAD || null, tone: 'var(--color-hop-2)', desk: [50, 88], mobile: [27, 88] },
 ];
 
 /* Icons for the two step lists. Same order as the copy in `lib/i18n.ts`. */
@@ -78,6 +79,12 @@ export function VereskLanding({ lang }: { lang: Lang }) {
           <a href={BOSTAD} className={NAV_LINK}>
             <AppIcon name="bostad" />
             {t.nav.bostad}
+          </a>
+        )}
+        {BRF && (
+          <a href={BRF} className={NAV_LINK}>
+            <AppIcon name="brf" />
+            {t.nav.brf}
           </a>
         )}
         <span className="ml-auto flex items-center gap-2 font-mono text-sm sm:ml-0" role="group" aria-label={t.nav.languageLabel}>

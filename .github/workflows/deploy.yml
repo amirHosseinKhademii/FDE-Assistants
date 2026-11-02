@@ -1456,6 +1456,7 @@ jobs:
             VITE_SAFETY_URL=https://safety.veresk.se
             VITE_COMMERCE_URL=https://commerce.veresk.se
             VITE_BOSTAD_URL=https://bostad.veresk.se
+            VITE_BRF_URL=https://brf.veresk.se
           # This cache only pays off because the Dockerfile installs
           # dependencies BEFORE copying the source — see the layer-order comment
           # there. With the original `COPY . .` first it had nothing cacheable.
@@ -1574,6 +1575,7 @@ jobs:
           steering="https://steering.veresk.se"
           safety="https://safety.veresk.se"
           commerce="https://commerce.veresk.se"
+          brf="https://brf.veresk.se"
           wrap=""
 
           # ── AN ABSENT URL IS NOT A URL TO LOOK FOR ─────────────────────────
@@ -1594,6 +1596,7 @@ jobs:
           [ -n "$steering" ] && want="$want $steering"
           [ -n "$safety" ] && want="$want $safety"
           [ -n "$commerce" ] && want="$want $commerce"
+          [ -n "$brf" ] && want="$want $brf"
           [ -n "$wrap" ] && want="$want $wrap"
           if [ -z "$want" ]; then
             echo "veresk-only: no engagement URLs to assert — checking 200 and no-localhost only"
@@ -1638,6 +1641,7 @@ jobs:
             echo "| steering — Vantis Steering | ${steering:+<$steering>}${steering:-not deployed — run with scope: all} |"
             echo "| safety — Calder Safety | ${safety:+<$safety>}${safety:-not deployed — run with scope: all} |"
             echo "| commerce — Thornbury Goods | ${commerce:+<$commerce>}${commerce:-not deployed — run with scope: all} |"
+            echo "| brf — Housing association Q&A | ${brf:+<$brf>}${brf:-not deployed — run with scope: all} |"
             echo "| wrap — Wrap | ${wrap:+<$wrap>}${wrap:-not deployed — run with scope: all} |"
             echo "| image tag | \`sha-${GITHUB_SHA}\` |"
           } >> "$GITHUB_STEP_SUMMARY"

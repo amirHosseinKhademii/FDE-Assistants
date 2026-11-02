@@ -86,3 +86,12 @@ export const WRAP = url(import.meta.env.VITE_WRAP_URL as string | undefined, 370
  * is also 3600, so only one of the two can run locally at a time.
  */
 export const BOSTAD = url(import.meta.env.VITE_BOSTAD_URL as string | undefined, 3600, 'https://bostad.veresk.se');
+
+/**
+ * BRF — questions to a Swedish housing association, answered from its own
+ * statutes and house rules, with the paragraph as the source. Its own
+ * deployment on its own domain, the same way as the others.
+ *
+ * The dev port matches brf-app's own `vite dev` (3800).
+ */
+export const BRF = url(import.meta.env.VITE_BRF_URL as string | undefined, 3800, 'https://brf.veresk.se');

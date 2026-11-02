@@ -12,7 +12,7 @@
 
 export type Lang = 'en' | 'sv';
 
-export type DemoId = 'pharma' | 'safety' | 'steering' | 'commerce' | 'bostad';
+export type DemoId = 'pharma' | 'safety' | 'steering' | 'commerce' | 'brf' | 'bostad';
 
 export interface DemoCopy {
   sub: string;
@@ -37,6 +37,7 @@ export interface Copy {
     steering: string;
     commerce: string;
     bostad: string;
+    brf: string;
     languageLabel: string;
   };
   hero: {
@@ -77,15 +78,16 @@ export const COPY: Record<Lang, Copy> = {
       steering: 'Vantis Steering',
       commerce: 'Thornbury Goods',
       bostad: 'Bostad',
+      brf: 'BRF',
       languageLabel: 'Language',
     },
     hero: {
       heading: 'AI assistants that answer from your own documents, with sources.',
       lead: 'Veresk builds AI assistants for companies. They read your documents and systems, answer questions in plain language, and show exactly where each answer comes from. When the answer is not in your data, they say so. On top of that, we build AI agents that do the work for you, not just answer questions.',
-      demosIntro: 'Five working demos. Click one to try it.',
+      demosIntro: 'Six working demos. Click one to try it.',
     },
     hub: {
-      groupLabel: 'Five demos, connected to Veresk',
+      groupLabel: 'Six demos, connected to Veresk',
       notOpen: 'Not open from here yet',
     },
     demos: {
@@ -115,6 +117,11 @@ export const COPY: Record<Lang, Copy> = {
         sub: 'Göteborg housing',
         label: 'Housing in Gothenburg.',
         text: 'Search any address or housing association and get an area profile, the association’s financial health and answers about the area, with sources.',
+      },
+      brf: {
+        sub: 'Housing association Q&A',
+        label: 'Housing associations.',
+        text: 'Answers members’ questions from the association’s own statutes and house rules, with the paragraph as source. When the documents do not say, it says so and points to the board.',
       },
     },
     demosOpen: 'Open the demo →',
@@ -158,8 +165,8 @@ export const COPY: Record<Lang, Copy> = {
       },
     ],
     agentsClose: 'You stay in control. Every step is logged and every answer points to its source.',
-    demosTitle: 'Try the five demos',
-    demosLead: 'Each demo is a working app for one kind of company. The four business demos use made-up companies and documents. Bostad uses real public data about Gothenburg.',
+    demosTitle: 'Try the six demos',
+    demosLead: 'Each demo is a working app for one kind of company. The five business demos use made-up companies and documents. Bostad uses real public data about Gothenburg.',
     openDemo: 'Open the demo →',
     notOpenHere: 'Not open from here yet.',
     buildTitle: 'Want to see how it is built?',
@@ -177,15 +184,16 @@ export const COPY: Record<Lang, Copy> = {
       steering: 'Vantis Steering',
       commerce: 'Thornbury Goods',
       bostad: 'Bostad',
+      brf: 'BRF',
       languageLabel: 'Språk',
     },
     hero: {
       heading: 'AI-assistenter som svarar ur era egna dokument, med källa.',
       lead: 'Veresk bygger AI-assistenter för företag. De läser era dokument och system, svarar på frågor med vanligt språk och visar exakt varifrån varje svar kommer. Om svaret inte finns i era uppgifter säger de det. Vi bygger också AI-agenter som gör jobbet åt dig, inte bara svarar på frågor.',
-      demosIntro: 'Fem fungerande demoversioner. Klicka på en för att prova den.',
+      demosIntro: 'Sex fungerande demoversioner. Klicka på en för att prova den.',
     },
     hub: {
-      groupLabel: 'Fem demoversioner, kopplade till Veresk',
+      groupLabel: 'Sex demoversioner, kopplade till Veresk',
       notOpen: 'Inte öppen härifrån ännu',
     },
     demos: {
@@ -215,6 +223,11 @@ export const COPY: Record<Lang, Copy> = {
         sub: 'Bostäder i Göteborg',
         label: 'Boende i Göteborg.',
         text: 'Sök på valfri adress eller bostadsförening och få en områdesprofil, föreningens ekonomiska hälsa och svar om området, med källor.',
+      },
+      brf: {
+        sub: 'Frågor till föreningen',
+        label: 'Bostadsrättsföreningar.',
+        text: 'Svarar på medlemmarnas frågor ur föreningens egna stadgar och ordningsregler, med paragraf som källa. När dokumenten inte säger något säger assistenten det och hänvisar till styrelsen.',
       },
     },
     demosOpen: 'Öppna demoversionen →',
@@ -258,8 +271,8 @@ export const COPY: Record<Lang, Copy> = {
       },
     ],
     agentsClose: 'Du har kontrollen. Varje steg loggas och varje svar pekar på sin källa.',
-    demosTitle: 'Prova de fem demoversionerna',
-    demosLead: 'Varje demoversion är en fungerande app för en typ av företag. De fyra företagsdemoversionerna använder påhittade företag och dokument. Bostad använder verklig offentlig data om Göteborg.',
+    demosTitle: 'Prova de sex demoversionerna',
+    demosLead: 'Varje demoversion är en fungerande app för en typ av företag. De fem företagsdemoversionerna använder påhittade företag och dokument. Bostad använder verklig offentlig data om Göteborg.',
     openDemo: 'Öppna demoversionen →',
     notOpenHere: 'Inte öppen härifrån ännu.',
     buildTitle: 'Vill du se hur det är byggt?',
