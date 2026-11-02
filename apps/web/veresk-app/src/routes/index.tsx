@@ -10,5 +10,9 @@ import { VereskLanding } from '../pages/VereskLanding';
 
 export const Route = createFileRoute('/')({
   head: () => ({ meta: [{ title: 'Veresk: AI assistants that answer from your documents' }] }),
-  component: VereskLanding,
+  component: EnglishLanding,
 });
+
+function EnglishLanding() {
+  return <VereskLanding lang="en" />;
+}

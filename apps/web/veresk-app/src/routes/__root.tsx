@@ -5,7 +5,7 @@
  * things are wired here because they belong to the whole app rather than to any
  * page: the stylesheet, and the query client that caches server data.
  */
-import { createRootRoute, HeadContent, Outlet, Scripts } from '@tanstack/react-router';
+import { createRootRoute, HeadContent, Outlet, Scripts, useRouterState } from '@tanstack/react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import appCss from '../styles/app.css?url';
@@ -57,9 +57,13 @@ function RootLayout() {
   // One client per browser session. Created in state so a re-render does not
   // throw the cache away.
   const [queryClient] = useState(() => new QueryClient());
+  // The page language follows the path: `/sv` and everything under it is Swedish.
+  const lang = useRouterState({
+    select: (s) => (s.location.pathname === '/sv' || s.location.pathname.startsWith('/sv/') ? 'sv' : 'en'),
+  });
 
   return (
-    <html lang="en">
+    <html lang={lang}>
       <head>
         <HeadContent />
         <script dangerouslySetInnerHTML={{ __html: MOTION_SETTLE }} />

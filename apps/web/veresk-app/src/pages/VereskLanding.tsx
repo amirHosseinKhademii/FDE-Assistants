@@ -1,134 +1,44 @@
 /**
- * Veresk. The front page.
+ * Veresk. The front page, in English and Swedish.
  *
  * Who reads it: someone deciding whether an AI assistant is worth it for their
  * company. The page explains what Veresk builds, shows five working demos, and
  * says how the work goes.
  *
- * The copy is written in plain English on purpose. Short sentences, no jargon.
+ * One layout renders both languages. Every visible string comes from
+ * `lib/i18n.ts`, and the `lang` prop picks the block. The copy is written in
+ * plain language on purpose. Short sentences, no jargon.
  */
 import { Link } from '@tanstack/react-router';
 import { Aurora } from '@veresk/surface';
 import { AURORA } from '../lib/aurora';
 import { BOSTAD, COMMERCE, PHARMA, SAFETY, STEERING } from '../lib/links';
+import { COPY, type DemoId, type Lang } from '../lib/i18n';
 import { AppIcon, type AppIconName } from '../components/nav-icons';
 import { NeuralHub, type HubSpoke } from '../components/NeuralHub';
 
 const NAV_LINK = 'inline-flex items-center gap-1.5 text-sm text-ui-dim transition-colors hover:text-ui-fg';
 
-/* The five demos. The same links the nav uses, so the two never disagree. */
-const DEMOS: Array<HubSpoke & { label: string; text: string; agent?: string }> = [
-  {
-    id: 'pharma',
-    name: 'Pharma',
-    sub: 'Meridian Pharma',
-    icon: 'pharma',
-    href: PHARMA || null,
-    tone: 'var(--color-hop-1)',
-    desk: [18, 24],
-    mobile: [27, 40],
-    label: 'Batch release.',
-    text: 'Checks whether a medicine batch can ship, using the lab records and procedures, and names what would stop it.',
-    agent: 'An agent checks the batch record against the procedures and flags any gap.',
-  },
-  {
-    id: 'safety',
-    name: 'Safety',
-    sub: 'Calder Safety',
-    icon: 'safety',
-    href: SAFETY || null,
-    tone: 'var(--color-hop-3)',
-    desk: [82, 24],
-    mobile: [73, 40],
-    label: 'Vehicle safety and recalls.',
-    text: 'Answers recall and safety questions from public NHTSA complaint filings. It says so when the filings do not settle the question.',
-  },
-  {
-    id: 'steering',
-    name: 'Steering',
-    sub: 'Vantis Steering',
-    icon: 'steering',
-    href: STEERING || null,
-    tone: 'var(--color-hop-4)',
-    desk: [18, 76],
-    mobile: [27, 64],
-    label: 'Engineering requirements.',
-    text: 'Reads a customer’s requirements and says, for each one, whether we have built it before, need to change it, or must build it new.',
-  },
-  {
-    id: 'commerce',
-    name: 'Commerce',
-    sub: 'Thornbury Goods',
-    icon: 'commerce',
-    href: COMMERCE || null,
-    tone: 'var(--color-hop-5)',
-    desk: [82, 76],
-    mobile: [73, 64],
-    label: 'Customer service.',
-    text: 'Handles a return or refund case, checks it against the store’s policy, and asks a person before any money moves.',
-    agent: 'An agent drafts the refund and waits for a person to approve it.',
-  },
-  {
-    id: 'bostad',
-    name: 'Bostad',
-    sub: 'Göteborg housing',
-    icon: 'bostad',
-    href: BOSTAD || null,
-    tone: 'var(--color-hop-2)',
-    desk: [50, 88],
-    mobile: [50, 88],
-    label: 'Housing in Gothenburg.',
-    text: 'Search any address or housing association and get an area profile, the association’s financial health and answers about the area, with sources.',
-  },
+/* The five demos. Layout and links here, words in `lib/i18n.ts`. The same
+   links the nav uses, so the two never disagree. */
+const DEMO_LAYOUT: Array<HubSpoke & { id: DemoId }> = [
+  { id: 'pharma', name: 'Pharma', sub: '', icon: 'pharma', href: PHARMA || null, tone: 'var(--color-hop-1)', desk: [18, 24], mobile: [27, 40] },
+  { id: 'safety', name: 'Safety', sub: '', icon: 'safety', href: SAFETY || null, tone: 'var(--color-hop-3)', desk: [82, 24], mobile: [73, 40] },
+  { id: 'steering', name: 'Steering', sub: '', icon: 'steering', href: STEERING || null, tone: 'var(--color-hop-4)', desk: [18, 76], mobile: [27, 64] },
+  { id: 'commerce', name: 'Commerce', sub: '', icon: 'commerce', href: COMMERCE || null, tone: 'var(--color-hop-5)', desk: [82, 76], mobile: [73, 64] },
+  { id: 'bostad', name: 'Bostad', sub: '', icon: 'bostad', href: BOSTAD || null, tone: 'var(--color-hop-2)', desk: [50, 88], mobile: [50, 88] },
 ];
 
-const STEPS: Array<{ icon: AppIconName; title: string; body: string }> = [
-  {
-    icon: 'connect',
-    title: 'Connect',
-    body: 'We load your documents, manuals and databases. Nothing leaves your control.',
-  },
-  {
-    icon: 'ask',
-    title: 'Ask',
-    body: 'Your team asks a question the way they would ask a colleague.',
-  },
-  {
-    icon: 'proof',
-    title: 'Answer with proof',
-    body: 'The assistant answers and links to the exact page, row or record it used.',
-  },
-  {
-    icon: 'measure',
-    title: 'Measure',
-    body: 'A test suite checks the answers, so you know it works before you rely on it.',
-  },
-];
+/* Icons for the two step lists. Same order as the copy in `lib/i18n.ts`. */
+const STEP_ICONS: AppIconName[] = ['connect', 'ask', 'proof', 'measure'];
+const AGENT_ICONS: AppIconName[] = ['prepare', 'check', 'act', 'approve'];
 
-const AGENT_STEPS: Array<{ icon: AppIconName; title: string; body: string }> = [
-  {
-    icon: 'prepare',
-    title: 'Prepare the paperwork',
-    body: 'Drafts reports, checklists and replies from your own data, ready for a person to approve.',
-  },
-  {
-    icon: 'check',
-    title: 'Check before it goes out',
-    body: 'Compares every case against your rules and flags what is missing or wrong.',
-  },
-  {
-    icon: 'act',
-    title: 'Act in your systems',
-    body: 'Creates the ticket, updates the record or starts the refund, and logs what it did.',
-  },
-  {
-    icon: 'approve',
-    title: 'Ask a person when it matters',
-    body: 'Stops and asks for approval before money moves or a risky decision is made.',
-  },
-];
+const HEADING = 'font-mono text-2xl leading-snug font-medium tracking-tight text-ui-fg md:text-3xl';
 
-export function VereskLanding() {
+export function VereskLanding({ lang }: { lang: Lang }) {
+  const t = COPY[lang];
+  const demos: HubSpoke[] = DEMO_LAYOUT.map((d) => ({ ...d, sub: t.demos[d.id].sub }));
+
   return (
     <div className="relative min-h-screen overflow-hidden">
       <Aurora tones={AURORA} />
@@ -138,38 +48,49 @@ export function VereskLanding() {
         <span className="font-medium tracking-tight">Veresk</span>
         <Link to="/learn" className={NAV_LINK}>
           <AppIcon name="learn" />
-          Learn
+          {t.nav.learn}
         </Link>
         {PHARMA && (
           <a href={PHARMA} className={`${NAV_LINK} sm:ml-auto`}>
             <AppIcon name="pharma" />
-            Meridian Pharma
+            {t.nav.pharma}
           </a>
         )}
         {SAFETY && (
           <a href={SAFETY} className={NAV_LINK}>
             <AppIcon name="safety" />
-            Calder Safety
+            {t.nav.safety}
           </a>
         )}
         {STEERING && (
           <a href={STEERING} className={NAV_LINK}>
             <AppIcon name="steering" />
-            Vantis Steering
+            {t.nav.steering}
           </a>
         )}
         {COMMERCE && (
           <a href={COMMERCE} className={NAV_LINK}>
             <AppIcon name="commerce" />
-            Thornbury Goods
+            {t.nav.commerce}
           </a>
         )}
         {BOSTAD && (
           <a href={BOSTAD} className={NAV_LINK}>
             <AppIcon name="bostad" />
-            Bostad
+            {t.nav.bostad}
           </a>
         )}
+        <span className="ml-auto flex items-center gap-2 font-mono text-sm sm:ml-0" role="group" aria-label={t.nav.languageLabel}>
+          <Link to="/sv" className={lang === 'sv' ? 'text-ui-fg' : NAV_LINK} aria-current={lang === 'sv' ? 'true' : undefined} hrefLang="sv">
+            SV
+          </Link>
+          <span className="text-ui-faint" aria-hidden>
+            /
+          </span>
+          <Link to="/" className={lang === 'en' ? 'text-ui-fg' : NAV_LINK} aria-current={lang === 'en' ? 'true' : undefined} hrefLang="en">
+            EN
+          </Link>
+        </span>
       </nav>
 
       <main className="relative z-10 mx-auto max-w-6xl px-5 sm:px-6">
@@ -178,41 +99,36 @@ export function VereskLanding() {
             className="lift-in title-spectrum max-w-4xl font-mono text-[1.75rem] leading-[1.1] font-semibold tracking-tighter break-words sm:text-5xl md:text-6xl"
             style={{ animationDelay: '60ms' }}
           >
-            AI assistants that answer from your own documents, with sources.
+            {t.hero.heading}
           </h1>
 
           <p
             className="lift-in mt-6 max-w-[56ch] leading-relaxed text-ui-dim sm:text-lg md:mt-8 md:text-xl"
             style={{ animationDelay: '200ms' }}
           >
-            Veresk builds AI assistants for companies. They read your documents and systems, answer
-            questions in plain language, and show exactly where each answer comes from. When the
-            answer is not in your data, they say so. On top of that, we build AI agents that do the
-            work for you, not just answer questions.
+            {t.hero.lead}
           </p>
 
           <p
             className="lift-in mt-10 font-mono text-sm text-ui-faint"
             style={{ animationDelay: '320ms' }}
           >
-            Five working demos. Click one to try it.
+            {t.hero.demosIntro}
           </p>
 
           <div className="lift-in mt-4" style={{ animationDelay: '380ms' }}>
-            <NeuralHub spokes={DEMOS} />
+            <NeuralHub spokes={demos} groupLabel={t.hub.groupLabel} notOpenLabel={t.hub.notOpen} />
           </div>
         </section>
 
         <section className="border-t border-ui-line py-16">
-          <h2 className="font-mono text-2xl leading-snug font-medium tracking-tight text-ui-fg md:text-3xl">
-            How it works
-          </h2>
+          <h2 className={HEADING}>{t.howTitle}</h2>
           <ol className="mt-8 grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
-            {STEPS.map((step, i) => (
+            {t.steps.map((step, i) => (
               <li key={step.title} className="method-step">
                 <span className="method-step-n">{i + 1}</span>
                 <span className="flex items-center gap-2 text-ui-accent">
-                  <AppIcon name={step.icon} size={18} />
+                  <AppIcon name={STEP_ICONS[i]} size={18} />
                 </span>
                 <h3 className="mt-3 font-mono text-base font-medium text-ui-fg">{step.title}</h3>
                 <p className="mt-2 max-w-[36ch] text-sm leading-relaxed text-ui-dim">{step.body}</p>
@@ -222,18 +138,13 @@ export function VereskLanding() {
         </section>
 
         <section className="border-t border-ui-line py-16">
-          <h2 className="font-mono text-2xl leading-snug font-medium tracking-tight text-ui-fg md:text-3xl">
-            Agents that do the work
-          </h2>
-          <p className="mt-4 max-w-[60ch] leading-relaxed text-ui-dim">
-            An assistant answers. An agent acts. We connect agents to the systems you already use, so
-            routine work gets done and people only step in where judgement is needed.
-          </p>
+          <h2 className={HEADING}>{t.agentsTitle}</h2>
+          <p className="mt-4 max-w-[60ch] leading-relaxed text-ui-dim">{t.agentsLead}</p>
           <ol className="mt-8 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
-            {AGENT_STEPS.map((step) => (
+            {t.agentSteps.map((step, i) => (
               <li key={step.title} className="flex gap-3">
                 <span className="mt-0.5 shrink-0 text-ui-accent">
-                  <AppIcon name={step.icon} size={18} />
+                  <AppIcon name={AGENT_ICONS[i]} size={18} />
                 </span>
                 <span>
                   <span className="block font-mono text-base font-medium text-ui-fg">{step.title}</span>
@@ -242,34 +153,31 @@ export function VereskLanding() {
               </li>
             ))}
           </ol>
-          <p className="mt-10 text-ui-fg">You stay in control. Every step is logged and every answer points to its source.</p>
+          <p className="mt-10 text-ui-fg">{t.agentsClose}</p>
         </section>
 
         <section className="border-t border-ui-line py-16">
-          <h2 className="font-mono text-2xl leading-snug font-medium tracking-tight text-ui-fg md:text-3xl">
-            Try the five demos
-          </h2>
-          <p className="mt-4 max-w-[58ch] leading-relaxed text-ui-dim">
-            Each demo is a working app for one kind of company. The four business demos use made-up companies and documents. Bostad uses real public data about Gothenburg.
-          </p>
+          <h2 className={HEADING}>{t.demosTitle}</h2>
+          <p className="mt-4 max-w-[58ch] leading-relaxed text-ui-dim">{t.demosLead}</p>
 
           <div className="mt-10 grid gap-3 sm:grid-cols-2">
-            {DEMOS.map((d) => {
+            {demos.map((d) => {
+              const copy = t.demos[d.id as DemoId];
               const inside = (
                 <>
                   <p className="text-[0.9375rem] leading-relaxed text-ui-dim">
-                    <span className="font-medium text-ui-fg">{d.label}</span> {d.text}
+                    <span className="font-medium text-ui-fg">{copy.label}</span> {copy.text}
                   </p>
-                  {d.agent && (
+                  {copy.agent && (
                     <p className="mt-3 text-sm leading-relaxed text-ui-dim">
-                      <span className="text-ui-accent">Agent:</span> {d.agent}
+                      <span className="text-ui-accent">Agent:</span> {copy.agent}
                     </p>
                   )}
                   <p className="mt-5 flex items-center gap-2 font-mono text-sm text-ui-faint">
                     <span style={{ color: d.tone }}>
                       <AppIcon name={d.icon} size={16} />
                     </span>
-                    {d.sub}
+                    {copy.sub}
                   </p>
                 </>
               );
@@ -277,14 +185,14 @@ export function VereskLanding() {
                 return (
                   <a key={d.id} href={d.href} className="case-card group">
                     {inside}
-                    <p className="mt-4 text-sm text-ui-accent">Open the demo →</p>
+                    <p className="mt-4 text-sm text-ui-accent">{t.openDemo}</p>
                   </a>
                 );
               }
               return (
                 <div key={d.id} className="case-card case-card--elsewhere">
                   {inside}
-                  <p className="mt-4 text-sm text-ui-faint">Not open from here yet.</p>
+                  <p className="mt-4 text-sm text-ui-faint">{t.notOpenHere}</p>
                 </div>
               );
             })}
@@ -292,22 +200,16 @@ export function VereskLanding() {
         </section>
 
         <section className="border-t border-ui-line py-16">
-          <h2 className="font-mono text-2xl leading-snug font-medium tracking-tight text-ui-fg md:text-3xl">
-            Want to see how it is built?
-          </h2>
-          <p className="mt-4 max-w-[58ch] leading-relaxed text-ui-dim">
-            Short lessons explain how these assistants are made and how they are tested.
-          </p>
+          <h2 className={HEADING}>{t.buildTitle}</h2>
+          <p className="mt-4 max-w-[58ch] leading-relaxed text-ui-dim">{t.buildLead}</p>
           <p className="mt-6">
             <Link to="/learn" className="text-sm text-ui-accent transition-opacity hover:opacity-80">
-              Start the lessons →
+              {t.buildLink}
             </Link>
           </p>
         </section>
 
-        <footer className="border-t border-ui-line py-10 text-sm text-ui-faint">
-          Veresk. Companies, people and documents in the business demos are made up. Bostad uses public data.
-        </footer>
+        <footer className="border-t border-ui-line py-10 text-sm text-ui-faint">{t.footer}</footer>
       </main>
     </div>
   );

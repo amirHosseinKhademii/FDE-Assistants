@@ -127,9 +127,11 @@ interface LayoutProps {
   spokes: HubSpoke[];
   active: string | null;
   onActive: (id: string | null) => void;
+  groupLabel: string;
+  notOpenLabel: string;
 }
 
-function Layout({ variant, spokes, active, onActive }: LayoutProps) {
+function Layout({ variant, spokes, active, onActive, groupLabel, notOpenLabel }: LayoutProps) {
   const desk = variant === 'desk';
   const [hx, hy] = desk ? HUB_DESK : HUB_MOBILE;
   const rx = desk ? 15 : 34;
@@ -138,7 +140,7 @@ function Layout({ variant, spokes, active, onActive }: LayoutProps) {
   const fibres = tangleEdges(points);
 
   return (
-    <div className={`hub hub--${variant}`} role="group" aria-label="Five demos, connected to Veresk">
+    <div className={`hub hub--${variant}`} role="group" aria-label={groupLabel}>
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="hub-svg" aria-hidden>
         <ellipse cx={hx} cy={hy} rx={rx * 1.1} ry={ry * 1.1} className="hub-glow" />
         <g className="hub-web">
@@ -210,7 +212,7 @@ function Layout({ variant, spokes, active, onActive }: LayoutProps) {
               <span className="hub-card-name">{s.name}</span>
             </span>
             <span className="hub-card-sub">{s.sub}</span>
-            {!s.href && <span className="hub-card-note">Not open from here yet</span>}
+            {!s.href && <span className="hub-card-note">{notOpenLabel}</span>}
           </>
         );
         const handlers = {
@@ -237,12 +239,22 @@ function Layout({ variant, spokes, active, onActive }: LayoutProps) {
   );
 }
 
-export function NeuralHub({ spokes }: { spokes: HubSpoke[] }) {
+export function NeuralHub({
+  spokes,
+  groupLabel,
+  notOpenLabel,
+}: {
+  spokes: HubSpoke[];
+  /** The accessible name of the hub. Visitors do not see it, screen readers do. */
+  groupLabel: string;
+  /** Shown on a demo that is not open from this site yet. */
+  notOpenLabel: string;
+}) {
   const [active, setActive] = useState<string | null>(null);
   return (
     <div className="hub-wrap">
-      <Layout variant="desk" spokes={spokes} active={active} onActive={setActive} />
-      <Layout variant="mobile" spokes={spokes} active={active} onActive={setActive} />
+      <Layout variant="desk" spokes={spokes} active={active} onActive={setActive} groupLabel={groupLabel} notOpenLabel={notOpenLabel} />
+      <Layout variant="mobile" spokes={spokes} active={active} onActive={setActive} groupLabel={groupLabel} notOpenLabel={notOpenLabel} />
     </div>
   );
 }
