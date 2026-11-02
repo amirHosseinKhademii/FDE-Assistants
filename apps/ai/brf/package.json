@@ -1,0 +1,50 @@
+{
+  "name": "@brf/ai",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Swedish Q&A assistant for a housing cooperative board. Grounding, one document search tool, the answer contract and evals. No HTTP, no React.",
+  "license": "UNLICENSED",
+  "main": "./dist/answer.js",
+  "exports": {
+    ".": "./dist/answer.js",
+    "./schema": "./dist/schema/answer-schema.js",
+    "./config": "./dist/config/domain.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "ask": "ts-node src/ask.ts",
+    "ingest": "ts-node src/ingest.ts ingest",
+    "chunks": "ts-node src/ingest.ts chunks",
+    "env:check": "ts-node src/ingest.ts config",
+    "eval": "ts-node src/eval/run.ts",
+    "eval:smoke": "ts-node src/eval/run.ts --repeat 1",
+    "eval:diff": "ts-node src/eval/diff.ts",
+    "eval:history": "ts-node src/eval/history.ts",
+    "schema:check": "ts-node src/schema/schema-selftest.ts",
+    "compliance:mastra": "ts-node src/schema/compliance-mastra-selftest.ts",
+    "severity:check": "ts-node src/eval/scorecard-selftest.ts"
+  },
+  "dependencies": {
+    "@fde/agent": "workspace:*",
+    "@fde/evals": "workspace:*",
+    "@fde/foundry": "workspace:*",
+    "@fde/grounding": "workspace:*",
+    "@fde/schema": "workspace:*",
+    "@fde/telemetry": "workspace:*",
+    "@langchain/core": "^1.2.9",
+    "@langchain/pgvector": "^0.1.0",
+    "dotenv": "^16.4.5",
+    "openai": "^7.10.0",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.3.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.1.3"
+  },
+  "files": [
+    "dist",
+    "package.json"
+  ]
+}

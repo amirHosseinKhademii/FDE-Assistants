@@ -1,0 +1,20 @@
+{"id": "a01", "q": "Vad blir avgiften per kvadratmeter nästa år om jag bor kvar?", "expected_file": "protokoll-2025-09-03.md", "expected_section": "§ 2"}
+{"id": "a02", "q": "Får jag grilla med en elektrisk grill på balkongen numera?", "expected_file": "protokoll-2025-03-12.md", "expected_section": "§ 2"}
+{"id": "a03", "q": "Vilket kärl ska glasflaskor slängas i?", "expected_file": "ordningsregler.md", "expected_section": "§ 5"}
+{"id": "a04", "q": "Hur länge på vardagarna får man borra och hamra?", "expected_file": "ordningsregler.md", "expected_section": "§ 6"}
+{"id": "a05", "q": "Kan jag ställa min cykel i trapphuset ett tag?", "expected_file": "ordningsregler.md", "expected_section": "§ 4"}
+{"id": "a06", "q": "Vem betalar när golvet i badrummet är trasigt?", "expected_file": "stadgar.md", "expected_section": "§ 8"}
+{"id": "a07", "q": "Vem är ansvarig för rören som går genom väggarna i hela huset?", "expected_file": "stadgar.md", "expected_section": "§ 9"}
+{"id": "a08", "q": "Får jag hyra ut lägenheten i andra hand när jag jobbar utomlands ett år?", "expected_file": "stadgar.md", "expected_section": "§ 7"}
+{"id": "a09", "q": "Hur många personer ska sitta i styrelsen?", "expected_file": "stadgar.md", "expected_section": "§ 10"}
+{"id": "a10", "q": "När på året brukar det ordinarie medlemsmötet hållas?", "expected_file": "stadgar.md", "expected_section": "§ 14"}
+{"id": "a11", "q": "Till vilken tid på kvällen kan jag tvätta?", "expected_file": "ordningsregler.md", "expected_section": "§ 1"}
+{"id": "a12", "q": "Får jag ha katt i lägenheten, och i så fall hur många?", "expected_file": "ordningsregler.md", "expected_section": "§ 3"}
+{"id": "a13", "q": "Vilket år ska fasaden målas?", "expected_file": "underhallsplan.md", "expected_section": "§ 5"}
+{"id": "a14", "q": "När ska husets rör kontrolleras inför den stora renoveringen?", "expected_file": "protokoll-2025-09-03.md", "expected_section": "§ 3"}
+{"id": "a15", "q": "Vilket år är det tänkt att entrédörrarna i trapphus A byts?", "expected_file": "underhallsplan.md", "expected_section": "§ 2"}
+{"id": "u01", "q": "Hur mycket kostar en parkeringsplats i föreningen?", "expected_file": null, "expected_section": null}
+{"id": "u02", "q": "Får jag ha en bastu på balkongen?", "expected_file": null, "expected_section": null}
+{"id": "u03", "q": "Kan jag få bidrag från föreningen för en laddbox till min elbil?", "expected_file": null, "expected_section": null}
+{"id": "u04", "q": "Vilken är den bästa pizzerian nära Göteborg?", "expected_file": null, "expected_section": null}
+{"id": "u05", "q": "Vilket bolag sköter föreningens bokföring?", "expected_file": null, "expected_section": null}
