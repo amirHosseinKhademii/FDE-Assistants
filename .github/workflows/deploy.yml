@@ -1441,11 +1441,10 @@ jobs:
           push: true
           tags: ${{ env.VERESK_REPO }}:sha-${{ github.sha }}
           build-args: |
-            VITE_PHARMA_URL=${{ env.PHARMA_URL }}
-            VITE_STEERING_URL=${{ env.STEERING_URL }}
-            VITE_SAFETY_URL=${{ env.SAFETY_URL }}
-            VITE_COMMERCE_URL=${{ env.COMMERCE_URL }}
-            VITE_WRAP_URL=${{ env.WRAP_URL }}
+            VITE_PHARMA_URL=https://pharma.veresk.se
+            VITE_STEERING_URL=https://steering.veresk.se
+            VITE_SAFETY_URL=https://safety.veresk.se
+            VITE_COMMERCE_URL=https://commerce.veresk.se
           # This cache only pays off because the Dockerfile installs
           # dependencies BEFORE copying the source — see the layer-order comment
           # there. With the original `COPY . .` first it had nothing cacheable.
