@@ -250,7 +250,7 @@ export function VereskLanding() {
             Try the five demos
           </h2>
           <p className="mt-4 max-w-[58ch] leading-relaxed text-ui-dim">
-            Each demo is a working app for one kind of company. The names are made up.
+            Each demo is a working app for one kind of company. The four business demos use made-up companies and documents. Bostad uses real public data about Gothenburg.
           </p>
 
           <div className="mt-10 grid gap-3 sm:grid-cols-2">
@@ -306,7 +306,7 @@ export function VereskLanding() {
         </section>
 
         <footer className="border-t border-ui-line py-10 text-sm text-ui-faint">
-          Veresk. All companies, people and documents on these pages are made up for demos.
+          Veresk. Companies, people and documents in the business demos are made up. Bostad uses public data.
         </footer>
       </main>
     </div>
