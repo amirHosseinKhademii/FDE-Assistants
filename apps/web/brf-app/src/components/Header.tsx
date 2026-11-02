@@ -1,3 +1,5 @@
+import { DEMO_NAME } from '../demo-title';
+
 /**
  * The bar at the top. The Veresk mark links to the firm's site. The app name sits beside
  * it. The six-hue rule underneath is the same divider the Veresk demos use.
@@ -17,7 +19,7 @@ export function Header() {
         </a>
         <div className="flex flex-col leading-tight">
           <span className="font-mono text-[0.6875rem] tracking-widest text-ui-faint uppercase">Veresk</span>
-          <span className="text-[1.0625rem] font-semibold tracking-tight">Brf Exempelgården</span>
+          <span className="text-[1.0625rem] font-semibold tracking-tight">{DEMO_NAME}</span>
         </div>
         <span className="ml-auto hidden font-mono text-xs text-ui-faint sm:inline">frågor och svar</span>
       </div>

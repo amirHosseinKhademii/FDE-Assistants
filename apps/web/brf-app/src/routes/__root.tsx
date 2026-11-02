@@ -6,6 +6,7 @@ import { createRootRoute, HeadContent, Outlet, Scripts } from '@tanstack/react-r
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import appCss from '../styles/app.css?url';
+import { DEMO_TITLE } from '../demo-title';
 
 /**
  * The entrance animations use fill-mode both, so an element that never animates stays
@@ -21,7 +22,7 @@ export const Route = createRootRoute({
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { name: 'color-scheme', content: 'dark' },
       { name: 'description', content: 'Demo med påhittade dokument. Frågor och svar om en bostadsrättsförening, med källa till varje svar.' },
-      { title: 'Brf Exempelgården, frågor och svar' },
+      { title: DEMO_TITLE },
     ],
     links: [
       { rel: 'icon', href: '/veresk-logo.svg', type: 'image/svg+xml' },

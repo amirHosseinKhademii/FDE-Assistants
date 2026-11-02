@@ -27,7 +27,17 @@ const DOMAIN_EXTERNALS = [
   '@huggingface/transformers',
 ];
 
+/**
+ * The page title for this deployment. The demo set BRF_DEMO_TITLE to name the firm it
+ * answers for. Unset, the title is the original demo's.
+ */
+const DEMO_TITLE = process.env.BRF_DEMO_TITLE ?? 'Brf Exempelgården, frågor och svar';
+
 export default defineConfig({
+  define: {
+    __BRF_DEMO_TITLE__: JSON.stringify(DEMO_TITLE),
+  },
+
   plugins: [
     tanstackStart({ server: { entry: './server.ts' } }),
     react(),
