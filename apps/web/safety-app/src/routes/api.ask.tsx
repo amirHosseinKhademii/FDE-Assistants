@@ -45,6 +45,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { resolveEngine } from '@calder/safety/agent/engines';
 import { askSafety } from '@calder/safety/agent/run';
+import { clientIdFrom, publicDemoEnabled, sharedDemoLimiter } from '@fde/guard';
 import { recordAsk } from '../server/ask-history';
 
 /** Long enough to keep a proxy from closing a slow answer, short enough to matter. */
@@ -72,6 +73,21 @@ export const Route = createFileRoute('/api/ask')({
           engine?: string;
         } | null;
         const question = String(body?.question ?? '').trim();
+        // The public demo's spend gate, rate limit only: this route has no key.
+        // Off unless PUBLIC_DEMO=true, so nothing changes before the variable is
+        // set. Only a question that will reach the model is counted.
+        if (publicDemoEnabled() && question && question.length <= MAX_QUESTION) {
+          const limit = sharedDemoLimiter().admit(clientIdFrom(request.headers));
+          if (!limit.ok) {
+            return new Response(JSON.stringify({ error: limit.error }), {
+              status: limit.status,
+              headers: {
+                'content-type': 'application/json',
+                'retry-after': String(limit.retryAfterSeconds),
+              },
+            });
+          }
+        }
         const encoder = new TextEncoder();
 
         const stream = new ReadableStream({

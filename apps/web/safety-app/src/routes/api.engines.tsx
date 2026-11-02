@@ -12,12 +12,13 @@
  */
 import { createFileRoute } from '@tanstack/react-router';
 import { availableEngines } from '@calder/safety/agent/engines';
+import { publicDemoEnabled } from '@fde/guard';
 
 export const Route = createFileRoute('/api/engines')({
   server: {
     handlers: {
       GET: async () => {
-        return new Response(JSON.stringify({ engines: availableEngines() }), {
+        return new Response(JSON.stringify({ engines: availableEngines(), publicDemo: publicDemoEnabled() }), {
           headers: { 'content-type': 'application/json', 'cache-control': 'no-store' },
         });
       },

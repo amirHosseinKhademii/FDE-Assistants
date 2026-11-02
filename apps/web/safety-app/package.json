@@ -12,6 +12,7 @@
   "dependencies": {
     "@calder/safety": "workspace:*",
     "@fde/agent": "workspace:*",
+    "@fde/guard": "workspace:*",
     "@fde/foundry": "workspace:*",
     "@fde/uikit": "workspace:*",
     "@tanstack/react-query": "^5.102.8",

@@ -17,6 +17,7 @@ import { askStream } from '../lib/ask-stream';
 import { AURORA } from '../lib/aurora';
 import { CASES } from '../lib/cases';
 import { VERESK } from '../lib/links';
+import { AdminKey } from '../components/AdminKey';
 import { AnswerCard } from '../components/AnswerCard';
 
 interface TraceEvent {
@@ -46,7 +47,6 @@ export function Desk() {
   const [caseInfo, setCaseInfo] = useState<{ caseId: string; source: string } | null>(null);
   const [apiKey, setApiKey] = useState(() => typeof localStorage !== 'undefined' ? localStorage.getItem('thb-demo-key') || '' : '');
   const [keyNeeded, setKeyNeeded] = useState(false);
-  const [keyInput, setKeyInput] = useState('');
   const abort = useRef<AbortController | null>(null);
 
   const selected = CASES.find((c) => c.id === selectedId);
@@ -64,7 +64,6 @@ export function Desk() {
       localStorage.setItem('thb-demo-key', newKey);
     }
     setKeyNeeded(false);
-    setKeyInput('');
   }, []);
 
   const onRun = useCallback(async () => {
@@ -107,7 +106,7 @@ export function Desk() {
           }));
         } else if (event.type === 'error') {
           // Check if this is a 401 authentication error (missing or mismatched key)
-          if (event.message?.includes('401') || event.message?.includes('api-key') || event.message?.includes('This demo needs')) {
+          if (event.message?.includes('401') || event.message?.includes('api-key') || event.message?.includes('admin key is not valid')) {
             setKeyNeeded(true);
             setState(EMPTY);
           } else {
@@ -232,49 +231,8 @@ export function Desk() {
                 </div>
               </div>
 
-              {/* Access key input */}
-              {(keyNeeded || apiKey) && (
-                <div className="rounded-lg border border-ui-line bg-ui-surface p-4">
-                  <label htmlFor="apikey" className="block text-sm font-semibold text-ui-fg">
-                    Access key
-                  </label>
-                  <div className="mt-2 flex gap-2">
-                    <input
-                      id="apikey"
-                      type="password"
-                      className="flex-1 rounded-lg border border-ui-line bg-ui-raised px-3 py-2 text-sm text-ui-fg placeholder-ui-faint focus:border-thb-1 focus:outline-none"
-                      value={keyInput}
-                      onChange={(e) => setKeyInput(e.target.value)}
-                      placeholder="Paste the demo key"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          saveKey(keyInput);
-                        }
-                      }}
-                    />
-                    <button
-                      onClick={() => saveKey(keyInput)}
-                      className="rounded-lg bg-thb-1 px-4 py-2 text-sm font-semibold text-[#0b1a1a] transition-colors hover:bg-[#5fd6ca]"
-                    >
-                      Save
-                    </button>
-                  </div>
-                  {apiKey && (
-                    <div className="mt-2 text-xs text-ui-dim">
-                      Key saved.{' '}
-                      <button
-                        onClick={() => {
-                          saveKey('');
-                          setKeyInput('');
-                        }}
-                        className="text-thb-1 hover:underline"
-                      >
-                        Change key
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
+              {/* Admin key (optional). Visitors are allowed and metered without it. */}
+              <AdminKey value={apiKey} onChange={saveKey} open={keyNeeded} />
 
               {/* Question input */}
               <div>

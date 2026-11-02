@@ -142,6 +142,8 @@ type Phase = 'idle' | 'running' | 'done';
 export function Desk() {
   const [question, setQuestion] = useState('');
   const [phase, setPhase] = useState<Phase>('idle');
+  // Set by /api/engines when the server runs with PUBLIC_DEMO=true.
+  const [publicDemo, setPublicDemo] = useState(false);
   const [asked, setAsked] = useState('');
   const [engine, setEngine] = useState<{ engine: string; model: string | null } | null>(null);
   const [tools, setTools] = useState<ToolCall[]>([]);
@@ -160,7 +162,8 @@ export function Desk() {
     void (async () => {
       try {
         const res = await fetch('/api/engines');
-        const data = (await res.json()) as { engines: EngineOption[] };
+        const data = (await res.json()) as { engines: EngineOption[]; publicDemo?: boolean };
+        setPublicDemo(Boolean(data.publicDemo));
         setEngines(data.engines ?? []);
         setPicked((cur) => cur || (data.engines ?? []).find((e) => e.usable)?.id || '');
       } catch {
@@ -199,6 +202,13 @@ export function Desk() {
         body: JSON.stringify({ question: trimmed, engine: pickedRef.current }),
         signal: ctl.signal,
       });
+      // A refusal (the public demo's limit) is JSON, not a stream.
+      if (!res.ok) {
+        const body = (await res.json().catch(() => null)) as { error?: string } | null;
+        setError(body?.error ?? `The question could not be sent (${res.status}).`);
+        setPhase('done');
+        return;
+      }
       if (!res.body) throw new Error('no response body');
 
       const reader = res.body.getReader();
@@ -318,6 +328,12 @@ export function Desk() {
               {running ? 'asking…' : 'ask →'}
             </button>
           </div>
+
+          {publicDemo && (
+            <p style={{ fontSize: '0.8rem', opacity: 0.7, marginTop: '0.5rem' }}>
+              Public demo, limited to a few questions per hour.
+            </p>
+          )}
 
           {/* COMPACT AND INLINE. A stacked label over a full-width select made
               this the loudest thing in the box, and it is a qualifier on the

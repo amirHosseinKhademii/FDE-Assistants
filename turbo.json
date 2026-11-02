@@ -50,6 +50,7 @@
   },
   "globalEnv": [
     "API_KEY",
+    "PUBLIC_DEMO",
     "PORT",
     "NODE_ENV",
     "FOUNDRY_OPENAI_ENDPOINT",

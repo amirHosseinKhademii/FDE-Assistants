@@ -1070,16 +1070,17 @@ jobs:
           echo "GET /desk -> $code"
           [ "$code" = "200" ] || { echo "::error::/desk returned $code, expected 200"; exit 1; }
 
-          # THE GUARD ASSERTION: POST /api/ask without the x-api-key header must
-          # return 401. A deploy that shipped an empty token would serve a
-          # healthy-looking response to anybody on the internet, and only this
-          # would notice.
+          # THE GUARD ASSERTION: POST /api/ask with a WRONG x-api-key must
+          # return 401. A WRONG key, not no key: with PUBLIC_DEMO=true a missing
+          # key is allowed and metered, so a no-key probe would spend the model
+          # budget on every deploy. A wrong key is refused in both modes. A deploy
+          # that shipped an empty key would answer 503 here, and only this notices.
           guard=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 \
             -X POST "$url/api/ask" \
-            -H 'content-type: application/json' -d '{"question":"ping"}')
-          echo "POST /api/ask without x-api-key header -> $guard"
+            -H 'content-type: application/json' -H 'x-api-key: deploy-probe-wrong-key' -d '{"question":"ping"}')
+          echo "POST /api/ask with a wrong key -> $guard"
           case "$guard" in
-            401) echo "✓ guard refused an unauthenticated request" ;;
+            401) echo "✓ guard refused a wrong key" ;;
             503) echo "::error::POST /api/ask returned 503 — COMMERCE_DEMO_KEY is not set on the container app"; exit 1 ;;
             *) echo "::error::guard check got $guard — expected 401"; exit 1 ;;
           esac

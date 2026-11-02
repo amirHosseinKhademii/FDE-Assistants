@@ -761,6 +761,9 @@ importers:
       '@fde/foundry':
         specifier: workspace:*
         version: link:../../../packages/providers/foundry
+      '@fde/guard':
+        specifier: workspace:*
+        version: link:../../../packages/guard
       '@fde/uikit':
         specifier: workspace:*
         version: link:../../../packages/uikit

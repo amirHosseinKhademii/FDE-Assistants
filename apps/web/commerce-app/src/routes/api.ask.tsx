@@ -21,7 +21,13 @@ import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { createFileRoute } from '@tanstack/react-router';
 import { askThornbury, type AskEvent } from '@thornbury/commerce';
-import { authorize, publicError } from '@fde/guard';
+import {
+  authorize,
+  clientIdFrom,
+  publicDemoEnabled,
+  publicError,
+  sharedDemoLimiter,
+} from '@fde/guard';
 import { CASES } from '../lib/cases';
 
 // Load .env by walking up to repo root (pnpm-workspace.yaml)
@@ -56,6 +62,7 @@ const keysToLoad = [
   'COMMERCE_MCP_PORT',
   'COMMERCE_MCP_URL',
   'COMMERCE_DEMO_KEY',
+  'PUBLIC_DEMO',
   'FOUNDRY_OPENAI_ENDPOINT',
   'FOUNDRY_CHAT_DEPLOYMENT',
   'LLM_PROVIDER',
@@ -99,12 +106,13 @@ export const Route = createFileRoute('/api/ask')({
           configuredKey: process.env.COMMERCE_DEMO_KEY,
           presentedKey: request.headers.get('x-api-key'),
           isDev: Boolean(import.meta.env.DEV),
+          publicDemo: publicDemoEnabled(),
         });
         if (!allowed.ok) {
           // Provide a user-friendly message for the frontend
           let errorMessage = allowed.reason;
           if (allowed.status === 401) {
-            errorMessage = 'This demo needs an access key.';
+            errorMessage = 'The admin key is not valid.';
           } else if (allowed.status === 503) {
             errorMessage = 'Demo key not configured';
           }
@@ -179,6 +187,21 @@ export const Route = createFileRoute('/api/ask')({
         // Default question if empty (in picked mode)
         if (!question) {
           question = 'The customer on this case wants their money back. What are they entitled to?';
+        }
+
+        // The public demo's spend gate. Only a request that reaches the model is
+        // counted, and an admin key never reaches this branch.
+        if (allowed.metered) {
+          const limit = sharedDemoLimiter().admit(clientIdFrom(request.headers));
+          if (!limit.ok) {
+            return new Response(JSON.stringify({ error: limit.error }), {
+              status: limit.status,
+              headers: {
+                'content-type': 'application/json',
+                'retry-after': String(limit.retryAfterSeconds),
+              },
+            });
+          }
         }
 
         const stream = new ReadableStream({
