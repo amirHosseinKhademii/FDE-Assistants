@@ -1445,6 +1445,7 @@ jobs:
             VITE_STEERING_URL=https://steering.veresk.se
             VITE_SAFETY_URL=https://safety.veresk.se
             VITE_COMMERCE_URL=https://commerce.veresk.se
+            VITE_BOSTAD_URL=https://bostad.veresk.se
           # This cache only pays off because the Dockerfile installs
           # dependencies BEFORE copying the source — see the layer-order comment
           # there. With the original `COPY . .` first it had nothing cacheable.

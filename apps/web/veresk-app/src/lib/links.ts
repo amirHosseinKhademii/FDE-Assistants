@@ -76,3 +76,13 @@ export const COMMERCE = url(import.meta.env.VITE_COMMERCE_URL as string | undefi
  * way as the others: the pipeline looks its URL up AFTER watching it return 200.
  */
 export const WRAP = url(import.meta.env.VITE_WRAP_URL as string | undefined, 3700, null);
+
+/**
+ * Bostad — the Gothenburg housing app: address profiles, the housing
+ * association's finances, and questions about an area with sources. Its own
+ * deployment on its own domain, the same way as the others.
+ *
+ * The dev port matches bostad-app's own `vite dev` (3600). Commerce's dev port
+ * is also 3600, so only one of the two can run locally at a time.
+ */
+export const BOSTAD = url(import.meta.env.VITE_BOSTAD_URL as string | undefined, 3600, 'https://bostad.veresk.se');

@@ -2,7 +2,7 @@
  * Veresk. The front page.
  *
  * Who reads it: someone deciding whether an AI assistant is worth it for their
- * company. The page explains what Veresk builds, shows four working demos, and
+ * company. The page explains what Veresk builds, shows five working demos, and
  * says how the work goes.
  *
  * The copy is written in plain English on purpose. Short sentences, no jargon.
@@ -10,13 +10,13 @@
 import { Link } from '@tanstack/react-router';
 import { Aurora } from '@veresk/surface';
 import { AURORA } from '../lib/aurora';
-import { COMMERCE, PHARMA, SAFETY, STEERING } from '../lib/links';
+import { BOSTAD, COMMERCE, PHARMA, SAFETY, STEERING } from '../lib/links';
 import { AppIcon, type AppIconName } from '../components/nav-icons';
 import { NeuralHub, type HubSpoke } from '../components/NeuralHub';
 
 const NAV_LINK = 'inline-flex items-center gap-1.5 text-sm text-ui-dim transition-colors hover:text-ui-fg';
 
-/* The four demos. The same links the nav uses, so the two never disagree. */
+/* The five demos. The same links the nav uses, so the two never disagree. */
 const DEMOS: Array<HubSpoke & { label: string; text: string; agent?: string }> = [
   {
     id: 'pharma',
@@ -26,7 +26,7 @@ const DEMOS: Array<HubSpoke & { label: string; text: string; agent?: string }> =
     href: PHARMA || null,
     tone: 'var(--color-hop-1)',
     desk: [18, 24],
-    mobile: [27, 52],
+    mobile: [27, 40],
     label: 'Batch release.',
     text: 'Checks whether a medicine batch can ship, using the lab records and procedures, and names what would stop it.',
     agent: 'An agent checks the batch record against the procedures and flags any gap.',
@@ -39,7 +39,7 @@ const DEMOS: Array<HubSpoke & { label: string; text: string; agent?: string }> =
     href: SAFETY || null,
     tone: 'var(--color-hop-3)',
     desk: [82, 24],
-    mobile: [73, 52],
+    mobile: [73, 40],
     label: 'Vehicle safety and recalls.',
     text: 'Answers recall and safety questions from public NHTSA complaint filings. It says so when the filings do not settle the question.',
   },
@@ -51,7 +51,7 @@ const DEMOS: Array<HubSpoke & { label: string; text: string; agent?: string }> =
     href: STEERING || null,
     tone: 'var(--color-hop-4)',
     desk: [18, 76],
-    mobile: [27, 84],
+    mobile: [27, 64],
     label: 'Engineering requirements.',
     text: 'Reads a customer’s requirements and says, for each one, whether we have built it before, need to change it, or must build it new.',
   },
@@ -63,10 +63,22 @@ const DEMOS: Array<HubSpoke & { label: string; text: string; agent?: string }> =
     href: COMMERCE || null,
     tone: 'var(--color-hop-5)',
     desk: [82, 76],
-    mobile: [73, 84],
+    mobile: [73, 64],
     label: 'Customer service.',
     text: 'Handles a return or refund case, checks it against the store’s policy, and asks a person before any money moves.',
     agent: 'An agent drafts the refund and waits for a person to approve it.',
+  },
+  {
+    id: 'bostad',
+    name: 'Bostad',
+    sub: 'Göteborg housing',
+    icon: 'bostad',
+    href: BOSTAD || null,
+    tone: 'var(--color-hop-2)',
+    desk: [50, 88],
+    mobile: [50, 88],
+    label: 'Housing in Gothenburg.',
+    text: 'Search any address or housing association and get an area profile, the association’s financial health and answers about the area, with sources.',
   },
 ];
 
@@ -152,6 +164,12 @@ export function VereskLanding() {
             Thornbury Goods
           </a>
         )}
+        {BOSTAD && (
+          <a href={BOSTAD} className={NAV_LINK}>
+            <AppIcon name="bostad" />
+            Bostad
+          </a>
+        )}
       </nav>
 
       <main className="relative z-10 mx-auto max-w-6xl px-5 sm:px-6">
@@ -177,7 +195,7 @@ export function VereskLanding() {
             className="lift-in mt-10 font-mono text-sm text-ui-faint"
             style={{ animationDelay: '320ms' }}
           >
-            Four working demos. Click one to try it.
+            Five working demos. Click one to try it.
           </p>
 
           <div className="lift-in mt-4" style={{ animationDelay: '380ms' }}>
@@ -229,7 +247,7 @@ export function VereskLanding() {
 
         <section className="border-t border-ui-line py-16">
           <h2 className="font-mono text-2xl leading-snug font-medium tracking-tight text-ui-fg md:text-3xl">
-            Try the four demos
+            Try the five demos
           </h2>
           <p className="mt-4 max-w-[58ch] leading-relaxed text-ui-dim">
             Each demo is a working app for one kind of company. The names are made up.

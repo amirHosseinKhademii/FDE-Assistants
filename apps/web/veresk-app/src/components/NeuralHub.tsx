@@ -1,5 +1,5 @@
 /**
- * The hub on the firm's front page: one Veresk node at the centre, four demos
+ * The hub on the firm's front page: one Veresk node at the centre, five demos
  * around it, and a pulse that runs along each line.
  *
  * The look is copied from the flow map in `@fde/uikit`: a faint tangle behind
@@ -7,9 +7,9 @@
  * the demo and back. The pulse coming back takes the colour of that demo.
  *
  * Two layouts are drawn and CSS shows one of them. Wide screens get the hub in
- * the middle with the four demos in the corners. Phones get the hub on top and
- * the demos in a 2 by 2 grid under it. The lines are drawn in both, so they
- * stay visible on a phone.
+ * the middle with four demos in the corners and the fifth centred below. Phones
+ * get the hub on top, the demos in a 2 by 2 grid under it, and the fifth centred
+ * at the bottom. The lines are drawn in both, so they stay visible on a phone.
  *
  * Hovering or focusing a demo lights its own line and dims the others.
  * Reduced motion stops the pulses and keeps the lines.
@@ -138,7 +138,7 @@ function Layout({ variant, spokes, active, onActive }: LayoutProps) {
   const fibres = tangleEdges(points);
 
   return (
-    <div className={`hub hub--${variant}`} role="group" aria-label="Four demos, connected to Veresk">
+    <div className={`hub hub--${variant}`} role="group" aria-label="Five demos, connected to Veresk">
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="hub-svg" aria-hidden>
         <ellipse cx={hx} cy={hy} rx={rx * 1.1} ry={ry * 1.1} className="hub-glow" />
         <g className="hub-web">

@@ -13,6 +13,7 @@ export type AppIconName =
   | 'safety'
   | 'steering'
   | 'commerce'
+  | 'bostad'
   | 'learn'
   | 'connect'
   | 'ask'
@@ -49,6 +50,14 @@ const paths: Record<AppIconName, ReactElement> = {
     <>
       <path d="M5 8h14l-1 12H6z" />
       <path d="M9 8V6.5a3 3 0 0 1 6 0V8" />
+    </>
+  ),
+  /* Bostad: a house with a door. */
+  bostad: (
+    <>
+      <path d="M4 11l8-7 8 7" />
+      <path d="M6 9.5V20h12V9.5" />
+      <path d="M10 20v-5h4v5" />
     </>
   ),
   /* Learn: an open book. */
