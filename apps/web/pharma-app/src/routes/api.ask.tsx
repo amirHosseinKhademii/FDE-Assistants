@@ -34,6 +34,7 @@
  */
 import { createFileRoute } from '@tanstack/react-router';
 import { askRelease } from '@meridian/pharma';
+import { resolveLoop } from '@fde/agent';
 import { authorize, clientIdFrom, publicDemoEnabled, publicError, sharedDemoLimiter } from '@fde/guard';
 import { recordAsk } from '../server/ask-history';
 
@@ -91,7 +92,9 @@ export const Route = createFileRoute('/api/ask')({
         // agents-sdk engine" — the refusal working correctly, on a cloud choice
         // nobody made. Same fix as `steering-app/routes/api.assess.tsx`, which
         // found it first; these two routes had it too.
-        const loop = String(body?.loop ?? process.env.LOOP ?? 'sdk');
+        const resolved = resolveLoop(body?.loop);
+        if (resolved.reason) console.warn(`[ask] ${resolved.reason}`);
+        const loop = resolved.choice;
 
         // RAW EVENTS, not rendered lines. What happened is a fact and belongs in
         // the row; the sentences explaining it are presentation and get reworded

@@ -1,3 +1,4 @@
+import type { LoopEngine } from '@fde/uikit';
 /**
  * The supplier question, composed from one picker.
  *
@@ -34,6 +35,7 @@ export interface SupplierFormProps {
   onSupplier: (v: string) => void;
   loop: string;
   onLoop: (v: string) => void;
+  engines: LoopEngine[];
   topology: string;
   onTopology: (v: string) => void;
   apiKey: string;
@@ -114,8 +116,12 @@ export function SupplierForm(p: SupplierFormProps) {
 
         <Field className="field-tight" label="Engine">
           <Select value={p.loop} onChange={p.onLoop} icon={<ChipIcon />}>
-            <option value="sdk">Agents SDK</option>
-            <option value="mastra">Mastra</option>
+            {p.engines.map((e) => (
+              <option key={e.id} value={e.id} disabled={!e.usable}>
+                {e.label}
+                {e.usable ? '' : ' (not on this server)'}
+              </option>
+            ))}
           </Select>
         </Field>
 

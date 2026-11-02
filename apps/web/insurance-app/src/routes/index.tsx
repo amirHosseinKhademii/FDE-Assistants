@@ -18,6 +18,7 @@ import { AskForm } from '../components/AskForm';
 import { WorkingNotes } from '../components/WorkingNotes';
 import { Answer } from '../components/Answer';
 import { EmptyState, Failure } from '../components/states';
+import { useLoopEngines } from '@fde/uikit';
 import { load, save } from '../lib/storage';
 import { useAsk } from '../lib/use-ask';
 
@@ -28,7 +29,9 @@ function CoverageDesk() {
     load('question', 'how much rental car reimbursement is covered per day and for how many days?'),
   );
   const [policy, setPolicy] = useState(() => load('policy', 'AUT-4471'));
-  const [loop, setLoop] = useState(() => load('loop', 'sdk'));
+  // '' means "the server's configured engine" (see pharma use-desk-form).
+  const [loop, setLoop] = useState(() => load('loop', ''));
+  const engines = useLoopEngines(loop, setLoop);
   const [apiKey, setApiKey] = useState(() => load('apiKey', ''));
   // Hidden until the server actually refuses a request: an unconfigured guard
   // should not make every user wonder what credential they are missing.
@@ -74,6 +77,7 @@ function CoverageDesk() {
 
       <main className="mx-auto max-w-5xl px-6 pb-24">
         <AskForm
+          engines={engines}
           question={question}
           onQuestion={setQuestion}
           policy={policy}

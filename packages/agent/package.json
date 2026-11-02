@@ -14,7 +14,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "check": "ts-node src/provider-switch-selftest.ts",
     "check:settle": "ts-node src/core/settle-selftest.ts",
-    "check:mcp": "ts-node src/mcp/mcp-selftest.ts"
+    "check:mcp": "ts-node src/mcp/mcp-selftest.ts",
+    "check:loop": "ts-node src/core/loop-resolve-selftest.ts"
   },
   "dependencies": {
     "@ai-sdk/amazon-bedrock": "^5.0.82",

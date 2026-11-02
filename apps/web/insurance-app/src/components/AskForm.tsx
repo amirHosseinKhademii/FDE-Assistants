@@ -1,3 +1,4 @@
+import type { LoopEngine } from '@fde/uikit';
 /**
  * The question, the customer, and the engine.
  *
@@ -16,6 +17,7 @@ export interface AskFormProps {
   onPolicy: (v: string) => void;
   loop: string;
   onLoop: (v: string) => void;
+  engines: LoopEngine[];
   apiKey: string;
   onApiKey: (v: string) => void;
   showKey: boolean;
@@ -63,8 +65,12 @@ export function AskForm(p: AskFormProps) {
         <label className="grid w-40 gap-1.5">
           <span className="text-sm text-muted">Engine</span>
           <select value={p.loop} onChange={(e) => p.onLoop(e.target.value)} className={field}>
-            <option value="sdk">Agents SDK</option>
-            <option value="mastra">Mastra</option>
+            {engines.map((e) => (
+            <option key={e.id} value={e.id} disabled={!e.usable}>
+              {e.label}
+              {e.usable ? '' : ' (not on this server)'}
+            </option>
+            ))}
           </select>
         </label>
 

@@ -88,6 +88,7 @@ export function SupplierDesk() {
 
       <main className="relative z-10 mx-auto max-w-6xl px-5 pb-24 sm:px-6 sm:pb-28">
         <SupplierForm
+          engines={form.engines}
           question={form.question}
           onQuestion={form.editQuestion}
           supplier={form.supplier}

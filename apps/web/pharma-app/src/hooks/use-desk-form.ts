@@ -13,6 +13,7 @@
  * Nothing here transfers, which is exactly the test `@fde/uikit` applies.
  */
 import { useState } from 'react';
+import { useLoopEngines } from '@fde/uikit';
 import { load, save } from '../lib/storage';
 
 /** The sentence the pickers compose. */
@@ -22,7 +23,10 @@ export const questionFor = (lot: string, market: string): string =>
 export function useDeskForm() {
   const [lot, setLot] = useState(() => load('lot', 'LOT-IBU200-2609-B'));
   const [market, setMarket] = useState(() => load('market', 'EU'));
-  const [loop, setLoop] = useState(() => load('loop', 'sdk'));
+  // '' means "the server's configured engine". Never a hardcoded engine: a
+  // saved value that cannot run on this server is replaced once /api/engines answers.
+  const [loop, setLoop] = useState(() => load('loop', ''));
+  const engines = useLoopEngines(loop, setLoop);
   const [apiKey, setApiKey] = useState(() => load('apiKey', ''));
   const [question, setQuestion] = useState(() =>
     load('question', questionFor(load('lot', 'LOT-IBU200-2609-B'), load('market', 'EU'))),
@@ -51,7 +55,7 @@ export function useDeskForm() {
   }
 
   return {
-    lot, market, loop, apiKey, question,
+    lot, market, loop, engines, apiKey, question,
     setLoop, setApiKey,
     pick, editQuestion, remember,
   };

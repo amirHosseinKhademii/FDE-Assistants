@@ -32,7 +32,7 @@
  * finding, because they are the output this exercise exists to produce.
  */
 import { useCallback, useMemo, useState } from 'react';
-import { BoxIcon, ChipIcon, Field, Mono, SearchIcon, Select } from '@fde/uikit';
+import { BoxIcon, ChipIcon, Field, Mono, SearchIcon, Select, useLoopEngines, type LoopEngine } from '@fde/uikit';
 import { Aurora, type AuroraTone } from '@veresk/surface';
 import { useAssess, type Requirement, type TraceStep } from '../hooks/use-assess';
 import { useHistory, type HistoryRow } from '../hooks/use-history';
@@ -125,7 +125,9 @@ export function BidDesk() {
    * re-picking it on every reload would make the comparison tedious enough to
    * stop doing.
    */
-  const [loop, setLoop] = useState(() => load('loop', 'mastra'));
+  // '' means "the server's configured engine" (see pharma use-desk-form).
+  const [loop, setLoop] = useState(() => load('loop', ''));
+  const engines = useLoopEngines(loop, setLoop);
   const [keyState, setKeyState] = useState<KeyState>('none');
 
   const onRefused = useCallback((status: number) => {
@@ -220,6 +222,7 @@ export function BidDesk() {
           </p>
 
           <Ask
+            engines={engines}
             text={text}
             onText={edit}
             pickedRef={ref}
@@ -316,7 +319,7 @@ const SUGGESTION =
 
 function Ask({
   text, onText, pickedRef, items, loading, error, onPick, onRun, busy, onCancel,
-  apiKey, onApiKey, keyState, loop, onLoop,
+  apiKey, onApiKey, keyState, loop, onLoop, engines,
 }: {
   text: string;
   onText: (v: string) => void;
@@ -333,6 +336,7 @@ function Ask({
   keyState: KeyState;
   loop: string;
   onLoop: (v: string) => void;
+  engines: LoopEngine[];
 }) {
   return (
     <div className="x-ask mt-8">
@@ -375,9 +379,12 @@ function Ask({
         <div className="x-ask-controls">
           <Field label="Engine">
             <Select value={loop} onChange={onLoop} disabled={busy} icon={<ChipIcon />}>
-              <option value="sdk">Agents SDK</option>
-              <option value="mastra">Mastra</option>
-              <option value="langgraph">LangGraph</option>
+              {engines.map((e) => (
+                <option key={e.id} value={e.id} disabled={!e.usable}>
+                  {e.label}
+                  {e.usable ? '' : ' (not on this server)'}
+                </option>
+              ))}
             </Select>
           </Field>
 

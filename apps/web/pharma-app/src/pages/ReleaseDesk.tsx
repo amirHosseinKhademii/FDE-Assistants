@@ -87,6 +87,7 @@ export function ReleaseDesk() {
 
       <main className="relative z-10 mx-auto max-w-6xl px-5 pb-24 sm:px-6 sm:pb-28">
         <AskForm
+          engines={form.engines}
           question={form.question}
           onQuestion={form.editQuestion}
           lot={form.lot}

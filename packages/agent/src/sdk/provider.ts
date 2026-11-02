@@ -63,13 +63,25 @@ import { setDefaultOpenAIClient, setOpenAIAPI, setTracingDisabled } from '@opena
  * practice: everyone implements the older, wider endpoint.
  */
 function refuseUnreachableProvider(): void {
+  const refusal = sdkProviderRefusal();
+  if (refusal) throw new Error(refusal);
+}
+
+/**
+ * Why this engine cannot serve the configured provider, or null when it can.
+ *
+ * Exported so `loopRefusal` in `core/loop.factory.ts` answers "can this loop run
+ * here?" from the same rule that throws, rather than a copy of it that could
+ * drift. The web routes ask that question before a request reaches this engine.
+ */
+export function sdkProviderRefusal(): string | null {
   const raw = process.env.LLM_PROVIDER?.trim().toLowerCase();
-  if (!raw || raw === 'azure') return;
-  throw new Error(
+  if (!raw || raw === 'azure') return null;
+  return (
     `LLM_PROVIDER="${process.env.LLM_PROVIDER}" cannot be served by the agents-sdk engine, ` +
-      'which reaches Azure only — it takes an OpenAI client object, and @fde/bedrock is not ' +
-      'wired to it yet. Use LOOP=mastra or LOOP=langgraph for bedrock, local or hosted, or unset ' +
-      'LLM_PROVIDER for azure. Refusing to run on a cloud you did not ask for.',
+    'which reaches Azure only — it takes an OpenAI client object, and @fde/bedrock is not ' +
+    'wired to it yet. Use LOOP=mastra or LOOP=langgraph for bedrock, local or hosted, or unset ' +
+    'LLM_PROVIDER for azure. Refusing to run on a cloud you did not ask for.'
   );
 }
 

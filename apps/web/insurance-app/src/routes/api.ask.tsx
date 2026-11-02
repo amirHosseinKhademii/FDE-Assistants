@@ -29,6 +29,7 @@
  */
 import { createFileRoute } from '@tanstack/react-router';
 import { askCoverage } from '@claims/insurance';
+import { resolveLoop } from '@fde/agent';
 import { authorize, publicError } from '@fde/guard';
 
 const encoder = new TextEncoder();
@@ -87,7 +88,7 @@ export const Route = createFileRoute('/api/ask')({
               const result = await askCoverage({
                 question,
                 policyId: body?.policy || undefined,
-                loop: body?.loop,
+                loop: resolveLoop(body?.loop).choice,
                 surface: 'http',
                 onEvent: (e: any) => {
                   if (e.type === 'turn_start') send('turn_start', { turn: e.turn });

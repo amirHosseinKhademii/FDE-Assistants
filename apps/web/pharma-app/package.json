@@ -9,6 +9,7 @@
     "start": "node dist/server/server.js"
   },
   "dependencies": {
+    "@fde/agent": "workspace:*",
     "@fde/guard": "workspace:*",
     "@fde/uikit": "workspace:*",
     "@meridian/pharma": "workspace:*",

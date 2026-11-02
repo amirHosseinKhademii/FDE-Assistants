@@ -55,6 +55,7 @@
  * which are real.
  */
 import { createFileRoute } from '@tanstack/react-router';
+import { resolveLoop } from '@fde/agent';
 import { assessRequirement } from '@vantis/steering/assess';
 import { fetchRequirement } from '@vantis/steering/requirements';
 import { authorize, clientIdFrom, publicDemoEnabled, publicError, sharedDemoLimiter } from '@fde/guard';
@@ -131,7 +132,9 @@ export const Route = createFileRoute('/api/assess')({
         // because it is also written into the filed history record below, and a
         // record that omits the engine cannot be compared against one that names
         // it.
-        const loop = String(body?.loop ?? process.env.LOOP ?? 'sdk');
+        const resolved = resolveLoop(body?.loop);
+        if (resolved.reason) console.warn(`[assess] ${resolved.reason}`);
+        const loop = resolved.choice;
 
         // RAW EVENTS, not rendered lines. What happened is a fact and belongs
         // in the row; the sentences explaining it are presentation and get

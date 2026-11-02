@@ -23,7 +23,7 @@
  */
 import { env, openaiClient } from '@fde/foundry';
 import {
-  ToolRegistry, runLoop, loopChoice, engineLabel, cachedInputTokensOf,
+  ToolRegistry, runLoop, resolveLoop, engineLabel, cachedInputTokensOf,
   type LoopChoice, type TurnRecord, chatClient, chatModelName } from '@fde/agent';
 import { logRequest } from '@fde/telemetry';
 import '../../telemetry/prices';
@@ -58,7 +58,7 @@ const MAX_TURNS = 3;
 
 export async function explainAssessment(opts: ExplainOptions): Promise<ExplainResult> {
   const started = Date.now();
-  const choice: LoopChoice = loopChoice(opts.loop);
+  const choice: LoopChoice = resolveLoop(opts.loop).choice;
 
   const result = await runLoop<Explanation>(
     choice,

@@ -5,7 +5,7 @@
  * connect to an already-running MCP server, run the same model/engine/loop, emit events
  * for each tool call, and close cleanly in all paths.
  */
-import { chatClient, chatModelName, runLoop, loopChoice, engineLabel } from '@fde/agent';
+import { chatClient, chatModelName, runLoop, resolveLoop, engineLabel } from '@fde/agent';
 import { openaiClient } from '@fde/foundry';
 import { connectToThornbury, type Thornbury } from './mcp-client';
 
@@ -78,7 +78,7 @@ export async function askThornbury(opts: {
     t = await connectToThornbury({ url, token, caseId: opts.caseId });
 
     // Emit start event
-    const choice = loopChoice();
+    const choice = resolveLoop().choice;
     const model = chatModelName(process.env.FOUNDRY_CHAT_DEPLOYMENT ?? '');
     opts.onEvent({ type: 'start', caseId: opts.caseId, model });
 

@@ -162,10 +162,12 @@ export function Desk() {
     void (async () => {
       try {
         const res = await fetch('/api/engines');
-        const data = (await res.json()) as { engines: EngineOption[]; publicDemo?: boolean };
+        const data = (await res.json()) as { engines: EngineOption[]; configured?: string; publicDemo?: boolean };
         setPublicDemo(Boolean(data.publicDemo));
         setEngines(data.engines ?? []);
-        setPicked((cur) => cur || (data.engines ?? []).find((e) => e.usable)?.id || '');
+        // The engine the server runs by default, when it can run here; otherwise the first usable.
+        const configured = (data.engines ?? []).find((e) => e.id === data.configured && e.usable)?.id;
+        setPicked((cur) => cur || configured || (data.engines ?? []).find((e) => e.usable)?.id || '');
       } catch {
         /* the dropdown simply does not appear */
       }

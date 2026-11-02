@@ -61,6 +61,7 @@
  * reviewer would have picked anyway.
  */
 import { createFileRoute } from '@tanstack/react-router';
+import { resolveLoop } from '@fde/agent';
 import { askSupplierImpact } from '@meridian/pharma/supplier';
 import { askSupplierImpactFanout } from '@meridian/pharma/fanout';
 import { debateTopLot } from '@meridian/pharma/debate';
@@ -116,7 +117,9 @@ export const Route = createFileRoute('/api/supplier')({
         // agents-sdk engine" — the refusal working correctly, on a cloud choice
         // nobody made. Same fix as `steering-app/routes/api.assess.tsx`, which
         // found it first; these two routes had it too.
-        const loop = String(body?.loop ?? process.env.LOOP ?? 'sdk');
+        const resolved = resolveLoop(body?.loop);
+        if (resolved.reason) console.warn(`[supplier] ${resolved.reason}`);
+        const loop = resolved.choice;
         // Anything not spelled 'fanout' is the single loop. An unrecognised
         // value must not be able to select the expensive route by accident.
         const topology =

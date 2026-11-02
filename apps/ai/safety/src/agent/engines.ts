@@ -22,7 +22,7 @@
  * unfinished: it drives the Responses API, which only OpenAI and Azure
  * implement. It refuses by name instead of failing at the transport.
  */
-import type { LoopChoice } from '@fde/agent';
+import { loopRefusal, type LoopChoice } from '@fde/agent';
 
 export interface EngineOption {
   id: LoopChoice;
@@ -91,8 +91,9 @@ export function availableEngines(): EngineOption[] {
     {
       id: 'sdk',
       label: 'OpenAI Agents SDK',
-      usable: !hosted && !local,
-      note: hosted || local ? 'needs Azure or OpenAI' : 'default',
+      // Asked of the engine itself, so bedrock is greyed out too, not only hosted and local.
+      usable: loopRefusal('sdk') === null,
+      note: loopRefusal('sdk') === null ? 'default' : 'needs Azure or OpenAI',
       detail:
         hosted || local
           ? 'Drives the Responses API, which only OpenAI and Azure implement. It refuses by name rather than failing at the transport.'

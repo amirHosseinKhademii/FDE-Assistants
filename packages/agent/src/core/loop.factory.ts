@@ -31,6 +31,7 @@ import type OpenAI from 'openai';
 import type { ToolRegistry } from './registry';
 import type { LoopOptions, LoopResult } from './loop.types';
 import { runLoopSdk } from '../sdk/loop';
+import { sdkProviderRefusal } from '../sdk/provider';
 import { runLoopMastra } from '../mastra/loop';
 import { runLoopLangGraph } from '../langgraph/loop';
 
@@ -70,4 +71,85 @@ export function runLoop<T>(
   if (choice === 'mastra') return runLoopMastra<T>(client, model, registry, prompt, opts);
   if (choice === 'langgraph') return runLoopLangGraph<T>(client, model, registry, prompt, opts);
   return runLoopSdk<T>(client, model, registry, prompt, opts);
+}
+
+/**
+ * Why a loop cannot run against the configured provider, or null when it can.
+ *
+ * Only the Agents SDK refuses anything: Mastra and LangGraph build their own
+ * model objects and serve azure, bedrock, local and hosted alike (see
+ * `docs/ENGINES.md`). The sdk answer comes from `sdkProviderRefusal`, the same
+ * rule that makes `configureSdk` throw, so the two cannot disagree.
+ */
+export function loopRefusal(choice: LoopChoice): string | null {
+  if (choice === 'sdk') return sdkProviderRefusal();
+  return null;
+}
+
+const LOOP_LABEL: Record<LoopChoice, string> = {
+  sdk: 'Agents SDK',
+  mastra: 'Mastra',
+  langgraph: 'LangGraph',
+};
+
+export interface LoopOption {
+  id: LoopChoice;
+  label: string;
+  /** False when this engine cannot serve the configured provider. */
+  usable: boolean;
+  /** The refusal in full, or null. Shown in a tooltip, not a picker row. */
+  reason: string | null;
+}
+
+/**
+ * Every engine with its standing against the CURRENT provider, read per call.
+ * The unusable one is returned rather than filtered out, so a picker can grey
+ * it out and say why.
+ */
+export function loopOptions(): LoopOption[] {
+  return (['sdk', 'mastra', 'langgraph'] as LoopChoice[]).map((id) => {
+    const reason = loopRefusal(id);
+    return { id, label: LOOP_LABEL[id], usable: reason === null, reason };
+  });
+}
+
+export interface LoopResolution {
+  /** The engine that will run. Always usable with the configured provider. */
+  choice: LoopChoice;
+  /** The engine that was wanted (requested, else LOOP) when it was not usable. */
+  fellBackFrom: LoopChoice | null;
+  /** A sentence for the server log and the history row, or null. */
+  reason: string | null;
+}
+
+/** An unknown name counts as not asked for. It is not coerced to sdk. */
+function asChoice(raw: string | undefined): LoopChoice | null {
+  const v = (raw ?? '').trim().toLowerCase();
+  return v === 'sdk' || v === 'mastra' || v === 'langgraph' ? v : null;
+}
+
+/**
+ * Pick the engine a request runs on, falling back instead of refusing.
+ *
+ * Order: the requested engine if it can run here, then the configured LOOP,
+ * then Mastra, LangGraph and the Agents SDK, first usable wins. With Foundry
+ * configured (LLM_PROVIDER unset or azure) the sdk is usable, so an explicit
+ * request is honoured exactly as before and nothing falls back.
+ *
+ * This exists for the web surfaces. A visitor's saved picker value, or a
+ * request that names sdk on a hosted deployment, used to throw. It now runs
+ * on the engine the server is configured for, and `fellBackFrom` says so. The
+ * CLIs keep `loopChoice`, which still refuses.
+ */
+export function resolveLoop(requested?: string): LoopResolution {
+  const asked = asChoice(requested);
+  const configured = asChoice(process.env.LOOP) ?? 'sdk';
+  const wanted = asked ?? configured;
+  const order: LoopChoice[] = [...new Set<LoopChoice>([wanted, configured, 'mastra', 'langgraph', 'sdk'])];
+  const choice = order.find((c) => loopRefusal(c) === null) ?? 'mastra';
+  if (choice === wanted) return { choice, fellBackFrom: null, reason: null };
+  const reason =
+    `${LOOP_LABEL[wanted]} cannot serve LLM_PROVIDER=${(process.env.LLM_PROVIDER ?? 'azure').trim().toLowerCase()}; ` +
+    `running ${LOOP_LABEL[choice]} instead.`;
+  return { choice, fellBackFrom: wanted, reason };
 }

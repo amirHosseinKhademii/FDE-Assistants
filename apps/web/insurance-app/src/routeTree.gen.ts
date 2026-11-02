@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiAskRouteImport } from './routes/api.ask'
+import { Route as ApiEnginesRouteImport } from './routes/api.engines'
 import { Route as ApiPolicyholdersRouteImport } from './routes/api.policyholders'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const ApiAskRoute = ApiAskRouteImport.update({
   path: '/api/ask',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiEnginesRoute = ApiEnginesRouteImport.update({
+  id: '/api/engines',
+  path: '/api/engines',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPolicyholdersRoute = ApiPolicyholdersRouteImport.update({
   id: '/api/policyholders',
   path: '/api/policyholders',
@@ -32,30 +38,34 @@ const ApiPolicyholdersRoute = ApiPolicyholdersRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/ask': typeof ApiAskRoute
+  '/api/engines': typeof ApiEnginesRoute
   '/api/policyholders': typeof ApiPolicyholdersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/ask': typeof ApiAskRoute
+  '/api/engines': typeof ApiEnginesRoute
   '/api/policyholders': typeof ApiPolicyholdersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api/ask': typeof ApiAskRoute
+  '/api/engines': typeof ApiEnginesRoute
   '/api/policyholders': typeof ApiPolicyholdersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/ask' | '/api/policyholders'
+  fullPaths: '/' | '/api/ask' | '/api/engines' | '/api/policyholders'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/ask' | '/api/policyholders'
-  id: '__root__' | '/' | '/api/ask' | '/api/policyholders'
+  to: '/' | '/api/ask' | '/api/engines' | '/api/policyholders'
+  id: '__root__' | '/' | '/api/ask' | '/api/engines' | '/api/policyholders'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiAskRoute: typeof ApiAskRoute
+  ApiEnginesRoute: typeof ApiEnginesRoute
   ApiPolicyholdersRoute: typeof ApiPolicyholdersRoute
 }
 
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAskRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/engines': {
+      id: '/api/engines'
+      path: '/api/engines'
+      fullPath: '/api/engines'
+      preLoaderRoute: typeof ApiEnginesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/policyholders': {
       id: '/api/policyholders'
       path: '/api/policyholders'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiAskRoute: ApiAskRoute,
+  ApiEnginesRoute: ApiEnginesRoute,
   ApiPolicyholdersRoute: ApiPolicyholdersRoute,
 }
 export const routeTree = rootRouteImport

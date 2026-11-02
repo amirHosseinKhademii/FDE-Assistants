@@ -1,3 +1,4 @@
+import { useLoopEngines } from '@fde/uikit';
 /**
  * What the supplier form remembers.
  *
@@ -34,7 +35,9 @@ export function useSupplierForm() {
   // decision to spend five times as much; inheriting it silently from a session
   // last week is not the same decision.
   const [topology, setTopology] = useState('loop');
-  const [loop, setLoop] = useState(() => load('loop', 'sdk'));
+  // '' means "the server's configured engine" (see use-desk-form).
+  const [loop, setLoop] = useState(() => load('loop', ''));
+  const engines = useLoopEngines(loop, setLoop);
   const [apiKey, setApiKey] = useState(() => load('apiKey', ''));
   const [question, setQuestion] = useState(() =>
     load('supplierQuestion', questionFor(load('supplier', 'SUP-04'))),
@@ -59,7 +62,7 @@ export function useSupplierForm() {
   }
 
   return {
-    supplier, loop, apiKey, question, topology,
+    supplier, loop, engines, apiKey, question, topology,
     setLoop, setApiKey, setTopology,
     pick, editQuestion, remember,
   };

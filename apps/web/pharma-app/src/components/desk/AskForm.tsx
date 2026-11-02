@@ -1,3 +1,4 @@
+import type { LoopEngine } from '@fde/uikit';
 /**
  * The question, the batch, the market, and the engine.
  *
@@ -41,6 +42,7 @@ export interface AskFormProps {
   onMarket: (v: string) => void;
   loop: string;
   onLoop: (v: string) => void;
+  engines: LoopEngine[];
   apiKey: string;
   onApiKey: (v: string) => void;
   showKey: boolean;
@@ -111,8 +113,12 @@ export function AskForm(p: AskFormProps) {
 
         <Field className="field-tight" label="Engine">
           <Select value={p.loop} onChange={p.onLoop} icon={<ChipIcon />}>
-            <option value="sdk">Agents SDK</option>
-            <option value="mastra">Mastra</option>
+            {p.engines.map((e) => (
+              <option key={e.id} value={e.id} disabled={!e.usable}>
+                {e.label}
+                {e.usable ? '' : ' (not on this server)'}
+              </option>
+            ))}
           </Select>
         </Field>
 

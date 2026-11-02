@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DataFlowRouteImport } from './routes/data-flow'
 import { Route as DeskRouteImport } from './routes/desk'
 import { Route as ApiAssessRouteImport } from './routes/api.assess'
+import { Route as ApiEnginesRouteImport } from './routes/api.engines'
 import { Route as ApiExplainRouteImport } from './routes/api.explain'
 import { Route as ApiHistoryRouteImport } from './routes/api.history'
 import { Route as ApiRequirementsRouteImport } from './routes/api.requirements'
@@ -36,6 +37,11 @@ const DeskRoute = DeskRouteImport.update({
 const ApiAssessRoute = ApiAssessRouteImport.update({
   id: '/api/assess',
   path: '/api/assess',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEnginesRoute = ApiEnginesRouteImport.update({
+  id: '/api/engines',
+  path: '/api/engines',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiExplainRoute = ApiExplainRouteImport.update({
@@ -64,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/data-flow': typeof DataFlowRoute
   '/desk': typeof DeskRoute
   '/api/assess': typeof ApiAssessRoute
+  '/api/engines': typeof ApiEnginesRoute
   '/api/explain': typeof ApiExplainRoute
   '/api/history': typeof ApiHistoryRoute
   '/api/requirements': typeof ApiRequirementsRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/data-flow': typeof DataFlowRoute
   '/desk': typeof DeskRoute
   '/api/assess': typeof ApiAssessRoute
+  '/api/engines': typeof ApiEnginesRoute
   '/api/explain': typeof ApiExplainRoute
   '/api/history': typeof ApiHistoryRoute
   '/api/requirements': typeof ApiRequirementsRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/data-flow': typeof DataFlowRoute
   '/desk': typeof DeskRoute
   '/api/assess': typeof ApiAssessRoute
+  '/api/engines': typeof ApiEnginesRoute
   '/api/explain': typeof ApiExplainRoute
   '/api/history': typeof ApiHistoryRoute
   '/api/requirements': typeof ApiRequirementsRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/data-flow'
     | '/desk'
     | '/api/assess'
+    | '/api/engines'
     | '/api/explain'
     | '/api/history'
     | '/api/requirements'
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/data-flow'
     | '/desk'
     | '/api/assess'
+    | '/api/engines'
     | '/api/explain'
     | '/api/history'
     | '/api/requirements'
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/data-flow'
     | '/desk'
     | '/api/assess'
+    | '/api/engines'
     | '/api/explain'
     | '/api/history'
     | '/api/requirements'
@@ -128,6 +140,7 @@ export interface RootRouteChildren {
   DataFlowRoute: typeof DataFlowRoute
   DeskRoute: typeof DeskRoute
   ApiAssessRoute: typeof ApiAssessRoute
+  ApiEnginesRoute: typeof ApiEnginesRoute
   ApiExplainRoute: typeof ApiExplainRoute
   ApiHistoryRoute: typeof ApiHistoryRoute
   ApiRequirementsRoute: typeof ApiRequirementsRoute
@@ -162,6 +175,13 @@ declare module '@tanstack/react-router' {
       path: '/api/assess'
       fullPath: '/api/assess'
       preLoaderRoute: typeof ApiAssessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/engines': {
+      id: '/api/engines'
+      path: '/api/engines'
+      fullPath: '/api/engines'
+      preLoaderRoute: typeof ApiEnginesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/explain': {
@@ -200,6 +220,7 @@ const rootRouteChildren: RootRouteChildren = {
   DataFlowRoute: DataFlowRoute,
   DeskRoute: DeskRoute,
   ApiAssessRoute: ApiAssessRoute,
+  ApiEnginesRoute: ApiEnginesRoute,
   ApiExplainRoute: ApiExplainRoute,
   ApiHistoryRoute: ApiHistoryRoute,
   ApiRequirementsRoute: ApiRequirementsRoute,

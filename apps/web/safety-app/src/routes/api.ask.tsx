@@ -3,7 +3,7 @@
  *
  * ── TWO DOMAIN CALLS AND NO ASSEMBLY ──────────────────────────────────────
  *
- * `resolveEngine` and `askSafety` are the whole of it. This route used to build
+ * `resolveLoop` and `askSafety` are the whole of it. This route used to build
  * the loop itself — registry, prompt, schema, validator — which was six lines
  * of a thing that already existed in the CLI, and six lines is enough to drift.
  *
@@ -31,19 +31,19 @@
  * its own thing. A generic failure would hide the most honest output this system
  * produces.
  *
- * ── AND AN ENGINE THAT CANNOT SERVE IS REFUSED, NOT SUBSTITUTED ───────────
+ * ── AN ENGINE THAT CANNOT SERVE FALLS BACK, IT DOES NOT FAIL ─────────────
  *
- * `resolveEngine` returns an error rather than falling back. Quietly swapping in
- * a working engine would answer with a system the person did not choose, and the
- * answer would look completely fine — which is the worst shape a bug can take on
- * a page whose entire argument is that a plausible answer and a correct one read
- * the same.
+ * `resolveLoop` from `@fde/agent` picks the requested engine if it can run on
+ * the configured provider, else the configured LOOP, else the first that can.
+ * A saved picker value from an earlier visit must not fail the question. The
+ * CLIs still refuse through `resolveEngine`, so a hand-typed `LOOP=sdk` on
+ * hosted fails loudly there. The `started` event names the engine that ran.
  *
  * The picker already disables what cannot work, so the only way to reach this is
  * a hand-made request. That deserves a plain no.
  */
 import { createFileRoute } from '@tanstack/react-router';
-import { resolveEngine } from '@calder/safety/agent/engines';
+import { resolveLoop } from '@fde/agent';
 import { askSafety } from '@calder/safety/agent/run';
 import { clientIdFrom, publicDemoEnabled, sharedDemoLimiter } from '@fde/guard';
 import { recordAsk } from '../server/ask-history';
@@ -122,11 +122,12 @@ export const Route = createFileRoute('/api/ask')({
                 return;
               }
 
-              const picked = resolveEngine(body?.engine);
-              if ('error' in picked) {
-                send('error', { message: picked.error });
-                return;
-              }
+              // Falls back to the configured LOOP rather than refusing: a saved
+              // or stale picker value must not fail the question. `fellBackFrom`
+              // is logged, and the `started` event names the engine that ran.
+              const resolved = resolveLoop(body?.engine);
+              if (resolved.reason) console.warn(`[safety/ask] ${resolved.reason}`);
+              const picked = { engine: resolved.choice };
 
               // BEFORE the loop runs, not after. The whole reason this route
               // streams is that an answer can take eighty-five seconds, and a

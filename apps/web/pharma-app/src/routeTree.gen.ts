@@ -14,6 +14,7 @@ import { Route as DataFlowRouteImport } from './routes/data-flow'
 import { Route as DeskRouteImport } from './routes/desk'
 import { Route as SupplierRouteImport } from './routes/supplier'
 import { Route as ApiAskRouteImport } from './routes/api.ask'
+import { Route as ApiEnginesRouteImport } from './routes/api.engines'
 import { Route as ApiHistoryRouteImport } from './routes/api.history'
 import { Route as ApiLotsRouteImport } from './routes/api.lots'
 import { Route as ApiSupplierRouteImport } from './routes/api.supplier'
@@ -44,6 +45,11 @@ const ApiAskRoute = ApiAskRouteImport.update({
   path: '/api/ask',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiEnginesRoute = ApiEnginesRouteImport.update({
+  id: '/api/engines',
+  path: '/api/engines',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiHistoryRoute = ApiHistoryRouteImport.update({
   id: '/api/history',
   path: '/api/history',
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/desk': typeof DeskRoute
   '/supplier': typeof SupplierRoute
   '/api/ask': typeof ApiAskRoute
+  '/api/engines': typeof ApiEnginesRoute
   '/api/history': typeof ApiHistoryRoute
   '/api/lots': typeof ApiLotsRoute
   '/api/supplier': typeof ApiSupplierRoute
@@ -82,6 +89,7 @@ export interface FileRoutesByTo {
   '/desk': typeof DeskRoute
   '/supplier': typeof SupplierRoute
   '/api/ask': typeof ApiAskRoute
+  '/api/engines': typeof ApiEnginesRoute
   '/api/history': typeof ApiHistoryRoute
   '/api/lots': typeof ApiLotsRoute
   '/api/supplier': typeof ApiSupplierRoute
@@ -94,6 +102,7 @@ export interface FileRoutesById {
   '/desk': typeof DeskRoute
   '/supplier': typeof SupplierRoute
   '/api/ask': typeof ApiAskRoute
+  '/api/engines': typeof ApiEnginesRoute
   '/api/history': typeof ApiHistoryRoute
   '/api/lots': typeof ApiLotsRoute
   '/api/supplier': typeof ApiSupplierRoute
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
     | '/desk'
     | '/supplier'
     | '/api/ask'
+    | '/api/engines'
     | '/api/history'
     | '/api/lots'
     | '/api/supplier'
@@ -118,6 +128,7 @@ export interface FileRouteTypes {
     | '/desk'
     | '/supplier'
     | '/api/ask'
+    | '/api/engines'
     | '/api/history'
     | '/api/lots'
     | '/api/supplier'
@@ -129,6 +140,7 @@ export interface FileRouteTypes {
     | '/desk'
     | '/supplier'
     | '/api/ask'
+    | '/api/engines'
     | '/api/history'
     | '/api/lots'
     | '/api/supplier'
@@ -141,6 +153,7 @@ export interface RootRouteChildren {
   DeskRoute: typeof DeskRoute
   SupplierRoute: typeof SupplierRoute
   ApiAskRoute: typeof ApiAskRoute
+  ApiEnginesRoute: typeof ApiEnginesRoute
   ApiHistoryRoute: typeof ApiHistoryRoute
   ApiLotsRoute: typeof ApiLotsRoute
   ApiSupplierRoute: typeof ApiSupplierRoute
@@ -184,6 +197,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAskRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/engines': {
+      id: '/api/engines'
+      path: '/api/engines'
+      fullPath: '/api/engines'
+      preLoaderRoute: typeof ApiEnginesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/history': {
       id: '/api/history'
       path: '/api/history'
@@ -221,6 +241,7 @@ const rootRouteChildren: RootRouteChildren = {
   DeskRoute: DeskRoute,
   SupplierRoute: SupplierRoute,
   ApiAskRoute: ApiAskRoute,
+  ApiEnginesRoute: ApiEnginesRoute,
   ApiHistoryRoute: ApiHistoryRoute,
   ApiLotsRoute: ApiLotsRoute,
   ApiSupplierRoute: ApiSupplierRoute,

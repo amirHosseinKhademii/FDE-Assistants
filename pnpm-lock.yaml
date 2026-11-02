@@ -590,6 +590,9 @@ importers:
 
   apps/web/commerce-app:
     dependencies:
+      '@fde/agent':
+        specifier: workspace:*
+        version: link:../../../packages/agent
       '@fde/guard':
         specifier: workspace:*
         version: link:../../../packages/guard
@@ -648,6 +651,9 @@ importers:
       '@claims/insurance':
         specifier: workspace:*
         version: link:../../ai/insurance
+      '@fde/agent':
+        specifier: workspace:*
+        version: link:../../../packages/agent
       '@fde/guard':
         specifier: workspace:*
         version: link:../../../packages/guard
@@ -694,6 +700,9 @@ importers:
 
   apps/web/pharma-app:
     dependencies:
+      '@fde/agent':
+        specifier: workspace:*
+        version: link:../../../packages/agent
       '@fde/guard':
         specifier: workspace:*
         version: link:../../../packages/guard
@@ -813,6 +822,9 @@ importers:
 
   apps/web/steering-app:
     dependencies:
+      '@fde/agent':
+        specifier: workspace:*
+        version: link:../../../packages/agent
       '@fde/guard':
         specifier: workspace:*
         version: link:../../../packages/guard

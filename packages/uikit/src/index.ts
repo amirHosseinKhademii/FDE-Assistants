@@ -48,6 +48,7 @@ export { Figures } from './components/Figures';
 export { FieldList } from './components/FieldList';
 export type { FieldKind, FieldRow } from './components/FieldList';
 export { useCountUp } from './lib/use-count-up';
+export { useLoopEngines, LOOP_ENGINES_FALLBACK, type LoopEngine } from './lib/use-loop-engines';
 export { Quote } from './components/Quote';
 export { Chip } from './components/Chip';
 export { Panel } from './components/Panel';
