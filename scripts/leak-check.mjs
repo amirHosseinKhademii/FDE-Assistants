@@ -59,6 +59,10 @@ const BANNED = [
   // Each would have gone red on innocent code the first time anyone ran it.
   // 'rack force' is the two-word form, which is safe.
   'torque', 'autosar', 'hysteresis', 'aspice', 'steering', 'rack force', 'vantis',
+  // housing cooperative (BRF), in Swedish. Each word is a noun or a table prefix
+  // that cannot appear in English engineering code. Checked against the executable
+  // code of every @fde/* package when it was added, and none appeared.
+  'bostadsr', 'stadgar', 'föreningsstämma', 'årsavgift', 'underhåll', 'styrelse', 'exempelg', 'brf_',
 ];
 
 /**
