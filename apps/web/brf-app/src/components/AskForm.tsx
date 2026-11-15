@@ -3,6 +3,7 @@
  */
 import { Field, SubmitButton, SearchIcon, KeyIcon } from '@fde/uikit';
 import { EXAMPLE_QUESTIONS } from '../lib/examples';
+import { SOURCE_LINE } from '../demo-title';
 
 export interface AskFormProps {
   question: string;
@@ -58,8 +59,7 @@ export function AskForm(p: AskFormProps) {
           </Field>
         ) : (
           <p className="text-sm leading-relaxed text-ui-dim">
-            Svaret bygger bara på föreningens dokument. Om dokumenten inte räcker till säger assistenten det
-            och lämnar frågan till styrelsen.
+            {SOURCE_LINE}
           </p>
         )}
         <SubmitButton busy={p.busy} disabled={p.busy || !p.question.trim()} busyLabel="Läser dokumenten…">

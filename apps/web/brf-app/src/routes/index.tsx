@@ -10,6 +10,7 @@ import { WorkingNotes } from '../components/WorkingNotes';
 import { Answer } from '../components/Answer';
 import { EmptyState, Failure } from '../components/states';
 import { load, save } from '../lib/storage';
+import { DEMO_NOTICE } from '../demo-title';
 import { useAsk } from '../lib/use-ask';
 
 export const Route = createFileRoute('/')({ component: BrfPage });
@@ -43,7 +44,7 @@ function BrfPage() {
         <section className="ui-rise pt-10 sm:pt-14">
           <span className="inline-flex items-center gap-2 rounded-full border border-ui-warn/40 bg-ui-warn/10 px-3 py-1 text-xs text-ui-warn">
             <span className="h-1.5 w-1.5 rounded-full bg-ui-warn" aria-hidden />
-            Demo med påhittade dokument. Skicka inga riktiga personuppgifter.
+            {DEMO_NOTICE}
           </span>
           <h1 className="mt-5 font-mono text-3xl font-semibold tracking-tight sm:text-5xl">
             Låt föreningens AI-kollega ta frågorna.

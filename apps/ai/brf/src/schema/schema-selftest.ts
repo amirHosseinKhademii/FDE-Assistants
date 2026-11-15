@@ -12,7 +12,8 @@
  */
 import { z } from 'zod';
 import { verifyValidator, verifyDescriptions, type ValidatorCase } from '@fde/schema';
-import { BrfAnswerSchema, REFUSAL_TEXT, validateBrfAnswer, type BrfAnswer } from './answer-schema';
+import { BrfAnswerSchema, validateBrfAnswer, type BrfAnswer } from './answer-schema';
+import { refusalSentence, refusalText } from '../config/corpus-kind';
 
 const fullAnswer: BrfAnswer = {
   answer:
@@ -79,7 +80,7 @@ const CASES: ValidatorCase[] = [
     name: 'refusal in the agreed sentence, nothing cited',
     expect: 'accept',
     body: {
-      answer: REFUSAL_TEXT,
+      answer: refusalText(),
       citations: [],
       unverified_claims: [],
       conflicts: [],
@@ -171,7 +172,7 @@ const CASES: ValidatorCase[] = [
     expect: 'must be in one list or the other',
     body: {
       ...fullAnswer,
-      answer: 'Det framgår inte av föreningens dokument. Grillning med kol är förbjudet.',
+      answer: `${refusalSentence()} Grillning med kol är förbjudet.`,
       citations: [],
       unverified_claims: [],
       conflicts: [],

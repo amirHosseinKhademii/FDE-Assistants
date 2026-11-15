@@ -14,7 +14,7 @@
  */
 import { createFileRoute } from '@tanstack/react-router';
 import { askBrf } from '@brf/ai';
-import { isRefusal, REFUSAL_TEXT } from '@brf/ai/schema';
+import { isRefusal, refusalText } from '@brf/ai/schema';
 import {
   authorize,
   clientIdFrom,
@@ -127,7 +127,7 @@ export const Route = createFileRoute('/api/ask')({
                   ...result.structured,
                   // Computed by the same rule the validator used, so the page cannot disagree with it.
                   refusal: isRefusal(result.structured),
-                  refusalText: REFUSAL_TEXT,
+                  refusalText: refusalText(),
                   run,
                 });
               else

@@ -29,7 +29,7 @@ import './telemetry/request-log';
 import { openEmbeddings } from './grounding/embeddings.factory';
 import { openBrfStore } from './grounding/store';
 import { searchDocumentsTool } from './tools/search-documents.tool';
-import { BRF_SYSTEM_PROMPT, buildUserPrompt } from './tools/answer-prompt';
+import { buildSystemPrompt, buildUserPrompt } from './tools/answer-prompt';
 import { ANSWER_FORMAT, validateBrfAnswer, type BrfAnswer } from './schema/answer-schema';
 
 /** The engine when neither the flag nor LOOP names one. The Agents SDK engine reaches Azure only. */
@@ -144,7 +144,7 @@ export async function askBrf(opts: AskOptions): Promise<AskResult> {
     registry,
     buildUserPrompt(opts.question),
     {
-      system: BRF_SYSTEM_PROMPT,
+      system: buildSystemPrompt(),
       responseFormat: ANSWER_FORMAT,
       // Required, not optional. The agent package ships no default validator, because a
       // loop that invented an answer shape would be checking against something nobody

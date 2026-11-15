@@ -33,9 +33,20 @@ const DOMAIN_EXTERNALS = [
  */
 const DEMO_TITLE = process.env.BRF_DEMO_TITLE ?? 'Brf Exempelgården, frågor och svar';
 
+/**
+ * "fictional" (the default) or "firm", the same setting the engine reads as BRF_CORPUS_KIND.
+ * It changes the wording on the page. The refusal sentence comes from the engine, so both
+ * must be built with the same value.
+ */
+const CORPUS_KIND = (process.env.BRF_CORPUS_KIND ?? '').trim().toLowerCase() || 'fictional';
+if (CORPUS_KIND !== 'fictional' && CORPUS_KIND !== 'firm') {
+  throw new Error(`BRF_CORPUS_KIND must be "fictional" (the default) or "firm", got "${CORPUS_KIND}".`);
+}
+
 export default defineConfig({
   define: {
     __BRF_DEMO_TITLE__: JSON.stringify(DEMO_TITLE),
+    __BRF_CORPUS_KIND__: JSON.stringify(CORPUS_KIND),
   },
 
   plugins: [

@@ -17,6 +17,15 @@
  */
 import { z } from 'zod';
 import { createAnswerValidator, type ValidationResult } from '@fde/schema';
+import { refusalSentence, refusalText } from '../config/corpus-kind';
+
+export { refusalSentence, refusalText };
+
+/*
+ * A refusal is the defined answer to "the documents do not say". It makes no claim, so
+ * it needs no citation. The sentence depends on BRF_CORPUS_KIND (see config/corpus-kind.ts)
+ * and the UI shows it verbatim, so it is built there and nowhere else.
+ */
 
 const Citation = z.strictObject({
   file: z
@@ -117,14 +126,6 @@ export type { ValidationResult };
 export const ANSWER_FORMAT = BrfAnswerSchema;
 
 /**
- * A refusal is the defined answer to "the documents do not say". It makes no claim,
- * so it needs no citation. The sentence is fixed and the UI shows it verbatim, so it
- * lives here and nowhere else.
- */
-export const REFUSAL_SENTENCE = 'Det framgår inte av föreningens dokument.';
-export const REFUSAL_TEXT = `${REFUSAL_SENTENCE} Kontakta styrelsen eller förvaltaren.`;
-
-/**
  * True only for a refusal: nothing cited, nothing claimed, no conflict, escalated, and
  * the answer either absent or exactly the refusal text. A non-refusal with no citations
  * is still rejected, so this does not loosen the citation rule. It only names the case
@@ -135,7 +136,7 @@ export function isRefusal(v: Pick<BrfAnswer, 'answer' | 'citations' | 'unverifie
   if (v.citations.length > 0 || v.unverified_claims.length > 0 || v.conflicts.length > 0) return false;
   if (v.answer === null) return true;
   const a = v.answer.trim();
-  return a === REFUSAL_SENTENCE || a === REFUSAL_TEXT;
+  return a === refusalSentence() || a === refusalText();
 }
 
 /**
@@ -156,7 +157,7 @@ function coherenceErrors(v: BrfAnswer): string[] {
     errs.push(
       'gave an answer with no citations and no unverified_claims. Every factual claim must be in ' +
         'one list or the other. If the documents say nothing, that is a refusal, not an answer: set ' +
-        `answer to exactly "${REFUSAL_TEXT}", leave citations, unverified_claims and conflicts empty, ` +
+        `answer to exactly "${refusalText()}", leave citations, unverified_claims and conflicts empty, ` +
         'and set escalate.',
     );
   }
